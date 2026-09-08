@@ -40,7 +40,7 @@
     if (!isNewProject) {
       wizardStore.setProjectBasics("", existingRoot);
     }
-    wizardStore.goToStep("connect");
+    wizardStore.goToStep("storage-mode");
   }
 
   const canProceed = $derived(isNewProject || existingRoot.trim().length > 0);

@@ -36,6 +36,27 @@ export interface ExistingConfig {
   found_paths: string[];
 }
 
+export type StorageMode = "LocalOnly" | "LocalAndGitHub" | "GitHubOnly";
+
+export const STORAGE_MODES: { value: StorageMode; label: string; description: string }[] = [
+  {
+    value: "LocalOnly",
+    label: "Nur lokal",
+    description: "Zielordner auf der eigenen Platte, kein GitHub involviert.",
+  },
+  {
+    value: "LocalAndGitHub",
+    label: "Lokal + GitHub",
+    description: "Lokale Arbeitskopie, jede Änderung wird zusätzlich committed und zu einem GitHub-Repo gepusht.",
+  },
+  {
+    value: "GitHubOnly",
+    label: "Nur GitHub",
+    description:
+      "Kein dauerhafter lokaler Ordner. Temporärer Arbeitsordner wird nach jedem Push sofort gelöscht — GitHub bleibt die einzige Quelle.",
+  },
+];
+
 export interface SetupProjectRequest {
   project_name: string;
   project_root: string;
