@@ -63,18 +63,78 @@ Datei selbst wird noch nicht ins Repo übernommen, bis geklärt ist, ob sie als
 generisches Template (tool-agnostisch, nicht mehr an den Namen "MRPNV_AI"
 gebunden) oder 1:1 übernommen werden soll.
 
+## Plattform & Stack (entschieden)
+
+- **App-Basis:** Tauri (Rust-Backend), nicht Swift/SwiftUI, nicht Electron.
+  Grund: kleinere Bundle-Größe und nativ schnellere Performance passen zu
+  einem Setup-Wizard, der nicht dauerhaft im Hintergrund läuft; spätere
+  Portierung auf andere OS bleibt trotzdem leichter als bei einer nativen
+  macOS-App.
+- **Lizenz:** Apache 2.0 (permissiv wie MIT, zusätzlich expliziter
+  Patentschutz für Beiträge von Firmen).
+
+## Plugin-System (entschieden)
+
+Ersetzt die alte Frage "zentrale Config vs. pro-Tool-Datei" — das Plugin-
+System *ist* die zentrale Config-Schicht:
+
+1. **Plugin-Registry.** Zentrale Liste von Plugins (analog zu Claude-Skills
+   wie `i-have-adhd`, `ecc:*`). Jedes Plugin ist tool-agnostisch definiert
+   und wird beim Schreiben in die tool-eigenen Dateien projiziert
+   (`AGENTS.md`, `HANDOFF.md`, `opencode.jsonc`, etc.).
+2. **Profile/Presets.** Nutzer stellt sich im Menü benannte Profile aus
+   Plugins zusammen (z.B. "Standard-Setup" mit `i-have-adhd` immer aktiv).
+   Beim Projekt-Setup wählbar: ganzes Profil oder einzelne Plugins.
+3. **Plugin-Quellen (mehrere, kombiniert):**
+   - Eigene OpenWizardAI-Registry (Community reicht Plugins ein, z.B. über
+     ein GitHub-Repo als Source of Truth)
+   - Import/Spiegelung bestehender Claude Code Skills/Plugins als Startbestand
+   - Perspektivisch auch Plugin-Quellen anderer unterstützter Tools (Codex,
+     opencode, Grok)
+   - Automatisches Auffinden guter Plugins auf GitHub (nach Sternen/Relevanz),
+     durchgeführt von der DeepSeek-API (v4 Flash) als Recherche-Task
+4. **Updates.** Plugins in der Registry werden aktuell gehalten (Update-
+   Mechanismus, Details noch offen — z.B. periodischer Sync vs. manueller
+   "Check for updates"-Button im Wizard).
+5. **KI-Empfehlung.** Nutzer beschreibt im Wizard sein Vorhaben als Freitext-
+   Prompt. Ein Live-LLM-Call (DeepSeek) schlägt daraufhin passende Plugins
+   vor — zusätzlich zu bereits gespeicherten/eigenen Profilen, die immer
+   direkt anwählbar bleiben. Kein rein lokales Tag-Matching als Fallback
+   vorgesehen; DeepSeek ist ohnehin schon für die Setup-Zeit-Nutzung im
+   Konzept vorgesehen (s.o.).
+
+## Human-in-the-Loop-Steuerung (entschieden)
+
+Wie viel der Wizard (und die von ihm konfigurierten KI-Tools) selbstständig
+entscheiden dürfen, ist einstellbar — analog zum Plugin-System personalisierbar
+und speicherbar:
+
+- **Feste Stufen-Skala**, mehrere Abstufungen zwischen "immer nachfragen" und
+  "vollständig autonom" (z.B. angelehnt an die Auto-Mode/Plan-Mode-Abstufungen
+  bestehender Tools: Immer fragen → Nur bei riskanten Aktionen fragen →
+  Selten fragen (nur bei irreversiblen Aktionen) → Autonom). Genaue Anzahl
+  und Bezeichnung der Stufen im Architektur-Schritt festlegen.
+- Wie bei Plugin-Profilen: als benanntes, wiederverwendbares Profil im Menü
+  speicherbar, nicht nur ein einmaliger Wizard-Schritt.
+- Pro Projekt wählbar (überschreibt ggf. das Default-Profil), und die
+  gewählte Stufe wird beim Schreiben der tool-eigenen Dateien mit projiziert
+  (z.B. als Permission-Mode-Einstellung in `opencode.jsonc`, als Hinweis in
+  `AGENTS.md`/`HANDOFF.md` für Tools ohne eigenes Permission-System).
+
 ## Offene Fragen (noch nicht entschieden)
 
-- Wie sieht der Wizard-Flow UI-seitig konkret aus (Schritt-für-Schritt)?
+- Genaue Anzahl und Bezeichnung der HITL-Stufen sowie deren konkrete
+  Auswirkung pro unterstütztem Tool (manche Tools haben eigene
+  Permission-Modi, andere nicht — wie wird dort projiziert?).
 - Wird der Masterprompt-Text als generisches Template parametrisiert
   (Projektname statt "MRPNV_AI") oder pro Nutzer fest übernommen?
-- Wie wird das gewählte Set an KI-Tools technisch verwaltet — eine zentrale
-  Config-Datei, die pro Tool in dessen natives Format projiziert wird, oder
-  pro Tool eine eigene native Datei ohne gemeinsame Zwischenschicht?
+- Plugin-Update-Mechanismus im Detail (automatisch/periodisch vs. manuell
+  angestoßen; wie wird ein GitHub-gefundenes Plugin geprüft/freigegeben,
+  bevor es in der Registry landet — Review-Schritt nötig?).
+- Format/Schema der Plugin-Registry-Einträge (welche Felder braucht ein
+  Plugin-Eintrag, damit die Projektion auf verschiedene Tools funktioniert?).
 - Wie wird der DeepSeek-API-Key verwaltet (Keychain, .env, Wizard-Prompt bei
   erster Nutzung)?
-- Native macOS-App (Swift/SwiftUI, wie OpenPin) oder Electron/Tauri, falls
-  spätere OS-Portierung leichter sein soll?
 - Lizenz für das öffentliche Repo noch nicht gewählt.
 
 ## Nächster Schritt
