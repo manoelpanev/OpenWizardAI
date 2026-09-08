@@ -361,6 +361,36 @@ diese Schritte weiterhin klassisch wie in M1.
   (z.B. als letzter Screen nach dem Setup, tool-spezifisch generiert),
   oder externe Dokumentation (README, Wiki, o.ä.). Entscheidung steht
   noch aus.
+- **Echter Fortschrittsbalken statt endlos pulsierend.** Betrifft die
+  bereits gebauten `indeterminate`-Ladebalken in `StepQuestions.svelte`
+  ("Rückfragen werden erstellt") und `StepFollowupQuestions.svelte`
+  ("Empfehlung wird geladen") — diese zeigen aktuell keinen echten
+  Fortschritt, nur eine pulsierende Animation ohne Prozentzahl. Gewünscht:
+  eine tatsächliche Prozentanzeige, die bei 99% bewusst künstlich
+  verlangsamt wird (UX-Trick, damit der letzte Schritt nicht abrupt
+  wirkt). Da ein einzelner DeepSeek-API-Call kein echtes serverseitiges
+  Fortschritts-Signal liefert, bräuchte das einen simulierten Verlauf
+  (client-seitige Zeitschätzung Richtung 99%, Sprung auf 100% erst bei
+  tatsächlicher Antwort) statt eines echten Prozentwerts vom Server.
+- **Web-Recherche in die Rückfragen-Analyse.** DeepSeek soll beim
+  Generieren/Bewerten der Vertiefungsfragen (`generate_followup_questions`,
+  `check_answer_clarity` in `recommendation.rs`) optional online
+  recherchieren können statt nur den reinen Nutzertext zu analysieren
+  — z.B. über Tavily als Suchanbieter. **Ein-/ausschaltbar und mit
+  eigenem, vom Nutzer editierbarem API-Key** (analog zur DeepSeek-Key-
+  Verwaltung im OS-Keychain) — kein fest verdrahteter Zwang zur
+  Websuche. Verhältnis zur bereits konzipierten Custom-API-Registry
+  oben: vermutlich einer der ersten konkreten Custom-API-Einträge,
+  sobald die Registry existiert, statt einer komplett eigenen
+  Integration.
+- **Lokale Instanz pro Nutzer mit Auto-Update.** Jeder Nutzer soll eine
+  eigene lokale Installation von OpenWizardAI haben (nicht nur den
+  "Nur GitHub, temporär"-Arbeitsmodus, der aktuell nur für die
+  Entwicklung von OpenWizardAI selbst gilt), die sich selbstständig
+  aktualisiert, sobald eine neue Version auf GitHub verfügbar ist.
+  Technischer Ansatz noch offen — vermutlich Tauris eingebauter
+  Updater-Mechanismus (`tauri-plugin-updater`) gegen GitHub Releases,
+  aber noch nicht geprüft/entschieden.
 
 ## MVP-Scope / Meilenstein 1 (entschieden)
 
@@ -427,7 +457,10 @@ Custom-API-Registry (Mesh/Higgsfield etc. als Plugins) und Hermes als
 projektübergreifende Steuerungsebene (WhatsApp-Anbindung, lokale
 Sprachsteuerung nach Hex-Vorbild, autonome Projektdurchführung) — siehe
 jeweils eigene Abschnitte oben, grobe Architektur entschieden, komplett
-unimplementiert.
+unimplementiert. Außerdem neu: echter Fortschrittsbalken mit
+99%-Verlangsamung statt `indeterminate`-Animation, Tavily-Websuche
+ein-/ausschaltbar in die Rückfragen-Analyse, lokale Auto-Update-Instanz
+pro Nutzer.
 
 ## Arbeitsweise/Speicherort-Frage — 3 Modi (entschieden, noch nicht umgesetzt)
 
