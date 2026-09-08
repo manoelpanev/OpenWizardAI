@@ -229,6 +229,17 @@ diese Schritte weiterhin klassisch wie in M1.
   Projekte, mit Einblick in die jeweils aktive Konfiguration (welche Tools,
   Plugins, HITL-Stufe pro Projekt). Eigener Meilenstein, noch nicht
   architektonisch skizziert.
+  - **Pro Projekt: eigener Resume-Prompt.** Jedes Projekt im Dashboard
+    trägt einen kleinen, editierbaren Prompt-Text, der beschreibt, wie
+    eine KI-Session an diesem Projekt genau dort weitermachen soll, wo
+    zuletzt aufgehört wurde — analog zum "Resume-Prompt"-Prinzip, das
+    OpenWizardAI selbst für sich nutzt (siehe oben). Wird vermutlich aus
+    der HANDOFF.md-Historie (nächster Punkt) automatisch abgeleitet/
+    aktuell gehalten, bleibt aber manuell überschreibbar.
+  - **Klick auf ein Projekt öffnet ein Optionsmenü**, mindestens: Öffnen
+    (im gewählten Tool/Editor), Prompt anzeigen/bearbeiten, vermutlich
+    weitere Optionen (Konfiguration ansehen/ändern, Projekt entfernen aus
+    der Übersicht). Genaue Optionsliste noch nicht final.
 - **HANDOFF.md mit Entscheidungs-Historie.** Alle Wizard-Entscheidungen
   (Tool-Wahl, HITL-Stufe, Plugin-Auswahl, Custom-Agent) werden in einer
   `HANDOFF.md` protokolliert; optional zu GitHub hochladbar, private/
@@ -270,6 +281,14 @@ dem Kern-Wizard aufbauend.
 falls das Kontextfenster voll ist) sofort weiß, wo weitergemacht wird —
 ohne die komplette Commit-Historie durchsuchen zu müssen. Wird bei jedem
 größeren Fortschritt aktualisiert.
+
+**Resume-Prompt zum Copy-Pasten in einen neuen Chat:**
+
+> Mach weiter am Projekt OpenWizardAI
+> (https://github.com/manoelpanev/OpenWizardAI, lokal unter
+> `~/Documents/Codex/2026-09-08/OpenWizardAI`). Lies zuerst CONCEPT.md,
+> Abschnitt "Aktueller Stand & Wiedereinstiegspunkt" — dort steht, was
+> fertig ist und was als nächstes ansteht. Mach dort weiter.
 
 **Fertig (siehe ARCHITECTURE.md für Details):**
 - M1 — Kern-Wizard: 4 Tool-Adapter, `fs::writer` mit HITL-Logik,
