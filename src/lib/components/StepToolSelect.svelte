@@ -2,6 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import { open } from "@tauri-apps/plugin-dialog";
   import { onMount } from "svelte";
+  import { get } from "svelte/store";
   import { wizardStore } from "../wizardStore";
   import type { ToolInfo } from "../types";
 
@@ -13,6 +14,13 @@
   let error = $state("");
 
   onMount(async () => {
+    // Vorbefüllung aus einer akzeptierten KI-Empfehlung (siehe
+    // StepRecommendation) — bleibt hier weiterhin frei anpassbar.
+    const prefilled = get(wizardStore).selectedToolIds;
+    if (prefilled.length > 0) {
+      selected = new Set(prefilled);
+    }
+
     try {
       tools = await invoke<ToolInfo[]>("list_supported_tools");
     } catch (e) {
@@ -43,7 +51,7 @@
   function next() {
     wizardStore.setProjectBasics(projectName, projectRoot);
     wizardStore.setSelectedTools(Array.from(selected));
-    wizardStore.goToStep(2);
+    wizardStore.goToStep("hitl");
   }
 
   const canProceed = $derived(projectName.trim().length > 0 && projectRoot.trim().length > 0 && selected.size > 0);

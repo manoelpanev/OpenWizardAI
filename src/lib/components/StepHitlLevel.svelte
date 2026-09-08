@@ -1,17 +1,18 @@
 <script lang="ts">
+  import { get } from "svelte/store";
   import { wizardStore } from "../wizardStore";
   import { HITL_LEVELS } from "../types";
   import type { HitlLevel } from "../types";
 
-  let selected = $state<HitlLevel>("AskOnRisky");
+  let selected = $state<HitlLevel>(get(wizardStore).hitlLevel);
 
   function back() {
-    wizardStore.goToStep(1);
+    wizardStore.goToStep("tools");
   }
 
   function next() {
     wizardStore.setHitlLevel(selected);
-    wizardStore.goToStep(3);
+    wizardStore.goToStep("summary");
   }
 </script>
 

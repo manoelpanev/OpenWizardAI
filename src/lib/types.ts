@@ -52,3 +52,31 @@ export type WriteOutcome =
 export interface SetupProjectResponse {
   outcomes: WriteOutcome[];
 }
+
+// Spiegelt src-tauri/src/deepseek/recommendation.rs
+
+export interface OnboardingAnswers {
+  used_tools: string[];
+  project_description: string;
+  is_prototype: boolean;
+  wants_custom_agent: boolean;
+  custom_agent_description: string | null;
+}
+
+export interface Recommendation<T> {
+  value: T;
+  reasoning: string;
+}
+
+export interface CustomAgentRecommendation {
+  name: string;
+  description: string;
+  reasoning: string;
+}
+
+export interface OnboardingRecommendation {
+  recommended_tool_ids: Recommendation<string[]>;
+  recommended_hitl_level: Recommendation<HitlLevel>;
+  recommended_plugin_tags: Recommendation<string[]>;
+  custom_agent: CustomAgentRecommendation | null;
+}

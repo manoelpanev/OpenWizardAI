@@ -1,11 +1,25 @@
 <script lang="ts">
   import { wizardStore } from "../lib/wizardStore";
+  import StepConnect from "../lib/components/StepConnect.svelte";
+  import StepAgentQuestion from "../lib/components/StepAgentQuestion.svelte";
+  import StepQuestions from "../lib/components/StepQuestions.svelte";
+  import StepRecommendation from "../lib/components/StepRecommendation.svelte";
   import StepToolSelect from "../lib/components/StepToolSelect.svelte";
   import StepHitlLevel from "../lib/components/StepHitlLevel.svelte";
   import StepSummary from "../lib/components/StepSummary.svelte";
   import ThemeToggle from "../lib/components/ThemeToggle.svelte";
 
   const step = $derived($wizardStore.step);
+
+  const STEP_LABELS: Record<string, string> = {
+    connect: "DeepSeek verbinden",
+    "agent-question": "Custom-Agent",
+    questions: "Fragen",
+    recommendation: "Empfehlung",
+    tools: "Projekt & Tools",
+    hitl: "Rückfrage-Verhalten",
+    summary: "Zusammenfassung",
+  };
 </script>
 
 <main class="container">
@@ -14,11 +28,19 @@
     <ThemeToggle />
   </header>
 
-  <p class="step-indicator">Schritt {step} von 3</p>
+  <p class="step-indicator">{STEP_LABELS[step]}</p>
 
-  {#if step === 1}
+  {#if step === "connect"}
+    <StepConnect />
+  {:else if step === "agent-question"}
+    <StepAgentQuestion />
+  {:else if step === "questions"}
+    <StepQuestions />
+  {:else if step === "recommendation"}
+    <StepRecommendation />
+  {:else if step === "tools"}
     <StepToolSelect />
-  {:else if step === 2}
+  {:else if step === "hitl"}
     <StepHitlLevel />
   {:else}
     <StepSummary />

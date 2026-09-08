@@ -12,7 +12,7 @@
   const hitlLabel = $derived(HITL_LEVELS.find((l) => l.value === wizardState.hitlLevel)?.label ?? wizardState.hitlLevel);
 
   function back() {
-    wizardStore.goToStep(2);
+    wizardStore.goToStep("hitl");
   }
 
   async function run() {
