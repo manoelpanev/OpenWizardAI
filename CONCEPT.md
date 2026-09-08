@@ -309,9 +309,11 @@ Projektordner geöffnet reicht dieser eine Satz, kein Pfad/URL nötig):
   Plugin-Themen/Agent) mit Begründung, komplett inline editierbar,
   Fortschrittsbalken, Ordner-öffnen-Button
 
-**Nächster Schritt (angefangen, noch nicht umgesetzt):** Siehe
-"Arbeitsweise/Speicherort-Frage" unten — neue Frage im Onboarding-Flow,
-ob lokal oder über ein GitHub-Repo als Speicherort gearbeitet werden soll.
+**Nächster Schritt (konzeptionell entschieden, noch nicht umgesetzt):**
+Siehe "Arbeitsweise/Speicherort-Frage — 3 Modi" unten — neue Frage im
+Onboarding-Flow: Nur lokal / Lokal+GitHub / Nur GitHub (temporärer,
+nach jedem Push gelöschter Arbeitsordner). GitHub-Verbindung per
+OAuth-Flow, Repo-Erstellung direkt aus dem Wizard.
 
 **Noch offen, unspezifiziert (siehe jeweilige Abschnitte oben):**
 Projekt-Dashboard (inkl. Pro-Projekt-Resume-Prompt), HANDOFF.md-
@@ -320,22 +322,43 @@ Modell-Empfehlung, Multi-Agent-Nutzungstutorial (Ort noch offen),
 Plugin-Registry (M2) noch nicht gebaut — Empfehlung liefert bisher nur
 Freitext-Plugin-Themen statt echter Plugin-IDs.
 
-## Arbeitsweise/Speicherort-Frage (neu, in Arbeit)
+## Arbeitsweise/Speicherort-Frage — 3 Modi (entschieden, noch nicht umgesetzt)
 
 Neue Frage im Onboarding-Flow (Position noch festzulegen, vermutlich nah
 an der Projekt-Status-Frage aus Schritt 0): **wie möchte der Nutzer mit
-dem Projekt arbeiten** — rein lokal (aktueller Stand, Zielordner auf der
-eigenen Platte) oder **GitHub-basiert**, bei dem ein GitHub-Repo als
-Speicherort dient: OpenWizardAI holt sich den Stand von dort, schreibt
-Änderungen dort hinein und committet, ohne dass zwingend ein lokaler
-Projektordner existieren muss.
+dem Projekt arbeiten.** Drei Modi:
+
+1. **Nur lokal** (aktueller Stand aus M1/M3): Zielordner auf der eigenen
+   Platte, kein GitHub involviert.
+2. **Lokal + GitHub**: lokaler Ordner ist die Arbeitskopie wie in Modus 1,
+   zusätzlich wird jede vom Wizard geschriebene Änderung committed und zu
+   einem GitHub-Repo gepusht. Bestehendes Repo verbinden oder über den
+   Wizard neu anlegen (Sichtbarkeit privat/öffentlich wählbar, wie im
+   Konzept unter "GitHub-Integration" bereits vorgesehen).
+3. **Nur GitHub, kein dauerhafter lokaler Ordner**: OpenWizardAI legt
+   einen temporären Arbeitsordner an, klont/aktualisiert von dort, jede
+   Änderung wird committed und sofort gepusht. **Nach jedem erfolgreichen
+   Push wird der Temp-Ordner sofort gelöscht** — GitHub bleibt die
+   einzige dauerhafte Quelle, kein Datenmüll auf der lokalen Platte. Bei
+   der nächsten Aktion wird frisch geklont.
+
+**GitHub-Verbindung: OAuth-Flow.** "Mit GitHub verbinden"-Button öffnet
+den Browser für den GitHub-Login/-Bestätigung, Token kommt automatisch
+zurück (kein manuelles Token-Einfügen wie beim DeepSeek-Key). Setzt eine
+registrierte GitHub-OAuth-App für OpenWizardAI voraus (Client-ID/Secret —
+Verwaltung davon noch zu klären, vermutlich analog zur DeepSeek-Key-
+Verwaltung im OS-Keychain, aber für den zurückgegebenen Token statt einen
+selbst eingefügten Key).
+
+**Repo-Erstellung direkt aus dem Wizard**, wenn kein bestehendes Repo
+verbunden wird — nutzt die bereits im Konzept vorgesehene GitHub-Integration
+(privat/öffentlich wählbar).
 
 **Konkretisierung für opencode/OpenChamber:** Bei diesem Tool soll nicht
 nur "opencode nutzen" ausgewählt werden, sondern zusätzlich, welches
 KI-Modell darunter läuft (z.B. DeepSeek, Claude, Codex) — eine Auswahl-
 liste verschiedener Modelle, die opencode ansteuern kann.
 
-Details (genauer UI-Flow für die GitHub-Variante, wie Auth gegen GitHub
-läuft, wie Konflikte beim Schreiben behandelt werden) noch nicht
-ausgearbeitet — wird vor Implementierung wie gewohnt zur Freigabe
-vorgelegt.
+Details (genauer UI-Flow, Konflikt-Behandlung beim Schreiben in Modus 2/3,
+OAuth-App-Registrierung/Client-Secret-Verwaltung) noch nicht ausgearbeitet
+— wird vor Implementierung wie gewohnt zur Freigabe vorgelegt.
