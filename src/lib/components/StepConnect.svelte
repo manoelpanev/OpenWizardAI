@@ -88,11 +88,16 @@
     {/if}
 
     <div class="actions">
-      <button type="button" onclick={skip}>Überspringen</button>
+      <button type="button" onclick={skip}>Ohne KI fortfahren</button>
       <button type="button" disabled={connecting || !apiKey.trim()} onclick={connect}>
         {connecting ? "Verbinde…" : "Verbinden"}
       </button>
     </div>
+    <p class="hint">
+      Ohne KI: alle Werte werden manuell gewählt, keine Empfehlungen, keine
+      Vertiefungsfragen, kein Custom-Agent (der braucht eine aktive
+      Verbindung).
+    </p>
   {/if}
 </section>
 
@@ -153,6 +158,12 @@
 
   .error {
     color: var(--owai-danger);
+  }
+
+  .hint {
+    color: var(--owai-muted);
+    font-size: 0.85rem;
+    margin: 0;
   }
 
   .actions {

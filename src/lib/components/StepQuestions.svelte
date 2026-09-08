@@ -121,6 +121,12 @@
         {requesting ? "Rückfragen werden erstellt…" : "Weiter"}
       </button>
     </div>
+
+    {#if requesting}
+      <div class="progress-track indeterminate" aria-label="Rückfragen werden erstellt">
+        <div class="progress-fill-indeterminate"></div>
+      </div>
+    {/if}
   {/if}
 </section>
 
@@ -193,5 +199,30 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
+  }
+
+  .progress-track.indeterminate {
+    position: relative;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--owai-border);
+    overflow: hidden;
+  }
+
+  .progress-fill-indeterminate {
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: var(--owai-accent);
+    animation: indeterminate 1.1s ease-in-out infinite;
+  }
+
+  @keyframes indeterminate {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(350%);
+    }
   }
 </style>

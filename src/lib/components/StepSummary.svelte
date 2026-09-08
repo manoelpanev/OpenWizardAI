@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import { openPath } from "@tauri-apps/plugin-opener";
   import { wizardStore } from "../wizardStore";
   import { HITL_LEVELS } from "../types";
   import type { SetupProjectRequest, SetupProjectResponse } from "../types";
@@ -35,6 +36,14 @@
       error = `Setup fehlgeschlagen: ${e}`;
     } finally {
       running = false;
+    }
+  }
+
+  async function openProjectFolder() {
+    try {
+      await openPath(wizardState.projectRoot);
+    } catch (e) {
+      error = `Ordner konnte nicht geöffnet werden: ${e}`;
     }
   }
 </script>
@@ -76,6 +85,9 @@
 
   <div class="actions">
     <button type="button" onclick={back} disabled={running}>Zurück</button>
+    {#if wizardState.outcomes}
+      <button type="button" onclick={openProjectFolder}>Ordner öffnen</button>
+    {/if}
     <button type="button" onclick={run} disabled={running}>
       {running ? "Wird eingerichtet…" : "Projekt einrichten"}
     </button>

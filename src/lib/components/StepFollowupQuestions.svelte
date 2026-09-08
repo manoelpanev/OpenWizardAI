@@ -11,6 +11,11 @@
   let questions = $state<string[]>([]);
   let questionsInitialized = false;
 
+  // Indizes, für die bereits eine Klärungsfrage eingefügt wurde — verhindert,
+  // dass eine Klärungsfrage selbst wieder eine weitere auslöst (max. 1
+  // Klärungs-Nachfrage pro Basisfrage, wie festgelegt).
+  let clarifiedIndices = $state<Set<number>>(new Set());
+
   let currentIndex = $state(0);
   let currentAnswer = $state("");
   let collected = $state<FollowupAnswer[]>([]);
@@ -30,29 +35,35 @@
 
   async function checkClarityAndAdvance(answer: string) {
     const question = questions[currentIndex];
+    const answeredIndex = currentIndex;
     collected = [...collected, { question, answer }];
     currentAnswer = "";
 
-    const state = get(wizardStore);
-    checkingClarity = true;
-    try {
-      const clarity = await invoke<ClarityCheck>("check_answer_clarity", {
-        question,
-        answer,
-        model: state.model,
-      });
-      if (!clarity.is_clear && clarity.clarifying_question.trim().length > 0) {
-        questions = [
-          ...questions.slice(0, currentIndex + 1),
-          clarity.clarifying_question,
-          ...questions.slice(currentIndex + 1),
-        ];
+    const alreadyClarified = clarifiedIndices.has(answeredIndex);
+
+    if (!alreadyClarified) {
+      const state = get(wizardStore);
+      checkingClarity = true;
+      try {
+        const clarity = await invoke<ClarityCheck>("check_answer_clarity", {
+          question,
+          answer,
+          model: state.model,
+        });
+        if (!clarity.is_clear && clarity.clarifying_question.trim().length > 0) {
+          questions = [
+            ...questions.slice(0, answeredIndex + 1),
+            clarity.clarifying_question,
+            ...questions.slice(answeredIndex + 1),
+          ];
+          clarifiedIndices = new Set([...clarifiedIndices, answeredIndex + 1]);
+        }
+      } catch {
+        // Klarheits-Check ist ein Komfort-Feature — schlägt er fehl, geht
+        // der Flow normal weiter statt zu blockieren.
+      } finally {
+        checkingClarity = false;
       }
-    } catch {
-      // Klarheits-Check ist ein Komfort-Feature — schlägt er fehl, geht
-      // der Flow normal weiter statt zu blockieren.
-    } finally {
-      checkingClarity = false;
     }
 
     if (currentIndex + 1 < questions.length) {
@@ -101,6 +112,9 @@
   }
 
   const busy = $derived(requesting || checkingClarity);
+  const progressPercent = $derived(
+    questions.length === 0 ? 0 : Math.round(((currentIndex + 1) / questions.length) * 100)
+  );
 </script>
 
 <section>
@@ -111,6 +125,11 @@
     {/if}
   {:else}
     <h2>Rückfrage {currentIndex + 1} von {questions.length}</h2>
+
+    <div class="progress-track" role="progressbar" aria-valuenow={progressPercent} aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-fill" style="width: {progressPercent}%"></div>
+    </div>
+
     <p class="question">{questions[currentIndex]}</p>
 
     <label>
@@ -135,6 +154,12 @@
           Empfehlung abrufen
         {/if}
       </button>
+    </div>
+  {/if}
+
+  {#if requesting}
+    <div class="progress-track indeterminate" aria-label="Empfehlung wird geladen">
+      <div class="progress-fill-indeterminate"></div>
     </div>
   {/if}
 </section>
@@ -176,5 +201,39 @@
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
+  }
+
+  .progress-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--owai-border);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--owai-accent);
+    transition: width 0.3s ease;
+  }
+
+  .progress-track.indeterminate {
+    position: relative;
+  }
+
+  .progress-fill-indeterminate {
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: var(--owai-accent);
+    animation: indeterminate 1.1s ease-in-out infinite;
+  }
+
+  @keyframes indeterminate {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(350%);
+    }
   }
 </style>

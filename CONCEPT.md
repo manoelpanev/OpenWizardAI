@@ -238,11 +238,14 @@ diese Schritte weiterhin klassisch wie in M1.
   Empfehlungs-Screen soll ein freier Chat-Bereich stehen, in dem der
   Nutzer das vorgeschlagene Konzept hinterfragen kann und DeepSeek
   Gegenvorschläge macht; bei Einigung werden die editierbaren
-  Empfehlungsfelder direkt aktualisiert. Der geführte Chatverlauf bzw. die
-  daraus resultierenden Entscheidungen sollen mit im Projekt gespeichert
-  werden (sichtbar für spätere Entscheidungen), aber nicht "fest
-  verkabelt" wie bei den Custom-Agents — genaues Format wartet noch auf
-  ein konkretes Beispiel vom Nutzer, bevor es spezifiziert wird.
+  Empfehlungsfelder direkt aktualisiert. Soll auch eine eigene Einschätzung
+  einbringen können, welches KI-Tool/Modell für das konkrete Vorhaben am
+  besten passt (eigene Bewertungsbasis der KI, nicht nur Reaktion auf
+  Nutzerfragen). Der geführte Chatverlauf bzw. die daraus resultierenden
+  Entscheidungen sollen mit im Projekt gespeichert werden (sichtbar für
+  spätere Entscheidungen), aber nicht "fest verkabelt" wie bei den
+  Custom-Agents — genaues Format wartet noch auf ein konkretes Beispiel
+  vom Nutzer, bevor es spezifiziert wird.
 
 ## MVP-Scope / Meilenstein 1 (entschieden)
 

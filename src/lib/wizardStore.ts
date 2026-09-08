@@ -96,7 +96,11 @@ function createWizardStore() {
       update((s) => ({
         ...s,
         recommendation,
-        selectedToolIds: recommendation.recommended_tool_ids.value,
+        // Bereits als "genutzt" angegebene Tools sind immer mit
+        // vorausgewählt, unabhängig davon, ob die KI sie explizit
+        // empfohlen hat — der Nutzer hat sie ja aktiv als vorhanden
+        // angegeben.
+        selectedToolIds: Array.from(new Set([...recommendation.recommended_tool_ids.value, ...s.usedTools])),
         hitlLevel: recommendation.recommended_hitl_level.value,
         editablePluginTags: recommendation.recommended_plugin_tags.value,
         editableCustomAgent: recommendation.custom_agent
