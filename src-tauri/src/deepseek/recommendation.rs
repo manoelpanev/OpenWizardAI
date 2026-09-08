@@ -1,3 +1,4 @@
+use super::behavior::STRICT_BEHAVIOR_PREFIX;
 use super::client::{self, DeepSeekModel};
 use crate::adapters::{all_adapters, HitlLevel};
 use serde::{Deserialize, Serialize};
@@ -57,7 +58,7 @@ fn build_system_prompt() -> String {
     let tool_ids: Vec<&str> = all_adapters().iter().map(|a| a.id()).collect();
 
     format!(
-        "Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
+        "{}Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
         Verfügbare Tool-IDs: {}. Verfügbare HITL-Stufen: AlwaysAsk, AskOnRisky, \
         AskRarely, Autonomous. Antworte AUSSCHLIESSLICH mit validem JSON in \
         genau dieser Struktur, ohne Markdown-Codeblock, ohne Erklärtext davor \
@@ -72,6 +73,7 @@ fn build_system_prompt() -> String {
         Objekt {{\"name\": \"...\", \"description\": \"...\", \"reasoning\": \"...\"}} \
         statt null. Jede \"reasoning\" ist ein kurzer, konkreter Satz auf Deutsch, \
         der erklärt, welche Nutzerantwort zu dieser Empfehlung geführt hat.",
+        STRICT_BEHAVIOR_PREFIX,
         tool_ids.join(", ")
     )
 }
@@ -140,16 +142,19 @@ pub async fn get_recommendation(
     parse_json_response(&raw)
 }
 
-fn build_followup_questions_prompt() -> &'static str {
-    "Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
-    Der Nutzer hat sein Vorhaben grob beschrieben. Formuliere 3 bis 6 gezielte, \
-    konkrete Rückfragen, die speziell für DIESES Projekt relevant sind (nicht \
-    generisch) — z.B. bei einer Web-API nach Framework/Auth/Datenbank fragen, \
-    bei einem CLI-Tool nach Zielplattformen, bei einem Frontend nach \
-    Design-System-Vorgaben. Stelle nur Fragen, die für die spätere Tool- und \
-    Plugin-Empfehlung tatsächlich relevant sind. Antworte AUSSCHLIESSLICH mit \
-    validem JSON, ohne Markdown-Codeblock, ohne Text davor oder danach:\n\
-    {\"questions\": [\"Frage 1\", \"Frage 2\", ...]}"
+fn build_followup_questions_prompt() -> String {
+    format!(
+        "{}Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
+        Der Nutzer hat sein Vorhaben grob beschrieben. Formuliere 3 bis 6 gezielte, \
+        konkrete Rückfragen, die speziell für DIESES Projekt relevant sind (nicht \
+        generisch) — z.B. bei einer Web-API nach Framework/Auth/Datenbank fragen, \
+        bei einem CLI-Tool nach Zielplattformen, bei einem Frontend nach \
+        Design-System-Vorgaben. Stelle nur Fragen, die für die spätere Tool- und \
+        Plugin-Empfehlung tatsächlich relevant sind. Antworte AUSSCHLIESSLICH mit \
+        validem JSON, ohne Markdown-Codeblock, ohne Text davor oder danach:\n\
+        {{\"questions\": [\"Frage 1\", \"Frage 2\", ...]}}",
+        STRICT_BEHAVIOR_PREFIX
+    )
 }
 
 /// Generiert projektspezifische Vertiefungsfragen basierend auf den festen
@@ -164,7 +169,7 @@ pub async fn generate_followup_questions(
     let system_prompt = build_followup_questions_prompt();
     let user_prompt = build_user_prompt(answers);
 
-    let raw = client::complete(api_key, model, system_prompt, &user_prompt).await?;
+    let raw = client::complete(api_key, model, &system_prompt, &user_prompt).await?;
 
     #[derive(Deserialize)]
     struct QuestionsResponse {
@@ -185,19 +190,22 @@ pub struct ClarityCheck {
     pub clarifying_question: String,
 }
 
-fn build_clarity_check_prompt() -> &'static str {
-    "Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
-    Du bekommst eine Frage und die Antwort des Nutzers darauf. Beurteile, ob \
-    die Antwort konkret und eindeutig genug ist, um später eine sinnvolle \
-    Tool-/Plugin-Empfehlung daraus abzuleiten. Vage, widersprüchliche oder \
-    ausweichende Antworten gelten als nicht klar genug — aber sei nicht \
-    übervorsichtig: eine kurze, aber eindeutige Antwort gilt als klar. \
-    Antworte AUSSCHLIESSLICH mit validem JSON, ohne Markdown-Codeblock, ohne \
-    Text davor oder danach:\n\
-    {\"is_clear\": true, \"clarifying_question\": \"\"}\n\
-    oder, falls unklar:\n\
-    {\"is_clear\": false, \"clarifying_question\": \"Eine konkrete Rückfrage, \
-    die genau den unklaren Punkt adressiert.\"}"
+fn build_clarity_check_prompt() -> String {
+    format!(
+        "{}Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
+        Du bekommst eine Frage und die Antwort des Nutzers darauf. Beurteile, ob \
+        die Antwort konkret und eindeutig genug ist, um später eine sinnvolle \
+        Tool-/Plugin-Empfehlung daraus abzuleiten. Vage, widersprüchliche oder \
+        ausweichende Antworten gelten als nicht klar genug — aber sei nicht \
+        übervorsichtig: eine kurze, aber eindeutige Antwort gilt als klar. \
+        Antworte AUSSCHLIESSLICH mit validem JSON, ohne Markdown-Codeblock, ohne \
+        Text davor oder danach:\n\
+        {{\"is_clear\": true, \"clarifying_question\": \"\"}}\n\
+        oder, falls unklar:\n\
+        {{\"is_clear\": false, \"clarifying_question\": \"Eine konkrete Rückfrage, \
+        die genau den unklaren Punkt adressiert.\"}}",
+        STRICT_BEHAVIOR_PREFIX
+    )
 }
 
 /// Prüft eine einzelne Frage-Antwort-Paarung auf Klarheit. Wird nach jeder
@@ -214,7 +222,7 @@ pub async fn check_answer_clarity(
     let system_prompt = build_clarity_check_prompt();
     let user_prompt = format!("Frage: {question}\nAntwort: {answer}");
 
-    let raw = client::complete(api_key, model, system_prompt, &user_prompt).await?;
+    let raw = client::complete(api_key, model, &system_prompt, &user_prompt).await?;
     parse_json_response(&raw)
 }
 
