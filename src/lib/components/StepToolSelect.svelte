@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import { open } from "@tauri-apps/plugin-dialog";
   import { onMount } from "svelte";
   import { wizardStore } from "../wizardStore";
   import type { ToolInfo } from "../types";
@@ -20,6 +21,17 @@
       loading = false;
     }
   });
+
+  async function pickFolder() {
+    const selectedPath = await open({
+      directory: true,
+      multiple: false,
+      title: "Zielordner für das Projekt wählen",
+    });
+    if (typeof selectedPath === "string") {
+      projectRoot = selectedPath;
+    }
+  }
 
   function toggle(id: string) {
     const next = new Set(selected);
@@ -45,10 +57,15 @@
     <input type="text" bind:value={projectName} placeholder="mein-projekt" />
   </label>
 
-  <label>
-    Zielordner
-    <input type="text" bind:value={projectRoot} placeholder="/pfad/zum/projekt" />
-  </label>
+  <div class="folder-picker">
+    <span class="folder-picker-label">Zielordner</span>
+    <div class="folder-picker-row">
+      <output class="folder-path" class:placeholder={!projectRoot}>
+        {projectRoot || "Kein Ordner gewählt"}
+      </output>
+      <button type="button" onclick={pickFolder}>Ordner wählen…</button>
+    </div>
+  </div>
 
   {#if loading}
     <p>Lade Tools…</p>
@@ -106,5 +123,35 @@
 
   .error {
     color: var(--owai-danger);
+  }
+
+  .folder-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-weight: 500;
+  }
+
+  .folder-picker-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .folder-path {
+    flex: 1;
+    border: 1px solid var(--owai-border);
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-weight: 400;
+    font-family: monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .folder-path.placeholder {
+    color: var(--owai-muted);
+    font-family: inherit;
   }
 </style>

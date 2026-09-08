@@ -79,8 +79,10 @@ pub trait ToolAdapter {
 
     /// Projiziert die gewählte HITL-Stufe in tool-eigene Dateien (z.B. als
     /// Permission-Mode in `opencode.jsonc`, oder als Hinweistext in
-    /// `AGENTS.md` für Tools ohne eigenes Permission-System).
-    fn project_hitl_level(&self, level: HitlLevel) -> Vec<FileWrite>;
+    /// `AGENTS.md` für Tools ohne eigenes Permission-System). Bekommt die
+    /// volle Config (nicht nur die Stufe), damit die erzeugten Pfade
+    /// relativ zu `config.project_root` gebildet werden können.
+    fn project_hitl_level(&self, config: &WizardConfig) -> Vec<FileWrite>;
 }
 
 /// Liefert alle in Meilenstein 1 unterstützten Adapter in fester Reihenfolge.

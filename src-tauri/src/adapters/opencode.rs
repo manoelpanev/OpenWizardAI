@@ -46,13 +46,13 @@ impl ToolAdapter for OpencodeAdapter {
         }]
     }
 
-    fn project_hitl_level(&self, level: HitlLevel) -> Vec<FileWrite> {
+    fn project_hitl_level(&self, config: &WizardConfig) -> Vec<FileWrite> {
         // opencode hat einen eigenen Permission-Modus in opencode.jsonc —
         // die Stufe wird dort strukturiert eingetragen statt nur als Text.
-        let permission_mode = hitl_to_permission_mode(level);
+        let permission_mode = hitl_to_permission_mode(config.hitl_level);
 
         vec![FileWrite {
-            path: Path::new("opencode.jsonc").to_path_buf(),
+            path: config.project_root.join("opencode.jsonc"),
             content: format!("\"permission\": \"{}\"", permission_mode),
             mode: WriteMode::Merge,
         }]

@@ -40,8 +40,8 @@ impl ToolAdapter for GrokAdapter {
         }]
     }
 
-    fn project_hitl_level(&self, level: HitlLevel) -> Vec<FileWrite> {
-        let note = match level {
+    fn project_hitl_level(&self, config: &WizardConfig) -> Vec<FileWrite> {
+        let note = match config.hitl_level {
             HitlLevel::AlwaysAsk => "Rückfrage-Modus: Immer fragen, bevor eine Aktion ausgeführt wird.",
             HitlLevel::AskOnRisky => "Rückfrage-Modus: Nur bei riskanten Aktionen fragen (Datei löschen, git push, Netzwerk).",
             HitlLevel::AskRarely => "Rückfrage-Modus: Selten fragen, nur bei irreversiblen Aktionen.",
@@ -49,7 +49,7 @@ impl ToolAdapter for GrokAdapter {
         };
 
         vec![FileWrite {
-            path: Path::new("AGENTS.md").to_path_buf(),
+            path: config.project_root.join("AGENTS.md"),
             content: format!("\n## Human-in-the-Loop-Einstellung\n\n{}\n", note),
             mode: WriteMode::Merge,
         }]

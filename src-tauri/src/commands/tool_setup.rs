@@ -41,11 +41,29 @@ pub fn detect_existing_tools(project_root: String) -> Vec<(String, ExistingConfi
 
 /// Kern-Command des Wizards: erzeugt für jedes gewählte Tool die nötigen
 /// Dateien und die HITL-Projektion, und schreibt sie über `fs::writer`.
+///
+/// `project_root` muss ein nicht-leerer, absoluter Pfad sein — der Wizard
+/// läuft im Dev-Modus mit `src-tauri/` als aktuellem Arbeitsverzeichnis,
+/// ein relativer Pfad würde also unbemerkt dorthin schreiben statt in den
+/// vom Nutzer gemeinten Ordner. Das Frontend erzwingt die Auswahl über den
+/// nativen Ordner-Dialog, diese Prüfung ist die serverseitige Absicherung.
 #[tauri::command]
-pub fn setup_project(request: SetupProjectRequest) -> SetupProjectResponse {
+pub fn setup_project(request: SetupProjectRequest) -> Result<SetupProjectResponse, String> {
+    let root = PathBuf::from(&request.project_root);
+
+    if request.project_root.trim().is_empty() {
+        return Err("Zielordner darf nicht leer sein.".to_string());
+    }
+    if !root.is_absolute() {
+        return Err(format!(
+            "Zielordner muss ein absoluter Pfad sein, erhalten: \"{}\"",
+            request.project_root
+        ));
+    }
+
     let config = WizardConfig {
         project_name: request.project_name,
-        project_root: PathBuf::from(request.project_root),
+        project_root: root,
         hitl_level: request.hitl_level,
     };
 
@@ -57,10 +75,10 @@ pub fn setup_project(request: SetupProjectRequest) -> SetupProjectResponse {
         }
 
         all_writes.extend(adapter.generate_files(&config));
-        all_writes.extend(adapter.project_hitl_level(config.hitl_level));
+        all_writes.extend(adapter.project_hitl_level(&config));
     }
 
     let outcomes = writer::apply(all_writes, config.hitl_level, &request.already_confirmed);
 
-    SetupProjectResponse { outcomes }
+    Ok(SetupProjectResponse { outcomes })
 }

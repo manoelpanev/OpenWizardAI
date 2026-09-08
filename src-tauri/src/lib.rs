@@ -6,6 +6,7 @@ mod fs;
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::project::list_supported_tools,
             commands::tool_setup::detect_existing_tools,
