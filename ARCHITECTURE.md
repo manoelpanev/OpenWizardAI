@@ -155,7 +155,7 @@ Adapter-Registry (`adapters/mod.rs`) eintragen. Kein Eingriff in UI oder
 |---|---|---|
 | **M1 — Kern-Wizard** | Ordnerstruktur oben, 4 Tool-Adapter (Codex, Grok, Claude Code, opencode) mit `generate_files` + `detect_existing`, `fs::writer` mit HITL-Stufen-Logik, UI-Flow (Tool-Auswahl → Handoff-Modus-Auswahl → Zusammenfassung), Theme-Umschalter | keine |
 | **M2 — Plugin-System** | Plugin-Registry (lokal, noch ohne Remote-Sync), Profile im Menü, Projektion in Adapter integriert | M1 |
-| **M3 — DeepSeek-Integration** | Key-Verwaltung (Keychain), Docking-Kontext-Zusammenfassung, Plugin-Empfehlung per Freitext-Prompt, GitHub-Plugin-Discovery mit Freigabe-Schritt | M2 |
+| **M3 — DeepSeek-Integration** | Key-Verwaltung (Keychain, optional/überspringbar), geführter Onboarding-Flow (feste Frage-Sequenz statt freiem Prompt, siehe CONCEPT.md), Custom-Agent-Einrichtung per Freitext, Docking-Kontext-Zusammenfassung, kombinierte KI-Empfehlung (Tools+Plugins+HITL+Agents) mit Begründung pro Auswahl auf einem Ergebnis-Screen, GitHub-Plugin-Discovery mit Freigabe-Schritt | M2 |
 | **M4 — GitHub-Repo-Anlage** | Opt-in-Schritt im Wizard, privat/öffentlich wählbar | M1 |
 | **M5 — Live-Handoff** | Tray-App/Hintergrundprozess, gemeinsame Kontext-Datei, DeepSeek Context-Mode | M3 |
 

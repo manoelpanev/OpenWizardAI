@@ -103,12 +103,13 @@ System *ist* die zentrale Config-Schicht:
    Vorschlagsliste. Ein Freigabe-Schritt (Nutzer bzw. später Community-
    Maintainer) ist nötig, bevor ein Plugin aktiv nutzbar wird — kein
    automatisches Ausführen ungeprüften Codes/Prompts.
-5. **KI-Empfehlung.** Nutzer beschreibt im Wizard sein Vorhaben als Freitext-
-   Prompt. Ein Live-LLM-Call (DeepSeek) schlägt daraufhin passende Plugins
-   vor — zusätzlich zu bereits gespeicherten/eigenen Profilen, die immer
-   direkt anwählbar bleiben. Kein rein lokales Tag-Matching als Fallback
-   vorgesehen; DeepSeek ist ohnehin schon für die Setup-Zeit-Nutzung im
-   Konzept vorgesehen (s.o.).
+5. **KI-Empfehlung.** Nutzer beantwortet im Wizard eine feste, strukturierte
+   Frage-Sequenz (siehe "Geführter Wizard-Onboarding-Flow" unten) statt
+   eines freien Prompt-Felds. Ein Live-LLM-Call (DeepSeek) schlägt daraufhin
+   passende Plugins vor — zusätzlich zu bereits gespeicherten/eigenen
+   Profilen, die immer direkt anwählbar bleiben. Kein rein lokales
+   Tag-Matching als Fallback vorgesehen; DeepSeek ist ohnehin schon für die
+   Setup-Zeit-Nutzung im Konzept vorgesehen (s.o.).
 6. **Registry-Schema (Ausgangsbasis, pro Plugin-Eintrag):**
    - `id`, `name`, `description`
    - `tags[]` (für Matching/Empfehlung)
@@ -173,6 +174,35 @@ Kanal. Passt zum Dateisystem-Ebene-Grundsatz aus dem Konzept. Für diesen
 Kontext-Fluss wird DeepSeeks Context-Mode aktiviert (Flash als Default,
 s.o.). Details (genaues Datei-/Update-Format, Trigger für "Tool-Wechsel
 erkannt") folgen im Architektur-Schritt.
+
+## Geführter Wizard-Onboarding-Flow (entschieden, gehört zu M3)
+
+Ergänzt/präzisiert Punkt 5 im Plugin-System-Abschnitt oben. Statt eines
+einzelnen Freitext-Prompt-Felds führt der Wizard durch eine feste Frage-
+Sequenz — nach Hick's Law weiterhin eine Entscheidung pro Screen:
+
+1. **DeepSeek-API-Key verbinden.** Optional, nicht zwingend — der Wizard
+   funktioniert auch ohne (dann läuft der Kern-Wizard-Flow aus M1 ohne
+   KI-Vorschläge, komplett manuelle Auswahl). Verbindung wird empfohlen,
+   aber überspringbar.
+2. **Falls verbunden: Custom-Agents einrichten?** Eigene Frage direkt beim
+   Verbinden. Falls ja: Nutzer beschreibt in Freitext, was für ein Agent
+   gewünscht ist; DeepSeek richtet diesen Agenten für die gewählten Tools
+   ein (siehe Plugin-Registry-Schema — ein Agent ist strukturell wie ein
+   Plugin behandelt, nur mit `source: custom-generated` statt `own` etc.).
+3. Welche KI-Coding-Tools werden bereits genutzt/sind vorhanden?
+4. Was ist das Vorhaben? (kurzer Freitext)
+5. Prototyp oder Produktions-Code? (fließt in den HITL-Vorschlag ein —
+   Prototyp tendenziell autonomer, Produktions-Code tendenziell mehr
+   Rückfragen)
+
+**Ergebnis-Screen:** Ein zusammenfassender Screen zeigt die KI-Empfehlung
+für alle Bereiche auf einmal — Tool-Auswahl, Plugins, HITL-Stufe, Agents —
+jede Empfehlung mit kurzer Begründung, warum DeepSeek genau diese Wahl
+getroffen hat (welche Antwort aus der Frage-Sequenz dazu geführt hat).
+Jede einzelne Empfehlung bleibt danach manuell überschreibbar, bevor der
+Wizard-Flow aus M1 (Tool-Auswahl → HITL-Stufe → Zusammenfassung) mit den
+vorausgefüllten statt leeren Werten weiterläuft.
 
 ## MVP-Scope / Meilenstein 1 (entschieden)
 
