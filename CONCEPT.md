@@ -188,6 +188,86 @@ Kontext-Fluss wird DeepSeeks Context-Mode aktiviert (Flash als Default,
 s.o.). Details (genaues Datei-/Update-Format, Trigger für "Tool-Wechsel
 erkannt") folgen im Architektur-Schritt.
 
+## Custom-API-Registry (entschieden, noch nicht umgesetzt)
+
+Ergänzt das Plugin-System oben: Nutzer sollen beliebige eigene API-Zugänge
+hinzufügen können (z.B. Mesh, Higgsfield), die DeepSeek dann nutzen kann —
+nicht nur die im Konzept bereits fest vorgesehene DeepSeek-API selbst.
+
+- **Strukturell wie ein Plugin behandelt**, kein separates System: ein
+  Custom-API-Eintrag nutzt das bestehende Plugin-Registry-Schema
+  (`id`, `name`, `description`, `tags[]`, `targetTools[]`, `version`, …)
+  mit `source: custom-api` statt `own`/`claude-import`/`github-discovered`.
+  Zusätzliche API-spezifische Felder: Endpoint-URL, Auth-Methode (z.B.
+  Bearer-Token), der Key selbst (gespeichert wie der DeepSeek-Key im
+  OS-Keychain, s.o. — nie im Klartext).
+- **Freigabe-Workflow identisch zum Plugin-System:** eine neu hinzugefügte
+  Custom-API ist sofort nutzbar, sobald der Nutzer sie selbst einträgt
+  (er ist ja die einzige Quelle, kein Community-Discovery-Fall wie bei
+  GitHub-gefundenen Plugins) — kein zusätzlicher Freigabeschritt nötig,
+  weil der Eintragende bereits der Freigebende ist.
+- **Schutz vor schlechten/kaputten APIs: nur technische Checks, keine
+  Inhalts-/Content-Moderation.** Vor Aktivierung eines Eintrags: Ping/
+  Erreichbarkeitstest, Response-Format-Validierung (JSON gültig?),
+  Timeout-Handling, Rate-Limit-Erkennung anhand von Standard-Headern
+  (z.B. `Retry-After`) — bei Fehlschlag wird der Eintrag als "nicht
+  erreichbar" markiert statt aktiviert, der Nutzer sieht das im UI und
+  kann die Angaben korrigieren.
+
+## Hermes — projektübergreifende Steuerungsebene (entschieden, grobe Architektur, noch nicht umgesetzt)
+
+Geht über den Live-Session-Übergabe-Tray-Prozess oben hinaus: Hermes ist
+ein **eigener, übergeordneter Hintergrundprozess über allen mit
+OpenWizardAI verwalteten Projekten** — nicht derselbe Prozess erweitert,
+sondern eine zweite Ebene darüber. Der bestehende Pro-Projekt-Tray-Prozess
+bleibt für die Live-Session-Übergabe innerhalb eines einzelnen Projekts
+zuständig; Hermes sieht und koordiniert projektübergreifend.
+
+- **Kennt alle Projekte/Vorhaben** des Nutzers, die über OpenWizardAI
+  angelegt/angedockt wurden, inklusive deren aktuellem Stand (analog zum
+  im Konzept bereits als offen markierten Projekt-Dashboard — Hermes ist
+  die Prozess-Ebene dahinter, das Dashboard vermutlich eine seiner
+  Oberflächen).
+- **Nutzt alle registrierten Plugins/APIs.** Da Custom-APIs strukturell
+  Plugins sind (siehe oben), hat Hermes über dieselbe Plugin-Schnittstelle
+  Zugriff auf alles, was der Nutzer registriert hat — keine gesonderte
+  Hermes-eigene Integrationsschicht pro API.
+- **Kann selbstständig Projekte starten und durchführen.** Nutzer
+  beschreibt ein Vorhaben ("ich will X"), Hermes übernimmt die Umsetzung
+  eigenständig, meldet dabei laufend Fortschritt und eine Zeitschätzung
+  ("das dauert so und so lange"), und fragt nur am Ende bzw. bei
+  wirklich entscheidenden Punkten nach — nicht bei jedem Zwischenschritt.
+  Passt zur bestehenden HITL-Stufen-Idee, aber projektübergreifend statt
+  nur pro einzelnem Tool-Adapter.
+- **WhatsApp als Steuerungs-Kanal.** Hermes ist auch per WhatsApp
+  ansprechbar; ein Agent antwortet dort (DeepSeek Flash als Default-Modell
+  für diese Konversationen, konsistent mit der bestehenden Modellwahl).
+  **Jede Aktion mit echten Auswirkungen (Datei schreiben, Repo anlegen,
+  Push, u.ä.) braucht vor Ausführung eine explizite Bestätigung** durch
+  den Nutzer im Chat — WhatsApp ist ein Steuerungs-Kanal, kein Freifahrt-
+  schein für autonome Aktionen.
+- **Lokale Sprachsteuerung.** Referenz-Vorbild ist die Open-Source-App
+  [Hex](https://github.com/kitlangton/Hex) (`com.kitlangton.hex2`): hält
+  man eine Taste gedrückt, wird Sprache lokal per Spracherkennungsmodell
+  transkribiert und eingefügt, kein Cloud-STT. Für Hermes übernommen:
+  dieselbe Grundmechanik, aber mit wählbarem lokalem Modell (z.B.
+  Parakeet statt Whisper, je nach Verfügbarkeit/Sprache) — nutzbar sowohl
+  für Diktat-Steuerung von Hermes selbst als auch als eigenständiges
+  Transcript-Tool (Video/Audio zu Text, Text-zu-Skript-Umwandlung
+  beliebiger Dateien). Ein-/ausschaltbar, nicht permanent aktiv.
+- **Beispiel-Nutzungsfluss** (illustriert das Zusammenspiel, kein fertiger
+  UI-Entwurf): Nutzer sagt/schreibt Hermes "baue mir ein Transcript-Tool
+  für Video-Calls". Hermes legt darauf ein neues Projekt an (nutzt den
+  Kern-Wizard-Flow aus M1 intern, ohne dass der Nutzer den Wizard manuell
+  durchklickt), wählt passende Tools/Plugins, meldet eine Zeitschätzung,
+  baut das Projekt, und fragt am Ende nur noch nach Freigabe/Feinschliff.
+
+Details (Hermes-Prozessarchitektur im Detail, WhatsApp-Anbindung/
+Business-API-Registrierung, welches lokale Spracherkennungsmodell konkret
+gebündelt wird, Verhältnis Hermes-Prozess zu Pro-Projekt-Tray-Prozess auf
+Code-Ebene) noch nicht ausgearbeitet — wird vor Implementierung wie
+gewohnt zur Freigabe vorgelegt.
+
 ## Geführter Wizard-Onboarding-Flow (entschieden, gehört zu M3 — implementiert)
 
 Ergänzt/präzisiert Punkt 5 im Plugin-System-Abschnitt oben. Statt eines
@@ -321,19 +401,33 @@ Projektordner geöffnet reicht dieser eine Satz, kein Pfad/URL nötig):
   mit Klärungs-Nachfrage-Logik, kombinierte KI-Empfehlung (Tools/HITL/
   Plugin-Themen/Agent) mit Begründung, komplett inline editierbar,
   Fortschrittsbalken, Ordner-öffnen-Button
+- Onboarding-Flow um "Arbeitsweise"-Schritt (3 Modi: Nur lokal/Lokal+
+  GitHub/Nur GitHub) im UI ergänzt — reine Auswahl, GitHub-OAuth/Repo-
+  Anlage/Push-Logik dahinter noch nicht umgesetzt (siehe Abschnitt unten)
+- Dev-Signing gefixt (`signingIdentity: "-"` in `tauri.conf.json`) gegen
+  wiederholte Keychain-Nachfragen bei jedem `cargo tauri dev`-Neustart;
+  striktes Verhaltensprotokoll (`deepseek/behavior.rs`,
+  `STRICT_BEHAVIOR_PREFIX`) allen DeepSeek-Systemprompts vorangestellt —
+  Grounding an echten Nutzerantworten, Ignorieren von Prompt-Injection-
+  Versuchen in Nutzerantworten, striktes JSON-Format
 
 **Nächster Schritt (konzeptionell entschieden, noch nicht umgesetzt):**
-Siehe "Arbeitsweise/Speicherort-Frage — 3 Modi" unten — neue Frage im
-Onboarding-Flow: Nur lokal / Lokal+GitHub / Nur GitHub (temporärer,
-nach jedem Push gelöschter Arbeitsordner). GitHub-Verbindung per
-OAuth-Flow, Repo-Erstellung direkt aus dem Wizard.
+Siehe "Arbeitsweise/Speicherort-Frage — 3 Modi" unten — GitHub-Verbindung
+per OAuth-Flow (Client-ID/Secret einer registrierten GitHub-OAuth-App
+noch offen), Repo-Erstellung direkt aus dem Wizard, tatsächliches
+Commit+Push-Verhalten für Modus 2/3.
 
 **Noch offen, unspezifiziert (siehe jeweilige Abschnitte oben):**
 Projekt-Dashboard (inkl. Pro-Projekt-Resume-Prompt), HANDOFF.md-
 Entscheidungshistorie, Diskussions-Chat mit der KI (Pro-only) inkl. Tool/
 Modell-Empfehlung, Multi-Agent-Nutzungstutorial (Ort noch offen),
 Plugin-Registry (M2) noch nicht gebaut — Empfehlung liefert bisher nur
-Freitext-Plugin-Themen statt echter Plugin-IDs.
+Freitext-Plugin-Themen statt echter Plugin-IDs. Neu hinzugekommen:
+Custom-API-Registry (Mesh/Higgsfield etc. als Plugins) und Hermes als
+projektübergreifende Steuerungsebene (WhatsApp-Anbindung, lokale
+Sprachsteuerung nach Hex-Vorbild, autonome Projektdurchführung) — siehe
+jeweils eigene Abschnitte oben, grobe Architektur entschieden, komplett
+unimplementiert.
 
 ## Arbeitsweise/Speicherort-Frage — 3 Modi (entschieden, noch nicht umgesetzt)
 
