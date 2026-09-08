@@ -1,8 +1,21 @@
 # OpenWizardAI — Konzept
 
-Status: **Konzeptphase, kein Code.** Dieses Dokument fasst die bisher mit dem
-Nutzer geklärten Entscheidungen zusammen und markiert offene Fragen explizit
-als offen — es wird nichts geraten, was noch nicht festgelegt wurde.
+Status: **Konzeptphase für den Wizard selbst, aber M1/M3 bereits als Code
+umgesetzt** (siehe "Aktueller Stand & Wiedereinstiegspunkt" unten und
+ARCHITECTURE.md). Dieses Dokument fasst die bisher mit dem Nutzer
+geklärten Entscheidungen zusammen und markiert offene Fragen explizit als
+offen — es wird nichts geraten, was noch nicht festgelegt wurde.
+
+**Arbeitsweise an diesem Repo (Meta, betrifft die Entwicklung von
+OpenWizardAI selbst — nicht zu verwechseln mit dem im Konzept
+beschriebenen Feature "Arbeitsweise/Speicherort-Frage" für Wizard-Nutzer
+weiter unten):** Dieses Repo wird bewusst im "Nur GitHub, temporär"-Modus
+bearbeitet (Modus 3 aus dem Speicherort-Konzept, hier auf uns selbst
+angewendet) — kein dauerhafter lokaler Checkout. Jede Session klont
+frisch von GitHub in einen temporären Ordner, arbeitet, committed, pusht,
+der temporäre Ordner wird danach nicht als dauerhafte Quelle behandelt.
+GitHub (`main`-Branch) ist die einzige verbindliche Quelle des
+Projektstands.
 
 ## Ursprung
 
