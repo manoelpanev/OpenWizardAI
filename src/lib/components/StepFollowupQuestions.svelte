@@ -3,25 +3,57 @@
   import { onMount } from "svelte";
   import { get } from "svelte/store";
   import { wizardStore } from "../wizardStore";
-  import type { FollowupAnswer, OnboardingAnswers, OnboardingRecommendation } from "../types";
+  import type { ClarityCheck, FollowupAnswer, OnboardingAnswers, OnboardingRecommendation } from "../types";
 
-  const questions = $derived($wizardStore.followupQuestions);
+  // Lokale, erweiterbare Kopie der generierten Fragen — Klärungs-
+  // Nachfragen werden hier direkt nach der aktuellen Frage eingefügt,
+  // ohne den Store selbst zu verändern.
+  let questions = $state<string[]>([]);
+  let questionsInitialized = false;
 
   let currentIndex = $state(0);
   let currentAnswer = $state("");
   let collected = $state<FollowupAnswer[]>([]);
   let requesting = $state(false);
+  let checkingClarity = $state(false);
   let error = $state("");
 
   onMount(() => {
+    if (!questionsInitialized) {
+      questions = [...get(wizardStore).followupQuestions];
+      questionsInitialized = true;
+    }
     if (questions.length === 0) {
       void getRecommendation();
     }
   });
 
-  function next() {
-    collected = [...collected, { question: questions[currentIndex], answer: currentAnswer.trim() }];
+  async function checkClarityAndAdvance(answer: string) {
+    const question = questions[currentIndex];
+    collected = [...collected, { question, answer }];
     currentAnswer = "";
+
+    const state = get(wizardStore);
+    checkingClarity = true;
+    try {
+      const clarity = await invoke<ClarityCheck>("check_answer_clarity", {
+        question,
+        answer,
+        model: state.model,
+      });
+      if (!clarity.is_clear && clarity.clarifying_question.trim().length > 0) {
+        questions = [
+          ...questions.slice(0, currentIndex + 1),
+          clarity.clarifying_question,
+          ...questions.slice(currentIndex + 1),
+        ];
+      }
+    } catch {
+      // Klarheits-Check ist ein Komfort-Feature — schlägt er fehl, geht
+      // der Flow normal weiter statt zu blockieren.
+    } finally {
+      checkingClarity = false;
+    }
 
     if (currentIndex + 1 < questions.length) {
       currentIndex += 1;
@@ -30,15 +62,12 @@
     }
   }
 
-  function skipQuestion() {
-    collected = [...collected, { question: questions[currentIndex], answer: "(übersprungen)" }];
-    currentAnswer = "";
+  function next() {
+    void checkClarityAndAdvance(currentAnswer.trim());
+  }
 
-    if (currentIndex + 1 < questions.length) {
-      currentIndex += 1;
-    } else {
-      void getRecommendation();
-    }
+  function skipQuestion() {
+    void checkClarityAndAdvance("(übersprungen)");
   }
 
   async function getRecommendation() {
@@ -49,6 +78,7 @@
     wizardStore.setFollowupAnswers(collected);
 
     const answers: OnboardingAnswers = {
+      is_new_project: state.isNewProject,
       used_tools: state.usedTools,
       project_description: state.projectDescription,
       is_prototype: state.isPrototype,
@@ -69,6 +99,8 @@
       requesting = false;
     }
   }
+
+  const busy = $derived(requesting || checkingClarity);
 </script>
 
 <section>
@@ -91,9 +123,17 @@
     {/if}
 
     <div class="actions">
-      <button type="button" onclick={skipQuestion} disabled={requesting}>Überspringen</button>
-      <button type="button" onclick={next} disabled={requesting || currentAnswer.trim().length === 0}>
-        {requesting ? "Empfehlung wird geholt…" : currentIndex + 1 < questions.length ? "Weiter" : "Empfehlung abrufen"}
+      <button type="button" onclick={skipQuestion} disabled={busy}>Überspringen</button>
+      <button type="button" onclick={next} disabled={busy || currentAnswer.trim().length === 0}>
+        {#if checkingClarity}
+          Prüfe Antwort…
+        {:else if requesting}
+          Empfehlung wird geholt…
+        {:else if currentIndex + 1 < questions.length}
+          Weiter
+        {:else}
+          Empfehlung abrufen
+        {/if}
       </button>
     </div>
   {/if}

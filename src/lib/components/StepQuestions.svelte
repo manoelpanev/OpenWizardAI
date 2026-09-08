@@ -37,6 +37,7 @@
 
     const state = get(wizardStore);
     const answers: OnboardingAnswers = {
+      is_new_project: state.isNewProject,
       used_tools: Array.from(usedTools),
       project_description: projectDescription,
       is_prototype: isPrototype,

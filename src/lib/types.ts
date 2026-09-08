@@ -68,12 +68,18 @@ export interface FollowupAnswer {
 }
 
 export interface OnboardingAnswers {
+  is_new_project: boolean;
   used_tools: string[];
   project_description: string;
   is_prototype: boolean;
   wants_custom_agent: boolean;
   custom_agent_description: string | null;
   followup_answers: FollowupAnswer[];
+}
+
+export interface ClarityCheck {
+  is_clear: boolean;
+  clarifying_question: string;
 }
 
 export interface Recommendation<T> {

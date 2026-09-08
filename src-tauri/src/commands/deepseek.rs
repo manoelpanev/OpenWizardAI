@@ -1,7 +1,7 @@
 use crate::deepseek::{
     client::{self, DeepSeekModel},
     key_store,
-    recommendation::{self, OnboardingAnswers, OnboardingRecommendation},
+    recommendation::{self, ClarityCheck, OnboardingAnswers, OnboardingRecommendation},
 };
 
 /// Speichert den API-Key im OS-Keychain, nachdem er mit einem minimalen
@@ -42,6 +42,22 @@ pub async fn generate_followup_questions(
         .ok_or_else(|| "Kein DeepSeek-API-Key verbunden.".to_string())?;
 
     recommendation::generate_followup_questions(&api_key, model, &answers).await
+}
+
+/// Prüft eine einzelne Frage-Antwort-Paarung auf Klarheit. Wird vom
+/// Frontend nach jeder beantworteten Vertiefungsfrage aufgerufen — bei
+/// Unklarheit liefert die Antwort eine gezielte Nachfrage, die vor dem
+/// Fortschreiten zur nächsten Frage gestellt wird.
+#[tauri::command]
+pub async fn check_answer_clarity(
+    question: String,
+    answer: String,
+    model: DeepSeekModel,
+) -> Result<ClarityCheck, String> {
+    let api_key = key_store::load_key()?
+        .ok_or_else(|| "Kein DeepSeek-API-Key verbunden.".to_string())?;
+
+    recommendation::check_answer_clarity(&api_key, model, &question, &answer).await
 }
 
 /// Kern-Command des geführten Onboarding-Flows (CONCEPT.md, "Geführter

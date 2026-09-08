@@ -1,5 +1,6 @@
 <script lang="ts">
   import { wizardStore } from "../lib/wizardStore";
+  import StepProjectStatus from "../lib/components/StepProjectStatus.svelte";
   import StepConnect from "../lib/components/StepConnect.svelte";
   import StepAgentQuestion from "../lib/components/StepAgentQuestion.svelte";
   import StepQuestions from "../lib/components/StepQuestions.svelte";
@@ -13,6 +14,7 @@
   const step = $derived($wizardStore.step);
 
   const STEP_LABELS: Record<string, string> = {
+    "project-status": "Projekt-Status",
     connect: "DeepSeek verbinden",
     "agent-question": "Custom-Agent",
     questions: "Basis-Fragen",
@@ -32,7 +34,9 @@
 
   <p class="step-indicator">{STEP_LABELS[step]}</p>
 
-  {#if step === "connect"}
+  {#if step === "project-status"}
+    <StepProjectStatus />
+  {:else if step === "connect"}
     <StepConnect />
   {:else if step === "agent-question"}
     <StepAgentQuestion />

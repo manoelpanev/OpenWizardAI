@@ -11,6 +11,9 @@ use serde::{Deserialize, Serialize};
 /// Paar, damit die Empfehlung später den vollen Kontext hat.
 #[derive(Debug, Deserialize)]
 pub struct OnboardingAnswers {
+    /// Ob dies ein neues Projekt ist oder ein bestehendes optimiert/
+    /// angedockt wird — allererste Frage im Flow (CONCEPT.md, "Docking").
+    pub is_new_project: bool,
     pub used_tools: Vec<String>,
     pub project_description: String,
     pub is_prototype: bool,
@@ -98,10 +101,16 @@ fn build_user_prompt(answers: &OnboardingAnswers) -> String {
     };
 
     format!(
-        "Bereits genutzte/vorhandene Tools: {}\n\
+        "Projektstatus: {}\n\
+        Bereits genutzte/vorhandene Tools: {}\n\
         Vorhaben: {}\n\
         Projekttyp: {}\n\
         {}{}",
+        if answers.is_new_project {
+            "Neues Projekt"
+        } else {
+            "Bestehendes Projekt, soll optimiert/angedockt werden"
+        },
         if answers.used_tools.is_empty() {
             "keine Angabe".to_string()
         } else {
@@ -164,6 +173,49 @@ pub async fn generate_followup_questions(
 
     let parsed: QuestionsResponse = parse_json_response(&raw)?;
     Ok(parsed.questions)
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ClarityCheck {
+    /// Ob die Antwort ausreichend klar/konkret war.
+    pub is_clear: bool,
+    /// Falls nicht klar: eine einzelne, gezielte Nachfrage, die genau den
+    /// unklaren Punkt adressiert. Leer, wenn `is_clear` true ist.
+    #[serde(default)]
+    pub clarifying_question: String,
+}
+
+fn build_clarity_check_prompt() -> &'static str {
+    "Du bist Teil von OpenWizardAI, einem Setup-Wizard für KI-Coding-Projekte. \
+    Du bekommst eine Frage und die Antwort des Nutzers darauf. Beurteile, ob \
+    die Antwort konkret und eindeutig genug ist, um später eine sinnvolle \
+    Tool-/Plugin-Empfehlung daraus abzuleiten. Vage, widersprüchliche oder \
+    ausweichende Antworten gelten als nicht klar genug — aber sei nicht \
+    übervorsichtig: eine kurze, aber eindeutige Antwort gilt als klar. \
+    Antworte AUSSCHLIESSLICH mit validem JSON, ohne Markdown-Codeblock, ohne \
+    Text davor oder danach:\n\
+    {\"is_clear\": true, \"clarifying_question\": \"\"}\n\
+    oder, falls unklar:\n\
+    {\"is_clear\": false, \"clarifying_question\": \"Eine konkrete Rückfrage, \
+    die genau den unklaren Punkt adressiert.\"}"
+}
+
+/// Prüft eine einzelne Frage-Antwort-Paarung auf Klarheit. Wird nach jeder
+/// beantworteten Vertiefungsfrage aufgerufen (siehe
+/// `generate_followup_questions`) — bei Unklarheit liefert dies direkt die
+/// nächste, gezielte Nachfrage, statt dass der Nutzer ungeprüft
+/// weiterklickt.
+pub async fn check_answer_clarity(
+    api_key: &str,
+    model: DeepSeekModel,
+    question: &str,
+    answer: &str,
+) -> Result<ClarityCheck, String> {
+    let system_prompt = build_clarity_check_prompt();
+    let user_prompt = format!("Frage: {question}\nAntwort: {answer}");
+
+    let raw = client::complete(api_key, model, system_prompt, &user_prompt).await?;
+    parse_json_response(&raw)
 }
 
 fn parse_json_response<T: serde::de::DeserializeOwned>(raw: &str) -> Result<T, String> {

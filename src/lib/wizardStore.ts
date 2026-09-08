@@ -2,6 +2,7 @@ import { writable } from "svelte/store";
 import type { DeepSeekModel, FollowupAnswer, HitlLevel, OnboardingRecommendation, WriteOutcome } from "./types";
 
 export type WizardStep =
+  | "project-status"
   | "connect"
   | "agent-question"
   | "questions"
@@ -18,6 +19,7 @@ export interface EditableCustomAgent {
 
 export interface WizardState {
   step: WizardStep;
+  isNewProject: boolean;
   deepSeekConnected: boolean;
   model: DeepSeekModel;
   wantsCustomAgent: boolean;
@@ -42,7 +44,8 @@ export interface WizardState {
 
 function initialState(): WizardState {
   return {
-    step: "connect",
+    step: "project-status",
+    isNewProject: true,
     deepSeekConnected: false,
     model: "Flash",
     wantsCustomAgent: false,
@@ -68,6 +71,9 @@ function createWizardStore() {
 
   return {
     subscribe,
+    setIsNewProject(isNew: boolean) {
+      update((s) => ({ ...s, isNewProject: isNew }));
+    },
     setDeepSeekConnected(connected: boolean) {
       update((s) => ({ ...s, deepSeekConnected: connected }));
     },

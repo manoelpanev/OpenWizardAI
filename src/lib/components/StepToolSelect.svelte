@@ -13,8 +13,8 @@
   const usedAiRecommendation = get(wizardStore).recommendation !== null;
 
   let tools = $state<ToolInfo[]>([]);
-  let projectName = $state("");
-  let projectRoot = $state("");
+  let projectName = $state(get(wizardStore).projectName);
+  let projectRoot = $state(get(wizardStore).projectRoot);
   let selected = $state<Set<string>>(new Set());
   let loading = $state(!usedAiRecommendation);
   let error = $state("");

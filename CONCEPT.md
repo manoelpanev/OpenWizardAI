@@ -182,6 +182,12 @@ einzelnen Freitext-Prompt-Felds führt der Wizard durch feste Basis-Fragen,
 gefolgt von dynamisch generierten, projektspezifischen Vertiefungsfragen —
 nach Hick's Law weiterhin eine Entscheidung pro Screen:
 
+0. **Projekt-Status (allererste Frage, vor allem anderen).** Neues Projekt
+   oder bestehendes optimieren/andocken? Bei "bestehend" wird direkt der
+   Projektordner gewählt und optional auf bereits vorhandene Tool-
+   Konfigurationen gescannt (nutzt die in M1 gebaute
+   `detect_existing_tools`-Erkennung, die bis hierhin nur im Backend
+   existierte, aber an keiner UI hing).
 1. **DeepSeek-API-Key verbinden.** Optional, nicht zwingend — der Wizard
    funktioniert auch ohne (dann läuft der Kern-Wizard-Flow aus M1 ohne
    KI-Vorschläge, komplett manuelle Auswahl). Verbindung wird empfohlen,
@@ -199,7 +205,11 @@ nach Hick's Law weiterhin eine Entscheidung pro Screen:
 4. **Dynamisch generierte Vertiefungsfragen.** DeepSeek liest die
    Basis-Antworten und generiert 3-6 gezielte, projektspezifische
    Rückfragen (z.B. bei einer Web-API: Framework, Auth, Datenbank) statt
-   generischer Fragen — jede einzeln beantwortbar, überspringbar.
+   generischer Fragen — jede einzeln beantwortbar, überspringbar. **Nach
+   jeder Antwort** bewertet DeepSeek eigenständig, ob sie klar/konkret
+   genug ist; bei Unklarheit wird direkt eine gezielte Klärungs-Nachfrage
+   erzeugt und vor der nächsten Basis-Frage eingeschoben, statt ungeprüft
+   weiterzugehen.
 
 **Ergebnis-Screen (inline editierbar, kein Zurückgehen nötig):** Ein
 Screen zeigt die KI-Empfehlung für alle Bereiche auf einmal — Tools,
@@ -224,6 +234,15 @@ diese Schritte weiterhin klassisch wie in M1.
   `HANDOFF.md` protokolliert; optional zu GitHub hochladbar, private/
   sensible Daten (z.B. API-Keys, lokale Pfade) werden dabei ausgeschlossen.
   Verhältnis zum bereits konzipierten Masterprompt-Format noch zu klären.
+- **Diskussions-Chat mit der KI (nur Pro-Modell).** Direkt im
+  Empfehlungs-Screen soll ein freier Chat-Bereich stehen, in dem der
+  Nutzer das vorgeschlagene Konzept hinterfragen kann und DeepSeek
+  Gegenvorschläge macht; bei Einigung werden die editierbaren
+  Empfehlungsfelder direkt aktualisiert. Der geführte Chatverlauf bzw. die
+  daraus resultierenden Entscheidungen sollen mit im Projekt gespeichert
+  werden (sichtbar für spätere Entscheidungen), aber nicht "fest
+  verkabelt" wie bei den Custom-Agents — genaues Format wartet noch auf
+  ein konkretes Beispiel vom Nutzer, bevor es spezifiziert wird.
 
 ## MVP-Scope / Meilenstein 1 (entschieden)
 

@@ -16,6 +16,7 @@ pub fn run() {
             commands::deepseek::deepseek_connection_status,
             commands::deepseek::disconnect_deepseek,
             commands::deepseek::generate_followup_questions,
+            commands::deepseek::check_answer_clarity,
             commands::deepseek::get_onboarding_recommendation,
         ])
         .run(tauri::generate_context!())
