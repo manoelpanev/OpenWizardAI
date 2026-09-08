@@ -53,7 +53,19 @@ export interface SetupProjectResponse {
   outcomes: WriteOutcome[];
 }
 
-// Spiegelt src-tauri/src/deepseek/recommendation.rs
+// Spiegelt src-tauri/src/deepseek/client.rs und recommendation.rs
+
+export type DeepSeekModel = "Flash" | "Pro";
+
+export const DEEPSEEK_MODELS: { value: DeepSeekModel; label: string; description: string }[] = [
+  { value: "Flash", label: "Flash", description: "Schneller Standard-Modus (Default)." },
+  { value: "Pro", label: "Pro", description: "Mehr Tiefe, langsamer — für komplexere Vorhaben." },
+];
+
+export interface FollowupAnswer {
+  question: string;
+  answer: string;
+}
 
 export interface OnboardingAnswers {
   used_tools: string[];
@@ -61,6 +73,7 @@ export interface OnboardingAnswers {
   is_prototype: boolean;
   wants_custom_agent: boolean;
   custom_agent_description: string | null;
+  followup_answers: FollowupAnswer[];
 }
 
 export interface Recommendation<T> {

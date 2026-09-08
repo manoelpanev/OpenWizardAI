@@ -3,6 +3,7 @@
   import StepConnect from "../lib/components/StepConnect.svelte";
   import StepAgentQuestion from "../lib/components/StepAgentQuestion.svelte";
   import StepQuestions from "../lib/components/StepQuestions.svelte";
+  import StepFollowupQuestions from "../lib/components/StepFollowupQuestions.svelte";
   import StepRecommendation from "../lib/components/StepRecommendation.svelte";
   import StepToolSelect from "../lib/components/StepToolSelect.svelte";
   import StepHitlLevel from "../lib/components/StepHitlLevel.svelte";
@@ -14,9 +15,10 @@
   const STEP_LABELS: Record<string, string> = {
     connect: "DeepSeek verbinden",
     "agent-question": "Custom-Agent",
-    questions: "Fragen",
+    questions: "Basis-Fragen",
+    "followup-questions": "Gezielte Rückfragen",
     recommendation: "Empfehlung",
-    tools: "Projekt & Tools",
+    tools: "Projekt",
     hitl: "Rückfrage-Verhalten",
     summary: "Zusammenfassung",
   };
@@ -36,6 +38,8 @@
     <StepAgentQuestion />
   {:else if step === "questions"}
     <StepQuestions />
+  {:else if step === "followup-questions"}
+    <StepFollowupQuestions />
   {:else if step === "recommendation"}
     <StepRecommendation />
   {:else if step === "tools"}

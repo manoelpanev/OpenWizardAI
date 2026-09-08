@@ -1,4 +1,8 @@
-use crate::deepseek::{client, key_store, recommendation::{self, OnboardingAnswers, OnboardingRecommendation}};
+use crate::deepseek::{
+    client::{self, DeepSeekModel},
+    key_store,
+    recommendation::{self, OnboardingAnswers, OnboardingRecommendation},
+};
 
 /// Speichert den API-Key im OS-Keychain, nachdem er mit einem minimalen
 /// Testaufruf verifiziert wurde. Schlägt fehl (kein Speichern), wenn der
@@ -26,18 +30,33 @@ pub fn disconnect_deepseek() -> Result<(), String> {
     key_store::delete_key()
 }
 
+/// Generiert projektspezifische Vertiefungsfragen basierend auf den festen
+/// Basis-Antworten — zweiter Schritt im Onboarding-Flow, vor der
+/// eigentlichen Empfehlung.
+#[tauri::command]
+pub async fn generate_followup_questions(
+    answers: OnboardingAnswers,
+    model: DeepSeekModel,
+) -> Result<Vec<String>, String> {
+    let api_key = key_store::load_key()?
+        .ok_or_else(|| "Kein DeepSeek-API-Key verbunden.".to_string())?;
+
+    recommendation::generate_followup_questions(&api_key, model, &answers).await
+}
+
 /// Kern-Command des geführten Onboarding-Flows (CONCEPT.md, "Geführter
 /// Wizard-Onboarding-Flow"): nimmt die Antworten aus der festen
-/// Frage-Sequenz entgegen und liefert die kombinierte KI-Empfehlung
-/// zurück. Schlägt fehl, wenn kein Key verbunden ist — das Frontend zeigt
-/// diesen Schritt ohnehin nur an, wenn zuvor `connect_deepseek` erfolgreich
-/// war.
+/// Frage-Sequenz plus die Antworten auf die dynamischen Vertiefungsfragen
+/// entgegen und liefert die kombinierte KI-Empfehlung zurück. Schlägt
+/// fehl, wenn kein Key verbunden ist — das Frontend zeigt diesen Schritt
+/// ohnehin nur an, wenn zuvor `connect_deepseek` erfolgreich war.
 #[tauri::command]
 pub async fn get_onboarding_recommendation(
     answers: OnboardingAnswers,
+    model: DeepSeekModel,
 ) -> Result<OnboardingRecommendation, String> {
     let api_key = key_store::load_key()?
         .ok_or_else(|| "Kein DeepSeek-API-Key verbunden.".to_string())?;
 
-    recommendation::get_recommendation(&api_key, &answers).await
+    recommendation::get_recommendation(&api_key, model, &answers).await
 }

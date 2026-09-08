@@ -2,7 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
   import { wizardStore } from "../wizardStore";
-  import type { OnboardingAnswers, OnboardingRecommendation, ToolInfo } from "../types";
+  import type { OnboardingAnswers, ToolInfo } from "../types";
   import { get } from "svelte/store";
 
   type SubStep = "used-tools" | "vorhaben" | "prototype";
@@ -35,22 +35,27 @@
     requesting = true;
     error = "";
 
+    const state = get(wizardStore);
     const answers: OnboardingAnswers = {
       used_tools: Array.from(usedTools),
       project_description: projectDescription,
       is_prototype: isPrototype,
-      wants_custom_agent: get(wizardStore).wantsCustomAgent,
-      custom_agent_description: get(wizardStore).customAgentDescription || null,
+      wants_custom_agent: state.wantsCustomAgent,
+      custom_agent_description: state.customAgentDescription || null,
+      followup_answers: [],
     };
 
     wizardStore.setOnboardingAnswers(answers.used_tools, answers.project_description, answers.is_prototype);
 
     try {
-      const recommendation = await invoke<OnboardingRecommendation>("get_onboarding_recommendation", { answers });
-      wizardStore.setRecommendation(recommendation);
-      wizardStore.goToStep("recommendation");
+      const questions = await invoke<string[]>("generate_followup_questions", {
+        answers,
+        model: state.model,
+      });
+      wizardStore.setFollowupQuestions(questions);
+      wizardStore.goToStep("followup-questions");
     } catch (e) {
-      error = `Empfehlung konnte nicht abgerufen werden: ${e}`;
+      error = `Rückfragen konnten nicht generiert werden: ${e}`;
     } finally {
       requesting = false;
     }
@@ -112,7 +117,7 @@
     <div class="actions">
       <button type="button" onclick={() => (subStep = "vorhaben")} disabled={requesting}>Zurück</button>
       <button type="button" onclick={finish} disabled={requesting}>
-        {requesting ? "Empfehlung wird geholt…" : "Empfehlung abrufen"}
+        {requesting ? "Rückfragen werden erstellt…" : "Weiter"}
       </button>
     </div>
   {/if}

@@ -6,16 +6,22 @@
   import { wizardStore } from "../wizardStore";
   import type { ToolInfo } from "../types";
 
+  // Wenn eine KI-Empfehlung vorliegt (KI-Pfad durchlaufen und
+  // StepRecommendation abgeschlossen), sind Tools und HITL-Stufe dort
+  // bereits final gewählt — dieser Screen fragt dann nur noch
+  // Projektname/Zielordner ab und überspringt Tool-Auswahl/HITL-Schritt.
+  const usedAiRecommendation = get(wizardStore).recommendation !== null;
+
   let tools = $state<ToolInfo[]>([]);
   let projectName = $state("");
   let projectRoot = $state("");
   let selected = $state<Set<string>>(new Set());
-  let loading = $state(true);
+  let loading = $state(!usedAiRecommendation);
   let error = $state("");
 
   onMount(async () => {
-    // Vorbefüllung aus einer akzeptierten KI-Empfehlung (siehe
-    // StepRecommendation) — bleibt hier weiterhin frei anpassbar.
+    if (usedAiRecommendation) return;
+
     const prefilled = get(wizardStore).selectedToolIds;
     if (prefilled.length > 0) {
       selected = new Set(prefilled);
@@ -50,15 +56,21 @@
 
   function next() {
     wizardStore.setProjectBasics(projectName, projectRoot);
-    wizardStore.setSelectedTools(Array.from(selected));
-    wizardStore.goToStep("hitl");
+    if (usedAiRecommendation) {
+      wizardStore.goToStep("summary");
+    } else {
+      wizardStore.setSelectedTools(Array.from(selected));
+      wizardStore.goToStep("hitl");
+    }
   }
 
-  const canProceed = $derived(projectName.trim().length > 0 && projectRoot.trim().length > 0 && selected.size > 0);
+  const canProceed = $derived(
+    projectName.trim().length > 0 && projectRoot.trim().length > 0 && (usedAiRecommendation || selected.size > 0)
+  );
 </script>
 
 <section>
-  <h2>1. Projekt & Tools</h2>
+  <h2>Projekt</h2>
 
   <label>
     Projektname
@@ -75,24 +87,26 @@
     </div>
   </div>
 
-  {#if loading}
-    <p>Lade Tools…</p>
-  {:else if error}
-    <p class="error">{error}</p>
-  {:else}
-    <fieldset>
-      <legend>Welche KI-Tools sollen für dieses Projekt genutzt werden?</legend>
-      {#each tools as tool (tool.id)}
-        <label class="tool-option">
-          <input
-            type="checkbox"
-            checked={selected.has(tool.id)}
-            onchange={() => toggle(tool.id)}
-          />
-          {tool.display_name}
-        </label>
-      {/each}
-    </fieldset>
+  {#if !usedAiRecommendation}
+    {#if loading}
+      <p>Lade Tools…</p>
+    {:else if error}
+      <p class="error">{error}</p>
+    {:else}
+      <fieldset>
+        <legend>Welche KI-Tools sollen für dieses Projekt genutzt werden?</legend>
+        {#each tools as tool (tool.id)}
+          <label class="tool-option">
+            <input
+              type="checkbox"
+              checked={selected.has(tool.id)}
+              onchange={() => toggle(tool.id)}
+            />
+            {tool.display_name}
+          </label>
+        {/each}
+      </fieldset>
+    {/if}
   {/if}
 
   <button type="button" disabled={!canProceed} onclick={next}>Weiter</button>

@@ -175,34 +175,55 @@ Kontext-Fluss wird DeepSeeks Context-Mode aktiviert (Flash als Default,
 s.o.). Details (genaues Datei-/Update-Format, Trigger für "Tool-Wechsel
 erkannt") folgen im Architektur-Schritt.
 
-## Geführter Wizard-Onboarding-Flow (entschieden, gehört zu M3)
+## Geführter Wizard-Onboarding-Flow (entschieden, gehört zu M3 — implementiert)
 
 Ergänzt/präzisiert Punkt 5 im Plugin-System-Abschnitt oben. Statt eines
-einzelnen Freitext-Prompt-Felds führt der Wizard durch eine feste Frage-
-Sequenz — nach Hick's Law weiterhin eine Entscheidung pro Screen:
+einzelnen Freitext-Prompt-Felds führt der Wizard durch feste Basis-Fragen,
+gefolgt von dynamisch generierten, projektspezifischen Vertiefungsfragen —
+nach Hick's Law weiterhin eine Entscheidung pro Screen:
 
 1. **DeepSeek-API-Key verbinden.** Optional, nicht zwingend — der Wizard
    funktioniert auch ohne (dann läuft der Kern-Wizard-Flow aus M1 ohne
    KI-Vorschläge, komplett manuelle Auswahl). Verbindung wird empfohlen,
-   aber überspringbar.
+   aber überspringbar. **Modellwahl (Flash/Pro) direkt hier**, gilt für
+   alle folgenden API-Calls dieses Durchlaufs.
 2. **Falls verbunden: Custom-Agents einrichten?** Eigene Frage direkt beim
    Verbinden. Falls ja: Nutzer beschreibt in Freitext, was für ein Agent
    gewünscht ist; DeepSeek richtet diesen Agenten für die gewählten Tools
    ein (siehe Plugin-Registry-Schema — ein Agent ist strukturell wie ein
    Plugin behandelt, nur mit `source: custom-generated` statt `own` etc.).
-3. Welche KI-Coding-Tools werden bereits genutzt/sind vorhanden?
-4. Was ist das Vorhaben? (kurzer Freitext)
-5. Prototyp oder Produktions-Code? (fließt in den HITL-Vorschlag ein —
-   Prototyp tendenziell autonomer, Produktions-Code tendenziell mehr
-   Rückfragen)
+3. **Feste Basis-Fragen** (Kontext-Vorlauf für die KI): Welche KI-Coding-
+   Tools werden bereits genutzt/sind vorhanden? → Was ist das Vorhaben?
+   (kurzer Freitext) → Prototyp oder Produktions-Code? (fließt in den
+   HITL-Vorschlag ein).
+4. **Dynamisch generierte Vertiefungsfragen.** DeepSeek liest die
+   Basis-Antworten und generiert 3-6 gezielte, projektspezifische
+   Rückfragen (z.B. bei einer Web-API: Framework, Auth, Datenbank) statt
+   generischer Fragen — jede einzeln beantwortbar, überspringbar.
 
-**Ergebnis-Screen:** Ein zusammenfassender Screen zeigt die KI-Empfehlung
-für alle Bereiche auf einmal — Tool-Auswahl, Plugins, HITL-Stufe, Agents —
-jede Empfehlung mit kurzer Begründung, warum DeepSeek genau diese Wahl
-getroffen hat (welche Antwort aus der Frage-Sequenz dazu geführt hat).
-Jede einzelne Empfehlung bleibt danach manuell überschreibbar, bevor der
-Wizard-Flow aus M1 (Tool-Auswahl → HITL-Stufe → Zusammenfassung) mit den
-vorausgefüllten statt leeren Werten weiterläuft.
+**Ergebnis-Screen (inline editierbar, kein Zurückgehen nötig):** Ein
+Screen zeigt die KI-Empfehlung für alle Bereiche auf einmal — Tools,
+HITL-Stufe, Plugin-Themen, Custom-Agent — jede mit kurzer Begründung,
+warum DeepSeek genau diese Wahl getroffen hat. **Jeder Wert ist direkt in
+diesem Screen editierbar** (Tools als Checkboxen, HITL als Radio-Gruppe,
+Plugin-Themen als Textfeld, Agent als Name+Beschreibung), nicht nur
+nachträglich über separate Schritte. Wurde die KI-Empfehlung genutzt,
+werden die alten M1-Schritte "Tool-Auswahl" und "HITL-Stufe" komplett
+übersprungen — der Flow geht direkt zu Projektname/Zielordner und dann
+zur Zusammenfassung. Ohne KI-Nutzung (übersprungen oder kein Key) laufen
+diese Schritte weiterhin klassisch wie in M1.
+
+## Noch offen (Ideen aus Nutzer-Feedback, noch nicht spezifiziert)
+
+- **Projekt-Dashboard.** Übersicht über alle mit OpenWizardAI eingerichteten
+  Projekte, mit Einblick in die jeweils aktive Konfiguration (welche Tools,
+  Plugins, HITL-Stufe pro Projekt). Eigener Meilenstein, noch nicht
+  architektonisch skizziert.
+- **HANDOFF.md mit Entscheidungs-Historie.** Alle Wizard-Entscheidungen
+  (Tool-Wahl, HITL-Stufe, Plugin-Auswahl, Custom-Agent) werden in einer
+  `HANDOFF.md` protokolliert; optional zu GitHub hochladbar, private/
+  sensible Daten (z.B. API-Keys, lokale Pfade) werden dabei ausgeschlossen.
+  Verhältnis zum bereits konzipierten Masterprompt-Format noch zu klären.
 
 ## MVP-Scope / Meilenstein 1 (entschieden)
 
