@@ -264,9 +264,49 @@ dem Kern-Wizard aufbauend.
 - **Theme-Umschaltung:** Dark/Light-Mode bzw. Farbthemen sind im UI direkt
   umschaltbar, nicht nur Systemeinstellung-abhängig.
 
-## Nächster Schritt
+## Aktueller Stand & Wiedereinstiegspunkt
 
-Alle bisher offenen konzeptionellen Fragen sind geklärt. Nächster Schritt:
-Architektur-Skizze (Ordnerstruktur, Datenfluss, Tool-Adapter-Design,
-detaillierter Meilenstein-Plan für den Kern-Wizard) — wird separat erstellt
-und vor Code-Implementierung zur Freigabe vorgelegt.
+**Zweck dieses Abschnitts:** Damit eine neue Session (oder ein neuer Chat,
+falls das Kontextfenster voll ist) sofort weiß, wo weitergemacht wird —
+ohne die komplette Commit-Historie durchsuchen zu müssen. Wird bei jedem
+größeren Fortschritt aktualisiert.
+
+**Fertig (siehe ARCHITECTURE.md für Details):**
+- M1 — Kern-Wizard: 4 Tool-Adapter, `fs::writer` mit HITL-Logik,
+  Tauri-Commands, Svelte-UI mit Theme-Umschalter
+- M3 (Teil 1-4) — DeepSeek-Onboarding-Flow: Projekt-Status-Frage (neu/
+  bestehend), API-Key-Verbindung (optional, verschlüsselt im Keychain),
+  Custom-Agent-Frage, Basis-Fragen, dynamisch generierte Vertiefungsfragen
+  mit Klärungs-Nachfrage-Logik, kombinierte KI-Empfehlung (Tools/HITL/
+  Plugin-Themen/Agent) mit Begründung, komplett inline editierbar,
+  Fortschrittsbalken, Ordner-öffnen-Button
+
+**Nächster Schritt (angefangen, noch nicht umgesetzt):** Siehe
+"Arbeitsweise/Speicherort-Frage" unten — neue Frage im Onboarding-Flow,
+ob lokal oder über ein GitHub-Repo als Speicherort gearbeitet werden soll.
+
+**Noch offen, unspezifiziert (siehe jeweilige Abschnitte oben):**
+Projekt-Dashboard, HANDOFF.md-Entscheidungshistorie, Diskussions-Chat mit
+der KI (Pro-only) inkl. Tool/Modell-Empfehlung, Plugin-Registry (M2) noch
+nicht gebaut — Empfehlung liefert bisher nur Freitext-Plugin-Themen statt
+echter Plugin-IDs.
+
+## Arbeitsweise/Speicherort-Frage (neu, in Arbeit)
+
+Neue Frage im Onboarding-Flow (Position noch festzulegen, vermutlich nah
+an der Projekt-Status-Frage aus Schritt 0): **wie möchte der Nutzer mit
+dem Projekt arbeiten** — rein lokal (aktueller Stand, Zielordner auf der
+eigenen Platte) oder **GitHub-basiert**, bei dem ein GitHub-Repo als
+Speicherort dient: OpenWizardAI holt sich den Stand von dort, schreibt
+Änderungen dort hinein und committet, ohne dass zwingend ein lokaler
+Projektordner existieren muss.
+
+**Konkretisierung für opencode/OpenChamber:** Bei diesem Tool soll nicht
+nur "opencode nutzen" ausgewählt werden, sondern zusätzlich, welches
+KI-Modell darunter läuft (z.B. DeepSeek, Claude, Codex) — eine Auswahl-
+liste verschiedener Modelle, die opencode ansteuern kann.
+
+Details (genauer UI-Flow für die GitHub-Variante, wie Auth gegen GitHub
+läuft, wie Konflikte beim Schreiben behandelt werden) noch nicht
+ausgearbeitet — wird vor Implementierung wie gewohnt zur Freigabe
+vorgelegt.
