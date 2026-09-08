@@ -194,8 +194,11 @@ nach Hick's Law weiterhin eine Entscheidung pro Screen:
    aber überspringbar. **Modellwahl (Flash/Pro) direkt hier**, gilt für
    alle folgenden API-Calls dieses Durchlaufs.
 2. **Falls verbunden: Custom-Agents einrichten?** Eigene Frage direkt beim
-   Verbinden. Falls ja: Nutzer beschreibt in Freitext, was für ein Agent
-   gewünscht ist; DeepSeek richtet diesen Agenten für die gewählten Tools
+   Verbinden. Falls ja: **pro bereits gewähltem KI-Tool optional ein
+   eigener, unterschiedlicher Agent** — Liste statt Einzelfeld (z.B. ein
+   Test-Agent nur für Claude Code, ein Recherche-Agent nur für Codex).
+   Nutzer beschreibt je Tool in Freitext, was für ein Agent gewünscht
+   ist; DeepSeek richtet den jeweiligen Agenten für das zugehörige Tool
    ein (siehe Plugin-Registry-Schema — ein Agent ist strukturell wie ein
    Plugin behandelt, nur mit `source: custom-generated` statt `own` etc.).
 3. **Feste Basis-Fragen** (Kontext-Vorlauf für die KI): Welche KI-Coding-
@@ -257,6 +260,14 @@ diese Schritte weiterhin klassisch wie in M1.
   spätere Entscheidungen), aber nicht "fest verkabelt" wie bei den
   Custom-Agents — genaues Format wartet noch auf ein konkretes Beispiel
   vom Nutzer, bevor es spezifiziert wird.
+- **Tutorial: wie benutzt man die eingerichteten Custom-Agents.** Jedes
+  KI-Tool hat ein anderes Konzept für Sub-Agents/Custom-Agents (eigene
+  Aufruf-Syntax, eigener Speicherort). Nutzer braucht eine Anleitung, wie
+  ein von OpenWizardAI eingerichteter Agent im jeweiligen Tool tatsächlich
+  aufgerufen/benutzt wird. **Ort noch offen** — denkbar: direkt im Wizard
+  (z.B. als letzter Screen nach dem Setup, tool-spezifisch generiert),
+  oder externe Dokumentation (README, Wiki, o.ä.). Entscheidung steht
+  noch aus.
 
 ## MVP-Scope / Meilenstein 1 (entschieden)
 
@@ -282,13 +293,11 @@ falls das Kontextfenster voll ist) sofort weiß, wo weitergemacht wird —
 ohne die komplette Commit-Historie durchsuchen zu müssen. Wird bei jedem
 größeren Fortschritt aktualisiert.
 
-**Resume-Prompt zum Copy-Pasten in einen neuen Chat:**
+**Resume-Prompt zum Copy-Pasten in einen neuen Chat** (im richtigen
+Projektordner geöffnet reicht dieser eine Satz, kein Pfad/URL nötig):
 
-> Mach weiter am Projekt OpenWizardAI
-> (https://github.com/manoelpanev/OpenWizardAI, lokal unter
-> `~/Documents/Codex/2026-09-08/OpenWizardAI`). Lies zuerst CONCEPT.md,
-> Abschnitt "Aktueller Stand & Wiedereinstiegspunkt" — dort steht, was
-> fertig ist und was als nächstes ansteht. Mach dort weiter.
+> Lies CONCEPT.md, Abschnitt "Aktueller Stand & Wiedereinstiegspunkt",
+> und mach dort weiter.
 
 **Fertig (siehe ARCHITECTURE.md für Details):**
 - M1 — Kern-Wizard: 4 Tool-Adapter, `fs::writer` mit HITL-Logik,
@@ -305,10 +314,11 @@ größeren Fortschritt aktualisiert.
 ob lokal oder über ein GitHub-Repo als Speicherort gearbeitet werden soll.
 
 **Noch offen, unspezifiziert (siehe jeweilige Abschnitte oben):**
-Projekt-Dashboard, HANDOFF.md-Entscheidungshistorie, Diskussions-Chat mit
-der KI (Pro-only) inkl. Tool/Modell-Empfehlung, Plugin-Registry (M2) noch
-nicht gebaut — Empfehlung liefert bisher nur Freitext-Plugin-Themen statt
-echter Plugin-IDs.
+Projekt-Dashboard (inkl. Pro-Projekt-Resume-Prompt), HANDOFF.md-
+Entscheidungshistorie, Diskussions-Chat mit der KI (Pro-only) inkl. Tool/
+Modell-Empfehlung, Multi-Agent-Nutzungstutorial (Ort noch offen),
+Plugin-Registry (M2) noch nicht gebaut — Empfehlung liefert bisher nur
+Freitext-Plugin-Themen statt echter Plugin-IDs.
 
 ## Arbeitsweise/Speicherort-Frage (neu, in Arbeit)
 
