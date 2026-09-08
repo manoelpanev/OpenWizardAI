@@ -58,10 +58,15 @@ striktes Anti-Halluzination/Self-Repair-Protokoll für KI-Agenten, u.a.:
 - Masterprompt selbst ist read-only für autonome Agenten-Selbstmodifikation
 
 Dieses Dokument ist die Referenz dafür, wie OpenWizardAI Memory- und
-Handoff-Dateien strukturieren soll, wenn der Nutzer diesen Modus wählt. Die
-Datei selbst wird noch nicht ins Repo übernommen, bis geklärt ist, ob sie als
-generisches Template (tool-agnostisch, nicht mehr an den Namen "MRPNV_AI"
-gebunden) oder 1:1 übernommen werden soll.
+Handoff-Dateien strukturieren soll, wenn der Nutzer diesen Modus wählt.
+
+**Entschieden:** Die Datei wird als generisches, parametrisiertes Template
+ins Repo übernommen (Projektname/Nutzer als Variablen statt fest an
+"MRPNV_AI" gebunden). DeepSeek füllt die Variablen beim Wizard-Lauf aus
+dem jeweiligen Projektkontext automatisch aus. Falls sich beim Befüllen
+zeigt, dass das Template selbst angepasst werden muss (z.B. eine Variable
+fehlt), wird das dem Nutzer zur Prüfung vorgelegt statt stillschweigend
+geändert.
 
 ## Plattform & Stack (entschieden)
 
@@ -93,15 +98,25 @@ System *ist* die zentrale Config-Schicht:
      opencode, Grok)
    - Automatisches Auffinden guter Plugins auf GitHub (nach Sternen/Relevanz),
      durchgeführt von der DeepSeek-API (v4 Flash) als Recherche-Task
-4. **Updates.** Plugins in der Registry werden aktuell gehalten (Update-
-   Mechanismus, Details noch offen — z.B. periodischer Sync vs. manueller
-   "Check for updates"-Button im Wizard).
+4. **Updates & Review.** Von DeepSeek auf GitHub gefundene Plugins landen
+   nicht automatisch in der aktiven Registry, sondern zunächst in einer
+   Vorschlagsliste. Ein Freigabe-Schritt (Nutzer bzw. später Community-
+   Maintainer) ist nötig, bevor ein Plugin aktiv nutzbar wird — kein
+   automatisches Ausführen ungeprüften Codes/Prompts.
 5. **KI-Empfehlung.** Nutzer beschreibt im Wizard sein Vorhaben als Freitext-
    Prompt. Ein Live-LLM-Call (DeepSeek) schlägt daraufhin passende Plugins
    vor — zusätzlich zu bereits gespeicherten/eigenen Profilen, die immer
    direkt anwählbar bleiben. Kein rein lokales Tag-Matching als Fallback
    vorgesehen; DeepSeek ist ohnehin schon für die Setup-Zeit-Nutzung im
    Konzept vorgesehen (s.o.).
+6. **Registry-Schema (Ausgangsbasis, pro Plugin-Eintrag):**
+   - `id`, `name`, `description`
+   - `tags[]` (für Matching/Empfehlung)
+   - `source` (`own` | `claude-import` | `github-discovered`)
+   - `targetTools[]` (welche KI-Tools dieses Plugin unterstützt)
+   - `projectionTemplate` (wie es in `AGENTS.md`/`opencode.jsonc`/etc.
+     übersetzt wird)
+   - `version`, `lastUpdated`
 
 ## Human-in-the-Loop-Steuerung (entschieden)
 
@@ -109,36 +124,76 @@ Wie viel der Wizard (und die von ihm konfigurierten KI-Tools) selbstständig
 entscheiden dürfen, ist einstellbar — analog zum Plugin-System personalisierbar
 und speicherbar:
 
-- **Feste Stufen-Skala**, mehrere Abstufungen zwischen "immer nachfragen" und
-  "vollständig autonom" (z.B. angelehnt an die Auto-Mode/Plan-Mode-Abstufungen
-  bestehender Tools: Immer fragen → Nur bei riskanten Aktionen fragen →
-  Selten fragen (nur bei irreversiblen Aktionen) → Autonom). Genaue Anzahl
-  und Bezeichnung der Stufen im Architektur-Schritt festlegen.
+- **4 feste Stufen:**
+  1. Immer fragen
+  2. Nur bei riskanten Aktionen fragen (Datei löschen, git push, Netzwerk)
+  3. Selten fragen (nur bei irreversiblen Aktionen)
+  4. Autonom (nie fragen, außer Show-Stopper)
 - Wie bei Plugin-Profilen: als benanntes, wiederverwendbares Profil im Menü
   speicherbar, nicht nur ein einmaliger Wizard-Schritt.
 - Pro Projekt wählbar (überschreibt ggf. das Default-Profil), und die
   gewählte Stufe wird beim Schreiben der tool-eigenen Dateien mit projiziert
   (z.B. als Permission-Mode-Einstellung in `opencode.jsonc`, als Hinweis in
-  `AGENTS.md`/`HANDOFF.md` für Tools ohne eigenes Permission-System).
+  `AGENTS.md`/`HANDOFF.md` für Tools ohne eigenes Permission-System). Wie
+  genau sich jede Stufe pro Tool auswirkt (manche Tools haben eigene
+  Permission-Modi, andere nicht) wird im Architektur-Schritt pro Tool-
+  Adapter festgelegt.
 
-## Offene Fragen (noch nicht entschieden)
+## DeepSeek-API-Key-Verwaltung (entschieden)
 
-- Genaue Anzahl und Bezeichnung der HITL-Stufen sowie deren konkrete
-  Auswirkung pro unterstütztem Tool (manche Tools haben eigene
-  Permission-Modi, andere nicht — wie wird dort projiziert?).
-- Wird der Masterprompt-Text als generisches Template parametrisiert
-  (Projektname statt "MRPNV_AI") oder pro Nutzer fest übernommen?
-- Plugin-Update-Mechanismus im Detail (automatisch/periodisch vs. manuell
-  angestoßen; wie wird ein GitHub-gefundenes Plugin geprüft/freigegeben,
-  bevor es in der Registry landet — Review-Schritt nötig?).
-- Format/Schema der Plugin-Registry-Einträge (welche Felder braucht ein
-  Plugin-Eintrag, damit die Projektion auf verschiedene Tools funktioniert?).
-- Wie wird der DeepSeek-API-Key verwaltet (Keychain, .env, Wizard-Prompt bei
-  erster Nutzung)?
-- Lizenz für das öffentliche Repo noch nicht gewählt.
+Speicherung über native, plattformspezifische verschlüsselte Stores, per
+Cross-Platform-Abstraktion (z.B. das `keyring`-Rust-Crate in Tauri) —
+ein Code-Pfad spricht automatisch den jeweils richtigen OS-Store an: macOS
+Keychain, Windows Credential Manager, Linux Secret Service/libsecret. Kein
+Klartext auf Disk, keine eigene Verschlüsselungsschicht nötig.
+
+## DeepSeek-Modellwahl (entschieden)
+
+- **Flash** ist der Default für alle Standard-Aufrufe: Plugin-Empfehlung,
+  GitHub-Plugin-Discovery, Live-Kontext-Zusammenfassung beim Tool-Wechsel.
+- **Pro** ist manuell wählbar, für Fälle mit mehr nötiger Tiefe (z.B.
+  Kontext-Verdichtung eines großen bestehenden Projekts beim Andocken).
+- Umschaltbar im Menü, nicht nur einmalig beim Setup.
+
+## Docking an bestehende Projekte (entschieden)
+
+Automatischer Datei-Scan nach bekannten Marker-Dateien (`package.json`,
+bereits vorhandenes `AGENTS.md`, `.git`, etc.), anschließend fasst DeepSeek
+den erkannten Kontext zusammen — keine rein manuelle Beschreibung durch den
+Nutzer nötig. Siehe auch DeepSeek-Rolle oben.
+
+## Live-Session-Übergabe zwischen Tools (entschieden, grobe Richtung)
+
+OpenWizardAI läuft als lokaler Hintergrundprozess/Tray-App und hält pro
+Projekt einen "aktuellen Kontext"-Zustand (letzte Aktionen, offene Fragen,
+Zusammenfassung). Beim Wechsel von Tool A zu Tool B wird dieser Zustand in
+eine gemeinsame Kontext-Datei geschrieben, die Tool B beim Start lädt — über
+Dateisystem + Tray-App als Vermittler, kein direkter Prozess-zu-Prozess-
+Kanal. Passt zum Dateisystem-Ebene-Grundsatz aus dem Konzept. Für diesen
+Kontext-Fluss wird DeepSeeks Context-Mode aktiviert (Flash als Default,
+s.o.). Details (genaues Datei-/Update-Format, Trigger für "Tool-Wechsel
+erkannt") folgen im Architektur-Schritt.
+
+## MVP-Scope / Meilenstein 1 (entschieden)
+
+Erste lauffähige Version = **Kern-Wizard**: Tool-Auswahl + Datei-Generierung
+(`AGENTS.md`/`HANDOFF.md`/`opencode.jsonc` etc.) für ein neues Projekt.
+Noch **nicht** in v1: Plugin-Registry, DeepSeek-Integration, GitHub-
+Repo-Anlage, Live-Handoff. Diese kommen in nachfolgenden Ausbaustufen, auf
+dem Kern-Wizard aufbauend.
+
+## UI-Grundsätze (entschieden)
+
+- **Hick's Law:** Pro Screen/Schritt so wenige gleichzeitige Auswahl-
+  optionen wie möglich zeigen, um Entscheidungszeit klein zu halten —
+  gilt für den ganzen Wizard-Flow (Tool-Auswahl, Plugin-Auswahl, HITL-
+  Stufen-Auswahl etc.), nicht nur einzelne Screens.
+- **Theme-Umschaltung:** Dark/Light-Mode bzw. Farbthemen sind im UI direkt
+  umschaltbar, nicht nur Systemeinstellung-abhängig.
 
 ## Nächster Schritt
 
-Sobald die offenen Fragen oben geklärt sind, wird daraus eine Architektur-
-Skizze (Ordnerstruktur, Datenfluss, erster Meilenstein) — vor jeglicher
-Code-Implementierung erneut zur Freigabe vorgelegt.
+Alle bisher offenen konzeptionellen Fragen sind geklärt. Nächster Schritt:
+Architektur-Skizze (Ordnerstruktur, Datenfluss, Tool-Adapter-Design,
+detaillierter Meilenstein-Plan für den Kern-Wizard) — wird separat erstellt
+und vor Code-Implementierung zur Freigabe vorgelegt.
