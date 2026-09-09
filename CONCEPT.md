@@ -550,3 +550,20 @@ erscheint nur, wenn opencode tatsächlich gewählt ist.
 Details (genauer UI-Flow, Konflikt-Behandlung beim Schreiben in Modus 2/3,
 OAuth-App-Registrierung/Client-Secret-Verwaltung) noch nicht ausgearbeitet
 — wird vor Implementierung wie gewohnt zur Freigabe vorgelegt.
+
+## Offene Bugs/UI-Fixes (Nutzer-Feedback, noch nicht behoben)
+
+- **DeepSeek behauptet fälschlich, keine Dateiinhalte auswerten zu
+  können** (Rückfrage-Text: "Da ich keine Dateiinhalte auswerten kann...").
+  Ist eine Halluzination, kein echtes Limit — es werden nie Dateien
+  geschickt, nur Text. Vermutlich verursacht durch `STRICT_BEHAVIOR_PREFIX`
+  in `deepseek/behavior.rs`, das zu vage über "nur auf echten Antworten
+  aufbauen" spricht und das Modell dazu bringt, Datei-Zugriff explizit zu
+  verneinen. Muss geprüft/präzisiert werden.
+- **Icon soll ein schlichter weißer Zauberhut auf Purple-Grund sein**,
+  nicht das aktuelle Blitz-"M"-Symbol.
+  Aktuelle Datei: `src-tauri/icons/source.svg`.
+- **Schritt-Nummerierung wirkt komisch** ("0b Custom-Agent" in
+  `StepAgentQuestion.svelte`, ähnlich anderswo) — Nummern raus oder
+  konsistent neu ordnen, passt nicht mehr seit dem WizardShell-Redesign
+  (der Fortschrittsbalken zeigt Position bereits an).
