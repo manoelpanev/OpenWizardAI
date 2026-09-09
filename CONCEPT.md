@@ -361,17 +361,6 @@ diese Schritte weiterhin klassisch wie in M1.
   (z.B. als letzter Screen nach dem Setup, tool-spezifisch generiert),
   oder externe Dokumentation (README, Wiki, o.ä.). Entscheidung steht
   noch aus.
-- **Echter Fortschrittsbalken statt endlos pulsierend.** Betrifft die
-  bereits gebauten `indeterminate`-Ladebalken in `StepQuestions.svelte`
-  ("Rückfragen werden erstellt") und `StepFollowupQuestions.svelte`
-  ("Empfehlung wird geladen") — diese zeigen aktuell keinen echten
-  Fortschritt, nur eine pulsierende Animation ohne Prozentzahl. Gewünscht:
-  eine tatsächliche Prozentanzeige, die bei 99% bewusst künstlich
-  verlangsamt wird (UX-Trick, damit der letzte Schritt nicht abrupt
-  wirkt). Da ein einzelner DeepSeek-API-Call kein echtes serverseitiges
-  Fortschritts-Signal liefert, bräuchte das einen simulierten Verlauf
-  (client-seitige Zeitschätzung Richtung 99%, Sprung auf 100% erst bei
-  tatsächlicher Antwort) statt eines echten Prozentwerts vom Server.
 - **Web-Recherche in die Rückfragen-Analyse.** DeepSeek soll beim
   Generieren/Bewerten der Vertiefungsfragen (`generate_followup_questions`,
   `check_answer_clarity` in `recommendation.rs`) optional online
@@ -434,6 +423,21 @@ Projektordner geöffnet reicht dieser eine Satz, kein Pfad/URL nötig):
 - Onboarding-Flow um "Arbeitsweise"-Schritt (3 Modi: Nur lokal/Lokal+
   GitHub/Nur GitHub) im UI ergänzt — reine Auswahl, GitHub-OAuth/Repo-
   Anlage/Push-Logik dahinter noch nicht umgesetzt (siehe Abschnitt unten)
+- Echter Prozent-Fortschrittsbalken (`simulatedProgress.svelte.ts`) statt
+  endlos pulsierender Animation, mit Zeitschätzung und bewusster
+  Verlangsamung Richtung 99% — ersetzt die `indeterminate`-Balken in
+  `StepQuestions` und `StepFollowupQuestions`
+- Custom-Agent-Frage mit drei Optionen: kein Agent / selbst beschreiben /
+  KI schlägt vor (letzteres nutzt die bestehende `custom_agent`-Empfehlung)
+- Modell-Auswahl für opencode (`list_opencode_models`, Dropdown in
+  `StepToolSelect` + Freitext-Feld), wird als `"model"` in
+  `opencode.jsonc` geschrieben — setzt die "Konkretisierung für
+  opencode/OpenChamber" unten um
+- Automatische Projekt-Analyse beim Andocken (`analyze_project`):
+  Marker-Dateien, Git-Status, häufigste Dateiendungen — reine Metadaten,
+  keine Dateiinhalte. Fließt als Kontext in beide DeepSeek-Aufrufe, damit
+  Tool-/Plugin-/Agent-Vorschläge auf dem echten Projekt beruhen. Startet
+  automatisch bei der Ordnerwahl.
 - Dev-Signing gefixt (`signingIdentity: "-"` in `tauri.conf.json`) gegen
   wiederholte Keychain-Nachfragen bei jedem `cargo tauri dev`-Neustart;
   striktes Verhaltensprotokoll (`deepseek/behavior.rs`,
@@ -457,10 +461,8 @@ Custom-API-Registry (Mesh/Higgsfield etc. als Plugins) und Hermes als
 projektübergreifende Steuerungsebene (WhatsApp-Anbindung, lokale
 Sprachsteuerung nach Hex-Vorbild, autonome Projektdurchführung) — siehe
 jeweils eigene Abschnitte oben, grobe Architektur entschieden, komplett
-unimplementiert. Außerdem neu: echter Fortschrittsbalken mit
-99%-Verlangsamung statt `indeterminate`-Animation, Tavily-Websuche
-ein-/ausschaltbar in die Rückfragen-Analyse, lokale Auto-Update-Instanz
-pro Nutzer.
+unimplementiert. Außerdem noch offen: Tavily-Websuche ein-/ausschaltbar
+in der Rückfragen-Analyse, lokale Auto-Update-Instanz pro Nutzer.
 
 ## Arbeitsweise/Speicherort-Frage — 3 Modi (entschieden, noch nicht umgesetzt)
 
@@ -494,10 +496,12 @@ selbst eingefügten Key).
 verbunden wird — nutzt die bereits im Konzept vorgesehene GitHub-Integration
 (privat/öffentlich wählbar).
 
-**Konkretisierung für opencode/OpenChamber:** Bei diesem Tool soll nicht
-nur "opencode nutzen" ausgewählt werden, sondern zusätzlich, welches
-KI-Modell darunter läuft (z.B. DeepSeek, Claude, Codex) — eine Auswahl-
-liste verschiedener Modelle, die opencode ansteuern kann.
+**Konkretisierung für opencode/OpenChamber (umgesetzt):** Bei diesem Tool
+wird nicht nur "opencode nutzen" ausgewählt, sondern zusätzlich, welches
+KI-Modell darunter läuft — Dropdown mit kuratierter Liste (DeepSeek
+chat/reasoner, Claude, GPT) plus Freitext-Feld für nicht gelistete
+Modelle, geschrieben als `"model"` in `opencode.jsonc`. Das Dropdown
+erscheint nur, wenn opencode tatsächlich gewählt ist.
 
 Details (genauer UI-Flow, Konflikt-Behandlung beim Schreiben in Modus 2/3,
 OAuth-App-Registrierung/Client-Secret-Verwaltung) noch nicht ausgearbeitet
