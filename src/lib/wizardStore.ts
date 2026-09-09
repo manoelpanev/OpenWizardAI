@@ -34,6 +34,10 @@ export interface WizardState {
   storageMode: StorageMode;
   deepSeekConnected: boolean;
   model: DeepSeekModel;
+  // Ob die optionale Tavily-Web-Recherche für diesen Durchlauf genutzt
+  // wird, und ihr Ergebnis als prompt-fertiger Textblock.
+  webSearchEnabled: boolean;
+  webResearch: string;
   wantsCustomAgent: boolean;
   customAgentDescription: string;
   usedTools: string[];
@@ -65,6 +69,8 @@ function initialState(): WizardState {
     storageMode: "LocalOnly",
     deepSeekConnected: false,
     model: "Flash",
+    webSearchEnabled: false,
+    webResearch: "",
     wantsCustomAgent: false,
     customAgentDescription: "",
     usedTools: [],
@@ -103,6 +109,12 @@ function createWizardStore() {
     },
     setModel(model: DeepSeekModel) {
       update((s) => ({ ...s, model }));
+    },
+    setWebSearchEnabled(enabled: boolean) {
+      update((s) => ({ ...s, webSearchEnabled: enabled }));
+    },
+    setWebResearch(research: string) {
+      update((s) => ({ ...s, webResearch: research }));
     },
     setCustomAgentAnswer(wants: boolean, description: string) {
       update((s) => ({ ...s, wantsCustomAgent: wants, customAgentDescription: description }));

@@ -11,8 +11,14 @@
   import StepHitlLevel from "../lib/components/StepHitlLevel.svelte";
   import StepSummary from "../lib/components/StepSummary.svelte";
   import ThemeToggle from "../lib/components/ThemeToggle.svelte";
+  import ApiRegistry from "../lib/components/ApiRegistry.svelte";
 
   const step = $derived($wizardStore.step);
+
+  // Die API-Verwaltung liegt neben dem Wizard-Flow, nicht darin — sie ist
+  // kein Schritt, sondern jederzeit erreichbar und kehrt danach an genau
+  // die Stelle zurück, an der der Nutzer war.
+  let showApiRegistry = $state(false);
 
   const STEP_LABELS: Record<string, string> = {
     "project-status": "Projekt-Status",
@@ -31,9 +37,17 @@
 <main class="container">
   <header>
     <h1>OpenWizardAI</h1>
-    <ThemeToggle />
+    <div class="header-actions">
+      <button type="button" class="link-button" onclick={() => (showApiRegistry = !showApiRegistry)}>
+        {showApiRegistry ? "Wizard" : "Eigene APIs"}
+      </button>
+      <ThemeToggle />
+    </div>
   </header>
 
+  {#if showApiRegistry}
+    <ApiRegistry />
+  {:else}
   <p class="step-indicator">{STEP_LABELS[step]}</p>
 
   {#if step === "project-status"}
@@ -57,6 +71,7 @@
   {:else}
     <StepSummary />
   {/if}
+  {/if}
 </main>
 
 <style>
@@ -76,6 +91,12 @@
   h1 {
     font-size: 1.4rem;
     margin: 0;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .step-indicator {

@@ -99,16 +99,14 @@ impl ToolAdapter for OpencodeAdapter {
         }]
     }
 
-    fn project_hitl_level(&self, config: &WizardConfig) -> Vec<FileWrite> {
-        // opencode hat einen eigenen Permission-Modus in opencode.jsonc —
-        // die Stufe wird dort strukturiert eingetragen statt nur als Text.
-        let permission_mode = hitl_to_permission_mode(config.hitl_level);
-
-        vec![FileWrite {
-            path: config.project_root.join("opencode.jsonc"),
-            content: format!("\"permission\": \"{}\"", permission_mode),
-            mode: WriteMode::Merge,
-        }]
+    fn project_hitl_level(&self, _config: &WizardConfig) -> Vec<FileWrite> {
+        // Nichts zu tun: `generate_files` trägt `"permission"` bereits
+        // strukturiert in die erzeugte `opencode.jsonc` ein. Ein
+        // zusätzlicher Write würde die Stufe als nackte Zeile hinter die
+        // schließende Klammer hängen und die Datei zu ungültigem JSON
+        // machen — anders als bei den Markdown-Adaptern, wo Anhängen
+        // unproblematisch ist.
+        Vec::new()
     }
 }
 

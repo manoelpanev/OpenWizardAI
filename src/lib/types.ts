@@ -122,6 +122,32 @@ export interface OnboardingAnswers {
   custom_agent_description: string | null;
   followup_answers: FollowupAnswer[];
   project_analysis: string | null;
+  web_research: string | null;
+}
+
+// Spiegelt CustomApiEntry/HealthReport aus src-tauri/src/registry.rs
+export interface HealthReport {
+  reachable: boolean;
+  status_code: number | null;
+  json_valid: boolean;
+  rate_limit_hint: string | null;
+  duration_ms: number;
+  message: string;
+}
+
+export interface CustomApiEntry {
+  id: string;
+  name: string;
+  description: string;
+  tags: string[];
+  source: string;
+  target_tools: string[];
+  endpoint_url: string;
+  auth_method: string;
+  auth_header: string | null;
+  version: string;
+  last_updated: string | null;
+  health: HealthReport | null;
 }
 
 export interface ClarityCheck {

@@ -17,6 +17,8 @@
   let isPrototype = $state(true);
   let loadingTools = $state(true);
   let requesting = $state(false);
+  let researching = $state(false);
+  let researchNotice = $state("");
   let error = $state("");
 
   onMount(async () => {
@@ -39,7 +41,24 @@
     error = "";
     progress.start();
 
-    const state = get(wizardStore);
+    let state = get(wizardStore);
+
+    // Optionale Web-Recherche vor der Fragen-Generierung. Schlägt sie
+    // fehl, läuft der Flow ohne diesen Kontext weiter — die Recherche ist
+    // Zusatznutzen, kein Blocker.
+    if (state.webSearchEnabled && projectDescription.trim().length > 0) {
+      researching = true;
+      try {
+        const research = await invoke<string>("research_topic", { query: projectDescription });
+        wizardStore.setWebResearch(research);
+      } catch (e) {
+        researchNotice = `Web-Recherche übersprungen: ${e}`;
+        wizardStore.setWebResearch("");
+      } finally {
+        researching = false;
+        state = get(wizardStore);
+      }
+    }
     const answers: OnboardingAnswers = {
       is_new_project: state.isNewProject,
       used_tools: Array.from(usedTools),
@@ -49,6 +68,7 @@
       custom_agent_description: state.customAgentDescription || null,
       followup_answers: [],
       project_analysis: state.projectAnalysis || null,
+      web_research: state.webResearch || null,
     };
 
     wizardStore.setOnboardingAnswers(answers.used_tools, answers.project_description, answers.is_prototype);
@@ -141,8 +161,15 @@
         <div class="progress-fill" style="width: {progress.percent}%"></div>
       </div>
       <p class="progress-label">
-        {Math.round(progress.percent)}% — DeepSeek analysiert dein Vorhaben, meist unter 15 Sekunden…
+        {Math.round(progress.percent)}% —
+        {researching
+          ? "recherchiere online zu deinem Vorhaben…"
+          : "DeepSeek analysiert dein Vorhaben, meist unter 15 Sekunden…"}
       </p>
+    {/if}
+
+    {#if researchNotice}
+      <p class="hint">{researchNotice}</p>
     {/if}
   {/if}
 </section>
@@ -232,6 +259,12 @@
   }
 
   .progress-label {
+    color: var(--owai-muted);
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  .hint {
     color: var(--owai-muted);
     font-size: 0.85rem;
     margin: 0;

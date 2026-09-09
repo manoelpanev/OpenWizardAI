@@ -101,6 +101,7 @@
       custom_agent_description: state.customAgentDescription || null,
       followup_answers: collected,
       project_analysis: state.projectAnalysis || null,
+      web_research: state.webResearch || null,
     };
 
     try {

@@ -13,15 +13,55 @@
   let checkingStatus = $state(true);
   let model = $state<DeepSeekModel>(get(wizardStore).model);
 
+  let tavilyKey = $state("");
+  let tavilyConnected = $state(false);
+  let tavilyBusy = $state(false);
+  let tavilyError = $state("");
+  let webSearchEnabled = $state(get(wizardStore).webSearchEnabled);
+
   onMount(async () => {
     try {
       connected = await invoke<boolean>("deepseek_connection_status");
     } catch {
       // Status unbekannt — Nutzer kann trotzdem verbinden oder überspringen.
+    }
+    try {
+      tavilyConnected = await invoke<boolean>("tavily_connection_status");
+    } catch {
+      // Websuche ist optional — unbekannter Status blockiert nichts.
     } finally {
       checkingStatus = false;
     }
   });
+
+  async function connectTavily() {
+    tavilyBusy = true;
+    tavilyError = "";
+    try {
+      await invoke("connect_tavily", { apiKey: tavilyKey });
+      tavilyConnected = true;
+      tavilyKey = "";
+      webSearchEnabled = true;
+    } catch (e) {
+      tavilyError = `Tavily-Verbindung fehlgeschlagen: ${e}`;
+    } finally {
+      tavilyBusy = false;
+    }
+  }
+
+  async function disconnectTavily() {
+    tavilyBusy = true;
+    tavilyError = "";
+    try {
+      await invoke("disconnect_tavily");
+      tavilyConnected = false;
+      webSearchEnabled = false;
+    } catch (e) {
+      tavilyError = `Trennen fehlgeschlagen: ${e}`;
+    } finally {
+      tavilyBusy = false;
+    }
+  }
 
   async function connect() {
     connecting = true;
@@ -40,6 +80,10 @@
   function proceedConnected() {
     wizardStore.setDeepSeekConnected(true);
     wizardStore.setModel(model);
+    // Websuche nur als aktiv merken, wenn auch ein Key hinterlegt ist —
+    // sonst würde der Fragen-Schritt eine Recherche versuchen, die
+    // zwangsläufig fehlschlägt.
+    wizardStore.setWebSearchEnabled(webSearchEnabled && tavilyConnected);
     wizardStore.goToStep("agent-question");
   }
 
@@ -73,6 +117,41 @@
         </label>
       {/each}
     </div>
+
+    <fieldset class="websearch">
+      <legend>Web-Recherche (optional)</legend>
+      <p class="hint">
+        Wenn aktiv, recherchiert der Wizard vor den Rückfragen kurz online zu deinem Vorhaben und gibt die
+        Ergebnisse als Hintergrund an DeepSeek weiter. Läuft über Tavily mit eigenem API-Key.
+      </p>
+
+      {#if tavilyConnected}
+        <p class="status-connected">✓ Tavily verbunden</p>
+        <label class="toggle">
+          <input type="checkbox" bind:checked={webSearchEnabled} />
+          Web-Recherche für diesen Durchlauf nutzen
+        </label>
+        <div class="actions">
+          <button type="button" onclick={disconnectTavily} disabled={tavilyBusy}>
+            {tavilyBusy ? "Trenne…" : "Key entfernen"}
+          </button>
+        </div>
+      {:else}
+        <label>
+          Tavily-API-Key
+          <input type="password" bind:value={tavilyKey} placeholder="tvly-..." autocomplete="off" />
+        </label>
+        <div class="actions">
+          <button type="button" disabled={tavilyBusy || !tavilyKey.trim()} onclick={connectTavily}>
+            {tavilyBusy ? "Prüfe…" : "Tavily verbinden"}
+          </button>
+        </div>
+      {/if}
+
+      {#if tavilyError}
+        <p class="error">{tavilyError}</p>
+      {/if}
+    </fieldset>
 
     <div class="actions">
       <button type="button" onclick={proceedConnected}>Weiter</button>

@@ -1,7 +1,11 @@
-mod adapters;
-mod commands;
-mod deepseek;
-mod fs;
+// Öffentlich, damit die Integrationstests in `tests/` den Wizard-Ablauf
+// von außen durchspielen können.
+pub mod adapters;
+pub mod commands;
+pub mod deepseek;
+pub mod fs;
+pub mod registry;
+pub mod websearch;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -20,6 +24,15 @@ pub fn run() {
             commands::deepseek::generate_followup_questions,
             commands::deepseek::check_answer_clarity,
             commands::deepseek::get_onboarding_recommendation,
+            commands::websearch::connect_tavily,
+            commands::websearch::tavily_connection_status,
+            commands::websearch::disconnect_tavily,
+            commands::websearch::research_topic,
+            commands::registry::list_custom_apis,
+            commands::registry::save_custom_api,
+            commands::registry::recheck_custom_api,
+            commands::registry::delete_custom_api,
+            commands::registry::custom_api_has_key,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

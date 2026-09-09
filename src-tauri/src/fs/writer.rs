@@ -35,10 +35,59 @@ pub fn apply(
     hitl_level: HitlLevel,
     already_confirmed: &[String],
 ) -> Vec<WriteOutcome> {
-    writes
+    coalesce_by_path(writes)
         .into_iter()
         .map(|write| apply_one(write, hitl_level, already_confirmed))
         .collect()
+}
+
+/// Führt mehrere Schreiboperationen auf denselben Pfad zu einer zusammen.
+///
+/// Nötig, weil verschiedene Tools bewusst dieselbe Datei nutzen: Codex und
+/// Grok schreiben beide `AGENTS.md`. Ohne Zusammenführung würde der zweite
+/// Adapter den ersten überschreiben, und der Nutzer verliert die
+/// Konfiguration des zuerst geschriebenen Tools, ohne es zu merken.
+///
+/// Der erste Write eines Pfads bestimmt den `WriteMode`; die Inhalte der
+/// folgenden werden angehängt, sofern sie nicht schon enthalten sind.
+fn coalesce_by_path(writes: Vec<FileWrite>) -> Vec<FileWrite> {
+    let mut merged: Vec<FileWrite> = Vec::new();
+
+    for write in writes {
+        match merged.iter_mut().find(|existing| existing.path == write.path) {
+            Some(existing) => {
+                let addition = strip_duplicate_heading(&write.content, &existing.content);
+                if !addition.trim().is_empty() && !existing.content.contains(addition.trim()) {
+                    existing.content = format!("{}\n{}", existing.content, addition);
+                }
+            }
+            None => merged.push(write),
+        }
+    }
+
+    merged
+}
+
+/// Entfernt eine führende Überschrift aus `addition`, wenn dieselbe Zeile
+/// im Ziel schon steht. Beide Markdown-Adapter, die sich `AGENTS.md`
+/// teilen, beginnen mit `# <Projektname>` — ohne das hier stünde der
+/// Projekttitel zweimal in der zusammengeführten Datei.
+fn strip_duplicate_heading(addition: &str, existing: &str) -> String {
+    let mut lines = addition.lines().peekable();
+
+    let starts_with_known_heading = lines
+        .peek()
+        .is_some_and(|first| first.starts_with("# ") && existing.contains(first));
+
+    if !starts_with_known_heading {
+        return addition.to_string();
+    }
+
+    lines.next();
+    lines
+        .skip_while(|line| line.trim().is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn apply_one(write: FileWrite, hitl_level: HitlLevel, already_confirmed: &[String]) -> WriteOutcome {
