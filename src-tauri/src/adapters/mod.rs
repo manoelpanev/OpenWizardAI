@@ -1,7 +1,7 @@
 mod claude_code;
 mod codex;
 mod grok;
-mod opencode;
+pub mod opencode;
 
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
@@ -50,6 +50,11 @@ pub struct WizardConfig {
     pub project_name: String,
     pub project_root: PathBuf,
     pub hitl_level: HitlLevel,
+    /// Nur für den opencode-Adapter relevant: welches KI-Modell unter
+    /// opencode laufen soll (`provider/modell`). `None` heißt: opencode
+    /// behält seine eigene Default-Konfiguration.
+    #[serde(default)]
+    pub opencode_model: Option<String>,
 }
 
 /// Ergebnis eines `detect_existing`-Aufrufs: was für dieses Tool im

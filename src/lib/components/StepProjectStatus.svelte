@@ -2,13 +2,16 @@
   import { invoke } from "@tauri-apps/api/core";
   import { open } from "@tauri-apps/plugin-dialog";
   import { wizardStore } from "../wizardStore";
-  import type { ExistingConfig } from "../types";
+  import type { ExistingConfig, ProjectAnalysis } from "../types";
+  import { formatProjectAnalysis } from "../types";
 
   let isNewProject = $state(true);
   let existingRoot = $state("");
   let scanning = $state(false);
   let scanResults = $state<[string, ExistingConfig][]>([]);
   let scanned = $state(false);
+  let analysis = $state<ProjectAnalysis | null>(null);
+  let analysisError = $state("");
 
   async function pickExistingFolder() {
     const selectedPath = await open({
@@ -20,15 +23,27 @@
       existingRoot = selectedPath;
       scanned = false;
       scanResults = [];
+      analysis = null;
+      analysisError = "";
+      // Analyse direkt nach der Ordnerwahl, ohne extra Klick — die KI
+      // soll sich selbst um das bestehende Projekt kümmern.
+      void scan();
     }
   }
 
   async function scan() {
     scanning = true;
+    analysisError = "";
     try {
-      scanResults = await invoke<[string, ExistingConfig][]>("detect_existing_tools", {
-        projectRoot: existingRoot,
-      });
+      const [tools, projectAnalysis] = await Promise.all([
+        invoke<[string, ExistingConfig][]>("detect_existing_tools", { projectRoot: existingRoot }),
+        invoke<ProjectAnalysis>("analyze_project", { projectRoot: existingRoot }),
+      ]);
+      scanResults = tools;
+      analysis = projectAnalysis;
+      wizardStore.setProjectAnalysis(formatProjectAnalysis(projectAnalysis));
+    } catch (e) {
+      analysisError = `Projekt konnte nicht vollständig analysiert werden: ${e}`;
     } finally {
       scanning = false;
       scanned = true;
@@ -39,6 +54,10 @@
     wizardStore.setIsNewProject(isNewProject);
     if (!isNewProject) {
       wizardStore.setProjectBasics("", existingRoot);
+    } else {
+      // Bei einem neuen Projekt gibt es nichts zu analysieren — einen
+      // eventuell vorher gescannten Ordner nicht mitschleppen.
+      wizardStore.setProjectAnalysis("");
     }
     wizardStore.goToStep("storage-mode");
   }
@@ -72,13 +91,41 @@
       </div>
     </div>
 
-    {#if existingRoot}
-      <button type="button" onclick={scan} disabled={scanning}>
-        {scanning ? "Scanne…" : "Vorhandene Konfiguration scannen"}
-      </button>
+    {#if existingRoot && scanning}
+      <p class="hint">Projekt wird analysiert…</p>
     {/if}
 
-    {#if scanned}
+    {#if existingRoot && !scanning}
+      <button type="button" onclick={scan}>Erneut analysieren</button>
+    {/if}
+
+    {#if analysisError}
+      <p class="error">{analysisError}</p>
+    {/if}
+
+    {#if scanned && !scanning}
+      {#if analysis}
+        <dl class="analysis">
+          {#if analysis.languages.length > 0}
+            <dt>Erkannt</dt>
+            <dd>{analysis.languages.join(", ")}</dd>
+          {/if}
+          {#if analysis.markers.length > 0}
+            <dt>Marker-Dateien</dt>
+            <dd>{analysis.markers.join(", ")}</dd>
+          {/if}
+          <dt>Git-Repository</dt>
+          <dd>{analysis.has_git ? "ja" : "nein"}</dd>
+          {#if analysis.top_extensions.length > 0}
+            <dt>Häufigste Dateien</dt>
+            <dd>{analysis.top_extensions.join(", ")}</dd>
+          {/if}
+        </dl>
+        <p class="hint">
+          Diese Analyse geht als Kontext an DeepSeek — Tool-, Plugin- und Agent-Vorschläge richten sich danach.
+        </p>
+      {/if}
+
       {#if scanResults.length === 0}
         <p class="hint">Keine bekannten Tool-Konfigurationen gefunden.</p>
       {:else}
@@ -163,6 +210,27 @@
   .hint {
     color: var(--owai-muted);
     font-size: 0.85rem;
+  }
+
+  .error {
+    color: var(--owai-danger);
+    font-size: 0.85rem;
+  }
+
+  .analysis {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0;
+    font-size: 0.85rem;
+  }
+
+  .analysis dt {
+    color: var(--owai-muted);
+  }
+
+  .analysis dd {
+    margin: 0;
   }
 
   .actions {

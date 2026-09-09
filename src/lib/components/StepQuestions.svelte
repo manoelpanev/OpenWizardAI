@@ -48,6 +48,7 @@
       wants_custom_agent: state.wantsCustomAgent,
       custom_agent_description: state.customAgentDescription || null,
       followup_answers: [],
+      project_analysis: state.projectAnalysis || null,
     };
 
     wizardStore.setOnboardingAnswers(answers.used_tools, answers.project_description, answers.is_prototype);

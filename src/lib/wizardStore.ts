@@ -28,6 +28,9 @@ export interface EditableCustomAgent {
 export interface WizardState {
   step: WizardStep;
   isNewProject: boolean;
+  // Verdichtete Projekt-Analyse beim Andocken (formatProjectAnalysis),
+  // geht als Kontext in die DeepSeek-Aufrufe. Leer bei neuen Projekten.
+  projectAnalysis: string;
   storageMode: StorageMode;
   deepSeekConnected: boolean;
   model: DeepSeekModel;
@@ -48,6 +51,9 @@ export interface WizardState {
   projectRoot: string;
   selectedToolIds: string[];
   hitlLevel: HitlLevel;
+  // Modell unter opencode (`provider/modell`) — leer heißt: opencode
+  // behält seine eigene Default-Konfiguration.
+  opencodeModel: string;
   outcomes: WriteOutcome[] | null;
 }
 
@@ -55,6 +61,7 @@ function initialState(): WizardState {
   return {
     step: "project-status",
     isNewProject: true,
+    projectAnalysis: "",
     storageMode: "LocalOnly",
     deepSeekConnected: false,
     model: "Flash",
@@ -72,6 +79,7 @@ function initialState(): WizardState {
     projectRoot: "",
     selectedToolIds: [],
     hitlLevel: "AskOnRisky",
+    opencodeModel: "",
     outcomes: null,
   };
 }
@@ -83,6 +91,9 @@ function createWizardStore() {
     subscribe,
     setIsNewProject(isNew: boolean) {
       update((s) => ({ ...s, isNewProject: isNew }));
+    },
+    setProjectAnalysis(analysis: string) {
+      update((s) => ({ ...s, projectAnalysis: analysis }));
     },
     setStorageMode(mode: StorageMode) {
       update((s) => ({ ...s, storageMode: mode }));
@@ -135,6 +146,9 @@ function createWizardStore() {
     },
     setHitlLevel(level: HitlLevel) {
       update((s) => ({ ...s, hitlLevel: level }));
+    },
+    setOpencodeModel(model: string) {
+      update((s) => ({ ...s, opencodeModel: model }));
     },
     setOutcomes(outcomes: WriteOutcome[]) {
       update((s) => ({ ...s, outcomes }));

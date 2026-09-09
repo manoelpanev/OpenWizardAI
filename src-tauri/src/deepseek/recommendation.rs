@@ -22,6 +22,11 @@ pub struct OnboardingAnswers {
     pub custom_agent_description: Option<String>,
     #[serde(default)]
     pub followup_answers: Vec<FollowupAnswer>,
+    /// Ergebnis der automatischen Projekt-Analyse beim Andocken
+    /// (`analyze_project`), als vorformatierte Zeile. `None` bei neuen
+    /// Projekten — dort gibt es noch nichts zu analysieren.
+    #[serde(default)]
+    pub project_analysis: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -71,7 +76,10 @@ fn build_system_prompt() -> String {
         }}\n\
         Wenn der Nutzer einen Custom-Agent wünscht, fülle \"custom_agent\" als \
         Objekt {{\"name\": \"...\", \"description\": \"...\", \"reasoning\": \"...\"}} \
-        statt null. Jede \"reasoning\" ist ein kurzer, konkreter Satz auf Deutsch, \
+        statt null — hat der Nutzer dabei keine eigene Beschreibung \
+        angegeben, schlage selbst einen konkret zum Projekt passenden \
+        Agenten vor und stütze ihn auf die Projektangaben bzw. die \
+        automatische Projekt-Analyse, falls vorhanden. Jede \"reasoning\" ist ein kurzer, konkreter Satz auf Deutsch, \
         der erklärt, welche Nutzerantwort zu dieser Empfehlung geführt hat.",
         STRICT_BEHAVIOR_PREFIX,
         tool_ids.join(", ")
@@ -102,12 +110,21 @@ fn build_user_prompt(answers: &OnboardingAnswers) -> String {
         format!("\nProjektspezifische Rückfragen und Antworten:\n{}", lines.join("\n"))
     };
 
+    let analysis_block = match answers.project_analysis.as_deref() {
+        Some(analysis) if !analysis.trim().is_empty() => format!(
+            "\nAutomatische Analyse des bestehenden Projektordners \
+            (Marker-Dateien und Dateiendungen, kein Dateiinhalt): {}",
+            analysis.trim()
+        ),
+        _ => String::new(),
+    };
+
     format!(
         "Projektstatus: {}\n\
         Bereits genutzte/vorhandene Tools: {}\n\
         Vorhaben: {}\n\
         Projekttyp: {}\n\
-        {}{}",
+        {}{}{}",
         if answers.is_new_project {
             "Neues Projekt"
         } else {
@@ -121,6 +138,7 @@ fn build_user_prompt(answers: &OnboardingAnswers) -> String {
         answers.project_description,
         if answers.is_prototype { "Prototyp" } else { "Produktions-Code" },
         agent_line,
+        analysis_block,
         followup_block
     )
 }

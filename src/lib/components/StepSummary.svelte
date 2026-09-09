@@ -27,6 +27,7 @@
       selected_tool_ids: current.selectedToolIds,
       hitl_level: current.hitlLevel,
       already_confirmed: [],
+      opencode_model: current.opencodeModel.trim() || null,
     };
 
     try {
@@ -58,6 +59,10 @@
     <dd>{wizardState.projectRoot}</dd>
     <dt>Tools</dt>
     <dd>{wizardState.selectedToolIds.join(", ")}</dd>
+    {#if wizardState.opencodeModel.trim().length > 0}
+      <dt>Modell unter opencode</dt>
+      <dd>{wizardState.opencodeModel}</dd>
+    {/if}
     <dt>Rückfrage-Verhalten</dt>
     <dd>{hitlLabel}</dd>
   </dl>

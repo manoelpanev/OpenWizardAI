@@ -10,7 +10,9 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             commands::project::list_supported_tools,
+            commands::analyze::analyze_project,
             commands::tool_setup::detect_existing_tools,
+            commands::tool_setup::list_opencode_models,
             commands::tool_setup::setup_project,
             commands::deepseek::connect_deepseek,
             commands::deepseek::deepseek_connection_status,

@@ -36,6 +36,24 @@ export interface ExistingConfig {
   found_paths: string[];
 }
 
+// Spiegelt ProjectAnalysis aus src-tauri/src/commands/analyze.rs
+export interface ProjectAnalysis {
+  markers: string[];
+  languages: string[];
+  has_git: boolean;
+  top_extensions: string[];
+}
+
+/** Verdichtet die Analyse zu einer Zeile für den DeepSeek-Prompt. */
+export function formatProjectAnalysis(analysis: ProjectAnalysis): string {
+  const parts: string[] = [];
+  if (analysis.languages.length > 0) parts.push(`Sprachen/Ökosysteme: ${analysis.languages.join(", ")}`);
+  if (analysis.markers.length > 0) parts.push(`Marker-Dateien: ${analysis.markers.join(", ")}`);
+  parts.push(`Git-Repository: ${analysis.has_git ? "ja" : "nein"}`);
+  if (analysis.top_extensions.length > 0) parts.push(`Häufigste Dateiendungen: ${analysis.top_extensions.join(", ")}`);
+  return parts.join("; ");
+}
+
 export type StorageMode = "LocalOnly" | "LocalAndGitHub" | "GitHubOnly";
 
 export const STORAGE_MODES: { value: StorageMode; label: string; description: string }[] = [
@@ -63,6 +81,13 @@ export interface SetupProjectRequest {
   selected_tool_ids: string[];
   hitl_level: HitlLevel;
   already_confirmed: string[];
+  opencode_model: string | null;
+}
+
+// Spiegelt OpencodeModel aus src-tauri/src/adapters/opencode.rs
+export interface OpencodeModel {
+  id: string;
+  display_name: string;
 }
 
 export type WriteOutcome =
@@ -96,6 +121,7 @@ export interface OnboardingAnswers {
   wants_custom_agent: boolean;
   custom_agent_description: string | null;
   followup_answers: FollowupAnswer[];
+  project_analysis: string | null;
 }
 
 export interface ClarityCheck {

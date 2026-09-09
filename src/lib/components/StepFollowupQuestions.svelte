@@ -100,6 +100,7 @@
       wants_custom_agent: state.wantsCustomAgent,
       custom_agent_description: state.customAgentDescription || null,
       followup_answers: collected,
+      project_analysis: state.projectAnalysis || null,
     };
 
     try {

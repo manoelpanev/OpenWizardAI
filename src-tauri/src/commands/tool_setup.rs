@@ -15,11 +15,23 @@ pub struct SetupProjectRequest {
     /// Pfade, für die der Nutzer ein Überschreiben bereits bestätigt hat.
     #[serde(default)]
     pub already_confirmed: Vec<String>,
+    /// Modell, das unter opencode laufen soll — nur relevant, wenn
+    /// "opencode" in `selected_tool_ids` steht.
+    #[serde(default)]
+    pub opencode_model: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
 pub struct SetupProjectResponse {
     pub outcomes: Vec<WriteOutcome>,
+}
+
+/// Liefert die kuratierte Modell-Auswahlliste für opencode. Das UI zeigt
+/// sie als Dropdown, sobald opencode gewählt ist, und erlaubt zusätzlich
+/// ein frei eingetragenes Modell.
+#[tauri::command]
+pub fn list_opencode_models() -> Vec<crate::adapters::opencode::OpencodeModel> {
+    crate::adapters::opencode::available_models()
 }
 
 /// Erkennt für alle in M1 unterstützten Tools, ob im Zielordner bereits
@@ -65,6 +77,7 @@ pub fn setup_project(request: SetupProjectRequest) -> Result<SetupProjectRespons
         project_name: request.project_name,
         project_root: root,
         hitl_level: request.hitl_level,
+        opencode_model: request.opencode_model,
     };
 
     let mut all_writes = Vec::new();
