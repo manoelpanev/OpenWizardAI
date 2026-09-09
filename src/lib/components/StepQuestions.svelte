@@ -4,6 +4,9 @@
   import { wizardStore } from "../wizardStore";
   import type { OnboardingAnswers, ToolInfo } from "../types";
   import { get } from "svelte/store";
+  import { createSimulatedProgress } from "../simulatedProgress.svelte";
+
+  const progress = createSimulatedProgress();
 
   type SubStep = "used-tools" | "vorhaben" | "prototype";
 
@@ -34,6 +37,7 @@
   async function finish() {
     requesting = true;
     error = "";
+    progress.start();
 
     const state = get(wizardStore);
     const answers: OnboardingAnswers = {
@@ -53,9 +57,11 @@
         answers,
         model: state.model,
       });
+      progress.finish();
       wizardStore.setFollowupQuestions(questions);
       wizardStore.goToStep("followup-questions");
     } catch (e) {
+      progress.stop();
       error = `Rückfragen konnten nicht generiert werden: ${e}`;
     } finally {
       requesting = false;
@@ -123,9 +129,19 @@
     </div>
 
     {#if requesting}
-      <div class="progress-track indeterminate" aria-label="Rückfragen werden erstellt">
-        <div class="progress-fill-indeterminate"></div>
+      <div
+        class="progress-track"
+        role="progressbar"
+        aria-valuenow={Math.round(progress.percent)}
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-label="Rückfragen werden erstellt"
+      >
+        <div class="progress-fill" style="width: {progress.percent}%"></div>
       </div>
+      <p class="progress-label">
+        {Math.round(progress.percent)}% — DeepSeek analysiert dein Vorhaben, meist unter 15 Sekunden…
+      </p>
     {/if}
   {/if}
 </section>
@@ -201,28 +217,22 @@
     justify-content: flex-end;
   }
 
-  .progress-track.indeterminate {
-    position: relative;
+  .progress-track {
     height: 6px;
     border-radius: 3px;
     background: var(--owai-border);
     overflow: hidden;
   }
 
-  .progress-fill-indeterminate {
-    position: absolute;
-    inset: 0;
-    width: 40%;
+  .progress-fill {
+    height: 100%;
     background: var(--owai-accent);
-    animation: indeterminate 1.1s ease-in-out infinite;
+    transition: width 0.2s linear;
   }
 
-  @keyframes indeterminate {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(350%);
-    }
+  .progress-label {
+    color: var(--owai-muted);
+    font-size: 0.85rem;
+    margin: 0;
   }
 </style>

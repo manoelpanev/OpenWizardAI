@@ -4,6 +4,9 @@
   import { get } from "svelte/store";
   import { wizardStore } from "../wizardStore";
   import type { ClarityCheck, FollowupAnswer, OnboardingAnswers, OnboardingRecommendation } from "../types";
+  import { createSimulatedProgress } from "../simulatedProgress.svelte";
+
+  const recommendationProgress = createSimulatedProgress();
 
   // Lokale, erweiterbare Kopie der generierten Fragen — Klärungs-
   // Nachfragen werden hier direkt nach der aktuellen Frage eingefügt,
@@ -84,6 +87,7 @@
   async function getRecommendation() {
     requesting = true;
     error = "";
+    recommendationProgress.start();
 
     const state = get(wizardStore);
     wizardStore.setFollowupAnswers(collected);
@@ -103,9 +107,11 @@
         answers,
         model: state.model,
       });
+      recommendationProgress.finish();
       wizardStore.setRecommendation(recommendation);
       wizardStore.goToStep("recommendation");
     } catch (e) {
+      recommendationProgress.stop();
       error = `Empfehlung konnte nicht abgerufen werden: ${e}`;
       requesting = false;
     }
@@ -158,9 +164,19 @@
   {/if}
 
   {#if requesting}
-    <div class="progress-track indeterminate" aria-label="Empfehlung wird geladen">
-      <div class="progress-fill-indeterminate"></div>
+    <div
+      class="progress-track"
+      role="progressbar"
+      aria-valuenow={Math.round(recommendationProgress.percent)}
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-label="Empfehlung wird geladen"
+    >
+      <div class="progress-fill" style="width: {recommendationProgress.percent}%"></div>
     </div>
+    <p class="progress-label">
+      {Math.round(recommendationProgress.percent)}% — DeepSeek wertet deine Antworten aus, meist unter 20 Sekunden…
+    </p>
   {/if}
 </section>
 
@@ -216,24 +232,9 @@
     transition: width 0.3s ease;
   }
 
-  .progress-track.indeterminate {
-    position: relative;
-  }
-
-  .progress-fill-indeterminate {
-    position: absolute;
-    inset: 0;
-    width: 40%;
-    background: var(--owai-accent);
-    animation: indeterminate 1.1s ease-in-out infinite;
-  }
-
-  @keyframes indeterminate {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(350%);
-    }
+  .progress-label {
+    color: var(--owai-muted);
+    font-size: 0.85rem;
+    margin: 0;
   }
 </style>
