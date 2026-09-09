@@ -20,6 +20,25 @@ export type WizardStep =
   | "hitl"
   | "summary";
 
+// Feste Reihenfolge für den Fortschrittsbalken. Der tatsächliche Pfad
+// verzweigt (KI-Pfad überspringt "tools"/"hitl", der manuelle Pfad
+// überspringt "agent-question" bis "recommendation") — die Anzeige
+// rechnet deshalb mit der Position im TATSÄCHLICH durchlaufenen Pfad
+// (siehe `history` unten), nicht mit dieser Liste direkt. Sie dient nur
+// als Referenz für die Gesamtzahl möglicher Schritte.
+export const STEP_ORDER: WizardStep[] = [
+  "project-status",
+  "storage-mode",
+  "connect",
+  "agent-question",
+  "questions",
+  "followup-questions",
+  "recommendation",
+  "tools",
+  "hitl",
+  "summary",
+];
+
 export interface EditableCustomAgent {
   name: string;
   description: string;
@@ -27,6 +46,11 @@ export interface EditableCustomAgent {
 
 export interface WizardState {
   step: WizardStep;
+  // Tatsächlich besuchte Schritte in Reihenfolge, inkl. des aktuellen als
+  // letztes Element — Grundlage für "Zurück" und den Fortschrittsbalken.
+  // Ersetzt eine feste Schritt-Liste, weil der Flow verzweigt (KI-Pfad
+  // vs. manueller Pfad, variable Anzahl Vertiefungsfragen).
+  history: WizardStep[];
   isNewProject: boolean;
   // Verdichtete Projekt-Analyse beim Andocken (formatProjectAnalysis),
   // geht als Kontext in die DeepSeek-Aufrufe. Leer bei neuen Projekten.
@@ -64,6 +88,7 @@ export interface WizardState {
 function initialState(): WizardState {
   return {
     step: "project-status",
+    history: ["project-status"],
     isNewProject: true,
     projectAnalysis: "",
     storageMode: "LocalOnly",
@@ -166,7 +191,18 @@ function createWizardStore() {
       update((s) => ({ ...s, outcomes }));
     },
     goToStep(step: WizardStep) {
-      update((s) => ({ ...s, step }));
+      update((s) => ({ ...s, step, history: [...s.history, step] }));
+    },
+    // Springt zum vorherigen tatsächlich besuchten Schritt zurück (nicht
+    // zur festen STEP_ORDER-Position) — funktioniert deshalb korrekt über
+    // Verzweigungen hinweg, z.B. zurück von "recommendation" landet immer
+    // bei "followup-questions", nie bei "tools".
+    goBack() {
+      update((s) => {
+        if (s.history.length <= 1) return s;
+        const history = s.history.slice(0, -1);
+        return { ...s, history, step: history[history.length - 1] };
+      });
     },
     reset() {
       set(initialState());

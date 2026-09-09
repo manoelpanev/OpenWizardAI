@@ -142,8 +142,12 @@
   {/if}
 
   {#if opencodeSelected}
-    <fieldset>
-      <legend>Welches KI-Modell soll unter OpenChamber / opencode laufen?</legend>
+    <div class="model-callout">
+      <div class="model-callout-head">
+        <span class="model-callout-badge">opencode</span>
+        <strong>Welches KI-Modell soll darunter laufen?</strong>
+      </div>
+
       <label>
         Modell
         <select bind:value={opencodeModelChoice}>
@@ -165,7 +169,7 @@
         Wird als <code>"model"</code> in <code>opencode.jsonc</code> eingetragen. Leer lassen bzw. eigenes Feld leer
         lassen heißt: opencode behält seine eigene Standard-Einstellung.
       </p>
-    </fieldset>
+    </div>
   {/if}
 
   <button type="button" disabled={!canProceed} onclick={next}>Weiter</button>
@@ -200,6 +204,34 @@
     border: 1px solid var(--owai-border);
     border-radius: 8px;
     padding: 1rem;
+  }
+
+  .model-callout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 1.5px solid var(--owai-accent);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    background: var(--owai-accent-soft);
+  }
+
+  .model-callout-head {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
+
+  .model-callout-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: var(--owai-accent);
+    color: white;
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
   }
 
   select {

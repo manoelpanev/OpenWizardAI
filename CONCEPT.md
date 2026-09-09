@@ -268,6 +268,22 @@ gebündelt wird, Verhältnis Hermes-Prozess zu Pro-Projekt-Tray-Prozess auf
 Code-Ebene) noch nicht ausgearbeitet — wird vor Implementierung wie
 gewohnt zur Freigabe vorgelegt.
 
+**Referenz-Projekt gefunden: [NousResearch/hermes-agent](https://github.com/nousresearch/hermes-agent).**
+Open Source, MIT-lizenziert, kostenlos nutzbar (nur der optionale
+"Nous Portal"-Modellzugriff ist ein bezahlter Pay-per-Token-Dienst,
+nicht der Agent selbst — eigener DeepSeek-Key funktioniert ohne Portal).
+Deckt schon einen großen Teil dessen ab, was oben beschrieben ist:
+persistenter Agent mit Gedächtnis, autonome Skill-Erstellung, Cron-
+Scheduler, isolierte Subagents, Messaging-Gateway zu Telegram/Discord/
+Slack (WhatsApp fehlt dort noch). **Entschieden:** kein Fremdprozess, den
+OpenWizardAI nur startet/fernsteuert — stattdessen wird viel vom
+hermes-agent-Code als Grundlage für den eigenen Hermes-Prozess
+übernommen/angepasst, mehr Kontrolle als reine Integration. Betrieben
+auf einem Linux-VPS des Nutzers (nicht lokal auf dessen Mac). Konkreter
+Umsetzungsplan (welche Teile übernommen, welche neu, Deployment auf dem
+VPS) noch nicht ausgearbeitet — eigene Session, nicht Teil des laufenden
+Wizard-Redesigns.
+
 ## Geführter Wizard-Onboarding-Flow (entschieden, gehört zu M3 — implementiert)
 
 Ergänzt/präzisiert Punkt 5 im Plugin-System-Abschnitt oben. Statt eines
@@ -444,12 +460,40 @@ Projektordner geöffnet reicht dieser eine Satz, kein Pfad/URL nötig):
   `STRICT_BEHAVIOR_PREFIX`) allen DeepSeek-Systemprompts vorangestellt —
   Grounding an echten Nutzerantworten, Ignorieren von Prompt-Injection-
   Versuchen in Nutzerantworten, striktes JSON-Format
+- Custom-API-Registry (`registry.rs`, `ApiRegistry.svelte`) und optionale
+  Tavily-Web-Recherche (`websearch.rs`) umgesetzt — siehe jeweilige
+  Abschnitte oben. Zwei Datenverlust-Bugs beim Testen des kompletten
+  Wizard-Ablaufs gefunden und gefixt: Codex/Grok überschrieben sich
+  gegenseitig in `AGENTS.md` (jetzt zusammengeführt statt ersetzt),
+  opencodes HITL-Projektion machte `opencode.jsonc` zu ungültigem JSON
+  (jetzt No-Op, da `generate_files` das Feld schon schreibt). Abgesichert
+  durch `tests/wizard_flow.rs` (15 Rust-Tests gesamt, spielt den Flow bis
+  zu den geschriebenen Dateien durch).
+- **Erste Redesign-Runde nach Nutzer-Feedback** ("Reihenfolge chaotisch",
+  opencode-Modellwahl zu unauffällig, Design "grottenschlecht"): globale
+  Navigation mit echter Schritt-Historie (`wizardStore.history`,
+  `goBack()` statt nur `goToStep()`), `WizardShell.svelte` mit Zurück-
+  Pfeil + Fortschrittsbalken über den ganzen Flow (rechnet mit der
+  Position im tatsächlich durchlaufenen Pfad, da KI-Pfad und manueller
+  Pfad unterschiedlich viele Stationen haben), opencode-Modellwahl als
+  auffällige akzentfarbene Karte statt normalem Fieldset, neues Farbthema
+  (Navy/Purple, `#6d28d9`, recherchiert als seriöse "AI-forward SaaS"-
+  Palette — bewusst kein Gold/Neon-Pink, das gehört zu einem anderen,
+  spielerischeren Projekt des Nutzers), Karten-Layout mit Schatten statt
+  freischwebender Inhalte, neues App-Icon passend zum Farbthema.
+  **Nutzer-Wunsch, hier festgehalten:** ein besserer/dedizierter
+  Designer soll perspektivisch für dieses Projekt eingebunden werden —
+  die aktuelle Umsetzung ist ein erster funktionaler Durchgang, kein
+  Anspruch auf professionelles UI-Design.
 
 **Nächster Schritt (konzeptionell entschieden, noch nicht umgesetzt):**
 Siehe "Arbeitsweise/Speicherort-Frage — 3 Modi" unten — GitHub-Verbindung
 per OAuth-Flow (Client-ID/Secret einer registrierten GitHub-OAuth-App
 noch offen), Repo-Erstellung direkt aus dem Wizard, tatsächliches
-Commit+Push-Verhalten für Modus 2/3.
+Commit+Push-Verhalten für Modus 2/3. Separat davon (eigene Session, siehe
+Hermes-Abschnitt oben): Hermes-Prozess auf Basis von
+`NousResearch/hermes-agent`-Code bauen, Betrieb auf dem Linux-VPS des
+Nutzers.
 
 **Noch offen, unspezifiziert (siehe jeweilige Abschnitte oben):**
 Projekt-Dashboard (inkl. Pro-Projekt-Resume-Prompt), HANDOFF.md-
