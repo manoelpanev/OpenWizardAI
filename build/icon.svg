@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+	<defs>
+		<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#8B5CF6"/>
+			<stop offset="1" stop-color="#5B21B6"/>
+		</linearGradient>
+		<clipPath id="cone">
+			<path d="M 336 676 C 372 560 420 430 486 330 C 530 262 588 222 660 214 C 628 240 606 272 594 314 C 574 386 612 520 690 676 Z"/>
+		</clipPath>
+	</defs>
+	<!-- macOS icon grid: 824px squircle centered on a 1024px canvas -->
+	<rect x="100" y="100" width="824" height="824" rx="186" fill="url(#bg)"/>
+	<!-- Hat cone, tip bent to the right -->
+	<path fill="#FFFFFF" d="M 336 676 C 372 560 420 430 486 330 C 530 262 588 222 660 214 C 628 240 606 272 594 314 C 574 386 612 520 690 676 Z"/>
+	<!-- Band -->
+	<path fill="#6D28D9" clip-path="url(#cone)" d="M 320 616 C 450 600 590 600 668 618 L 684 660 C 600 640 440 640 320 660 Z"/>
+	<!-- Brim -->
+	<ellipse cx="512" cy="700" rx="262" ry="60" fill="#FFFFFF"/>
+	<!-- Star -->
+	<path fill="#6D28D9" d="M 524 420 L 536 454 L 572 456 L 544 478 L 554 512 L 524 492 L 494 512 L 504 478 L 476 456 L 512 454 Z"/>
+</svg>
