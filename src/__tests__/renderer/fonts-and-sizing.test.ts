@@ -225,7 +225,7 @@ describe('Cross-platform Fonts and Sizing', () => {
 		const varFallback = (declaration: string) => {
 			// Tailwind stores the whole var() as one QUOTED array entry, so the outer
 			// quotes come off before the var() itself can be matched.
-			let text = declaration.trim();
+			let text = declaration.trim().replace(/,$/, '').trim();
 			while (/^(['"])[\s\S]*\1$/.test(text)) text = text.slice(1, -1).trim();
 			const inner = /^var\(\s*--[\w-]+\s*,([\s\S]*)\)$/.exec(text);
 			return familyNames(inner ? inner[1] : text);
