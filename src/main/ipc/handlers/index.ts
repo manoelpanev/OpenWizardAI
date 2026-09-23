@@ -63,7 +63,6 @@ import {
 	stopCliDiscoveryWatchdog,
 	WebHandlerDependencies,
 } from './web';
-import { registerLeaderboardHandlers, LeaderboardHandlerDependencies } from './leaderboard';
 import { registerNotificationsHandlers } from './notifications';
 import { registerSymphonyHandlers, SymphonyHandlerDependencies } from './symphony';
 import { registerAgentErrorHandlers } from './agent-error';
@@ -122,8 +121,6 @@ export {
 	stopCliDiscoveryWatchdog,
 };
 export type { WebHandlerDependencies };
-export { registerLeaderboardHandlers };
-export type { LeaderboardHandlerDependencies };
 export { registerNotificationsHandlers };
 export { registerSymphonyHandlers };
 export { registerAgentErrorHandlers };
@@ -303,11 +300,6 @@ export function registerAllHandlers(deps: HandlerDependencies): void {
 	// Register attachments handlers
 	registerAttachmentsHandlers({
 		app: deps.app,
-	});
-	// Register leaderboard handlers
-	registerLeaderboardHandlers({
-		app: deps.app,
-		settingsStore: deps.settingsStore,
 	});
 	// Register notification handlers (OS notifications and TTS)
 	registerNotificationsHandlers({ getMainWindow: deps.getMainWindow });

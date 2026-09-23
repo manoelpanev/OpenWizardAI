@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import {
 	useSettingsStore,
 	loadAllSettings,
-	selectIsLeaderboardRegistered,
 	FILE_PREVIEW_TOOLBAR_BUTTON_KEYS,
 	DEFAULT_FILE_PREVIEW_TOOLBAR_VISIBILITY,
 } from '../../../renderer/stores/settingsStore';
@@ -600,13 +599,6 @@ describe('settingsStore', () => {
 				useSettingsStore.getState().setFirstAutoRunCompleted(true);
 				expect(useSettingsStore.getState().firstAutoRunCompleted).toBe(true);
 				expect(window.maestro.settings.set).toHaveBeenCalledWith('firstAutoRunCompleted', true);
-			});
-
-			it('setLeaderboardRegistration updates state and persists', () => {
-				const reg = { email: 'test@test.com', emailConfirmed: true, authToken: 'abc' };
-				useSettingsStore.getState().setLeaderboardRegistration(reg as any);
-				expect(useSettingsStore.getState().leaderboardRegistration).toEqual(reg);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('leaderboardRegistration', reg);
 			});
 		});
 
@@ -2642,35 +2634,6 @@ describe('settingsStore', () => {
 	// ========================================================================
 	// 12. selectIsLeaderboardRegistered
 	// ========================================================================
-
-	describe('selectIsLeaderboardRegistered', () => {
-		it('returns false when registration is null', () => {
-			const state = useSettingsStore.getState() as SettingsStoreState;
-			expect(selectIsLeaderboardRegistered(state)).toBe(false);
-		});
-
-		it('returns false when emailConfirmed is false', () => {
-			useSettingsStore.setState({
-				leaderboardRegistration: {
-					email: 'test@test.com',
-					emailConfirmed: false,
-				} as any,
-			});
-			const state = useSettingsStore.getState() as SettingsStoreState;
-			expect(selectIsLeaderboardRegistered(state)).toBe(false);
-		});
-
-		it('returns true when emailConfirmed is true', () => {
-			useSettingsStore.setState({
-				leaderboardRegistration: {
-					email: 'test@test.com',
-					emailConfirmed: true,
-				} as any,
-			});
-			const state = useSettingsStore.getState() as SettingsStoreState;
-			expect(selectIsLeaderboardRegistered(state)).toBe(true);
-		});
-	});
 
 	// ========================================================================
 	// 13. setPersistentWebLink race-condition and rollback tests

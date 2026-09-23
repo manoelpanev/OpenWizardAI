@@ -544,12 +544,6 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 		default: {},
 		category: 'internal',
 	},
-	leaderboardRegistration: {
-		description: 'Leaderboard registration info (username, avatar).',
-		type: 'object',
-		default: null,
-		category: 'internal',
-	},
 
 	// --- Context Management ---
 	contextManagementSettings: {

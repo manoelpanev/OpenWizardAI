@@ -110,9 +110,6 @@ vi.mock('../../../renderer/components/SendToAgentModal', () => ({
 vi.mock('../../../renderer/components/TransferProgressModal', () => ({
 	TransferProgressModal: () => null,
 }));
-vi.mock('../../../renderer/components/LeaderboardRegistrationModal', () => ({
-	LeaderboardRegistrationModal: () => null,
-}));
 vi.mock('../../../renderer/components/AgentSessionsBrowser', () => ({
 	AgentSessionsBrowser: () => null,
 }));

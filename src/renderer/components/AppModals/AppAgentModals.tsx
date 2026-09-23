@@ -9,7 +9,6 @@ import type {
 	ToolType,
 	KeyboardMasteryStats,
 	AutoRunStats,
-	LeaderboardRegistration,
 } from '../../types';
 import type { GroomingProgress, MergeResult } from '../../types/contextMerge';
 
@@ -19,7 +18,6 @@ import { ReauthModal } from '../ReauthModal';
 import { MergeSessionModal, type MergeOptions } from '../MergeSessionModal';
 import { SendToAgentModal, type SendToAgentOptions } from '../SendToAgentModal';
 import { TransferProgressModal } from '../TransferProgressModal';
-import { LeaderboardRegistrationModal } from '../LeaderboardRegistrationModal';
 
 // Re-export types used by consumers
 export type { RecoveryAction, MergeOptions, SendToAgentOptions };
@@ -43,14 +41,8 @@ export interface AppAgentModalsProps {
 	activeSession: Session | null;
 	groupChats: GroupChat[];
 
-	// LeaderboardRegistrationModal
-	leaderboardRegistrationOpen: boolean;
-	onCloseLeaderboardRegistration: () => void;
 	autoRunStats: AutoRunStats;
 	keyboardMasteryStats: KeyboardMasteryStats;
-	leaderboardRegistration: LeaderboardRegistration | null;
-	onSaveLeaderboardRegistration: (registration: LeaderboardRegistration) => void;
-	onLeaderboardOptOut: () => void;
 	onSyncAutoRunStats?: (stats: {
 		cumulativeTimeMs: number;
 		totalRuns: number;
@@ -105,7 +97,6 @@ export interface AppAgentModalsProps {
  * AppAgentModals - Renders agent error and context transfer modals
  *
  * Contains:
- * - LeaderboardRegistrationModal: Register for the runmaestro.ai leaderboard
  * - AgentErrorModal: Display agent errors with recovery options (agents and group chats)
  * - MergeSessionModal: Merge current context into another session
  * - TransferProgressModal: Show progress during cross-agent context transfer
@@ -116,14 +107,8 @@ export const AppAgentModals = memo(function AppAgentModals({
 	sessions,
 	activeSession,
 	groupChats,
-	// LeaderboardRegistrationModal
-	leaderboardRegistrationOpen,
-	onCloseLeaderboardRegistration,
 	autoRunStats,
 	keyboardMasteryStats,
-	leaderboardRegistration,
-	onSaveLeaderboardRegistration,
-	onLeaderboardOptOut,
 	onSyncAutoRunStats,
 	// AgentErrorModal (for individual agents)
 	errorSession,
@@ -167,20 +152,6 @@ export const AppAgentModals = memo(function AppAgentModals({
 
 	return (
 		<>
-			{/* --- LEADERBOARD REGISTRATION MODAL --- */}
-			{leaderboardRegistrationOpen && (
-				<LeaderboardRegistrationModal
-					theme={theme}
-					autoRunStats={autoRunStats}
-					keyboardMasteryStats={keyboardMasteryStats}
-					existingRegistration={leaderboardRegistration}
-					onClose={onCloseLeaderboardRegistration}
-					onSave={onSaveLeaderboardRegistration}
-					onOptOut={onLeaderboardOptOut}
-					onSyncStats={onSyncAutoRunStats}
-				/>
-			)}
-
 			{/* --- AGENT ERROR MODAL (individual agents) --- */}
 			{effectiveAgentError && (
 				<AgentErrorModal

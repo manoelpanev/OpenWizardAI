@@ -12,7 +12,7 @@
  *   - File gist URLs loading from settings
  *   - Beta updates setting sync
  *   - Update check on startup
- *   - Leaderboard stats sync from server
+
  *   - SpecKit + OpenSpec + BMAD command loading
  *   - SSH remote configs loading
  *   - Stats DB corruption check
@@ -37,11 +37,6 @@ import {
 	exposeOnboardingSeriesDebug,
 	startOnboardingSeries,
 } from '../../stores/onboardingSeriesStore';
-import {
-	flushLeaderboardOutbox,
-	recoverUncommittedAutoRunCredit,
-	reportLeaderboardDrift,
-} from '../../services/leaderboard';
 import { logger } from '../../utils/logger';
 
 // ============================================================================
@@ -85,7 +80,6 @@ export function useAppInitialization(): AppInitializationReturn {
 	const hasAnySession = useSessionStore((s) => s.sessions.length > 0);
 	const enableBetaUpdates = useSettingsStore((s) => s.enableBetaUpdates);
 	const checkForUpdatesOnStartup = useSettingsStore((s) => s.checkForUpdatesOnStartup);
-	const leaderboardAuthToken = useSettingsStore((s) => s.leaderboardRegistration?.authToken);
 	const toastDuration = useSettingsStore((s) => s.toastDuration);
 	const audioFeedbackEnabled = useSettingsStore((s) => s.audioFeedbackEnabled);
 	const audioFeedbackCommand = useSettingsStore((s) => s.audioFeedbackCommand);
@@ -274,61 +268,6 @@ export function useAppInitialization(): AppInitializationReturn {
 			if (intervalId) clearInterval(intervalId);
 		};
 	}, [settingsLoaded, checkForUpdatesOnStartup, enableBetaUpdates]);
-
-	// --- Leaderboard startup sync ---
-	useEffect(() => {
-		if (!settingsLoaded) return;
-		const { leaderboardRegistration } = useSettingsStore.getState();
-		const authToken = leaderboardRegistration?.authToken;
-		const email = leaderboardRegistration?.email;
-		if (!authToken || !email) return;
-
-		const timer = setTimeout(async () => {
-			try {
-				// Ship everything owed BEFORE reading the server total, so the
-				// comparison below describes real drift and not a queue that simply
-				// had not been drained yet.
-				await recoverUncommittedAutoRunCredit();
-				await flushLeaderboardOutbox();
-
-				const result = await window.maestro.leaderboard.sync({ email, authToken });
-
-				if (result.success && result.found && result.data) {
-					// Read fresh autoRunStats at call time
-					const currentStats = useSettingsStore.getState().autoRunStats;
-					if (result.data.cumulativeTimeMs < currentStats.cumulativeTimeMs) {
-						// The server aggregates every device, so it can only be BELOW
-						// this machine's total when deltas were dropped. Silently
-						// skipping here is what latched the sync off for good.
-						void reportLeaderboardDrift(
-							currentStats.cumulativeTimeMs,
-							result.data.cumulativeTimeMs
-						);
-					}
-					if (result.data.cumulativeTimeMs > currentStats.cumulativeTimeMs) {
-						const longestRunTimestamp = result.data.longestRunDate
-							? new Date(result.data.longestRunDate).getTime()
-							: currentStats.longestRunTimestamp;
-
-						useSettingsStore.getState().setAutoRunStats({
-							...currentStats,
-							cumulativeTimeMs: result.data.cumulativeTimeMs,
-							totalRuns: result.data.totalRuns,
-							currentBadgeLevel: result.data.badgeLevel,
-							longestRunMs: result.data.longestRunMs ?? currentStats.longestRunMs,
-							longestRunTimestamp,
-							lastBadgeUnlockLevel: result.data.badgeLevel,
-							lastAcknowledgedBadgeLevel: result.data.badgeLevel,
-						});
-					}
-				}
-			} catch (error) {
-				logger.debug('[Leaderboard] Startup sync failed (non-critical):', undefined, error);
-			}
-		}, 3000);
-
-		return () => clearTimeout(timer);
-	}, [settingsLoaded, leaderboardAuthToken]);
 
 	// --- SpecKit commands loading ---
 	// Wait for settings so we know whether the user has disabled this bundle.

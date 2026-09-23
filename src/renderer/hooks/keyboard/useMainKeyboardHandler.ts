@@ -616,10 +616,6 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 				e.preventDefault();
 				useModalStore.getState().openModal('snoozedTabs');
 				trackShortcut('showSnoozeList');
-			} else if (ctx.isShortcut(e, 'openLeaderboard')) {
-				e.preventDefault();
-				useModalStore.getState().openModal('leaderboard');
-				trackShortcut('openLeaderboard');
 			} else if (ctx.isShortcut(e, 'clearAllNotifications')) {
 				e.preventDefault();
 				useNotificationStore.getState().clearToasts();

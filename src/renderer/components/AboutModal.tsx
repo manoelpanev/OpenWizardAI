@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Spinner } from './ui/Spinner';
 import { GhostIconButton } from './ui/GhostIconButton';
-import type { Theme, AutoRunStats, MaestroUsageStats, LeaderboardRegistration } from '../types';
+import type { Theme, AutoRunStats, MaestroUsageStats } from '../types';
 import { MODAL_PRIORITIES } from '../constants/modalPriorities';
 import { AchievementCard } from './AchievementCard';
 import { formatTokensCompact } from '../utils/formatters';
@@ -30,9 +30,6 @@ interface AboutModalProps {
 	/** Global hands-on time in milliseconds (from settings, persists across sessions) */
 	handsOnTimeMs: number;
 	onClose: () => void;
-	onOpenLeaderboardRegistration?: () => void;
-	isLeaderboardRegistered?: boolean;
-	leaderboardRegistration?: LeaderboardRegistration | null;
 }
 
 export function AboutModal({
@@ -41,9 +38,6 @@ export function AboutModal({
 	usageStats,
 	handsOnTimeMs,
 	onClose,
-	onOpenLeaderboardRegistration,
-	isLeaderboardRegistered,
-	leaderboardRegistration,
 }: AboutModalProps) {
 	const { globalStats, loading, isComplete: isStatsComplete } = useGlobalAgentStats();
 	const badgeEscapeHandlerRef = useRef<(() => boolean) | null>(null);
@@ -163,7 +157,6 @@ export function AboutModal({
 					globalStats={globalStats}
 					usageStats={usageStats}
 					handsOnTimeMs={handsOnTimeMs}
-					leaderboardRegistration={leaderboardRegistration}
 					onEscapeWithBadgeOpen={(handler) => {
 						badgeEscapeHandlerRef.current = handler;
 					}}
@@ -298,33 +291,6 @@ export function AboutModal({
 						</div>
 						<ExternalLink className="w-4 h-4" style={{ color: theme.colors.textDim }} />
 					</button>
-
-					{/* Leaderboard Registration */}
-					{onOpenLeaderboardRegistration && (
-						<button
-							onClick={onOpenLeaderboardRegistration}
-							className="flex-1 flex items-center justify-between p-3 rounded border hover:bg-white/5 transition-colors"
-							style={{
-								borderColor: isLeaderboardRegistered ? theme.colors.success : theme.colors.accent,
-								backgroundColor: isLeaderboardRegistered ? `${theme.colors.success}10` : undefined,
-							}}
-						>
-							<div className="flex items-center gap-2">
-								<Trophy
-									className="w-4 h-4"
-									style={{ color: isLeaderboardRegistered ? theme.colors.success : '#FFD700' }}
-								/>
-								<span className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-									{isLeaderboardRegistered ? 'Leaderboard' : 'Join Leaderboard'}
-								</span>
-							</div>
-							{isLeaderboardRegistered ? (
-								<Check className="w-4 h-4" style={{ color: theme.colors.success }} />
-							) : (
-								<ExternalLink className="w-4 h-4" style={{ color: theme.colors.textDim }} />
-							)}
-						</button>
-					)}
 				</div>
 
 				{/* Divider */}

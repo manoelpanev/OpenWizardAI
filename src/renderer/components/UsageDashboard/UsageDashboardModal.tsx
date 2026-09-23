@@ -57,7 +57,6 @@ import type {
 	Session,
 	AutoRunStats as AutoRunStatsType,
 	MaestroUsageStats,
-	LeaderboardRegistration,
 	UsageDashboardViewMode as ViewMode,
 } from '../../types';
 import {
@@ -141,8 +140,6 @@ interface UsageDashboardModalProps {
 	usageStats?: MaestroUsageStats | null;
 	/** Global hands-on time, in ms, sourced from settings. */
 	handsOnTimeMs?: number;
-	/** Leaderboard registration (display name + social handles) for personalization. */
-	leaderboardRegistration?: LeaderboardRegistration | null;
 }
 
 /**
@@ -196,7 +193,6 @@ export function UsageDashboardModal({
 	globalStats: globalStatsProp,
 	usageStats,
 	handsOnTimeMs,
-	leaderboardRegistration,
 }: UsageDashboardModalProps) {
 	// The Achievement share image (in this modal's header) needs cross-provider
 	// session/token totals. About Modal fetches them on mount via the shared
@@ -892,7 +888,6 @@ export function UsageDashboardModal({
 								globalStats={globalStats}
 								usageStats={usageStats}
 								handsOnTimeMs={handsOnTimeMs}
-								leaderboardRegistration={leaderboardRegistration}
 								variant="header"
 								title="Share achievements"
 							/>

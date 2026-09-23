@@ -360,7 +360,6 @@ export type ModalId =
 	| 'standingOvation'
 	| 'firstRunCelebration'
 	| 'keyboardMastery'
-	| 'leaderboard'
 	// Media
 	| 'lightbox'
 	// Symphony
@@ -828,10 +827,6 @@ export function getModalActions() {
 		setUpdateCheckModalOpen: (open: boolean) =>
 			open ? openModal('updateCheck') : closeModal('updateCheck'),
 
-		// Leaderboard Registration Modal
-		setLeaderboardRegistrationOpen: (open: boolean) =>
-			open ? openModal('leaderboard') : closeModal('leaderboard'),
-
 		// Standing Ovation Overlay
 		setStandingOvationData: (data: StandingOvationData | null) =>
 			data ? openModal('standingOvation', data) : closeModal('standingOvation'),
@@ -1151,7 +1146,6 @@ export function useModalActions() {
 	const lightboxData = useModalStore(selectModalData('lightbox'));
 	const aboutModalOpen = useModalStore(selectModalOpen('about'));
 	const updateCheckModalOpen = useModalStore(selectModalOpen('updateCheck'));
-	const leaderboardRegistrationOpen = useModalStore(selectModalOpen('leaderboard'));
 	const standingOvationData = useModalStore(selectModalData('standingOvation'));
 	const firstRunCelebrationData = useModalStore(selectModalData('firstRunCelebration'));
 	const logViewerOpen = useModalStore(selectModalOpen('logViewer'));
@@ -1255,9 +1249,6 @@ export function useModalActions() {
 
 		// Update Check Modal
 		updateCheckModalOpen,
-
-		// Leaderboard Registration Modal
-		leaderboardRegistrationOpen,
 
 		// Standing Ovation Overlay
 		standingOvationData: standingOvationData ?? null,

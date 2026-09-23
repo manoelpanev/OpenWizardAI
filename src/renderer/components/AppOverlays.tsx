@@ -47,8 +47,6 @@ export interface AppOverlaysProps {
 	// Standing Ovation Overlay
 	cumulativeTimeMs: number;
 	onCloseStandingOvation: () => void;
-	onOpenLeaderboardRegistration: () => void;
-	isLeaderboardRegistered: boolean;
 
 	// First Run Celebration
 	onCloseFirstRun: () => void;
@@ -68,8 +66,6 @@ export function AppOverlays({
 	theme,
 	cumulativeTimeMs,
 	onCloseStandingOvation,
-	onOpenLeaderboardRegistration,
-	isLeaderboardRegistered,
 	onCloseFirstRun,
 	onCloseKeyboardMastery,
 }: AppOverlaysProps): JSX.Element {
@@ -90,8 +86,6 @@ export function AppOverlays({
 					completedTasks={firstRunCelebrationData.completedTasks}
 					totalTasks={firstRunCelebrationData.totalTasks}
 					onClose={onCloseFirstRun}
-					onOpenLeaderboardRegistration={onOpenLeaderboardRegistration}
-					isLeaderboardRegistered={isLeaderboardRegistered}
 					disableConfetti={disableConfetti}
 				/>
 			)}
@@ -117,8 +111,6 @@ export function AppOverlays({
 					recordTimeMs={standingOvationData.recordTimeMs}
 					cumulativeTimeMs={cumulativeTimeMs}
 					onClose={onCloseStandingOvation}
-					onOpenLeaderboardRegistration={onOpenLeaderboardRegistration}
-					isLeaderboardRegistered={isLeaderboardRegistered}
 					disableConfetti={disableConfetti}
 				/>
 			)}

@@ -8,7 +8,6 @@ export function AchievementCardHeader({
 	globalStats,
 	usageStats,
 	handsOnTimeMs,
-	leaderboardRegistration,
 }: AchievementCardProps) {
 	return (
 		<div className="flex items-center justify-between mb-3">
@@ -25,7 +24,6 @@ export function AchievementCardHeader({
 				globalStats={globalStats}
 				usageStats={usageStats}
 				handsOnTimeMs={handsOnTimeMs}
-				leaderboardRegistration={leaderboardRegistration}
 			/>
 		</div>
 	);

@@ -2,7 +2,7 @@
  * useModalHandlers - Extracted from App.tsx (Phase 2C)
  *
  * Handles all modal open/close lifecycle callbacks, agent error recovery,
- * lightbox navigation, celebration modals, leaderboard, quit confirmation,
+ * lightbox navigation, celebration modals, quit confirmation,
  * and quick-action modal openers.
  *
  * Reads from: useModalStore, useSettingsStore, useSessionStore,
@@ -14,7 +14,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import type { Session, LeaderboardRegistration, AgentError } from '../../types';
+import type { Session, AgentError } from '../../types';
 import type { RecoveryAction } from '../../components/AgentErrorModal';
 import { getModalActions, useModalStore } from '../../stores/modalStore';
 import { useSettingsStore } from '../../stores/settingsStore';
@@ -83,13 +83,6 @@ export interface ModalHandlersReturn {
 	handleKeyboardMasteryCelebrationClose: () => void;
 	handleStandingOvationClose: () => void;
 	handleFirstRunCelebrationClose: () => void;
-
-	// Leaderboard handlers
-	handleOpenLeaderboardRegistration: () => void;
-	handleOpenLeaderboardRegistrationFromAbout: () => void;
-	handleCloseLeaderboardRegistration: () => void;
-	handleSaveLeaderboardRegistration: (registration: LeaderboardRegistration) => void;
-	handleLeaderboardOptOut: () => void;
 
 	// Agent error handlers
 	handleCloseAgentErrorModal: () => void;
@@ -340,31 +333,6 @@ export function useModalHandlers(
 		},
 		[onKeyboardMasteryLevelUp]
 	);
-
-	// ====================================================================
-	// Group E: Leaderboard Handlers
-	// ====================================================================
-
-	const handleOpenLeaderboardRegistration = useCallback(() => {
-		getModalActions().setLeaderboardRegistrationOpen(true);
-	}, []);
-
-	const handleOpenLeaderboardRegistrationFromAbout = useCallback(() => {
-		getModalActions().setAboutModalOpen(false);
-		getModalActions().setLeaderboardRegistrationOpen(true);
-	}, []);
-
-	const handleCloseLeaderboardRegistration = useCallback(() => {
-		getModalActions().setLeaderboardRegistrationOpen(false);
-	}, []);
-
-	const handleSaveLeaderboardRegistration = useCallback((registration: LeaderboardRegistration) => {
-		useSettingsStore.getState().setLeaderboardRegistration(registration);
-	}, []);
-
-	const handleLeaderboardOptOut = useCallback(() => {
-		useSettingsStore.getState().setLeaderboardRegistration(null);
-	}, []);
 
 	// ====================================================================
 	// Group F: Agent Error Handlers
@@ -1059,13 +1027,6 @@ export function useModalHandlers(
 		handleKeyboardMasteryCelebrationClose,
 		handleStandingOvationClose,
 		handleFirstRunCelebrationClose,
-
-		// Leaderboard handlers
-		handleOpenLeaderboardRegistration,
-		handleOpenLeaderboardRegistrationFromAbout,
-		handleCloseLeaderboardRegistration,
-		handleSaveLeaderboardRegistration,
-		handleLeaderboardOptOut,
 
 		// Agent error handlers
 		handleCloseAgentErrorModal,

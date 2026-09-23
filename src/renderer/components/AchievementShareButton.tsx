@@ -16,7 +16,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { Share2, Copy, Download, Check } from 'lucide-react';
-import type { Theme, AutoRunStats, MaestroUsageStats, LeaderboardRegistration } from '../types';
+import type { Theme, AutoRunStats, MaestroUsageStats } from '../types';
 import { getBadgeForTime, formatCumulativeTime } from '../constants/conductorBadges';
 import { formatTokensCompact } from '../utils/formatters';
 import maestroWandIcon from '../assets/icon-wand.png';
@@ -48,7 +48,6 @@ export interface AchievementShareButtonProps {
 	globalStats?: AchievementShareGlobalStats | null;
 	usageStats?: MaestroUsageStats | null;
 	handsOnTimeMs?: number;
-	leaderboardRegistration?: LeaderboardRegistration | null;
 	/**
 	 * Visual variant. `default` matches the inline-card placement (small
 	 * subdued icon button). `header` makes the button match the surrounding
@@ -111,7 +110,6 @@ export function AchievementShareButton({
 	globalStats,
 	usageStats,
 	handsOnTimeMs,
-	leaderboardRegistration,
 	variant = 'default',
 	title = 'Share achievements',
 }: AchievementShareButtonProps) {
@@ -135,12 +133,16 @@ export function AchievementShareButton({
 		const canvas = document.createElement('canvas');
 		const ctx = canvas.getContext('2d')!;
 
-		const hasPersonalization = leaderboardRegistration?.displayName;
-		const displayName = leaderboardRegistration?.displayName;
-		const githubUsername = leaderboardRegistration?.githubUsername;
-		const twitterHandle = leaderboardRegistration?.twitterHandle;
-		const linkedinHandle = leaderboardRegistration?.linkedinHandle;
-		const discordUsername = leaderboardRegistration?.discordUsername;
+		// Share cards are anonymous: no profile or social handles are collected.
+		const profile: {
+			displayName?: string;
+			githubUsername?: string;
+			twitterHandle?: string;
+			linkedinHandle?: string;
+			discordUsername?: string;
+		} = {};
+		const { displayName, githubUsername, twitterHandle, linkedinHandle, discordUsername } = profile;
+		const hasPersonalization = Boolean(displayName);
 
 		const socialHandles: { icon: string; handle: string; color: string }[] = [];
 		if (githubUsername)
@@ -559,7 +561,6 @@ export function AchievementShareButton({
 		globalStats,
 		usageStats,
 		handsOnTimeMs,
-		leaderboardRegistration,
 	]);
 
 	const copyToClipboard = useCallback(async () => {

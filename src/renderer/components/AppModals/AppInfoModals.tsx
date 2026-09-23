@@ -8,7 +8,6 @@ import type {
 	KeyboardMasteryStats,
 	AutoRunStats,
 	MaestroUsageStats,
-	LeaderboardRegistration,
 } from '../../types';
 
 // Info/Display Modal Components
@@ -47,9 +46,6 @@ export interface AppInfoModalsProps {
 	onSwitchToSession: (sessionId: string) => void;
 	/** Global hands-on time in milliseconds (from settings) */
 	handsOnTimeMs: number;
-	onOpenLeaderboardRegistration: () => void;
-	isLeaderboardRegistered: boolean;
-	leaderboardRegistration?: LeaderboardRegistration | null;
 
 	// Update Check Modal
 	updateCheckModalOpen: boolean;
@@ -102,9 +98,6 @@ export const AppInfoModals = memo(function AppInfoModals({
 	usageStats,
 	onSwitchToSession,
 	handsOnTimeMs,
-	onOpenLeaderboardRegistration,
-	isLeaderboardRegistered,
-	leaderboardRegistration,
 	// Update Check Modal
 	updateCheckModalOpen,
 	onCloseUpdateCheckModal,
@@ -150,9 +143,6 @@ export const AppInfoModals = memo(function AppInfoModals({
 					usageStats={usageStats}
 					handsOnTimeMs={handsOnTimeMs}
 					onClose={onCloseAboutModal}
-					onOpenLeaderboardRegistration={onOpenLeaderboardRegistration}
-					isLeaderboardRegistered={isLeaderboardRegistered}
-					leaderboardRegistration={leaderboardRegistration}
 				/>
 			)}
 
@@ -187,7 +177,6 @@ export const AppInfoModals = memo(function AppInfoModals({
 						autoRunStats={autoRunStats}
 						usageStats={usageStats}
 						handsOnTimeMs={handsOnTimeMs}
-						leaderboardRegistration={leaderboardRegistration}
 					/>
 				</Suspense>
 			)}

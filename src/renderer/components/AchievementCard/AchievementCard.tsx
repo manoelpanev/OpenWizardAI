@@ -17,7 +17,6 @@ export function AchievementCard({
 	globalStats,
 	usageStats,
 	handsOnTimeMs,
-	leaderboardRegistration,
 	onEscapeWithBadgeOpen,
 }: AchievementCardShellProps) {
 	const viewModel = createAchievementCardViewModel(autoRunStats);
@@ -38,7 +37,6 @@ export function AchievementCard({
 				globalStats={globalStats}
 				usageStats={usageStats}
 				handsOnTimeMs={handsOnTimeMs}
-				leaderboardRegistration={leaderboardRegistration}
 			/>
 
 			<BadgeHero

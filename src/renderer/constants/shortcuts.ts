@@ -244,7 +244,6 @@ export const DEFAULT_SHORTCUTS: Record<string, Shortcut> = {
 
 	// Palette-only actions that had no keyboard route at all. Same reasoning:
 	// registered so they can be bound, unbound so nothing is claimed by default.
-	openLeaderboard: { id: 'openLeaderboard', label: 'Open Leaderboard', keys: [] },
 	clearAllNotifications: {
 		id: 'clearAllNotifications',
 		label: 'Clear All Notifications',

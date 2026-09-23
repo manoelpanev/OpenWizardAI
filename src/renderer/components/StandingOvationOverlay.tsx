@@ -24,8 +24,6 @@ interface StandingOvationOverlayProps {
 	recordTimeMs?: number;
 	cumulativeTimeMs: number;
 	onClose: () => void;
-	onOpenLeaderboardRegistration?: () => void;
-	isLeaderboardRegistered?: boolean;
 	/** Whether confetti animations are disabled by user preference */
 	disableConfetti?: boolean;
 }
@@ -42,8 +40,6 @@ export function StandingOvationOverlay({
 	recordTimeMs,
 	cumulativeTimeMs,
 	onClose,
-	onOpenLeaderboardRegistration,
-	isLeaderboardRegistered,
 	disableConfetti = false,
 }: StandingOvationOverlayProps) {
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -603,25 +599,6 @@ export function StandingOvationOverlay({
 								</div>
 							)}
 						</div>
-
-						{/* Leaderboard Registration */}
-						{onOpenLeaderboardRegistration && !isLeaderboardRegistered && (
-							<button
-								onClick={() => {
-									onClose();
-									onOpenLeaderboardRegistration();
-								}}
-								className="w-full py-2.5 rounded-lg font-medium transition-all flex items-center justify-center gap-2 hover:opacity-90"
-								style={{
-									backgroundColor: `${goldColor}20`,
-									color: goldColor,
-									border: `1px solid ${goldColor}60`,
-								}}
-							>
-								<Trophy className="w-4 h-4" />
-								Join Global Leaderboard
-							</button>
-						)}
 					</div>
 				</div>
 			</div>

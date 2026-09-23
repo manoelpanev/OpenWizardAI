@@ -10,8 +10,6 @@ interface BuildSupportCommandsArgs {
 	setSettingsTab: (tab: SettingsTab) => void;
 	setShortcutsHelpOpen: (open: boolean) => void;
 	setAboutModalOpen: (open: boolean) => void;
-	onOpenLeaderboardRegistration: () => void;
-	isLeaderboardRegistered: boolean;
 	setLogViewerOpen: (open: boolean) => void;
 	setProcessMonitorOpen: (open: boolean) => void;
 	setUpdateCheckModalOpen?: (open: boolean) => void;
@@ -27,7 +25,6 @@ interface BuildSupportCommandsArgs {
 		systemLogs?: QuickAction['shortcut'];
 		processMonitor?: QuickAction['shortcut'];
 		openThemeSettings?: QuickAction['shortcut'];
-		openLeaderboard?: QuickAction['shortcut'];
 	};
 }
 
@@ -37,8 +34,6 @@ export function buildSupportCommands({
 	setSettingsTab,
 	setShortcutsHelpOpen,
 	setAboutModalOpen,
-	onOpenLeaderboardRegistration,
-	isLeaderboardRegistered,
 	setLogViewerOpen,
 	setProcessMonitorOpen,
 	setUpdateCheckModalOpen,
@@ -119,18 +114,6 @@ export function buildSupportCommands({
 			label: 'About OpenWizzard',
 			action: () => {
 				setAboutModalOpen(true);
-				setQuickActionOpen(false);
-			},
-		},
-		{
-			id: 'leaderboard',
-			label: isLeaderboardRegistered ? 'Leaderboard Registration' : 'Join Leaderboard',
-			shortcut: shortcuts.openLeaderboard,
-			subtext: isLeaderboardRegistered
-				? 'Update your global runmaestro.ai leaderboard profile'
-				: 'Register for the global runmaestro.ai leaderboard',
-			action: () => {
-				onOpenLeaderboardRegistration();
 				setQuickActionOpen(false);
 			},
 		},

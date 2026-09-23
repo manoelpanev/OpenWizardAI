@@ -21,7 +21,6 @@ import type {
 	AutoRunStats,
 	MaestroUsageStats,
 	OnboardingStats,
-	LeaderboardRegistration,
 	ContextManagementSettings,
 	KeyboardMasteryStats,
 	ThinkingMode,
@@ -31,11 +30,7 @@ import type {
 import type { FileExplorerIconTheme } from '../../utils/fileExplorerIcons/shared';
 import type { ToastWidth } from '../../../shared/toastWidth';
 import type { GlossLevel } from '../../../shared/themeGloss';
-import {
-	useSettingsStore,
-	loadAllSettings,
-	selectIsLeaderboardRegistered,
-} from '../../stores/settingsStore';
+import { useSettingsStore, loadAllSettings } from '../../stores/settingsStore';
 import type { SettingsStore } from '../../stores/settingsStore';
 import type {
 	DocumentGraphLayoutType,
@@ -262,11 +257,6 @@ export interface UseSettingsReturn {
 		averageConversationExchanges: number;
 		averagePhasesPerWizard: number;
 	};
-
-	// Leaderboard Registration (persistent)
-	leaderboardRegistration: LeaderboardRegistration | null;
-	setLeaderboardRegistration: (value: LeaderboardRegistration | null) => void;
-	isLeaderboardRegistered: boolean;
 
 	// Web Interface settings
 	webInterfaceUseCustomPort: boolean;
@@ -523,7 +513,6 @@ export function useSettings(): UseSettingsReturn {
 	// state object has a new reference but identical fields - shallow equality stops the
 	// re-render cascade through MaestroConsoleInner → GitStatusProvider → workspace tree.
 	const store = useStoreWithEqualityFn(useSettingsStore, selectAllSettings, shallow);
-	const isLeaderboardRegistered = useSettingsStore(selectIsLeaderboardRegistered);
 
 	// Load settings on mount
 	useEffect(() => {
@@ -622,6 +611,5 @@ export function useSettings(): UseSettingsReturn {
 
 	return {
 		...store,
-		isLeaderboardRegistered,
 	};
 }

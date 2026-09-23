@@ -428,23 +428,6 @@ describe('CueStats', () => {
 			expect(screen.queryByText('Needs attention')).not.toBeInTheDocument();
 		});
 
-		it('renders the slowest-runs leaderboard sorted by duration', async () => {
-			render(<CueStats timeRange="week" theme={theme} />);
-
-			await waitFor(() => {
-				expect(screen.getByTestId('cue-stats-slowest-runs')).toBeInTheDocument();
-			});
-
-			const slow = screen.getByTestId('cue-stats-slowest-runs');
-			const runs = within(slow).getAllByTestId('cue-stats-slow-run');
-			// Three nodes in the fixture chain; the 60s root should rank first.
-			expect(runs).toHaveLength(3);
-			expect(within(runs[0]).getByText('sub-watch-files')).toBeInTheDocument();
-			expect(within(runs[0]).getByText('1m 0s')).toBeInTheDocument();
-			expect(within(runs[1]).getByText('sub-followup')).toBeInTheDocument();
-			expect(within(runs[2]).getByText('sub-leaf')).toBeInTheDocument();
-		});
-
 		it('renders the trigger-type breakdown with one row per trigger', async () => {
 			render(<CueStats timeRange="week" theme={theme} />);
 

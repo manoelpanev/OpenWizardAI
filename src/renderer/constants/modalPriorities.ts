@@ -227,9 +227,6 @@ export const MODAL_PRIORITIES = {
 	/** Keyboard shortcuts help modal */
 	SHORTCUTS_HELP: 650,
 
-	/** Leaderboard registration modal */
-	LEADERBOARD_REGISTRATION: 620,
-
 	/** Debug package generation modal */
 	DEBUG_PACKAGE: 605,
 

@@ -566,7 +566,6 @@ describe('QuickActions command builders', () => {
 			shortcuts: {},
 		}).map((a) => a.id);
 		expect(supportIds).toContain('createDebugPackage');
-		expect(supportIds).toContain('leaderboard');
 
 		const debugCommandIds = buildDebugCommands({
 			activeSession: createMockSession({

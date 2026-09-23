@@ -20,7 +20,6 @@ import type {
 	BatchRunConfig,
 	AgentError,
 	ToolType,
-	LeaderboardRegistration,
 	ThinkingMode,
 	SessionWorktreeConfig,
 	QueuedItemEditPatch,
@@ -68,9 +67,6 @@ export interface AppModalsProps {
 	onSwitchToSession: (sessionId: string) => void;
 	/** Global hands-on time in milliseconds (from settings) */
 	handsOnTimeMs: number;
-	onOpenLeaderboardRegistration: () => void;
-	isLeaderboardRegistered: boolean;
-	// leaderboardRegistration is provided via AppAgentModals props below
 	onCloseUpdateCheckModal: () => void;
 	onCloseProcessMonitor: () => void;
 	onNavigateToSession: (sessionId: string, tabId?: string, processType?: string) => void;
@@ -398,10 +394,6 @@ export interface AppModalsProps {
 	onOpenModeratorSession: (moderatorSessionId: string) => void;
 
 	// --- AppAgentModals props ---
-	onCloseLeaderboardRegistration: () => void;
-	leaderboardRegistration: LeaderboardRegistration | null;
-	onSaveLeaderboardRegistration: (registration: LeaderboardRegistration) => void;
-	onLeaderboardOptOut: () => void;
 	onSyncAutoRunStats?: (stats: {
 		cumulativeTimeMs: number;
 		totalRuns: number;
@@ -505,7 +497,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		gitDiffCwd,
 		showNewGroupChatModal,
 		showGroupChatInfo,
-		leaderboardRegistrationOpen,
 		mergeSessionModalOpen,
 		sendToAgentModalOpen,
 	} = useModalStore(
@@ -568,7 +559,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 			gitDiffCwd: (s.modals.get('gitDiff')?.data as GitDiffModalData | undefined)?.cwd ?? null,
 			showNewGroupChatModal: s.modals.get('newGroupChat')?.open ?? false,
 			showGroupChatInfo: s.modals.get('groupChatInfo')?.open ?? false,
-			leaderboardRegistrationOpen: s.modals.get('leaderboard')?.open ?? false,
 			mergeSessionModalOpen: s.modals.get('mergeSession')?.open ?? false,
 			sendToAgentModalOpen: s.modals.get('sendToAgent')?.open ?? false,
 		}))
@@ -588,9 +578,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		usageStats,
 		onSwitchToSession,
 		handsOnTimeMs,
-		onOpenLeaderboardRegistration,
-		isLeaderboardRegistered,
-		// leaderboardRegistration is destructured below in Agent modals section
 		onCloseUpdateCheckModal,
 		onCloseProcessMonitor,
 		onNavigateToSession,
@@ -831,10 +818,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		onCloseGroupChatInfo,
 		onOpenModeratorSession,
 		// Agent modals
-		onCloseLeaderboardRegistration,
-		leaderboardRegistration,
-		onSaveLeaderboardRegistration,
-		onLeaderboardOptOut,
 		onSyncAutoRunStats,
 		errorSession,
 		effectiveAgentError,
@@ -878,9 +861,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				usageStats={usageStats}
 				onSwitchToSession={onSwitchToSession}
 				handsOnTimeMs={handsOnTimeMs}
-				onOpenLeaderboardRegistration={onOpenLeaderboardRegistration}
-				isLeaderboardRegistered={isLeaderboardRegistered}
-				leaderboardRegistration={leaderboardRegistration}
 				updateCheckModalOpen={updateCheckModalOpen}
 				onCloseUpdateCheckModal={onCloseUpdateCheckModal}
 				processMonitorOpen={processMonitorOpen}
@@ -1204,13 +1184,8 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				sessions={sessions}
 				activeSession={activeSession}
 				groupChats={groupChats}
-				leaderboardRegistrationOpen={leaderboardRegistrationOpen}
-				onCloseLeaderboardRegistration={onCloseLeaderboardRegistration}
 				autoRunStats={autoRunStats}
 				keyboardMasteryStats={keyboardMasteryStats}
-				leaderboardRegistration={leaderboardRegistration}
-				onSaveLeaderboardRegistration={onSaveLeaderboardRegistration}
-				onLeaderboardOptOut={onLeaderboardOptOut}
 				onSyncAutoRunStats={onSyncAutoRunStats}
 				errorSession={errorSession}
 				effectiveAgentError={effectiveAgentError}

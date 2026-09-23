@@ -207,7 +207,6 @@ describe('every registered action has a handler', () => {
 		'mediaPlayPause',
 		'mediaNext',
 		'mediaPrev',
-		'openLeaderboard',
 		'clearAllNotifications',
 		'openThemeSettings',
 	];

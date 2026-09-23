@@ -41,7 +41,6 @@ import { createGroupChatApi } from './groupChat';
 import { createStatsApi } from './stats';
 import { createCueStatsApi } from './cueStats';
 import { createNotificationApi } from './notifications';
-import { createLeaderboardApi } from './leaderboard';
 import { createAttachmentsApi } from './attachments';
 import { createProcessApi } from './process';
 import { createGitApi } from './git';
@@ -193,9 +192,6 @@ contextBridge.exposeInMainWorld('maestro', {
 	// Cue Stats API (Cue Dashboard aggregation query)
 	cueStats: createCueStatsApi(),
 
-	// Leaderboard API
-	leaderboard: createLeaderboardApi(),
-
 	// Symphony API (token donations / open source contributions)
 	symphony: createSymphonyApi(),
 
@@ -282,8 +278,6 @@ export {
 	createCueStatsApi,
 	// Notifications
 	createNotificationApi,
-	// Leaderboard
-	createLeaderboardApi,
 	// Attachments
 	createAttachmentsApi,
 	// Process
@@ -433,19 +427,6 @@ export type {
 	NotificationShowResponse,
 	NotificationCommandResponse,
 } from './notifications';
-export type {
-	// From leaderboard
-	LeaderboardApi,
-	LeaderboardSubmitData,
-	LeaderboardSubmitResponse,
-	AuthStatusResponse,
-	ResendConfirmationResponse,
-	LeaderboardEntry,
-	LongestRunEntry,
-	LeaderboardGetResponse,
-	LongestRunsGetResponse,
-	LeaderboardSyncResponse,
-} from './leaderboard';
 export type {
 	// From attachments
 	AttachmentsApi,

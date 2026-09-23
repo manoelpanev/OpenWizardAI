@@ -85,8 +85,6 @@ export interface AppStandaloneModalsProps {
 	// --- AppOverlays ---
 	autoRunStats: AutoRunStats;
 	onStandingOvationClose: () => void;
-	onOpenLeaderboardRegistration: () => void;
-	isLeaderboardRegistered: boolean;
 	onFirstRunCelebrationClose: () => void;
 	onKeyboardMasteryCelebrationClose: () => void;
 
@@ -168,8 +166,6 @@ function AppStandaloneModalsInner({
 	// AppOverlays
 	autoRunStats,
 	onStandingOvationClose,
-	onOpenLeaderboardRegistration,
-	isLeaderboardRegistered,
 	onFirstRunCelebrationClose,
 	onKeyboardMasteryCelebrationClose,
 	// Marketplace
@@ -318,8 +314,6 @@ function AppStandaloneModalsInner({
 				theme={theme}
 				cumulativeTimeMs={autoRunStats.cumulativeTimeMs}
 				onCloseStandingOvation={onStandingOvationClose}
-				onOpenLeaderboardRegistration={onOpenLeaderboardRegistration}
-				isLeaderboardRegistered={isLeaderboardRegistered}
 				onCloseFirstRun={onFirstRunCelebrationClose}
 				onCloseKeyboardMastery={onKeyboardMasteryCelebrationClose}
 			/>

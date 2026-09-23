@@ -1,4 +1,4 @@
-import type { AutoRunStats, LeaderboardRegistration, MaestroUsageStats, Theme } from '../../types';
+import type { AutoRunStats, MaestroUsageStats, Theme } from '../../types';
 import type { ConductorBadge } from '../../constants/conductorBadges';
 
 export interface GlobalStatsSubset {
@@ -21,7 +21,6 @@ export interface AchievementCardProps {
 	globalStats?: GlobalStatsSubset | null;
 	usageStats?: MaestroUsageStats | null;
 	handsOnTimeMs?: number;
-	leaderboardRegistration?: LeaderboardRegistration | null;
 }
 
 export type BadgeTooltipPosition = 'left' | 'center' | 'right';

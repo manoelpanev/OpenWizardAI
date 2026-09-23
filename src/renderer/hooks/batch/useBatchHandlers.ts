@@ -7,7 +7,7 @@
  *   - Managing refs for async batch state access (error handling, quit confirmation)
  *   - Computing memoized batch state for the UI
  *   - Owning the quit confirmation effect (prevents quit during active runs)
- *   - Providing handleSyncAutoRunStats for leaderboard server sync
+ *   - Providing handleSyncAutoRunStats for syncing Auto Run stats
  *
  * Reads from: sessionStore, settingsStore, modalStore
  */
@@ -22,7 +22,7 @@ import type {
 	AgentError,
 } from '../../types';
 import { useSessionStore, selectActiveSession } from '../../stores/sessionStore';
-import { useSettingsStore, selectIsLeaderboardRegistered } from '../../stores/settingsStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { useModalStore, getModalActions } from '../../stores/modalStore';
 import { collectActiveOperations } from '../../utils/collectActiveOperations';
 import { notifyToast } from '../../stores/notificationStore';
@@ -36,7 +36,6 @@ import { consumeGroupChatAutoRun } from '../../utils/groupChatAutoRunRegistry';
 import type { RightPanelHandle } from '../../components/RightPanel';
 import type { AgentSpawnResult } from '../agent/useAgentExecution';
 import * as Sentry from '@sentry/electron/renderer';
-import { queueLeaderboardDelta, noteAutoRunCreditSettled } from '../../services/leaderboard';
 import { logger } from '../../utils/logger';
 
 /**
@@ -142,7 +141,7 @@ export interface UseBatchHandlersReturn {
 	>;
 	/** Ref to getBatchState (for quit confirmation and async access) */
 	getBatchStateRef: React.MutableRefObject<((sessionId: string) => BatchRunState) | null>;
-	/** Sync auto-run stats from server (for leaderboard multi-device sync) */
+	/** Sync auto-run stats */
 	handleSyncAutoRunStats: (stats: {
 		cumulativeTimeMs: number;
 		totalRuns: number;
@@ -244,12 +243,9 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 				firstAutoRunCompleted,
 				setFirstAutoRunCompleted,
 				recordAutoRunComplete: doRecordAutoRunComplete,
-				leaderboardRegistration: lbReg,
-				setLeaderboardRegistration: setLbReg,
 				autoRunStats: currentAutoRunStats,
 				activeThemeId,
 			} = settingsState;
-			const isLbRegistered = selectIsLeaderboardRegistered(settingsState);
 
 			const session = currentSessions.find((s) => s.id === info.sessionId);
 			const groupName = resolveGroupName(info.sessionId, currentSessions, currentGroups);
@@ -317,152 +313,6 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 								recordTimeMs: isNewRecord ? info.elapsedTimeMs : currentAutoRunStats.longestRunMs,
 							});
 						}, 500);
-					}
-				}
-
-				// Submit to leaderboard if registered and email confirmed
-				if (isLbRegistered && lbReg) {
-					// Calculate updated stats after this run
-					const updatedCumulativeTimeMs = currentAutoRunStats.cumulativeTimeMs + info.elapsedTimeMs;
-					const updatedTotalRuns = currentAutoRunStats.totalRuns + 1;
-					const updatedLongestRunMs = Math.max(
-						currentAutoRunStats.longestRunMs || 0,
-						info.elapsedTimeMs
-					);
-					const updatedBadge = getBadgeForTime(updatedCumulativeTimeMs);
-					const updatedBadgeLevel = updatedBadge?.level || 0;
-					const updatedBadgeName = updatedBadge?.name || 'No Badge Yet';
-
-					// Format longest run date
-					let longestRunDate: string | undefined;
-					if (isNewRecord) {
-						longestRunDate = new Date().toISOString().split('T')[0];
-					} else if (currentAutoRunStats.longestRunTimestamp > 0) {
-						longestRunDate = new Date(currentAutoRunStats.longestRunTimestamp)
-							.toISOString()
-							.split('T')[0];
-					}
-
-					// This run's time is already on the local badge (credited by the
-					// 60s timer), so every branch below must either ship the delta or
-					// queue it. Retire the uncommitted counter first: the delta is now
-					// this code's responsibility, not the crash-recovery counter's.
-					void noteAutoRunCreditSettled(info.elapsedTimeMs);
-
-					// Submit to leaderboard in background (only if we have an auth token)
-					if (!lbReg.authToken) {
-						// The token arrives when the user confirms their email. Queue
-						// rather than warn-and-drop - the server is delta-accumulated,
-						// so time that never ships a delta is lost for good.
-						logger.warn('Leaderboard submission queued: no auth token');
-						void queueLeaderboardDelta({
-							deltaMs: info.elapsedTimeMs,
-							deltaRuns: 1,
-							source: 'auto-run',
-						});
-					} else {
-						window.maestro.leaderboard
-							.submit({
-								email: lbReg.email,
-								displayName: lbReg.displayName,
-								githubUsername: lbReg.githubUsername,
-								twitterHandle: lbReg.twitterHandle,
-								linkedinHandle: lbReg.linkedinHandle,
-								badgeLevel: updatedBadgeLevel,
-								badgeName: updatedBadgeName,
-								cumulativeTimeMs: updatedCumulativeTimeMs,
-								totalRuns: updatedTotalRuns,
-								longestRunMs: updatedLongestRunMs,
-								longestRunDate,
-								currentRunMs: info.elapsedTimeMs,
-								theme: activeThemeId,
-								authToken: lbReg.authToken,
-								deltaMs: info.elapsedTimeMs,
-								deltaRuns: 1,
-								clientTotalTimeMs: updatedCumulativeTimeMs,
-							})
-							.then((result) => {
-								if (!result.success) {
-									// Rejected by the server (offline queue, bad token,
-									// rate limit). The time is on the local badge already,
-									// so hold the delta for the next flush.
-									logger.warn(
-										`Leaderboard submission failed, queued for retry: ${
-											result.error ?? result.message
-										}`
-									);
-									void queueLeaderboardDelta({
-										deltaMs: info.elapsedTimeMs,
-										deltaRuns: 1,
-										source: 'auto-run',
-									});
-								}
-								if (result.success) {
-									// Update last submission timestamp
-									setLbReg({
-										...lbReg,
-										lastSubmissionAt: Date.now(),
-										emailConfirmed: !result.requiresConfirmation,
-									});
-
-									// Show ranking notification if available
-									if (result.ranking) {
-										const { cumulative, longestRun } = result.ranking;
-										let rankMessage = '';
-
-										if (cumulative.previousRank === null) {
-											rankMessage = `You're ranked #${cumulative.rank} of ${cumulative.total}!`;
-										} else if (cumulative.improved) {
-											const spotsUp = cumulative.previousRank - cumulative.rank;
-											rankMessage = `You moved up ${spotsUp} spot${
-												spotsUp > 1 ? 's' : ''
-											}! Now #${cumulative.rank} (was #${cumulative.previousRank})`;
-										} else if (cumulative.rank === cumulative.previousRank) {
-											rankMessage = `You're holding steady at #${cumulative.rank}`;
-										} else {
-											rankMessage = `You're now #${cumulative.rank} of ${cumulative.total}`;
-										}
-
-										if (longestRun && isNewRecord) {
-											rankMessage += ` | New personal best! #${longestRun.rank} on longest runs!`;
-										}
-
-										notifyToast({
-											type: 'success',
-											title: 'Leaderboard Updated',
-											message: rankMessage,
-										});
-									}
-
-									// Sync local stats from server response
-									if (result.serverTotals) {
-										const serverCumulativeMs = result.serverTotals.cumulativeTimeMs;
-										if (serverCumulativeMs > updatedCumulativeTimeMs) {
-											const freshSettings = useSettingsStore.getState();
-											freshSettings.setAutoRunStats({
-												...freshSettings.autoRunStats,
-												cumulativeTimeMs: serverCumulativeMs,
-												totalRuns: result.serverTotals.totalRuns,
-												currentBadgeLevel: getBadgeForTime(serverCumulativeMs)?.level ?? 0,
-												longestRunMs: updatedLongestRunMs,
-												longestRunTimestamp: currentAutoRunStats.longestRunTimestamp,
-											});
-										}
-									}
-								}
-							})
-							.catch((error) => {
-								// Network blip. Queue so the next launch ships it - a
-								// dropped delta can never be reconstructed from the client.
-								void queueLeaderboardDelta({
-									deltaMs: info.elapsedTimeMs,
-									deltaRuns: 1,
-									source: 'auto-run',
-								});
-								Sentry.captureException(error, {
-									extra: { operation: 'leaderboard-submit', badgeLevel: updatedBadgeLevel },
-								});
-							});
 					}
 				}
 			}

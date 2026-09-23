@@ -451,8 +451,6 @@ function MaestroConsoleInner() {
 		recordTourStart,
 		recordTourComplete,
 		recordTourSkip,
-		leaderboardRegistration,
-		isLeaderboardRegistered,
 		contextManagementSettings,
 		updateContextManagementSettings: _updateContextManagementSettings,
 		keyboardMasteryStats,
@@ -745,7 +743,7 @@ function MaestroConsoleInner() {
 	// handleProcessMonitorNavigateToSession - now in useSessionSwitchCallbacks hook
 
 	// Startup effects (splash, GitHub CLI, Windows warning, gist URLs, beta updates,
-	// update check, leaderboard sync, SpecKit/OpenSpec/BMAD loading, SSH configs, stats DB check,
+	// update check, SpecKit/OpenSpec/BMAD loading, SSH configs, stats DB check,
 	// notification settings sync, playground debug) - provided by useAppInitialization hook
 
 	// Expose debug helpers to window for console access
@@ -1029,11 +1027,6 @@ function MaestroConsoleInner() {
 		handleKeyboardMasteryCelebrationClose,
 		handleStandingOvationClose,
 		handleFirstRunCelebrationClose,
-		handleOpenLeaderboardRegistration,
-		handleOpenLeaderboardRegistrationFromAbout,
-		handleCloseLeaderboardRegistration,
-		handleSaveLeaderboardRegistration,
-		handleLeaderboardOptOut,
 		handleCloseAgentErrorModal,
 		handleShowAgentErrorModal,
 		handleClearAgentError,
@@ -2951,9 +2944,7 @@ function MaestroConsoleInner() {
 					autoRunStats={autoRunStats}
 					usageStats={usageStats}
 					handsOnTimeMs={totalActiveTimeMs}
-					onOpenLeaderboardRegistration={handleOpenLeaderboardRegistrationFromAbout}
 					onSwitchToSession={setActiveSessionId}
-					isLeaderboardRegistered={isLeaderboardRegistered}
 					onCloseUpdateCheckModal={handleCloseUpdateCheckModal}
 					onCloseProcessMonitor={handleCloseProcessMonitor}
 					onNavigateToSession={handleProcessMonitorNavigateToSession}
@@ -3217,10 +3208,6 @@ function MaestroConsoleInner() {
 					onCloseGroupChatInfo={handleCloseGroupChatInfo}
 					onOpenModeratorSession={handleOpenModeratorSession}
 					// AppAgentModals props
-					onCloseLeaderboardRegistration={handleCloseLeaderboardRegistration}
-					leaderboardRegistration={leaderboardRegistration}
-					onSaveLeaderboardRegistration={handleSaveLeaderboardRegistration}
-					onLeaderboardOptOut={handleLeaderboardOptOut}
 					onSyncAutoRunStats={handleSyncAutoRunStats}
 					errorSession={errorSession}
 					effectiveAgentError={effectiveAgentError}
@@ -3254,8 +3241,6 @@ function MaestroConsoleInner() {
 					// AppOverlays
 					autoRunStats={autoRunStats}
 					onStandingOvationClose={handleStandingOvationClose}
-					onOpenLeaderboardRegistration={handleOpenLeaderboardRegistration}
-					isLeaderboardRegistered={isLeaderboardRegistered}
 					onFirstRunCelebrationClose={handleFirstRunCelebrationClose}
 					onKeyboardMasteryCelebrationClose={handleKeyboardMasteryCelebrationClose}
 					// Marketplace

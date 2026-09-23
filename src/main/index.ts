@@ -88,7 +88,6 @@ import {
 	ensureCliServer,
 	startCliDiscoveryWatchdog,
 	stopCliDiscoveryWatchdog,
-	registerLeaderboardHandlers,
 	registerNotificationsHandlers,
 	registerSymphonyHandlers,
 	registerTabNamingHandlers,
@@ -1775,12 +1774,6 @@ function setupIpcHandlers() {
 
 	// Register attachments handlers (extracted to handlers/attachments.ts)
 	registerAttachmentsHandlers({ app });
-
-	// Register leaderboard handlers (extracted to handlers/leaderboard.ts)
-	registerLeaderboardHandlers({
-		app,
-		settingsStore: store,
-	});
 
 	// Register Symphony handlers for token donation / open source contributions
 	registerSymphonyHandlers({

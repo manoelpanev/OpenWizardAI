@@ -1289,38 +1289,6 @@ export interface BmadMetadata {
 	sourceUrl: string; // GitHub repo URL
 }
 
-// Leaderboard registration data for runmaestro.ai integration
-export interface LeaderboardRegistration {
-	// Required fields
-	email: string; // User's email (will be confirmed)
-	displayName: string; // Display name on leaderboard
-	// Optional social handles (without @)
-	twitterHandle?: string; // X/Twitter handle
-	githubUsername?: string; // GitHub username
-	linkedinHandle?: string; // LinkedIn handle
-	discordUsername?: string; // Discord username (for @mentions in Discord posts)
-	blueskyHandle?: string; // Bluesky handle (username.bsky.social or custom domain)
-	// Registration state
-	registeredAt: number; // Timestamp when registered
-	emailConfirmed: boolean; // Whether email has been confirmed
-	lastSubmissionAt?: number; // Last successful submission timestamp
-	// Authentication
-	clientToken?: string; // Client-generated token for polling auth status
-	authToken?: string; // 64-character token received after email confirmation
-	// Keyboard mastery data
-	keyboardMasteryLevel?: number; // 0-4 (Beginner to OpenWizzard)
-	keyboardMasteryLevelName?: string; // Level name
-	keyboardMasteryPercentage?: number; // 0-100
-}
-
-// Ranking info for a single leaderboard category
-export interface LeaderboardRankingInfo {
-	rank: number; // User's position (1 = first place)
-	total: number; // Total entries on leaderboard
-	previousRank: number | null; // Previous position (null if new entry)
-	improved: boolean; // Did they move up?
-}
-
 // Keyboard Mastery gamification types
 export type KeyboardMasteryLevel = 'beginner' | 'student' | 'performer' | 'virtuoso' | 'maestro';
 
@@ -1329,19 +1297,6 @@ export interface KeyboardMasteryStats {
 	currentLevel: number; // 0-4 (Beginner to Keyboard OpenWizzard)
 	lastLevelUpTimestamp: number; // When user last leveled up
 	lastAcknowledgedLevel: number; // Last level user dismissed celebration for
-}
-
-// Response from leaderboard submission API
-export interface LeaderboardSubmitResponse {
-	success: boolean;
-	message: string;
-	requiresConfirmation?: boolean;
-	confirmationUrl?: string;
-	error?: string;
-	ranking?: {
-		cumulative: LeaderboardRankingInfo;
-		longestRun: LeaderboardRankingInfo | null; // null if no longestRunMs submitted
-	};
 }
 
 // Encore Features - capabilities that graduated out of opt-in gating and now

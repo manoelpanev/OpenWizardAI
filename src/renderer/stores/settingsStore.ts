@@ -25,7 +25,6 @@ import type {
 	AutoRunStats,
 	MaestroUsageStats,
 	OnboardingStats,
-	LeaderboardRegistration,
 	ContextManagementSettings,
 	KeyboardMasteryStats,
 	ThinkingMode,
@@ -433,7 +432,6 @@ export interface SettingsStoreState {
 	tourCompleted: boolean;
 	firstAutoRunCompleted: boolean;
 	onboardingStats: OnboardingStats;
-	leaderboardRegistration: LeaderboardRegistration | null;
 	persistentWebLink: boolean;
 	webInterfaceUseCustomPort: boolean;
 	webInterfaceCustomPort: number;
@@ -606,7 +604,6 @@ export interface SettingsStoreActions {
 	setStarredSessionsCollapsed: (value: boolean) => void;
 	setTourCompleted: (value: boolean) => void;
 	setFirstAutoRunCompleted: (value: boolean) => void;
-	setLeaderboardRegistration: (value: LeaderboardRegistration | null) => void;
 	setPersistentWebLink: (value: boolean) => Promise<void>;
 	setWebInterfaceUseCustomPort: (value: boolean) => void;
 	setWebInterfaceCustomPort: (value: number) => void;
@@ -864,7 +861,6 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		tourCompleted: false,
 		firstAutoRunCompleted: false,
 		onboardingStats: DEFAULT_ONBOARDING_STATS,
-		leaderboardRegistration: null,
 		persistentWebLink: false,
 		webInterfaceUseCustomPort: false,
 		webInterfaceCustomPort: 8080,
@@ -1388,11 +1384,6 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		setFirstAutoRunCompleted: (value) => {
 			set({ firstAutoRunCompleted: value });
 			window.maestro.settings.set('firstAutoRunCompleted', value);
-		},
-
-		setLeaderboardRegistration: (value) => {
-			set({ leaderboardRegistration: value });
-			window.maestro.settings.set('leaderboardRegistration', value);
 		},
 
 		setPersistentWebLink: async (value) => {
@@ -2384,10 +2375,6 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 // Selectors
 // ============================================================================
 
-export function selectIsLeaderboardRegistered(s: SettingsStoreState): boolean {
-	return s.leaderboardRegistration !== null && s.leaderboardRegistration.emailConfirmed;
-}
-
 // ============================================================================
 // Load All Settings
 // ============================================================================
@@ -3005,11 +2992,6 @@ export async function loadAllSettings(): Promise<void> {
 		if (allSettings['firstAutoRunCompleted'] !== undefined)
 			patch.firstAutoRunCompleted = allSettings['firstAutoRunCompleted'] as boolean;
 
-		if (allSettings['leaderboardRegistration'] !== undefined)
-			patch.leaderboardRegistration = allSettings[
-				'leaderboardRegistration'
-			] as LeaderboardRegistration | null;
-
 		if (allSettings['persistentWebLink'] !== undefined)
 			patch.persistentWebLink = allSettings['persistentWebLink'] as boolean;
 
@@ -3595,7 +3577,6 @@ export function getSettingsActions() {
 		recordTourComplete: state.recordTourComplete,
 		recordTourSkip: state.recordTourSkip,
 		getOnboardingAnalytics: state.getOnboardingAnalytics,
-		setLeaderboardRegistration: state.setLeaderboardRegistration,
 		setPersistentWebLink: state.setPersistentWebLink,
 		setWebInterfaceUseCustomPort: state.setWebInterfaceUseCustomPort,
 		setWebInterfaceCustomPort: state.setWebInterfaceCustomPort,

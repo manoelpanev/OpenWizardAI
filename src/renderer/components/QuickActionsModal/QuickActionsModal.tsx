@@ -18,7 +18,7 @@ import { safeClipboardWrite } from '../../utils/clipboard';
 import { getOpenInLabel } from '../../utils/platformUtils';
 import { useListNavigation } from '../../hooks';
 import { useUIStore } from '../../stores/uiStore';
-import { useSettingsStore, selectIsLeaderboardRegistered } from '../../stores/settingsStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import { useBatchStore, selectActiveBatchSessionIds } from '../../stores/batchStore';
 import { useFileExplorerStore } from '../../stores/fileExplorerStore';
 import { useGroupChatStore } from '../../stores/groupChatStore';
@@ -207,7 +207,6 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 	const setUngroupedCollapsed = useSettingsStore((s) => s.setUngroupedCollapsed);
 	const groupChatsExpanded = useSettingsStore((s) => s.groupChatsExpanded);
 	const setGroupChatsExpanded = useSettingsStore((s) => s.setGroupChatsExpanded);
-	const isLeaderboardRegistered = useSettingsStore(selectIsLeaderboardRegistered);
 	const activeBatchSessionIds = useBatchStore(useShallow(selectActiveBatchSessionIds));
 	const canRestoreFloatingPlayer = useMediaPlaybackStore(selectCanRestoreFloatingPlayer);
 	const restoreFloatingPlayer = useMediaPlaybackStore((s) => s.restore);
@@ -645,8 +644,6 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			setSettingsTab,
 			setShortcutsHelpOpen,
 			setAboutModalOpen,
-			onOpenLeaderboardRegistration: () => openModal('leaderboard'),
-			isLeaderboardRegistered,
 			setLogViewerOpen,
 			setProcessMonitorOpen,
 			setUpdateCheckModalOpen,
@@ -662,7 +659,6 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 				systemLogs: shortcuts.systemLogs,
 				processMonitor: shortcuts.processMonitor,
 				openThemeSettings: shortcuts.openThemeSettings,
-				openLeaderboard: shortcuts.openLeaderboard,
 			},
 		}),
 		...buildGitWorktreeCommands({
@@ -746,7 +742,8 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			profilingBufferPercent,
 			onStartProfiling: handleStartProfiling,
 			onStopProfiling: handleStopProfiling,
-			getInstallationId: () => window.maestro.leaderboard.getInstallationId(),
+			getInstallationId: async () =>
+				((await window.maestro.settings.get('installationId')) as string | null) ?? null,
 			safeClipboardWrite,
 			flashCopiedToClipboard,
 			notifyToast,

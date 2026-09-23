@@ -34,11 +34,6 @@ vi.mock('../../../renderer/components/SendToAgentModal', () => ({
 vi.mock('../../../renderer/components/TransferProgressModal', () => ({
 	TransferProgressModal: (props: any) => <div data-testid="transfer-progress-modal" />,
 }));
-vi.mock('../../../renderer/components/LeaderboardRegistrationModal', () => ({
-	LeaderboardRegistrationModal: (props: any) => (
-		<div data-testid="leaderboard-registration-modal" />
-	),
-}));
 
 const testTheme: Theme = {
 	id: 'test-theme',
@@ -135,11 +130,6 @@ describe('AppAgentModals', () => {
 		expect(screen.queryByTestId('merge-session-modal')).not.toBeInTheDocument();
 		expect(screen.queryByTestId('transfer-progress-modal')).not.toBeInTheDocument();
 		expect(screen.queryByTestId('send-to-agent-modal')).not.toBeInTheDocument();
-	});
-
-	it('renders LeaderboardRegistrationModal when leaderboardRegistrationOpen is true', () => {
-		render(<AppAgentModals {...defaultProps} leaderboardRegistrationOpen={true} />);
-		expect(screen.getByTestId('leaderboard-registration-modal')).toBeInTheDocument();
 	});
 
 	it('renders AgentErrorModal when effectiveAgentError is set', () => {

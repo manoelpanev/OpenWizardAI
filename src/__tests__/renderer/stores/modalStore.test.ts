@@ -446,7 +446,6 @@ describe('modalStore', () => {
 				'standingOvation',
 				'firstRunCelebration',
 				'keyboardMastery',
-				'leaderboard',
 				'lightbox',
 				'symphony',
 				'updateCheck',
