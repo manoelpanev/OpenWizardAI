@@ -1,0 +1,1657 @@
+/**
+ * Tests for the Director's Notes IPC handlers
+ *
+ * These tests verify:
+ * - Unified history aggregation across all sessions
+ * - AI synopsis generation via groomContext (file-path based)
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import * as os from 'os';
+import * as path from 'path';
+import { ipcMain } from 'electron';
+import { registerDirectorNotesHandlers } from '../../../../main/ipc/handlers/director-notes';
+import {
+	HistoryBucketCache,
+	setHistoryBucketCacheForTest,
+} from '../../../../main/utils/history-bucket-cache';
+import * as historyManagerModule from '../../../../main/history-manager';
+import type { HistoryManager } from '../../../../main/history-manager';
+import type { HistoryEntry } from '../../../../shared/types';
+import { MAX_ENTRIES_PER_SESSION } from '../../../../shared/history';
+
+// Mock electron's ipcMain. `app` is needed because the shared-history collector
+// materializes its cross-host corpus into userData for the synopsis agent.
+vi.mock('electron', () => ({
+	ipcMain: {
+		handle: vi.fn(),
+		removeHandler: vi.fn(),
+	},
+	app: {
+		getPath: vi.fn(() => '/tmp/maestro-test-userdata'),
+	},
+	BrowserWindow: {
+		getAllWindows: vi.fn(() => []),
+	},
+}));
+
+// Mock the history-manager module
+vi.mock('../../../../main/history-manager', () => ({
+	getHistoryManager: vi.fn(),
+}));
+
+// Mock the shared-history-manager module. Director's Notes reaches it through
+// `director-notes-shared-history` to fold in runs performed by OTHER Maestro
+// instances against the same project. Defaults to "nothing shared" so the
+// existing local-only assertions are untouched; the cross-host suite overrides
+// these per case.
+const mockHasLocalSharedHistory = vi.fn().mockReturnValue(false);
+const mockReadRemoteEntriesLocal = vi.fn().mockReturnValue([]);
+const mockReadRemoteEntriesSsh = vi.fn().mockResolvedValue([]);
+vi.mock('../../../../main/shared-history-manager', () => ({
+	hasLocalSharedHistory: (...args: any[]) => mockHasLocalSharedHistory(...args),
+	readRemoteEntriesLocal: (...args: any[]) => mockReadRemoteEntriesLocal(...args),
+	readRemoteEntriesSsh: (...args: any[]) => mockReadRemoteEntriesSsh(...args),
+}));
+
+// The cross-host corpus is materialized to disk for the synopsis agent; keep
+// the write in memory so the assertions don't depend on a writable temp path.
+const mockWriteFile = vi.fn().mockResolvedValue(undefined);
+vi.mock('fs/promises', async (importOriginal) => {
+	const actual = await importOriginal<typeof import('fs/promises')>();
+	return { ...actual, writeFile: (...args: any[]) => mockWriteFile(...args) };
+});
+
+// Resolves SSH remotes for the shared-history collector.
+const mockGetSshRemoteById = vi.fn().mockReturnValue(undefined);
+vi.mock('../../../../main/stores/getters', () => ({
+	getSshRemoteById: (...args: any[]) => mockGetSshRemoteById(...args),
+}));
+
+// Mock the stores module
+const mockGetSessionsStore = vi.fn().mockReturnValue({
+	get: vi.fn().mockReturnValue([]),
+});
+// Settings are read at synopsis time for the optional Ideal End State. Default
+// to an empty store so the unmodified prompt is what these tests assert against.
+const mockGetSettingsStore = vi.fn().mockReturnValue({
+	get: vi.fn().mockReturnValue(undefined),
+});
+vi.mock('../../../../main/stores', () => ({
+	getSessionsStore: (...args: any[]) => mockGetSessionsStore(...args),
+	getSettingsStore: (...args: any[]) => mockGetSettingsStore(...args),
+}));
+
+// Mock the logger
+vi.mock('../../../../main/utils/logger', () => ({
+	logger: {
+		info: vi.fn(),
+		warn: vi.fn(),
+		error: vi.fn(),
+		debug: vi.fn(),
+	},
+}));
+
+// Mock the context-groomer module
+vi.mock('../../../../main/utils/context-groomer', () => ({
+	groomContext: vi.fn(),
+}));
+
+// Mock prompt-manager so getPrompt() returns mock content without needing disk I/O
+vi.mock('../../../../main/prompt-manager', () => ({
+	getPrompt: vi.fn((id: string) => {
+		if (id === 'director-notes') return 'Mock director notes prompt';
+		return `mock prompt for ${id}`;
+	}),
+}));
+
+describe('director-notes IPC handlers', () => {
+	let handlers: Map<string, Function>;
+	let mockHistoryManager: Partial<HistoryManager>;
+	let mockProcessManager: any;
+	let mockAgentDetector: any;
+
+	// Helper to create mock history entries
+	const createMockEntry = (overrides: Partial<HistoryEntry> = {}): HistoryEntry => ({
+		id: 'entry-1',
+		type: 'AUTO',
+		sessionId: 'session-1',
+		projectPath: '/test/project',
+		timestamp: Date.now(),
+		summary: 'Test entry',
+		...overrides,
+	});
+
+	beforeEach(() => {
+		vi.clearAllMocks();
+
+		// Create mock process manager and agent detector
+		mockProcessManager = {
+			spawn: vi.fn().mockReturnValue({ pid: 123 }),
+			on: vi.fn(),
+			off: vi.fn(),
+			kill: vi.fn(),
+		};
+		mockAgentDetector = {
+			getAgent: vi.fn().mockResolvedValue({
+				available: true,
+				command: 'claude',
+				args: [],
+			}),
+		};
+
+		// Create mock history manager
+		mockHistoryManager = {
+			getEntries: vi.fn().mockReturnValue([]),
+			listSessionsWithHistory: vi.fn().mockReturnValue([]),
+			getHistoryFilePath: vi.fn().mockReturnValue(null),
+		};
+
+		vi.mocked(historyManagerModule.getHistoryManager).mockReturnValue(
+			mockHistoryManager as unknown as HistoryManager
+		);
+
+		// Reset sessions store mock to return empty sessions by default
+		mockGetSessionsStore.mockReturnValue({
+			get: vi.fn().mockReturnValue([]),
+		});
+
+		// Capture all registered handlers
+		handlers = new Map();
+		vi.mocked(ipcMain.handle).mockImplementation((channel, handler) => {
+			handlers.set(channel, handler);
+		});
+
+		// Register handlers with mock dependencies
+		registerDirectorNotesHandlers({
+			getProcessManager: () => mockProcessManager,
+			getAgentDetector: () => mockAgentDetector,
+			agentConfigsStore: { get: vi.fn(() => ({})) } as any,
+			getMainWindow: () => null,
+		});
+	});
+
+	afterEach(() => {
+		handlers.clear();
+	});
+
+	describe('registration', () => {
+		it('should register all director-notes handlers', () => {
+			const expectedChannels = [
+				'director-notes:getUnifiedHistory',
+				'director-notes:getRichOverviewStats',
+				'director-notes:generateSynopsis',
+			];
+
+			for (const channel of expectedChannels) {
+				expect(handlers.has(channel)).toBe(true);
+			}
+		});
+	});
+
+	describe('director-notes:getUnifiedHistory', () => {
+		it('should aggregate history from all sessions', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([
+				'session-1',
+				'session-2',
+			]);
+
+			vi.mocked(mockHistoryManager.getEntries)
+				.mockReturnValueOnce([
+					createMockEntry({
+						id: 'e1',
+						timestamp: now - 1000,
+						summary: 'Entry 1',
+						sessionName: 'Agent A',
+					}),
+				])
+				.mockReturnValueOnce([
+					createMockEntry({
+						id: 'e2',
+						timestamp: now - 2000,
+						summary: 'Entry 2',
+						sessionName: 'Agent B',
+					}),
+				]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toHaveLength(2);
+			expect(result.entries[0].id).toBe('e1'); // newer first
+			expect(result.entries[1].id).toBe('e2');
+			expect(result.entries[0].sourceSessionId).toBe('session-1');
+			expect(result.entries[1].sourceSessionId).toBe('session-2');
+			expect(result.total).toBe(2);
+			expect(result.hasMore).toBe(false);
+		});
+
+		it('should include stats in the response', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([
+				'session-1',
+				'session-2',
+			]);
+
+			vi.mocked(mockHistoryManager.getEntries)
+				.mockReturnValueOnce([
+					createMockEntry({
+						id: 'e1',
+						type: 'AUTO',
+						timestamp: now - 1000,
+						agentSessionId: 'as-1',
+					}),
+					createMockEntry({
+						id: 'e2',
+						type: 'USER',
+						timestamp: now - 2000,
+						agentSessionId: 'as-1',
+					}),
+					createMockEntry({
+						id: 'e5',
+						type: 'CUE',
+						timestamp: now - 2500,
+						agentSessionId: 'as-1',
+					}),
+				])
+				.mockReturnValueOnce([
+					createMockEntry({
+						id: 'e3',
+						type: 'AUTO',
+						timestamp: now - 3000,
+						agentSessionId: 'as-2',
+					}),
+					createMockEntry({
+						id: 'e4',
+						type: 'USER',
+						timestamp: now - 4000,
+						agentSessionId: 'as-3',
+					}),
+				]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.stats).toBeDefined();
+			expect(result.stats.agentCount).toBe(2); // 2 Maestro sessions
+			expect(result.stats.sessionCount).toBe(3); // 3 unique provider sessions (as-1, as-2, as-3)
+			expect(result.stats.autoCount).toBe(2);
+			expect(result.stats.userCount).toBe(2);
+			expect(result.stats.cueCount).toBe(1);
+			expect(result.stats.totalCount).toBe(5);
+		});
+
+		it('should compute stats from unfiltered data when type filter is applied', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', type: 'AUTO', timestamp: now - 1000, agentSessionId: 'as-1' }),
+				createMockEntry({ id: 'e2', type: 'USER', timestamp: now - 2000, agentSessionId: 'as-1' }),
+				createMockEntry({ id: 'e3', type: 'AUTO', timestamp: now - 3000, agentSessionId: 'as-2' }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7, filter: 'AUTO' });
+
+			// Entries filtered to AUTO only
+			expect(result.entries).toHaveLength(2);
+			// Stats include ALL entries regardless of type filter
+			expect(result.stats.autoCount).toBe(2);
+			expect(result.stats.userCount).toBe(1);
+			expect(result.stats.totalCount).toBe(3);
+		});
+
+		it('should only count agents with entries in lookback window for agentCount', async () => {
+			const now = Date.now();
+			const twoDaysAgo = now - 2 * 24 * 60 * 60 * 1000;
+			const tenDaysAgo = now - 10 * 24 * 60 * 60 * 1000;
+
+			// 3 sessions on disk, but only 2 have entries within 7-day lookback
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([
+				'session-1',
+				'session-2',
+				'session-3',
+			]);
+
+			vi.mocked(mockHistoryManager.getEntries)
+				.mockReturnValueOnce([
+					createMockEntry({ id: 'e1', timestamp: twoDaysAgo, agentSessionId: 'as-1' }),
+				])
+				.mockReturnValueOnce([
+					// session-2 only has old entries outside lookback
+					createMockEntry({ id: 'e2', timestamp: tenDaysAgo, agentSessionId: 'as-2' }),
+				])
+				.mockReturnValueOnce([
+					createMockEntry({ id: 'e3', timestamp: twoDaysAgo, agentSessionId: 'as-3' }),
+				]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.stats.agentCount).toBe(2); // Only 2 agents had entries in window
+			expect(result.entries).toHaveLength(2);
+		});
+
+		it('should filter by lookbackDays', async () => {
+			const now = Date.now();
+			const twoDaysAgo = now - 2 * 24 * 60 * 60 * 1000;
+			const tenDaysAgo = now - 10 * 24 * 60 * 60 * 1000;
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'recent', timestamp: twoDaysAgo }),
+				createMockEntry({ id: 'old', timestamp: tenDaysAgo }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toHaveLength(1);
+			expect(result.entries[0].id).toBe('recent');
+		});
+
+		it('should return all entries when lookbackDays is 0 (all time)', async () => {
+			const now = Date.now();
+			const twoDaysAgo = now - 2 * 24 * 60 * 60 * 1000;
+			const yearAgo = now - 365 * 24 * 60 * 60 * 1000;
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'recent', timestamp: twoDaysAgo }),
+				createMockEntry({ id: 'ancient', timestamp: yearAgo }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 0 });
+
+			expect(result.entries).toHaveLength(2);
+			expect(result.entries[0].id).toBe('recent');
+			expect(result.entries[1].id).toBe('ancient');
+		});
+
+		it('should filter by type when filter is provided', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'auto-entry', type: 'AUTO', timestamp: now - 1000 }),
+				createMockEntry({ id: 'user-entry', type: 'USER', timestamp: now - 2000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7, filter: 'AUTO' });
+
+			expect(result.entries).toHaveLength(1);
+			expect(result.entries[0].id).toBe('auto-entry');
+		});
+
+		it('should return both types when filter is null', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'auto-entry', type: 'AUTO', timestamp: now - 1000 }),
+				createMockEntry({ id: 'user-entry', type: 'USER', timestamp: now - 2000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7, filter: null });
+
+			expect(result.entries).toHaveLength(2);
+		});
+
+		it('should return entries sorted by timestamp descending', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([
+				'session-1',
+				'session-2',
+			]);
+
+			// Session 1 has older entry, session 2 has newer entry
+			vi.mocked(mockHistoryManager.getEntries)
+				.mockReturnValueOnce([createMockEntry({ id: 'oldest', timestamp: now - 3000 })])
+				.mockReturnValueOnce([
+					createMockEntry({ id: 'newest', timestamp: now - 1000 }),
+					createMockEntry({ id: 'middle', timestamp: now - 2000 }),
+				]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toHaveLength(3);
+			expect(result.entries[0].id).toBe('newest');
+			expect(result.entries[1].id).toBe('middle');
+			expect(result.entries[2].id).toBe('oldest');
+		});
+
+		it('should use Maestro session name when available in sessions store', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', timestamp: now, sessionName: 'Tab Name' }),
+			]);
+
+			// Mock the sessions store to return a session with a name
+			mockGetSessionsStore.mockReturnValue({
+				get: vi.fn().mockReturnValue([
+					{
+						id: 'session-1',
+						name: '🚧 my-feature',
+						toolType: 'claude-code',
+						cwd: '/test',
+						projectRoot: '/test',
+					},
+				]),
+			});
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			// Should use Maestro session name, not tab name
+			expect(result.entries[0].agentName).toBe('🚧 my-feature');
+		});
+
+		it('should set agentName to undefined when Maestro session not found in store', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', timestamp: now, sessionName: 'My Agent' }),
+			]);
+
+			// Sessions store returns no matching session
+			mockGetSessionsStore.mockReturnValue({
+				get: vi.fn().mockReturnValue([
+					{
+						id: 'other-session',
+						name: 'Other',
+						toolType: 'claude-code',
+						cwd: '/test',
+						projectRoot: '/test',
+					},
+				]),
+			});
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			// agentName is only the Maestro session name; undefined when not found
+			expect(result.entries[0].agentName).toBeUndefined();
+			// sessionName is still preserved on the entry
+			expect(result.entries[0].sessionName).toBe('My Agent');
+		});
+
+		it('should set agentName to undefined when session is not in store', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['claude-abc123']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', timestamp: now, sessionName: undefined }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			// No Maestro session name available
+			expect(result.entries[0].agentName).toBeUndefined();
+		});
+
+		it('should return empty entries when no sessions have history', async () => {
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toEqual([]);
+			expect(result.total).toBe(0);
+			expect(result.hasMore).toBe(false);
+		});
+
+		it('should return empty entries when all entries are outside lookback window', async () => {
+			const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'old', timestamp: thirtyDaysAgo }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toEqual([]);
+			expect(result.total).toBe(0);
+			expect(result.hasMore).toBe(false);
+		});
+
+		it('should return pre-computed graphBuckets when graphBucketCount is provided', async () => {
+			const now = Date.now();
+			const oneHourAgo = now - 60 * 60 * 1000;
+			const twoHoursAgo = now - 2 * 60 * 60 * 1000;
+			const twentyThreeHoursAgo = now - 23 * 60 * 60 * 1000;
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', type: 'AUTO', timestamp: oneHourAgo }),
+				createMockEntry({ id: 'e2', type: 'USER', timestamp: oneHourAgo }),
+				createMockEntry({ id: 'e3', type: 'AUTO', timestamp: twoHoursAgo }),
+				createMockEntry({ id: 'e4', type: 'CUE', timestamp: twentyThreeHoursAgo }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, {
+				lookbackDays: 1,
+				graphBucketCount: 24,
+			});
+
+			expect(result.graphBuckets).toBeDefined();
+			expect(result.graphBuckets).toHaveLength(24);
+
+			// All buckets should sum to total entries
+			const totalInBuckets = result.graphBuckets!.reduce(
+				(sum: number, b: { auto: number; user: number; cue: number }) =>
+					sum + b.auto + b.user + b.cue,
+				0
+			);
+			expect(totalInBuckets).toBe(4);
+		});
+
+		it('should not return graphBuckets when graphBucketCount is not provided', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', timestamp: now - 1000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.graphBuckets).toBeUndefined();
+		});
+
+		it('should compute graphBuckets for all-time mode (lookbackDays=0)', async () => {
+			const now = Date.now();
+			const oneDayAgo = now - 24 * 60 * 60 * 1000;
+			const thirtyDaysAgo = now - 30 * 24 * 60 * 60 * 1000;
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', type: 'AUTO', timestamp: oneDayAgo }),
+				createMockEntry({ id: 'e2', type: 'USER', timestamp: thirtyDaysAgo }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, {
+				lookbackDays: 0,
+				graphBucketCount: 24,
+			});
+
+			expect(result.graphBuckets).toBeDefined();
+			expect(result.graphBuckets).toHaveLength(24);
+
+			const totalInBuckets = result.graphBuckets!.reduce(
+				(sum: number, b: { auto: number; user: number; cue: number }) =>
+					sum + b.auto + b.user + b.cue,
+				0
+			);
+			expect(totalInBuckets).toBe(2);
+		});
+
+		it('should support pagination with limit and offset', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'e1', timestamp: now - 1000 }),
+				createMockEntry({ id: 'e2', timestamp: now - 2000 }),
+				createMockEntry({ id: 'e3', timestamp: now - 3000 }),
+				createMockEntry({ id: 'e4', timestamp: now - 4000 }),
+				createMockEntry({ id: 'e5', timestamp: now - 5000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+
+			// First page: limit 2, offset 0
+			const page1 = await handler!({} as any, { lookbackDays: 7, limit: 2, offset: 0 });
+			expect(page1.entries).toHaveLength(2);
+			expect(page1.entries[0].id).toBe('e1');
+			expect(page1.entries[1].id).toBe('e2');
+			expect(page1.total).toBe(5);
+			expect(page1.hasMore).toBe(true);
+
+			// Second page: limit 2, offset 2
+			const page2 = await handler!({} as any, { lookbackDays: 7, limit: 2, offset: 2 });
+			expect(page2.entries).toHaveLength(2);
+			expect(page2.entries[0].id).toBe('e3');
+			expect(page2.entries[1].id).toBe('e4');
+			expect(page2.total).toBe(5);
+			expect(page2.hasMore).toBe(true);
+
+			// Third page: limit 2, offset 4
+			const page3 = await handler!({} as any, { lookbackDays: 7, limit: 2, offset: 4 });
+			expect(page3.entries).toHaveLength(1);
+			expect(page3.entries[0].id).toBe('e5');
+			expect(page3.total).toBe(5);
+			expect(page3.hasMore).toBe(false);
+		});
+	});
+
+	describe('director-notes:getRichOverviewStats', () => {
+		const DAY = 24 * 60 * 60 * 1000;
+
+		/** A full history file whose entries all land within `spanDays` of now. */
+		const fullFile = (spanDays: number, prefix: string): HistoryEntry[] => {
+			const now = Date.now();
+			const step = (spanDays * DAY) / MAX_ENTRIES_PER_SESSION;
+			return Array.from({ length: MAX_ENTRIES_PER_SESSION }, (_, i) =>
+				createMockEntry({ id: `${prefix}-${i}`, timestamp: now - i * step })
+			);
+		};
+
+		// A busy agent's history file evicts its own oldest entries at the retention
+		// cap, so its bar silently pins to exactly 5000 and reads as an exact figure.
+		// Two agents at wildly different volumes then tie for top. `truncated` is
+		// what lets the chart say "at least" instead of stating a number it cannot know.
+		it('flags an agent whose count was bounded by retention, not the window', async () => {
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['busy']);
+			// 5000 entries spanning 5 days, well inside a 30-day window: the cutoff
+			// dropped nothing, so the cap is what produced this number.
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue(fullFile(5, 'busy'));
+
+			const handler = handlers.get('director-notes:getRichOverviewStats');
+			const result = await handler!({} as any, { lookbackDays: 30 });
+
+			expect(result.perAgent[0].entryCount).toBe(MAX_ENTRIES_PER_SESSION);
+			expect(result.perAgent[0].truncated).toBe(true);
+		});
+
+		it('does not flag a full file whose older entries fall outside the window', async () => {
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['spread']);
+			// Also at the cap, but spread over 60 days: a 7-day window did the
+			// trimming, so the count it reports is exact.
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue(fullFile(60, 'spread'));
+
+			const handler = handlers.get('director-notes:getRichOverviewStats');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.perAgent[0].entryCount).toBeLessThan(MAX_ENTRIES_PER_SESSION);
+			expect(result.perAgent[0].truncated).toBe(false);
+		});
+
+		it('does not flag an agent below the retention cap', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['quiet']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'q1', timestamp: now - 1000 }),
+				createMockEntry({ id: 'q2', timestamp: now - 2000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getRichOverviewStats');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.perAgent[0].entryCount).toBe(2);
+			expect(result.perAgent[0].truncated).toBe(false);
+		});
+	});
+
+	// Cue runs stopped being written to the agent's JSONL history file in
+	// CUE-HISTORY-02 and now live only in `cue_events`. Every Director's Notes
+	// surface counted `entry.type === 'CUE'` over those files, so without the
+	// database read below a fleet doing thousands of runs a day reports zero.
+	describe('Cue runs sourced from cue_events', () => {
+		/** Temp dir for the activity-graph bucket cache. */
+		const GRAPH_CACHE_DIR = path.join(os.tmpdir(), `maestro-dn-cue-test-${process.pid}`);
+		let cacheRun = 0;
+
+		/** A Cue run as `getCueHistoryEntries()` shapes it. */
+		const cueRow = (overrides: Partial<HistoryEntry> = {}): HistoryEntry =>
+			createMockEntry({
+				id: 'cue-1',
+				type: 'CUE',
+				sessionId: 'session-1',
+				summary: 'Cue run output',
+				success: true,
+				cueTriggerName: 'Nightly sweep',
+				cueEventType: 'time.interval',
+				...overrides,
+			});
+
+		/** Re-register with Cue queries injected; returns the handler map getter. */
+		const registerWith = (overrides: Record<string, unknown>): ((channel: string) => Function) => {
+			registerDirectorNotesHandlers({
+				getProcessManager: () => mockProcessManager,
+				getAgentDetector: () => mockAgentDetector,
+				agentConfigsStore: { get: vi.fn(() => ({})) } as any,
+				...overrides,
+			} as any);
+			return (channel: string) => handlers.get(channel)!;
+		};
+
+		/** Point the graph handler at a cache nobody else is using. */
+		const useFreshGraphCache = (): void => {
+			setHistoryBucketCacheForTest(
+				new HistoryBucketCache(path.join(GRAPH_CACHE_DIR, `run-${cacheRun++}`))
+			);
+		};
+
+		afterEach(() => {
+			setHistoryBucketCacheForTest(null);
+		});
+
+		it('merges database Cue runs into the unified list and its CUE count', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u-new', type: 'USER', timestamp: now - 1000 }),
+				createMockEntry({ id: 'u-old', type: 'USER', timestamp: now - 3000 }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => [cueRow({ id: 'cue-mid', timestamp: now - 2000 })],
+			})('director-notes:getUnifiedHistory');
+			const result = await handler({} as any, { lookbackDays: 7 });
+
+			expect(result.entries.map((e: HistoryEntry) => e.id)).toEqual(['u-new', 'cue-mid', 'u-old']);
+			expect(result.stats.cueCount).toBe(1);
+			expect(result.stats.userCount).toBe(2);
+			expect(result.stats.totalCount).toBe(3);
+		});
+
+		it('asks the database for the lookback window and the agent it belongs to', async () => {
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([]);
+			mockGetSessionsStore.mockReturnValue({
+				get: vi
+					.fn()
+					.mockReturnValue([{ id: 'session-1', name: 'Sweeper', projectRoot: '/repo/maestro' }]),
+			});
+			const getCueHistoryEntries = vi.fn(() => []);
+
+			const handler = registerWith({ getCueHistoryEntries })('director-notes:getUnifiedHistory');
+			await handler({} as any, { lookbackDays: 7 });
+
+			expect(getCueHistoryEntries).toHaveBeenCalledTimes(1);
+			const query = getCueHistoryEntries.mock.calls[0][0] as any;
+			expect(query.sessionId).toBe('session-1');
+			expect(query.sessionName).toBe('Sweeper');
+			expect(query.projectPath).toBe('/repo/maestro');
+			expect(query.since).toBeGreaterThan(Date.now() - 8 * 24 * 60 * 60 * 1000);
+
+			// "All time" must not smuggle in a cutoff.
+			await handler({} as any, { lookbackDays: 0 });
+			expect((getCueHistoryEntries.mock.calls[1][0] as any).since).toBeUndefined();
+		});
+
+		it('returns database Cue rows when the CUE filter pill is the only one on', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u1', type: 'USER', timestamp: now - 1000 }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => [cueRow({ id: 'cue-1', timestamp: now - 2000 })],
+			})('director-notes:getUnifiedHistory');
+			const result = await handler({} as any, { lookbackDays: 7, filter: 'CUE' });
+
+			expect(result.entries.map((e: HistoryEntry) => e.id)).toEqual(['cue-1']);
+			// Stats stay unfiltered - the header counts every type.
+			expect(result.stats.userCount).toBe(1);
+		});
+
+		it('counts a run recorded by BOTH writers once', async () => {
+			// Runs from before the JSONL writes were removed are still on disk and
+			// stay there; the database also holds them. Ids differ between the two
+			// writers, so only the (trigger, type, summary, time) match sees it.
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				cueRow({ id: 'jsonl-cue', timestamp: now - 1000 }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => [
+					// Same run: the DB stamps dispatch, the JSONL entry stamped completion.
+					cueRow({ id: 'db-cue', timestamp: now - 3000, elapsedTimeMs: 2000 }),
+					cueRow({ id: 'db-cue-later', timestamp: now, summary: 'A different run' }),
+				],
+			})('director-notes:getUnifiedHistory');
+			const result = await handler({} as any, { lookbackDays: 7 });
+
+			expect(result.stats.cueCount).toBe(2);
+			expect(result.entries.map((e: HistoryEntry) => e.id)).toEqual(['db-cue-later', 'jsonl-cue']);
+		});
+
+		it('includes an agent whose only activity is Cue and has no history file', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([]);
+			mockGetSessionsStore.mockReturnValue({
+				get: vi.fn().mockReturnValue([{ id: 'automation', name: 'Automation' }]),
+			});
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => [
+					cueRow({ id: 'cue-1', sessionId: 'automation', timestamp: now - 1000 }),
+				],
+			})('director-notes:getUnifiedHistory');
+			const result = await handler({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toHaveLength(1);
+			expect(result.entries[0].sourceSessionId).toBe('automation');
+			expect(result.entries[0].agentName).toBe('Automation');
+			expect(result.stats.agentCount).toBe(1);
+		});
+
+		it('keeps the JSONL history readable when the Cue database throws', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u1', type: 'USER', timestamp: now }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => {
+					throw new Error('database is locked');
+				},
+			})('director-notes:getUnifiedHistory');
+			const result = await handler({} as any, { lookbackDays: 7 });
+
+			expect(result.entries.map((e: HistoryEntry) => e.id)).toEqual(['u1']);
+			expect(result.stats.cueCount).toBe(0);
+		});
+
+		it('counts database Cue runs in Rich Mode stats and its timeline', async () => {
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u1', type: 'USER', timestamp: now - 1000, success: true }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => [
+					cueRow({ id: 'cue-ok', timestamp: now - 2000, success: true }),
+					cueRow({
+						id: 'cue-bad',
+						timestamp: now - 3000,
+						success: false,
+						summary: 'Run failed silently',
+					}),
+				],
+			})('director-notes:getRichOverviewStats');
+			const result = await handler({} as any, { lookbackDays: 7, bucketCount: 4 });
+
+			expect(result.cueCount).toBe(2);
+			expect(result.totalEntries).toBe(3);
+			expect(result.failureCount).toBe(1);
+			expect(result.timelineBuckets.reduce((sum: number, b: any) => sum + b.cue, 0)).toBe(2);
+			expect(result.perAgent[0].entryCount).toBe(3);
+		});
+
+		it('counts Cue rows when resolving a graph-click offset', async () => {
+			// The offset indexes the rendered list, which now includes rows that
+			// are not in any JSONL file.
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u-new', type: 'USER', timestamp: now }),
+				createMockEntry({ id: 'u-old', type: 'USER', timestamp: now - 4000 }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryEntries: () => [cueRow({ id: 'cue-mid', timestamp: now - 2000 })],
+			})('director-notes:getOffsetForTimestamp');
+
+			// Merged newest-first: [u-new, cue-mid, u-old]
+			expect(await handler({} as any, now - 4000, { lookbackDays: 0 })).toBe(2);
+		});
+
+		it('draws the graph CUE series from cue_events, fleet-wide', async () => {
+			useFreshGraphCache();
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u1', type: 'USER', timestamp: now - 1000 }),
+			]);
+			const getCueHistoryBuckets = vi.fn(() => [
+				{ timestamp: now - 1000, count: 4 },
+				{ timestamp: now, count: 2 },
+			]);
+
+			const handler = registerWith({
+				getCueHistoryBuckets,
+				getCueHistoryFingerprint: () => 'fp',
+			})('director-notes:getGraphData');
+			const result = await handler({} as any, 2, null);
+
+			expect(result.cueCount).toBe(6);
+			expect(result.userCount).toBe(1);
+			expect(result.buckets.reduce((sum: number, b: any) => sum + b.cue, 0)).toBe(6);
+			// No sessionId: this graph spans every agent, so one GROUP BY answers
+			// it rather than one query per agent.
+			expect((getCueHistoryBuckets.mock.calls[0][0] as any).sessionId).toBeUndefined();
+			expect((getCueHistoryBuckets.mock.calls[0][0] as any).since).toBeUndefined();
+		});
+
+		it('asks the graph query for the lookback window when one is set', async () => {
+			useFreshGraphCache();
+			const getCueHistoryBuckets = vi.fn(() => []);
+
+			const handler = registerWith({
+				getCueHistoryBuckets,
+				getCueHistoryFingerprint: () => 'fp',
+			})('director-notes:getGraphData');
+			await handler({} as any, 24, 24);
+
+			const since = (getCueHistoryBuckets.mock.calls[0][0] as any).since;
+			expect(since).toBeGreaterThan(Date.now() - 25 * 60 * 60 * 1000);
+			expect(since).toBeLessThanOrEqual(Date.now() - 23 * 60 * 60 * 1000);
+		});
+
+		it('recomputes cached graph buckets when the Cue fingerprint moves', async () => {
+			// The cache keys off the history files' mtime+size, which no longer
+			// change when a Cue run lands. Without the Cue half of the key the
+			// graph would serve its first answer forever.
+			useFreshGraphCache();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([]);
+
+			const now = Date.now();
+			let cueFingerprint = 'cue-1';
+			let cueCount = 3;
+			const handler = registerWith({
+				getCueHistoryBuckets: () => [{ timestamp: now, count: cueCount }],
+				getCueHistoryFingerprint: () => cueFingerprint,
+			})('director-notes:getGraphData');
+
+			const first = await handler({} as any, 4, null);
+			expect(first.cached).toBe(false);
+			expect(first.cueCount).toBe(3);
+
+			// Same fingerprint: the cached aggregate answers.
+			cueCount = 99;
+			const second = await handler({} as any, 4, null);
+			expect(second.cached).toBe(true);
+			expect(second.cueCount).toBe(3);
+
+			// Fingerprint moved: recompute, and the new runs show up.
+			cueFingerprint = 'cue-2';
+			const third = await handler({} as any, 4, null);
+			expect(third.cached).toBe(false);
+			expect(third.cueCount).toBe(99);
+		});
+
+		it('still returns the JSONL graph series when the Cue database throws', async () => {
+			useFreshGraphCache();
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'u1', type: 'USER', timestamp: now }),
+			]);
+
+			const handler = registerWith({
+				getCueHistoryBuckets: () => {
+					throw new Error('database is locked');
+				},
+			})('director-notes:getGraphData');
+			const result = await handler({} as any, 4, null);
+
+			expect(result.userCount).toBe(1);
+			expect(result.cueCount).toBe(0);
+		});
+	});
+
+	// Work performed by ANOTHER Maestro instance against the same project (an
+	// agent living on the remote box, rather than one this machine drives over
+	// SSH) is mirrored into `<project>/.maestro/history/history-<host>.jsonl`.
+	// The per-agent History panel already merged those files; Director's Notes
+	// did not, so the same runs were visible in one surface and absent from the
+	// other. These cover the merge in every Director's Notes surface.
+	describe('cross-host shared history', () => {
+		/** An entry authored by a peer Maestro on another machine. */
+		const foreignEntry = (overrides: Partial<HistoryEntry> = {}): HistoryEntry =>
+			createMockEntry({
+				id: 'foreign-1',
+				hostname: 'petopswatt',
+				sessionId: 'remote-session',
+				sessionName: 'Remote Agent',
+				summary: 'Work done on the remote box',
+				...overrides,
+			});
+
+		/** One local SSH agent whose project dir is where the mirror lands. */
+		const withSshAgent = () => {
+			mockGetSessionsStore.mockReturnValue({
+				get: vi.fn().mockReturnValue([
+					{
+						id: 'session-1',
+						name: 'Local Agent',
+						cwd: '/remote/project',
+						projectRoot: '/remote/project',
+						sessionSshRemoteConfig: {
+							enabled: true,
+							remoteId: 'petopswatt',
+							syncHistory: true,
+						},
+					},
+				]),
+			});
+			mockGetSshRemoteById.mockReturnValue({ id: 'petopswatt', host: 'petopswatt', port: 22 });
+		};
+
+		it('includes a peer host’s entries in the unified list', async () => {
+			withSshAgent();
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'local-1', timestamp: now - 1000 }),
+			]);
+			mockReadRemoteEntriesSsh.mockResolvedValue([
+				foreignEntry({ id: 'foreign-1', timestamp: now - 2000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries.map((e: HistoryEntry) => e.id)).toEqual(['local-1', 'foreign-1']);
+			expect(result.stats.totalCount).toBe(2);
+			// Two distinct agents: the local one and the peer's.
+			expect(result.stats.agentCount).toBe(2);
+		});
+
+		// A run this machine drove over SSH is recorded locally AND mirrored to the
+		// project dir. Entry ids are stable across hosts, so the copy must not
+		// double count.
+		it('does not double count an entry that is also in the local store', async () => {
+			withSshAgent();
+			const now = Date.now();
+			const shared = createMockEntry({ id: 'local-1', timestamp: now - 1000 });
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([shared]);
+			mockReadRemoteEntriesSsh.mockResolvedValue([{ ...shared, hostname: 'petopswatt' }]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries).toHaveLength(1);
+			expect(result.stats.agentCount).toBe(1);
+		});
+
+		// A foreign session id lives in the peer's namespace, so it is prefixed
+		// with the host. Without that, a colliding id would fold two different
+		// agents' work into one row.
+		it('namespaces a foreign agent by host and labels it', async () => {
+			withSshAgent();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([]);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([]);
+			mockReadRemoteEntriesSsh.mockResolvedValue([foreignEntry()]);
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries[0].sourceSessionId).toBe('shared:petopswatt:remote-session');
+			expect(result.entries[0].agentName).toBe('Remote Agent (petopswatt)');
+		});
+
+		it('counts peer entries in Rich Mode stats', async () => {
+			withSshAgent();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([]);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([]);
+			mockReadRemoteEntriesSsh.mockResolvedValue([foreignEntry({ success: true })]);
+
+			const handler = handlers.get('director-notes:getRichOverviewStats');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.totalEntries).toBe(1);
+			expect(result.agentCount).toBe(1);
+			expect(result.perAgent[0].agentName).toBe('Remote Agent (petopswatt)');
+			// Retention truncation is a per-FILE property; a merged cross-host read
+			// can never claim it.
+			expect(result.perAgent[0].truncated).toBe(false);
+		});
+
+		// The offset indexes into the unified list, so it has to aggregate the
+		// same corpus - a narrower one scrolls the user to the wrong row.
+		it('counts peer entries when resolving a graph click to an offset', async () => {
+			withSshAgent();
+			const now = Date.now();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'local-1', timestamp: now - 1000 }),
+			]);
+			mockReadRemoteEntriesSsh.mockResolvedValue([
+				foreignEntry({ id: 'foreign-1', timestamp: now - 2000 }),
+			]);
+
+			const handler = handlers.get('director-notes:getOffsetForTimestamp');
+			const offset = await handler!({} as any, now - 2000, { lookbackDays: 7 });
+
+			// Newest first: local-1 at 0, the peer's entry at 1.
+			expect(offset).toBe(1);
+		});
+
+		it('hands the synopsis agent a file of the peer’s entries', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			withSshAgent();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([createMockEntry()]);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue('/history/session-1.json');
+			mockReadRemoteEntriesSsh.mockResolvedValue([foreignEntry()]);
+			vi.mocked(groomContext).mockResolvedValue({
+				response: 'Synopsis text',
+				durationMs: 10,
+				completionReason: 'complete',
+			} as any);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(mockWriteFile).toHaveBeenCalled();
+			const prompt = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(prompt).toContain('## Other Hosts');
+			expect(prompt).toContain('petopswatt');
+		});
+
+		it('leaves the prompt untouched when no peer history exists', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([createMockEntry()]);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue('/history/session-1.json');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: 'Synopsis text',
+				durationMs: 10,
+				completionReason: 'complete',
+			} as any);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			const prompt = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(prompt).not.toContain('## Other Hosts');
+			expect(mockWriteFile).not.toHaveBeenCalled();
+		});
+
+		// A remote that is down, or a rotated key, must degrade Director's Notes
+		// to local-only rather than break it.
+		it('falls back to local history when the peer read throws', async () => {
+			withSshAgent();
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
+				createMockEntry({ id: 'local-1' }),
+			]);
+			mockReadRemoteEntriesSsh.mockRejectedValue(new Error('ssh: connect timed out'));
+
+			const handler = handlers.get('director-notes:getUnifiedHistory');
+			const result = await handler!({} as any, { lookbackDays: 7 });
+
+			expect(result.entries.map((e: HistoryEntry) => e.id)).toEqual(['local-1']);
+		});
+	});
+
+	describe('director-notes:generateSynopsis', () => {
+		// The manifest is scoped to sessions that have entries inside the lookback
+		// window, so default getEntries to a fresh entry. Tests that exercise the
+		// empty / out-of-window paths override this explicitly.
+		beforeEach(() => {
+			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([createMockEntry()]);
+		});
+
+		it('should return error when agent is not available', async () => {
+			mockAgentDetector.getAgent.mockResolvedValue({ available: false });
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(false);
+			expect(result.error).toContain('not available');
+		});
+
+		it('should return empty-history message when no sessions have history files', async () => {
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([]);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			expect(result.synopsis).toContain('No history files found');
+			expect(result.synopsis).toContain('7 days');
+			expect(result.generatedAt).toBeTypeOf('number');
+			expect(result.generatedAt).toBeLessThanOrEqual(Date.now());
+		});
+
+		it('should return empty-history message when all file paths are null', async () => {
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(null);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			expect(result.synopsis).toContain('No history files found');
+		});
+
+		it('should call groomContext with file-path manifest and return synopsis', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis\n\nWork was done.',
+				durationMs: 5000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			expect(result.synopsis).toBe('# Synopsis\n\nWork was done.');
+			expect(result.generatedAt).toBeTypeOf('number');
+			expect(result.generatedAt).toBeLessThanOrEqual(Date.now());
+
+			// Verify groomContext was called with file path in prompt (not inline JSON data)
+			const groomCall = vi.mocked(groomContext).mock.calls[0][0];
+			expect(groomCall.agentType).toBe('claude-code');
+			expect(groomCall.readOnlyMode).toBe(true);
+			expect(groomCall.prompt).toContain('/data/history/session-1.json');
+			expect(groomCall.prompt).toContain('session-1');
+			// Verify no inline entry data (the prompt describes the schema but doesn't embed actual entries)
+			expect(groomCall.prompt).not.toContain('"Fixed a bug"');
+		});
+
+		// The Ideal End State is read from settings at generation time rather than
+		// passed down from the renderer, so the web/CLI synopsis paths get it too.
+		// These two specs pin that wiring: the OFF case is the one that matters most,
+		// since every other synopsis test asserts against the unmodified prompt.
+		describe('ideal end state from settings', () => {
+			// `vi.clearAllMocks()` in the outer beforeEach clears call records but NOT
+			// implementations, so a store stubbed here would leak an end state into
+			// every later synopsis spec. Put the empty default back explicitly.
+			afterEach(() => {
+				mockGetSettingsStore.mockReturnValue({ get: vi.fn().mockReturnValue(undefined) });
+			});
+
+			async function promptForSettings(directorNotesSettings: unknown): Promise<string> {
+				const { groomContext } = await import('../../../../main/utils/context-groomer');
+				vi.mocked(groomContext).mockResolvedValue({
+					response: '# Synopsis',
+					durationMs: 1000,
+					completionReason: 'process exited with code 0',
+				});
+				mockGetSettingsStore.mockReturnValue({
+					get: vi.fn((key: string) =>
+						key === 'directorNotesSettings' ? directorNotesSettings : undefined
+					),
+				});
+
+				vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+				vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+					'/data/history/session-1.json'
+				);
+
+				const handler = handlers.get('director-notes:generateSynopsis');
+				await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+				// Last call, not first: a single spec may build more than one prompt.
+				const calls = vi.mocked(groomContext).mock.calls;
+				return calls[calls.length - 1][0].prompt;
+			}
+
+			it('injects the configured end state into the synopsis prompt', async () => {
+				const prompt = await promptForSettings({
+					idealEndState: 'Ship v2 of the ingest pipeline.',
+				});
+
+				expect(prompt).toContain('Ship v2 of the ingest pipeline.');
+				expect(prompt).toContain('## Ideal End State');
+				expect(prompt).toContain('`kind` set to `"progress"`');
+				// The manifest is still there: the end state prioritizes, never filters.
+				expect(prompt).toContain('/data/history/session-1.json');
+			});
+
+			// The prompt embeds a `Date.now()`-derived cutoff, so two builds a
+			// millisecond apart differ on that one line. Drop it: this comparison is
+			// about the end state, not about the clock.
+			const withoutCutoff = (prompt: string) =>
+				prompt
+					.split('\n')
+					.filter((line) => !line.startsWith('Timestamp cutoff:'))
+					.join('\n');
+
+			it('leaves the prompt untouched when the setting is absent or blank', async () => {
+				const absent = await promptForSettings(undefined);
+				const blank = await promptForSettings({ idealEndState: '   \n  ' });
+
+				expect(withoutCutoff(blank)).toBe(withoutCutoff(absent));
+				expect(absent).not.toContain('Ideal End State');
+			});
+		});
+
+		it('should include all sessions with history files in the prompt manifest', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([
+				'session-1',
+				'session-2',
+				'session-3',
+			]);
+			vi.mocked(mockHistoryManager.getHistoryFilePath)
+				.mockReturnValueOnce('/data/history/session-1.json')
+				.mockReturnValueOnce('/data/history/session-2.json')
+				.mockReturnValueOnce(null); // session-3 has no file
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(promptArg).toContain('/data/history/session-1.json');
+			expect(promptArg).toContain('/data/history/session-2.json');
+			expect(promptArg).not.toContain('session-3');
+		});
+
+		it('should pass custom agent config to groomContext when provided', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis\n\nCustom agent work.',
+				durationMs: 5000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, {
+				lookbackDays: 7,
+				provider: 'claude-code',
+				customPath: '/usr/local/bin/custom-claude',
+				customArgs: '--model opus',
+				customEnvVars: { ANTHROPIC_API_KEY: 'test-key' },
+			});
+
+			expect(result.success).toBe(true);
+			expect(groomContext).toHaveBeenCalledWith(
+				expect.objectContaining({
+					agentType: 'claude-code',
+					readOnlyMode: true,
+					sessionCustomPath: '/usr/local/bin/custom-claude',
+					sessionCustomArgs: '--model opus',
+					sessionCustomEnvVars: { ANTHROPIC_API_KEY: 'test-key' },
+				}),
+				mockProcessManager,
+				mockAgentDetector
+			);
+		});
+
+		it('should use Maestro session name in file-path manifest', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			// Mock sessions store with Maestro session name
+			mockGetSessionsStore.mockReturnValue({
+				get: vi.fn().mockReturnValue([
+					{
+						id: 'session-1',
+						name: '🚧 feature-branch',
+						toolType: 'claude-code',
+						cwd: '/test',
+						projectRoot: '/test',
+					},
+				]),
+			});
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			// The prompt should contain the Maestro session name alongside the file path
+			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(promptArg).toContain('🚧 feature-branch');
+			expect(promptArg).toContain('/data/history/session-1.json');
+		});
+
+		it('should fall back to session ID when no Maestro session name is available', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['unknown-session']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/unknown-session.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(promptArg).toContain('unknown-session');
+		});
+
+		it('should return error when groomContext fails', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockRejectedValue(new Error('Agent timed out'));
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(false);
+			expect(result.error).toContain('Agent timed out');
+		});
+
+		it('should return error when agent returns empty response', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '  ',
+				durationMs: 3000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(false);
+			expect(result.error).toContain('empty response');
+		});
+
+		it('should sanitize session names in the prompt manifest', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			// Session name with markdown injection characters
+			mockGetSessionsStore.mockReturnValue({
+				get: vi.fn().mockReturnValue([
+					{
+						id: 'session-1',
+						name: '**bold** [link](http://evil) # heading',
+						toolType: 'claude-code',
+						cwd: '/test',
+						projectRoot: '/test',
+					},
+				]),
+			});
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			// Markdown characters should be stripped
+			expect(promptArg).not.toContain('**bold**');
+			expect(promptArg).not.toContain('[link]');
+			expect(promptArg).toContain('bold linkhttp://evil heading');
+		});
+
+		it('should include lookback and cutoff metadata in prompt', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			await handler!({} as any, { lookbackDays: 14, provider: 'claude-code' });
+
+			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(promptArg).toContain('Lookback period: 14 days');
+			expect(promptArg).toContain('Timestamp cutoff:');
+		});
+
+		it('parses a well-formed JSON response into narrative (no narrativeError)', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			const json = JSON.stringify({
+				version: 1,
+				sections: [
+					{
+						kind: 'accomplishments',
+						title: 'Accomplishments',
+						items: [{ text: 'Shipped the feature', severity: 'info', agent: 'alpha' }],
+					},
+					{ kind: 'challenges', title: 'Challenges', items: [] },
+					{ kind: 'nextSteps', title: 'Next Steps', items: [] },
+				],
+			});
+			vi.mocked(groomContext).mockResolvedValue({
+				response: json,
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			// Raw synopsis is preserved verbatim for Plain Mode / copy / save.
+			expect(result.synopsis).toBe(json);
+			expect(result.narrativeError).toBeUndefined();
+			expect(result.narrative).toBeDefined();
+			expect(result.narrative.version).toBe(1);
+			expect(result.narrative.sections).toHaveLength(3);
+			expect(result.narrative.sections[0].items[0].text).toBe('Shipped the feature');
+			expect(result.narrative.sections[0].items[0].agent).toBe('alpha');
+		});
+
+		it('treats prose output as markdown, with no narrativeError', async () => {
+			// The prompt is a user setting: a profile holding a markdown-contract
+			// prompt makes the agent return prose. That is not a broken narrative,
+			// and flagging it would show a parse error where a report should be.
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis\n\nThis is markdown, not JSON.',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			expect(result.synopsis).toBe('# Synopsis\n\nThis is markdown, not JSON.');
+			expect(result.narrative).toBeUndefined();
+			expect(result.narrativeError).toBeUndefined();
+		});
+
+		it('returns narrativeError when JSON-shaped output fails the schema', async () => {
+			// Shaped like the narrative but wrong: the agent really did botch it,
+			// so the user should see the failure rather than a wall of JSON.
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '{ "version": 99, "sections": "nope" }',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
+			vi.mocked(mockHistoryManager.getHistoryFilePath).mockReturnValue(
+				'/data/history/session-1.json'
+			);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			expect(result.narrative).toBeUndefined();
+			expect(result.narrativeError).toBeTypeOf('string');
+			expect(result.narrativeError.length).toBeGreaterThan(0);
+		});
+
+		it('excludes sessions with no entries inside the lookback window', async () => {
+			const { groomContext } = await import('../../../../main/utils/context-groomer');
+			vi.mocked(groomContext).mockResolvedValue({
+				response: '# Synopsis',
+				durationMs: 1000,
+				completionReason: 'process exited with code 0',
+			});
+
+			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue([
+				'recent-session',
+				'stale-session',
+			]);
+			vi.mocked(mockHistoryManager.getHistoryFilePath)
+				.mockReturnValueOnce('/data/history/recent-session.json')
+				.mockReturnValueOnce('/data/history/stale-session.json');
+			// stale-session only has entries far outside the 7-day window and must be
+			// left out of the manifest - otherwise the grooming agent burns its whole
+			// timeout reading out-of-range history files and emits no synopsis.
+			vi.mocked(mockHistoryManager.getEntries)
+				.mockReturnValueOnce([createMockEntry({ timestamp: Date.now() })])
+				.mockReturnValueOnce([
+					createMockEntry({ timestamp: Date.now() - 90 * 24 * 60 * 60 * 1000 }),
+				]);
+
+			const handler = handlers.get('director-notes:generateSynopsis');
+			const result = await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
+
+			expect(result.success).toBe(true);
+			expect(result.stats.agentCount).toBe(1);
+			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
+			expect(promptArg).toContain('/data/history/recent-session.json');
+			expect(promptArg).not.toContain('stale-session');
+		});
+	});
+});

@@ -1,0 +1,659 @@
+<!-- Verified 2026-04-10 against origin/rc (06e5a2eb3) -->
+
+# State Patterns Reference
+
+Complete reference for Maestro's frontend state management: all Zustand stores, the Session data model, common patterns, and hook conventions.
+
+---
+
+## Store Architecture
+
+Maestro uses Zustand stores to replace React Context providers. Each store:
+
+- Uses **selector-based subscriptions** (components only re-render when their slice changes)
+- Supports **non-React access** via `useStore.getState()` and `getState()/getActions()` helpers
+- Supports **functional updaters** matching React's `setState` signature
+
+All stores are in `src/renderer/stores/`.
+
+---
+
+## Store Inventory
+
+| Store                  | File                    | Hook                    | Purpose                                                                                             |
+| ---------------------- | ----------------------- | ----------------------- | --------------------------------------------------------------------------------------------------- |
+| **sessionStore**       | `sessionStore.ts`       | `useSessionStore`       | Sessions, groups, active session, bookmarks, worktree tracking, initialization                      |
+| **uiStore**            | `uiStore.ts`            | `useUIStore`            | UI layout: sidebars, focus, notifications, search, drag-and-drop, editing                           |
+| **tabStore**           | `tabStore.ts`           | `useTabStore`           | Tab operations (CRUD, navigation, metadata), gist state. Wraps tabHelpers.ts + sessionStore         |
+| **agentStore**         | `agentStore.ts`         | `useAgentStore`         | Agent detection cache, error recovery, queue processing, agent lifecycle                            |
+| **modalStore**         | `modalStore.ts`         | `useModalStore`         | Modal visibility via registry pattern. Single Map replaces 90+ boolean fields                       |
+| **groupChatStore**     | `groupChatStore.ts`     | `useGroupChatStore`     | Group chat state: chats list, messages, moderator, participants, execution queue                    |
+| **settingsStore**      | `settingsStore.ts`      | `useSettingsStore`      | App settings (theme, font, shortcuts, agent configs, etc.)                                          |
+| **fileExplorerStore**  | `fileExplorerStore.ts`  | `useFileExplorerStore`  | File explorer panel state                                                                           |
+| **batchStore**         | `batchStore.ts`         | `useBatchStore`         | Batch/Auto Run execution state                                                                      |
+| **notificationStore**  | `notificationStore.ts`  | `useNotificationStore`  | In-app notification queue                                                                           |
+| **operationStore**     | `operationStore.ts`     | `useOperationStore`     | Long-running operation tracking                                                                     |
+| **mediaPlaybackStore** | `mediaPlaybackStore.ts` | `useMediaPlaybackStore` | Audio/video playback state + slot geometry for the app-level media host                             |
+| **gitCommandRunStore** | `gitCommandRunStore.ts` | `useGitCommandRunStore` | In-flight `git pull` / `push` / `fetch` runs. Outlives the console modal: close hides, cancel kills |
+
+---
+
+## sessionStore (Core)
+
+**File:** `src/renderer/stores/sessionStore.ts`
+**Hook:** `useSessionStore`
+
+### State
+
+```typescript
+interface SessionStoreState {
+	sessions: Session[]; // All sessions (agents)
+	groups: Group[]; // Session groups
+	activeSessionId: string; // Currently selected session
+	sessionsLoaded: boolean; // Loaded from disk
+	initialLoadComplete: boolean; // First load finished
+	initialFileTreeReady: boolean; // File tree hydrated on startup
+	removedWorktreePaths: Set<string>; // Prevent worktree re-discovery
+	cyclePosition: number; // Cmd+J/K navigation position
+}
+```
+
+### Key Actions
+
+| Action                       | Signature                            | Notes                                             |
+| ---------------------------- | ------------------------------------ | ------------------------------------------------- |
+| `setSessions`                | `(Session[] \| (prev => Session[]))` | Supports functional updater. Skips no-op updates. |
+| `addSession`                 | `(Session)`                          | Append to end.                                    |
+| `removeSession`              | `(id: string)`                       | Filter by ID.                                     |
+| `updateSession`              | `(id: string, Partial<Session>)`     | Efficient single-session update.                  |
+| `setActiveSessionId`         | `(id: string)`                       | Resets cycle position.                            |
+| `setActiveSessionIdInternal` | `(string \| (prev => string))`       | For cycling - does NOT reset cycle position.      |
+| `setGroups`                  | `(Group[] \| (prev => Group[]))`     | Functional updater support.                       |
+| `toggleBookmark`             | `(sessionId: string)`                | Toggle session bookmark flag.                     |
+| `addLogToTab`                | `(sessionId, logEntry, tabId?)`      | Add log to specific tab (or active tab).          |
+
+### Selectors
+
+```typescript
+// Use with: const value = useSessionStore(selector);
+selectActiveSession; // (state) => Session | null
+selectSessionById(id); // (state) => Session | undefined
+selectBookmarkedSessions; // (state) => Session[]
+selectSessionsByGroup(id); // (state) => Session[]
+selectUngroupedSessions; // (state) => Session[]
+selectGroupById(id); // (state) => Group | undefined
+selectSessionCount; // (state) => number
+selectIsReady; // (state) => boolean (loaded + initialized)
+selectIsAnySessionBusy; // (state) => boolean
+```
+
+### Non-React Access
+
+```typescript
+import { getSessionState, getSessionActions } from './stores/sessionStore';
+
+// Read current state (snapshot)
+const { sessions, activeSessionId } = getSessionState();
+
+// Get stable action references
+const { setSessions, setActiveSessionId } = getSessionActions();
+```
+
+---
+
+## uiStore
+
+**File:** `src/renderer/stores/uiStore.ts`
+**Hook:** `useUIStore`
+
+### State Slices
+
+| Slice                      | Type                       | Default      | Purpose                                                                   |
+| -------------------------- | -------------------------- | ------------ | ------------------------------------------------------------------------- |
+| `leftSidebarOpen`          | `boolean`                  | `true`       | Left sidebar visibility                                                   |
+| `rightPanelOpen`           | `boolean`                  | `true`       | Right panel visibility                                                    |
+| `activeFocus`              | `FocusArea`                | `'main'`     | Current keyboard focus area                                               |
+| `activeRightTab`           | `RightPanelTab`            | `'files'`    | Active tab in right panel                                                 |
+| `bookmarksCollapsed`       | `boolean`                  | `false`      | Bookmarks section collapsed                                               |
+| `showUnreadOnly`           | `boolean`                  | `false`      | Filter session list to unread                                             |
+| `flashNotification`        | `string \| null`           | `null`       | Error flash message                                                       |
+| `successFlashNotification` | `string \| null`           | `null`       | Success flash message                                                     |
+| `outputSearchOpen`         | `boolean`                  | `false`      | Output search bar visible                                                 |
+| `outputSearchQuery`        | `string`                   | `''`         | Current search query                                                      |
+| `sessionFilterOpen`        | `boolean`                  | `false`      | Sidebar agent filter visible                                              |
+| `sessionFilter`            | `string`                   | `''`         | Sidebar agent filter text (shared, not local to `useSessionFilterMode`)   |
+| `showArchivedGroupChats`   | `boolean`                  | `false`      | Whether the group chat list draws archived chats                          |
+| `draggingSessionId`        | `string \| null`           | `null`       | Session being dragged                                                     |
+| `editingGroupId`           | `string \| null`           | `null`       | Group being renamed inline                                                |
+| `editingSessionId`         | `string \| null`           | `null`       | Session being renamed inline                                              |
+| `usageDashboardViewMode`   | `UsageDashboardViewMode`   | `'overview'` | Last-selected Usage Dashboard tab (in-memory, resets on restart)          |
+| `hiddenQuotaAccounts`      | `Record<string, string[]>` | `{}`         | Per-provider hidden quota accounts (persisted via settings write-through) |
+
+All actions support functional updaters and have toggle variants where appropriate (e.g., `toggleLeftSidebar`, `toggleRightPanel`, `toggleShowUnreadOnly`).
+
+**`sessionFilter` and `showArchivedGroupChats` are here on purpose.** Both were `useState` inside the component that renders the list, which gave every other caller its own copy. `Cmd+[` / `Cmd+]` could not see either one, so the cycle walked agents and chats the sidebar was not drawing. Anything that decides MEMBERSHIP of a rendered list is a shared question: put it in the store, and read it from both the render path and the navigation path.
+
+A test that renders the Left Bar must reset both in `beforeEach`. They are module-global now, so a test that types into the filter leaves the query behind and every later test in the file renders an empty sidebar.
+
+---
+
+## tabStore
+
+**File:** `src/renderer/stores/tabStore.ts`
+**Hook:** `useTabStore`
+
+Tab data lives inside Session objects in sessionStore. This store provides orchestration actions that compose `tabHelpers.ts` pure functions with sessionStore mutations.
+
+### Own State
+
+```typescript
+interface TabStoreState {
+	tabGistContent: { filename: string; content: string } | null;
+	fileGistUrls: Record<string, GistInfo>;
+}
+```
+
+### Tab CRUD Actions
+
+| Action            | Signature                                     | Notes                           |
+| ----------------- | --------------------------------------------- | ------------------------------- |
+| `createTab`       | `(options?) => CreateTabResult \| null`       | Create AI tab in active session |
+| `closeTab`        | `(tabId, options?) => CloseTabResult \| null` | Close AI tab                    |
+| `closeFileTab`    | `(tabId) => CloseFileTabResult \| null`       | Close file preview tab          |
+| `reopenClosedTab` | `() => ReopenUnifiedClosedTabResult \| null`  | Reopen most recently closed tab |
+
+### Tab Navigation Actions
+
+| Action            | Signature                                                 | Notes                     |
+| ----------------- | --------------------------------------------------------- | ------------------------- |
+| `selectTab`       | `(tabId) => SetActiveTabResult \| null`                   | Set active AI tab         |
+| `selectFileTab`   | `(tabId) => void`                                         | Set active file tab       |
+| `navigateToNext`  | `(showUnreadOnly?) => NavigateToUnifiedTabResult \| null` | Next tab in unified order |
+| `navigateToPrev`  | `(showUnreadOnly?) => NavigateToUnifiedTabResult \| null` | Previous tab              |
+| `navigateToIndex` | `(index) => NavigateToUnifiedTabResult \| null`           | Tab by position           |
+| `navigateToLast`  | `() => NavigateToUnifiedTabResult \| null`                | Last tab                  |
+
+### Tab Metadata Actions
+
+| Action                | Signature          | Notes                                                                                                                                                                                                                                                                     |
+| --------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `starTab`             | `(tabId)`          | Toggle starred flag                                                                                                                                                                                                                                                       |
+| `markUnread`          | `(tabId, unread?)` | Set hasUnread flag                                                                                                                                                                                                                                                        |
+| `updateTabName`       | `(tabId, name)`    | Update tab display name                                                                                                                                                                                                                                                   |
+| `toggleReadOnly`      | `(tabId)`          | Toggle read-only mode                                                                                                                                                                                                                                                     |
+| `toggleSaveToHistory` | `(tabId)`          | Toggle history saving                                                                                                                                                                                                                                                     |
+| `cycleThinkingMode`   | `(tabId)`          | Cycle: off -> on -> sticky -> off. Transition to 'off' wipes thinking/tool logs; 'on' keeps them only until inline (new stdout) or process-exit clears fire (`cleanupExitedTabLogs`); 'sticky' opts out of all three clears. See `ThinkingMode` in `src/shared/types.ts`. |
+
+### Tab Selectors (use with useSessionStore)
+
+```typescript
+selectActiveTab; // Active AI tab from active session
+selectActiveFileTab; // Active file tab from active session
+selectUnifiedTabs; // All tabs (AI + file) in order
+selectTabById(id); // Specific AI tab
+selectFileTabById(id); // Specific file tab
+selectTabCount; // AI tab count
+selectAllTabs; // All AI tabs
+selectAllFileTabs; // All file tabs
+```
+
+---
+
+## agentStore
+
+**File:** `src/renderer/stores/agentStore.ts`
+**Hook:** `useAgentStore`
+
+### State
+
+```typescript
+interface AgentStoreState {
+	availableAgents: AgentConfig[]; // Cached detection results
+	agentsDetected: boolean; // Detection completed at least once
+}
+```
+
+### Key Actions
+
+| Action                      | Signature                                  | Purpose                                  |
+| --------------------------- | ------------------------------------------ | ---------------------------------------- |
+| `refreshAgents`             | `(sshRemoteId?) => Promise<void>`          | Detect agents and cache results          |
+| `getAgentConfig`            | `(agentId) => AgentConfig \| undefined`    | Look up cached agent config              |
+| `clearAgentError`           | `(sessionId, tabId?)`                      | Clear error state, reset to idle         |
+| `startNewSessionAfterError` | `(sessionId, options?)`                    | Clear error + create fresh tab           |
+| `retryAfterError`           | `(sessionId)`                              | Clear error, let user retry              |
+| `restartAgentAfterError`    | `(sessionId) => Promise<void>`             | Kill process + clear error               |
+| `authenticateAfterError`    | `(sessionId)`                              | Switch to terminal for re-auth           |
+| `processQueuedItem`         | `(sessionId, item, deps) => Promise<void>` | Build spawn config and dispatch to agent |
+| `killAgent`                 | `(sessionId, suffix?) => Promise<void>`    | Kill agent process                       |
+| `interruptAgent`            | `(sessionId) => Promise<void>`             | Send CTRL+C to agent                     |
+
+---
+
+## modalStore
+
+**File:** `src/renderer/stores/modalStore.ts`
+**Hook:** `useModalStore`
+
+### Registry Pattern
+
+Replaces 90+ boolean fields with a `Map<ModalId, ModalEntry>`:
+
+```typescript
+interface ModalEntry<T = unknown> {
+	open: boolean;
+	data?: T;
+}
+```
+
+### ModalId Union
+
+The current union in `src/renderer/stores/modalStore.ts` lists ~55 modal identifiers (exact list grows as features land - check the source):
+
+- **Chrome / global:** `settings`, `shortcutsHelp`, `about`, `feedback`, `updateCheck`
+- **Agent lifecycle:** `newAgentChoice`, `newInstance`, `editAgent`, `deleteAgent`, `renameInstance`, `agentError`
+- **Navigation / command:** `quickAction`, `tabSwitcher`, `fuzzyFileSearch`, `promptComposer`
+- **Tab / group edit:** `renameTab`, `renameGroup`
+- **Session actions:** `mergeSession`, `sendToAgent`, `agentSessions`, `queueBrowser`, `batchRunner`, `autoRunSetup`, `marketplace`
+- **Worktree:** `worktreeConfig`, `createWorktree`, `createPR`, `deleteWorktree`
+- **Group chat:** `newGroupChat`, `deleteGroupChat`, `renameGroupChat`, `editGroupChat`, `groupChatInfo`
+- **Git:** `gitDiff`, `gitLog`
+- **Wizard / onboarding:** `wizardResume`, `tour`
+- **Debug / diagnostic:** `debugPackage`, `playground`, `logViewer`, `processMonitor`, `usageDashboard`
+- **Confirm / celebration:** `confirm`, `quitConfirm`, `standingOvation`, `firstRunCelebration`, `keyboardMastery`, `leaderboard`, `lightbox`
+- **Feature-specific:** `symphony`, `windowsWarning`, `directorNotes`, `cueModal`, `cueYamlEditor`
+
+### Core Actions
+
+```typescript
+openModal<T extends ModalId>(id: T, data?: ModalDataFor<T>): void
+closeModal(id: ModalId): void
+toggleModal<T extends ModalId>(id: T, data?: ModalDataFor<T>): void
+updateModalData<T extends ModalId>(id: T, data: Partial<ModalDataFor<T>>): void
+isOpen(id: ModalId): boolean
+getData<T extends ModalId>(id: T): ModalDataFor<T> | undefined
+closeAll(): void
+```
+
+### Destination Surfaces (one at a time)
+
+`DESTINATION_MODALS` in `modalStore.ts` is the set of full-window views that are a place you
+go rather than a dialog you answer: `settings`, `usageDashboard`, `directorNotes`,
+`symphony`, `cueModal`, `marketplace`, `processMonitor`, plus the main-panel destinations
+`logViewer`, `agentSessions`, and `memoryViewer`. `openModal` (and `toggleModal`, which
+routes through it) closes whichever other destination was up, so only one is ever open.
+
+Without the rule, what you saw after a hotkey depended on the fixed rank each surface holds
+in `MODAL_PRIORITIES` rather than on what you just asked for: opening the Usage Dashboard
+(540) while Director's Notes (848) was up rendered it behind the notes, and opening a
+main-panel destination while any overlay was up changed nothing on screen. Both read as a
+dead keystroke.
+
+**When you add a modal, decide which kind it is.** Membership test: does it fill the window,
+own its own header/tabs, and is it reachable on its own from a hotkey, the command palette,
+the Left Bar footer, or `maestro-cli open`? Dialogs that answer a question _about_ the
+surface beneath them are not members and are meant to layer - confirmations, rename prompts,
+`cueYamlEditor`, the Usage Dashboard's per-agent detail, the Symphony agent picker.
+
+The Document Graph is a destination that lives in `fileExplorerStore`, not here. It joins the
+rule through `registerExternalDestination(close)`, which `modalStore` invokes when a
+destination opens; the graph store calls `closeOtherDestinations()` on its own way in. The
+dependency is one-way on purpose - `modalStore` must never import `fileExplorerStore`. Any
+future destination owned by another store registers the same way.
+
+### Typed Data Map
+
+Modals with associated data have type-safe access:
+
+```typescript
+interface ModalDataMap {
+	settings: { tab: SettingsTab };
+	newInstance: { duplicatingSessionId: string | null };
+	editAgent: { session: Session };
+	quickAction: { initialMode: 'main' | 'move-to-group' };
+	confirm: { message: string; onConfirm: () => void; title?; destructive? };
+	lightbox: { image: string | null; images: string[]; source; isGroupChat; allowDelete };
+	agentError: { sessionId: string; historicalError?: AgentError };
+	// ...and more
+}
+```
+
+### Selectors
+
+```typescript
+selectModalOpen(id); // (state) => boolean
+selectModalData(id); // (state) => ModalDataFor<T> | undefined
+selectModal(id); // (state) => ModalEntry<ModalDataFor<T>> | undefined
+```
+
+### ModalContext Compatibility
+
+`getModalActions()` returns a compatibility layer with the old ModalContext API shape (e.g., `setSettingsModalOpen(true)`). `useModalActions()` hook provides the same reactive API for components still using the old pattern.
+
+---
+
+## groupChatStore
+
+**File:** `src/renderer/stores/groupChatStore.ts`
+**Hook:** `useGroupChatStore`
+
+### State
+
+```typescript
+interface GroupChatStoreState {
+	groupChats: GroupChat[];
+	activeGroupChatId: string | null;
+	groupChatMessages: GroupChatMessage[];
+	groupChatState: GroupChatState; // 'idle' | 'running' | 'paused' | ...
+	participantStates: Map<string, 'idle' | 'working'>;
+	moderatorUsage: { contextUsage; totalCost; tokenCount } | null;
+	groupChatStates: Map<string, GroupChatState>; // All chats (for sidebar indicators)
+	allGroupChatParticipantStates: Map<string, Map<string, 'idle' | 'working'>>;
+	groupChatExecutionQueue: QueuedItem[];
+	groupChatReadOnlyMode: boolean;
+	groupChatRightTab: 'participants' | 'history';
+	groupChatParticipantColors: Record<string, string>;
+	groupChatStagedImages: string[];
+	groupChatError: GroupChatErrorState | null;
+}
+```
+
+### Convenience Actions
+
+- `clearGroupChatError()` - Clear error state
+- `resetGroupChatState()` - Reset to initial values (close chat view)
+
+---
+
+## mediaPlaybackStore
+
+**File:** `src/renderer/stores/mediaPlaybackStore.ts`
+**Hook:** `useMediaPlaybackStore`
+
+State for the app's single audio/video player. The queue and the float geometry
+persist; history deliberately does not.
+
+```typescript
+interface MediaPlaybackStoreState {
+	items: MediaItem[]; // play queue, in open order (persisted)
+	activeItemId: string | null; // the one item with a mounted player (persisted)
+	history: MediaItem[]; // DEPARTED tracks, newest first (per-boot; excludes the loaded one)
+	playing: boolean;
+	dismissed: boolean; // minimized to the Left Bar (playback continues)
+	pendingAutoplay: boolean; // one-shot: play when ready
+	toggleRequest: number; // nonce; each increment toggles play/pause
+	resumeTimes: Record<string, number>; // per item, so coming back resumes (persisted)
+	durations: Record<string, number>; // per item length, for the list rows (persisted)
+	floatPosition: { top; left } | null; // where the player sits (persisted)
+	floatWidths: Partial<Record<MediaKind, number>>; // width per kind (persisted)
+	aspects: Record<string, number>; // item -> picture shape, learned on load (per-boot)
+}
+```
+
+### Why this store exists
+
+**Media never becomes a tab.** `handleOpenFileTab()` diverts a playable file to
+`openMedia()` before a tab can be created, so the queue lives here rather than
+being derived from `session.filePreviewTabs`. That is a product decision (a
+podcast should not cost the user their workspace) and a technical one: anything
+rendered per-tab or per-agent is unmounted on switch, and removing a media
+element from the document runs the HTML spec's internal pause steps, which would
+kill playback every time the user looked at something else.
+
+The element lives in `MediaPlaybackHost`, mounted once in `App.tsx` and never
+unmounted. `FloatingMediaPlayer` is its **only** placement - there is no docked
+or in-panel mode. Do not add one.
+
+**One player, always.** Overlapping audio is structurally impossible rather than
+a rule to enforce: switching items unmounts the previous element. Use
+`stepMediaItem()` (`utils/mediaItems.ts`) for prev/next, which walks the queue in
+open order, and `advanceAfterEnded()` for the end-of-file hand-off.
+
+**Queue and history have opposite lifetimes.** The queue survives a restart (the
+`mediaPlayerQueue` setting, written debounced and hydrated in `settingsStore`);
+history is per-boot. That is why history holds whole `MediaItem`s rather than IDs
+into the queue: it has to be able to name a file the queue no longer holds, and
+dropping a queue entry must not rewrite what the user already heard. Picking a
+history entry re-queues it.
+
+### Gotchas
+
+- **`dismissed` is minimize, `closeItem` is close.** Minimizing keeps the element
+  mounted and playing (the header pill drives it through `requestToggle`);
+  closing releases the player and the sound stops. Collapsing the two is how you
+  get either a hide button that kills audio or a close button that leaves sound
+  coming from nowhere.
+- **Item IDs are `sessionId::path`, not generated.** That is what makes
+  re-opening a file land on its existing queue entry and pick up its remembered
+  position instead of stacking a duplicate that starts from zero.
+- **Re-opening preserves queue position.** `openMedia` replaces in place rather
+  than moving to the end, so prev/next order stays open order.
+- **`history` holds items, not IDs.** It outlives the queue, so a history entry
+  can name a file that is no longer queued. `removeHistoryItem` and `closeItem`
+  are separate actions on separate lists.
+- **`enqueueMedia` does not interrupt.** The one exception is an idle player:
+  with nothing loaded there is no widget on screen, so the first queued file
+  becomes active (paused) rather than landing in a queue nobody can see.
+- **Multi-file opens must pass `mediaMode: 'queue'` after the first media file**
+  (`openFilesInOrder()` in `useFileContextMenu.ts`), or each open steals the
+  player and only the last file survives.
+- **A restored queue comes back `dismissed`.** Nothing plays at launch;
+  `NowPlayingIndicator` in the Left Bar header is what advertises it.
+- **"Is the header pill on screen" has one owner: `selectNowPlayingVisible`.**
+  The pill renders only when the indicator is enabled AND something is loaded,
+  and the Left Bar header needs the same answer to decide how much width to
+  reserve for it (see [UI-PATTERNS.md -> Left Bar Header Width Gates](UI-PATTERNS.md#left-bar-header-width-gates)).
+  Re-deriving it in the header is how a width reserve ends up describing a
+  header nobody is looking at.
+- **Durations outlive the queue in memory but not on disk.** A history row still
+  shows the length of a file dropped from the queue, so `closeItem` leaves the
+  entry alone; `writeQueueNow` prunes to the queued IDs instead, or every file
+  ever played would accumulate in settings.
+- **Neither list shows the loaded track.** The queue menu filters it out at
+  display time via `upcomingMediaItems()` - it must STAY in `items`, because
+  that is how `stepMediaItem` finds its position for prev/next. History excludes
+  it by invariant instead (`historyForActiveChange` strips the incoming id), so
+  replaying something out of history does not leave it listed while it plays.
+- **`clearQueue` keeps the loaded track.** The menu it lives in means "what
+  plays next", so emptying it must not also stop the music; `closeItem` is what
+  stops playback.
+- **History records departures, not arrivals.** A track joins `history` when it
+  stops being active (next track, close, clear), never when it becomes active -
+  so the loaded track is never in its own "recently played". Pushing on arrival
+  put a single open file in the queue AND the history at once. See
+  `departingHistory()`.
+- **`MediaPlaybackHost` must render ONE tree.** Minimized and expanded differ by
+  a style flag on `FloatingMediaPlayer` (`hidden`), never by which wrapper the
+  player is rendered under: branching there moves the media element in the React
+  tree, and an unmount runs the HTML spec's internal pause steps, silently
+  stopping the audio minimizing is meant to preserve.
+- **The player's height is never stored.** It is derived from the loaded file:
+  chrome for audio, chrome plus `width / aspect` for video (`mediaFloatGeometry`).
+  Persisting a height is what let a video sit in black bars. Width is stored per
+  kind, because a movie's width is absurd on the next podcast.
+- **`closeItem` is stop, not skip.** Closing the active item releases the player
+  rather than auto-advancing to the next one.
+- `toggleRequest` is a nonce, not a callback in state, so the pill's play button
+  can drive the element without a ref crossing the frame boundary.
+
+---
+
+## Common Patterns
+
+### 1. Functional Updaters
+
+All stores accept both direct values and updater functions, matching React's `setState`:
+
+```typescript
+// Direct value
+setSessions(newSessions);
+
+// Functional updater (access previous state)
+setSessions((prev) => prev.filter((s) => s.id !== deletedId));
+
+// Boolean toggle
+setLeftSidebarOpen((prev) => !prev);
+```
+
+Implementation pattern used across all stores:
+
+```typescript
+function resolve<T>(valOrFn: T | ((prev: T) => T), prev: T): T {
+	return typeof valOrFn === 'function' ? (valOrFn as (prev: T) => T)(prev) : valOrFn;
+}
+```
+
+### 2. No-Op Skipping
+
+Stores skip state updates when nothing changes:
+
+```typescript
+setSessions: (v) => set((s) => {
+	const newSessions = resolve(v, s.sessions);
+	if (newSessions === s.sessions) return s; // Skip - same reference
+	return { sessions: newSessions };
+}),
+```
+
+### 3. Non-React Access
+
+Every store provides `getState()` and `getActions()` helpers for use outside React:
+
+```typescript
+// Pattern: read state outside React
+const { sessions } = getSessionState();
+
+// Pattern: call actions outside React (services, orchestrators, IPC handlers)
+const { setSessions, addSession } = getSessionActions();
+setSessions((prev) => [...prev, newSession]);
+```
+
+### 4. Granular Selectors
+
+Subscribe to specific slices to minimize re-renders:
+
+```typescript
+// GOOD: Only re-renders when activeSessionId changes
+const activeId = useSessionStore((state) => state.activeSessionId);
+
+// GOOD: Derived selector with stable reference
+const activeSession = useSessionStore(selectActiveSession);
+
+// BAD: Subscribes to entire store (re-renders on any change)
+const store = useSessionStore();
+```
+
+### 5. getState() for Event Handlers
+
+Inside event handlers and callbacks, use `getState()` instead of hook values to avoid stale closures:
+
+```typescript
+// GOOD: Always reads current state
+const handleClick = () => {
+	const { activeSessionId, sessions } = useSessionStore.getState();
+	// ...
+};
+
+// BAD: May capture stale closure
+const activeId = useSessionStore((s) => s.activeSessionId);
+const handleClick = () => {
+	// activeId might be stale if component hasn't re-rendered
+};
+```
+
+### 6. Cross-Store Composition
+
+Stores compose by reading each other's state. tabStore reads from sessionStore:
+
+```typescript
+// tabStore reads active session from sessionStore
+function getActiveSession(): Session | null {
+	return selectActiveSession(useSessionStore.getState());
+}
+
+// tabStore writes back to sessionStore
+function updateActiveSession(updated: Session): void {
+	const { activeSessionId } = useSessionStore.getState();
+	useSessionStore
+		.getState()
+		.setSessions((prev) => prev.map((s) => (s.id === activeSessionId ? updated : s)));
+}
+```
+
+### 7. Immutable Updates
+
+All store updates create new objects. Never mutate:
+
+```typescript
+// CORRECT: New array, new object
+updateSession: (id, updates) => set(s => ({
+	sessions: s.sessions.map(session =>
+		session.id === id ? { ...session, ...updates } : session
+	),
+})),
+
+// WRONG: Mutation
+updateSession: (id, updates) => set(s => {
+	const session = s.sessions.find(s => s.id === id);
+	Object.assign(session, updates); // NEVER DO THIS
+	return { sessions: s.sessions };
+}),
+```
+
+---
+
+## Session Data Model
+
+The `Session` interface (defined in `src/renderer/types/index.ts`) represents an agent in the Left Bar. Key fields:
+
+| Field                    | Type                     | Purpose                                                      |
+| ------------------------ | ------------------------ | ------------------------------------------------------------ |
+| `id`                     | `string`                 | Unique session identifier                                    |
+| `name`                   | `string`                 | Display name                                                 |
+| `toolType`               | `ToolType`               | Agent type (claude-code, codex, etc.)                        |
+| `state`                  | `SessionState`           | `'idle' \| 'busy' \| 'connecting'`                           |
+| `cwd`                    | `string`                 | Working directory                                            |
+| `projectRoot`            | `string`                 | Project root path                                            |
+| `groupId`                | `string?`                | Group membership                                             |
+| `bookmarked`             | `boolean?`               | Bookmark flag                                                |
+| `inputMode`              | `'ai' \| 'terminal'`     | Current input mode                                           |
+| `aiTabs`                 | `AITab[]`                | AI conversation tabs                                         |
+| `activeTabId`            | `string?`                | Active AI tab                                                |
+| `filePreviewTabs`        | `FilePreviewTab[]`       | File preview tabs                                            |
+| `activeFileTabId`        | `string?`                | Active file tab                                              |
+| `unifiedTabOrder`        | `UnifiedTabRef[]`        | Combined tab ordering                                        |
+| `agentError`             | `AgentError?`            | Current error state                                          |
+| `agentErrorTabId`        | `string?`                | Tab that has the error                                       |
+| `sshRemoteId`            | `string?`                | SSH remote config ID (set after spawn)                       |
+| `sessionSshRemoteConfig` | `AgentSshRemoteConfig?`  | SSH config (set before spawn)                                |
+| `customPath`             | `string?`                | Per-session agent path override                              |
+| `customArgs`             | `string?`                | Per-session custom args                                      |
+| `customEnvVars`          | `Record<string,string>?` | Per-session env vars                                         |
+| `customModel`            | `string?`                | Per-session model default (tabs inherit; tab override wins)  |
+| `customEffort`           | `string?`                | Per-session effort default (tabs inherit; tab override wins) |
+| `customContextWindow`    | `number?`                | Per-session context window                                   |
+| `isGitRepo`              | `boolean?`               | Whether cwd is a git repo                                    |
+| `contextUsage`           | `number?`                | Context window usage percentage                              |
+| `usageStats`             | `UsageStats?`            | Token/cost statistics                                        |
+
+### AITab
+
+Each AI tab within a session:
+
+| Field            | Type           | Purpose                                                                            |
+| ---------------- | -------------- | ---------------------------------------------------------------------------------- |
+| `id`             | `string`       | Tab identifier                                                                     |
+| `name`           | `string?`      | Custom tab name                                                                    |
+| `logs`           | `LogEntry[]`   | Conversation log entries                                                           |
+| `agentSessionId` | `string?`      | Provider session ID for resume                                                     |
+| `state`          | Tab state      | Idle/busy per-tab                                                                  |
+| `readOnlyMode`   | `boolean?`     | Read-only/plan mode                                                                |
+| `saveToHistory`  | `boolean`      | Whether to save completions                                                        |
+| `showThinking`   | `ThinkingMode` | `'off' \| 'on' \| 'sticky'`                                                        |
+| `customModel`    | `string?`      | Per-tab model override (falls back to `Session.customModel`, then agent default)   |
+| `customEffort`   | `string?`      | Per-tab effort override (falls back to `Session.customEffort`, then agent default) |
+| `starred`        | `boolean?`     | Starred tab flag                                                                   |
+| `hasUnread`      | `boolean?`     | Unread indicator                                                                   |
+| `agentError`     | `AgentError?`  | Per-tab error state                                                                |
+
+**Model/effort resolution chain** (used at user-facing spawn time in `useInputProcessing` and `agentStore.processQueuedItem`): `tab.customModel ?? session.customModel ?? agentConfig.model`. The MainPanel model/effort pill writes to the active tab via `tabStore.setTabModel`/`setTabEffort` - only the Edit Agent modal mutates `session.customModel`/`customEffort`. Programmatic spawns (Auto Run batch, synopsis, Cue, group chat, fork/merge) intentionally read the session value only.

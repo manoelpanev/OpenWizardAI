@@ -1,0 +1,307 @@
+/**
+ * Regression guard for keyboard shortcut wiring.
+ *
+ * `useKeyboardShortcutHelpers.isShortcut`/`isTabShortcut` only resolve action
+ * ids against the user-configurable `shortcuts` (= DEFAULT_SHORTCUTS + saved
+ * overrides) and `tabShortcuts` (= TAB_SHORTCUTS + saved overrides) maps.
+ * Shortcuts that live only in FIXED_SHORTCUTS are NEVER merged into those
+ * maps, so any handler calling `ctx.isShortcut(e, 'somethingOnlyInFixed')`
+ * silently never fires.
+ *
+ * This has bitten us multiple times - most recently with `clearTerminal`
+ * (Cmd+Shift+K), which was moved into FIXED_SHORTCUTS by mistake and
+ * stopped working entirely.
+ *
+ * These tests scan the renderer source for every `ctx.isShortcut(...)` and
+ * `ctx.isTabShortcut(...)` call site and assert each referenced id is present
+ * in the right registry, so future moves between registries fail loudly.
+ */
+
+import { describe, it, expect } from 'vitest';
+import { readFileSync, readdirSync, statSync } from 'fs';
+import { join } from 'path';
+import {
+	DEFAULT_SHORTCUTS,
+	FIXED_SHORTCUTS,
+	TAB_SHORTCUTS,
+} from '../../../renderer/constants/shortcuts';
+
+const RENDERER_ROOT = join(__dirname, '../../../renderer');
+
+function walk(dir: string, files: string[] = []): string[] {
+	for (const entry of readdirSync(dir)) {
+		const full = join(dir, entry);
+		const s = statSync(full);
+		if (s.isDirectory()) walk(full, files);
+		else if (full.endsWith('.ts') || full.endsWith('.tsx')) files.push(full);
+	}
+	return files;
+}
+
+function collectShortcutRefs(): {
+	isShortcutIds: Set<string>;
+	isTabShortcutIds: Set<string>;
+} {
+	const isShortcutIds = new Set<string>();
+	const isTabShortcutIds = new Set<string>();
+	// Match calls like `ctx.isShortcut(e, 'foo')` or `isShortcut(e, "bar")`.
+	// Tolerates the receiver (`ctx.`) being absent.
+	const isShortcutRe =
+		/\bisShortcut\s*\(\s*[A-Za-z_$][\w$]*\s*,\s*['"]([A-Za-z][A-Za-z0-9]*)['"]\s*\)/g;
+	const isTabShortcutRe =
+		/\bisTabShortcut\s*\(\s*[A-Za-z_$][\w$]*\s*,\s*['"]([A-Za-z][A-Za-z0-9]*)['"]\s*\)/g;
+
+	for (const file of walk(RENDERER_ROOT)) {
+		const src = readFileSync(file, 'utf8');
+		for (const m of src.matchAll(isShortcutRe)) isShortcutIds.add(m[1]);
+		for (const m of src.matchAll(isTabShortcutRe)) isTabShortcutIds.add(m[1]);
+	}
+
+	return { isShortcutIds, isTabShortcutIds };
+}
+
+describe('keyboard shortcut registry wiring', () => {
+	const { isShortcutIds, isTabShortcutIds } = collectShortcutRefs();
+
+	it('finds shortcut references to scan (sanity check)', () => {
+		// If the regex breaks, the rest of these tests would pass vacuously.
+		expect(isShortcutIds.size).toBeGreaterThan(10);
+	});
+
+	it('every isShortcut(e, <id>) call references DEFAULT_SHORTCUTS', () => {
+		const missing = [...isShortcutIds].filter((id) => !(id in DEFAULT_SHORTCUTS));
+		expect(
+			missing,
+			`These ids are passed to isShortcut() but are not in DEFAULT_SHORTCUTS — the matcher will never fire. Most likely cause: the entry was placed in FIXED_SHORTCUTS, which isn't merged into the user shortcuts map.`
+		).toEqual([]);
+	});
+
+	it('every isTabShortcut(e, <id>) call references TAB_SHORTCUTS or DEFAULT_SHORTCUTS', () => {
+		const missing = [...isTabShortcutIds].filter(
+			(id) => !(id in TAB_SHORTCUTS) && !(id in DEFAULT_SHORTCUTS)
+		);
+		expect(
+			missing,
+			`These ids are passed to isTabShortcut() but are not in TAB_SHORTCUTS (or DEFAULT_SHORTCUTS as a documented fallback).`
+		).toEqual([]);
+	});
+
+	it('clearTerminal must live in DEFAULT_SHORTCUTS, not FIXED_SHORTCUTS', () => {
+		// Specific guard for the regression that triggered this test file:
+		// clearTerminal was accidentally placed in FIXED_SHORTCUTS, breaking
+		// Cmd+Shift+K. Keep this dedicated check so the failure is unambiguous
+		// even if someone adjusts the broader scan above.
+		expect(DEFAULT_SHORTCUTS.clearTerminal).toBeDefined();
+		expect(FIXED_SHORTCUTS.clearTerminal).toBeUndefined();
+	});
+
+	it('DEFAULT_SHORTCUTS, TAB_SHORTCUTS, and FIXED_SHORTCUTS ids are mutually disjoint', () => {
+		const overlap = (a: Record<string, unknown>, b: Record<string, unknown>) =>
+			Object.keys(a).filter((k) => k in b);
+		expect(overlap(DEFAULT_SHORTCUTS, FIXED_SHORTCUTS)).toEqual([]);
+		expect(overlap(DEFAULT_SHORTCUTS, TAB_SHORTCUTS)).toEqual([]);
+		expect(overlap(TAB_SHORTCUTS, FIXED_SHORTCUTS)).toEqual([]);
+	});
+});
+
+/**
+ * Duplicate-binding guard for the shipped defaults.
+ *
+ * Two actions in the SAME scope answering to one chord means one of them loses,
+ * silently, with nothing in the UI to explain it - the user just reports that a
+ * key they have used for months stopped working. `ShortcutsTab` now rejects
+ * this when a user records a binding by hand, but that check cannot see the
+ * defaults table, so a duplicate shipped as a default slips straight past it.
+ *
+ * Scope is real and this test has to respect it, or it fails on correct design:
+ * several actions deliberately share a chord because they can never be live at
+ * the same moment. Each such group is listed below WITH the reason it is safe.
+ * Anything not on that list is a bug - which is the point. A future action that
+ * takes an already-used chord fails here rather than in a bug report.
+ */
+describe('DEFAULT_SHORTCUTS / TAB_SHORTCUTS / FIXED_SHORTCUTS duplicate bindings', () => {
+	/**
+	 * Chords that more than one action may legitimately claim, each with the
+	 * gate that keeps them apart. Add to this ONLY with the reason written down.
+	 */
+	const INTENTIONALLY_SHARED: { chord: string; ids: string[]; why: string }[] = [
+		{
+			chord: 'Meta+f',
+			ids: [
+				'filterFiles',
+				'filterSessions',
+				'filterHistory',
+				'searchLogs',
+				'searchOutput',
+				'searchDirectorNotes',
+			],
+			why: "Each is scoped to the surface that has focus (Files tab, Left Panel, History tab, System Log viewer, Main Window, Director's Notes). Only one of those surfaces is focused at a time.",
+		},
+		{
+			chord: 'Meta+e',
+			ids: ['toggleMarkdownMode', 'renameAgentSession'],
+			why: 'The Sessions Browser is a modal layer that blocks lower layers, and its own handler consumes the key before the app-level one runs. With the browser closed there is no session row to rename; with it open there is no markdown pane to flip.',
+		},
+		{
+			chord: 'Meta+Shift+k',
+			ids: ['clearTerminal', 'toggleShowThinking'],
+			why: 'Mutually exclusive by input mode: clearTerminal is gated on inputMode === "terminal" (useMainKeyboardHandler), toggleShowThinking is a tab shortcut reached only in AI mode.',
+		},
+	];
+
+	const normalize = (keys: string[]): string => [...keys].sort().join('+');
+
+	it('ships no unexplained duplicate binding', () => {
+		const all = [
+			...Object.values(DEFAULT_SHORTCUTS),
+			...Object.values(TAB_SHORTCUTS),
+			...Object.values(FIXED_SHORTCUTS),
+		];
+
+		const byChord = new Map<string, string[]>();
+		for (const sc of all) {
+			// An unassigned action (keys: []) claims nothing and cannot collide.
+			if (!sc.keys?.length) continue;
+			const chord = normalize(sc.keys);
+			byChord.set(chord, [...(byChord.get(chord) ?? []), sc.id]);
+		}
+
+		const unexplained: string[] = [];
+		for (const [chord, ids] of byChord) {
+			if (ids.length < 2) continue;
+			const allowed = INTENTIONALLY_SHARED.find((g) => g.chord === chord);
+			// The allowlist must match EXACTLY. Listing a chord does not license
+			// every future action to join that group - a new arrival is a new
+			// decision and has to be made deliberately.
+			if (allowed && [...allowed.ids].sort().join(',') === [...ids].sort().join(',')) continue;
+			unexplained.push(`${chord} is claimed by: ${ids.join(', ')}`);
+		}
+
+		expect(unexplained).toEqual([]);
+	});
+
+	it('keeps every allowlisted group honest - each id still exists', () => {
+		const known = new Set([
+			...Object.keys(DEFAULT_SHORTCUTS),
+			...Object.keys(TAB_SHORTCUTS),
+			...Object.keys(FIXED_SHORTCUTS),
+		]);
+		const missing = INTENTIONALLY_SHARED.flatMap((g) =>
+			g.ids.filter((id) => !known.has(id)).map((id) => `${g.chord}: ${id}`)
+		);
+		// A stale allowlist entry is how an exemption outlives the reason for it.
+		expect(missing).toEqual([]);
+	});
+});
+
+/**
+ * Unbound ids are only useful if the app can act on them once a user binds a
+ * key. `showSnoozeList` shipped registered-but-unhandled: it appeared in the
+ * overlay, counted toward the total, and binding a key to it did nothing. This
+ * pins the invariant so the next unbound id cannot repeat that shape.
+ */
+describe('every registered action has a handler', () => {
+	const UNBOUND_IDS = [
+		'showSnoozeList',
+		'openMediaPlayer',
+		'mediaPlayPause',
+		'mediaNext',
+		'mediaPrev',
+		'openLeaderboard',
+		'clearAllNotifications',
+		'openThemeSettings',
+	];
+
+	it('registers each unbound id with empty keys', () => {
+		for (const id of UNBOUND_IDS) {
+			expect(DEFAULT_SHORTCUTS[id], `${id} missing from DEFAULT_SHORTCUTS`).toBeDefined();
+			expect(DEFAULT_SHORTCUTS[id].keys, `${id} should ship unbound`).toEqual([]);
+		}
+	});
+
+	it('handles each unbound id somewhere in the keyboard handler', () => {
+		const handler = readFileSync(
+			join(RENDERER_ROOT, 'hooks/keyboard/useMainKeyboardHandler.ts'),
+			'utf-8'
+		);
+		const unhandled = UNBOUND_IDS.filter((id) => !handler.includes(`'${id}'`));
+		expect(unhandled, 'registered but never dispatched').toEqual([]);
+	});
+});
+
+/**
+ * A shortcut's LABEL is its only search index: Settings -> Shortcuts, the help
+ * sheet, and the command palette each filter on `label` alone. So a word
+ * missing from a label is a word that cannot find the action - "Change Branch"
+ * was invisible to anyone who typed `git`.
+ *
+ * These guards keep the families searchable by their obvious keyword. They are
+ * deliberately keyed off the action ID, not the label, so renaming a label back
+ * to something unsearchable fails here rather than silently shipping.
+ */
+describe('shortcut labels carry their family keyword', () => {
+	const ALL_SHORTCUTS = { ...DEFAULT_SHORTCUTS, ...TAB_SHORTCUTS, ...FIXED_SHORTCUTS };
+
+	/** Every action whose label must contain a given word to be findable. */
+	const FAMILY_KEYWORDS: { keyword: string; ids: string[] }[] = [
+		{
+			keyword: 'git',
+			ids: ['viewGitDiff', 'viewGitLog', 'gitPull', 'gitPush', 'gitChangeBranch', 'gitCreatePR'],
+		},
+		{
+			keyword: 'agent',
+			// `killInstance` read only "Remove" and `moveToGroup` said "Session",
+			// so neither surfaced when someone searched the noun they act on.
+			ids: ['killInstance', 'moveToGroup', 'newInstance', 'agentSwitcher', 'filterSessions'],
+		},
+		{
+			keyword: 'tab',
+			// These two read "New Browser" / "New File" and were missed by `tab`,
+			// even though the app menu had already spelled them out in full.
+			ids: ['newTab', 'newBrowserTab', 'newFileTab', 'toggleMode'],
+		},
+		{ keyword: 'media', ids: ['openMediaPlayer', 'mediaPlayPause', 'mediaNext', 'mediaPrev'] },
+		{ keyword: 'unread', ids: ['filterUnreadAgents', 'nextUnreadTab', 'previousUnreadTab'] },
+		{ keyword: 'font', ids: ['fontSizeReset', 'fontSizeIncrease', 'fontSizeDecrease'] },
+	];
+
+	it.each(FAMILY_KEYWORDS)('searching "$keyword" finds the whole family', ({ keyword, ids }) => {
+		const missing = ids.filter((id) => {
+			const label = ALL_SHORTCUTS[id]?.label;
+			return !label || !label.toLowerCase().includes(keyword);
+		});
+		expect(missing, `labels that would not match "${keyword}"`).toEqual([]);
+	});
+
+	it('gives every git action the same prefix so the list groups them', () => {
+		// The help sheet and the palette both SORT by label, so a shared prefix is
+		// what draws the family as one block instead of scattering it.
+		const gitIds = [
+			'viewGitDiff',
+			'viewGitLog',
+			'gitPull',
+			'gitPush',
+			'gitChangeBranch',
+			'gitCreatePR',
+		];
+		const unprefixed = gitIds.filter((id) => !DEFAULT_SHORTCUTS[id]?.label.startsWith('Git: '));
+		expect(unprefixed, 'git actions missing the "Git: " prefix').toEqual([]);
+	});
+
+	it('gives the command palette the same git names the shortcut list uses', () => {
+		// Two names for one action is two things to learn and one of them fails to
+		// match whichever word the user picked.
+		const palette = readFileSync(
+			join(RENDERER_ROOT, 'components/QuickActionsModal/commands/gitWorktreeCommands.ts'),
+			'utf-8'
+		);
+		const labels = [...palette.matchAll(/label: '([^']+)'/g)].map((m) => m[1]);
+		const gitLabels = labels.filter((l) => /branch|pull|push|worktree|repositor|diff|log/i.test(l));
+		expect(gitLabels.filter((l) => !l.startsWith('Git: '))).toEqual([]);
+		// Create Pull Request builds its label from a ternary, so the scan above
+		// cannot see it. Assert the branchless arm directly rather than leaving the
+		// one entry that started this whole change unguarded.
+		expect(palette).toContain("'Git: Create Pull Request'");
+		expect(palette).toContain('`Git: Create Pull Request (${gitActions.branch})`');
+	});
+});

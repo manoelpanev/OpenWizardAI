@@ -1,0 +1,1367 @@
+import { useCallback, useRef } from 'react';
+import type {
+	Session,
+	SessionState,
+	LogEntry,
+	QueuedItem,
+	CustomAICommand,
+	BatchRunState,
+} from '../../types';
+import { getActiveTab, getBusyTabs, getTabDisplayName } from '../../utils/tabHelpers';
+import { getStdinFlags, prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { generateId } from '../../utils/ids';
+import { captureQueuedTurnSettings, codifyTurnSettings } from '../../utils/providerTabSessions';
+import { substituteTemplateVariables } from '../../utils/templateVariables';
+import { filterYoloArgs } from '../../utils/agentArgs';
+import { hasCapabilityCached } from '../agent/useAgentCapabilities';
+import { stripShellCommandEscape, type ComposerCommandMode } from '../../utils/shellCommandInput';
+import { dispatchShellCommand } from '../../services/shellCommand';
+import { requestAiCommand } from '../../services/aiCommand';
+import { submitSteeringNote } from '../../services/autoRunSteering';
+import {
+	collectNamingPrompt,
+	requestTabAutoName,
+	requestWizardTabAutoName,
+} from '../../services/tabAutoNaming';
+import { getAiCommandEntry } from '../../stores/aiCommandStore';
+import { gitService } from '../../services/git';
+import { useSettingsStore } from '../../stores/settingsStore';
+import { hasPendingRetry } from '../../stores/retryStore';
+import { logger } from '../../utils/logger';
+
+let cachedImageOnlyPrompt: string = '';
+let inputProcessingPromptsLoaded = false;
+
+export async function loadInputProcessingPrompts(force = false): Promise<void> {
+	if (inputProcessingPromptsLoaded && !force) return;
+
+	const imageResult = await window.maestro.prompts.get('image-only-default');
+
+	if (!imageResult.success) {
+		throw new Error(`Failed to load image-only-default prompt: ${imageResult.error}`);
+	}
+	cachedImageOnlyPrompt = imageResult.content!;
+	inputProcessingPromptsLoaded = true;
+	// Update the exported binding so consumers see the loaded value
+	DEFAULT_IMAGE_ONLY_PROMPT = cachedImageOnlyPrompt;
+}
+
+function getImageOnlyPrompt(): string {
+	return cachedImageOnlyPrompt;
+}
+
+/**
+ * Default prompt used when user sends only an image without text.
+ * Uses `let` so the binding updates after loadInputProcessingPrompts() populates the cache.
+ */
+export let DEFAULT_IMAGE_ONLY_PROMPT: string = getImageOnlyPrompt();
+
+/**
+ * Dependencies for the useInputProcessing hook.
+ */
+export interface UseInputProcessingDeps {
+	/** Current active session (null if none selected) */
+	activeSession: Session | null;
+	/** Active session ID (may be different from activeSession.id during transitions) */
+	activeSessionId: string;
+	/** Session state setter */
+	setSessions: React.Dispatch<React.SetStateAction<Session[]>>;
+	/** Read the current input value at call time (non-reactive; reads the store) */
+	getInputValue: () => string;
+	/**
+	 * Which rung of the bang ladder the AI composer is on, read at call time for
+	 * the same reason as getInputValue (no stale closure). Defaults to `'off'`
+	 * when omitted, so a caller that doesn't know about the mode can never
+	 * accidentally route a message into a shell.
+	 */
+	isCommandMode?: () => ComposerCommandMode;
+	/** Input value setter */
+	setInputValue: (value: string) => void;
+	/** Staged images for the current message */
+	stagedImages: string[];
+	/** Staged images setter */
+	setStagedImages: (images: string[] | ((prev: string[]) => string[])) => void;
+	/** Reference to the input textarea element */
+	inputRef: React.RefObject<HTMLTextAreaElement | null>;
+	/** Custom AI commands configured by the user */
+	customAICommands: CustomAICommand[];
+	/** Slash command menu open state setter */
+	setSlashCommandOpen: (open: boolean) => void;
+	/**
+	 * Sync AI input value to session state (for persistence). Optionally pinned
+	 * to a specific tab; defaults to the active session's active tab, which is
+	 * correct for every send path here (they all run synchronously on the tab
+	 * being sent from).
+	 */
+	syncAiInputToSession: (value: string, tabId?: string) => void;
+	/** Sync terminal input value to session state (for persistence) */
+	syncTerminalInputToSession: (value: string) => void;
+	/** Whether the active session is in AI mode */
+	isAiMode: boolean;
+	/** Reference to sessions array (for avoiding stale closures) */
+	sessionsRef: React.MutableRefObject<Session[]>;
+	/** Get batch state for a session */
+	getBatchState: (sessionId: string) => BatchState;
+	/** Active batch run state (may differ from session's batch state) */
+	activeBatchRunState: BatchState;
+	/** Ref to processQueuedItem function (defined later in component, accessed via ref to avoid stale closure) */
+	processQueuedItemRef: React.MutableRefObject<
+		((sessionId: string, item: QueuedItem) => Promise<void>) | null
+	>;
+	/** Flush any pending batched session updates (ensures AI output is flushed before user message appears) */
+	flushBatchedUpdates?: () => void;
+	/** Handler for the /history built-in command (requests synopsis and saves to history) */
+	onHistoryCommand?: () => Promise<void>;
+	/** Handler for the /wizard built-in command (starts the inline wizard for Auto Run documents) */
+	onWizardCommand?: (args: string) => void;
+	/** Handler for sending messages to the wizard (when wizard is active) */
+	onWizardSendMessage?: (content: string, images?: string[]) => Promise<void>;
+	/** Whether the wizard is currently active for the active tab */
+	isWizardActive?: boolean;
+	/** Handler for the /skills built-in command (lists Claude Code skills) */
+	onSkillsCommand?: () => Promise<void>;
+	/** Conductor profile (user's About Me from settings) */
+	conductorProfile?: string;
+}
+
+/**
+ * @deprecated Use BatchRunState from '../types' directly. This alias is kept for backwards compatibility.
+ */
+export type BatchState = BatchRunState;
+
+/**
+ * Return type for useInputProcessing hook.
+ */
+export interface UseInputProcessingReturn {
+	/** Process the current input (send message or execute command) */
+	processInput: (
+		overrideInputValue?: string,
+		options?: { forceParallel?: boolean; images?: string[] }
+	) => Promise<void>;
+	/** Ref to processInput for use in callbacks that need latest version */
+	processInputRef: React.MutableRefObject<
+		| ((
+				overrideInputValue?: string,
+				options?: { forceParallel?: boolean; images?: string[] }
+		  ) => Promise<void>)
+		| null
+	>;
+}
+
+/**
+ * Hook for processing user input (messages and commands).
+ *
+ * Handles:
+ * - Slash command detection and execution (custom AI commands)
+ * - Message queuing when AI is busy
+ * - Terminal mode cd command tracking
+ * - Process spawning for batch mode (Claude Code)
+ * - Broadcasting input to web clients
+ *
+ * @param deps - Hook dependencies
+ * @returns Input processing function and ref
+ */
+export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProcessingReturn {
+	const {
+		activeSession,
+		activeSessionId,
+		setSessions,
+		getInputValue,
+		isCommandMode = () => 'off' as ComposerCommandMode,
+		setInputValue,
+		stagedImages,
+		setStagedImages,
+		inputRef,
+		customAICommands,
+		setSlashCommandOpen,
+		syncAiInputToSession,
+		syncTerminalInputToSession,
+		isAiMode,
+		sessionsRef,
+		getBatchState,
+		// Note: activeBatchRunState is in deps interface but not used - kept for API compatibility
+		processQueuedItemRef,
+		flushBatchedUpdates,
+		onHistoryCommand,
+		onWizardCommand,
+		onWizardSendMessage,
+		isWizardActive,
+		onSkillsCommand,
+		conductorProfile,
+	} = deps;
+
+	// Ref for the processInput function so external code can access the latest version
+	const processInputRef = useRef<
+		| ((
+				overrideInputValue?: string,
+				options?: { forceParallel?: boolean; images?: string[] }
+		  ) => Promise<void>)
+		| null
+	>(null);
+
+	/**
+	 * Process user input - handles slash commands, queuing, and message sending.
+	 */
+	const processInput = useCallback(
+		async (
+			overrideInputValue?: string,
+			options?: { forceParallel?: boolean; images?: string[] }
+		) => {
+			// Flush any pending batched updates before processing user input
+			// This ensures AI output appears before the user's new message
+			flushBatchedUpdates?.();
+
+			// `let` because command mode's escape (`\!foo`) is unwrapped in place
+			// below once we know we're in AI mode.
+			let effectiveInputValue = overrideInputValue ?? getInputValue();
+			// When the caller passes explicit images (e.g. Force Send button replaying a
+			// queued item), use those instead of the active tab's stagedImages. This avoids
+			// the stale-closure race when the caller does setStagedImages() right before
+			// invoking processInput(), and prevents wiping the user's in-progress draft.
+			const effectiveImages = options?.images ?? stagedImages;
+			const usingOverrideImages = options?.images !== undefined;
+			if (options?.forceParallel) {
+				logger.info('[ForcedParallel] processInput called:', undefined, {
+					hasActiveSession: !!activeSession,
+					inputValue: effectiveInputValue.substring(0, 50),
+					inputMode: activeSession?.inputMode,
+					sessionState: activeSession?.state,
+				});
+			}
+			if (!activeSession || (!effectiveInputValue.trim() && effectiveImages.length === 0)) {
+				if (options?.forceParallel) {
+					logger.info('[ForcedParallel] Early return: no session or empty input');
+				}
+				return;
+			}
+
+			// Handle command mode: the composer is in `!` mode, so the draft is a
+			// shell command rather than a message. Checked before everything else
+			// because the agent is bypassed entirely - no queueing, no busy state,
+			// no spawn. The command runs immediately even while the agent is
+			// working, which is the point: check something without interrupting
+			// the turn.
+			//
+			// Gated on the composer's mode flag, NOT on a leading `!` in the text:
+			// the bang is consumed on entry, so by here the draft is the bare
+			// command (and may legitimately contain bangs of its own).
+			const composerMode: ComposerCommandMode =
+				activeSession.inputMode === 'ai' ? isCommandMode() : 'off';
+			if (composerMode !== 'off' && !isWizardActive) {
+				const commandText = effectiveInputValue.trim();
+				if (!commandText) {
+					// Empty command line: nothing to run or ask for, and it must not fall
+					// through to the agent - the user is sitting in a shell prompt, not
+					// composing a message.
+					return;
+				}
+
+				const targetTab = getActiveTab(activeSession);
+				if (!targetTab) {
+					logger.error('[processInput] Command mode: no active tab to render output into');
+					return;
+				}
+
+				setInputValue('');
+				setSlashCommandOpen(false);
+				syncAiInputToSession('');
+				if (inputRef.current) inputRef.current.style.height = 'auto';
+
+				if (composerMode === 'ai') {
+					// AI command mode: nothing runs yet. Ask for a command line and let
+					// the composer's proposal card take the keyboard until the user
+					// answers. A second Enter while one is already pending would start a
+					// competing request for the same tab, so it is ignored.
+					if (!getAiCommandEntry(activeSession.id, targetTab.id)) {
+						requestAiCommand({
+							session: activeSession,
+							tabId: targetTab.id,
+							request: commandText,
+						}).catch((error) => {
+							logger.error('[processInput] AI command request failed:', undefined, error);
+						});
+					}
+					return;
+				}
+
+				dispatchShellCommand({
+					session: activeSession,
+					tabId: targetTab.id,
+					command: commandText,
+				}).catch((error) => {
+					logger.error('[processInput] Command mode run failed:', undefined, error);
+				});
+				return;
+			}
+
+			if (activeSession.inputMode === 'ai') {
+				// Not command mode, so unwrap the escape: `\!foo` was the user asking
+				// for a literal `!foo` message. AI mode only - in the shell, `\!` is
+				// the shell's own escape and must survive untouched.
+				effectiveInputValue = stripShellCommandEscape(effectiveInputValue);
+			}
+
+			// Handle slash commands
+			// Note: slash commands are queued like regular messages when agent is busy
+			if (effectiveInputValue.trim().startsWith('/')) {
+				const commandText = effectiveInputValue.trim();
+				const isTerminalMode = activeSession.inputMode === 'terminal';
+
+				// Handle built-in /history command (only in AI mode)
+				// This is intercepted here because it requires Maestro to handle the synopsis generation
+				// rather than passing through to the agent (which may not support it or require special permissions)
+				if (!isTerminalMode && commandText === '/history' && onHistoryCommand) {
+					setInputValue('');
+					setSlashCommandOpen(false);
+					syncAiInputToSession('');
+					if (inputRef.current) inputRef.current.style.height = 'auto';
+
+					// Execute the history command handler asynchronously
+					onHistoryCommand().catch((error) => {
+						logger.error('[processInput] /history command failed:', undefined, error);
+					});
+					return;
+				}
+
+				// Handle built-in /wizard command (only in AI mode)
+				// This starts the inline planning wizard for Auto Run documents
+				// The command can have optional arguments: /wizard <natural language input>
+				// Match exactly "/wizard" or "/wizard " followed by arguments (not "/wizardry" etc.)
+				const isWizardCommand = commandText === '/wizard' || commandText.startsWith('/wizard ');
+				if (!isTerminalMode && isWizardCommand && onWizardCommand) {
+					// Extract arguments after '/wizard ' (everything after the command)
+					const args = commandText.slice('/wizard'.length).trim();
+
+					setInputValue('');
+					setSlashCommandOpen(false);
+					syncAiInputToSession('');
+					if (inputRef.current) inputRef.current.style.height = 'auto';
+
+					// Execute the wizard command handler with the argument text
+					onWizardCommand(args);
+					return;
+				}
+
+				// Handle built-in /skills command (only in AI mode, only for Claude Code sessions)
+				// This lists available Claude Code skills for the current project
+				if (
+					!isTerminalMode &&
+					commandText === '/skills' &&
+					onSkillsCommand &&
+					activeSession.toolType === 'claude-code'
+				) {
+					setInputValue('');
+					setSlashCommandOpen(false);
+					syncAiInputToSession('');
+					if (inputRef.current) inputRef.current.style.height = 'auto';
+
+					// Execute the skills command handler asynchronously
+					onSkillsCommand().catch((error) => {
+						logger.error('[processInput] /skills command failed:', undefined, error);
+					});
+					return;
+				}
+
+				// Check for custom AI commands (only in AI mode)
+				if (!isTerminalMode) {
+					// Parse command and arguments: "/speckit.plan Blah blah" -> baseCommand="/speckit.plan", args="Blah blah"
+					const firstSpaceIndex = commandText.indexOf(' ');
+					const baseCommand =
+						firstSpaceIndex === -1 ? commandText : commandText.substring(0, firstSpaceIndex);
+					const commandArgs =
+						firstSpaceIndex === -1 ? '' : commandText.substring(firstSpaceIndex + 1).trim();
+
+					// Check custom AI commands first, then agent-discovered commands with prompts
+					const matchingAgentCommand = activeSession.agentCommands?.find(
+						(cmd) => cmd.command === baseCommand && cmd.prompt
+					);
+					const matchingCustomCommand =
+						customAICommands.find((cmd) => cmd.command === baseCommand) ||
+						(matchingAgentCommand
+							? {
+									command: matchingAgentCommand.command,
+									description: matchingAgentCommand.description,
+									prompt: matchingAgentCommand.prompt!,
+								}
+							: undefined);
+					if (matchingCustomCommand) {
+						// Execute the custom AI command by sending its prompt
+						setInputValue('');
+						setSlashCommandOpen(false);
+						syncAiInputToSession(''); // We're in AI mode here (isTerminalMode === false)
+						if (inputRef.current) inputRef.current.style.height = 'auto';
+
+						// Substitute template variables and send to the AI agent
+						(async () => {
+							let gitBranch: string | undefined;
+							if (activeSession.isGitRepo) {
+								try {
+									const status = await gitService.getStatus(activeSession.cwd);
+									gitBranch = status.branch;
+								} catch {
+									// Ignore git errors
+								}
+							}
+							substituteTemplateVariables(matchingCustomCommand.prompt, {
+								session: activeSession,
+								gitBranch,
+								groupId: activeSession.groupId,
+								activeTabId: activeSession.activeTabId,
+								conductorProfile,
+							});
+
+							// ALWAYS queue slash commands - they execute in order like write messages
+							// This ensures commands are processed sequentially through the queue
+							const activeTab = getActiveTab(activeSession);
+							const isReadOnlyMode = activeTab?.readOnlyMode === true;
+							// Check both session busy state AND AutoRun state
+							// AutoRun runs in isolation and doesn't set session to busy, so we check it explicitly
+							const isAutoRunActive = getBatchState(activeSession.id).isRunning;
+							// Forced parallel: explicit user override (Cmd+Shift+Enter / Force Send button).
+							// Mirrors the regular message path - only THIS tab's state matters; cross-tab
+							// busyness and AutoRun are intentionally bypassed.
+							const forceParallel =
+								options?.forceParallel === true &&
+								useSettingsStore.getState().forcedParallelExecution;
+							// Agent Resilience holds the line for this tab - see the message
+							// path below for the full reasoning. A held tab is idle, so
+							// without this the command would spawn straight into the wall.
+							const retryHoldsTab = hasPendingRetry(
+								activeSession.id,
+								activeTab?.id || activeSession.activeTabId
+							);
+							const sessionIsIdle =
+								!retryHoldsTab &&
+								(forceParallel
+									? activeTab?.state !== 'busy'
+									: activeSession.state !== 'busy' && !isAutoRunActive);
+
+							const queuedItem: QueuedItem = {
+								id: generateId(),
+								timestamp: Date.now(),
+								tabId: activeTab?.id || activeSession.activeTabId,
+								type: 'command',
+								command: matchingCustomCommand.command,
+								commandArgs, // Arguments passed after the command (for $ARGUMENTS substitution)
+								commandDescription: matchingCustomCommand.description,
+								// Last-known label, used only if the tab is gone by the time
+								// the queue drains - the queue UI resolves the live name first.
+								tabName: activeTab ? getTabDisplayName(activeTab) : undefined,
+								readOnlyMode: isReadOnlyMode,
+								...(forceParallel && { forceParallel: true }),
+								// Freeze the model/effort now: the queue may not drain until
+								// after the user has switched to something else, and this
+								// command must run under - and be labeled with - what was
+								// selected when they sent it.
+								turnSettings: captureQueuedTurnSettings(activeTab, activeSession),
+							};
+
+							// If session is idle, we need to set up state and process immediately
+							// If session is busy, just add to queue - it will be processed when current item finishes
+							if (sessionIsIdle) {
+								// Set up session and tab state for immediate processing
+								// NOTE: Don't add to executionQueue when processing immediately - it's not actually queued,
+								// and adding it would cause duplicate display (once as sent message, once in queue section)
+								setSessions((prev) =>
+									prev.map((s) => {
+										if (s.id !== activeSessionId) return s;
+
+										// Set the target tab to busy
+										const updatedAiTabs = s.aiTabs.map((tab) =>
+											tab.id === queuedItem.tabId
+												? {
+														...tab,
+														state: 'busy' as const,
+														thinkingStartTime: Date.now(),
+														...codifyTurnSettings(tab, s),
+													}
+												: tab
+										);
+
+										return {
+											...s,
+											state: 'busy' as SessionState,
+											busySource: 'ai',
+											thinkingStartTime: Date.now(),
+											currentCycleTokens: 0,
+											currentCycleBytes: 0,
+											aiTabs: updatedAiTabs,
+											// Don't add to queue - we're processing immediately, not queuing
+											aiCommandHistory: Array.from(
+												new Set([...(s.aiCommandHistory || []), commandText])
+											).slice(-50),
+										};
+									})
+								);
+
+								// Process immediately after state is set up
+								// 50ms delay allows React to flush the setState above, ensuring the session
+								// is marked 'busy' before processQueuedItem runs (prevents duplicate processing)
+								setTimeout(() => {
+									processQueuedItemRef.current?.(activeSessionId, queuedItem);
+								}, 50);
+							} else {
+								// Session is busy - just add to queue
+								setSessions((prev) =>
+									prev.map((s) => {
+										if (s.id !== activeSessionId) return s;
+										return {
+											...s,
+											executionQueue: [...s.executionQueue, queuedItem],
+											aiCommandHistory: Array.from(
+												new Set([...(s.aiCommandHistory || []), commandText])
+											).slice(-50),
+										};
+									})
+								);
+							}
+							// Note: Input already cleared synchronously before this async block
+						})();
+						return;
+					}
+				}
+			}
+
+			const currentMode = activeSession.inputMode;
+
+			// Handle wizard mode - route messages to wizard sendMessage instead of normal AI processing
+			// This allows the wizard to have its own conversation without affecting the regular AI queue
+			if (currentMode === 'ai' && isWizardActive && onWizardSendMessage) {
+				// Don't allow slash commands in wizard mode (except /wizard which ends/restarts it)
+				if (
+					effectiveInputValue.trim().startsWith('/') &&
+					!effectiveInputValue.trim().startsWith('/wizard')
+				) {
+					// Ignore slash commands in wizard mode
+					logger.info(
+						'[processInput] Ignoring slash command in wizard mode:',
+						undefined,
+						effectiveInputValue.trim()
+					);
+					return;
+				}
+
+				// Capture staged images before clearing
+				const imagesToSend = effectiveImages.length > 0 ? [...effectiveImages] : undefined;
+
+				// Name the wizard tab from what the user is asking it to plan. The tab
+				// opened on the "Wizard" placeholder because it existed before anyone knew
+				// the subject; this replaces the placeholder with `wizard: <topic>` and
+				// then leaves the tab alone. Retries on later sends if naming failed.
+				const wizardTab = getActiveTab(activeSession);
+				if (wizardTab) {
+					requestWizardTabAutoName(
+						activeSession,
+						wizardTab.id,
+						effectiveInputValue,
+						(wizardTab.wizardState?.conversationHistory ?? [])
+							.filter((message) => message.role === 'user')
+							.map((message) => message.content)
+					);
+				}
+
+				// Clear input
+				setInputValue('');
+				if (!usingOverrideImages) setStagedImages([]);
+				syncAiInputToSession('');
+				if (inputRef.current) inputRef.current.style.height = 'auto';
+
+				// Send to wizard (with images if any were staged)
+				onWizardSendMessage(effectiveInputValue, imagesToSend).catch((error) => {
+					logger.error('[processInput] Wizard message failed:', undefined, error);
+				});
+				return;
+			}
+
+			// Trigger automatic tab naming. Retries on every send until the tab has a name,
+			// so a failed/timed-out first attempt doesn't leave the tab permanently unnamed.
+			//
+			// MUST stay ahead of the execution-queue branch below. Naming needs only the
+			// user's text and the target tab, never the spawn, but the queue branch ends in
+			// an early `return` and the dequeue path (agentStore.processQueuedItem) does no
+			// naming of its own. Sitting after it meant a first message sent while any other
+			// tab was busy got queued and the tab stayed permanently unnamed - the retry
+			// never fires because there is no second send.
+			const activeTabForNaming = getActiveTab(activeSession);
+			if (currentMode === 'ai' && activeTabForNaming && effectiveInputValue.trim()) {
+				requestTabAutoName({
+					session: activeSession,
+					tabId: activeTabForNaming.id,
+					// Prior user messages plus the current one - richer context produces
+					// names that survive the extractor's filters.
+					prompt: collectNamingPrompt(
+						activeTabForNaming.logs
+							.filter((entry) => entry.source === 'user')
+							.map((entry) => entry.text),
+						effectiveInputValue
+					),
+				});
+			}
+
+			// Queue messages when AI is busy (only in AI mode)
+			// For read-only mode tabs: only queue if THIS TAB is busy (allows parallel execution)
+			// For write mode tabs: queue if ANY tab in session is busy (prevents conflicts)
+			// EXCEPTION: Write commands can bypass the queue and run in parallel if ALL busy tabs
+			// and ALL queued items are read-only
+			if (currentMode === 'ai') {
+				const activeTab = getActiveTab(activeSession);
+				const isReadOnlyMode = activeTab?.readOnlyMode === true;
+
+				// Check if write command can bypass queue (all running/queued items are read-only)
+				const canWriteBypassQueue = (): boolean => {
+					if (isReadOnlyMode) return false; // Only applies to write commands
+					if (activeSession.state !== 'busy') return false; // Nothing to bypass
+
+					// Check all busy tabs are in read-only mode. Include orphaned
+					// (closed-but-still-thinking) tabs: they keep writing in the background
+					// and hold the single-writer slot just like a visible busy tab. Omitting
+					// them lets a new write spawn concurrently with an orphan (single-writer
+					// violation when a tab is closed mid-send).
+					const busyTabs = getBusyTabs(activeSession, { includeOrphans: true });
+					const allBusyTabsReadOnly = busyTabs.every((tab) => tab.readOnlyMode === true);
+					if (!allBusyTabsReadOnly) return false;
+
+					// Check all queued items are from read-only tabs
+					const allQueuedReadOnly = activeSession.executionQueue.every(
+						(item) => item.readOnlyMode === true
+					);
+					if (!allQueuedReadOnly) return false;
+
+					return true;
+				};
+
+				// Check if AutoRun is active for this session
+				// AutoRun runs batch operations in isolation (doesn't set session to busy),
+				// so we need to explicitly check the batch state to prevent write conflicts
+				const isAutoRunActive = getBatchState(activeSession.id).isRunning;
+
+				// Forced parallel: user explicitly chose to bypass queue via modifier shortcut
+				const forceParallel =
+					options?.forceParallel === true && useSettingsStore.getState().forcedParallelExecution;
+
+				// Determine if we should queue this message
+				// Read-only tabs can run in parallel - only queue if this specific tab is busy
+				// Write mode tabs must wait for any busy tab to finish
+				// EXCEPTION: Write commands bypass queue when all running/queued items are read-only
+				// ALSO: Always queue write commands when AutoRun is active (to prevent file conflicts)
+				// FORCE PARALLEL: queues only when THIS tab is busy (skips cross-tab and AutoRun wait).
+				// When the tab finishes, the queued item dispatches immediately without waiting for other tabs.
+				// Agent Resilience holds the line: this tab's provider just refused a
+				// turn and a retry is counting down for it. The tab reads IDLE while it
+				// waits, so every busy-based rule below says "send now" - and sending
+				// now is wrong twice over. The message burns against the same wall, AND
+				// the dispatch supersedes the pending retry (see retryStore.noteDispatch),
+				// discarding the prompt that retry was holding. That is how one quota
+				// wall used to eat a whole conversation, one message per Enter.
+				//
+				// Queue instead, so the retry keeps its place and the queue drains in
+				// order behind it once it lands. This overrides forceParallel on purpose:
+				// force-parallel bypasses BUSY-TAB serialization, and a provider wall is
+				// not that. Releasing early is a deliberate act (Cancel or Retry Now on
+				// the countdown banner), not a side effect of hitting Enter again.
+				const retryHoldsTab = hasPendingRetry(
+					activeSession.id,
+					activeTab?.id || activeSession.activeTabId
+				);
+
+				const shouldQueue =
+					retryHoldsTab ||
+					(forceParallel
+						? activeTab?.state === 'busy' // Force parallel: only queue if THIS tab is busy
+						: isReadOnlyMode
+							? activeTab?.state === 'busy' // Read-only: only queue if THIS tab is busy
+							: (activeSession.state === 'busy' && !canWriteBypassQueue()) || isAutoRunActive); // Write mode: queue if busy OR AutoRun active
+
+				// Debug logging to diagnose queue issues
+				logger.info('[processInput] Queue decision:', undefined, {
+					sessionId: activeSession.id.substring(0, 8),
+					sessionState: activeSession.state,
+					tabState: activeTab?.state,
+					isReadOnlyMode,
+					isAutoRunActive,
+					forceParallel,
+					retryHoldsTab,
+					shouldQueue,
+					queueLength: activeSession.executionQueue.length,
+				});
+
+				// Auto Run steering: a plain write-mode message typed while a run is
+				// in flight is a course correction, not a conversation turn. Park it
+				// as a steering note so the NEXT task's prompt opens with it, instead
+				// of queueing a whole separate turn in a context that task will never
+				// see (Auto Run spawns a fresh agent per task).
+				//
+				// Every deliberate escape still behaves as before:
+				//  - read-only mode sends a parallel question turn,
+				//  - Force Send (forceParallel) bypasses the run entirely,
+				//  - a retry hold means the provider is refusing work, which a note
+				//    cannot fix, so the message queues and waits it out,
+				//  - staged images have nowhere to go in a text task prompt, so a
+				//    message carrying them queues rather than losing them.
+				const steeringAccepted =
+					shouldQueue &&
+					isAutoRunActive &&
+					!isReadOnlyMode &&
+					!forceParallel &&
+					!retryHoldsTab &&
+					effectiveImages.length === 0 &&
+					submitSteeringNote({
+						sessionId: activeSession.id,
+						tabId: activeTab?.id || activeSession.activeTabId,
+						text: effectiveInputValue,
+					});
+
+				if (steeringAccepted) {
+					setInputValue('');
+					syncAiInputToSession('');
+					if (inputRef.current) inputRef.current.style.height = 'auto';
+					return;
+				}
+
+				if (shouldQueue) {
+					const queuedItem: QueuedItem = {
+						id: generateId(),
+						timestamp: Date.now(),
+						tabId: activeTab?.id || activeSession.activeTabId,
+						type: 'message',
+						text: effectiveInputValue,
+						images: [...effectiveImages],
+						// See the slash-command path above: a fallback label, not the
+						// name the queue actually renders.
+						tabName: activeTab ? getTabDisplayName(activeTab) : undefined,
+						readOnlyMode: isReadOnlyMode,
+						...(forceParallel && { forceParallel: true }),
+						// Freeze the model/effort now - see the slash-command queue path
+						// above. Queuing is the send; the dispatch happens later.
+						turnSettings: captureQueuedTurnSettings(activeTab, activeSession),
+					};
+
+					// Add to queue - will be processed when:
+					// - Auto Run completes (via onProcessQueueAfterCompletion callback)
+					// - Current agent task completes (via onExit handler)
+					// Note: We intentionally do NOT process immediately even if session is idle,
+					// because when Auto Run is active, write-mode messages should wait for Auto Run
+					// to complete to prevent file conflicts.
+					setSessions((prev) =>
+						prev.map((s) => {
+							if (s.id !== activeSessionId) return s;
+							return {
+								...s,
+								executionQueue: [...s.executionQueue, queuedItem],
+							};
+						})
+					);
+
+					// Clear input
+					setInputValue('');
+					if (!usingOverrideImages) setStagedImages([]);
+					syncAiInputToSession(''); // Sync empty value to session state
+					if (inputRef.current) inputRef.current.style.height = 'auto';
+					return;
+				}
+			}
+
+			// Check if we're in read-only mode for the log entry (tab setting OR Auto Run without worktree).
+			// Force Send (Cmd+Shift+Enter / the Force Send button on a queued item) is an explicit user
+			// override - skip the Auto Run gate, but still honor the tab's own readOnlyMode setting.
+			const activeTabForEntry = currentMode === 'ai' ? getActiveTab(activeSession) : null;
+			const currentBatchState = getBatchState(activeSession.id);
+			const isForceParallelEntry =
+				options?.forceParallel === true && useSettingsStore.getState().forcedParallelExecution;
+			const isAutoRunReadOnly =
+				currentBatchState.isRunning && !currentBatchState.worktreeActive && !isForceParallelEntry;
+			const isReadOnlyEntry = activeTabForEntry?.readOnlyMode === true || isAutoRunReadOnly;
+
+			const newEntry: LogEntry = {
+				id: generateId(),
+				timestamp: Date.now(),
+				source: 'user',
+				text: effectiveInputValue,
+				images: [...effectiveImages],
+				...(isReadOnlyEntry && { readOnly: true }),
+				...(isForceParallelEntry && { forceParallel: true }),
+			};
+
+			// Track shell CWD changes when in terminal mode
+			// For SSH sessions, use remoteCwd; for local sessions, use shellCwd
+			// Check both sshRemoteId (set after spawn) and sessionSshRemoteConfig.enabled (set before spawn)
+			const isRemoteSession =
+				!!activeSession.sshRemoteId || !!activeSession.sessionSshRemoteConfig?.enabled;
+			let newShellCwd = activeSession.shellCwd || activeSession.cwd;
+			let newRemoteCwd = activeSession.remoteCwd;
+			let cwdChanged = false;
+			let remoteCwdChanged = false;
+			if (currentMode === 'terminal') {
+				const trimmedInput = effectiveInputValue.trim();
+				// Get the current CWD based on whether this is a remote or local session
+				const currentCwd = isRemoteSession
+					? activeSession.remoteCwd ||
+						activeSession.sessionSshRemoteConfig?.workingDirOverride ||
+						activeSession.cwd
+					: activeSession.shellCwd || activeSession.cwd;
+
+				// Handle bare "cd" command - go to session's original directory (or remote working dir for SSH)
+				if (trimmedInput === 'cd') {
+					if (isRemoteSession) {
+						// For remote sessions, bare cd goes to the session's configured working directory
+						remoteCwdChanged = true;
+						newRemoteCwd =
+							activeSession.sessionSshRemoteConfig?.workingDirOverride || activeSession.cwd;
+					} else {
+						cwdChanged = true;
+						newShellCwd = activeSession.cwd;
+					}
+				}
+				const cdMatch = trimmedInput.match(/^cd\s+(.+)$/);
+				if (cdMatch) {
+					const targetPath = cdMatch[1].trim().replace(/^['"]|['"]$/g, ''); // Remove quotes
+					let candidatePath: string;
+					if (targetPath === '~' || targetPath.startsWith('~/')) {
+						// For remote sessions, ~ should expand to session's base directory
+						if (isRemoteSession) {
+							const basePath =
+								activeSession.sessionSshRemoteConfig?.workingDirOverride || activeSession.cwd;
+							if (targetPath === '~') {
+								candidatePath = basePath;
+							} else {
+								// ~/subpath
+								const subPath = targetPath.slice(2); // Remove ~/
+								candidatePath = basePath + (basePath.endsWith('/') ? '' : '/') + subPath;
+							}
+						} else {
+							// Local: navigate to session's original directory
+							if (targetPath === '~') {
+								candidatePath = activeSession.cwd;
+							} else {
+								candidatePath =
+									activeSession.cwd +
+									(activeSession.cwd.endsWith('/') ? '' : '/') +
+									targetPath.slice(2);
+							}
+						}
+					} else if (targetPath.startsWith('/')) {
+						// Absolute path
+						candidatePath = targetPath;
+					} else if (targetPath === '..') {
+						// Go up one directory
+						const parts = currentCwd.split('/').filter(Boolean);
+						parts.pop();
+						candidatePath = '/' + parts.join('/');
+					} else if (targetPath.startsWith('../')) {
+						// Relative path going up
+						const parts = currentCwd.split('/').filter(Boolean);
+						const upCount = targetPath.split('/').filter((p) => p === '..').length;
+						for (let i = 0; i < upCount; i++) parts.pop();
+						const remainingPath = targetPath
+							.split('/')
+							.filter((p) => p !== '..')
+							.join('/');
+						candidatePath = '/' + [...parts, ...remainingPath.split('/').filter(Boolean)].join('/');
+					} else {
+						// Relative path going down
+						candidatePath = currentCwd + (currentCwd.endsWith('/') ? '' : '/') + targetPath;
+					}
+
+					// Verify the directory exists before updating CWD
+					// Pass SSH remote ID for remote sessions - use sessionSshRemoteConfig.remoteId as fallback
+					// because sshRemoteId is only set after AI agent spawns, not for terminal-only SSH sessions
+					const sshIdForVerify =
+						activeSession.sshRemoteId ||
+						activeSession.sessionSshRemoteConfig?.remoteId ||
+						undefined;
+					try {
+						await window.maestro.fs.readDir(candidatePath, sshIdForVerify);
+						// Directory exists, update the appropriate CWD
+						if (isRemoteSession) {
+							remoteCwdChanged = true;
+							newRemoteCwd = candidatePath;
+						} else {
+							cwdChanged = true;
+							newShellCwd = candidatePath;
+						}
+					} catch {
+						// Directory doesn't exist, keep the current CWD
+						// The shell will show its own error message
+					}
+				}
+			}
+
+			setSessions((prev) =>
+				prev.map((s) => {
+					if (s.id !== activeSessionId) return s;
+
+					// Add command to history (separate histories for AI and terminal modes)
+					const historyKey = currentMode === 'ai' ? 'aiCommandHistory' : 'shellCommandHistory';
+					const currentHistory =
+						currentMode === 'ai' ? s.aiCommandHistory || [] : s.shellCommandHistory || [];
+					const newHistory = [...currentHistory];
+					if (
+						effectiveInputValue.trim() &&
+						(newHistory.length === 0 ||
+							newHistory[newHistory.length - 1] !== effectiveInputValue.trim())
+					) {
+						newHistory.push(effectiveInputValue.trim());
+					}
+
+					// For terminal mode (legacy), add to shellLogs
+					if (currentMode !== 'ai') {
+						return {
+							...s,
+							// TODO: Remove shellLogs once terminal tabs migration is complete
+							...(!s.terminalTabs?.length && { shellLogs: [...s.shellLogs, newEntry] }),
+							state: 'busy',
+							busySource: currentMode,
+							shellCwd: newShellCwd,
+							// Update remoteCwd for SSH sessions when cd command changes directory
+							...(remoteCwdChanged && newRemoteCwd && { remoteCwd: newRemoteCwd }),
+							[historyKey]: newHistory,
+						};
+					}
+
+					// For AI mode, add to ACTIVE TAB's logs
+					const activeTab = getActiveTab(s);
+					if (!activeTab) {
+						// No tabs exist - this is a bug, sessions must have aiTabs
+						logger.error(
+							'[processInput] No active tab found - session has no aiTabs, this should not happen'
+						);
+						return s;
+					}
+
+					// Update the active tab's logs and state to 'busy' for write-mode tracking
+					// Also mark as awaitingSessionId if this is a new session (no agentSessionId yet)
+					// Set thinkingStartTime on the tab for accurate elapsed time tracking (especially for parallel tabs)
+					const isNewSession = !activeTab.agentSessionId;
+					const updatedAiTabs = s.aiTabs.map((tab) =>
+						tab.id === activeTab.id
+							? {
+									...tab,
+									logs: [...tab.logs, newEntry],
+									state: 'busy' as const,
+									thinkingStartTime: Date.now(),
+									// Codify the provider for this turn. The spawn below reads the
+									// session's provider as it stands right now, and changing the
+									// provider while this turn runs must not retarget it - so record
+									// who owns the turn and let late events resolve back to this
+									// provider instead of whatever the agent is configured with by
+									// the time they land. The model and effort are frozen here for
+									// the same reason - the transcript attributes each response to
+									// the configuration it actually ran under.
+									...codifyTurnSettings(tab, s),
+									// Mark this tab as awaiting session ID so we can assign it correctly
+									// when the session ID comes back (prevents cross-tab assignment)
+									awaitingSessionId: isNewSession ? true : tab.awaitingSessionId,
+									// Clear any prior tab-level agent error so a late onAgentError
+									// event for the dead PID can't keep the session pinned to 'error'
+									// and hide the thinking pill on retry
+									agentError: undefined,
+								}
+							: tab
+					);
+
+					return {
+						...s,
+						state: 'busy',
+						busySource: currentMode,
+						thinkingStartTime: Date.now(),
+						currentCycleTokens: 0,
+						// Context usage is now exclusively updated from agent-reported usage stats
+						// Remove artificial +5 increment that was causing erroneous 100% detection
+						shellCwd: newShellCwd,
+						[historyKey]: newHistory,
+						aiTabs: updatedAiTabs,
+						// Clear session-level error fields so `state === 'error' && agentError`
+						// branches (useAgentListeners onExit/onAgentError) can't override the
+						// fresh busy transition and suppress the thinking pill on retry
+						agentError: undefined,
+						agentErrorTabId: undefined,
+						agentErrorPaused: false,
+					};
+				})
+			);
+
+			// If directory changed, check if new directory is a Git repository
+			// For remote sessions, check remoteCwd; for local sessions, check shellCwd
+			if (cwdChanged || remoteCwdChanged) {
+				(async () => {
+					const cwdToCheck = remoteCwdChanged && newRemoteCwd ? newRemoteCwd : newShellCwd;
+					// Use sessionSshRemoteConfig.remoteId as fallback for terminal-only SSH sessions
+					const sshIdForGit =
+						activeSession.sshRemoteId ||
+						activeSession.sessionSshRemoteConfig?.remoteId ||
+						undefined;
+					const isGitRepo = await gitService.isRepo(cwdToCheck, sshIdForGit);
+					setSessions((prev) =>
+						prev.map((s) => (s.id === activeSessionId ? { ...s, isGitRepo } : s))
+					);
+				})();
+			}
+
+			// Capture input value and images before clearing (needed for async batch mode spawn)
+			// Append nudge message if present (only for interactive AI messages, not Auto Run)
+			// The nudge is invisible in the UI - only sent to the agent
+			const nudgeMessage = activeSession.nudgeMessage;
+			const capturedInputValue =
+				nudgeMessage && currentMode === 'ai'
+					? `${effectiveInputValue}\n\n---\n\n${nudgeMessage}`
+					: effectiveInputValue;
+			const capturedImages = [...effectiveImages];
+
+			// Broadcast user input to web clients so they stay in sync
+			// Use effectiveInputValue (without nudge) since nudge should be hidden from UI
+			window.maestro.web.broadcastUserInput(activeSession.id, effectiveInputValue, currentMode);
+
+			setInputValue('');
+			if (!usingOverrideImages) setStagedImages([]);
+
+			// Sync empty value to session state (prevents stale input restoration on blur)
+			if (isAiMode) {
+				syncAiInputToSession('');
+			} else {
+				syncTerminalInputToSession('');
+			}
+
+			// Reset height
+			if (inputRef.current) inputRef.current.style.height = 'auto';
+
+			// Write to the appropriate process based on inputMode
+			// Each session has TWO processes: AI agent and terminal
+			const targetPid = currentMode === 'ai' ? activeSession.aiPid : activeSession.terminalPid;
+			// For batch mode (Claude), include tab ID in session ID to prevent process collision
+			// This ensures each tab's process has a unique identifier
+			const activeTabForSpawn = getActiveTab(activeSession);
+			const isForceParallel =
+				options?.forceParallel === true && useSettingsStore.getState().forcedParallelExecution;
+			const targetSessionId =
+				currentMode === 'ai'
+					? `${activeSession.id}-ai-${activeTabForSpawn?.id || 'default'}`
+					: `${activeSession.id}-terminal`;
+
+			// Check if this is an AI agent in batch mode
+			// Batch mode agents spawn a new process per message rather than writing to stdin
+			const isBatchModeAgent =
+				currentMode === 'ai' && hasCapabilityCached(activeSession.toolType, 'supportsBatchMode');
+
+			if (isForceParallel) {
+				logger.info('[ForcedParallel] Reached spawn path:', undefined, {
+					targetSessionId,
+					isBatchModeAgent,
+					toolType: activeSession.toolType,
+				});
+			}
+
+			if (isBatchModeAgent) {
+				// Batch mode: Spawn new agent process with prompt
+				(async () => {
+					try {
+						// Get agent configuration
+						const agent = await window.maestro.agents.get(activeSession.toolType);
+						if (!agent) throw new Error(`${activeSession.toolType} agent not found`);
+
+						// IMPORTANT: Get fresh session state from ref to avoid stale closure bug
+						// If user switches tabs quickly, activeSession from closure may have wrong activeTabId
+						const freshSession = sessionsRef.current.find((s) => s.id === activeSessionId);
+						if (!freshSession) throw new Error('Session not found');
+
+						// Use the ACTIVE TAB's agentSessionId (not the deprecated session-level one)
+						const freshActiveTab = getActiveTab(freshSession);
+						const tabAgentSessionId = freshActiveTab?.agentSessionId;
+
+						if (!tabAgentSessionId && freshActiveTab?.logs && freshActiveTab.logs.length > 0) {
+							console.warn(
+								'[InputProcessing] Spawning batch agent without agentSessionId for tab with existing logs',
+								{
+									tabId: freshActiveTab.id,
+									logCount: freshActiveTab.logs.length,
+									sessionId: activeSessionId,
+								}
+							);
+						}
+
+						// Check CURRENT session's Auto Run state (not any session's) and respect worktree bypass.
+						// Force Send (Cmd+Shift+Enter / the Force Send button on a queued item) is an
+						// explicit override - skip the Auto Run gate, but still honor the tab's own
+						// readOnlyMode setting.
+						const currentSessionBatchState = getBatchState(activeSessionId);
+						const isAutoRunReadOnly =
+							currentSessionBatchState.isRunning &&
+							!currentSessionBatchState.worktreeActive &&
+							!isForceParallel;
+						const isReadOnly = isAutoRunReadOnly || freshActiveTab?.readOnlyMode;
+
+						// For read-only mode, filter out any YOLO/skip-permissions flags from base args
+						// (they would override the read-only mode we're requesting)
+						const baseArgs = agent.args ?? [];
+						const spawnArgs = isReadOnly ? filterYoloArgs(baseArgs, agent) : [...baseArgs];
+
+						// Use agent.path (full path) if available, otherwise fall back to agent.command
+						const commandToUse = agent.path || agent.command;
+						if (!commandToUse) {
+							throw new Error(`${activeSession.toolType} agent has no command configured`);
+						}
+
+						// If user sends only an image without text, inject the default image-only prompt
+						const hasImages = capturedImages.length > 0;
+						const hasNoText = !capturedInputValue.trim();
+						let effectivePrompt =
+							hasImages && hasNoText ? DEFAULT_IMAGE_ONLY_PROMPT : capturedInputValue;
+
+						// Prefix new session message if present (only for the first message in a new session)
+						const newSessionMsg = freshSession.newSessionMessage;
+						if (newSessionMsg && !tabAgentSessionId) {
+							effectivePrompt = `${newSessionMsg}\n\n---\n\n${effectivePrompt}`;
+						}
+
+						// For read-only mode, append instruction to return plan in response instead of writing files
+						if (isReadOnly) {
+							effectivePrompt +=
+								'\n\n---\n\nIMPORTANT: You are in read-only/plan mode. Do NOT write a plan file. Instead, return your plan directly to the user in beautiful markdown formatting.';
+						}
+
+						// Check for pending merged context that needs to be injected
+						// This happens when a user merged context from another tab/session
+						const pendingMergedContext = freshActiveTab?.pendingMergedContext;
+						if (pendingMergedContext) {
+							// Prepend the merged context to the user's message
+							effectivePrompt = `${pendingMergedContext}\n\n---\n\n${effectivePrompt}`;
+
+							// Clear the pending merged context from the tab
+							setSessions((prev) =>
+								prev.map((s) => {
+									if (s.id !== activeSessionId) return s;
+									return {
+										...s,
+										aiTabs: s.aiTabs.map((tab) =>
+											tab.id === freshActiveTab.id
+												? { ...tab, pendingMergedContext: undefined }
+												: tab
+										),
+									};
+								})
+							);
+
+							logger.info('[InputProcessing] Injected merged context into message:', undefined, {
+								contextLength: pendingMergedContext.length,
+								promptLength: effectivePrompt.length,
+							});
+						}
+
+						// Prepare Maestro system prompt. Always send it; the main-process handler
+						// decides how to deliver it based on agent capabilities:
+						//  - Native --append-system-prompt agents (e.g. Claude Code): re-send every
+						//    invocation - the flag isn't persisted into the session transcript.
+						//  - Fallback-embed agents (e.g. Copilot-CLI, Codex): embed only on first
+						//    turn; on resume the prompt is already in the transcript.
+						const appendSystemPrompt = await prepareMaestroSystemPrompt({
+							session: freshSession,
+							activeTabId: freshSession.activeTabId,
+						});
+
+						const { sendPromptViaStdin, sendPromptViaStdinRaw } = getStdinFlags({
+							isSshSession:
+								!!freshSession.sshRemoteId || !!freshSession.sessionSshRemoteConfig?.enabled,
+							supportsStreamJsonInput: agent.capabilities?.supportsStreamJsonInput ?? false,
+							hasImages: hasImages ?? false,
+						});
+
+						// Spawn agent with generic config - the main process will use agent-specific
+						// argument builders (resumeArgs, readOnlyArgs, etc.) to construct the final args
+						await window.maestro.process.spawn({
+							sessionId: targetSessionId,
+							toolType: freshSession.toolType,
+							cwd: freshSession.cwd,
+							command: commandToUse,
+							args: spawnArgs,
+							prompt: effectivePrompt,
+							images: hasImages ? capturedImages : undefined,
+							appendSystemPrompt,
+							// Generic spawn options - main process builds agent-specific args
+							agentSessionId: tabAgentSessionId ?? undefined,
+							readOnlyMode: isReadOnly,
+							// Per-session config overrides (if set)
+							sessionCustomPath: freshSession.customPath,
+							sessionCustomArgs: freshSession.customArgs,
+							sessionCustomEnvVars: freshSession.customEnvVars,
+							sessionCustomModel: freshActiveTab?.customModel ?? freshSession.customModel,
+							sessionCustomEffort: freshActiveTab?.customEffort ?? freshSession.customEffort,
+							sessionCustomContextWindow: freshSession.customContextWindow,
+							// Per-session SSH remote config (takes precedence over agent-level SSH config)
+							sessionSshRemoteConfig: freshSession.sessionSshRemoteConfig,
+							// Windows stdin handling - send prompt via stdin to avoid shell escaping issues
+							// For stream-json agents with images: use JSON format via stdin
+							// For text-only or non-stream-json agents: use raw text via stdin
+							sendPromptViaStdin,
+							sendPromptViaStdinRaw,
+						});
+					} catch (error) {
+						logger.error('Failed to spawn agent batch process:', undefined, error);
+						const errorLog: LogEntry = {
+							id: generateId(),
+							timestamp: Date.now(),
+							source: 'system',
+							text: `Error: Failed to spawn agent process - ${(error as Error).message}`,
+						};
+						setSessions((prev) =>
+							prev.map((s) => {
+								if (s.id !== activeSessionId) return s;
+								// Reset active tab's state to 'idle' and add error log
+								const updatedAiTabs =
+									s.aiTabs?.length > 0
+										? s.aiTabs.map((tab) =>
+												tab.id === s.activeTabId
+													? {
+															...tab,
+															state: 'idle' as const,
+															thinkingStartTime: undefined,
+															logs: [...tab.logs, errorLog],
+														}
+													: tab
+											)
+										: s.aiTabs;
+								return {
+									...s,
+									state: 'idle',
+									busySource: undefined,
+									thinkingStartTime: undefined,
+									aiTabs: updatedAiTabs,
+								};
+							})
+						);
+					}
+				})();
+			} else if (currentMode === 'terminal') {
+				// Intercept "clear" command to clear shell logs instead of sending to shell
+				const trimmedCommand = capturedInputValue.trim();
+				if (trimmedCommand === 'clear') {
+					setSessions((prev) =>
+						prev.map((s) => {
+							if (s.id !== activeSessionId) return s;
+							return {
+								...s,
+								state: 'idle',
+								busySource: undefined,
+								thinkingStartTime: undefined,
+								shellLogs: [],
+							};
+						})
+					);
+					return;
+				}
+
+				// Terminal mode: Use runCommand for clean stdout/stderr capture (no PTY noise)
+				// This spawns a fresh shell with -l -c to run the command, ensuring aliases work
+				// When SSH is enabled for the session, the command runs on the remote host
+				// For SSH sessions, use remoteCwd (updated by cd commands); for local, use shellCwd
+				const isRemote =
+					!!activeSession.sshRemoteId || !!activeSession.sessionSshRemoteConfig?.enabled;
+				const commandCwd = isRemote
+					? activeSession.remoteCwd ||
+						activeSession.sessionSshRemoteConfig?.workingDirOverride ||
+						activeSession.cwd
+					: activeSession.shellCwd || activeSession.cwd;
+				window.maestro.process
+					.runCommand({
+						sessionId: activeSession.id, // Plain session ID (not suffixed)
+						command: capturedInputValue,
+						cwd: commandCwd,
+						// Pass SSH config if the session has SSH enabled
+						sessionSshRemoteConfig: activeSession.sessionSshRemoteConfig,
+					})
+					.catch((error) => {
+						logger.error('Failed to run command:', undefined, error);
+						setSessions((prev) =>
+							prev.map((s) => {
+								if (s.id !== activeSessionId) return s;
+								return {
+									...s,
+									state: 'idle',
+									busySource: undefined,
+									thinkingStartTime: undefined,
+									// TODO: Remove shellLogs once terminal tabs migration is complete
+									...(!s.terminalTabs?.length && {
+										shellLogs: [
+											...s.shellLogs,
+											{
+												id: generateId(),
+												timestamp: Date.now(),
+												source: 'system',
+												text: `Error: Failed to run command - ${(error as Error).message}`,
+											},
+										],
+									}),
+								};
+							})
+						);
+					});
+			} else if (targetPid > 0) {
+				// AI mode: Write to stdin
+				window.maestro.process.write(targetSessionId, capturedInputValue).catch((error) => {
+					logger.error('Failed to write to process:', undefined, error);
+					const errorLog: LogEntry = {
+						id: generateId(),
+						timestamp: Date.now(),
+						source: 'system',
+						text: `Error: Failed to write to process - ${(error as Error).message}`,
+					};
+					setSessions((prev) =>
+						prev.map((s) => {
+							if (s.id !== activeSessionId) return s;
+							// Reset active tab's state to 'idle' and add error log
+							const updatedAiTabs =
+								s.aiTabs?.length > 0
+									? s.aiTabs.map((tab) =>
+											tab.id === s.activeTabId
+												? {
+														...tab,
+														state: 'idle' as const,
+														thinkingStartTime: undefined,
+														logs: [...tab.logs, errorLog],
+													}
+												: tab
+										)
+									: s.aiTabs;
+							return {
+								...s,
+								state: 'idle',
+								busySource: undefined,
+								thinkingStartTime: undefined,
+								aiTabs: updatedAiTabs,
+							};
+						})
+					);
+				});
+			}
+		},
+		[
+			activeSession,
+			activeSessionId,
+			getInputValue,
+			isCommandMode,
+			stagedImages,
+			customAICommands,
+			setInputValue,
+			setStagedImages,
+			setSlashCommandOpen,
+			syncAiInputToSession,
+			syncTerminalInputToSession,
+			isAiMode,
+			inputRef,
+			sessionsRef,
+			getBatchState,
+			processQueuedItemRef,
+			setSessions,
+			flushBatchedUpdates,
+			onHistoryCommand,
+			onWizardCommand,
+			isWizardActive,
+		]
+	);
+
+	// Update ref for external access
+	processInputRef.current = processInput;
+
+	return {
+		processInput,
+		processInputRef,
+	};
+}

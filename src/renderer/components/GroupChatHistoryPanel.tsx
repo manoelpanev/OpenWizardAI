@@ -1,0 +1,888 @@
+/**
+ * GroupChatHistoryPanel.tsx
+ *
+ * History panel for group chats showing task completion history.
+ * Features a multi-color activity graph where each participant has their own color.
+ * History entries are logged by the moderator when agents complete tasks.
+ */
+
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { Check, Send, MessageSquare, Layers, AlertTriangle, User } from 'lucide-react';
+import type { Theme } from '../types';
+import { useContextMenuPosition } from '../hooks/ui/useContextMenuPosition';
+import { useOptionalLabelFits } from '../hooks/ui/useOptionalLabelFits';
+import {
+	GROUP_CHAT_USER_NAME,
+	type GroupChatHistoryEntry,
+	type GroupChatHistoryEntryType,
+} from '../../shared/group-chat-types';
+import { stripMarkdown } from '../utils/textProcessing';
+import { useUIStore } from '../stores/uiStore';
+import { useGroupChatStore, viewPrefsFor } from '../stores/groupChatStore';
+import { formatTimestamp } from '../../shared/formatters';
+import { useListNavigation, useScrollIntoView } from '../hooks';
+import { CUE_COLOR, tintedPillColors } from './History/historyConstants';
+
+// Lookback period options for the activity graph
+type LookbackPeriod = {
+	label: string;
+	hours: number | null; // null = all time
+	bucketCount: number;
+};
+
+const LOOKBACK_OPTIONS: LookbackPeriod[] = [
+	{ label: '24 hours', hours: 24, bucketCount: 24 },
+	{ label: '72 hours', hours: 72, bucketCount: 24 },
+	{ label: '1 week', hours: 168, bucketCount: 28 },
+	{ label: '2 weeks', hours: 336, bucketCount: 28 },
+	{ label: '1 month', hours: 720, bucketCount: 30 },
+	{ label: 'All time', hours: null, bucketCount: 24 },
+];
+
+/** What a chat shows before, or without, a saved lookback of its own. */
+const DEFAULT_LOOKBACK_HOURS = 24;
+
+interface GroupChatActivityGraphProps {
+	entries: GroupChatHistoryEntry[];
+	theme: Theme;
+	participantColors: Record<string, string>;
+	lookbackHours: number | null;
+	onLookbackChange: (hours: number | null) => void;
+	onBarClick?: (bucketStartTime: number, bucketEndTime: number) => void;
+}
+
+/**
+ * Multi-participant activity graph.
+ * Shows stacked bars with each participant's contribution in their assigned color.
+ */
+function GroupChatActivityGraph({
+	entries,
+	theme,
+	participantColors,
+	lookbackHours,
+	onLookbackChange,
+	onBarClick,
+}: GroupChatActivityGraphProps) {
+	const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+	const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+	const contextMenuRef = useRef<HTMLDivElement>(null);
+	const contextMenuPos = useContextMenuPosition(
+		contextMenuRef,
+		contextMenu?.x ?? 0,
+		contextMenu?.y ?? 0
+	);
+
+	// Get the current lookback config
+	const lookbackConfig = useMemo(
+		() => LOOKBACK_OPTIONS.find((o) => o.hours === lookbackHours) || LOOKBACK_OPTIONS[0],
+		[lookbackHours]
+	);
+
+	const endTime = Date.now();
+
+	// Calculate time range based on lookback setting
+	const { startTime, msPerBucket, bucketCount } = useMemo(() => {
+		if (lookbackHours === null) {
+			// All time: find earliest entry
+			const earliest =
+				entries.length > 0
+					? Math.min(...entries.map((e) => e.timestamp))
+					: endTime - 24 * 60 * 60 * 1000;
+			const totalMs = endTime - earliest;
+			const count = lookbackConfig.bucketCount;
+			return {
+				startTime: earliest,
+				msPerBucket: totalMs / count,
+				bucketCount: count,
+			};
+		} else {
+			const totalMs = lookbackHours * 60 * 60 * 1000;
+			return {
+				startTime: endTime - totalMs,
+				msPerBucket: totalMs / lookbackConfig.bucketCount,
+				bucketCount: lookbackConfig.bucketCount,
+			};
+		}
+	}, [entries, endTime, lookbackHours, lookbackConfig.bucketCount]);
+
+	// Get unique participants in order of first appearance
+	const participantOrder = useMemo(() => {
+		const seen = new Set<string>();
+		const order: string[] = [];
+		for (const entry of [...entries].sort((a, b) => a.timestamp - b.timestamp)) {
+			if (!seen.has(entry.participantName)) {
+				seen.add(entry.participantName);
+				order.push(entry.participantName);
+			}
+		}
+		return order;
+	}, [entries]);
+
+	// Group entries into buckets by participant
+	const bucketData = useMemo(() => {
+		const buckets: Record<string, number>[] = Array.from({ length: bucketCount }, () => ({}));
+
+		entries.forEach((entry) => {
+			if (entry.timestamp >= startTime && entry.timestamp <= endTime) {
+				const bucketIndex = Math.min(
+					bucketCount - 1,
+					Math.floor((entry.timestamp - startTime) / msPerBucket)
+				);
+				if (bucketIndex >= 0 && bucketIndex < bucketCount) {
+					if (!buckets[bucketIndex][entry.participantName]) {
+						buckets[bucketIndex][entry.participantName] = 0;
+					}
+					buckets[bucketIndex][entry.participantName]++;
+				}
+			}
+		});
+
+		return buckets;
+	}, [entries, startTime, endTime, msPerBucket, bucketCount]);
+
+	// Find max value for scaling
+	const maxValue = useMemo(() => {
+		return Math.max(
+			1,
+			...bucketData.map((bucket) => Object.values(bucket).reduce((sum, count) => sum + count, 0))
+		);
+	}, [bucketData]);
+
+	// Get time range label for tooltip
+	const getTimeRangeLabel = (index: number) => {
+		const bucketStart = new Date(startTime + index * msPerBucket);
+		const bucketEnd = new Date(startTime + (index + 1) * msPerBucket);
+
+		if (lookbackHours !== null && lookbackHours <= 72) {
+			const formatHour = (date: Date) => {
+				const hour = date.getHours();
+				const ampm = hour >= 12 ? 'PM' : 'AM';
+				const hour12 = hour % 12 || 12;
+				return `${hour12}${ampm}`;
+			};
+			return `${formatHour(bucketStart)} - ${formatHour(bucketEnd)}`;
+		} else {
+			const formatDate = (date: Date) => {
+				return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+			};
+			if (formatDate(bucketStart) === formatDate(bucketEnd)) {
+				return formatDate(bucketStart);
+			}
+			return `${formatDate(bucketStart)} - ${formatDate(bucketEnd)}`;
+		}
+	};
+
+	// Handle bar click
+	const handleBarClick = (index: number) => {
+		const total = Object.values(bucketData[index]).reduce((sum, count) => sum + count, 0);
+		if (total > 0 && onBarClick) {
+			const start = startTime + index * msPerBucket;
+			const end = startTime + (index + 1) * msPerBucket;
+			onBarClick(start, end);
+		}
+	};
+
+	// Handle right-click context menu
+	const handleContextMenu = (e: React.MouseEvent) => {
+		e.preventDefault();
+		setContextMenu({ x: e.clientX, y: e.clientY });
+	};
+
+	// Close context menu when clicking elsewhere
+	useEffect(() => {
+		const handleClick = () => setContextMenu(null);
+		if (contextMenu) {
+			document.addEventListener('click', handleClick);
+			return () => document.removeEventListener('click', handleClick);
+		}
+	}, [contextMenu]);
+
+	// Generate labels for the x-axis
+	const getAxisLabels = () => {
+		if (lookbackHours === null) {
+			return [
+				{
+					label: new Date(startTime).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+					index: 0,
+				},
+				{ label: 'Now', index: bucketCount - 1 },
+			];
+		} else if (lookbackHours <= 24) {
+			return [
+				{ label: `${lookbackHours}h`, index: 0 },
+				{ label: '0h', index: bucketCount - 1 },
+			];
+		} else if (lookbackHours <= 168) {
+			const days = Math.floor(lookbackHours / 24);
+			return [
+				{ label: `${days}d`, index: 0 },
+				{ label: 'Now', index: bucketCount - 1 },
+			];
+		} else {
+			return [
+				{
+					label: new Date(startTime).toLocaleDateString([], { month: 'short', day: 'numeric' }),
+					index: 0,
+				},
+				{ label: 'Now', index: bucketCount - 1 },
+			];
+		}
+	};
+
+	const axisLabels = getAxisLabels();
+
+	return (
+		<div
+			className="w-full flex flex-col relative"
+			title={`${lookbackConfig.label} (right-click to change)`}
+			onContextMenu={handleContextMenu}
+		>
+			{/* Context menu for lookback options */}
+			{contextMenu && (
+				<div
+					ref={contextMenuRef}
+					className="fixed z-50 py-1 rounded border shadow-lg"
+					style={{
+						left: contextMenuPos.left,
+						top: contextMenuPos.top,
+						opacity: contextMenuPos.ready ? 1 : 0,
+						backgroundColor: theme.colors.bgSidebar,
+						borderColor: theme.colors.border,
+						minWidth: '120px',
+					}}
+				>
+					<div
+						className="px-3 py-1 text-2xs font-bold uppercase"
+						style={{ color: theme.colors.textDim }}
+					>
+						Lookback Period
+					</div>
+					{LOOKBACK_OPTIONS.map((option) => (
+						<button
+							key={option.label}
+							className="w-full px-3 py-1.5 text-left text-xs hover:bg-white/10 transition-colors flex items-center justify-between"
+							style={{
+								color: option.hours === lookbackHours ? theme.colors.accent : theme.colors.textMain,
+							}}
+							onClick={() => {
+								onLookbackChange(option.hours);
+								setContextMenu(null);
+							}}
+						>
+							{option.label}
+							{option.hours === lookbackHours && (
+								<Check className="w-3 h-3" style={{ color: theme.colors.accent }} />
+							)}
+						</button>
+					))}
+				</div>
+			)}
+
+			{/* Hover tooltip - positioned below the graph */}
+			{hoveredIndex !== null && (
+				<div
+					className="absolute top-full mt-1 px-2 py-1.5 rounded text-2xs font-mono whitespace-nowrap z-20 pointer-events-none"
+					style={{
+						backgroundColor: theme.colors.bgSidebar,
+						border: `1px solid ${theme.colors.border}`,
+						color: theme.colors.textMain,
+						left: `${(hoveredIndex / (bucketCount - 1)) * 100}%`,
+						transform:
+							hoveredIndex < bucketCount * 0.17
+								? 'translateX(0)'
+								: hoveredIndex > bucketCount * 0.83
+									? 'translateX(-100%)'
+									: 'translateX(-50%)',
+					}}
+				>
+					<div className="font-bold mb-1" style={{ color: theme.colors.textMain }}>
+						{getTimeRangeLabel(hoveredIndex)}
+					</div>
+					<div className="flex flex-col gap-0.5">
+						{participantOrder
+							.filter((name) => bucketData[hoveredIndex][name])
+							.map((name) => (
+								<div key={name} className="flex items-center justify-between gap-3">
+									<span style={{ color: participantColors[name] || theme.colors.textDim }}>
+										{name}
+									</span>
+									<span
+										className="font-bold"
+										style={{ color: participantColors[name] || theme.colors.textMain }}
+									>
+										{bucketData[hoveredIndex][name]}
+									</span>
+								</div>
+							))}
+						{Object.keys(bucketData[hoveredIndex]).length === 0 && (
+							<div style={{ color: theme.colors.textDim }}>No activity</div>
+						)}
+					</div>
+				</div>
+			)}
+
+			{/* Graph container with border */}
+			<div
+				className="flex items-end gap-px h-6 rounded border px-1 pt-1"
+				style={{ borderColor: theme.colors.border }}
+			>
+				{bucketData.map((bucket, index) => {
+					const total = Object.values(bucket).reduce((sum, count) => sum + count, 0);
+					const heightPercent = total > 0 ? (total / maxValue) * 100 : 0;
+					const isHovered = hoveredIndex === index;
+
+					// Build stacked segments for each participant
+					const segments: { name: string; percent: number; color: string }[] = [];
+					for (const name of participantOrder) {
+						if (bucket[name]) {
+							const segmentPercent = (bucket[name] / total) * 100;
+							segments.push({
+								name,
+								percent: segmentPercent,
+								color: participantColors[name] || theme.colors.textDim,
+							});
+						}
+					}
+
+					return (
+						<div
+							key={index}
+							className="flex-1 min-w-0 flex flex-col justify-end rounded-t-sm overflow-visible cursor-pointer"
+							style={{
+								height: '100%',
+								opacity: total > 0 ? 1 : 0.15,
+								transform: isHovered ? 'scaleX(1.5)' : 'scaleX(1)',
+								zIndex: isHovered ? 10 : 1,
+								transition: 'transform 0.1s ease-out',
+								cursor: total > 0 ? 'pointer' : 'default',
+							}}
+							onMouseEnter={() => setHoveredIndex(index)}
+							onMouseLeave={() => setHoveredIndex(null)}
+							onClick={() => handleBarClick(index)}
+						>
+							<div
+								className="w-full rounded-t-sm overflow-hidden flex flex-col justify-end"
+								style={{
+									height: `${Math.max(heightPercent, total > 0 ? 15 : 8)}%`,
+									minHeight: total > 0 ? '3px' : '1px',
+								}}
+							>
+								{/* Stacked segments for each participant */}
+								{segments.map((segment, segIndex) => (
+									<div
+										key={segIndex}
+										style={{
+											height: `${segment.percent}%`,
+											backgroundColor: segment.color,
+											minHeight: '1px',
+										}}
+									/>
+								))}
+								{/* Empty bar placeholder */}
+								{total === 0 && (
+									<div
+										style={{
+											height: '100%',
+											backgroundColor: theme.colors.border,
+										}}
+									/>
+								)}
+							</div>
+						</div>
+					);
+				})}
+			</div>
+			{/* Axis labels below */}
+			<div className="relative h-3 mt-0.5">
+				{axisLabels.map(({ label, index }) => (
+					<span
+						key={`${label}-${index}`}
+						className="absolute text-3xs font-mono"
+						style={{
+							color: theme.colors.textDim,
+							left:
+								index === 0
+									? '0'
+									: index === bucketCount - 1
+										? 'auto'
+										: `${(index / (bucketCount - 1)) * 100}%`,
+							right: index === bucketCount - 1 ? '0' : 'auto',
+							transform: index > 0 && index < bucketCount - 1 ? 'translateX(-50%)' : 'none',
+						}}
+					>
+						{label}
+					</span>
+				))}
+			</div>
+		</div>
+	);
+}
+
+interface GroupChatHistoryPanelProps {
+	theme: Theme;
+	groupChatId: string;
+	entries: GroupChatHistoryEntry[];
+	isLoading: boolean;
+	participantColors: Record<string, string>;
+	onJumpToMessage?: (timestamp: number) => void;
+}
+
+// Type filter configuration for group chat history entry types.
+// `shortLabel` is what the filter pill prints, so all five fit one row in a
+// narrow panel; `label` stays the full word for tooltips and accessible names.
+// `color` gives each type its own hue so the chips read apart at a glance, as
+// the AI history chips do. "You" shares the accent with the AI history's USER
+// chip. The theme has only four semantic hues, so Synthesis takes the fixed
+// Cue cyan as the fifth.
+const TYPE_FILTER_CONFIG: {
+	type: GroupChatHistoryEntryType;
+	label: string;
+	shortLabel: string;
+	icon: typeof Send;
+	color: (theme: Theme) => string;
+}[] = [
+	{ type: 'user', label: 'You', shortLabel: 'You', icon: User, color: (t) => t.colors.accent },
+	{
+		type: 'delegation',
+		label: 'Delegation',
+		shortLabel: 'Task',
+		icon: Send,
+		color: (t) => t.colors.warning,
+	},
+	{
+		type: 'response',
+		label: 'Response',
+		shortLabel: 'Reply',
+		icon: MessageSquare,
+		color: (t) => t.colors.success,
+	},
+	{
+		type: 'synthesis',
+		label: 'Synthesis',
+		shortLabel: 'Synth',
+		icon: Layers,
+		color: () => CUE_COLOR,
+	},
+	{
+		type: 'error',
+		label: 'Error',
+		shortLabel: 'Err',
+		icon: AlertTriangle,
+		color: (t) => t.colors.error,
+	},
+];
+
+// All entry types for default filter state
+const ALL_ENTRY_TYPES = new Set<GroupChatHistoryEntryType>([
+	'user',
+	'delegation',
+	'response',
+	'synthesis',
+	'error',
+]);
+
+/**
+ * Turn a chat's saved pill list into the set this build can render.
+ *
+ * `null` means the chat has never saved a set, so everything is on. An empty
+ * array is a real choice - the user switched every pill off - and is kept as
+ * such, which is why this tests for null rather than for emptiness. Types the
+ * saved data mentions but this build does not know are dropped, so a
+ * downgrade cannot put an unrenderable filter into the set.
+ */
+function filtersFromSaved(saved: string[] | null): Set<GroupChatHistoryEntryType> {
+	if (saved === null) return new Set(ALL_ENTRY_TYPES);
+	return new Set(
+		saved.filter((type): type is GroupChatHistoryEntryType =>
+			ALL_ENTRY_TYPES.has(type as GroupChatHistoryEntryType)
+		)
+	);
+}
+
+/** The pills saved for one chat, read straight from the store. */
+function savedFiltersFor(groupChatId: string): Set<GroupChatHistoryEntryType> {
+	return filtersFromSaved(
+		viewPrefsFor(useGroupChatStore.getState().groupChatViewPrefs, groupChatId).historyTypes
+	);
+}
+
+export function GroupChatHistoryPanel({
+	theme,
+	groupChatId,
+	entries,
+	isLoading,
+	participantColors,
+	onJumpToMessage,
+}: GroupChatHistoryPanelProps): JSX.Element {
+	const [lookbackHours, setLookbackHours] = useState<number | null>(DEFAULT_LOOKBACK_HOURS);
+	const [searchFilter, setSearchFilter] = useState('');
+	const [activeFilters, setActiveFilters] = useState<Set<GroupChatHistoryEntryType>>(() =>
+		savedFiltersFor(groupChatId)
+	);
+	const setGroupChatHistoryTypes = useGroupChatStore((s) => s.setGroupChatHistoryTypes);
+	const searchFilterOpen = useUIStore((s) => s.groupChatHistorySearchFilterOpen);
+	const setSearchFilterOpen = useUIStore((s) => s.setGroupChatHistorySearchFilterOpen);
+	const activeFocus = useUIStore((s) => s.activeFocus);
+	const setActiveFocus = useUIStore((s) => s.setActiveFocus);
+	const panelRef = useRef<HTMLDivElement>(null);
+	const pillRowRef = useRef<HTMLDivElement>(null);
+	// The pill icons are the first thing to go when the row is too narrow.
+	// Wrapping to a second line is the last resort, only after they are gone.
+	const pillIconsFit = useOptionalLabelFits(pillRowRef);
+	const listRef = useRef<HTMLDivElement>(null);
+	const searchInputRef = useRef<HTMLInputElement>(null);
+
+	// Reset search filter state when unmounting
+	useEffect(() => {
+		return () => setSearchFilterOpen(false);
+	}, [setSearchFilterOpen]);
+
+	// Reload this chat's pills when the room changes. The panel is rendered
+	// without a `key`, so switching chats does not remount it and the initial
+	// useState value would otherwise stay on screen showing the previous room's
+	// filters.
+	useEffect(() => {
+		setActiveFilters(savedFiltersFor(groupChatId));
+	}, [groupChatId]);
+
+	// Load this chat's lookback, after resetting to the default.
+	//
+	// Two separate ways the previous room's window used to leak into the next
+	// one, both invisible until you switch chats:
+	//
+	//  - the loader only wrote when a value existed, so a chat that had never
+	//    saved one simply kept whatever the last chat was showing, and the graph
+	//    silently covered a span the user never chose for it;
+	//  - the read is async, so switching twice quickly could let the FIRST
+	//    chat's value land after the second had already been drawn.
+	//
+	// Resetting first fixes the former; the cancelled flag fixes the latter.
+	useEffect(() => {
+		let cancelled = false;
+		setLookbackHours(DEFAULT_LOOKBACK_HOURS);
+
+		const loadLookbackPreference = async () => {
+			const settingsKey = `groupChatHistoryLookback:${groupChatId}`;
+			const saved = await window.maestro.settings.get(settingsKey);
+			if (cancelled || saved === undefined) return;
+			setLookbackHours(saved as number | null);
+		};
+		loadLookbackPreference();
+
+		return () => {
+			cancelled = true;
+		};
+	}, [groupChatId]);
+
+	// Handler to update lookback and persist
+	const handleLookbackChange = (hours: number | null) => {
+		setLookbackHours(hours);
+		const settingsKey = `groupChatHistoryLookback:${groupChatId}`;
+		window.maestro.settings.set(settingsKey, hours);
+	};
+
+	// The conductor is not a participant, so no color was ever assigned to them.
+	// Painting their entries in the accent keeps them legible in the row border
+	// AND in the stacked graph, which reads its colors from this same map.
+	const entryColors = useMemo<Record<string, string>>(
+		() => ({ [GROUP_CHAT_USER_NAME]: theme.colors.accent, ...participantColors }),
+		[participantColors, theme.colors.accent]
+	);
+
+	// Toggle a type filter, and remember it for THIS chat.
+	const toggleFilter = useCallback(
+		(type: GroupChatHistoryEntryType) => {
+			setActiveFilters((prev) => {
+				const next = new Set(prev);
+				if (next.has(type)) {
+					next.delete(type);
+				} else {
+					next.add(type);
+				}
+				// Written from inside the updater so the saved set is the one that
+				// just won, with no second render needed to read it back.
+				setGroupChatHistoryTypes(groupChatId, [...next]);
+				return next;
+			});
+		},
+		[groupChatId, setGroupChatHistoryTypes]
+	);
+
+	// Filter entries based on active type filters and search text
+	const filteredEntries = useMemo(
+		() =>
+			entries.filter((entry) => {
+				if (!activeFilters.has(entry.type)) return false;
+
+				if (searchFilter) {
+					const q = searchFilter.toLowerCase();
+					const summaryMatch = entry.summary?.toLowerCase().includes(q);
+					const responseMatch = entry.fullResponse?.toLowerCase().includes(q);
+					const participantMatch = entry.participantName?.toLowerCase().includes(q);
+					if (!summaryMatch && !responseMatch && !participantMatch) return false;
+				}
+
+				return true;
+			}),
+		[entries, activeFilters, searchFilter]
+	);
+
+	// Arrow-key selection over the rendered entries. The tab is reachable by
+	// keyboard (Cmd+Shift+[ / ] cycles Participants <-> History), so the list it
+	// lands on has to answer Up/Down without a click first.
+	const handleSelectByIndex = useCallback(
+		(index: number) => {
+			const entry = filteredEntries[index];
+			if (entry) onJumpToMessage?.(entry.timestamp);
+		},
+		[filteredEntries, onJumpToMessage]
+	);
+
+	const {
+		selectedIndex,
+		setSelectedIndex,
+		handleKeyDown: listNavKeyDown,
+	} = useListNavigation({
+		listLength: filteredEntries.length,
+		onSelect: handleSelectByIndex,
+		initialIndex: -1,
+	});
+
+	// Keeps the cursor on screen: block 'nearest' only scrolls once the selected
+	// entry has left the top or bottom of the list box. Scrolling is INSTANT
+	// rather than smooth because a held arrow key repeats faster than a smooth
+	// scroll animates - each repeat would cancel the animation in flight, so the
+	// list lurches instead of stepping.
+	const entryRefs = useScrollIntoView<HTMLDivElement>(
+		true,
+		selectedIndex,
+		filteredEntries.length,
+		'auto'
+	);
+
+	// Take focus when the right panel is the focused area - otherwise the arrow
+	// keys land on whatever held focus before the tab switch.
+	useEffect(() => {
+		if (activeFocus === 'right') panelRef.current?.focus();
+	}, [activeFocus]);
+
+	// Handle bar click - scroll to entries in that time range
+	const handleBarClick = (bucketStart: number, bucketEnd: number) => {
+		const entriesInBucket = filteredEntries.filter(
+			(e) => e.timestamp >= bucketStart && e.timestamp < bucketEnd
+		);
+		if (entriesInBucket.length > 0 && listRef.current) {
+			const firstEntryId = entriesInBucket[0].id;
+			const element = listRef.current.querySelector(`[data-entry-id="${firstEntryId}"]`);
+			if (element) {
+				element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+			}
+		}
+	};
+
+	// Keyboard handler for Cmd+F search toggle, then Up/Down/Enter list navigation.
+	// The search input sits inside this container, so arrows walk the results while
+	// the filter has the caret too.
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			if (e.key === 'f' && (e.metaKey || e.ctrlKey) && !searchFilterOpen) {
+				e.preventDefault();
+				setSearchFilterOpen(true);
+				setTimeout(() => searchInputRef.current?.focus(), 0);
+				return;
+			}
+			listNavKeyDown(e);
+		},
+		[searchFilterOpen, setSearchFilterOpen, listNavKeyDown]
+	);
+
+	const formatTime = (timestamp: number) => formatTimestamp(timestamp, 'smart');
+
+	return (
+		<div
+			ref={panelRef}
+			className="flex-1 flex flex-col overflow-hidden p-3 outline-none"
+			tabIndex={0}
+			onKeyDown={handleKeyDown}
+			onClick={() => setActiveFocus('right')}
+		>
+			{/* Type Filter Pills. The outer row clips so useOptionalLabelFits can
+			    read overflow; w-fit + mx-auto centers without hiding the left
+			    overflow the way justify-center would. */}
+			<div ref={pillRowRef} className="mb-2 overflow-hidden">
+				<div
+					className={`flex gap-1.5 w-fit mx-auto ${pillIconsFit ? '' : 'flex-wrap justify-center'}`}
+				>
+					{TYPE_FILTER_CONFIG.map(({ type, label, shortLabel, icon: Icon, color }) => {
+						const isActive = activeFilters.has(type);
+						// Active vs inactive is still conveyed by opacity on top of the hue.
+						const colors = tintedPillColors(color(theme));
+						return (
+							<button
+								key={type}
+								onClick={() => toggleFilter(type)}
+								className={`shrink-0 whitespace-nowrap flex items-center gap-1 px-2 py-1 rounded-full text-2xs font-bold uppercase transition-all ${
+									isActive ? 'opacity-100' : 'opacity-40'
+								}`}
+								style={{
+									backgroundColor: isActive ? colors.bg : 'transparent',
+									color: isActive ? colors.text : theme.colors.textDim,
+									border: `1px solid ${isActive ? colors.border : theme.colors.border}`,
+								}}
+								aria-label={label}
+								title={`${isActive ? 'Hide' : 'Show'} ${label} entries`}
+							>
+								{pillIconsFit && <Icon className="w-2.5 h-2.5" />}
+								{shortLabel}
+							</button>
+						);
+					})}
+				</div>
+			</div>
+
+			{/* Activity Graph */}
+			<div className="mb-3">
+				<GroupChatActivityGraph
+					entries={filteredEntries}
+					theme={theme}
+					participantColors={entryColors}
+					lookbackHours={lookbackHours}
+					onLookbackChange={handleLookbackChange}
+					onBarClick={handleBarClick}
+				/>
+			</div>
+
+			{/* Search Filter */}
+			{searchFilterOpen && (
+				<div className="mb-3">
+					<input
+						ref={searchInputRef}
+						autoFocus
+						type="text"
+						placeholder="Filter group chat history..."
+						value={searchFilter}
+						onChange={(e) => setSearchFilter(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === 'Escape') {
+								setSearchFilterOpen(false);
+								setSearchFilter('');
+								panelRef.current?.focus();
+							}
+						}}
+						className="w-full px-3 py-2 rounded border bg-transparent outline-none text-sm"
+						style={{ borderColor: theme.colors.accent, color: theme.colors.textMain }}
+					/>
+					{searchFilter && (
+						<div className="text-2xs mt-1 text-right" style={{ color: theme.colors.textDim }}>
+							{filteredEntries.length} result{filteredEntries.length !== 1 ? 's' : ''}
+						</div>
+					)}
+				</div>
+			)}
+
+			{/* History List */}
+			<div
+				ref={listRef}
+				role="listbox"
+				aria-label="Group chat history"
+				aria-activedescendant={
+					filteredEntries[selectedIndex]
+						? `gc-history-${filteredEntries[selectedIndex].id}`
+						: undefined
+				}
+				// scroll-p-2 leaves a sliver of the next entry visible when the
+				// selection reaches an edge, so holding an arrow reads as scrolling
+				// through a list rather than pinning a row against the boundary.
+				className="flex-1 overflow-y-auto space-y-2 scrollbar-thin scroll-p-2"
+			>
+				{isLoading ? (
+					<div className="text-center py-8 text-xs opacity-50">Loading history...</div>
+				) : filteredEntries.length === 0 ? (
+					<div className="text-center py-8 text-xs opacity-50">
+						{entries.length === 0 ? (
+							<>
+								No task history yet.
+								<br />
+								Entries will appear when agents complete tasks.
+							</>
+						) : searchFilter ? (
+							`No entries match "${searchFilter}"`
+						) : (
+							'No entries match the selected filters.'
+						)}
+					</div>
+				) : (
+					filteredEntries.map((entry, index) => {
+						const participantColor =
+							entryColors[entry.participantName] || entry.participantColor || theme.colors.accent;
+						const isSelected = index === selectedIndex;
+						return (
+							<div
+								key={entry.id}
+								id={`gc-history-${entry.id}`}
+								ref={(el) => {
+									entryRefs.current[index] = el;
+								}}
+								role="option"
+								data-entry-id={entry.id}
+								data-selected={isSelected || undefined}
+								aria-selected={isSelected}
+								onClick={() => {
+									setSelectedIndex(index);
+									onJumpToMessage?.(entry.timestamp);
+								}}
+								className="p-2.5 rounded border transition-colors cursor-pointer hover:bg-white/5"
+								style={{
+									borderColor: isSelected ? theme.colors.accent : theme.colors.border,
+									backgroundColor: isSelected ? theme.colors.accent + '15' : undefined,
+									borderLeftWidth: '3px',
+									borderLeftColor: participantColor,
+								}}
+							>
+								{/* Header Row */}
+								<div className="flex items-center justify-between mb-1.5">
+									{/* Participant Name Pill */}
+									<span
+										className="px-2 py-0.5 rounded text-2xs font-bold"
+										style={{
+											backgroundColor: participantColor + '25',
+											color: participantColor,
+											border: `1px solid ${participantColor}50`,
+										}}
+									>
+										{entry.participantName}
+									</span>
+									{/* Timestamp */}
+									<span className="text-2xs" style={{ color: theme.colors.textDim }}>
+										{formatTime(entry.timestamp)}
+									</span>
+								</div>
+
+								{/* Summary - strip markdown for clean display */}
+								<p className="text-xs leading-relaxed" style={{ color: theme.colors.textMain }}>
+									{stripMarkdown(entry.summary)}
+								</p>
+
+								{/* Footer with cost */}
+								{entry.cost !== undefined && entry.cost > 0 && (
+									<div className="flex items-center gap-2 mt-1.5">
+										<span
+											className="text-2xs font-mono font-bold px-1.5 py-0.5 rounded-full"
+											style={{
+												backgroundColor: theme.colors.success + '15',
+												color: theme.colors.success,
+												border: `1px solid ${theme.colors.success}30`,
+											}}
+										>
+											${entry.cost.toFixed(2)}
+										</span>
+									</div>
+								)}
+							</div>
+						);
+					})
+				)}
+			</div>
+		</div>
+	);
+}

@@ -1,0 +1,202 @@
+/**
+ * Tests for RetryStatusCard - the collapsed Agent Resilience "outage" bubble that
+ * renders inline in the transcript (replacing the above-composer countdown banner).
+ *
+ * Driven entirely by the persistent `retryStore.outages[outageId]` record, so the
+ * tests set that record directly and assert the card's four states: active (live
+ * stats + controls), recovered, stopped, and the no-record fallback.
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { RetryStatusCard } from '../../../renderer/components/RetryStatusCard';
+import { useRetryStore } from '../../../renderer/stores/retryStore';
+import { mockTheme } from '../../helpers/mockTheme';
+import type { OutageRecord } from '../../../renderer/stores/retryStore';
+
+const NOW = new Date('2026-01-01T00:00:00Z').getTime();
+
+function setOutage(partial: Partial<OutageRecord> = {}) {
+	const outage: OutageRecord = {
+		outageId: 'o1',
+		sessionId: 's1',
+		tabId: 't1',
+		strategy: 'availability',
+		startedAt: NOW,
+		attempts: 0,
+		nextRetryAt: NOW + 90_000,
+		status: 'active',
+		lastMessage: 'API Error: 529 Overloaded',
+		...partial,
+	};
+	useRetryStore.setState({ outages: { o1: outage } });
+}
+
+beforeEach(() => {
+	vi.useFakeTimers();
+	vi.setSystemTime(NOW);
+	useRetryStore.setState({ retries: {}, outages: {} });
+});
+
+afterEach(() => {
+	vi.clearAllTimers();
+	vi.useRealTimers();
+});
+
+describe('RetryStatusCard', () => {
+	it('renders nothing when the outage record is gone and no fallback is given', () => {
+		const { container } = render(<RetryStatusCard outageId="missing" theme={mockTheme} />);
+		expect(container.firstChild).toBeNull();
+	});
+
+	it('falls back to the marker text when the outage record is gone (post-restart)', () => {
+		render(<RetryStatusCard outageId="missing" theme={mockTheme} fallbackText="Old outage note" />);
+		expect(screen.getByText('Old outage note')).toBeInTheDocument();
+	});
+
+	it('shows the availability label, live stats, and controls for an active outage', () => {
+		setOutage({ strategy: 'availability', attempts: 2, nextRetryAt: NOW + 90_000 });
+		render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+		expect(screen.getByText('Service overloaded')).toBeInTheDocument();
+		// Retry count stat reflects the dispatched-so-far count.
+		expect(screen.getByText('2')).toBeInTheDocument();
+		expect(screen.getByText(/in 1m 30s/)).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /Try now/ })).toBeEnabled();
+		expect(screen.getByRole('button', { name: /Stop/ })).toBeInTheDocument();
+	});
+
+	it('disables "Try now" and shows "now…" once the timer has fired', () => {
+		setOutage({ nextRetryAt: NOW - 1_000 });
+		render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+		expect(screen.getByText('now…')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: /Try now/ })).toBeDisabled();
+	});
+
+	// An early fire - the user re-points the provider mid-outage - never moves
+	// `nextRetryAt`, so the countdown keeps running over a resend that is already
+	// on the wire. The button it used to leave enabled dispatched the same prompt
+	// a second time.
+	it('disables "Try now" while the resend is in flight, countdown or not', () => {
+		setOutage({ nextRetryAt: NOW + 90_000 });
+		useRetryStore.setState({
+			retries: {
+				's1:t1': {
+					sessionId: 's1',
+					tabId: 't1',
+					key: 's1:t1',
+					outageId: 'o1',
+					strategy: 'availability',
+					mode: 'resend',
+					status: 'in-flight',
+					attempt: 0,
+					startedAt: NOW,
+					nextRetryAt: NOW + 90_000,
+					lastMessage: 'API Error: 529 Overloaded',
+				},
+			},
+		});
+		render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+		expect(screen.getByText('now…')).toBeInTheDocument();
+
+		// Genuinely inert, not merely dimmed: `disabled:opacity-50` styles a button
+		// that a real `disabled` attribute is already keeping clicks away from. A
+		// dim-looking control that still fires is the failure this has to exclude,
+		// since the guard in `retryNow` would then be the only thing between a
+		// click and a second dispatch.
+		const tryNow = screen.getByRole('button', { name: /Try now/ });
+		expect(tryNow).toBeDisabled();
+		expect(tryNow).toHaveAttribute('disabled');
+		fireEvent.click(tryNow);
+		expect(tryNow).toBeDisabled();
+	});
+
+	it('freezes into a recovered summary with a pluralized retry count', () => {
+		setOutage({
+			status: 'recovered',
+			attempts: 1,
+			startedAt: NOW,
+			resolvedAt: NOW + 5_000,
+		});
+		render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+		expect(screen.getByText('Connection recovered.')).toBeInTheDocument();
+		expect(screen.getByText(/cleared after 1 retry over 5s/)).toBeInTheDocument();
+		// No live controls once resolved.
+		expect(screen.queryByRole('button', { name: /Try now/ })).not.toBeInTheDocument();
+	});
+
+	it('freezes into a stopped summary', () => {
+		setOutage({ status: 'stopped', attempts: 3, strategy: 'token-exhaustion' });
+		render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+		expect(screen.getByText('Auto-retry stopped.')).toBeInTheDocument();
+		expect(
+			screen.getByText(/Plan quota exhausted was not resolved after 3 retries/)
+		).toBeInTheDocument();
+	});
+
+	// A limit banner that only says "you've hit your limit" is a verdict with no
+	// evidence: it can't distinguish the 5-hour window from the weekly one, and
+	// can't say whether the stop is recoverable. See issue #1472.
+	describe('plan-limit evidence', () => {
+		it('names the exhausted window instead of the generic quota label', () => {
+			setOutage({
+				strategy: 'token-exhaustion',
+				quota: { window: 'five_hour', status: 'rejected' },
+			});
+			render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+			expect(screen.getByText('5-hour session limit reached')).toBeInTheDocument();
+			expect(screen.queryByText('Plan quota exhausted')).not.toBeInTheDocument();
+		});
+
+		it('distinguishes the weekly window from the 5-hour one', () => {
+			setOutage({ strategy: 'token-exhaustion', quota: { window: 'seven_day' } });
+			render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+			expect(screen.getByText('Weekly limit reached')).toBeInTheDocument();
+		});
+
+		it('says whether anything can be done, and when the window reopens', () => {
+			setOutage({
+				strategy: 'token-exhaustion',
+				quota: {
+					window: 'five_hour',
+					status: 'rejected',
+					resetsAt: NOW + 3 * 60 * 60 * 1000,
+					overageStatus: 'rejected',
+					overageDisabledReason: 'out_of_credits',
+				},
+			});
+			render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+			expect(screen.getByTestId('quota-limit-remedy')).toHaveTextContent(/out of credits/i);
+			expect(screen.getByText(/^Resets /)).toBeInTheDocument();
+		});
+
+		// `overageStatus` stays `allowed` after hard exhaustion; reading it alone
+		// would tell a hard-stopped user they are covered.
+		it('never claims coverage on a rejected request even when overage is allowed', () => {
+			setOutage({
+				strategy: 'token-exhaustion',
+				quota: { window: 'seven_day', status: 'rejected', overageStatus: 'allowed' },
+			});
+			render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+			expect(screen.getByTestId('quota-limit-remedy')).not.toHaveTextContent(/cover/i);
+		});
+
+		it('keeps the generic label and renders no evidence block without a quota payload', () => {
+			// A provider or transport that forwards no quota object leaves the
+			// notice text as the whole story.
+			setOutage({ strategy: 'token-exhaustion' });
+			render(<RetryStatusCard outageId="o1" theme={mockTheme} />);
+
+			expect(screen.getByText('Plan quota exhausted')).toBeInTheDocument();
+			expect(screen.queryByTestId('quota-limit-evidence')).not.toBeInTheDocument();
+		});
+	});
+});

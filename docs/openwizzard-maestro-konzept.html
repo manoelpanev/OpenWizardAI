@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenWizzard × Maestro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:opsz,wght@6..72,500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f2;--surface:#ffffff;--ink:#1f1d1a;--muted:#6b665e;--line:#e4e0d9;
+  --accent:#5b3fa0;--accent-soft:#ece6f7;--ok:#2f6f4f;--ok-soft:#e3f1e8;--warn:#8a5a12;--warn-soft:#f7ecd9;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#161514;--surface:#1f1d1b;--ink:#ece8e1;--muted:#a19b91;--line:#34312d;
+  --accent:#b39cf0;--accent-soft:#2a2340;--ok:#8fcfa9;--ok-soft:#1d2e24;--warn:#e3b86f;--warn-soft:#33291a;
+}}
+:root[data-theme="dark"]{
+  --bg:#161514;--surface:#1f1d1b;--ink:#ece8e1;--muted:#a19b91;--line:#34312d;
+  --accent:#b39cf0;--accent-soft:#2a2340;--ok:#8fcfa9;--ok-soft:#1d2e24;--warn:#e3b86f;--warn-soft:#33291a;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 Inter,system-ui,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:40px 16px 80px;display:grid;grid-template-columns:200px 1fr;gap:48px}
+nav{position:sticky;top:32px;align-self:start;font-size:13px}
+nav a{display:block;color:var(--muted);text-decoration:none;padding:4px 0 4px 10px;border-left:2px solid transparent}
+nav a:hover{color:var(--ink);border-left-color:var(--line)}
+main{min-width:0}
+h1{font:500 40px/1.15 Newsreader,serif;margin:0 0 8px;letter-spacing:-.01em}
+h2{font:500 26px/1.2 Newsreader,serif;margin:56px 0 12px;scroll-margin-top:24px}
+h3{font-size:15px;font-weight:600;margin:24px 0 6px}
+p{margin:0 0 12px}
+.lead{color:var(--muted);font-size:17px;max-width:62ch}
+.meta{font-size:13px;color:var(--muted);margin-bottom:28px}
+code{font:13px "JetBrains Mono",monospace;background:var(--accent-soft);padding:1px 5px;border-radius:4px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.pill{display:inline-block;font-size:12px;font-weight:500;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+tr:last-child td{border-bottom:none}
+.lvl{font-weight:600;color:var(--accent);white-space:nowrap}
+ol.steps{padding-left:20px}ol.steps li{margin-bottom:8px}
+.diagram{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;overflow-x:auto}
+.diagram svg{display:block;min-width:640px;width:100%;height:auto}
+.diagram text{font:12px Inter,sans-serif;fill:var(--ink)}
+.diagram .sub{fill:var(--muted);font-size:11px}
+.diagram .box{fill:var(--surface);stroke:var(--line)}
+.diagram .hi{fill:var(--accent-soft);stroke:var(--accent)}
+.diagram .arr{stroke:var(--muted);fill:none;marker-end:url(#a)}
+.toggle{position:fixed;top:14px;right:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:6px 10px;font:13px Inter;cursor:pointer}
+@media (max-width:880px){.wrap{grid-template-columns:1fr;gap:16px}nav{position:static;display:flex;flex-wrap:wrap;gap:4px 14px}nav a{border:none;padding:2px 0}h1{font-size:32px}}
+</style>
+</head>
+<body>
+<button class="toggle" onclick="var r=document.documentElement;r.dataset.theme=(r.dataset.theme==='dark'||(!r.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches))?'light':'dark'">Hell/Dunkel</button>
+<div class="wrap">
+<nav>
+  <a href="#kurz">Kurzfassung</a>
+  <a href="#was">Was Maestro kann</a>
+  <a href="#mapping">Funktions-Mapping</a>
+  <a href="#game">Spielschicht</a>
+  <a href="#arch">Architektur</a>
+  <a href="#seams">Umbaupunkte im Code</a>
+  <a href="#phasen">Phasen</a>
+  <a href="#risiken">Risiken</a>
+  <a href="#offen">Offene Entscheidungen</a>
+</nav>
+<main>
+<h1>OpenWizzard × Maestro</h1>
+<div class="meta">Konzept · Stand 23.09.2026 · Basis: Maestro 0.17.5 (AGPL-3.0, 4.616 Dateien)</div>
+<p class="lead">Maestro wird als Fork zum Desktop-Client von OpenWizzard. Alle Funktionen bleiben erhalten. Sie werden den PurpleDragon-Modulen zugeordnet und über Spiel-Level freigeschaltet.</p>
+
+<h2 id="kurz">Kurzfassung</h2>
+<div class="grid">
+  <div class="card"><span class="pill">Was</span><h3>Fork statt Neubau</h3><p>Maestro liefert bereits etwa 80 % von „Command Deck“ und „Agent Desk“: Multi-Agent, Auto Run, Group Chat, Analytics. Neu dazu kommen nur Login, Entitlements und XP.</p></div>
+  <div class="card"><span class="pill">Wo</span><h3>Eine zentrale Stelle</h3><p>Maestro schaltet Features schon heute über „Encore Flags“ (<code>resolveEncoreFeatures()</code>). Genau hier wird der Entitlement-Service angeschlossen.</p></div>
+  <div class="card"><span class="pill">Spiel</span><h3>XP aus echter Arbeit</h3><p>Die lokale Statistik-DB (Queries, Auto-Run-Minuten, erledigte Tasks) liefert Events an den Game-Service. Achievements wandern auf den Server.</p></div>
+  <div class="card"><span class="pill warn">Pflicht</span><h3>AGPL-3.0 beachten</h3><p>Der Client-Fork muss Open Source bleiben, inklusive Hinweis auf Maestro. Game- und Entitlement-Server können als eigene Dienste geschlossen bleiben. Das sollte rechtlich geprüft werden.</p></div>
+</div>
+
+<h2 id="was">Was Maestro kann</h2>
+<p>Eine Electron-Desktop-App, die mehrere KI-Coding-Agents parallel steuert: Claude Code, Codex, OpenCode, Factory Droid und Copilot-CLI. Maestro reicht die Anfragen nur an den jeweiligen Anbieter durch. Deshalb laufen die KI-Kosten über das Konto des Nutzers.</p>
+<div class="tbl"><table>
+<tr><th>Bereich</th><th>Funktionen</th></tr>
+<tr><td>Agents</td><td>Unbegrenzte parallele Agents, KI- und Shell-Terminal pro Agent (<code>Cmd+J</code>), Session-Discovery, Message-Queue, Draft-Autosave, Agent Resilience (Retry, Failover)</td></tr>
+<tr><td>Automation</td><td>Auto Run und Playbooks (Markdown-Checklisten), Cue (Trigger per Datei, Zeitplan, GitHub oder Agent-Ende), CLI <code>maestro-cli</code>, Git-Worktrees</td></tr>
+<tr><td>Zusammenarbeit</td><td>Group Chat mit Moderator-KI, Symphony (Open-Source-Aufgaben-Registry), Mobile-Fernsteuerung per QR und Cloudflare-Tunnel, SSH-Remote</td></tr>
+<tr><td>Arbeitsfläche</td><td>Datei-Explorer, Git-Diff und -Log, Viewer für JSON/CSV/Parquet/Mermaid, Document Graph, Slash-Commands, Output-Filter, <code>Cmd+K</code></td></tr>
+<tr><td>Messen</td><td>Kosten- und Token-Tracking, Usage-Dashboard (SQLite), Achievements (11 Dirigenten-Ränge), Keyboard-Mastery</td></tr>
+<tr><td>Erweitern</td><td>Plugin-System (Tier 0 Daten, Tier 1 Sandbox-Code, Tier 2 UI), 12 Themes, Onboarding-Wizard mit Tour, <code>/wizard</code></td></tr>
+</table></div>
+
+<h2 id="mapping">Funktions-Mapping auf PurpleDragon-Module</h2>
+<p>Jede Maestro-Funktion bekommt genau ein Modul und eine Freischaltstufe. Die Level-Werte sind Vorschläge und bewusst früh angesetzt, damit die App ab dem ersten Tag nützlich ist.</p>
+<div class="tbl"><table>
+<tr><th>Modul</th><th>Level</th><th>Maestro-Funktionen</th><th>Neuer Name (Vorschlag)</th></tr>
+<tr><td>Command Deck</td><td class="lvl">1</td><td>Agent-Liste, Dual-Terminal, <code>Cmd+K</code>, Datei-Explorer, Git, Themes, Viewer</td><td>Turmzimmer</td></tr>
+<tr><td>Agent Desk</td><td class="lvl">1 → 3</td><td>L1: 1 Agent, 1 Provider · L2: mehrere Agents, Message-Queue, Slash-Commands · L3: alle Provider, Resilience, Session-Discovery</td><td>Vertraute (Familiars)</td></tr>
+<tr><td>Automations</td><td class="lvl">4 → 6</td><td>L4: Auto Run und Playbooks · L5: Git-Worktrees und CLI · L6: Cue-Trigger und Zeitpläne</td><td>Rituale und Zauberbücher</td></tr>
+<tr><td>Ledger</td><td class="lvl">2</td><td>Kosten-Pill, Usage-Dashboard, CSV-Export, Heatmaps</td><td>Schatzkammer</td></tr>
+<tr><td>Guild Ops</td><td class="lvl">7 → 8</td><td>L7: Group Chat mit Moderator · L8: Symphony als Gilden-Quests, Mobile-Fernsteuerung</td><td>Gildenhalle</td></tr>
+<tr><td>Grimoire</td><td class="lvl">5</td><td>Document Graph, Wiki-Links, Mind-Map-Layouts</td><td>Sternenkarte</td></tr>
+<tr><td>Artefakte</td><td class="lvl">9+</td><td>Plugins: Tier 0 ab L9, Tier 1/2 ab L10 bzw. als Item</td><td>Artefakte</td></tr>
+</table></div>
+
+<h2 id="game">Spielschicht</h2>
+<h3>XP-Quellen (alle schon heute in Maestros Stats-DB)</h3>
+<div class="tbl"><table>
+<tr><th>Event</th><th>Tabelle in Maestro</th><th>XP-Vorschlag</th></tr>
+<tr><td>Erfolgreiche KI-Anfrage</td><td><code>query_events</code></td><td>2 XP, max. 200/Tag</td></tr>
+<tr><td>Auto-Run-Task erledigt</td><td><code>auto_run_tasks</code></td><td>10 XP</td></tr>
+<tr><td>Auto-Run-Session beendet</td><td><code>auto_run_sessions</code></td><td>1 XP pro Minute, max. 300/Tag</td></tr>
+<tr><td>Symphony-Beitrag gemergt</td><td>Symphony + GitHub</td><td>250 XP + Gilden-Ruf</td></tr>
+<tr><td>Tages-Streak</td><td>Summary „streak“</td><td>Multiplikator ×1,1 bis ×1,5</td></tr>
+</table></div>
+<h3>Ränge</h3>
+<p>Maestros 11 Dirigenten-Ränge („Apprentice“ bis „Titan of the Baton“) werden zu Zauberer-Rängen, zum Beispiel Lehrling → Adept → Magier → Hexenmeister → Erzmagier. Die Achievement-Logik zieht auf den Server um, damit Ränge nicht lokal manipuliert werden können.</p>
+<h3>Onboarding</h3>
+<p>Der vorhandene Onboarding-Wizard und die Tour werden zur ersten Quest: „Beschwöre deinen ersten Vertrauten“. Damit wird Agent angelegt, Provider gewählt und die erste Anfrage gesendet. Das bringt Level 2.</p>
+
+<h2 id="arch">Architektur</h2>
+<div class="diagram">
+<svg viewBox="0 0 760 300" role="img" aria-label="Architektur: Desktop-Client spricht mit Gateway, das Entitlements und Game-Service verbindet; Agents laufen lokal">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/></marker></defs>
+<rect class="hi" x="20" y="30" width="250" height="240" rx="10"/>
+<text x="36" y="56" style="font-weight:600">OpenWizzard Desktop</text>
+<text class="sub" x="36" y="74">Maestro-Fork · Electron</text>
+<rect class="box" x="36" y="90" width="218" height="40" rx="6"/><text x="48" y="115">Renderer · Module-UI</text>
+<rect class="box" x="36" y="140" width="218" height="40" rx="6"/><text x="48" y="165">Entitlement-Client (Encore-Seam)</text>
+<rect class="box" x="36" y="190" width="218" height="40" rx="6"/><text x="48" y="215">Stats-DB → XP-Bridge</text>
+<text class="sub" x="36" y="252">Agents laufen lokal (Nutzer-Auth)</text>
+<rect class="box" x="330" y="120" width="140" height="60" rx="8"/>
+<text x="346" y="146" style="font-weight:600">Gateway</text><text class="sub" x="346" y="164">Fastify · JWT</text>
+<rect class="box" x="530" y="30" width="210" height="60" rx="8"/><text x="546" y="56" style="font-weight:600">Entitlements</text><text class="sub" x="546" y="74">Grant-Tabelle · einzige Wahrheit</text>
+<rect class="box" x="530" y="120" width="210" height="60" rx="8"/><text x="546" y="146" style="font-weight:600">Game-Service</text><text class="sub" x="546" y="164">XP, Level, Ränge, Quests</text>
+<rect class="box" x="530" y="210" width="210" height="60" rx="8"/><text x="546" y="236" style="font-weight:600">Guild / Symphony</text><text class="sub" x="546" y="254">Gilden-Quests, Registry</text>
+<path class="arr" d="M254 160 H326"/><path class="arr" d="M254 210 C300 210 300 170 326 170"/>
+<path class="arr" d="M470 140 C500 140 500 60 526 60"/><path class="arr" d="M470 150 H526"/><path class="arr" d="M470 160 C500 160 500 240 526 240"/>
+<path class="arr" d="M630 120 V94"/><text class="sub" x="636" y="110">Level → Grant</text>
+</svg>
+</div>
+<p style="margin-top:12px">Die Agents bleiben lokal und nutzen die Anmeldung des Nutzers bei Claude, Codex usw. Das 3-Stufen-KI-Kostenmodell aus dem PurpleDragon-Konzept gilt nur für KI-Funktionen, die OpenWizzard selbst bezahlt, etwa einen gehosteten Group-Chat-Moderator oder Quest-Bewertung.</p>
+
+<h2 id="seams">Umbaupunkte im Code</h2>
+<div class="tbl"><table>
+<tr><th>Was</th><th>Wo in Maestro</th><th>Änderung</th></tr>
+<tr><td>Feature-Gating</td><td><code>src/shared/encoreFeatures.ts</code> · <code>resolveEncoreFeatures()</code></td><td>Flags aus Entitlement-Grants statt lokalen Settings lesen; lokal cachen, offline 7 Tage gültig</td></tr>
+<tr><td>XP-Events</td><td><code>src/main/stats/</code> · Broadcast <code>stats:updated</code></td><td>Nach jedem DB-Write ein signiertes Event an das Gateway schicken (Batch alle 60 s)</td></tr>
+<tr><td>Preload-API</td><td><code>window.maestro</code></td><td>Umbenennen in <code>window.wizzard</code>, neuer Namespace <code>auth</code> und <code>game</code></td></tr>
+<tr><td>Projektdateien</td><td><code>.maestro/cue.yaml</code>, Playbooks</td><td><code>.openwizzard/</code>, mit Fallback-Lesen von <code>.maestro/</code></td></tr>
+<tr><td>CLI</td><td><code>maestro-cli</code>, <code>maestro-p</code></td><td><code>wizzard-cli</code>, <code>wizzard-p</code>; Befehl <code>login</code> ergänzen</td></tr>
+<tr><td>Achievements</td><td>Renderer, Auto-Run-Zeit</td><td>Anzeige bleibt; Berechnung kommt vom Game-Service</td></tr>
+<tr><td>Branding</td><td><code>package.json</code>, <code>build/</code>, Texte, Deep-Links</td><td>Name, App-ID, Icons, URL-Schema <code>openwizzard://</code>, Hinweis „basiert auf Maestro“</td></tr>
+</table></div>
+
+<h2 id="phasen">Phasen</h2>
+<div class="tbl"><table>
+<tr><th>#</th><th>Phase</th><th>Ergebnis</th><th>Aufwand</th></tr>
+<tr><td>1</td><td>Fork und Rebrand</td><td>App startet als „OpenWizzard“, alle Funktionen laufen, Tests grün</td><td>2–3 Tage</td></tr>
+<tr><td>2</td><td>Auth und Entitlements</td><td>Login, Grant-Tabelle, Encore-Seam liest Grants</td><td>1–1,5 Wochen</td></tr>
+<tr><td>3</td><td>XP-Bridge und Level</td><td>Stats-Events → XP → Level → neue Grants, Freischalt-Animation</td><td>1–1,5 Wochen</td></tr>
+<tr><td>4</td><td>Modul-Gating komplett</td><td>Mapping-Tabelle oben voll umgesetzt, Onboarding-Quest</td><td>1 Woche</td></tr>
+<tr><td>5</td><td>Gildenhalle</td><td>Group Chat und Symphony als Gilden-Quests, Mobile-Zugang</td><td>2–3 Wochen</td></tr>
+</table></div>
+<p style="margin-top:12px">Gesamt: etwa 6–9 Wochen für eine Person. Phase 1 allein liefert schon eine lauffähige OpenWizzard-App.</p>
+
+<h2 id="risiken">Risiken</h2>
+<div class="grid">
+  <div class="card"><span class="pill warn">Lizenz</span><h3>AGPL-3.0</h3><p>Client-Quellcode muss öffentlich sein, auch bei Änderungen. Der Name „Maestro“ darf nicht als Marke genutzt werden. Mit juristischer Prüfung vor dem Release klären.</p></div>
+  <div class="card"><span class="pill warn">Pflege</span><h3>Upstream-Drift</h3><p>Maestro wird sehr aktiv weiterentwickelt. Änderungen daher klein und gebündelt halten (Seam-Dateien), monatlich Upstream mergen.</p></div>
+  <div class="card"><span class="pill warn">Fairness</span><h3>XP-Manipulation</h3><p>Lokale Stats sind fälschbar. Dagegen helfen Tageslimits, serverseitige Plausibilitätsprüfung und hohe XP nur für extern prüfbare Ergebnisse (gemergte PRs).</p></div>
+  <div class="card"><span class="pill warn">UX</span><h3>Gating nervt Profis</h3><p>Power-User wollen sofort alles. Lösung: „Skip-Quest“ für erfahrene Nutzer oder frühe Level schnell erreichbar machen.</p></div>
+</div>
+
+<h2 id="offen">Offene Entscheidungen</h2>
+<ol class="steps">
+  <li><strong>Fork-Strategie:</strong> Upstream-Sync halten (empfohlen) oder harter Fork?</li>
+  <li><strong>Namen:</strong> Fantasy-Namen (Vertraute, Rituale) oder technische Namen (Agents, Auto Run) in der UI?</li>
+  <li><strong>Gating-Härte:</strong> Funktionen wirklich sperren oder nur ausblenden, mit Freischaltung per Einstellung?</li>
+  <li><strong>Gehostete KI:</strong> Soll OpenWizzard eigene KI-Funktionen bezahlen (Moderator, Quest-Check) oder nur Pass-through?</li>
+</ol>
+</main>
+</div>
+</body>
+</html>

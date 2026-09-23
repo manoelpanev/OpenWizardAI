@@ -1,0 +1,557 @@
+/**
+ * Tests for EnvVarsEditor component
+ *
+ * Tests the environment variables editor including:
+ * - Adding and removing entries
+ * - Variable name validation
+ * - Value validation (special characters)
+ * - Display of valid entry count
+ * - External sync from parent
+ */
+
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { EnvVarsEditor } from '../../../../renderer/components/Settings/EnvVarsEditor';
+
+import { mockTheme } from '../../../helpers/mockTheme';
+describe('EnvVarsEditor', () => {
+	let mockSetEnvVars: ReturnType<typeof vi.fn>;
+
+	beforeEach(() => {
+		mockSetEnvVars = vi.fn();
+	});
+
+	it('should render with empty env vars', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		expect(screen.getByText('Environment Variables (optional)')).toBeInTheDocument();
+		expect(screen.getByRole('button', { name: 'Add Variable' })).toBeInTheDocument();
+	});
+
+	it('should render existing env vars', () => {
+		render(
+			<EnvVarsEditor
+				envVars={{ MY_VAR: 'hello', OTHER_VAR: 'world' }}
+				setEnvVars={mockSetEnvVars}
+				theme={mockTheme}
+			/>
+		);
+
+		const keyInputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		expect(keyInputs).toHaveLength(2);
+		expect(keyInputs[0]).toHaveValue('MY_VAR');
+		expect(keyInputs[1]).toHaveValue('OTHER_VAR');
+
+		const valueInputs = screen.getAllByPlaceholderText('value');
+		expect(valueInputs[0]).toHaveValue('hello');
+		expect(valueInputs[1]).toHaveValue('world');
+	});
+
+	it('should render with existing env vars and default description', () => {
+		render(
+			<EnvVarsEditor
+				envVars={{ EXISTING_VAR: 'value' }}
+				setEnvVars={mockSetEnvVars}
+				theme={mockTheme}
+			/>
+		);
+
+		expect(
+			screen.getByText(/Environment variables passed to all terminal sessions/)
+		).toBeInTheDocument();
+	});
+
+	it('should add a new entry with no name when clicking Add Variable', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		// The row starts UNNAMED so the field can offer the suggestion list
+		// instead of a placeholder name the user has to delete first.
+		const inputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		expect(inputs).toHaveLength(1);
+		expect(inputs[0]).toHaveValue('');
+	});
+
+	it('should focus the new row and open its suggestions', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'Add Variable' }));
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		expect(keyInput).toHaveFocus();
+		expect(screen.getByTestId('env-var-key-input-suggestions')).toBeInTheDocument();
+	});
+
+	it('should not steal focus for a blank row that came from the parent', () => {
+		render(<EnvVarsEditor envVars={{ '': '' }} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		// Only the row the user just ASKED for takes the caret; a blank row
+		// restored from disk must leave focus where it was.
+		expect(screen.queryByTestId('env-var-key-input-suggestions')).not.toBeInTheDocument();
+	});
+
+	it('should not send an unnamed row to the parent', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		fireEvent.click(screen.getByRole('button', { name: 'Add Variable' }));
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: 'orphan' } });
+
+		const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+		expect(lastCall).toEqual({});
+	});
+
+	it('should show validation error for invalid variable names', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		// Add a new entry
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		// Change key to invalid name
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'MY-VAR' } });
+
+		expect(screen.getByText(/Invalid variable name/)).toBeInTheDocument();
+	});
+
+	it('should only add valid entries to envVars state (not invalid ones)', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'MY-VAR' } });
+
+		// The setEnvVars should NOT have been called with this invalid entry
+		if (mockSetEnvVars.mock.calls.length > 0) {
+			const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+			expect(lastCall['MY-VAR']).toBeUndefined();
+		}
+	});
+
+	it('should add valid entries and skip invalid entries', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+
+		// Add first valid entry
+		fireEvent.click(addButton);
+		let inputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		fireEvent.change(inputs[inputs.length - 1], { target: { value: 'VALID_VAR' } });
+
+		const valueInputs = screen.getAllByPlaceholderText('value');
+		fireEvent.change(valueInputs[valueInputs.length - 1], { target: { value: 'test_value' } });
+
+		// Add second invalid entry
+		fireEvent.click(addButton);
+		inputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		fireEvent.change(inputs[inputs.length - 1], { target: { value: 'INVALID-VAR' } });
+
+		// Check the last call to setEnvVars
+		const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+
+		// Should include valid entry
+		expect(lastCall['VALID_VAR']).toBe('test_value');
+
+		// Should NOT include invalid entry
+		expect(lastCall['INVALID-VAR']).toBeUndefined();
+	});
+
+	it('should show warning for values with special characters', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'MY_VAR' } });
+
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: 'value&with|special' } });
+
+		expect(screen.getByText(/contains disallowed special characters/)).toBeInTheDocument();
+	});
+
+	it('should remove entries when trash button is clicked', () => {
+		render(
+			<EnvVarsEditor
+				envVars={{ VALID_VAR: 'test' }}
+				setEnvVars={mockSetEnvVars}
+				theme={mockTheme}
+			/>
+		);
+
+		// Add an invalid entry
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		let inputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		fireEvent.change(inputs[inputs.length - 1], { target: { value: 'INVALID-VAR' } });
+
+		// Delete the invalid entry
+		const trashButtons = screen.getAllByRole('button', { name: 'Remove variable' });
+		fireEvent.click(trashButtons[trashButtons.length - 1]);
+
+		// After deletion, only VALID_VAR should remain
+		const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+		expect(lastCall['VALID_VAR']).toBe('test');
+		expect(lastCall['INVALID-VAR']).toBeUndefined();
+	});
+
+	it('should allow empty keys without validation errors', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: '' } });
+
+		// Should not show any validation error for empty key
+		expect(screen.queryByText(/Invalid variable name/)).not.toBeInTheDocument();
+	});
+
+	it('should allow quoted values with special characters', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'MY_VAR' } });
+
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: '"value&with|special"' } });
+
+		// Should NOT show warning - value is quoted
+		expect(screen.queryByText(/contains disallowed special characters/)).not.toBeInTheDocument();
+	});
+
+	it('should allow single-quoted values with special characters', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'MY_VAR' } });
+
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: "'value&with|special'" } });
+
+		expect(screen.queryByText(/contains disallowed special characters/)).not.toBeInTheDocument();
+	});
+
+	it('should reject variable names starting with a number', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: '1VAR' } });
+
+		expect(screen.getByText(/Invalid variable name/)).toBeInTheDocument();
+	});
+
+	it('should accept variable names with underscores', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: '_MY_VAR_123' } });
+
+		expect(screen.queryByText(/Invalid variable name/)).not.toBeInTheDocument();
+	});
+
+	it('should commit value changes to parent', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		// The new row is unnamed, so name it before the value can reach the parent.
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'VAR' } });
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: 'hello_world' } });
+
+		const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+		expect(lastCall['VAR']).toBe('hello_world');
+	});
+
+	it('should handle multiple entries simultaneously', () => {
+		render(
+			<EnvVarsEditor
+				envVars={{ A: '1', B: '2', C: '3' }}
+				setEnvVars={mockSetEnvVars}
+				theme={mockTheme}
+			/>
+		);
+
+		const keyInputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		expect(keyInputs).toHaveLength(3);
+
+		const valueInputs = screen.getAllByPlaceholderText('value');
+		expect(valueInputs).toHaveLength(3);
+
+		// All trash buttons present
+		const trashButtons = screen.getAllByRole('button', { name: 'Remove variable' });
+		expect(trashButtons).toHaveLength(3);
+	});
+
+	it('should hide label and description when set to null', () => {
+		render(
+			<EnvVarsEditor
+				envVars={{ VAR_A: 'a' }}
+				setEnvVars={mockSetEnvVars}
+				theme={mockTheme}
+				label={null}
+				description={null}
+			/>
+		);
+
+		expect(screen.queryByText('Environment Variables (optional)')).not.toBeInTheDocument();
+		expect(
+			screen.queryByText(/Environment variables passed to all terminal sessions/)
+		).not.toBeInTheDocument();
+	});
+
+	it('should leave existing rows alone when adding an unnamed one', () => {
+		render(
+			<EnvVarsEditor
+				envVars={{ VAR: 'a', VAR_1: 'b' }}
+				setEnvVars={mockSetEnvVars}
+				theme={mockTheme}
+			/>
+		);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const inputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+		expect(inputs.map((input) => (input as HTMLInputElement).value)).toEqual(['VAR', 'VAR_1', '']);
+	});
+
+	it('should allow values without special characters', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'PATH' } });
+
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: '/usr/local/bin' } });
+
+		expect(screen.queryByText(/contains disallowed special characters/)).not.toBeInTheDocument();
+		expect(screen.queryByText(/Invalid variable name/)).not.toBeInTheDocument();
+	});
+
+	it('should sync when parent envVars change externally', () => {
+		const { rerender } = render(
+			<EnvVarsEditor envVars={{ OLD: 'val' }} setEnvVars={mockSetEnvVars} theme={mockTheme} />
+		);
+
+		// Verify initial state
+		expect(screen.getByDisplayValue('OLD')).toBeInTheDocument();
+
+		// Rerender with different envVars
+		rerender(
+			<EnvVarsEditor envVars={{ NEW: 'newval' }} setEnvVars={mockSetEnvVars} theme={mockTheme} />
+		);
+
+		// Should show the new variable
+		expect(screen.getByDisplayValue('NEW')).toBeInTheDocument();
+		expect(screen.getByDisplayValue('newval')).toBeInTheDocument();
+		expect(screen.queryByDisplayValue('OLD')).not.toBeInTheDocument();
+	});
+
+	it('rejects a relative CLAUDE_CONFIG_DIR value', () => {
+		// Guards against the real-world typo `sm/Users/pedram/.claude-smash` -
+		// a relative path silently resolved against the main-process cwd at
+		// sample time and pointed at a non-existent dir, producing a phantom
+		// "smash" tab in the Usage Dashboard.
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'CLAUDE_CONFIG_DIR' } });
+
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: 'sm/Users/me/.claude-smash' } });
+
+		expect(screen.getByText(/CLAUDE_CONFIG_DIR must be an absolute path/)).toBeInTheDocument();
+
+		// And the invalid entry must NOT have been committed back to the parent.
+		const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+		expect(lastCall['CLAUDE_CONFIG_DIR']).toBeUndefined();
+	});
+
+	it('accepts an absolute CLAUDE_CONFIG_DIR value', () => {
+		render(<EnvVarsEditor envVars={{}} setEnvVars={mockSetEnvVars} theme={mockTheme} />);
+
+		const addButton = screen.getByRole('button', { name: 'Add Variable' });
+		fireEvent.click(addButton);
+
+		const keyInput = screen.getAllByPlaceholderText('VARIABLE_NAME')[0];
+		fireEvent.change(keyInput, { target: { value: 'CLAUDE_CONFIG_DIR' } });
+
+		const valueInput = screen.getAllByPlaceholderText('value')[0];
+		fireEvent.change(valueInput, { target: { value: '/Users/me/.claude-smash' } });
+
+		expect(screen.queryByText(/must be an absolute path/)).not.toBeInTheDocument();
+		const lastCall = mockSetEnvVars.mock.calls[mockSetEnvVars.mock.calls.length - 1][0];
+		expect(lastCall['CLAUDE_CONFIG_DIR']).toBe('/Users/me/.claude-smash');
+	});
+
+	it('should show = separator between key and value', () => {
+		render(
+			<EnvVarsEditor envVars={{ MY_VAR: 'hello' }} setEnvVars={mockSetEnvVars} theme={mockTheme} />
+		);
+
+		expect(screen.getByText('=')).toBeInTheDocument();
+	});
+
+	describe('disable toggle', () => {
+		let mockSetDisabled: ReturnType<typeof vi.fn>;
+
+		beforeEach(() => {
+			mockSetDisabled = vi.fn();
+		});
+
+		it('shows no eye button when the disabled record is not supplied', () => {
+			render(
+				<EnvVarsEditor
+					envVars={{ MY_VAR: 'hello' }}
+					setEnvVars={mockSetEnvVars}
+					theme={mockTheme}
+				/>
+			);
+
+			expect(screen.queryByTitle(/^Disable /)).not.toBeInTheDocument();
+			expect(screen.queryByTitle(/^Enable /)).not.toBeInTheDocument();
+		});
+
+		it('puts the eye button ahead of the key it switches', () => {
+			// The toggle leads the row rather than sitting between the key and the
+			// `=`. Every row's control then starts at the same x, so a column of
+			// them can be scanned down; wedged mid-row it moved with the key
+			// width and split the `KEY = value` phrase it is not part of.
+			render(
+				<EnvVarsEditor
+					envVars={{ MY_VAR: 'hello' }}
+					setEnvVars={mockSetEnvVars}
+					disabledEnvVars={{}}
+					setDisabledEnvVars={mockSetDisabled}
+					theme={mockTheme}
+				/>
+			);
+
+			const toggle = screen.getByTitle(/^Disable MY_VAR/);
+			const keyInput = screen.getByDisplayValue('MY_VAR');
+
+			expect(toggle.compareDocumentPosition(keyInput) & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+				Node.DOCUMENT_POSITION_FOLLOWING
+			);
+		});
+
+		it('moves a variable out of the effective env when switched off', () => {
+			render(
+				<EnvVarsEditor
+					envVars={{ MY_VAR: 'hello', KEEP: 'yes' }}
+					setEnvVars={mockSetEnvVars}
+					disabledEnvVars={{}}
+					setDisabledEnvVars={mockSetDisabled}
+					theme={mockTheme}
+				/>
+			);
+
+			fireEvent.click(screen.getByTitle(/^Disable MY_VAR/));
+
+			// The value survives - it just moves to the parked record, which is
+			// what lets the user look it up and turn it back on later.
+			expect(mockSetEnvVars).toHaveBeenLastCalledWith({ KEEP: 'yes' });
+			expect(mockSetDisabled).toHaveBeenLastCalledWith({ MY_VAR: 'hello' });
+		});
+
+		it('renders parked variables and puts one back on the effective env', () => {
+			render(
+				<EnvVarsEditor
+					envVars={{ KEEP: 'yes' }}
+					setEnvVars={mockSetEnvVars}
+					disabledEnvVars={{ PARKED: 'later' }}
+					setDisabledEnvVars={mockSetDisabled}
+					theme={mockTheme}
+				/>
+			);
+
+			expect(screen.getByDisplayValue('PARKED')).toBeInTheDocument();
+			expect(screen.getByDisplayValue('later')).toBeInTheDocument();
+
+			fireEvent.click(screen.getByTitle(/^Enable PARKED/));
+
+			expect(mockSetEnvVars).toHaveBeenLastCalledWith({ KEEP: 'yes', PARKED: 'later' });
+			expect(mockSetDisabled).toHaveBeenLastCalledWith({});
+		});
+
+		it('keeps a parked variable editable', () => {
+			render(
+				<EnvVarsEditor
+					envVars={{}}
+					setEnvVars={mockSetEnvVars}
+					disabledEnvVars={{ PARKED: 'old' }}
+					setDisabledEnvVars={mockSetDisabled}
+					theme={mockTheme}
+				/>
+			);
+
+			fireEvent.change(screen.getByDisplayValue('old'), { target: { value: 'new' } });
+
+			expect(mockSetDisabled).toHaveBeenLastCalledWith({ PARKED: 'new' });
+			expect(mockSetEnvVars).toHaveBeenLastCalledWith({});
+		});
+
+		it('does not reorder rows when a variable is toggled', () => {
+			// The parent re-renders with the variable moved between records; the
+			// fingerprint has to treat that as "already applied" or the sync
+			// effect rebuilds the list and the row jumps to the bottom.
+			const { rerender } = render(
+				<EnvVarsEditor
+					envVars={{ FIRST: 'a', SECOND: 'b' }}
+					setEnvVars={mockSetEnvVars}
+					disabledEnvVars={{}}
+					setDisabledEnvVars={mockSetDisabled}
+					theme={mockTheme}
+				/>
+			);
+
+			fireEvent.click(screen.getByTitle(/^Disable FIRST/));
+
+			rerender(
+				<EnvVarsEditor
+					envVars={{ SECOND: 'b' }}
+					setEnvVars={mockSetEnvVars}
+					disabledEnvVars={{ FIRST: 'a' }}
+					setDisabledEnvVars={mockSetDisabled}
+					theme={mockTheme}
+				/>
+			);
+
+			const keyInputs = screen.getAllByPlaceholderText('VARIABLE_NAME');
+			expect(keyInputs[0]).toHaveValue('FIRST');
+			expect(keyInputs[1]).toHaveValue('SECOND');
+			expect(screen.getByTitle(/^Enable FIRST/)).toBeInTheDocument();
+		});
+	});
+});

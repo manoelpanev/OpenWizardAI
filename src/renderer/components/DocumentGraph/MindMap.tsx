@@ -1,0 +1,1702 @@
+/**
+ * MindMap - Deterministic canvas-based mind map visualization.
+ *
+ * A complete rewrite from force-directed graph to a clean, centered mind map layout.
+ * Features:
+ * - Center document displayed prominently in the middle
+ * - Linked documents fan out in alphabetized left/right columns
+ * - External URLs clustered separately at the bottom
+ * - Keyboard navigation support
+ * - Canvas-based rendering for full control
+ * - No physics simulation - deterministic positioning
+ */
+
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Theme } from '../../types';
+import type { GraphNodeData, DocumentNodeData, ExternalLinkNodeData } from './graphDataBuilder';
+import {
+	type MindMapLayoutType,
+	calculateLayout,
+	buildAdjacencyMap,
+	calculateNodeHeight,
+	calculateNodeWidth,
+	NODE_PILL_CHAR_WIDTH,
+	NODE_PILL_CHROME_WIDTH,
+	NODE_HEADER_HEIGHT,
+	NODE_SUBHEADER_HEIGHT,
+	DESC_LINE_HEIGHT,
+	CHARS_PER_LINE,
+	EXTERNAL_NODE_WIDTH,
+	EXTERNAL_NODE_HEIGHT,
+	UNGROUPED_LOBE_ID,
+} from './mindMapLayouts';
+import { isPreviewOff } from './previewCharLimit';
+import { DEFAULT_SCROLL_MODE, type GraphScrollMode } from './scrollMode';
+import { clusterColor, clusterHullStyle } from './clusterColors';
+import { logger } from '../../utils/logger';
+import { GraphMiniMap } from './GraphMiniMap';
+import { useSurfaceFontFamily, useSurfaceFontSize } from '../../hooks/ui/useSurfaceTypography';
+import { BASE_FONT_SIZE_DEFAULT } from '../../../shared/typography';
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Position and visual state for a mind map node
+ */
+export interface MindMapNode {
+	id: string;
+	x: number;
+	y: number;
+	width: number;
+	height: number;
+	depth: number;
+	/** Which band placed this node. `orphan` = unreachable from the center. */
+	side: 'left' | 'right' | 'center' | 'external' | 'orphan';
+	nodeType: 'document' | 'external';
+	label: string;
+	filePath?: string;
+	/** Description from frontmatter */
+	description?: string;
+	/** Plaintext content preview (fallback when no description) */
+	contentPreview?: string;
+	descriptionExpanded?: boolean;
+	domain?: string;
+	urls?: string[];
+	lineCount?: number;
+	wordCount?: number;
+	size?: string;
+	brokenLinks?: string[];
+	/** True when the layout placed this node in the orphan band. */
+	isOrphan?: boolean;
+	isLargeFile?: boolean;
+	isSelected?: boolean;
+	isFocused?: boolean;
+	connectionCount?: number;
+	neighbors?: Set<string>;
+	/** Last-modified time in epoch ms, 0 or undefined when unknown. */
+	mtime?: number;
+	/** Which cluster placed this node. Only the Lobes layout sets these. */
+	clusterId?: string;
+	clusterIndex?: number;
+}
+
+/**
+ * Link between two nodes
+ */
+export interface MindMapLink {
+	source: string;
+	target: string;
+	type: 'internal' | 'external';
+}
+
+/**
+ * Custom node position override
+ */
+export interface NodePositionOverride {
+	x: number;
+	y: number;
+}
+
+/**
+ * Props for the MindMap component
+ */
+export interface MindMapProps {
+	/** Required - the file path of the center document */
+	centerFilePath: string;
+	/** All nodes from graphDataBuilder */
+	nodes: MindMapNode[];
+	/** All links from graphDataBuilder */
+	links: MindMapLink[];
+	/** Current theme */
+	theme: Theme;
+	/** Width of the canvas container */
+	width: number;
+	/** Height of the canvas container */
+	height: number;
+	/** Maximum depth to show (1-5) */
+	maxDepth: number;
+	/** Whether to show external link nodes */
+	showExternalLinks: boolean;
+	/**
+	 * Draw documents the center cannot reach, in a band below the graph.
+	 * Only a scope-mode graph can have any - see `BuildOptions.scopeFiles`.
+	 */
+	showOrphans?: boolean;
+	/** Currently selected node ID */
+	selectedNodeId: string | null;
+	/** Callback when a node is selected */
+	onNodeSelect: (node: MindMapNode | null) => void;
+	/** Callback when a node is double-clicked (recenter on document) */
+	onNodeDoubleClick: (node: MindMapNode) => void;
+	/** Callback when a document node is previewed (Enter or P key) - in-graph preview */
+	onNodePreview?: (node: MindMapNode) => void;
+	/** Callback for context menu */
+	onNodeContextMenu: (node: MindMapNode, event: MouseEvent) => void;
+	/** Callback to open a document in file preview */
+	onOpenFile: (filePath: string) => void;
+	/** Search query for highlighting */
+	searchQuery: string;
+	/** Character limit for preview text (description or content preview) */
+	previewCharLimit?: number;
+	/** Layout algorithm to use for node positioning */
+	layoutType?: MindMapLayoutType;
+	/** Multiplier applied to per-layout spacing constants (1 = default density). */
+	spacingScale?: number;
+	/** Custom position overrides for nodes (from user drag operations) */
+	nodePositions?: Map<string, NodePositionOverride>;
+	/** Callback when a node position is changed via drag */
+	onNodePositionChange?: (nodeId: string, position: NodePositionOverride) => void;
+	/** Optional ref to the container div for external focus control */
+	containerRef?: React.RefObject<HTMLDivElement>;
+	/** Whether the help/legend drawer is open - slides the minimap clear of it */
+	legendExpanded?: boolean;
+	/**
+	 * What the scroll wheel does. `zoom` (the default) zooms toward the cursor
+	 * and pans on Shift; `pan` swaps the two.
+	 */
+	scrollMode?: GraphScrollMode;
+	/**
+	 * Bump this to re-frame the whole graph on screen. It is a token rather than
+	 * a callback because the fit has to happen inside the canvas, which owns the
+	 * transform; the parent only needs to say "now".
+	 */
+	fitToken?: number;
+}
+
+// ============================================================================
+// Rendering Constants (not part of layout algorithms)
+// ============================================================================
+/**
+ * Zoom range. The floor used to be 0.2, which is not far enough out to frame a
+ * graph of any size - the user could not zoom out to see the whole thing no
+ * matter how far they scrolled, which reads as the canvas being broken rather
+ * than as a clamp.
+ */
+const MIN_ZOOM = 0.05;
+const MAX_ZOOM = 3;
+/** Zoom-to-fit never magnifies past 1:1; a three-node graph should not fill the screen. */
+const FIT_MAX_ZOOM = 1;
+
+/** Node corner radius */
+const NODE_BORDER_RADIUS = 12;
+/** Open icon size */
+const OPEN_ICON_SIZE = 14;
+/** Open icon padding from node edge */
+const OPEN_ICON_PADDING = 8;
+/** Historical canvas stack. Canvas cannot read a CSS variable, so an unset
+ *  Document Graph setting still paints exactly as before. */
+const DEFAULT_GRAPH_FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+/** Minimum legible canvas text, floor for {@link graphFontPx} regardless of setting. */
+const MIN_GRAPH_FONT_PX = 8;
+
+/**
+ * Scale a hardcoded canvas font size (tuned at the historical 14px base)
+ * against the resolved Document Graph size, so the "Document Graph" row in
+ * Settings actually changes what paints instead of only the family. Canvas
+ * text has no cascade to inherit a size from, so every ctx.font call must run
+ * its literal px through this rather than the CSS surfaces, which pick the
+ * size up for free via `--maestro-size-document-graph`.
+ */
+function graphFontPx(basePx: number, resolvedFontSize: number): number {
+	return Math.max(
+		MIN_GRAPH_FONT_PX,
+		Math.round((basePx * resolvedFontSize) / BASE_FONT_SIZE_DEFAULT)
+	);
+}
+
+/**
+ * Where the open-file icon sits inside a document node, in canvas space.
+ *
+ * Shared by the renderer and the click hit test so the two cannot drift: the
+ * icon is centred in the title band, which is the header strip on a full card
+ * and the whole node once previews are off and the node is a pill.
+ */
+export function openIconRect(
+	node: Pick<MindMapNode, 'x' | 'y' | 'width' | 'height'>,
+	previewCharLimit: number
+): { x: number; y: number; size: number } {
+	const bandHeight = isPreviewOff(previewCharLimit)
+		? node.height
+		: Math.min(node.height, NODE_HEADER_HEIGHT);
+	return {
+		x: node.x + node.width / 2 - OPEN_ICON_SIZE - OPEN_ICON_PADDING,
+		y: node.y - node.height / 2 + (bandHeight - OPEN_ICON_SIZE) / 2,
+		size: OPEN_ICON_SIZE,
+	};
+}
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+/**
+ * Truncate text to a maximum length with ellipsis
+ */
+function truncateText(text: string, maxLength: number): string {
+	if (text.length <= maxLength) return text;
+	return text.slice(0, maxLength - 3) + '...';
+}
+
+/**
+ * Draw a rounded rectangle path
+ */
+function roundRect(
+	ctx: CanvasRenderingContext2D,
+	x: number,
+	y: number,
+	width: number,
+	height: number,
+	radius: number
+): void {
+	ctx.beginPath();
+	ctx.moveTo(x + radius, y);
+	ctx.lineTo(x + width - radius, y);
+	ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+	ctx.lineTo(x + width, y + height - radius);
+	ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+	ctx.lineTo(x + radius, y + height);
+	ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+	ctx.lineTo(x, y + radius);
+	ctx.quadraticCurveTo(x, y, x + radius, y);
+	ctx.closePath();
+}
+
+/**
+ * Draw an "external link" icon (square with arrow)
+ */
+function drawOpenIcon(
+	ctx: CanvasRenderingContext2D,
+	x: number,
+	y: number,
+	size: number,
+	color: string
+): void {
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 1.5;
+	ctx.lineCap = 'round';
+	ctx.lineJoin = 'round';
+
+	const padding = size * 0.15;
+	const boxSize = size - padding * 2;
+
+	// Draw square
+	ctx.beginPath();
+	ctx.rect(x + padding, y + padding + boxSize * 0.25, boxSize * 0.75, boxSize * 0.75);
+	ctx.stroke();
+
+	// Draw arrow pointing up-right
+	const arrowStart = { x: x + padding + boxSize * 0.35, y: y + padding + boxSize * 0.65 };
+	const arrowEnd = { x: x + padding + boxSize, y: y + padding };
+
+	ctx.beginPath();
+	ctx.moveTo(arrowStart.x, arrowStart.y);
+	ctx.lineTo(arrowEnd.x, arrowEnd.y);
+	ctx.stroke();
+
+	// Arrow head
+	ctx.beginPath();
+	ctx.moveTo(arrowEnd.x - boxSize * 0.3, arrowEnd.y);
+	ctx.lineTo(arrowEnd.x, arrowEnd.y);
+	ctx.lineTo(arrowEnd.x, arrowEnd.y + boxSize * 0.3);
+	ctx.stroke();
+}
+
+/**
+ * Draw a folder icon
+ */
+function drawFolderIcon(
+	ctx: CanvasRenderingContext2D,
+	x: number,
+	y: number,
+	size: number,
+	color: string
+): void {
+	ctx.fillStyle = color;
+	ctx.strokeStyle = color;
+	ctx.lineWidth = 1;
+	ctx.lineCap = 'round';
+	ctx.lineJoin = 'round';
+
+	const w = size;
+	const h = size * 0.75;
+	const tabWidth = w * 0.35;
+	const tabHeight = h * 0.2;
+	const cornerRadius = 1.5;
+
+	// Draw folder shape
+	ctx.beginPath();
+	// Start at bottom left
+	ctx.moveTo(x + cornerRadius, y + h);
+	// Bottom edge
+	ctx.lineTo(x + w - cornerRadius, y + h);
+	// Bottom right corner
+	ctx.quadraticCurveTo(x + w, y + h, x + w, y + h - cornerRadius);
+	// Right edge
+	ctx.lineTo(x + w, y + tabHeight + cornerRadius);
+	// Top right corner
+	ctx.quadraticCurveTo(x + w, y + tabHeight, x + w - cornerRadius, y + tabHeight);
+	// Top edge (right of tab)
+	ctx.lineTo(x + tabWidth + cornerRadius, y + tabHeight);
+	// Tab right corner
+	ctx.lineTo(x + tabWidth, y + cornerRadius);
+	// Tab top corner
+	ctx.quadraticCurveTo(x + tabWidth, y, x + tabWidth - cornerRadius, y);
+	// Tab top edge
+	ctx.lineTo(x + cornerRadius, y);
+	// Top left corner
+	ctx.quadraticCurveTo(x, y, x, y + cornerRadius);
+	// Left edge
+	ctx.lineTo(x, y + h - cornerRadius);
+	// Bottom left corner
+	ctx.quadraticCurveTo(x, y + h, x + cornerRadius, y + h);
+	ctx.closePath();
+	ctx.fill();
+}
+
+/**
+ * Draw a bezier curve link between two nodes
+ */
+function drawLink(
+	ctx: CanvasRenderingContext2D,
+	sourceX: number,
+	sourceY: number,
+	targetX: number,
+	targetY: number,
+	color: string,
+	lineWidth: number,
+	isDashed: boolean = false
+): void {
+	ctx.strokeStyle = color;
+	ctx.lineWidth = lineWidth;
+
+	if (isDashed) {
+		ctx.setLineDash([6, 4]);
+	} else {
+		ctx.setLineDash([]);
+	}
+
+	// Calculate control points for smooth bezier curve
+	const dx = Math.abs(targetX - sourceX);
+	const controlOffset = Math.min(dx * 0.5, 100);
+
+	ctx.beginPath();
+	ctx.moveTo(sourceX, sourceY);
+
+	// Use quadratic bezier for horizontal-ish connections
+	if (Math.abs(sourceY - targetY) < 20) {
+		ctx.lineTo(targetX, targetY);
+	} else {
+		// Use cubic bezier for better curves
+		const cp1x = sourceX + (sourceX < targetX ? controlOffset : -controlOffset);
+		const cp2x = targetX + (targetX < sourceX ? controlOffset : -controlOffset);
+		ctx.bezierCurveTo(cp1x, sourceY, cp2x, targetY, targetX, targetY);
+	}
+
+	ctx.stroke();
+	ctx.setLineDash([]);
+}
+
+// Layout algorithm code has been moved to mindMapLayouts.ts
+// Imports: calculateLayout, buildAdjacencyMap, LayoutResult
+
+// ============================================================================
+// Canvas Rendering
+// ============================================================================
+
+/**
+ * Wrap text to fit within a maximum width, returning lines
+ */
+function wrapText(
+	ctx: CanvasRenderingContext2D,
+	text: string,
+	maxWidth: number,
+	maxLines: number = 2
+): string[] {
+	const words = text.split(' ');
+	const lines: string[] = [];
+	let currentLine = '';
+
+	for (const word of words) {
+		const testLine = currentLine ? `${currentLine} ${word}` : word;
+		const metrics = ctx.measureText(testLine);
+
+		if (metrics.width > maxWidth && currentLine) {
+			lines.push(currentLine);
+			currentLine = word;
+			if (lines.length >= maxLines) break;
+		} else {
+			currentLine = testLine;
+		}
+	}
+
+	if (currentLine && lines.length < maxLines) {
+		lines.push(currentLine);
+	}
+
+	// If we hit maxLines and there's more text, add ellipsis to last line
+	if (lines.length === maxLines && currentLine && !lines.includes(currentLine)) {
+		const lastLine = lines[maxLines - 1];
+		lines[maxLines - 1] = truncateText(lastLine, lastLine.length - 3) + '...';
+	}
+
+	return lines;
+}
+
+/**
+ * Render a document node on the canvas with themed header
+ */
+function renderDocumentNode(
+	ctx: CanvasRenderingContext2D,
+	node: MindMapNode,
+	theme: Theme,
+	isHovered: boolean,
+	matchesSearch: boolean,
+	searchActive: boolean,
+	previewCharLimit: number = 100,
+	// The Document Graph font setting. Canvas needs a real family string - it
+	// cannot read a CSS variable - so it is threaded in rather than inherited.
+	fontFamily: string = DEFAULT_GRAPH_FONT,
+	fontSize: number = BASE_FONT_SIZE_DEFAULT
+): void {
+	const {
+		x,
+		y,
+		width,
+		height,
+		label,
+		description,
+		contentPreview,
+		filePath,
+		isSelected,
+		isFocused,
+		isOrphan,
+		clusterId,
+		clusterIndex,
+	} = node;
+	// Use description (frontmatter) or fall back to contentPreview (plaintext)
+	const previewText = description || contentPreview;
+
+	// Calculate opacity based on search state
+	const alpha = searchActive && !matchesSearch ? 0.3 : 1;
+	ctx.globalAlpha = alpha;
+
+	const nodeLeft = x - width / 2;
+	const nodeTop = y - height / 2;
+
+	// Header fill, shared by the full card and the pill form below.
+	const headerFill =
+		isFocused || isSelected
+			? theme.colors.accent
+			: isHovered
+				? `${theme.colors.accent}CC`
+				: `${theme.colors.accent}99`;
+	// A node in a lobe takes its lobe's colour on the border, so membership is
+	// readable without tracing the hull back - which is exactly what a node
+	// near two hull edges makes hard. Selection, focus, and the orphan warning
+	// all outrank it: those say something about THIS node, and the cluster tint
+	// is only saying which group it is in.
+	// The ungrouped pile is deliberately left untinted: it is not a group, and
+	// giving it a colour of its own would present "these belong to nothing" as
+	// just another finding.
+	const clusterStroke =
+		clusterIndex !== undefined && clusterId !== UNGROUPED_LOBE_ID
+			? clusterColor(theme.colors.accent, clusterIndex)
+			: null;
+	const borderStroke =
+		isFocused || isSelected
+			? theme.colors.accent
+			: isOrphan
+				? theme.colors.warning
+				: isHovered
+					? `${theme.colors.accent}80`
+					: (clusterStroke ?? theme.colors.border);
+
+	// Previews off: the node is a filename pill. No body box, no folder
+	// sub-header, no preview text - just enough to read the graph's shape.
+	if (isPreviewOff(previewCharLimit)) {
+		const radius = height / 2;
+		ctx.fillStyle = headerFill;
+		roundRect(ctx, nodeLeft, nodeTop, width, height, radius);
+		ctx.fill();
+
+		ctx.strokeStyle = borderStroke;
+		ctx.lineWidth = isFocused || isSelected ? 2 : 1;
+		if (isOrphan && !isFocused && !isSelected) ctx.setLineDash([6, 4]);
+		roundRect(ctx, nodeLeft, nodeTop, width, height, radius);
+		ctx.stroke();
+		ctx.setLineDash([]);
+
+		ctx.fillStyle = '#FFFFFF';
+		ctx.font = `600 ${graphFontPx(12, fontSize)}px ${fontFamily}`;
+		ctx.textAlign = 'left';
+		ctx.textBaseline = 'middle';
+		const pillTitleWidth = width - NODE_PILL_CHROME_WIDTH;
+		ctx.fillText(
+			truncateText(label, Math.floor(pillTitleWidth / NODE_PILL_CHAR_WIDTH)),
+			nodeLeft + 14,
+			nodeTop + height / 2
+		);
+
+		const pillIcon = openIconRect(node, previewCharLimit);
+		drawOpenIcon(
+			ctx,
+			pillIcon.x,
+			pillIcon.y,
+			pillIcon.size,
+			isHovered ? '#FFFFFF' : 'rgba(255,255,255,0.7)'
+		);
+
+		ctx.globalAlpha = 1;
+		return;
+	}
+
+	// Draw body background first
+	const bodyColor = theme.colors.bgActivity;
+	ctx.fillStyle = bodyColor;
+	roundRect(ctx, nodeLeft, nodeTop, width, height, NODE_BORDER_RADIUS);
+	ctx.fill();
+
+	// Draw header background (accent colored)
+	ctx.fillStyle = headerFill;
+
+	// Draw header with rounded top corners only
+	ctx.beginPath();
+	ctx.moveTo(nodeLeft + NODE_BORDER_RADIUS, nodeTop);
+	ctx.lineTo(nodeLeft + width - NODE_BORDER_RADIUS, nodeTop);
+	ctx.quadraticCurveTo(nodeLeft + width, nodeTop, nodeLeft + width, nodeTop + NODE_BORDER_RADIUS);
+	ctx.lineTo(nodeLeft + width, nodeTop + NODE_HEADER_HEIGHT);
+	ctx.lineTo(nodeLeft, nodeTop + NODE_HEADER_HEIGHT);
+	ctx.lineTo(nodeLeft, nodeTop + NODE_BORDER_RADIUS);
+	ctx.quadraticCurveTo(nodeLeft, nodeTop, nodeLeft + NODE_BORDER_RADIUS, nodeTop);
+	ctx.closePath();
+	ctx.fill();
+
+	// Draw sub-header background (lighter accent) for folder path
+	const subHeaderColor =
+		isFocused || isSelected ? `${theme.colors.accent}40` : `${theme.colors.accent}25`;
+	ctx.fillStyle = subHeaderColor;
+	ctx.fillRect(nodeLeft, nodeTop + NODE_HEADER_HEIGHT, width, NODE_SUBHEADER_HEIGHT);
+
+	// Draw border around entire node. An orphan gets a dashed warning-colored
+	// border: it sits in its own band already, but the band alone reads as "a
+	// row at the bottom" rather than "these connect to nothing", and the two
+	// must stay distinguishable once the user pans away from the layout.
+	ctx.strokeStyle = borderStroke;
+	ctx.lineWidth = isFocused || isSelected ? 2 : 1;
+	if (isOrphan && !isFocused && !isSelected) ctx.setLineDash([6, 4]);
+	roundRect(ctx, nodeLeft, nodeTop, width, height, NODE_BORDER_RADIUS);
+	ctx.stroke();
+	ctx.setLineDash([]);
+
+	// Title text (in header, white or light colored for contrast)
+	ctx.fillStyle = '#FFFFFF';
+	ctx.font = `600 ${graphFontPx(12, fontSize)}px ${fontFamily}`;
+	ctx.textAlign = 'left';
+	ctx.textBaseline = 'middle';
+	const maxTitleWidth = width - OPEN_ICON_SIZE - OPEN_ICON_PADDING * 3 - 12;
+	const titleText = truncateText(label, Math.floor(maxTitleWidth / 7)); // Approximate char width
+	ctx.fillText(titleText, nodeLeft + 12, nodeTop + NODE_HEADER_HEIGHT / 2);
+
+	// Open file icon (in header, right side)
+	const headerIcon = openIconRect(node, previewCharLimit);
+	drawOpenIcon(
+		ctx,
+		headerIcon.x,
+		headerIcon.y,
+		headerIcon.size,
+		isHovered ? '#FFFFFF' : 'rgba(255,255,255,0.7)'
+	);
+
+	// Sub-header: folder icon and path
+	const subHeaderY = nodeTop + NODE_HEADER_HEIGHT;
+	const folderIconSize = 12;
+	const folderIconX = nodeLeft + 10;
+	const folderIconY = subHeaderY + (NODE_SUBHEADER_HEIGHT - folderIconSize * 0.75) / 2;
+	const folderColor = isFocused || isSelected ? theme.colors.accent : `${theme.colors.accent}CC`;
+	drawFolderIcon(ctx, folderIconX, folderIconY, folderIconSize, folderColor);
+
+	// Folder path text (extract directory from filePath)
+	if (filePath) {
+		const pathParts = filePath.split('/');
+		pathParts.pop(); // Remove filename
+		const folderPath = pathParts.length > 0 ? pathParts.join('/') : './';
+
+		ctx.fillStyle = theme.colors.textDim;
+		ctx.font = `${graphFontPx(10, fontSize)}px ${fontFamily}`;
+		ctx.textAlign = 'left';
+		ctx.textBaseline = 'middle';
+
+		const maxPathWidth = width - folderIconSize - 24;
+		const pathText = truncateText(folderPath || './', Math.floor(maxPathWidth / 5.5));
+		ctx.fillText(
+			pathText,
+			folderIconX + folderIconSize + 6,
+			subHeaderY + NODE_SUBHEADER_HEIGHT / 2
+		);
+	}
+
+	// Preview text (description or content preview, in body, if present)
+	if (previewText) {
+		ctx.fillStyle = theme.colors.textDim;
+		ctx.font = `${graphFontPx(11, fontSize)}px ${fontFamily}`;
+		ctx.textAlign = 'left';
+		ctx.textBaseline = 'top';
+
+		const bodyPadding = 10;
+		const maxDescWidth = width - bodyPadding * 2;
+		// Truncate preview text based on character limit before wrapping
+		const truncatedPreview =
+			previewText.length > previewCharLimit
+				? previewText.slice(0, previewCharLimit).trim() + '...'
+				: previewText;
+		// Calculate max lines based on character limit (same formula as calculateNodeHeight)
+		const estimatedMaxLines = Math.max(
+			2,
+			Math.min(Math.ceil(previewCharLimit / CHARS_PER_LINE), 15)
+		);
+		const descLines = wrapText(ctx, truncatedPreview, maxDescWidth, estimatedMaxLines);
+
+		const lineHeight = DESC_LINE_HEIGHT;
+		const descStartY = nodeTop + NODE_HEADER_HEIGHT + NODE_SUBHEADER_HEIGHT + bodyPadding;
+
+		descLines.forEach((line, i) => {
+			ctx.fillText(line, nodeLeft + bodyPadding, descStartY + i * lineHeight);
+		});
+	}
+
+	ctx.globalAlpha = 1;
+}
+
+/**
+ * Render an external node on the canvas
+ */
+function renderExternalNode(
+	ctx: CanvasRenderingContext2D,
+	node: MindMapNode,
+	theme: Theme,
+	isHovered: boolean,
+	matchesSearch: boolean,
+	searchActive: boolean,
+	fontFamily: string = DEFAULT_GRAPH_FONT,
+	fontSize: number = BASE_FONT_SIZE_DEFAULT
+): void {
+	const { x, y, width, height, domain, isSelected, isFocused } = node;
+
+	// Calculate opacity based on search state
+	const alpha = searchActive && !matchesSearch ? 0.3 : 1;
+
+	ctx.globalAlpha = alpha;
+
+	// Pill background
+	ctx.fillStyle = theme.colors.bgMain;
+	roundRect(ctx, x - width / 2, y - height / 2, width, height, height / 2);
+	ctx.fill();
+
+	// Border
+	ctx.strokeStyle =
+		isFocused || isSelected
+			? theme.colors.accent
+			: isHovered
+				? theme.colors.textDim
+				: `${theme.colors.border}80`;
+	ctx.lineWidth = 1;
+	roundRect(ctx, x - width / 2, y - height / 2, width, height, height / 2);
+	ctx.stroke();
+
+	// Domain text
+	ctx.fillStyle = theme.colors.textDim;
+	ctx.font = `${graphFontPx(11, fontSize)}px ${fontFamily}`;
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+	ctx.fillText(truncateText(domain || '', 18), x, y);
+
+	ctx.globalAlpha = 1;
+}
+
+// ============================================================================
+// MindMap Component
+// ============================================================================
+
+/**
+ * MindMap component - renders the deterministic mind map visualization
+ */
+export function MindMap({
+	centerFilePath,
+	nodes: rawNodes,
+	links: rawLinks,
+	theme,
+	width,
+	height,
+	maxDepth,
+	showExternalLinks,
+	showOrphans = false,
+	selectedNodeId,
+	onNodeSelect,
+	onNodeDoubleClick,
+	onNodePreview,
+	onNodeContextMenu,
+	onOpenFile,
+	searchQuery,
+	previewCharLimit = 100,
+	layoutType = 'hierarchical',
+	spacingScale = 1,
+	nodePositions,
+	onNodePositionChange,
+	containerRef: externalContainerRef,
+	legendExpanded = false,
+	fitToken = 0,
+	scrollMode = DEFAULT_SCROLL_MODE,
+}: MindMapProps) {
+	// Canvas measures and paints glyphs itself, so it needs a resolved family
+	// string and a resolved px size rather than the CSS variables the DOM
+	// surfaces inherit.
+	const graphFontFamily = useSurfaceFontFamily('documentGraph');
+	const graphFontSize = useSurfaceFontSize('documentGraph');
+
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+	const internalContainerRef = useRef<HTMLDivElement>(null);
+	// Use external ref if provided, otherwise use internal ref
+	const containerRef = externalContainerRef || internalContainerRef;
+
+	// State - combine zoom and pan into single transform state to avoid jitter
+	const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+	const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
+	const [transform, setTransform] = useState({ zoom: 1, panX: 0, panY: 0 });
+	const [isPanning, setIsPanning] = useState(false);
+	const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+
+	// Node dragging state
+	const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+	const [nodeDragStart, setNodeDragStart] = useState({ nodeX: 0, nodeY: 0, mouseX: 0, mouseY: 0 });
+
+	// Derived values for convenience
+	const zoom = transform.zoom;
+	const pan = { x: transform.panX, y: transform.panY };
+
+	// Double-click detection
+	const lastClickRef = useRef<{ nodeId: string; time: number } | null>(null);
+	const DOUBLE_CLICK_THRESHOLD = 300;
+
+	// Memoize adjacency map - only rebuilds when links change
+	const adjacencyMap = useMemo(() => buildAdjacencyMap(rawLinks), [rawLinks]);
+
+	// Calculate layout using the selected algorithm
+	const layout = useMemo(() => {
+		return calculateLayout(
+			layoutType,
+			rawNodes,
+			rawLinks,
+			adjacencyMap,
+			centerFilePath,
+			maxDepth,
+			width,
+			height,
+			showExternalLinks,
+			previewCharLimit,
+			spacingScale,
+			showOrphans
+		);
+	}, [
+		layoutType,
+		rawNodes,
+		rawLinks,
+		adjacencyMap,
+		centerFilePath,
+		maxDepth,
+		width,
+		height,
+		showExternalLinks,
+		previewCharLimit,
+		spacingScale,
+		showOrphans,
+	]);
+
+	// Set initial focus to center node when center file changes
+	useEffect(() => {
+		const centerNode = layout.nodes.find((n) => n.isFocused);
+		if (centerNode) {
+			setFocusedNodeId(centerNode.id);
+			onNodeSelect(centerNode);
+		}
+	}, [centerFilePath]); // Only trigger when center file changes, not on every layout/callback update
+
+	// Sync focusedNodeId when selectedNodeId changes from parent (e.g., returning from search)
+	useEffect(() => {
+		if (selectedNodeId && selectedNodeId !== focusedNodeId) {
+			setFocusedNodeId(selectedNodeId);
+		}
+	}, [selectedNodeId, focusedNodeId]);
+
+	// Apply selection state and custom positions to nodes
+	const nodesWithState = useMemo(() => {
+		return layout.nodes.map((node) => {
+			const customPos = nodePositions?.get(node.id);
+			return {
+				...node,
+				// Apply custom position if available
+				x: customPos?.x ?? node.x,
+				y: customPos?.y ?? node.y,
+				isSelected: node.id === selectedNodeId,
+			};
+		});
+	}, [layout.nodes, selectedNodeId, nodePositions]);
+
+	// Check if node matches search
+	const nodeMatchesSearch = useCallback(
+		(node: MindMapNode): boolean => {
+			if (!searchQuery.trim()) return true;
+			const query = searchQuery.toLowerCase();
+
+			if (node.nodeType === 'document') {
+				return (
+					(node.label?.toLowerCase().includes(query) ?? false) ||
+					(node.filePath?.toLowerCase().includes(query) ?? false) ||
+					(node.description?.toLowerCase().includes(query) ?? false) ||
+					(node.contentPreview?.toLowerCase().includes(query) ?? false)
+				);
+			} else {
+				return (
+					(node.domain?.toLowerCase().includes(query) ?? false) ||
+					(node.urls?.some((url) => url.toLowerCase().includes(query)) ?? false)
+				);
+			}
+		},
+		[searchQuery]
+	);
+
+	// Convert screen coordinates to canvas coordinates
+	const screenToCanvas = useCallback(
+		(screenX: number, screenY: number) => {
+			const rect = canvasRef.current?.getBoundingClientRect();
+			if (!rect) return { x: screenX, y: screenY };
+
+			return {
+				x: (screenX - rect.left - pan.x) / zoom,
+				y: (screenY - rect.top - pan.y) / zoom,
+			};
+		},
+		[pan, zoom]
+	);
+
+	// Find node at canvas coordinates
+	const findNodeAtPoint = useCallback(
+		(canvasX: number, canvasY: number): MindMapNode | null => {
+			// Check in reverse order so top-most nodes are found first
+			for (let i = nodesWithState.length - 1; i >= 0; i--) {
+				const node = nodesWithState[i];
+				const halfWidth = node.width / 2;
+				const halfHeight = node.height / 2;
+
+				if (
+					canvasX >= node.x - halfWidth &&
+					canvasX <= node.x + halfWidth &&
+					canvasY >= node.y - halfHeight &&
+					canvasY <= node.y + halfHeight
+				) {
+					return node;
+				}
+			}
+			return null;
+		},
+		[nodesWithState]
+	);
+
+	// Check if click is on the open icon
+	const isClickOnOpenIcon = useCallback(
+		(node: MindMapNode, canvasX: number, canvasY: number): boolean => {
+			if (node.nodeType !== 'document') return false;
+
+			const icon = openIconRect(node, previewCharLimit);
+
+			return (
+				canvasX >= icon.x &&
+				canvasX <= icon.x + icon.size &&
+				canvasY >= icon.y &&
+				canvasY <= icon.y + icon.size
+			);
+		},
+		[previewCharLimit]
+	);
+
+	// Recenter the main view on a canvas-space point (used by the minimap).
+	const recenterOnCanvasPoint = useCallback(
+		(canvasX: number, canvasY: number) => {
+			setTransform((prev) => ({
+				...prev,
+				panX: width / 2 - canvasX * prev.zoom,
+				panY: height / 2 - canvasY * prev.zoom,
+			}));
+		},
+		[width, height]
+	);
+
+	// Render the canvas
+	const render = useCallback(() => {
+		const canvas = canvasRef.current;
+		const ctx = canvas?.getContext('2d');
+		if (!canvas || !ctx) return;
+
+		// Set canvas size for high DPI
+		const dpr = window.devicePixelRatio || 1;
+		canvas.width = width * dpr;
+		canvas.height = height * dpr;
+		ctx.scale(dpr, dpr);
+
+		// Clear canvas
+		ctx.fillStyle = theme.colors.bgMain;
+		ctx.fillRect(0, 0, width, height);
+
+		// Apply transformations
+		ctx.save();
+		ctx.translate(pan.x, pan.y);
+		ctx.scale(zoom, zoom);
+
+		// Cluster hulls sit behind everything. Only Lobes emits any, and without
+		// them that layout is indistinguishable from Force - both relax nodes
+		// with links pulling and charge pushing, so a lobe that is not DRAWN as
+		// a lobe is just a differently-seeded force graph.
+		if (layout.clusters && layout.clusters.length > 0) {
+			ctx.save();
+			layout.clusters.forEach((cluster) => {
+				if (cluster.hull.length < 3) return;
+				const ungrouped = cluster.id === UNGROUPED_LOBE_ID;
+				const { fill, stroke } = clusterHullStyle(theme.colors.accent, cluster.index, ungrouped);
+
+				ctx.beginPath();
+				ctx.moveTo(cluster.hull[0].x, cluster.hull[0].y);
+				// A rounded path through the hull: a lobe is an organic grouping,
+				// and a hard polygon reads as a selection marquee.
+				for (let i = 1; i <= cluster.hull.length; i++) {
+					const current = cluster.hull[i % cluster.hull.length];
+					const next = cluster.hull[(i + 1) % cluster.hull.length];
+					ctx.quadraticCurveTo(
+						current.x,
+						current.y,
+						(current.x + next.x) / 2,
+						(current.y + next.y) / 2
+					);
+				}
+				ctx.closePath();
+
+				ctx.fillStyle = fill;
+				ctx.fill();
+				ctx.strokeStyle = stroke;
+				ctx.lineWidth = 2;
+				if (ungrouped) ctx.setLineDash([8, 6]);
+				ctx.stroke();
+				ctx.setLineDash([]);
+
+				ctx.fillStyle = ungrouped ? theme.colors.textDim : stroke;
+				ctx.font = `600 ${graphFontPx(13, graphFontSize)}px ${graphFontFamily}`;
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillText(cluster.label, cluster.labelX, cluster.labelY);
+			});
+			ctx.restore();
+		}
+
+		// Axis captions sit behind everything. Only Timeline emits any - a time
+		// axis with no dates on it is just an arbitrary left-to-right ordering.
+		if (layout.axisLabels && layout.axisLabels.length > 0) {
+			ctx.save();
+			ctx.font = `600 ${graphFontPx(13, graphFontSize)}px ${graphFontFamily}`;
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			layout.axisLabels.forEach((label) => {
+				if (label.ruleHeight) {
+					ctx.strokeStyle = `${theme.colors.border}80`;
+					ctx.lineWidth = 1;
+					ctx.beginPath();
+					ctx.moveTo(label.x, label.y + 14);
+					ctx.lineTo(label.x, label.y + 14 + label.ruleHeight);
+					ctx.stroke();
+				}
+				ctx.fillStyle = theme.colors.textDim;
+				ctx.fillText(label.text, label.x, label.y);
+			});
+			ctx.restore();
+		}
+
+		// Render links first (behind nodes)
+		const nodeMap = new Map(nodesWithState.map((n) => [n.id, n]));
+		layout.links.forEach((link) => {
+			const sourceNode = nodeMap.get(link.source);
+			const targetNode = nodeMap.get(link.target);
+			if (!sourceNode || !targetNode) return;
+
+			const isHighlighted =
+				sourceNode.id === selectedNodeId ||
+				targetNode.id === selectedNodeId ||
+				sourceNode.id === hoveredNodeId ||
+				targetNode.id === hoveredNodeId;
+
+			const color = isHighlighted
+				? `${theme.colors.accent}CC`
+				: link.type === 'external'
+					? `${theme.colors.textDim}44`
+					: `${theme.colors.textDim}66`;
+
+			const lineWidth = isHighlighted ? 3 : 1.5;
+
+			// Calculate connection points based on node positions
+			let sourceX = sourceNode.x;
+			let targetX = targetNode.x;
+
+			// Adjust connection points to node edges
+			if (sourceNode.x < targetNode.x) {
+				sourceX = sourceNode.x + sourceNode.width / 2;
+				targetX = targetNode.x - targetNode.width / 2;
+			} else if (sourceNode.x > targetNode.x) {
+				sourceX = sourceNode.x - sourceNode.width / 2;
+				targetX = targetNode.x + targetNode.width / 2;
+			}
+
+			drawLink(
+				ctx,
+				sourceX,
+				sourceNode.y,
+				targetX,
+				targetNode.y,
+				color,
+				lineWidth,
+				link.type === 'external'
+			);
+		});
+
+		// Render nodes
+		const searchActive = searchQuery.trim().length > 0;
+		nodesWithState.forEach((node) => {
+			const isHovered = node.id === hoveredNodeId;
+			const matchesSearch = nodeMatchesSearch(node);
+
+			if (node.nodeType === 'document') {
+				renderDocumentNode(
+					ctx,
+					node,
+					theme,
+					isHovered,
+					matchesSearch,
+					searchActive,
+					previewCharLimit,
+					graphFontFamily,
+					graphFontSize
+				);
+			} else {
+				renderExternalNode(
+					ctx,
+					node,
+					theme,
+					isHovered,
+					matchesSearch,
+					searchActive,
+					graphFontFamily,
+					graphFontSize
+				);
+			}
+		});
+
+		ctx.restore();
+
+		// Draw keyboard focus indicator (outside transform for crisp rendering)
+		if (focusedNodeId) {
+			const focusedNode = nodesWithState.find((n) => n.id === focusedNodeId);
+			if (focusedNode) {
+				ctx.save();
+				ctx.translate(pan.x, pan.y);
+				ctx.scale(zoom, zoom);
+
+				ctx.strokeStyle = theme.colors.accent;
+				ctx.lineWidth = 3;
+				ctx.setLineDash([4, 4]);
+				roundRect(
+					ctx,
+					focusedNode.x - focusedNode.width / 2 - 4,
+					focusedNode.y - focusedNode.height / 2 - 4,
+					focusedNode.width + 8,
+					focusedNode.height + 8,
+					NODE_BORDER_RADIUS + 4
+				);
+				ctx.stroke();
+				ctx.setLineDash([]);
+
+				ctx.restore();
+			}
+		}
+	}, [
+		width,
+		height,
+		theme,
+		pan,
+		zoom,
+		nodesWithState,
+		layout.links,
+		layout.axisLabels,
+		layout.clusters,
+		selectedNodeId,
+		hoveredNodeId,
+		focusedNodeId,
+		searchQuery,
+		nodeMatchesSearch,
+		graphFontFamily,
+		graphFontSize,
+	]);
+
+	// Render on changes
+	useEffect(() => {
+		render();
+	}, [render]);
+
+	/**
+	 * Frame the whole graph in the viewport.
+	 *
+	 * Centering on the focus node at whatever zoom happened to be current is
+	 * what made a large graph unreadable: the content is thousands of pixels
+	 * across, so the user lands on one node with the rest off screen and no
+	 * amount of scrolling brings it back into view.
+	 */
+	const fitToView = useCallback(() => {
+		const { minX, maxX, minY, maxY } = layout.bounds;
+		const contentWidth = maxX - minX;
+		const contentHeight = maxY - minY;
+		if (contentWidth <= 0 || contentHeight <= 0 || width <= 0 || height <= 0) return;
+
+		const zoomToFit = Math.min(width / contentWidth, height / contentHeight);
+		const nextZoom = Math.min(FIT_MAX_ZOOM, Math.max(MIN_ZOOM, zoomToFit));
+		const contentCenterX = (minX + maxX) / 2;
+		const contentCenterY = (minY + maxY) / 2;
+
+		setTransform({
+			zoom: nextZoom,
+			panX: width / 2 - contentCenterX * nextZoom,
+			panY: height / 2 - contentCenterY * nextZoom,
+		});
+	}, [layout.bounds, width, height]);
+
+	// Frame the graph on mount, and whenever the thing being drawn changes shape
+	// (new center, new layout algorithm). Not on every `layout` identity: node
+	// drags rebuild it too, and re-framing under a drag fights the user.
+	useEffect(() => {
+		if (layout.nodes.length > 0) {
+			fitToView();
+		}
+	}, [centerFilePath, layoutType, previewCharLimit, width, height]);
+
+	// Explicit re-fit requested by the parent (the `F` key).
+	useEffect(() => {
+		if (fitToken > 0) {
+			fitToView();
+		}
+	}, [fitToken]);
+
+	// Mouse event handlers
+	const handleMouseDown = useCallback(
+		(e: React.MouseEvent) => {
+			const { x, y } = screenToCanvas(e.clientX, e.clientY);
+			const node = findNodeAtPoint(x, y);
+
+			if (node) {
+				// Check if clicking on open icon
+				if (node.nodeType === 'document' && node.filePath && isClickOnOpenIcon(node, x, y)) {
+					onOpenFile(node.filePath);
+					return;
+				}
+
+				// Handle click/double-click on node
+				const now = Date.now();
+				const lastClick = lastClickRef.current;
+
+				if (
+					lastClick &&
+					lastClick.nodeId === node.id &&
+					now - lastClick.time < DOUBLE_CLICK_THRESHOLD
+				) {
+					// Double-click - trigger re-layout with this node as center
+					onNodeDoubleClick(node);
+					lastClickRef.current = null;
+				} else {
+					// Single click - select node and start drag
+					onNodeSelect(node);
+					setFocusedNodeId(node.id);
+					lastClickRef.current = { nodeId: node.id, time: now };
+
+					// Start node drag
+					setDraggingNodeId(node.id);
+					setNodeDragStart({
+						nodeX: node.x,
+						nodeY: node.y,
+						mouseX: e.clientX,
+						mouseY: e.clientY,
+					});
+				}
+			} else {
+				// Click on background - start panning
+				setIsPanning(true);
+				setPanStart({ x: e.clientX - transform.panX, y: e.clientY - transform.panY });
+				onNodeSelect(null);
+				setFocusedNodeId(null);
+			}
+		},
+		[
+			screenToCanvas,
+			findNodeAtPoint,
+			isClickOnOpenIcon,
+			onOpenFile,
+			onNodeDoubleClick,
+			onNodeSelect,
+			transform.panX,
+			transform.panY,
+		]
+	);
+
+	const handleMouseMove = useCallback(
+		(e: React.MouseEvent) => {
+			if (draggingNodeId && onNodePositionChange) {
+				// Dragging a node - calculate new position
+				const deltaX = (e.clientX - nodeDragStart.mouseX) / zoom;
+				const deltaY = (e.clientY - nodeDragStart.mouseY) / zoom;
+				const newX = nodeDragStart.nodeX + deltaX;
+				const newY = nodeDragStart.nodeY + deltaY;
+
+				onNodePositionChange(draggingNodeId, { x: newX, y: newY });
+
+				// Update cursor
+				if (canvasRef.current) {
+					canvasRef.current.style.cursor = 'grabbing';
+				}
+			} else if (isPanning) {
+				setTransform((prev) => ({
+					...prev,
+					panX: e.clientX - panStart.x,
+					panY: e.clientY - panStart.y,
+				}));
+			} else {
+				const { x, y } = screenToCanvas(e.clientX, e.clientY);
+				const node = findNodeAtPoint(x, y);
+				setHoveredNodeId(node?.id ?? null);
+
+				// Update cursor
+				if (canvasRef.current) {
+					canvasRef.current.style.cursor = node ? 'grab' : 'default';
+				}
+			}
+		},
+		[
+			draggingNodeId,
+			nodeDragStart,
+			zoom,
+			onNodePositionChange,
+			isPanning,
+			panStart,
+			screenToCanvas,
+			findNodeAtPoint,
+		]
+	);
+
+	const handleMouseUp = useCallback(() => {
+		setDraggingNodeId(null);
+		setIsPanning(false);
+		if (canvasRef.current) {
+			canvasRef.current.style.cursor = hoveredNodeId ? 'grab' : 'default';
+		}
+	}, [hoveredNodeId]);
+
+	const handleMouseLeave = useCallback(() => {
+		setDraggingNodeId(null);
+		setIsPanning(false);
+		setHoveredNodeId(null);
+	}, []);
+
+	const handleContextMenu = useCallback(
+		(e: React.MouseEvent) => {
+			e.preventDefault();
+			const { x, y } = screenToCanvas(e.clientX, e.clientY);
+			const node = findNodeAtPoint(x, y);
+
+			if (node) {
+				onNodeContextMenu(node, e.nativeEvent);
+			}
+		},
+		[screenToCanvas, findNodeAtPoint, onNodeContextMenu]
+	);
+
+	// The live scroll mode, read through a ref so the wheel handler below can
+	// stay a stable callback. Rebuilding it on every mode change would detach
+	// and reattach the listener, and a trackpad's momentum scroll keeps
+	// delivering events across that gap.
+	const scrollModeRef = useRef(scrollMode);
+	scrollModeRef.current = scrollMode;
+
+	// Wheel handler - must be attached manually with passive: false.
+	// Uses functional updater to avoid stale closures and jitter.
+	//
+	// Which gesture zooms and which pans is the user's choice (the `S` key, the
+	// toolbar pill, the Help panel toggle). Shift always reaches the OTHER
+	// action, so both are available in either mode.
+	const handleWheel = useCallback((e: WheelEvent) => {
+		e.preventDefault();
+
+		const rect = canvasRef.current?.getBoundingClientRect();
+		if (!rect) return;
+
+		// Shift inverts the mode rather than naming an action, which is what
+		// keeps the modifier meaningful in both: in Zoom mode it pans (as it
+		// always has, mirroring the Cue pipeline canvas), and in Pan mode it
+		// zooms, so a user who switched to Pan has not lost access to zoom.
+		const panning = (scrollModeRef.current === 'pan') !== e.shiftKey;
+
+		if (panning) {
+			// Browsers translate a vertical mouse wheel into deltaX while Shift
+			// is held, and trackpads report deltaX/deltaY directly, so
+			// subtracting both axes covers every device (the unused axis is ~0).
+			setTransform((prev) => ({
+				...prev,
+				panX: prev.panX - e.deltaX,
+				panY: prev.panY - e.deltaY,
+			}));
+			return;
+		}
+
+		const mouseX = e.clientX - rect.left;
+		const mouseY = e.clientY - rect.top;
+
+		setTransform((prev) => {
+			// Calculate new zoom
+			const delta = -e.deltaY * 0.001;
+			const newZoom = Math.min(Math.max(prev.zoom + delta * prev.zoom, MIN_ZOOM), MAX_ZOOM);
+
+			// Adjust pan to zoom towards mouse position
+			const zoomRatio = newZoom / prev.zoom;
+			const newPanX = mouseX - (mouseX - prev.panX) * zoomRatio;
+			const newPanY = mouseY - (mouseY - prev.panY) * zoomRatio;
+
+			return { zoom: newZoom, panX: newPanX, panY: newPanY };
+		});
+	}, []); // No dependencies - stable callback
+
+	// Attach wheel event listener with passive: false to allow preventDefault
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		canvas.addEventListener('wheel', handleWheel, { passive: false });
+		return () => {
+			canvas.removeEventListener('wheel', handleWheel);
+		};
+	}, [handleWheel]);
+
+	// Keyboard navigation
+	const handleKeyDown = useCallback(
+		(e: React.KeyboardEvent) => {
+			if (!focusedNodeId) {
+				// If no node is focused, focus the center node on any arrow key
+				if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+					const centerNode = nodesWithState.find((n) => n.isFocused);
+					if (centerNode) {
+						setFocusedNodeId(centerNode.id);
+						onNodeSelect(centerNode);
+					}
+					e.preventDefault();
+				}
+				return;
+			}
+
+			const focusedNode = nodesWithState.find((n) => n.id === focusedNodeId);
+			if (!focusedNode) return;
+
+			// Spatial navigation based on X/Y coordinates
+			// Column threshold: nodes within this X distance are considered same column
+			const COLUMN_THRESHOLD = 50;
+
+			// Find nodes in same column (similar X coordinate)
+			const sameColumn = nodesWithState.filter(
+				(n) => n.id !== focusedNodeId && Math.abs(n.x - focusedNode.x) < COLUMN_THRESHOLD
+			);
+
+			// Find nodes to the left (X is smaller)
+			const leftNodes = nodesWithState.filter((n) => n.x < focusedNode.x - COLUMN_THRESHOLD);
+
+			// Find nodes to the right (X is larger)
+			const rightNodes = nodesWithState.filter((n) => n.x > focusedNode.x + COLUMN_THRESHOLD);
+
+			let nextNode: MindMapNode | undefined;
+
+			switch (e.key) {
+				case 'ArrowUp':
+					// Find closest node above in same column (smaller Y)
+					nextNode = sameColumn.filter((n) => n.y < focusedNode.y).sort((a, b) => b.y - a.y)[0]; // Closest above (largest Y that's still smaller)
+					e.preventDefault();
+					break;
+
+				case 'ArrowDown':
+					// Find closest node below in same column (larger Y)
+					nextNode = sameColumn.filter((n) => n.y > focusedNode.y).sort((a, b) => a.y - b.y)[0]; // Closest below (smallest Y that's still larger)
+					e.preventDefault();
+					break;
+
+				case 'ArrowLeft':
+					// Find closest node to the left, preferring similar Y position
+					nextNode = leftNodes.sort((a, b) => {
+						// Primary: prefer nodes in the closest column (largest X)
+						// Secondary: prefer nodes at similar Y position
+						const xDiffA = focusedNode.x - a.x;
+						const xDiffB = focusedNode.x - b.x;
+						const yDistA = Math.abs(a.y - focusedNode.y);
+						const yDistB = Math.abs(b.y - focusedNode.y);
+						// Group by column (nodes with similar X), then sort by Y distance
+						if (Math.abs(xDiffA - xDiffB) < COLUMN_THRESHOLD) {
+							return yDistA - yDistB;
+						}
+						return xDiffA - xDiffB; // Prefer closer columns
+					})[0];
+					e.preventDefault();
+					break;
+
+				case 'ArrowRight':
+					// Find closest node to the right, preferring similar Y position
+					nextNode = rightNodes.sort((a, b) => {
+						// Primary: prefer nodes in the closest column (smallest X)
+						// Secondary: prefer nodes at similar Y position
+						const xDiffA = a.x - focusedNode.x;
+						const xDiffB = b.x - focusedNode.x;
+						const yDistA = Math.abs(a.y - focusedNode.y);
+						const yDistB = Math.abs(b.y - focusedNode.y);
+						// Group by column (nodes with similar X), then sort by Y distance
+						if (Math.abs(xDiffA - xDiffB) < COLUMN_THRESHOLD) {
+							return yDistA - yDistB;
+						}
+						return xDiffA - xDiffB; // Prefer closer columns
+					})[0];
+					e.preventDefault();
+					break;
+
+				case 'Enter':
+					// Open in-graph preview for focused document node
+					if (focusedNode.nodeType === 'document' && onNodePreview) {
+						onNodePreview(focusedNode);
+					} else if (focusedNode.nodeType === 'external' && focusedNode.urls?.[0]) {
+						// Open external URL
+						window.open(focusedNode.urls[0], '_blank');
+					}
+					e.preventDefault();
+					break;
+
+				case ' ':
+					// Recenter graph on focused document node (Space bar)
+					if (focusedNode.nodeType === 'document') {
+						onNodeDoubleClick(focusedNode);
+					}
+					e.preventDefault();
+					break;
+
+				case 'o':
+				case 'O':
+					// Open focused document in main file preview
+					if (focusedNode.nodeType === 'document' && focusedNode.filePath) {
+						onOpenFile(focusedNode.filePath);
+					}
+					e.preventDefault();
+					break;
+
+				// `P` is deliberately NOT handled here. It used to be a second
+				// spelling of Enter (open the in-graph preview), which spent a
+				// letter key on a duplicate; it now cycles the preview length in
+				// DocumentGraphView, so this handler must let it bubble.
+			}
+
+			if (nextNode) {
+				setFocusedNodeId(nextNode.id);
+				onNodeSelect(nextNode);
+
+				// Pan to keep focused node visible
+				setTransform((prev) => {
+					const nodeScreenX = nextNode.x * prev.zoom + prev.panX;
+					const nodeScreenY = nextNode.y * prev.zoom + prev.panY;
+					const padding = 100;
+
+					let newPanX = prev.panX;
+					let newPanY = prev.panY;
+
+					if (nodeScreenX < padding) {
+						newPanX = padding - nextNode.x * prev.zoom;
+					} else if (nodeScreenX > width - padding) {
+						newPanX = width - padding - nextNode.x * prev.zoom;
+					}
+
+					if (nodeScreenY < padding) {
+						newPanY = padding - nextNode.y * prev.zoom;
+					} else if (nodeScreenY > height - padding) {
+						newPanY = height - padding - nextNode.y * prev.zoom;
+					}
+
+					if (newPanX !== prev.panX || newPanY !== prev.panY) {
+						return { ...prev, panX: newPanX, panY: newPanY };
+					}
+					return prev;
+				});
+			}
+		},
+		[
+			focusedNodeId,
+			nodesWithState,
+			onNodeSelect,
+			onNodeDoubleClick,
+			onNodePreview,
+			onOpenFile,
+			width,
+			height,
+		]
+	);
+
+	return (
+		<div
+			ref={containerRef}
+			className="relative w-full h-full outline-none"
+			tabIndex={0}
+			onKeyDown={handleKeyDown}
+		>
+			<canvas
+				ref={canvasRef}
+				style={{
+					width,
+					height,
+					cursor: draggingNodeId || isPanning ? 'grabbing' : hoveredNodeId ? 'grab' : 'default',
+				}}
+				onMouseDown={handleMouseDown}
+				onMouseMove={handleMouseMove}
+				onMouseUp={handleMouseUp}
+				onMouseLeave={handleMouseLeave}
+				onContextMenu={handleContextMenu}
+			/>
+			<GraphMiniMap
+				nodes={nodesWithState}
+				theme={theme}
+				viewWidth={width}
+				viewHeight={height}
+				transform={transform}
+				onRecenter={recenterOnCanvasPoint}
+				legendExpanded={legendExpanded}
+				selectedNodeId={selectedNodeId}
+				focusedNodeId={focusedNodeId}
+			/>
+		</div>
+	);
+}
+
+// ============================================================================
+// Data Conversion Utilities
+// ============================================================================
+
+/**
+ * Convert graph builder data to mind map format
+ * Ensures no duplicate nodes by using a Map for deduplication
+ */
+export function convertToMindMapData(
+	graphNodes: Array<{ id: string; data: GraphNodeData }>,
+	graphEdges: Array<{ source: string; target: string; type?: string }>,
+	previewCharLimit: number = 100
+): { nodes: MindMapNode[]; links: MindMapLink[] } {
+	// Build neighbor map for connection counting
+	const neighborMap = new Map<string, Set<string>>();
+
+	graphEdges.forEach((edge) => {
+		if (!neighborMap.has(edge.source)) {
+			neighborMap.set(edge.source, new Set());
+		}
+		if (!neighborMap.has(edge.target)) {
+			neighborMap.set(edge.target, new Set());
+		}
+		neighborMap.get(edge.source)!.add(edge.target);
+		neighborMap.get(edge.target)!.add(edge.source);
+	});
+
+	// Use Map for deduplication - prevents duplicate nodes with same ID
+	const nodeMap = new Map<string, MindMapNode>();
+
+	graphNodes.forEach((node) => {
+		// Skip if we've already processed this node ID
+		if (nodeMap.has(node.id)) {
+			logger.warn(`[MindMap] Skipping duplicate node: ${node.id}`);
+			return;
+		}
+
+		const neighbors = neighborMap.get(node.id) || new Set();
+		const connectionCount = neighbors.size;
+
+		let mindMapNode: MindMapNode;
+
+		if (node.data.nodeType === 'document') {
+			const docData = node.data as DocumentNodeData;
+			// Use description (frontmatter) or contentPreview (plaintext) for display
+			const previewText = docData.description || docData.contentPreview;
+			// Extract filename without extension for the label (node header)
+			const filename = docData.filePath?.split('/').pop()?.replace(/\.md$/i, '') || docData.title;
+			mindMapNode = {
+				id: node.id,
+				x: 0,
+				y: 0,
+				width: calculateNodeWidth(filename, previewCharLimit),
+				height: calculateNodeHeight(previewText, previewCharLimit),
+				depth: 0,
+				side: 'center' as const,
+				nodeType: 'document' as const,
+				label: filename,
+				filePath: docData.filePath,
+				description: docData.description,
+				contentPreview: docData.contentPreview,
+				lineCount: docData.lineCount,
+				wordCount: docData.wordCount,
+				size: docData.size,
+				brokenLinks: docData.brokenLinks,
+				isLargeFile: docData.isLargeFile,
+				mtime: docData.mtime,
+				neighbors,
+				connectionCount,
+			};
+		} else {
+			const extData = node.data as ExternalLinkNodeData;
+			mindMapNode = {
+				id: node.id,
+				x: 0,
+				y: 0,
+				width: EXTERNAL_NODE_WIDTH,
+				height: EXTERNAL_NODE_HEIGHT,
+				depth: 0,
+				side: 'external' as const,
+				nodeType: 'external' as const,
+				label: extData.domain,
+				domain: extData.domain,
+				urls: extData.urls,
+				neighbors,
+				connectionCount,
+			};
+		}
+
+		nodeMap.set(node.id, mindMapNode);
+	});
+
+	const nodes = Array.from(nodeMap.values());
+
+	// Deduplicate links as well
+	const linkSet = new Set<string>();
+	const links: MindMapLink[] = [];
+
+	graphEdges.forEach((edge) => {
+		// Create a canonical key for the edge (sorted to avoid A->B and B->A duplicates)
+		const sortedKey = [edge.source, edge.target].sort().join('|');
+
+		if (!linkSet.has(sortedKey)) {
+			linkSet.add(sortedKey);
+			links.push({
+				source: edge.source,
+				target: edge.target,
+				type: edge.type === 'external' ? 'external' : 'internal',
+			});
+		}
+	});
+
+	return { nodes, links };
+}
+
+export default MindMap;

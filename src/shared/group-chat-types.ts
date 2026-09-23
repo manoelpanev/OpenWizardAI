@@ -1,0 +1,193 @@
+/**
+ * @file group-chat-types.ts
+ * @description Shared type definitions and utilities for Group Chat feature.
+ * Used by both main process and renderer.
+ */
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Normalize a name for use in @mentions.
+ * Replaces spaces with hyphens so names can be referenced without quotes.
+ *
+ * @param name - Original name (may contain spaces)
+ * @returns Normalized name with hyphens instead of spaces
+ */
+export function normalizeMentionName(name: string): string {
+	return name.replace(/\s+/g, '-');
+}
+
+/**
+ * Check if a name matches a mention target (handles normalized names).
+ *
+ * @param mentionedName - The name from the @mention (may be hyphenated)
+ * @param actualName - The actual session/participant name (may have spaces)
+ * @returns True if they match
+ */
+export function mentionMatches(mentionedName: string, actualName: string): boolean {
+	return (
+		mentionedName.toLowerCase() === actualName.toLowerCase() ||
+		mentionedName.toLowerCase() === normalizeMentionName(actualName).toLowerCase()
+	);
+}
+
+// ============================================================================
+// TYPE DEFINITIONS
+// ============================================================================
+
+/**
+ * Group chat participant
+ */
+export interface GroupChatParticipant {
+	name: string;
+	agentId: string;
+	/** Internal process session ID (used for routing) */
+	sessionId: string;
+	/** Agent's session ID (e.g., Claude Code's session GUID for continuity) */
+	agentSessionId?: string;
+	addedAt: number;
+	lastActivity?: number;
+	lastSummary?: string;
+	contextUsage?: number;
+	// Color for this participant (assigned on join)
+	color?: string;
+	// Stats tracking
+	tokenCount?: number;
+	messageCount?: number;
+	processingTimeMs?: number;
+	/** Total cost in USD (optional, depends on provider) */
+	totalCost?: number;
+	/** SSH remote name (displayed as pill when running on SSH remote) */
+	sshRemoteName?: string;
+}
+
+/**
+ * Custom configuration for an agent (moderator)
+ */
+export interface ModeratorConfig {
+	/** Custom path to the agent binary */
+	customPath?: string;
+	/** Custom CLI arguments */
+	customArgs?: string;
+	/** Custom environment variables */
+	customEnvVars?: Record<string, string>;
+	/** Env vars switched off in the editor: parked, never passed to the moderator. */
+	customEnvVarsDisabled?: Record<string, string>;
+	/** Custom model selection (e.g., 'ollama/qwen3:8b') */
+	customModel?: string;
+	/** SSH remote config for remote execution */
+	sshRemoteConfig?: {
+		enabled: boolean;
+		remoteId: string | null;
+		workingDirOverride?: string;
+	};
+	/** Claude token-source opt-in (Claude Code moderator only). See getClaudeTokenMode. */
+	enableMaestroP?: boolean;
+	/** Refines enableMaestroP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
+	maestroPMode?: 'interactive' | 'dynamic';
+	/** Optional maestro-p script override. */
+	maestroPPath?: string;
+}
+
+/**
+ * Group chat metadata
+ */
+export interface GroupChat {
+	id: string;
+	name: string;
+	createdAt: number;
+	updatedAt?: number;
+	moderatorAgentId: string;
+	/** Internal session ID prefix used for routing (e.g., 'group-chat-{id}-moderator') */
+	moderatorSessionId: string;
+	/** Claude Code agent session UUID (set after first message is processed) */
+	moderatorAgentSessionId?: string;
+	/** Custom configuration for the moderator agent */
+	moderatorConfig?: ModeratorConfig;
+	participants: GroupChatParticipant[];
+	logPath: string;
+	imagesDir: string;
+	draftMessage?: string;
+	archived?: boolean;
+	/**
+	 * When true (the default), the moderator only hands work to an agent whose
+	 * Maestro agent is idle, holding the handoff until it is rather than
+	 * starting a second process there. Undefined means enabled - read it through
+	 * {@link requiresIdleParticipants} rather than testing the field, so chats
+	 * created before this setting existed keep the safe behavior.
+	 */
+	requireIdleParticipants?: boolean;
+}
+
+/**
+ * Whether a group chat may only engage agents that are currently free.
+ *
+ * The default is ON and lives here rather than at each read site: the router,
+ * the create/edit modal, and the info overlay all have to agree, and a missing
+ * field must never read as "opted out".
+ */
+export function requiresIdleParticipants(
+	chat: { requireIdleParticipants?: boolean } | null | undefined
+): boolean {
+	return chat?.requireIdleParticipants !== false;
+}
+
+/**
+ * Group chat message entry from the chat log
+ */
+export interface GroupChatMessage {
+	timestamp: string;
+	from: string;
+	content: string;
+	readOnly?: boolean;
+	/** Base64 data URLs of images attached to this message */
+	images?: string[];
+}
+
+/**
+ * Group chat state for UI display
+ */
+export type GroupChatState = 'idle' | 'moderator-thinking' | 'agent-working';
+
+/**
+ * Name stamped on the conductor's own history entries. Shared so the main
+ * process writes exactly what the renderer colors and filters on.
+ */
+export const GROUP_CHAT_USER_NAME = 'You';
+
+/**
+ * Type of history entry in a group chat
+ */
+// 'user' is the conductor's own message into the room. It carries no cost or
+// duration, but without it the history reads as agent chatter with no visible
+// cause - the prompt that started each round is the anchor a reader needs.
+export type GroupChatHistoryEntryType = 'user' | 'delegation' | 'response' | 'synthesis' | 'error';
+
+/**
+ * History entry for group chat activity tracking.
+ * Stored in JSONL format in the group chat directory.
+ */
+export interface GroupChatHistoryEntry {
+	/** Unique identifier for the entry */
+	id: string;
+	/** Timestamp when this entry was created */
+	timestamp: number;
+	/** One-sentence summary of what was accomplished */
+	summary: string;
+	/** Name of the participant who did the work (or 'Moderator' for synthesis) */
+	participantName: string;
+	/** Color assigned to this participant (for visualization) */
+	participantColor: string;
+	/** Type of activity */
+	type: GroupChatHistoryEntryType;
+	/** Time taken to complete the task (ms) */
+	elapsedTimeMs?: number;
+	/** Token count for this activity */
+	tokenCount?: number;
+	/** Cost in USD for this activity */
+	cost?: number;
+	/** Full response text (optional, for detail view) */
+	fullResponse?: string;
+}

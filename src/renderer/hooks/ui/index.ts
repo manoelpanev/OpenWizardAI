@@ -1,0 +1,134 @@
+/**
+ * UI Utilities Module
+ *
+ * Hooks for common UI patterns: layer management, scroll behavior,
+ * click detection, expansion state, tooltips, and theming.
+ */
+
+// Layer stack management
+export { useLayerStack } from './useLayerStack';
+export type { LayerStackAPI } from './useLayerStack';
+
+// Modal registration helper
+export { useModalLayer } from './useModalLayer';
+export type { UseModalLayerOptions } from './useModalLayer';
+
+// Click outside detection
+export { useClickOutside } from './useClickOutside';
+export type { UseClickOutsideOptions } from './useClickOutside';
+
+// Expansion state management (for lists, trees, etc.)
+export { useExpandedSet } from './useExpandedSet';
+export type { UseExpandedSetOptions, UseExpandedSetReturn } from './useExpandedSet';
+
+// Scroll position tracking
+export { useScrollPosition } from './useScrollPosition';
+export type {
+	UseScrollPositionOptions,
+	UseScrollPositionReturn,
+	ScrollMetrics,
+} from './useScrollPosition';
+
+// Scroll into view helper
+export { useScrollIntoView } from './useScrollIntoView';
+export { useStickToBottom } from './useStickToBottom';
+
+// Edge auto-scroll while an HTML5 drag hovers a scrollable container
+export { useDragAutoScroll } from './useDragAutoScroll';
+export type { UseDragAutoScrollOptions } from './useDragAutoScroll';
+
+// Hover tooltip management
+export { useHoverTooltip } from './useHoverTooltip';
+
+// Fixed-pitch font for surfaces that render shell text
+export { useFixedPitchFont } from './useFixedPitchFont';
+
+// Per-surface font/size for canvas and CodeMirror (cannot read CSS variables)
+export {
+	useSurfaceFontFamily,
+	useSurfaceFontSize,
+	useSurfaceTypography,
+} from './useSurfaceTypography';
+export type { SurfaceTypography } from './useSurfaceTypography';
+
+// Theme-aware ANSI -> HTML converter for raw terminal output
+export { useAnsiConverter, createAnsiConverter } from './useAnsiConverter';
+
+// Theme styling utilities
+export { useThemeStyles } from './useThemeStyles';
+export type { UseThemeStylesDeps, UseThemeStylesReturn, ThemeColors } from './useThemeStyles';
+
+// Context menu viewport positioning
+export { useContextMenuPosition } from './useContextMenuPosition';
+
+// Portaled dropdown positioning beneath an anchor element
+export { useAnchoredMenuPosition } from './useAnchoredMenuPosition';
+export type {
+	AnchoredMenuPosition,
+	AnchoredMenuOptions,
+	AnchoredMenuPlacement,
+	AnchoredMenuAlign,
+} from './useAnchoredMenuPosition';
+
+// Resizable panel drag behavior
+export { useResizablePanel } from './useResizablePanel';
+export type { UseResizablePanelOptions, UseResizablePanelReturn } from './useResizablePanel';
+
+// Remembered height for user-resized textareas
+export { useResizableTextarea } from './useResizableTextarea';
+export type {
+	UseResizableTextareaOptions,
+	UseResizableTextareaReturn,
+} from './useResizableTextarea';
+
+// Persisted font zoom for reading surfaces
+export {
+	useFontScale,
+	clampFontScale,
+	FONT_SCALE_MIN,
+	FONT_SCALE_MAX,
+	FONT_SCALE_STEP,
+	FONT_SCALE_DEFAULT,
+} from './useFontScale';
+export type { UseFontScaleReturn } from './useFontScale';
+export { useScalePreference, clampScale } from './useScalePreference';
+export type { ScaleRange, UseScalePreferenceReturn } from './useScalePreference';
+export { useScaleShortcuts } from './useScaleShortcuts';
+export type { UseScaleShortcutsOptions } from './useScaleShortcuts';
+export { useIsTopLayer } from './useIsTopLayer';
+
+// Persisted view toggle (collapsed banners, folded sections)
+export { usePersistedToggle } from './usePersistedToggle';
+export type { UsePersistedToggleReturn } from './usePersistedToggle';
+export { usePersistedPanelWidth } from './usePersistedPanelWidth';
+export type {
+	UsePersistedPanelWidthOptions,
+	UsePersistedPanelWidthReturn,
+} from './usePersistedPanelWidth';
+
+// Client-side pagination for lists already held in memory
+export { usePagination } from './usePagination';
+export type { UsePaginationResult } from './usePagination';
+
+// ResizeObserver-backed element width, for JS-computed layout
+export { useElementWidth } from './useElementWidth';
+
+// Whether an optional inline label still fits, so it can be dropped not clipped
+export { useOptionalLabelFits } from './useOptionalLabelFits';
+
+// App-level handlers (drag, file, folder operations)
+export { useAppHandlers } from './useAppHandlers';
+export type { UseAppHandlersDeps, UseAppHandlersReturn } from './useAppHandlers';
+
+// App initialization effects (startup, splash screen, platform checks, command loading)
+export { useAppInitialization } from './useAppInitialization';
+export type { AppInitializationReturn } from './useAppInitialization';
+
+// Tour actions listener (right panel control from tour overlay)
+export { useTourActions } from './useTourActions';
+
+// Idle notification (fires command when all agents/batches finish)
+export { useIdleNotification } from './useIdleNotification';
+
+// Deferred update-restart (installs downloaded update on idle transition)
+export { useRestartWhenIdle } from './useRestartWhenIdle';

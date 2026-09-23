@@ -1,0 +1,291 @@
+---
+title: Troubleshooting & Support
+description: System logs, process monitor, debug packages, and how to get help with Maestro.
+icon: life-ring
+---
+
+## Frequently Asked Questions
+
+**Do my MCP tools, skills, and permissions work in Maestro?**
+
+Yes. Maestro is a pass-through - it calls your provider (Claude Code, Codex, OpenCode) in batch mode rather than interactive mode. Whatever works when you run the provider directly will work in Maestro. Your MCP servers, custom skills, authentication, and tool permissions all carry over automatically.
+
+**What's the difference between running the provider directly vs. through Maestro?**
+
+The only difference is execution mode. When you run Claude Code directly, it's interactive - you send a message, watch it work, and respond in real-time. Maestro runs in batch mode: it sends a prompt, the provider processes it fully, and returns the response. This enables unattended automation via Auto Run and parallel agent management. Everything else - your tools, permissions, context - remains identical.
+
+---
+
+## System Logs
+
+Maestro maintains detailed system logs that help diagnose issues. Access them via:
+
+- **Keyboard:** `Opt+Cmd+L` (Mac) / `Alt+Ctrl+L` (Windows/Linux)
+- **Quick Actions:** `Cmd+K` / `Ctrl+K` → "View System Logs"
+- **Menu:** Click the hamburger menu (☰) in the Left Panel → "System Logs"
+
+The **System Log Viewer** shows:
+
+- Timestamped log entries with severity levels (debug, info, warn, error, toast, autorun)
+- Filterable by log level via clickable level pills and searchable text (`Cmd+F` / `Ctrl+F`)
+- Real-time updates as new logs are generated
+- Detail view with full message content and source module
+
+**Log levels** can be configured in **Settings** → **General** → **System Log Level**. Higher levels show fewer logs - Debug shows all logs, Error shows only errors.
+
+## Process Monitor
+
+Monitor all running processes spawned by Maestro:
+
+- **Keyboard:** `Opt+Cmd+P` (Mac) / `Alt+Ctrl+P` (Windows/Linux)
+- **Quick Actions:** `Cmd+K` / `Ctrl+K` → "View System Processes"
+- **Menu:** Click the hamburger menu (☰) in the Left Panel → "Process Monitor"
+
+The **Process Monitor** displays a hierarchical tree view:
+
+- **Groups** - Session groups containing their member sessions
+- **Sessions** - Each session shows its AI agent and terminal processes
+- **Process details** - PID, runtime, working directory, Claude session ID (for AI processes)
+- **Group Chat processes** - Moderator and participant processes for active group chats
+- **Wizard processes** - Active wizard conversations and playbook generation
+
+**Process types shown:**
+
+| Type        | Description                               |
+| ----------- | ----------------------------------------- |
+| AI Agent    | Main Claude Code (or other agent) process |
+| Terminal    | Shell process for the session             |
+| Batch       | Auto Run document processing agent        |
+| Synopsis    | Context compaction synopsis generation    |
+| Moderator   | Group chat moderator process              |
+| Participant | Group chat participant agent              |
+| Wizard      | Wizard conversation process               |
+| Wizard Gen  | Playbook document generation process      |
+
+**Features:**
+
+- Click a process row to view detailed information (command, arguments, session ID)
+- Double-click or press `Enter` to navigate to the session/tab
+- `K` or `Delete` to kill a selected process
+- `R` to refresh the process list
+- Expand/collapse buttons in header to control tree visibility
+
+This is useful when an agent becomes unresponsive or you need to diagnose process-related issues.
+
+## Agent Errors
+
+Two of the errors below rarely reach you at all. **Rate Limit Exceeded** and a spent plan quota are handled by [Agent Resilience](/agent-resilience), which resends your prompt on its own and shows a live countdown card in the transcript instead of a modal. The table applies when resilience is turned off for that agent, or when the failure is one it deliberately does not retry.
+
+When an AI agent encounters an error, Maestro displays a modal with clear recovery options. Common error types include:
+
+| Error Type                  | Description                        | Recovery Options                               |
+| --------------------------- | ---------------------------------- | ---------------------------------------------- |
+| **Authentication Required** | API key expired or invalid         | Re-authenticate, check API key settings        |
+| **Context Limit Reached**   | Conversation exceeded token limit  | Start new session, compact context             |
+| **Rate Limit Exceeded**     | Too many API requests              | Wait and retry, reduce request frequency       |
+| **Connection Error**        | Network connectivity issue         | Check internet, retry connection               |
+| **Agent Error**             | Agent process crashed unexpectedly | Restart agent, start new session               |
+| **Permission Denied**       | File or operation access denied    | Check permissions, run with appropriate access |
+
+Each error modal shows:
+
+- Error type and description
+- Agent and session context
+- Timestamp of when the error occurred
+- Collapsible JSON details for debugging
+- Recovery action buttons specific to the error type
+
+### Expired Provider Credentials
+
+An expired token is handled differently from the errors above, because it takes down every agent AND every Cue pipeline on that provider at once. Instead of the generic error modal, Maestro opens a re-authentication dialog with a terminal embedded in it and runs the provider's own login command for you (`claude /login`, `codex login`, `opencode auth login`, and so on). Finish the login in that terminal and click Done. The agent keeps its view and its transcript.
+
+Two details worth knowing:
+
+- **Agents on an SSH remote log in on that remote.** The embedded terminal is spawned exactly like a terminal tab, so the login runs on the host the agent actually runs on.
+- **Cue pipelines raise the same dialog.** Cue spawns its agents outside the normal streaming path, so a pipeline that fails on expired credentials used to fail silently in the background. Maestro now classifies the failed run and prompts once per provider. It stays quiet after that until a run for that provider succeeds again, so a busy board cannot bury you in dialogs.
+- **You can sign in before anything breaks.** Command K -> **Re-authenticate Provider** opens the same dialog for the current agent's provider, with nothing failed. Useful when you are switching accounts, or when you know a token is about to lapse and would rather not have it expire mid-run.
+
+## Debug Package
+
+If you encounter deep-seated issues that are difficult to diagnose, Maestro can generate a **Debug Package** - a compressed bundle of diagnostic information that you can safely share when reporting bugs.
+
+**To create a Debug Package:**
+
+1. Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux) to open Quick Actions
+2. Search for "Create Debug Package"
+3. Choose a save location for the `.zip` file
+4. Attach the file to your [GitHub issue](https://github.com/RunMaestro/Maestro/issues)
+
+### What's Included
+
+The debug package collects metadata and configuration - never your conversations or sensitive data:
+
+**Always included:**
+
+| File                       | Contents                                                  |
+| -------------------------- | --------------------------------------------------------- |
+| `system-info.json`         | OS, CPU, memory, Electron/Node versions, app uptime       |
+| `settings.json`            | App preferences with sensitive values redacted            |
+| `agents.json`              | Agent configurations, availability, and capability flags  |
+| `external-tools.json`      | Shell, git, GitHub CLI, and cloudflared availability      |
+| `windows-diagnostics.json` | Windows-specific diagnostics (minimal on other platforms) |
+| `groups.json`              | Group structure (no group names)                          |
+| `processes.json`           | Active process information                                |
+| `web-server.json`          | Web server and Cloudflare tunnel status                   |
+| `storage-info.json`        | Storage locations and sizes                               |
+
+**Optional (toggleable in UI):**
+
+| File               | Contents                                                           |
+| ------------------ | ------------------------------------------------------------------ |
+| `sessions.json`    | Session metadata (states, tab counts - no names, no conversations) |
+| `logs.json`        | Recent system log entries                                          |
+| `errors.json`      | Current error states and recent error events                       |
+| `group-chats.json` | Group chat metadata (participant lists, routing - no messages)     |
+| `batch-state.json` | Auto Run state and document queue                                  |
+
+### Privacy Protections
+
+Support packages usually end up attached to a public GitHub issue, so the debug package is designed to be **safe to share publicly** - nothing in one identifies you or your work:
+
+- **API keys and tokens** - Replaced with `[REDACTED]`
+- **Passwords and secrets** - Never included
+- **Conversation content** - Excluded entirely (no AI responses, no user messages)
+- **File contents** - Not included from your projects
+- **Custom prompts** - Not included (may contain sensitive context)
+- **Your username and computer name** - Replaced with `[user]` and `[host]` wherever they appear
+- **File paths** - Replaced with an opaque descriptor, so no folder, project, or repository names survive
+- **Agent, session, and group names** - Not included
+- **SSH remote identities** - Hosts and usernames replaced with `[REDACTED]`
+- **URLs** - Reduced to scheme and domain, so tunnel URLs cannot be reused
+- **Environment variables** - Only counts shown, not values (may contain secrets)
+- **Custom agent arguments** - Only `[SET]` or `[NOT SET]` shown, not actual values
+
+**Example path redaction:**
+
+- Before: `/Users/johndoe/Projects/MyApp/config.json`
+- After: `[path#3f9a1c04 root=home depth=3 ext=.json]`
+
+The descriptor keeps only what is useful for debugging: where the path starts (`root`), how deep it is (`depth`), the file extension, and flags for spaces or non-ASCII characters (a common cause of process spawn failures). The `path#` fingerprint is stable within a single package, so identical paths still line up, and it is salted per package so it cannot be reversed or matched against another package.
+
+## WSL2 Issues (Windows)
+
+If you're running Maestro through WSL2, most issues stem from using Windows-mounted paths. See the [WSL2 installation guide](./installation#wsl2-users-windows-subsystem-for-linux) for the recommended setup.
+
+### Common WSL2 Problems
+
+**"EPERM: operation not permitted" on socket binding**
+
+The Vite dev server or Electron cannot bind to ports when running from `/mnt/...` paths.
+
+**Solution:** Move your project to the native Linux filesystem:
+
+```bash
+mv /mnt/c/projects/maestro ~/maestro
+cd ~/maestro
+npm install
+npm run dev
+```
+
+**"FATAL:sandbox_host_linux.cc" Electron crash**
+
+The Electron sandbox cannot operate correctly on Windows-mounted filesystems.
+
+**Solution:** Run from the Linux filesystem (`/home/...`), not from `/mnt/...`.
+
+**npm install timeouts or ENOTEMPTY errors**
+
+Cross-filesystem operations between WSL and Windows are unreliable for npm's file operations.
+
+**Solution:** Clone and install from the Linux filesystem:
+
+```bash
+cd ~
+git clone https://github.com/RunMaestro/Maestro.git
+cd maestro
+npm install
+```
+
+**electron-rebuild failures**
+
+The Windows temp directory may be inaccessible from WSL.
+
+**Solution:** Override the temp directory:
+
+```bash
+TMPDIR=/tmp npm run rebuild
+```
+
+**Git index corruption or lock file errors**
+
+NTFS and Linux inode handling are incompatible, causing git metadata issues.
+
+**Solution:** If you see "missing index" or spurious `.git/index.lock` errors:
+
+```bash
+rm -f .git/index.lock
+git checkout -f
+```
+
+For new projects, always clone to the Linux filesystem from the start.
+
+**Fonts not found**
+
+The Interface Font picker in the Settings dialog asks Linux fontconfig what fonts exist in the WSL environment. It is not querying native Windows fonts directly; it's using `fc-list` to resolve them, which by default only sees Linux-side fonts. To see Windows fonts, you need to teach fontconfig about `/mnt/c/Windows/Fonts`, then rebuild the font cache. Some fonts may also be stored in the user's `AppData\Local` folder.
+
+To fix, update `fontconfig`'s configuration in WSL, replacing `$USER` accordingly:
+
+```bash
+mkdir -p ~/.config/fontconfig/conf.d
+cat > ~/.config/fontconfig/conf.d/50-windows-fonts.conf <<'EOF'
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>/mnt/c/Windows/Fonts</dir>
+  <dir>/mnt/c/Users/$USER/AppData/Local/Microsoft/Windows/Fonts</dir>
+</fontconfig>
+EOF
+```
+
+Then rebuild the cache: `fc-cache -f -v`
+
+## macOS Privacy Permissions
+
+macOS gates calendars, reminders, contacts, photos, the local network, and the Desktop / Documents / Downloads folders behind TCC (Transparency, Consent, and Control). TCC attributes a request to the **responsible process**, which for anything an agent shells out to is Maestro itself:
+
+```
+Maestro.app -> claude -> zsh -> ical
+```
+
+So when an agent runs a CLI that touches one of those services, the consent dialog names **Maestro**, and the switch you flip afterwards lives under Maestro's row in System Settings > Privacy & Security. That attribution is expected, not a bug: the tool is borrowing Maestro's identity because Maestro is what launched it.
+
+### A tool reports "access denied" and no dialog ever appears
+
+On older builds, Maestro declared no usage-description string for these services, so macOS denied every such request instantly and silently. It will not prompt on behalf of a purpose string an app never declared, and with nothing to prompt for, no Maestro row appears in the Privacy pane to enable. Update Maestro.
+
+On a current build, a missing prompt usually means macOS has cached an earlier decision. Reset the relevant service and run the command again:
+
+```bash
+tccutil reset Calendar com.maestro.app
+tccutil reset Reminders com.maestro.app
+tccutil reset AddressBook com.maestro.app
+tccutil reset Photos com.maestro.app
+tccutil reset MediaLibrary com.maestro.app
+tccutil reset AppleEvents com.maestro.app
+tccutil reset SpeechRecognition com.maestro.app
+tccutil reset SystemPolicyDesktopFolder com.maestro.app
+tccutil reset SystemPolicyDocumentsFolder com.maestro.app
+tccutil reset SystemPolicyDownloadsFolder com.maestro.app
+tccutil reset SystemPolicyRemovableVolumes com.maestro.app
+tccutil reset SystemPolicyNetworkVolumes com.maestro.app
+```
+
+Run `tccutil reset All com.maestro.app` to clear every service at once. Local network access has no `tccutil` service name; toggle Maestro off and on under System Settings > Privacy & Security > Local Network instead.
+
+Omitting the bundle id resets that service for every app on the machine.
+
+## Getting Help
+
+- **GitHub Issues**: [Report bugs or request features](https://github.com/RunMaestro/Maestro/issues)
+- **Discord**: [Join the community](https://runmaestro.ai/discord)
+- **Documentation**: [Docs site](https://docs.runmaestro.ai), [CONTRIBUTING.md](https://github.com/RunMaestro/Maestro/blob/main/CONTRIBUTING.md), and [ARCHITECTURE.md](https://github.com/RunMaestro/Maestro/blob/main/ARCHITECTURE.md)

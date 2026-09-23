@@ -1,0 +1,288 @@
+import { describe, it, expect } from 'vitest';
+import {
+	isRunnableQueueItem,
+	nextRunnableQueueItem,
+	hasRunnableQueueItem,
+	takeNextRunnableQueueItem,
+	reorderQueueItem,
+	resolveQueuedItemTabName,
+	getForceSendEligibility,
+	shouldOfferForceSend,
+	applyQueuedItemEdit,
+	isSameQueuedPrompt,
+	findQueuedDuplicate,
+} from '../../../renderer/utils/executionQueue';
+import type { AITab, QueuedItem, Session } from '../../../renderer/types';
+
+function item(id: string, paused = false): QueuedItem {
+	return { id, timestamp: 0, tabId: 'tab-1', type: 'message', text: id, paused };
+}
+
+function tabItem(id: string, tabId: string): QueuedItem {
+	return { id, timestamp: 0, tabId, type: 'message', text: id };
+}
+
+describe('executionQueue helpers', () => {
+	it('isRunnableQueueItem treats only non-paused items as runnable', () => {
+		expect(isRunnableQueueItem(item('a'))).toBe(true);
+		expect(isRunnableQueueItem(item('b', true))).toBe(false);
+	});
+
+	it('nextRunnableQueueItem returns the first non-paused item', () => {
+		const q = [item('a', true), item('b'), item('c')];
+		expect(nextRunnableQueueItem(q)?.id).toBe('b');
+		expect(nextRunnableQueueItem([item('a', true)])).toBeUndefined();
+		expect(nextRunnableQueueItem([])).toBeUndefined();
+	});
+
+	it('hasRunnableQueueItem reflects whether any item can run', () => {
+		expect(hasRunnableQueueItem([item('a', true), item('b')])).toBe(true);
+		expect(hasRunnableQueueItem([item('a', true), item('b', true)])).toBe(false);
+		expect(hasRunnableQueueItem([])).toBe(false);
+	});
+
+	it('takeNextRunnableQueueItem removes the first runnable item, preserving order of the rest', () => {
+		const q = [item('a', true), item('b'), item('c')];
+		const { item: taken, remaining } = takeNextRunnableQueueItem(q);
+		expect(taken?.id).toBe('b');
+		// The paused item ahead of it stays in place; 'c' keeps its order.
+		expect(remaining.map((i) => i.id)).toEqual(['a', 'c']);
+	});
+
+	it('takeNextRunnableQueueItem returns null + unchanged queue when all items are paused', () => {
+		const q = [item('a', true), item('b', true)];
+		const { item: taken, remaining } = takeNextRunnableQueueItem(q);
+		expect(taken).toBeNull();
+		expect(remaining).toBe(q);
+	});
+});
+
+describe('reorderQueueItem', () => {
+	it('moves an item within the whole queue when no tabId is given', () => {
+		const q = [item('a'), item('b'), item('c')];
+		expect(reorderQueueItem(q, 0, 2).map((i) => i.id)).toEqual(['b', 'c', 'a']);
+		expect(reorderQueueItem(q, 2, 0).map((i) => i.id)).toEqual(['c', 'a', 'b']);
+	});
+
+	it('returns the same queue reference for no-op or out-of-range moves', () => {
+		const q = [item('a'), item('b')];
+		expect(reorderQueueItem(q, 1, 1)).toBe(q);
+		expect(reorderQueueItem(q, -1, 0)).toBe(q);
+		expect(reorderQueueItem(q, 0, 5)).toBe(q);
+	});
+
+	it('reorders only the target tab and keeps other tabs in their absolute slots', () => {
+		// Interleaved: tab-1 at slots 0 and 2, tab-2 at slot 1.
+		const q = [tabItem('a', 'tab-1'), tabItem('x', 'tab-2'), tabItem('c', 'tab-1')];
+		// In tab-1's filtered view [a, c], move a (0) after c (1).
+		const result = reorderQueueItem(q, 0, 1, 'tab-1');
+		// tab-1 items become [c, a] back in slots 0 and 2; tab-2 'x' stays at slot 1.
+		expect(result.map((i) => i.id)).toEqual(['c', 'x', 'a']);
+	});
+
+	it('treats tab-scoped indices as positions within that tab only', () => {
+		const q = [
+			tabItem('a', 'tab-1'),
+			tabItem('b', 'tab-1'),
+			tabItem('x', 'tab-2'),
+			tabItem('c', 'tab-1'),
+		];
+		// tab-1 filtered view [a, b, c]; move c (index 2) to front (index 0).
+		const result = reorderQueueItem(q, 2, 0, 'tab-1');
+		expect(result.map((i) => i.id)).toEqual(['c', 'a', 'x', 'b']);
+	});
+
+	it('returns the same queue reference for out-of-range tab-scoped moves', () => {
+		const q = [tabItem('a', 'tab-1'), tabItem('x', 'tab-2')];
+		// tab-1 has only one item, so index 1 is out of range for its view.
+		expect(reorderQueueItem(q, 0, 1, 'tab-1')).toBe(q);
+	});
+});
+
+describe('resolveQueuedItemTabName', () => {
+	const tab = (id: string, name?: string) => ({ id, name, state: 'idle' }) as unknown as AITab;
+	const session = (tabs: AITab[], orphans: AITab[] = []) =>
+		({ aiTabs: tabs, orphanedThinkingTabs: orphans }) as unknown as Session;
+
+	it('prefers the live tab name over the snapshot taken when the item was queued', () => {
+		const queued = { tabId: 'tab-1', tabName: 'New' };
+		expect(resolveQueuedItemTabName(session([tab('tab-1', 'PR #1427')]), queued)).toBe('PR #1427');
+	});
+
+	it('gives two items on the same tab the same label once that tab is named', () => {
+		const s = session([tab('tab-1', 'PR #1427')]);
+		const first = { tabId: 'tab-1', tabName: 'New' };
+		const second = { tabId: 'tab-1', tabName: 'PR #1427' };
+		expect(resolveQueuedItemTabName(s, first)).toBe(resolveQueuedItemTabName(s, second));
+	});
+
+	it('falls back to an orphaned (closed but draining) tab before the snapshot', () => {
+		const s = session([], [tab('tab-9', 'Draining Tab')]);
+		expect(resolveQueuedItemTabName(s, { tabId: 'tab-9', tabName: 'Stale' })).toBe('Draining Tab');
+	});
+
+	it('falls back to the snapshot when the tab is gone entirely', () => {
+		expect(resolveQueuedItemTabName(session([]), { tabId: 'gone', tabName: 'Old Name' })).toBe(
+			'Old Name'
+		);
+	});
+});
+
+describe('shouldOfferForceSend', () => {
+	const tab = (id: string, state: 'idle' | 'busy') => ({ id, state }) as unknown as AITab;
+	const session = (tabs: AITab[]) => ({ aiTabs: tabs }) as unknown as Session;
+	const queued = { tabId: 'tab-1' };
+	const eligibility = (tabs: AITab[], forcedParallelEnabled = true) =>
+		getForceSendEligibility(session(tabs), queued, { forcedParallelEnabled });
+
+	it('offers the control on a quiet agent, where forcing is always allowed', () => {
+		const e = eligibility([tab('tab-1', 'idle')]);
+		expect(e.canForce).toBe(true);
+		expect(shouldOfferForceSend(e)).toBe(true);
+	});
+
+	it('offers it disabled when only the Forced Parallel setting is in the way', () => {
+		// The one blocked reason the user can act on: the tooltip names a
+		// setting, so the dimmed button is a signpost rather than a dead control.
+		const e = eligibility([tab('tab-1', 'idle'), tab('tab-2', 'busy')], false);
+		expect(e.blockedReason).toBe('needs-forced-parallel');
+		expect(shouldOfferForceSend(e)).toBe(true);
+	});
+
+	it("hides it when the item's own tab is mid-turn", () => {
+		// A tab runs one turn at a time, so the item is next in line by
+		// definition and the wait resolves itself.
+		const e = eligibility([tab('tab-1', 'busy')]);
+		expect(e.blockedReason).toBe('target-tab-busy');
+		expect(shouldOfferForceSend(e)).toBe(false);
+	});
+
+	it('hides it when there is no tab left to run on', () => {
+		// No AI tabs at all, so there is not even an active tab to fall back to.
+		const e = eligibility([]);
+		expect(e.blockedReason).toBe('no-target-tab');
+		expect(shouldOfferForceSend(e)).toBe(false);
+	});
+
+	it('hides it when eligibility has not been computed', () => {
+		expect(shouldOfferForceSend(null)).toBe(false);
+		expect(shouldOfferForceSend(undefined)).toBe(false);
+	});
+});
+
+/**
+ * applyQueuedItemEdit is the single write for a queued-message edit. Both save
+ * paths call it - the inline chat list (App.tsx, active agent) and the
+ * Execution Queue browser (useQueueHandlers, any agent by id) - because they
+ * had already drifted once: one of them dropped `turnSettings`, silently
+ * discarding the model and effort the user had just picked in the modal.
+ */
+describe('applyQueuedItemEdit', () => {
+	const patch = (over: Partial<QueuedItem['turnSettings']> | undefined = undefined) => ({
+		text: 'edited',
+		images: [] as string[],
+		turnSettings: over ?? {},
+	});
+
+	it('writes the model/effort override onto the target item', () => {
+		const queue = [item('a'), item('b')];
+
+		const next = applyQueuedItemEdit(queue, 'a', {
+			text: 'edited',
+			images: [],
+			turnSettings: { model: 'opus', effort: 'ultrathink' },
+		});
+
+		expect(next[0].text).toBe('edited');
+		expect(next[0].turnSettings).toEqual({ model: 'opus', effort: 'ultrathink' });
+	});
+
+	it('leaves every other item untouched', () => {
+		const queue = [item('a'), item('b')];
+
+		const next = applyQueuedItemEdit(queue, 'a', patch({ model: 'opus' }));
+
+		expect(next[1]).toBe(queue[1]);
+		expect(next[1].text).toBe('b');
+	});
+
+	it('assigns turnSettings rather than merging, so a cleared picker clears', () => {
+		const queue = [{ ...item('a'), turnSettings: { model: 'opus', effort: 'ultrathink' } }];
+
+		// User cleared the model back to "Default" but kept the effort.
+		const next = applyQueuedItemEdit(queue, 'a', patch({ effort: 'ultrathink' }));
+
+		expect(next[0].turnSettings).toEqual({ effort: 'ultrathink' });
+		expect(next[0].turnSettings?.model).toBeUndefined();
+	});
+
+	it('preserves queue order and length', () => {
+		const queue = [item('a'), item('b'), item('c')];
+
+		const next = applyQueuedItemEdit(queue, 'b', patch({ model: 'opus' }));
+
+		expect(next.map((i) => i.id)).toEqual(['a', 'b', 'c']);
+	});
+
+	it('is a no-op when the id is not in the queue', () => {
+		const queue = [item('a')];
+
+		const next = applyQueuedItemEdit(queue, 'missing', patch({ model: 'opus' }));
+
+		expect(next[0]).toBe(queue[0]);
+	});
+
+	it('does not disturb an item paused state', () => {
+		const queue = [item('a', /* paused */ true)];
+
+		const next = applyQueuedItemEdit(queue, 'a', patch({ model: 'opus' }));
+
+		expect(next[0].paused).toBe(true);
+	});
+});
+
+// The re-authentication resume replays a snapshotted prompt. If the user
+// already re-sent that prompt by hand (which is what they do when the failed
+// turn is invisible), running both spends two turns on one question.
+describe('isSameQueuedPrompt', () => {
+	const base: QueuedItem = { id: 'a', timestamp: 0, tabId: 'tab-1', type: 'message', text: 'hi' };
+
+	it('matches the same ask under a different id', () => {
+		expect(isSameQueuedPrompt(base, { ...base, id: 'b', timestamp: 999 })).toBe(true);
+	});
+
+	it('ignores leading and trailing whitespace', () => {
+		expect(isSameQueuedPrompt(base, { ...base, id: 'b', text: '  hi\n' })).toBe(true);
+	});
+
+	it('does not match a different tab', () => {
+		expect(isSameQueuedPrompt(base, { ...base, id: 'b', tabId: 'tab-2' })).toBe(false);
+	});
+
+	it('does not match different text', () => {
+		expect(isSameQueuedPrompt(base, { ...base, id: 'b', text: 'something else' })).toBe(false);
+	});
+
+	it('does not match when one carries attachments', () => {
+		expect(isSameQueuedPrompt(base, { ...base, id: 'b', images: ['img'] })).toBe(false);
+	});
+
+	it('distinguishes slash commands by name and arguments', () => {
+		const cmd: QueuedItem = {
+			id: 'a',
+			timestamp: 0,
+			tabId: 'tab-1',
+			type: 'command',
+			command: '/x',
+		};
+		expect(isSameQueuedPrompt(cmd, { ...cmd, id: 'b' })).toBe(true);
+		expect(isSameQueuedPrompt(cmd, { ...cmd, id: 'b', command: '/y' })).toBe(false);
+		expect(isSameQueuedPrompt(cmd, { ...cmd, id: 'b', commandArgs: 'now' })).toBe(false);
+	});
+
+	it('findQueuedDuplicate locates the user copy in the queue', () => {
+		const queue = [tabItem('other', 'tab-2'), { ...base, id: 'user-copy' }];
+		expect(findQueuedDuplicate({ executionQueue: queue }, base)?.id).toBe('user-copy');
+		expect(findQueuedDuplicate({ executionQueue: [] }, base)).toBeUndefined();
+	});
+});

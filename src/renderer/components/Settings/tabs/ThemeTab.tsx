@@ -1,0 +1,219 @@
+/**
+ * ThemeTab - Theme selection and customization tab
+ *
+ * Displays grouped theme buttons (dark/light/vibe) with Tab key navigation,
+ * plus the custom theme builder. Self-sources theme settings from useSettings().
+ */
+
+import React, { useRef, useEffect } from 'react';
+import { Moon, Sun, Sparkles, Check, Lightbulb } from 'lucide-react';
+import { useSettings } from '../../../hooks';
+import { CustomThemeBuilder } from '../../CustomThemeBuilder';
+import { SettingsSectionHeading } from '../SettingsSectionHeading';
+import { Slider } from '../../widgets';
+import {
+	GLOSS_LEVELS,
+	GLOSS_LEVEL_META,
+	asGlossLevel,
+	glossLevelAtIndex,
+	glossLevelIndex,
+} from '../../../../shared/themeGloss';
+import type { Theme, ThemeId } from '../../../types';
+
+/** Stop names for the gloss slider, in ladder order. Derived so a new level cannot be added without a name. */
+const GLOSS_TICK_LABELS = GLOSS_LEVELS.map((level) => GLOSS_LEVEL_META[level].label);
+
+export interface ThemeTabProps {
+	theme: Theme;
+	themes: Record<string, Theme>;
+	onThemeImportError?: (message: string) => void;
+	onThemeImportSuccess?: (message: string) => void;
+}
+
+export function ThemeTab({
+	theme,
+	themes,
+	onThemeImportError,
+	onThemeImportSuccess,
+}: ThemeTabProps) {
+	const {
+		activeThemeId,
+		setActiveThemeId,
+		customThemeColors,
+		setCustomThemeColors,
+		customThemeBaseId,
+		setCustomThemeBaseId,
+		themeGloss,
+		setThemeGloss,
+	} = useSettings();
+
+	const themePickerRef = useRef<HTMLDivElement>(null);
+	const isLightTheme = theme.mode === 'light';
+
+	// Narrowed rather than trusted. `GLOSS_LEVEL_META[level]` is a lookup, so an
+	// undefined or unrecognized value throws and takes the ENTIRE Settings modal
+	// down with it, not just this section. The store hydrates asynchronously and
+	// a settings blob written by an older build has no `themeGloss` at all, so
+	// undefined is a state that really occurs rather than a theoretical one.
+	const glossLevel = asGlossLevel(themeGloss);
+
+	// Auto-focus theme picker on mount so Tab cycles themes immediately.
+	// `preventScroll` is required: this container is taller than the scroll port
+	// (three theme groups plus the custom builder), so a focus scroll lands the
+	// panel somewhere in its middle, past the theme grid the user came to see.
+	useEffect(() => {
+		const timer = setTimeout(() => themePickerRef.current?.focus({ preventScroll: true }), 50);
+		return () => clearTimeout(timer);
+	}, []);
+
+	// Group themes by mode (exclude 'custom' theme - it's handled separately)
+	const groupedThemes = Object.values(themes).reduce(
+		(acc: Record<string, Theme[]>, t: Theme) => {
+			if (t.id === 'custom') return acc; // Skip custom theme in regular grouping
+			if (!acc[t.mode]) acc[t.mode] = [];
+			acc[t.mode].push(t);
+			return acc;
+		},
+		{} as Record<string, Theme[]>
+	);
+
+	const handleThemePickerKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === 'Tab') {
+			e.preventDefault();
+			e.stopPropagation();
+			// Create ordered array: dark themes first, then light, then vibe, then custom (cycling back to dark)
+			const allThemes = [
+				...(groupedThemes['dark'] || []),
+				...(groupedThemes['light'] || []),
+				...(groupedThemes['vibe'] || []),
+			];
+			// Add 'custom' as the last item in the cycle
+			const allThemeIds = [...allThemes.map((t) => t.id), 'custom'];
+			let currentIndex = allThemeIds.findIndex((id: string) => id === activeThemeId);
+			if (currentIndex === -1) currentIndex = 0;
+
+			let newThemeId: string;
+			if (e.shiftKey) {
+				// Shift+Tab: go backwards
+				const prevIndex = currentIndex === 0 ? allThemeIds.length - 1 : currentIndex - 1;
+				newThemeId = allThemeIds[prevIndex];
+			} else {
+				// Tab: go forward
+				const nextIndex = (currentIndex + 1) % allThemeIds.length;
+				newThemeId = allThemeIds[nextIndex];
+			}
+			setActiveThemeId(newThemeId as ThemeId);
+
+			// Scroll the newly selected theme button into view
+			setTimeout(() => {
+				const themeButton = themePickerRef.current?.querySelector(
+					`[data-theme-id="${newThemeId}"]`
+				);
+				themeButton?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			}, 0);
+		}
+	};
+
+	return (
+		<div className="space-y-5">
+			{/* Surface Gloss. Sits above the picker because it applies to whichever
+			    theme is chosen below, rather than being a property of one of them. */}
+			<div data-setting-id="theme-surface-gloss">
+				<SettingsSectionHeading icon={Lightbulb}>Surface Gloss</SettingsSectionHeading>
+				<p className="text-xs opacity-70 mb-2">
+					Adds a light source to the sidebars, headers, tab bar and composer so panels read as
+					stacked layers instead of one flat sheet. It only adds highlights and shadows, so no theme
+					color changes and text stays exactly as legible as it is now.
+				</p>
+				<Slider
+					theme={theme}
+					label="Intensity"
+					value={glossLevelIndex(glossLevel)}
+					onChange={(index) => setThemeGloss(glossLevelAtIndex(index))}
+					tickLabels={GLOSS_TICK_LABELS}
+					disabled={isLightTheme}
+				/>
+				<p className="text-xs-plus opacity-55 mt-2">
+					{isLightTheme
+						? 'Gloss is off on light themes: a white highlight on a light surface is invisible at best and muddy at worst.'
+						: GLOSS_LEVEL_META[glossLevel].description}
+				</p>
+			</div>
+
+			<div
+				data-setting-id="theme-picker"
+				ref={themePickerRef}
+				className="space-y-6 outline-none"
+				tabIndex={0}
+				onKeyDown={handleThemePickerKeyDown}
+				role="group"
+				aria-label="Theme picker"
+			>
+				{['dark', 'light', 'vibe'].map((mode) => (
+					<div key={mode}>
+						<div
+							className="text-xs font-bold uppercase mb-3 flex items-center gap-2"
+							style={{ color: theme.colors.textDim }}
+						>
+							{mode === 'dark' ? (
+								<Moon className="w-3 h-3" />
+							) : mode === 'light' ? (
+								<Sun className="w-3 h-3" />
+							) : (
+								<Sparkles className="w-3 h-3" />
+							)}
+							{mode} Mode
+						</div>
+						<div className="grid grid-cols-2 gap-3">
+							{groupedThemes[mode]?.map((t: Theme) => (
+								<button
+									key={t.id}
+									data-theme-id={t.id}
+									onClick={() => setActiveThemeId(t.id)}
+									className={`p-3 rounded-lg border text-left transition-all ${activeThemeId === t.id ? 'ring-2' : ''}`}
+									style={
+										{
+											borderColor: theme.colors.border,
+											backgroundColor: t.colors.bgSidebar,
+											'--tw-ring-color': t.colors.accent,
+										} as React.CSSProperties
+									}
+									tabIndex={-1}
+								>
+									<div className="flex justify-between items-center mb-2">
+										<span className="text-sm font-bold" style={{ color: t.colors.textMain }}>
+											{t.name}
+										</span>
+										{activeThemeId === t.id && (
+											<Check className="w-4 h-4" style={{ color: t.colors.accent }} />
+										)}
+									</div>
+									<div className="flex h-3 rounded overflow-hidden">
+										<div className="flex-1" style={{ backgroundColor: t.colors.bgMain }} />
+										<div className="flex-1" style={{ backgroundColor: t.colors.bgActivity }} />
+										<div className="flex-1" style={{ backgroundColor: t.colors.accent }} />
+									</div>
+								</button>
+							))}
+						</div>
+					</div>
+				))}
+
+				{/* Custom Theme Builder */}
+				<div data-theme-id="custom">
+					<CustomThemeBuilder
+						theme={theme}
+						customThemeColors={customThemeColors}
+						setCustomThemeColors={setCustomThemeColors}
+						customThemeBaseId={customThemeBaseId}
+						setCustomThemeBaseId={setCustomThemeBaseId}
+						isSelected={activeThemeId === 'custom'}
+						onSelect={() => setActiveThemeId('custom')}
+						onImportError={onThemeImportError}
+						onImportSuccess={onThemeImportSuccess}
+					/>
+				</div>
+			</div>
+		</div>
+	);
+}

@@ -1,0 +1,324 @@
+# CLAUDE-WIZARD.md
+
+Wizard documentation for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+
+## Onboarding Wizard
+
+The wizard (`src/renderer/components/Wizard/`) guides new users through first-run setup, creating AI agents with Auto Run documents.
+
+### Wizard Architecture
+
+```
+src/renderer/components/Wizard/
+├── MaestroWizard.tsx           # Main orchestrator, screen transitions
+├── WizardContext.tsx           # State management (useReducer pattern)
+├── WizardResumeModal.tsx       # Resume incomplete wizard dialog
+├── WizardExitConfirmModal.tsx  # Exit confirmation dialog
+├── ScreenReaderAnnouncement.tsx # Accessibility announcements
+├── screens/                    # Individual wizard steps
+│   ├── AgentSelectionScreen.tsx    # Step 1: Choose AI agent
+│   ├── DirectorySelectionScreen.tsx # Step 2: Select project folder
+│   ├── ConversationScreen.tsx      # Step 3: AI project discovery
+│   └── PhaseReviewScreen.tsx       # Step 4: Review generated plan
+├── services/                   # Business logic
+│   ├── wizardPrompts.ts           # System prompts, response parser
+│   ├── conversationManager.ts     # AI conversation handling
+│   └── phaseGenerator.ts          # Document generation
+└── tour/                       # Post-setup walkthrough
+    ├── TourOverlay.tsx            # Spotlight overlay
+    ├── TourStep.tsx               # Step tooltip
+    ├── tourSteps.ts               # Step definitions
+    └── useTour.tsx                # Tour state management
+```
+
+### Wizard Flow
+
+1. **Agent Selection** → Select available AI (Claude Code, etc.). The name is OPTIONAL
+2. **Directory Selection** → Choose project folder, validates Git repo status. Also fills the agent name and offers "skip the playbook"
+3. **Conversation** → With files in the folder the AGENT opens; otherwise it asks a clarifying question. Builds a confidence score (0-100)
+4. **Phase Review** → View/edit generated Phase 1 document, choose to start tour
+
+When confidence reaches 80+ and agent signals "ready", user proceeds to Phase Review where Auto Run documents are generated and saved to `.maestro/playbooks/initiation/`. The `initiation/` subfolder keeps wizard-generated documents separate from user-created playbooks.
+
+#### Agent name vs project name (issue #1225)
+
+They used to be one string, so naming an agent put that name in the discovery
+prompt as `{{PROJECT_NAME}}` ("Hello Maestro" for a project called something
+else). `shared/projectIdentity.ts` splits them:
+
+- `projectNameFromPath()` - the PROJECT, always the folder. Every
+  `startConversation` / `generateDocuments` call uses this.
+- `defaultAgentNameForPath()` - the Left Bar label, deduplicated against
+  existing agent names because `validateNewSession` rejects a duplicate
+  outright. `useAutoAgentName` applies it on the directory step and only
+  overwrites a blank name or one it wrote itself.
+
+Step 1 therefore no longer requires a name to proceed (`canProceedToNext`).
+
+#### Who speaks first
+
+`useWizardOpeningKind` decides, and `sendOpeningMessage(kind)` sends it:
+
+| Folder state                   | Opening                                                      |
+| ------------------------------ | ------------------------------------------------------------ |
+| Existing playbooks, "continue" | `existing-docs` - agent summarizes the current plan          |
+| Has files                      | `survey` - agent reads the project and reports what it found |
+| Empty (or the read failed)     | None. The canned `getInitialQuestion()` bubble, as before    |
+
+"Has files" comes from `projectHasFiles()`, which ignores `.git`, `.DS_Store`
+and editor folders - `git init` alone is not a project.
+
+#### Which model plans
+
+The discovery turns and the document generation both spawn with
+`sessionCustomModel: state.plannerModel`. Undefined means the agent's own
+configured model applies (`applyAgentConfigOverrides`), which is the default.
+`PlannerModelBar` shows the resolved model on the conversation and generation
+screens and offers the provider's top tier where `resolveTierModel` knows one.
+The override is scoped to the wizard run and is deliberately NOT copied onto
+the created agent.
+
+#### Skipping the playbook
+
+`useSkipPlaybookLaunch` calls the same `onLaunchSession` the final step uses,
+with no generated documents. It must set `autoRunMode: 'none'` first or the
+launch swings the Right Bar to Auto Run for a playbook that does not exist. It
+writes no wizard-run stat: `recordCompletedWizardRun` files zero documents as
+`outcome: 'abandoned'`, which a deliberate skip is not.
+
+### Triggering the Wizard
+
+```typescript
+// From anywhere with useWizard hook
+const { openWizard } = useWizard();
+openWizard();
+
+// Keyboard shortcut (default)
+Cmd + Shift + N; // Opens wizard
+
+// Also available in:
+// - Command K menu: "New Agent Wizard"
+// - Hamburger menu: "New Agent Wizard"
+```
+
+### State Persistence (Resume)
+
+Wizard state persists to `wizardResumeState` in settings when user advances past step 1. The next time the wizard is OPENED (`openWizardModal` in `App.tsx`, not app launch - nothing checks resume state at startup), incomplete state produces `WizardResumeModal`, which offers "Resume" or "Start Fresh".
+
+```typescript
+// Check for saved state
+const hasState = await hasResumeState();
+
+// Load saved state
+const savedState = await loadResumeState();
+
+// Clear saved state
+clearResumeState();
+```
+
+#### State Lifecycle
+
+The Wizard maintains two types of state:
+
+1. **In-Memory State** (React `useReducer`)
+   - Managed in `WizardContext.tsx`
+   - Includes: `currentStep`, `isOpen`, `isComplete`, conversation history, etc.
+   - Lives only during the app session
+   - Must be reset when opening wizard after completion
+
+2. **Persisted State** (Settings)
+   - Stored in `wizardResumeState` via `window.maestro.settings`
+   - Enables resume functionality across app restarts
+   - Automatically saved when advancing past step 1
+   - Cleared on completion or when user chooses "Just Quit"
+
+**State Save Triggers:**
+
+- Auto-save: When `currentStep` changes (step > 1) - `WizardContext.tsx` useEffect with `saveResumeState()`
+- Manual save: User clicks "Save & Exit" - `MaestroWizard.tsx` `handleConfirmExit()`
+
+**State Clear Triggers:**
+
+- Wizard completion: `App.tsx` wizard completion handler + `WizardContext.tsx` `COMPLETE_WIZARD` action
+- User quits: "Quit without saving" button - `MaestroWizard.tsx` `handleQuitWithoutSaving()`
+- User starts fresh: "Start Fresh" in resume modal - `App.tsx` resume handlers
+
+**Opening Wizard Logic:**
+The `openWizard()` function in `WizardContext.tsx` handles state initialization:
+
+```typescript
+// If previous wizard was completed, reset in-memory state first
+if (state.isComplete === true) {
+	dispatch({ type: 'RESET_WIZARD' }); // Clear stale state
+}
+dispatch({ type: 'OPEN_WIZARD' }); // Show wizard UI
+```
+
+This ensures:
+
+- **Fresh starts**: Completed wizards don't contaminate new runs
+- **Resume works**: Abandoned wizards (isComplete: false) preserve state
+- **No race conditions**: Persisted state is checked after wizard opens
+
+**Important:** The persisted state and in-memory state are independent. Clearing one doesn't automatically clear the other. Both must be managed correctly to prevent state contamination (see Issue #89).
+
+### Tour System
+
+The tour highlights UI elements with spotlight cutouts:
+
+```typescript
+// Add data-tour attribute to spotlight elements
+<div data-tour="autorun-panel">...</div>
+
+// Tour steps defined in tourSteps.ts
+{
+  id: 'autorun-panel',
+  title: 'Auto Run in Action',
+  description: '...',
+  selector: '[data-tour="autorun-panel"]',
+  position: 'left',  // tooltip position
+  uiActions: [       // UI state changes before spotlight
+    { type: 'setRightTab', value: 'autorun' },
+  ],
+}
+```
+
+### Customization Points
+
+| What                            | Where                                                                    |
+| ------------------------------- | ------------------------------------------------------------------------ |
+| Add wizard step                 | `WizardContext.tsx` (WIZARD_TOTAL_STEPS, WizardStep type, STEP_INDEX)    |
+| Modify wizard prompts           | `src/prompts/wizard-*.md` (content), `services/wizardPrompts.ts` (logic) |
+| Change confidence threshold     | `READY_CONFIDENCE_THRESHOLD` in wizardPrompts.ts (default: 80)           |
+| Add tour step                   | `tour/tourSteps.ts` array                                                |
+| Modify Auto Run document format | `src/prompts/wizard-document-generation.md`                              |
+| Change wizard keyboard shortcut | `shortcuts.ts` → `openWizard`                                            |
+
+### Related Settings
+
+```typescript
+// In useSettings.ts
+wizardCompleted: boolean; // First wizard completion
+tourCompleted: boolean; // First tour completion
+firstAutoRunCompleted: boolean; // Triggers celebration modal
+```
+
+---
+
+## Inline Wizard (`/wizard`)
+
+The Inline Wizard creates Auto Run Playbook documents from within an existing agent. Unlike the full-screen Onboarding Wizard above, it runs inside a single tab.
+
+### Prerequisites
+
+- Auto Run document folder must be configured for the agent
+- If not set, `/wizard` errors with instructions to configure it
+
+### User Flow
+
+1. **Start**: Type `/wizard` in any AI tab → tab enters wizard mode
+2. **Conversation**: Back-and-forth with agent, confidence gauge builds (0-100%)
+3. **Generation**: At 80%+ confidence, generates docs (Austin Facts shown, cancellable)
+4. **Completion**: Tab returns to normal with preserved context, docs in unique subfolder
+
+### Key Behaviors
+
+- Multiple wizards can run in different tabs simultaneously
+- Wizard state is **per-tab** (`AITab.wizardState`), not per-agent
+- Documents written to unique subfolder under playbooks folder (e.g., `.maestro/playbooks/project-name/`)
+- Tab starts on the `Wizard` placeholder, then auto-names itself `wizard: {Topic}`
+  from the `/wizard <input>` argument or the first message typed into it
+  (`requestWizardTabAutoName` in `src/renderer/services/tabAutoNaming.ts`). The
+  placeholder counts as unnamed; a tab the user renamed by hand is left alone
+- On completion, tab renamed to the generated subfolder name
+- Final AI message summarizes generated docs and next steps
+- Same `agentSessionId` preserved for context continuity
+- **Escape is a ladder, not a single action.** Mid-turn it stops the running turn
+  and stays in the wizard (same as a regular AI tab); idle with user messages it
+  opens the exit confirmation; idle with none it leaves wizard mode. The mid-turn
+  branch must return early: during the first turn the conversation still looks
+  untouched, which is how one Escape used to destroy the whole wizard tab while
+  the agent was running. The composer shows a Stop button in place of Send for
+  the same reason - a keyboard-only exit strands anyone on a tablet or remote
+  desktop.
+- **`/wizard` runs in place**, so the untouched-wizard branch only closes the tab
+  when the host tab has no non-`system` log entries. Otherwise a wizard started
+  in a tab with a real conversation would throw that conversation away.
+
+### Leaving wizard mode never destroys the conversation
+
+The wizard conversation lives ONLY in `wizardState.conversationHistory`, rendered
+by `WizardConversationView`. `tab.logs` (what `TerminalOutput` renders) is a
+different store and the wizard never writes to it while it runs. So clearing
+`wizardState` deletes the whole conversation and hands the user an empty tab.
+
+Every exit therefore goes through `flattenWizardIntoTab(tab, { summary? })` in
+`src/renderer/utils/tabHelpers.ts`, which appends the transcript to `tab.logs`,
+promotes `wizardState.agentSessionId` onto `tab.agentSessionId` so the plain tab
+can keep talking to the same provider context, and only then drops the wizard.
+**Never write `wizardState: undefined` by hand.** The three exits:
+
+| Exit                                       | Handler                              | Closing entry                     |
+| ------------------------------------------ | ------------------------------------ | --------------------------------- |
+| Wizard completes                           | `completeWizardImpl`                 | "Wizard Complete" + next steps    |
+| Exit Wizard button / cancel doc generation | `handleExitWizard`                   | one-line "conversation preserved" |
+| App restart                                | restart sweep in `useWizardHandlers` | one-line "did not survive"        |
+
+The restart case exists because `tab.wizardState` persists to disk but
+`useInlineWizard`'s `tabStates` map does not, so every wizard tab present at load
+is stale. The sweep runs once when `sessionsLoaded` flips true and covers EVERY
+tab in EVERY agent - the per-tab sync effect only ever looks at the active tab,
+so relying on it left background wizard tabs showing a dead wizard until clicked.
+
+Closing the wizard TAB is the deliberate exception: it warns the user first and
+passes `skipHistory`, and the tab is going away regardless. `WizardExitConfirmDialog`
+takes a `willCloseTab` prop for exactly this reason - it must not promise the
+user their progress is lost when the in-place path keeps it.
+
+### Which wizard is running: one source of truth
+
+`useInlineWizard`'s internal `tabStates` map is the authority on what is running.
+`AITab.wizardState` is a **render mirror** of it, and the sync effect in
+`useWizardHandlers` only writes the ACTIVE tab, so the mirror drifts both ways: a
+wizard started on a background tab has none, and a wizard that ends while its tab
+is in the background keeps a stale one. Read activity from
+`useInlineWizardContext().wizardActiveTabs` (or `useWizardActiveTabs()`, the
+non-throwing variant for leaf surfaces rendered outside the provider); read
+`wizardState` only for the conversation content the mirror exists to render.
+
+Two rules follow:
+
+1. **Always name the tab.** `endWizard`, `sendMessage`, `cancelTurn`, and
+   `generateDocuments` all fall back to the hook's `currentTabId`, which tracks the
+   LAST-TOUCHED wizard, not the visible one. Ending the wrong tab leaves the visible
+   wizard registered on a tab that has already dropped its state, with nothing left
+   that can clear it. Watch for `onClick={onCancel}` in particular: it type-checks
+   against a `() => void` prop and then hands React's click event in as the tab id.
+2. **An agent-level indicator must be rolled up through
+   `rollUpWizardActivityToSessions()`** (`src/renderer/utils/wizardActivity.ts`),
+   which drops any tab that is no longer open. Every path that removes a tab (close,
+   close-all, snooze, agent delete) has to remember to evict its wizard entry; the
+   liveness filter is what stops one that forgets from burning a wand into the Left
+   Bar for an agent with no wizard tab to switch to.
+
+### Architecture
+
+```
+src/renderer/components/InlineWizard/
+├── WizardConversationView.tsx  # Conversation phase UI
+├── WizardInputPanel.tsx        # Input with confidence gauge
+├── DocumentGenerationView.tsx  # Generation phase with Austin Facts
+└── ... (see index.ts for full documentation)
+
+src/renderer/hooks/batch/useInlineWizard.ts    # Main hook
+src/renderer/contexts/InlineWizardContext.tsx  # State provider
+src/renderer/utils/wizardActivity.ts           # Live per-tab activity + agent roll-up
+```
+
+### Customization Points
+
+| What                         | Where                                                  |
+| ---------------------------- | ------------------------------------------------------ |
+| Modify inline wizard prompts | `src/prompts/wizard-*.md`                              |
+| Change confidence threshold  | `READY_CONFIDENCE_THRESHOLD` in wizardPrompts.ts       |
+| Modify generation UI         | `DocumentGenerationView.tsx`, `AustinFactsDisplay.tsx` |

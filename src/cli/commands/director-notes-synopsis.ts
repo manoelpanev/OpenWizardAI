@@ -1,0 +1,202 @@
+// Director's Notes Synopsis command
+// Generates an AI synopsis of recent activity across all agents
+// Requires the Maestro desktop app to be running
+
+import { withMaestroClient } from '../services/maestro-client';
+import { readSettings } from '../services/storage';
+import { formatError } from '../output/formatter';
+import {
+	parseDirectorNotesNarrative,
+	recoverDirectorNotesNarrative,
+	narrativeToMarkdown,
+} from '../../shared/directorNotesNarrative';
+import { AUTO_SYNOPSIS_PROVIDER, synopsisProviderChoice } from '../../shared/directorNotesProvider';
+import type { ToolType } from '../../shared/types';
+
+type OutputFormat = 'json' | 'markdown' | 'text';
+
+interface DirectorNotesSynopsisOptions {
+	days?: string;
+	format?: OutputFormat;
+	json?: boolean;
+}
+
+interface SynopsisResult {
+	type: string;
+	success: boolean;
+	synopsis: string;
+	generatedAt?: number;
+	stats?: {
+		agentCount: number;
+		entryCount: number;
+		durationMs: number;
+	};
+	error?: string;
+	requestId?: string;
+	/** The provider that actually ran (resolved by the desktop under auto). */
+	provider?: string;
+}
+
+function resolveFormat(options: DirectorNotesSynopsisOptions): OutputFormat {
+	if (options.json) return 'json';
+	return options.format || 'text';
+}
+
+function getDefaultLookbackDays(): number {
+	const settings = readSettings();
+	const dnSettings = settings.directorNotesSettings as { defaultLookbackDays?: number } | undefined;
+	return dnSettings?.defaultLookbackDays ?? 7;
+}
+
+/**
+ * The `provider` value to send to the desktop. Auto-selection is the default, so
+ * unless the conductor turned it off this returns the `'auto'` sentinel and the
+ * desktop picks the first installed supported provider at generation time.
+ */
+function getDefaultProvider(): string {
+	const settings = readSettings();
+	const dnSettings = settings.directorNotesSettings as
+		| { provider?: ToolType; autoSelectProvider?: boolean }
+		| undefined;
+	// Same auto-vs-manual rule the desktop uses, so the CLI cannot drift from it.
+	return synopsisProviderChoice({
+		provider: dnSettings?.provider ?? 'claude-code',
+		autoSelectProvider: dnSettings?.autoSelectProvider,
+	});
+}
+
+function checkEncoreFeatureEnabled(): void {
+	const settings = readSettings();
+	const encoreFeatures = settings.encoreFeatures as { directorNotes?: boolean } | undefined;
+	if (!encoreFeatures?.directorNotes) {
+		throw new Error("Director's Notes is not enabled. Enable it in Settings > Encore Features.");
+	}
+}
+
+/**
+ * The agent emits the structured JSON narrative now. For the human-readable
+ * `markdown`/`text` formats, convert it back to markdown prose (the pre-Rich-Mode
+ * output). Output the strict parser rejects gets the same best-effort salvage the
+ * desktop surfaces use, with the reason noted inline when the salvage actually
+ * cost content, so a partial report never reads as a complete one. Falls back to
+ * the raw string for legacy markdown, so
+ * this never makes the CLI output worse than the raw synopsis. (`-f json` stays
+ * untouched - it intentionally returns the raw `synopsis`.)
+ */
+function synopsisToReadableMarkdown(synopsis: string): string {
+	const parsed = parseDirectorNotesNarrative(synopsis);
+	if (parsed.ok) return narrativeToMarkdown(parsed.narrative);
+
+	const recovered = recoverDirectorNotesNarrative(synopsis);
+	if (recovered.ok) {
+		// A lossless repair rebuilt syntax only, so the report is whole - prefixing
+		// a caveat would just make a complete report look suspect.
+		if (recovered.lossless) return narrativeToMarkdown(recovered.narrative);
+		return `> ${recovered.reason}\n\n${narrativeToMarkdown(recovered.narrative)}`;
+	}
+	return synopsis;
+}
+
+function stripMarkdownFormatting(md: string): string {
+	return (
+		md
+			// Remove headers but keep text
+			.replace(/^#{1,6}\s+/gm, '')
+			// Remove bold/italic markers
+			.replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1')
+			.replace(/_{1,3}([^_]+)_{1,3}/g, '$1')
+			// Remove inline code
+			.replace(/`([^`]+)`/g, '$1')
+			// Remove link syntax, keep text
+			.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+			// Remove horizontal rules
+			.replace(/^---+$/gm, '')
+			// Remove bullet markers
+			.replace(/^[\s]*[-*+]\s+/gm, '  ')
+			// Collapse multiple blank lines
+			.replace(/\n{3,}/g, '\n\n')
+			.trim()
+	);
+}
+
+export async function directorNotesSynopsis(options: DirectorNotesSynopsisOptions): Promise<void> {
+	const format = resolveFormat(options);
+
+	try {
+		checkEncoreFeatureEnabled();
+
+		const lookbackDays = options.days ? parseInt(options.days, 10) : getDefaultLookbackDays();
+		const provider = getDefaultProvider();
+
+		if (format !== 'json') {
+			const period =
+				lookbackDays > 0 ? `last ${lookbackDays} day${lookbackDays !== 1 ? 's' : ''}` : 'all time';
+			const providerLabel =
+				provider === AUTO_SYNOPSIS_PROVIDER ? 'auto (first available)' : provider;
+			process.stderr.write(
+				`Generating Director's Notes synopsis (${period}, provider: ${providerLabel})...\n`
+			);
+		}
+
+		const result = await withMaestroClient(async (client) => {
+			// Synopsis generation can take many minutes for large lookbacks. Wait
+			// generously so the inner groomContext timeout (5 min default) wins
+			// rather than racing the CLI's outer wait.
+			return client.sendCommand<SynopsisResult>(
+				{
+					type: 'generate_director_notes_synopsis',
+					lookbackDays,
+					provider,
+				},
+				'generate_director_notes_synopsis_result',
+				15 * 60 * 1000
+			);
+		});
+
+		if (!result.success) {
+			throw new Error(result.error || 'Synopsis generation failed');
+		}
+
+		if (format === 'json') {
+			console.log(
+				JSON.stringify(
+					{
+						synopsis: result.synopsis,
+						generatedAt: result.generatedAt,
+						date: result.generatedAt ? new Date(result.generatedAt).toISOString() : undefined,
+						lookbackDays,
+						// Report the provider that actually ran when the desktop tells us;
+						// under auto-selection `provider` here is only the sentinel.
+						provider: result.provider ?? provider,
+						stats: result.stats,
+					},
+					null,
+					2
+				)
+			);
+		} else if (format === 'markdown') {
+			console.log(synopsisToReadableMarkdown(result.synopsis));
+		} else {
+			// Text: render the narrative as markdown, then strip formatting for
+			// clean terminal output.
+			console.log(stripMarkdownFormatting(synopsisToReadableMarkdown(result.synopsis)));
+
+			if (result.stats) {
+				const duration = result.stats.durationMs
+					? `${(result.stats.durationMs / 1000).toFixed(1)}s`
+					: 'unknown';
+				process.stderr.write(
+					`\nGenerated from ${result.stats.agentCount} agents, ${result.stats.entryCount} entries in ${duration}\n`
+				);
+			}
+		}
+	} catch (error) {
+		const message = error instanceof Error ? error.message : 'Unknown error';
+		if (format === 'json') {
+			console.error(JSON.stringify({ error: message }));
+		} else {
+			console.error(formatError(message));
+		}
+		process.exit(1);
+	}
+}

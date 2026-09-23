@@ -1,0 +1,615 @@
+import { useCallback } from 'react';
+import { selectActiveSession, useSessionStore } from '../../../stores/sessionStore';
+import type { FilePreviewTab, Session, UnifiedTabRef } from '../../../types';
+import {
+	closeFileTab as closeFileTabHelper,
+	ensureInUnifiedTabOrder,
+} from '../../../utils/tabHelpers';
+import { fileTabFocusFields } from '../../../utils/tabFocusFields';
+import { generateId } from '../../../utils/ids';
+import { insertAfterActiveInUnifiedTabOrder } from '../../../utils/unifiedTabOrderUtils';
+import { logger } from '../../../utils/logger';
+import { useModalStore } from '../../../stores/modalStore';
+import { useSettingsStore } from '../../../stores/settingsStore';
+import { useMediaPlaybackStore } from '../../../stores/mediaPlaybackStore';
+import { getOpenedMediaKind } from '../../../utils/mediaItems';
+import { buildReplacementNavigationHistory, getFileNameParts } from './filePreviewTabHelpers';
+import type { FilePreviewTabHandlersReturn, FileTabOpenParams, MediaOpenMode } from './types';
+
+export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
+	const handleOpenFileTab = useCallback(
+		(
+			file: FileTabOpenParams,
+			options?: {
+				openInNewTab?: boolean;
+				targetSessionId?: string;
+				mediaMode?: MediaOpenMode;
+				/**
+				 * When false the tab is created but NOT shown: every active-* id and
+				 * inputMode are left as they were. Background placement for remote
+				 * (CLI / web) opens - see shared/focusPlacement.ts. Default true.
+				 */
+				activate?: boolean;
+			}
+		) => {
+			const openInNewTab = options?.openInNewTab ?? true;
+			const activate = options?.activate !== false;
+			const { setSessions } = useSessionStore.getState();
+			const activeSessionId =
+				options?.targetSessionId || useSessionStore.getState().activeSessionId;
+
+			// Media never becomes a tab. Audio and video go straight to the floating
+			// player, which is the only surface they ever appear on: no entry in the
+			// tab bar, no main panel takeover, so a podcast does not cost the user
+			// their workspace. This is the single choke point every open path funnels
+			// through, which is why the diversion belongs here rather than in each
+			// caller. Non-playable media (a remote file, which has no local stream)
+			// falls through to the normal binary preview.
+			const mediaKind = getOpenedMediaKind(file.name, file.content);
+			if (mediaKind) {
+				const session = useSessionStore
+					.getState()
+					.sessions.find((s: Session) => s.id === activeSessionId);
+				if (session) {
+					const request = {
+						path: file.path,
+						name: file.name,
+						kind: mediaKind,
+						sessionId: session.id,
+						sessionName: session.name,
+					};
+					const store = useMediaPlaybackStore.getState();
+					// Queue mode is how a multi-file open stays sane: the first file
+					// plays and the rest line up behind it, instead of ten opens each
+					// stealing the player from the one before.
+					if (options?.mediaMode === 'queue') {
+						store.enqueueMedia([request]);
+					} else {
+						store.openMedia(request);
+					}
+					return;
+				}
+			}
+
+			setSessions((prev: Session[]) =>
+				prev.map((s) => {
+					if (s.id !== activeSessionId) return s;
+
+					const existingTab = s.filePreviewTabs.find((tab) => tab.path === file.path);
+					if (existingTab) {
+						const updatedTabs = s.filePreviewTabs.map((tab) =>
+							tab.id === existingTab.id
+								? {
+										...tab,
+										content: file.content,
+										lastModified: file.lastModified ?? tab.lastModified,
+										isLoading: file.isLoading ?? false,
+										loadRequestId: file.isLoading ? file.loadRequestId : undefined,
+										pendingScrollToLine:
+											file.pendingScrollToLine !== undefined
+												? file.pendingScrollToLine
+												: tab.pendingScrollToLine,
+										// Re-opening the file already in this tab: leave playback
+										// alone rather than restarting something mid-listen.
+									}
+								: tab
+						);
+						return {
+							...s,
+							filePreviewTabs: updatedTabs,
+							// A background re-open refreshes the tab's content in place and
+							// leaves the view alone; only an activating open brings it forward.
+							...(activate ? fileTabFocusFields(existingTab.id) : {}),
+							activeTabId: s.activeTabId,
+							unifiedTabOrder: ensureInUnifiedTabOrder(s.unifiedTabOrder, 'file', existingTab.id),
+						};
+					}
+
+					if (!openInNewTab && s.activeFileTabId) {
+						const currentTabId = s.activeFileTabId;
+						const currentTab = s.filePreviewTabs.find((tab) => tab.id === currentTabId);
+						const { extension, nameWithoutExtension } = getFileNameParts(file.name);
+
+						const updatedTabs = s.filePreviewTabs.map((tab) => {
+							if (tab.id !== currentTabId) return tab;
+
+							const finalHistory = buildReplacementNavigationHistory(
+								tab,
+								currentTab,
+								file,
+								nameWithoutExtension
+							);
+
+							return {
+								...tab,
+								path: file.path,
+								name: nameWithoutExtension,
+								extension,
+								content: file.content,
+								scrollTop: 0,
+								searchQuery: '',
+								editMode: false,
+								editContent: undefined,
+								lastModified: file.lastModified ?? Date.now(),
+								sshRemoteId: file.sshRemoteId,
+								isLoading: file.isLoading ?? false,
+								loadRequestId: file.isLoading ? file.loadRequestId : undefined,
+								navigationHistory: finalHistory,
+								navigationIndex: finalHistory.length - 1,
+								pendingScrollToLine: file.pendingScrollToLine,
+							};
+						});
+						return {
+							...s,
+							filePreviewTabs: updatedTabs,
+							// This branch rewrites the file tab that is ALREADY active, so
+							// activation only has to clear the surfaces that outrank it.
+							...(activate ? fileTabFocusFields(currentTabId) : {}),
+						};
+					}
+
+					const newTabId = generateId();
+					const { extension, nameWithoutExtension } = getFileNameParts(file.name);
+					const newFileTab: FilePreviewTab = {
+						id: newTabId,
+						path: file.path,
+						name: nameWithoutExtension,
+						extension,
+						content: file.content,
+						scrollTop: 0,
+						searchQuery: '',
+						editMode: false,
+						editContent: undefined,
+						createdAt: Date.now(),
+						lastModified: file.lastModified ?? Date.now(),
+						sshRemoteId: file.sshRemoteId,
+						isLoading: file.isLoading ?? false,
+						loadRequestId: file.isLoading ? file.loadRequestId : undefined,
+						navigationHistory: [{ path: file.path, name: nameWithoutExtension, scrollTop: 0 }],
+						navigationIndex: 0,
+						pendingScrollToLine: file.pendingScrollToLine,
+					};
+
+					const newTabRef: UnifiedTabRef = { type: 'file', id: newTabId };
+					const updatedUnifiedTabOrder = insertAfterActiveInUnifiedTabOrder(s, newTabRef);
+
+					return {
+						...s,
+						filePreviewTabs: [...s.filePreviewTabs, newFileTab],
+						unifiedTabOrder: updatedUnifiedTabOrder,
+						...(activate ? fileTabFocusFields(newTabId) : {}),
+					};
+				})
+			);
+		},
+		[]
+	);
+
+	const forceCloseFileTab = useCallback((tabId: string) => {
+		const { setSessions, activeSessionId } = useSessionStore.getState();
+		const activeSession = useSessionStore
+			.getState()
+			.sessions.find((s: Session) => s.id === activeSessionId);
+		const closingTab = activeSession?.filePreviewTabs.find((t) => t.id === tabId);
+		if (closingTab?.isLoading && closingTab.loadRequestId) {
+			void window.maestro.fs.cancelReadFile(closingTab.loadRequestId);
+		}
+
+		setSessions((prev: Session[]) =>
+			prev.map((s) => {
+				if (s.id !== activeSessionId) return s;
+				const result = closeFileTabHelper(s, tabId);
+				if (!result) return s;
+				return result.session;
+			})
+		);
+	}, []);
+
+	const handleCloseFileTab = useCallback(
+		(tabId: string) => {
+			const currentSession = selectActiveSession(useSessionStore.getState());
+			if (!currentSession) {
+				forceCloseFileTab(tabId);
+				return;
+			}
+
+			const tabToClose = currentSession.filePreviewTabs.find((tab) => tab.id === tabId);
+			if (!tabToClose) {
+				forceCloseFileTab(tabId);
+				return;
+			}
+
+			if (tabToClose.editContent !== undefined) {
+				useModalStore.getState().openModal('confirm', {
+					message: `"${tabToClose.name}${tabToClose.extension}" has unsaved changes. Are you sure you want to close it?`,
+					onConfirm: () => {
+						forceCloseFileTab(tabId);
+					},
+				});
+			} else {
+				forceCloseFileTab(tabId);
+			}
+		},
+		[forceCloseFileTab]
+	);
+
+	const handleFileTabEditModeChange = useCallback((tabId: string, editMode: boolean) => {
+		const { setSessions, activeSessionId } = useSessionStore.getState();
+		setSessions((prev: Session[]) =>
+			prev.map((s) => {
+				if (s.id !== activeSessionId) return s;
+				const updatedFileTabs = s.filePreviewTabs.map((tab) => {
+					if (tab.id !== tabId) return tab;
+					return { ...tab, editMode };
+				});
+				return { ...s, filePreviewTabs: updatedFileTabs };
+			})
+		);
+	}, []);
+
+	// `savedMtime` travels with `savedContent`: the tab's lastModified must track
+	// the mtime of the bytes it is holding. Leave it out on a save and the tab
+	// keeps its pre-save timestamp, so the next mount of FilePreview compares the
+	// disk against a stale value and raises a false "File changed on disk".
+	const handleFileTabEditContentChange = useCallback(
+		(
+			tabId: string,
+			editContent: string | undefined,
+			savedContent?: string,
+			savedMtime?: number
+		) => {
+			const { setSessions, activeSessionId } = useSessionStore.getState();
+			setSessions((prev: Session[]) =>
+				prev.map((s) => {
+					if (s.id !== activeSessionId) return s;
+					const updatedFileTabs = s.filePreviewTabs.map((tab) => {
+						if (tab.id !== tabId) return tab;
+						if (savedContent !== undefined) {
+							return {
+								...tab,
+								editContent,
+								content: savedContent,
+								lastModified: savedMtime ?? tab.lastModified,
+							};
+						}
+						return { ...tab, editContent };
+					});
+					return { ...s, filePreviewTabs: updatedFileTabs };
+				})
+			);
+		},
+		[]
+	);
+
+	const handleFileTabScrollPositionChange = useCallback((tabId: string, scrollTop: number) => {
+		const { setSessions, activeSessionId } = useSessionStore.getState();
+		setSessions((prev: Session[]) =>
+			prev.map((s) => {
+				if (s.id !== activeSessionId) return s;
+				const updatedFileTabs = s.filePreviewTabs.map((tab) => {
+					if (tab.id !== tabId) return tab;
+
+					let updatedHistory = tab.navigationHistory;
+					if (updatedHistory && updatedHistory.length > 0) {
+						const currentIndex = tab.navigationIndex ?? updatedHistory.length - 1;
+						if (currentIndex >= 0 && currentIndex < updatedHistory.length) {
+							updatedHistory = updatedHistory.map((entry, idx) =>
+								idx === currentIndex ? { ...entry, scrollTop } : entry
+							);
+						}
+					}
+					return { ...tab, scrollTop, navigationHistory: updatedHistory };
+				});
+				return { ...s, filePreviewTabs: updatedFileTabs };
+			})
+		);
+	}, []);
+
+	const handleFileTabSearchQueryChange = useCallback((tabId: string, searchQuery: string) => {
+		const { setSessions, activeSessionId } = useSessionStore.getState();
+		setSessions((prev: Session[]) =>
+			prev.map((s) => {
+				if (s.id !== activeSessionId) return s;
+				const updatedFileTabs = s.filePreviewTabs.map((tab) => {
+					if (tab.id !== tabId) return tab;
+					return { ...tab, searchQuery };
+				});
+				return { ...s, filePreviewTabs: updatedFileTabs };
+			})
+		);
+	}, []);
+
+	const handleReloadFileTab = useCallback(async (tabId: string) => {
+		const currentSession = selectActiveSession(useSessionStore.getState());
+		if (!currentSession) return;
+
+		const fileTab = currentSession.filePreviewTabs.find((tab) => tab.id === tabId);
+		if (!fileTab) return;
+
+		try {
+			const [content, stat] = await Promise.all([
+				window.maestro.fs.readFile(fileTab.path, fileTab.sshRemoteId),
+				window.maestro.fs.stat(fileTab.path, fileTab.sshRemoteId),
+			]);
+			if (content === null) return;
+			const newMtime = stat?.modifiedAt ? new Date(stat.modifiedAt).getTime() : Date.now();
+
+			useSessionStore.getState().setSessions((prev: Session[]) =>
+				prev.map((s) => {
+					if (s.id !== useSessionStore.getState().activeSessionId) return s;
+					return {
+						...s,
+						filePreviewTabs: s.filePreviewTabs.map((tab) =>
+							tab.id === tabId
+								? {
+										...tab,
+										content,
+										lastModified: newMtime,
+										editContent: undefined,
+									}
+								: tab
+						),
+					};
+				})
+			);
+		} catch (error) {
+			logger.debug('[handleReloadFileTab] Failed to reload:', undefined, error);
+		}
+	}, []);
+
+	const handleSelectFileTab = useCallback(async (tabId: string) => {
+		const { setSessions } = useSessionStore.getState();
+		const currentSession = selectActiveSession(useSessionStore.getState());
+		if (!currentSession) return;
+
+		const fileTab = currentSession.filePreviewTabs.find((tab) => tab.id === tabId);
+		if (!fileTab) return;
+
+		setSessions((prev: Session[]) =>
+			prev.map((s) => {
+				if (s.id !== currentSession.id) return s;
+				return {
+					...s,
+					activeFileTabId: tabId,
+					activeBrowserTabId: null,
+					activeTerminalTabId: null,
+					inputMode: 'ai',
+				};
+			})
+		);
+
+		const { fileTabAutoRefreshEnabled } = useSettingsStore.getState();
+		if (fileTabAutoRefreshEnabled && !fileTab.editContent) {
+			try {
+				const stat = await window.maestro.fs.stat(fileTab.path, fileTab.sshRemoteId);
+				if (!stat || !stat.modifiedAt) return;
+
+				const currentMtime = new Date(stat.modifiedAt).getTime();
+
+				if (currentMtime > fileTab.lastModified) {
+					const content = await window.maestro.fs.readFile(fileTab.path, fileTab.sshRemoteId);
+					if (content === null) return;
+					useSessionStore.getState().setSessions((prev: Session[]) =>
+						prev.map((s) => {
+							if (s.id !== useSessionStore.getState().activeSessionId) return s;
+							return {
+								...s,
+								filePreviewTabs: s.filePreviewTabs.map((tab) =>
+									tab.id === tabId ? { ...tab, content, lastModified: currentMtime } : tab
+								),
+							};
+						})
+					);
+				}
+			} catch (error) {
+				logger.debug('[handleSelectFileTab] Auto-refresh failed:', undefined, error);
+			}
+		}
+	}, []);
+
+	const handleNewFileTab = useCallback(() => {
+		const { setSessions, activeSessionId } = useSessionStore.getState();
+		setSessions((prev: Session[]) =>
+			prev.map((s) => {
+				if (s.id !== activeSessionId) return s;
+
+				const newTabId = generateId();
+				const newFileTab: FilePreviewTab = {
+					id: newTabId,
+					path: '',
+					name: 'Untitled',
+					extension: '',
+					content: '',
+					scrollTop: 0,
+					searchQuery: '',
+					editMode: true,
+					editContent: '',
+					createdAt: Date.now(),
+					lastModified: Date.now(),
+					isLoading: false,
+					navigationHistory: [],
+					navigationIndex: -1,
+				};
+
+				const newTabRef: UnifiedTabRef = { type: 'file', id: newTabId };
+				const updatedUnifiedTabOrder = insertAfterActiveInUnifiedTabOrder(s, newTabRef);
+
+				return {
+					...s,
+					filePreviewTabs: [...s.filePreviewTabs, newFileTab],
+					unifiedTabOrder: updatedUnifiedTabOrder,
+					activeFileTabId: newTabId,
+					activeBrowserTabId: null,
+					activeTerminalTabId: null,
+					inputMode: 'ai' as const,
+				};
+			})
+		);
+	}, []);
+
+	const handleClearFilePreviewHistory = useCallback(() => {
+		const currentSession = selectActiveSession(useSessionStore.getState());
+		if (!currentSession) return;
+		useSessionStore
+			.getState()
+			.updateSession(currentSession.id, { filePreviewHistory: [], filePreviewHistoryIndex: -1 });
+	}, []);
+
+	const handleFileTabNavigateBack = useCallback(async () => {
+		const { setSessions } = useSessionStore.getState();
+		const currentSession = selectActiveSession(useSessionStore.getState());
+		if (!currentSession?.activeFileTabId) return;
+
+		const currentTab = currentSession.filePreviewTabs.find(
+			(tab) => tab.id === currentSession.activeFileTabId
+		);
+		if (!currentTab) return;
+
+		const history = currentTab.navigationHistory ?? [];
+		const currentIndex = currentTab.navigationIndex ?? history.length - 1;
+
+		if (currentIndex > 0) {
+			const newIndex = currentIndex - 1;
+			const historyEntry = history[newIndex];
+
+			try {
+				const sshRemoteId = currentTab.sshRemoteId;
+				const content = await window.maestro.fs.readFile(historyEntry.path, sshRemoteId);
+				if (content === null) return;
+
+				setSessions((prev: Session[]) =>
+					prev.map((s) => {
+						if (s.id !== currentSession.id) return s;
+						return {
+							...s,
+							filePreviewTabs: s.filePreviewTabs.map((tab) =>
+								tab.id === currentTab.id
+									? {
+											...tab,
+											path: historyEntry.path,
+											name: historyEntry.name,
+											content,
+											scrollTop: historyEntry.scrollTop ?? 0,
+											navigationIndex: newIndex,
+										}
+									: tab
+							),
+						};
+					})
+				);
+			} catch (error) {
+				logger.error('Failed to navigate back:', undefined, error);
+			}
+		}
+	}, []);
+
+	const handleFileTabNavigateForward = useCallback(async () => {
+		const { setSessions } = useSessionStore.getState();
+		const currentSession = selectActiveSession(useSessionStore.getState());
+		if (!currentSession?.activeFileTabId) return;
+
+		const currentTab = currentSession.filePreviewTabs.find(
+			(tab) => tab.id === currentSession.activeFileTabId
+		);
+		if (!currentTab) return;
+
+		const history = currentTab.navigationHistory ?? [];
+		const currentIndex = currentTab.navigationIndex ?? history.length - 1;
+
+		if (currentIndex < history.length - 1) {
+			const newIndex = currentIndex + 1;
+			const historyEntry = history[newIndex];
+
+			try {
+				const sshRemoteId = currentTab.sshRemoteId;
+				const content = await window.maestro.fs.readFile(historyEntry.path, sshRemoteId);
+				if (content === null) return;
+
+				setSessions((prev: Session[]) =>
+					prev.map((s) => {
+						if (s.id !== currentSession.id) return s;
+						return {
+							...s,
+							filePreviewTabs: s.filePreviewTabs.map((tab) =>
+								tab.id === currentTab.id
+									? {
+											...tab,
+											path: historyEntry.path,
+											name: historyEntry.name,
+											content,
+											scrollTop: historyEntry.scrollTop ?? 0,
+											navigationIndex: newIndex,
+										}
+									: tab
+							),
+						};
+					})
+				);
+			} catch (error) {
+				logger.error('Failed to navigate forward:', undefined, error);
+			}
+		}
+	}, []);
+
+	const handleFileTabNavigateToIndex = useCallback(async (index: number) => {
+		const { setSessions } = useSessionStore.getState();
+		const currentSession = selectActiveSession(useSessionStore.getState());
+		if (!currentSession?.activeFileTabId) return;
+
+		const currentTab = currentSession.filePreviewTabs.find(
+			(tab) => tab.id === currentSession.activeFileTabId
+		);
+		if (!currentTab) return;
+
+		const history = currentTab.navigationHistory ?? [];
+
+		if (index >= 0 && index < history.length) {
+			const historyEntry = history[index];
+
+			try {
+				const sshRemoteId = currentTab.sshRemoteId;
+				const content = await window.maestro.fs.readFile(historyEntry.path, sshRemoteId);
+				if (content === null) return;
+
+				setSessions((prev: Session[]) =>
+					prev.map((s) => {
+						if (s.id !== currentSession.id) return s;
+						return {
+							...s,
+							filePreviewTabs: s.filePreviewTabs.map((tab) =>
+								tab.id === currentTab.id
+									? {
+											...tab,
+											path: historyEntry.path,
+											name: historyEntry.name,
+											content,
+											scrollTop: historyEntry.scrollTop ?? 0,
+											navigationIndex: index,
+										}
+									: tab
+							),
+						};
+					})
+				);
+			} catch (error) {
+				logger.error('Failed to navigate to index:', undefined, error);
+			}
+		}
+	}, []);
+
+	return {
+		handleOpenFileTab,
+		handleSelectFileTab,
+		handleCloseFileTab,
+		handleFileTabEditModeChange,
+		handleFileTabEditContentChange,
+		handleFileTabScrollPositionChange,
+		handleFileTabSearchQueryChange,
+		handleReloadFileTab,
+		handleFileTabNavigateBack,
+		handleFileTabNavigateForward,
+		handleFileTabNavigateToIndex,
+		handleClearFilePreviewHistory,
+		handleNewFileTab,
+	};
+}

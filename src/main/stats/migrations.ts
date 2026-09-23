@@ -1,0 +1,436 @@
+/**
+ * Stats Database Migration System
+ *
+ * Manages schema evolution through versioned, sequential migrations.
+ * Each migration runs exactly once and is recorded in the _migrations table.
+ *
+ * ### Adding New Migrations
+ *
+ * 1. Create a new `migrateVN()` function
+ * 2. Add it to the `getMigrations()` array with version number and description
+ * 3. Update `STATS_DB_VERSION` in `../../shared/stats-types.ts`
+ */
+
+import type Database from 'better-sqlite3';
+import type { Migration, MigrationRecord } from './types';
+import { mapMigrationRecordRow, type MigrationRecordRow } from './row-mappers';
+import {
+	CREATE_MIGRATIONS_TABLE_SQL,
+	CREATE_QUERY_EVENTS_SQL,
+	CREATE_QUERY_EVENTS_INDEXES_SQL,
+	CREATE_AUTO_RUN_SESSIONS_SQL,
+	CREATE_AUTO_RUN_SESSIONS_INDEXES_SQL,
+	CREATE_AUTO_RUN_TASKS_SQL,
+	CREATE_AUTO_RUN_TASKS_INDEXES_SQL,
+	CREATE_SESSION_LIFECYCLE_SQL,
+	CREATE_SESSION_LIFECYCLE_INDEXES_SQL,
+	CREATE_COMPOUND_INDEXES_SQL,
+	CREATE_IMAGE_ANNOTATIONS_SQL,
+	CREATE_IMAGE_ANNOTATIONS_INDEXES_SQL,
+	CREATE_SHORTCUT_USAGE_DAILY_SQL,
+	ADD_QUERY_EVENT_TOKEN_COLUMNS,
+	CREATE_RESILIENCE_EVENTS_SQL,
+	CREATE_RESILIENCE_EVENTS_INDEXES_SQL,
+	CREATE_WIZARD_RUNS_SQL,
+	CREATE_WIZARD_RUNS_INDEXES_SQL,
+	runStatements,
+} from './schema';
+import { LOG_CONTEXT } from './utils';
+import { logger } from '../utils/logger';
+
+// ============================================================================
+// Migration Registry
+// ============================================================================
+
+/**
+ * Registry of all database migrations.
+ * Migrations must be sequential starting from version 1.
+ */
+function getMigrations(): Migration[] {
+	return [
+		{
+			version: 1,
+			description: 'Initial schema: query_events, auto_run_sessions, auto_run_tasks tables',
+			up: (db) => migrateV1(db),
+		},
+		{
+			version: 2,
+			description: 'Add is_remote column to query_events for tracking SSH sessions',
+			up: (db) => migrateV2(db),
+		},
+		{
+			version: 3,
+			description: 'Add session_lifecycle table for tracking session creation and closure',
+			up: (db) => migrateV3(db),
+		},
+		{
+			version: 4,
+			description: 'Add compound indexes on query_events for dashboard query performance',
+			up: (db) => migrateV4(db),
+		},
+		{
+			version: 5,
+			description:
+				'Add is_worktree column to query_events and session_lifecycle for worktree analytics',
+			up: (db) => migrateV5(db),
+		},
+		{
+			version: 6,
+			description: 'Add image_annotations table for tracking image annotation events',
+			up: (db) => migrateV6(db),
+		},
+		{
+			version: 7,
+			description: 'Add shortcut_usage_daily table for tracking keyboard shortcut firings per day',
+			up: (db) => migrateV7(db),
+		},
+		{
+			// v8-v10 declare `isApplied` because rc assigns different migrations to
+			// these numbers (rc's v8 is multi_window_usage_daily). An install that
+			// last ran an rc build can already sit at user_version 8+ without ever
+			// running main's bodies, so runMigrations re-applies any whose schema is
+			// missing (MAESTRO-113/114).
+			version: 8,
+			description: 'Add per-turn token and cost columns to query_events for cost attribution',
+			up: (db) => migrateV8(db),
+			isApplied: (db) =>
+				ADD_QUERY_EVENT_TOKEN_COLUMNS.every((column) => hasColumn(db, 'query_events', column)),
+		},
+		{
+			// MERGE NOTE (main -> rc): rc numbers its token-columns migration 9, so
+			// this entry must become version 10 there or the two branches' installs
+			// diverge on what "9" means. The migration body is idempotent
+			// (CREATE IF NOT EXISTS) precisely so renumbering it is safe.
+			version: 9,
+			description: 'Add resilience_events table for Agent Resilience outage tracking',
+			up: (db) => migrateV9(db),
+			isApplied: (db) => hasTable(db, 'resilience_events'),
+		},
+		{
+			// MERGE NOTE (main -> rc): this rides on top of the v9 renumbering
+			// note above - if v9 becomes 10 on rc, this becomes 11 there. The
+			// body is idempotent (CREATE IF NOT EXISTS) so renumbering is safe.
+			version: 10,
+			description: 'Add wizard_runs table for Auto Run wizard usage tracking',
+			up: (db) => migrateV10(db),
+			isApplied: (db) => hasTable(db, 'wizard_runs'),
+		},
+	];
+}
+
+// ============================================================================
+// Migration Execution
+// ============================================================================
+
+/**
+ * Run all pending database migrations.
+ *
+ * 1. Creates the _migrations table if it doesn't exist
+ * 2. Gets the current schema version from user_version pragma
+ * 3. Re-applies already-covered migrations whose schema is missing
+ * 4. Runs each pending migration in a transaction
+ * 5. Records each migration in the _migrations table
+ * 6. Updates the user_version pragma
+ */
+export function runMigrations(db: Database.Database): void {
+	// Create migrations table (the only table created outside the migration system)
+	db.prepare(CREATE_MIGRATIONS_TABLE_SQL).run();
+
+	// Get current version (0 if fresh database)
+	const versionResult = db.pragma('user_version') as Array<{ user_version: number }>;
+	const currentVersion = versionResult[0]?.user_version ?? 0;
+
+	const migrations = getMigrations();
+	repairSkippedMigrations(db, migrations, currentVersion);
+
+	const pendingMigrations = migrations.filter((m) => m.version > currentVersion);
+
+	if (pendingMigrations.length === 0) {
+		logger.debug(`Database is up to date (version ${currentVersion})`, LOG_CONTEXT);
+		return;
+	}
+
+	// Sort by version to ensure sequential execution
+	pendingMigrations.sort((a, b) => a.version - b.version);
+
+	logger.info(
+		`Running ${pendingMigrations.length} pending migration(s) (current version: ${currentVersion})`,
+		LOG_CONTEXT
+	);
+
+	for (const migration of pendingMigrations) {
+		applyMigration(db, migration);
+	}
+}
+
+/**
+ * Re-apply migrations the version check says ran but whose schema is missing.
+ *
+ * user_version is a bare number, and it only means the same thing on every
+ * branch up to v7. Past that, rc and main number their migrations differently,
+ * so a database last opened by an rc build can report a version that covers a
+ * main migration it never ran. Every write that touches the missing schema then
+ * fails, e.g. `table query_events has no column named input_tokens` on each
+ * query event (MAESTRO-113/114). Only migrations that declare `isApplied` are
+ * checked, and their bodies are idempotent. user_version is left alone.
+ */
+function repairSkippedMigrations(
+	db: Database.Database,
+	migrations: Migration[],
+	currentVersion: number
+): void {
+	for (const migration of migrations) {
+		if (migration.version > currentVersion || !migration.isApplied) continue;
+		if (migration.isApplied(db)) continue;
+
+		logger.warn(
+			`Re-applying migration v${migration.version} (schema missing at version ${currentVersion}): ${migration.description}`,
+			LOG_CONTEXT
+		);
+		db.transaction(() => migration.up(db))();
+	}
+}
+
+/**
+ * Apply a single migration within a transaction.
+ * Records the migration in the _migrations table with success/failure status.
+ */
+function applyMigration(db: Database.Database, migration: Migration): void {
+	const startTime = Date.now();
+	logger.info(`Applying migration v${migration.version}: ${migration.description}`, LOG_CONTEXT);
+
+	try {
+		const runMigrationTxn = db.transaction(() => {
+			migration.up(db);
+
+			db.prepare(
+				`
+        INSERT OR REPLACE INTO _migrations (version, description, applied_at, status, error_message)
+        VALUES (?, ?, ?, 'success', NULL)
+      `
+			).run(migration.version, migration.description, Date.now());
+
+			db.pragma(`user_version = ${migration.version}`);
+		});
+
+		runMigrationTxn();
+
+		const duration = Date.now() - startTime;
+		logger.info(`Migration v${migration.version} completed in ${duration}ms`, LOG_CONTEXT);
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : String(error);
+
+		db.prepare(
+			`
+      INSERT OR REPLACE INTO _migrations (version, description, applied_at, status, error_message)
+      VALUES (?, ?, ?, 'failed', ?)
+    `
+		).run(migration.version, migration.description, Date.now(), errorMessage);
+
+		logger.error(`Migration v${migration.version} failed: ${errorMessage}`, LOG_CONTEXT);
+		throw error;
+	}
+}
+
+// ============================================================================
+// Migration Queries
+// ============================================================================
+
+/**
+ * Get the list of applied migrations from the _migrations table.
+ */
+export function getMigrationHistory(db: Database.Database): MigrationRecord[] {
+	const tableExists = db
+		.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='_migrations'")
+		.get();
+
+	if (!tableExists) {
+		return [];
+	}
+
+	const rows = db
+		.prepare(
+			`
+      SELECT version, description, applied_at, status, error_message
+      FROM _migrations
+      ORDER BY version ASC
+    `
+		)
+		.all() as MigrationRecordRow[];
+
+	return rows.map(mapMigrationRecordRow);
+}
+
+/**
+ * Get the current database schema version.
+ */
+export function getCurrentVersion(db: Database.Database): number {
+	const versionResult = db.pragma('user_version') as Array<{ user_version: number }>;
+	return versionResult[0]?.user_version ?? 0;
+}
+
+/**
+ * Get the target version (highest version in migrations registry).
+ */
+export function getTargetVersion(): number {
+	const migrations = getMigrations();
+	if (migrations.length === 0) return 0;
+	return Math.max(...migrations.map((m) => m.version));
+}
+
+/**
+ * Check if any migrations are pending.
+ */
+export function hasPendingMigrations(db: Database.Database): boolean {
+	return getCurrentVersion(db) < getTargetVersion();
+}
+
+// ============================================================================
+// Individual Migration Functions
+// ============================================================================
+
+/**
+ * Migration v1: Initial schema creation
+ */
+function migrateV1(db: Database.Database): void {
+	db.prepare(CREATE_QUERY_EVENTS_SQL).run();
+	runStatements(db, CREATE_QUERY_EVENTS_INDEXES_SQL);
+
+	db.prepare(CREATE_AUTO_RUN_SESSIONS_SQL).run();
+	runStatements(db, CREATE_AUTO_RUN_SESSIONS_INDEXES_SQL);
+
+	db.prepare(CREATE_AUTO_RUN_TASKS_SQL).run();
+	runStatements(db, CREATE_AUTO_RUN_TASKS_INDEXES_SQL);
+
+	logger.debug('Created stats database tables and indexes', LOG_CONTEXT);
+}
+
+/**
+ * Migration v2: Add is_remote column for SSH session tracking
+ */
+function migrateV2(db: Database.Database): void {
+	db.prepare('ALTER TABLE query_events ADD COLUMN is_remote INTEGER').run();
+	db.prepare('CREATE INDEX IF NOT EXISTS idx_query_is_remote ON query_events(is_remote)').run();
+
+	logger.debug('Added is_remote column to query_events table', LOG_CONTEXT);
+}
+
+/**
+ * Migration v3: Add session_lifecycle table
+ */
+function migrateV3(db: Database.Database): void {
+	db.prepare(CREATE_SESSION_LIFECYCLE_SQL).run();
+	runStatements(db, CREATE_SESSION_LIFECYCLE_INDEXES_SQL);
+
+	logger.debug('Created session_lifecycle table', LOG_CONTEXT);
+}
+
+/**
+ * Migration v4: Add compound indexes for dashboard query performance
+ */
+function migrateV4(db: Database.Database): void {
+	runStatements(db, CREATE_COMPOUND_INDEXES_SQL);
+
+	logger.debug('Added compound indexes on query_events', LOG_CONTEXT);
+}
+
+/**
+ * Migration v5: Add is_worktree column to query_events and session_lifecycle.
+ *
+ * Uses PRAGMA table_info to check whether the column already exists before
+ * issuing ALTER TABLE - this lets the migration be safely re-applied if a
+ * previous run partially completed before being recorded.
+ */
+function migrateV5(db: Database.Database): void {
+	if (!hasColumn(db, 'query_events', 'is_worktree')) {
+		db.prepare('ALTER TABLE query_events ADD COLUMN is_worktree INTEGER DEFAULT 0').run();
+	}
+	db.prepare('CREATE INDEX IF NOT EXISTS idx_query_is_worktree ON query_events(is_worktree)').run();
+
+	if (!hasColumn(db, 'session_lifecycle', 'is_worktree')) {
+		db.prepare('ALTER TABLE session_lifecycle ADD COLUMN is_worktree INTEGER DEFAULT 0').run();
+	}
+
+	logger.debug(
+		'Added is_worktree column to query_events and session_lifecycle tables',
+		LOG_CONTEXT
+	);
+}
+
+/**
+ * Migration v6: Add image_annotations table for tracking annotation events.
+ */
+function migrateV6(db: Database.Database): void {
+	db.prepare(CREATE_IMAGE_ANNOTATIONS_SQL).run();
+	runStatements(db, CREATE_IMAGE_ANNOTATIONS_INDEXES_SQL);
+
+	logger.debug('Created image_annotations table', LOG_CONTEXT);
+}
+
+/**
+ * Migration v7: Add shortcut_usage_daily table.
+ *
+ * Per-day rolled-up counter - one row per local-date with the total number of
+ * keyboard shortcuts fired. The renderer increments via UPSERT so the table
+ * stays bounded (one row per day across the lifetime of the app).
+ */
+function migrateV7(db: Database.Database): void {
+	db.prepare(CREATE_SHORTCUT_USAGE_DAILY_SQL).run();
+
+	logger.debug('Created shortcut_usage_daily table', LOG_CONTEXT);
+}
+
+/**
+ * Migration v8: Add per-turn token and cost columns to query_events.
+ *
+ * Columns stay nullable with no default so a historical row reads as "unknown"
+ * rather than "zero tokens" - see ADD_QUERY_EVENT_TOKEN_COLUMNS. Guarded by
+ * hasColumn for the same reason as v5: a partially-applied run must be safe to
+ * repeat.
+ *
+ * `cost_usd` is REAL; the token columns are INTEGER.
+ */
+function migrateV8(db: Database.Database): void {
+	for (const column of ADD_QUERY_EVENT_TOKEN_COLUMNS) {
+		if (hasColumn(db, 'query_events', column)) continue;
+		const type = column === 'cost_usd' ? 'REAL' : 'INTEGER';
+		db.prepare(`ALTER TABLE query_events ADD COLUMN ${column} ${type}`).run();
+	}
+
+	logger.debug('Added token and cost columns to query_events table', LOG_CONTEXT);
+}
+
+/**
+ * Migration v9: resilience_events - one row per resolved Agent Resilience
+ * outage, powering the Usage Dashboard's "outages survived" view.
+ */
+function migrateV9(db: Database.Database): void {
+	runStatements(db, CREATE_RESILIENCE_EVENTS_SQL);
+	runStatements(db, CREATE_RESILIENCE_EVENTS_INDEXES_SQL);
+	logger.debug('Created resilience_events table', LOG_CONTEXT);
+}
+
+/**
+ * Migration v10: wizard_runs - one row per Auto Run wizard conversation,
+ * powering the Usage Dashboard's "Wizard" section on the Auto Run tab.
+ */
+function migrateV10(db: Database.Database): void {
+	runStatements(db, CREATE_WIZARD_RUNS_SQL);
+	runStatements(db, CREATE_WIZARD_RUNS_INDEXES_SQL);
+	logger.debug('Created wizard_runs table', LOG_CONTEXT);
+}
+
+/**
+ * Check whether a column exists on a table using SQLite's PRAGMA table_info.
+ */
+function hasColumn(db: Database.Database, table: string, column: string): boolean {
+	const rows = db.pragma(`table_info(${table})`) as Array<{ name: string }> | undefined;
+	return Array.isArray(rows) && rows.some((row) => row.name === column);
+}
+
+/**
+ * Check whether a table exists.
+ */
+function hasTable(db: Database.Database, table: string): boolean {
+	return !!db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?").get(table);
+}

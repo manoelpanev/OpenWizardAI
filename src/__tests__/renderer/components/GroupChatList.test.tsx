@@ -1,0 +1,319 @@
+/**
+ * Tests for GroupChatList - left-sidebar list of Group Chats.
+ *
+ * Characterization tests for Tier 2 listener-hygiene refactor: pin down the
+ * GroupChatContextMenu Escape-key behaviour and listener cleanup before
+ * swapping to useEventListener.
+ */
+
+import { render, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { GroupChatList } from '../../../renderer/components/GroupChatList';
+import { mockTheme } from '../../helpers/mockTheme';
+import { spyOnListeners, expectAllListenersRemoved } from '../../helpers/listenerLeakAssertions';
+import type { GroupChat } from '../../../shared/group-chat-types';
+
+// Stub the click-outside hook so we only measure the context menu's own keydown
+// listener in the leak assertion.
+vi.mock('../../../renderer/hooks', async (orig) => {
+	const actual = await (orig as () => Promise<Record<string, unknown>>)();
+	return {
+		...actual,
+		useClickOutside: vi.fn(),
+		useContextMenuPosition: () => ({ left: 0, top: 0, ready: true }),
+	};
+});
+
+const baseChat: GroupChat = {
+	id: 'gc-1',
+	name: 'Test Chat',
+	createdAt: 1,
+	moderatorAgentId: 'claude-code',
+	moderatorSessionId: 'group-chat-gc-1-moderator',
+	participants: [],
+	logPath: '/tmp/log',
+	imagesDir: '/tmp/imgs',
+};
+
+function renderList(overrides: Partial<Parameters<typeof GroupChatList>[0]> = {}) {
+	const defaults = {
+		theme: mockTheme,
+		groupChats: [baseChat],
+		activeGroupChatId: null,
+		onOpenGroupChat: vi.fn(),
+		onNewGroupChat: vi.fn(),
+		onEditGroupChat: vi.fn(),
+		onRenameGroupChat: vi.fn(),
+		onDeleteGroupChat: vi.fn(),
+	};
+	return render(<GroupChatList {...defaults} {...overrides} />);
+}
+
+function openContextMenu(container: HTMLElement) {
+	// Walk up from the chat name to the row element that owns the onContextMenu
+	// handler (the row has py-1.5; the section header has py-2 - distinguish by
+	// closeting on the cursor-pointer class plus walking up from the name).
+	const nameSpan = container.querySelector('span.text-sm.truncate');
+	expect(nameSpan).not.toBeNull();
+	const row = (nameSpan as HTMLElement).closest('[class*="cursor-pointer"]');
+	expect(row).not.toBeNull();
+	fireEvent.contextMenu(row as HTMLElement, { clientX: 50, clientY: 50 });
+}
+
+describe('GroupChatList', () => {
+	beforeEach(() => {
+		vi.clearAllMocks();
+	});
+
+	afterEach(() => {
+		vi.clearAllMocks();
+	});
+
+	it('renders the list with a single chat', () => {
+		const { getByText } = renderList();
+		expect(getByText('Test Chat')).toBeInTheDocument();
+	});
+
+	it('does not mount the context-menu keydown listener until right-clicked', () => {
+		const spies = spyOnListeners(document);
+		renderList();
+		const keydownAdds = spies.addSpy.mock.calls.filter(([t]) => t === 'keydown');
+		expect(keydownAdds).toHaveLength(0);
+		spies.restore();
+	});
+
+	it('closes the context menu on Escape after right-click', () => {
+		const { container, queryByText } = renderList();
+		openContextMenu(container);
+		expect(queryByText('Edit')).toBeInTheDocument();
+
+		fireEvent.keyDown(document, { key: 'Escape' });
+		expect(queryByText('Edit')).not.toBeInTheDocument();
+	});
+
+	it('removes the context-menu keydown listener after Escape closes the menu', () => {
+		const spies = spyOnListeners(document);
+		const { container } = renderList();
+		openContextMenu(container);
+		fireEvent.keyDown(document, { key: 'Escape' });
+		expectAllListenersRemoved(spies.addSpy, spies.removeSpy);
+		spies.restore();
+	});
+
+	it('removes the context-menu keydown listener on unmount', () => {
+		const spies = spyOnListeners(document);
+		const { container, unmount } = renderList();
+		openContextMenu(container);
+		unmount();
+		expectAllListenersRemoved(spies.addSpy, spies.removeSpy);
+		spies.restore();
+	});
+
+	it('stays collapsed when a new chat is added', () => {
+		const onExpandedChange = vi.fn();
+		const secondChat: GroupChat = { ...baseChat, id: 'gc-2', name: 'Second Chat' };
+		const { rerender } = renderList({
+			isExpanded: false,
+			onExpandedChange,
+			groupChats: [baseChat],
+		});
+		rerender(
+			<GroupChatList
+				theme={mockTheme}
+				groupChats={[baseChat, secondChat]}
+				activeGroupChatId={null}
+				onOpenGroupChat={vi.fn()}
+				onNewGroupChat={vi.fn()}
+				onEditGroupChat={vi.fn()}
+				onRenameGroupChat={vi.fn()}
+				onDeleteGroupChat={vi.fn()}
+				isExpanded={false}
+				onExpandedChange={onExpandedChange}
+			/>
+		);
+		expect(onExpandedChange).not.toHaveBeenCalled();
+	});
+
+	it('expands and creates a chat when New Chat is clicked while collapsed', () => {
+		const onExpandedChange = vi.fn();
+		const onNewGroupChat = vi.fn();
+		const { getByText } = renderList({
+			isExpanded: false,
+			onExpandedChange,
+			onNewGroupChat,
+		});
+		fireEvent.click(getByText('New Chat'));
+		expect(onExpandedChange).toHaveBeenCalledWith(true);
+		expect(onNewGroupChat).toHaveBeenCalledTimes(1);
+	});
+
+	describe('sort toggle pill', () => {
+		// "Banana" was updated most recently; "Apple" comes first alphabetically.
+		const apple: GroupChat = {
+			...baseChat,
+			id: 'gc-apple',
+			name: 'Apple',
+			createdAt: 1,
+			updatedAt: 1,
+		};
+		const banana: GroupChat = {
+			...baseChat,
+			id: 'gc-banana',
+			name: 'Banana',
+			createdAt: 2,
+			updatedAt: 100,
+		};
+
+		function chatOrder(container: HTMLElement): string[] {
+			return Array.from(container.querySelectorAll('span.text-sm.truncate')).map(
+				(el) => el.textContent ?? ''
+			);
+		}
+
+		it('does not render the pill without an onSortAlphabeticalChange callback', () => {
+			const { queryByTitle } = renderList({ groupChats: [apple, banana] });
+			expect(queryByTitle(/Sorting/)).toBeNull();
+		});
+
+		it('does not render the pill with a single chat', () => {
+			const { queryByTitle } = renderList({
+				groupChats: [apple],
+				onSortAlphabeticalChange: vi.fn(),
+			});
+			expect(queryByTitle(/Sorting/)).toBeNull();
+		});
+
+		it('sorts by most recent activity by default', () => {
+			const { container } = renderList({
+				groupChats: [apple, banana],
+				onSortAlphabeticalChange: vi.fn(),
+				isExpanded: true,
+			});
+			expect(chatOrder(container)).toEqual(['Banana', 'Apple']);
+		});
+
+		it('sorts alphabetically when sortAlphabetical is true', () => {
+			const { container } = renderList({
+				groupChats: [apple, banana],
+				onSortAlphabeticalChange: vi.fn(),
+				sortAlphabetical: true,
+				isExpanded: true,
+			});
+			expect(chatOrder(container)).toEqual(['Apple', 'Banana']);
+		});
+
+		it('toggles the sort order when the pill is clicked', () => {
+			const onSortAlphabeticalChange = vi.fn();
+			const { getByTitle } = renderList({
+				groupChats: [apple, banana],
+				onSortAlphabeticalChange,
+				sortAlphabetical: false,
+			});
+			fireEvent.click(getByTitle(/Sorting by most recent/));
+			expect(onSortAlphabeticalChange).toHaveBeenCalledWith(true);
+		});
+
+		it('toggles back to most recent when clicked while alphabetical', () => {
+			const onSortAlphabeticalChange = vi.fn();
+			const { getByTitle } = renderList({
+				groupChats: [apple, banana],
+				onSortAlphabeticalChange,
+				sortAlphabetical: true,
+			});
+			fireEvent.click(getByTitle(/Sorting alphabetically/));
+			expect(onSortAlphabeticalChange).toHaveBeenCalledWith(false);
+		});
+	});
+
+	describe('collapsed header indicator', () => {
+		const BUSY_TITLE = 'A group chat is working';
+		const UNREAD_TITLE = 'Unread group chat messages';
+		const other: GroupChat = { ...baseChat, id: 'gc-2', name: 'Other Chat' };
+
+		it('shows a steady red dot when a chat is unread', () => {
+			const { getByTitle, queryByTitle } = renderList({
+				isExpanded: false,
+				groupChats: [baseChat, other],
+				unreadGroupChatIds: new Set(['gc-2']),
+			});
+			const dot = getByTitle(UNREAD_TITLE);
+			expect(dot.className).not.toContain('animate-pulse');
+			expect(dot).toHaveStyle({ backgroundColor: mockTheme.colors.error });
+			expect(queryByTitle(BUSY_TITLE)).toBeNull();
+		});
+
+		it('shows a pulsing dot when a chat is working', () => {
+			const { getByTitle } = renderList({
+				isExpanded: false,
+				groupChatStates: new Map([['gc-1', 'agent-working']]),
+			});
+			expect(getByTitle(BUSY_TITLE).className).toContain('animate-pulse');
+		});
+
+		// One corner, and busy resolves itself: when the run ends its output is
+		// unread, so the pulse hands off to the red dot rather than hiding it.
+		it('prefers the working dot when a chat is both working and unread', () => {
+			const { getByTitle, queryByTitle } = renderList({
+				isExpanded: false,
+				groupChats: [baseChat, other],
+				groupChatStates: new Map([['gc-1', 'moderator-thinking']]),
+				unreadGroupChatIds: new Set(['gc-2']),
+			});
+			expect(getByTitle(BUSY_TITLE)).toBeInTheDocument();
+			expect(queryByTitle(UNREAD_TITLE)).toBeNull();
+		});
+
+		it('shows nothing when every chat is idle and read', () => {
+			const { queryByTitle } = renderList({ isExpanded: false });
+			expect(queryByTitle(BUSY_TITLE)).toBeNull();
+			expect(queryByTitle(UNREAD_TITLE)).toBeNull();
+		});
+
+		it('drops the header dot once expanded - the rows say which chat it is', () => {
+			const { queryByTitle, getAllByTitle } = renderList({
+				isExpanded: true,
+				unreadGroupChatIds: new Set(['gc-1']),
+			});
+			expect(queryByTitle(UNREAD_TITLE)).toBeNull();
+			// The row keeps its own pip so the section is still answerable.
+			expect(getAllByTitle('Unread messages')).toHaveLength(1);
+		});
+
+		it('ignores unread ids for chats that no longer exist', () => {
+			const { queryByTitle } = renderList({
+				isExpanded: false,
+				unreadGroupChatIds: new Set(['gc-deleted']),
+			});
+			expect(queryByTitle(UNREAD_TITLE)).toBeNull();
+		});
+
+		// The badge counts active chats, so a dot over it must describe those.
+		it('ignores unread archived chats', () => {
+			const { queryByTitle } = renderList({
+				isExpanded: false,
+				groupChats: [baseChat, { ...other, archived: true }],
+				unreadGroupChatIds: new Set(['gc-2']),
+			});
+			expect(queryByTitle(UNREAD_TITLE)).toBeNull();
+		});
+	});
+
+	describe('header label', () => {
+		it('renders the label whole when the header has room', () => {
+			const { getByText } = renderList();
+			expect(getByText('Group Chats')).toBeInTheDocument();
+		});
+
+		it('never lets the label truncate - it is whole or absent', () => {
+			// A partial "GROUP CHA..." costs the same row space as the full label
+			// and says less than the icon beside it, so `truncate` must not come
+			// back on this span. jsdom reports no layout, so the visible label is
+			// what is checked here; the drop decision itself is covered in
+			// useOptionalLabelFits.test.tsx.
+			const { getByText } = renderList();
+			const label = getByText('Group Chats');
+			expect(label.className).not.toMatch(/truncate/);
+			expect(label.className).toMatch(/shrink-0/);
+		});
+	});
+});

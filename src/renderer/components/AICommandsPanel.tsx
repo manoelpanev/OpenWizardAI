@@ -1,0 +1,691 @@
+import { useMemo, useState, useRef } from 'react';
+import {
+	Plus,
+	Trash2,
+	Edit2,
+	Save,
+	X,
+	Terminal,
+	Lock,
+	ChevronDown,
+	ChevronRight,
+	Variable,
+} from 'lucide-react';
+import type { Theme, CustomAICommand } from '../types';
+import { TEMPLATE_VARIABLES_GENERAL } from '../utils/templateVariables';
+import { useSaveShortcut, useTemplateAutocomplete } from '../hooks';
+import { TemplateAutocompleteDropdown } from './TemplateAutocompleteDropdown';
+import { useResizableTextarea } from '../hooks/ui/useResizableTextarea';
+import { FilterInput } from './ui/FilterInput';
+import {
+	fuzzyMatchWithIndices,
+	fuzzyMatchWithScore,
+	highlightSlashCommand,
+	renderFuzzyHighlight,
+} from '../utils/search';
+
+interface AICommandsPanelProps {
+	theme: Theme;
+	customAICommands: CustomAICommand[];
+	setCustomAICommands: (commands: CustomAICommand[]) => void;
+}
+
+interface EditingCommand {
+	id: string;
+	command: string;
+	description: string;
+	prompt: string;
+}
+
+/** Any title hit outranks a body-only hit. */
+const PROMPT_BODY_MATCH_SCORE = 1;
+
+/**
+ * Drop a leading slash from the filter query.
+ *
+ * These ARE slash commands, so typing `/dep` is the natural way to look for
+ * `/deploy` - but the names are matched with the slash already stripped, so the
+ * `/` would find nothing and the panel would claim no command matches. The
+ * composer's own slash popover normalizes the same way (see `InputArea`), which
+ * is what makes the two surfaces agree on what a query means.
+ */
+const normalizeFilterQuery = (query: string): string => query.replace(/^\//, '');
+
+/**
+ * Score one command against the filter query.
+ *
+ * The name and the description are short, so they get the real fuzzy matcher.
+ * The prompt body is not: a few thousand characters swallow almost any query
+ * as a scattered subsequence, so a fuzzy hit there means nothing. Bodies match
+ * on a plain substring instead, and score below every title hit so a name match
+ * always sorts first.
+ *
+ * Returns null when the command does not match at all.
+ */
+const scoreCommand = (cmd: CustomAICommand, query: string): number | null => {
+	const commandHit = fuzzyMatchWithScore(cmd.command.slice(1), query, '.');
+	const descriptionHit = fuzzyMatchWithScore(cmd.description, query);
+	const bodyHit = cmd.prompt.toLowerCase().includes(query.toLowerCase());
+
+	let best = -1;
+	if (commandHit.matches) best = Math.max(best, commandHit.score);
+	if (descriptionHit.matches) best = Math.max(best, descriptionHit.score);
+	if (bodyHit) best = Math.max(best, PROMPT_BODY_MATCH_SCORE);
+	return best === -1 ? null : best;
+};
+
+export function AICommandsPanel({
+	theme,
+	customAICommands,
+	setCustomAICommands,
+}: AICommandsPanelProps) {
+	const [editingCommand, setEditingCommand] = useState<EditingCommand | null>(null);
+	const [filter, setFilter] = useState('');
+	const [isCreating, setIsCreating] = useState(false);
+	const [variablesExpanded, setVariablesExpanded] = useState(false);
+	const [expandedCommands, setExpandedCommands] = useState<Set<string>>(new Set());
+	const [newCommand, setNewCommand] = useState<EditingCommand>({
+		id: '',
+		command: '/',
+		description: '',
+		prompt: '',
+	});
+
+	// Refs for textareas
+	const newCommandTextareaRef = useRef<HTMLTextAreaElement>(null);
+	const editCommandTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+	// Template autocomplete for new command prompt
+	const {
+		autocompleteState: newAutocompleteState,
+		handleKeyDown: handleNewAutocompleteKeyDown,
+		handleChange: handleNewAutocompleteChange,
+		selectVariable: selectNewVariable,
+		autocompleteRef: newAutocompleteRef,
+	} = useTemplateAutocomplete({
+		textareaRef: newCommandTextareaRef,
+		value: newCommand.prompt,
+		onChange: (value) => setNewCommand({ ...newCommand, prompt: value }),
+	});
+
+	// Template autocomplete for edit command prompt
+	const {
+		autocompleteState: editAutocompleteState,
+		handleKeyDown: handleEditAutocompleteKeyDown,
+		handleChange: handleEditAutocompleteChange,
+		selectVariable: selectEditVariable,
+		autocompleteRef: editAutocompleteRef,
+	} = useTemplateAutocomplete({
+		textareaRef: editCommandTextareaRef,
+		value: editingCommand?.prompt || '',
+		onChange: (value) => editingCommand && setEditingCommand({ ...editingCommand, prompt: value }),
+	});
+
+	const newPromptResize = useResizableTextarea({
+		sizeKey: 'ai-command-new-prompt',
+		minHeight: 150,
+		externalRef: newCommandTextareaRef,
+	});
+	const editPromptResize = useResizableTextarea({
+		sizeKey: 'ai-command-edit-prompt',
+		minHeight: 300,
+		externalRef: editCommandTextareaRef,
+	});
+
+	/**
+	 * What the user typed, for the empty-state message. The matcher uses
+	 * `activeQuery` instead - highlighting has to run on the SAME string the
+	 * scoring ran on, or the emphasized characters drift off the letters that
+	 * earned the match.
+	 */
+	const typedQuery = filter.trim();
+	const activeQuery = normalizeFilterQuery(typedQuery);
+
+	const visibleCommands = useMemo(() => {
+		if (!activeQuery) {
+			return [...customAICommands].sort((a, b) => a.command.localeCompare(b.command));
+		}
+		return customAICommands
+			.map((cmd) => ({ cmd, score: scoreCommand(cmd, activeQuery) }))
+			.filter((entry): entry is { cmd: CustomAICommand; score: number } => entry.score !== null)
+			.sort((a, b) => b.score - a.score || a.cmd.command.localeCompare(b.cmd.command))
+			.map((entry) => entry.cmd);
+	}, [customAICommands, activeQuery]);
+
+	const toggleExpanded = (id: string) => {
+		const newExpanded = new Set(expandedCommands);
+		if (newExpanded.has(id)) {
+			newExpanded.delete(id);
+		} else {
+			newExpanded.add(id);
+		}
+		setExpandedCommands(newExpanded);
+	};
+
+	const handleSaveEdit = () => {
+		if (!editingCommand) return;
+
+		// Ensure command starts with /
+		const command = editingCommand.command.startsWith('/')
+			? editingCommand.command
+			: `/${editingCommand.command}`;
+
+		const updated = customAICommands.map((cmd) =>
+			cmd.id === editingCommand.id
+				? {
+						...cmd,
+						command,
+						description: editingCommand.description,
+						prompt: editingCommand.prompt,
+					}
+				: cmd
+		);
+		setCustomAICommands(updated);
+		setEditingCommand(null);
+	};
+
+	const handleCreate = () => {
+		if (!newCommand.command || !newCommand.description || !newCommand.prompt) return;
+
+		// Ensure command starts with /
+		const command = newCommand.command.startsWith('/')
+			? newCommand.command
+			: `/${newCommand.command}`;
+
+		// Generate ID from command name
+		const id = command
+			.slice(1)
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, '-');
+
+		// Check for duplicate command
+		if (customAICommands.some((cmd) => cmd.command === command)) {
+			return; // Could show error toast here
+		}
+
+		const newCmd: CustomAICommand = {
+			id: `custom-${id}-${Date.now()}`,
+			command,
+			description: newCommand.description,
+			prompt: newCommand.prompt,
+			isBuiltIn: false,
+		};
+
+		setCustomAICommands([...customAICommands, newCmd]);
+		setNewCommand({ id: '', command: '/', description: '', prompt: '' });
+		setIsCreating(false);
+	};
+
+	const handleDelete = (id: string) => {
+		const cmd = customAICommands.find((c) => c.id === id);
+		if (cmd?.isBuiltIn) return; // Can't delete built-in commands
+		setCustomAICommands(customAICommands.filter((c) => c.id !== id));
+	};
+
+	const handleCancelEdit = () => {
+		setEditingCommand(null);
+	};
+
+	const handleCancelCreate = () => {
+		setNewCommand({ id: '', command: '/', description: '', prompt: '' });
+		setIsCreating(false);
+	};
+
+	const isCreateValid = Boolean(newCommand.command && newCommand.description && newCommand.prompt);
+	useSaveShortcut(
+		() => {
+			if (editingCommand) handleSaveEdit();
+			else if (isCreating && isCreateValid) handleCreate();
+		},
+		Boolean(editingCommand) || (isCreating && isCreateValid)
+	);
+
+	return (
+		<div className="space-y-4">
+			<div>
+				<label className="block text-xs font-bold opacity-70 uppercase mb-1 flex items-center gap-2">
+					<Terminal className="w-3 h-3" />
+					Custom AI Commands
+				</label>
+				<p className="text-xs opacity-50" style={{ color: theme.colors.textDim }}>
+					Slash commands are available in 1-1 AI chats. Built-in commands can be edited but not
+					deleted. Template variables are available.
+				</p>
+			</div>
+
+			{/* Template Variables Documentation */}
+			<div
+				className="rounded-lg border overflow-hidden"
+				style={{ backgroundColor: theme.colors.bgMain, borderColor: theme.colors.border }}
+			>
+				<button
+					onClick={() => setVariablesExpanded(!variablesExpanded)}
+					className="w-full px-3 py-2 flex items-center justify-between hover:bg-white/5 transition-colors"
+				>
+					<div className="flex items-center gap-2">
+						<Variable className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
+						<span className="text-xs font-bold uppercase" style={{ color: theme.colors.textDim }}>
+							Template Variables
+						</span>
+					</div>
+					{variablesExpanded ? (
+						<ChevronDown className="w-3.5 h-3.5" style={{ color: theme.colors.textDim }} />
+					) : (
+						<ChevronRight className="w-3.5 h-3.5" style={{ color: theme.colors.textDim }} />
+					)}
+				</button>
+				{variablesExpanded && (
+					<div className="px-3 pb-3 pt-1 border-t" style={{ borderColor: theme.colors.border }}>
+						<p className="text-2xs mb-2" style={{ color: theme.colors.textDim }}>
+							Use these variables in your command prompts. They will be replaced with actual values
+							at runtime.
+						</p>
+						<div className="grid grid-cols-2 gap-x-4 gap-y-1 max-h-48 overflow-y-auto scrollbar-thin">
+							{TEMPLATE_VARIABLES_GENERAL.map(({ variable, description }) => (
+								<div key={variable} className="flex items-center gap-2 py-0.5">
+									<code
+										className="text-2xs font-mono px-1 py-0.5 rounded shrink-0"
+										style={{ backgroundColor: theme.colors.bgActivity, color: theme.colors.accent }}
+									>
+										{variable}
+									</code>
+									<span className="text-2xs truncate" style={{ color: theme.colors.textDim }}>
+										{description}
+									</span>
+								</div>
+							))}
+						</div>
+					</div>
+				)}
+			</div>
+
+			<div className="flex items-center justify-between gap-2">
+				{!isCreating ? (
+					<button
+						onClick={() => setIsCreating(true)}
+						className="flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-all"
+						style={{
+							backgroundColor: theme.colors.accent,
+							color: theme.colors.accentForeground,
+						}}
+					>
+						<Plus className="w-4 h-4" />
+						Add Command
+					</button>
+				) : (
+					<div />
+				)}
+				{customAICommands.length > 0 && (
+					<FilterInput
+						theme={theme}
+						value={filter}
+						onChange={setFilter}
+						placeholder="Filter commands..."
+						title="Fuzzy filter on command name, description, and prompt text"
+						resultLabel={
+							activeQuery ? `${visibleCommands.length} of ${customAICommands.length}` : undefined
+						}
+						width={260}
+					/>
+				)}
+			</div>
+
+			{/* Create new command form */}
+			{isCreating && (
+				<div
+					className="p-4 rounded-lg border space-y-3"
+					style={{ backgroundColor: theme.colors.bgMain, borderColor: theme.colors.accent }}
+				>
+					<div className="text-xs font-bold uppercase" style={{ color: theme.colors.accent }}>
+						New Command
+					</div>
+					<div className="grid grid-cols-2 gap-3">
+						<div>
+							<label className="block text-xs font-medium opacity-70 mb-1">Command</label>
+							<input
+								type="text"
+								value={newCommand.command}
+								onChange={(e) => setNewCommand({ ...newCommand, command: e.target.value })}
+								placeholder="/mycommand"
+								className="w-full p-2 rounded border bg-transparent outline-none text-sm font-mono"
+								style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
+							/>
+						</div>
+						<div>
+							<label className="block text-xs font-medium opacity-70 mb-1">Description</label>
+							<input
+								type="text"
+								value={newCommand.description}
+								onChange={(e) => setNewCommand({ ...newCommand, description: e.target.value })}
+								placeholder="Short description for autocomplete"
+								className="w-full p-2 rounded border bg-transparent outline-none text-sm"
+								style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
+							/>
+						</div>
+					</div>
+					<div className="relative">
+						<label className="block text-xs font-medium opacity-70 mb-1">Prompt</label>
+						<textarea
+							ref={newCommandTextareaRef}
+							value={newCommand.prompt}
+							onChange={handleNewAutocompleteChange}
+							onKeyDown={(e) => {
+								if (handleNewAutocompleteKeyDown(e)) {
+									return;
+								}
+								// Allow Tab for indentation when autocomplete is not active
+								if (e.key === 'Tab') {
+									e.preventDefault();
+									const textarea = e.currentTarget;
+									const start = textarea.selectionStart;
+									const end = textarea.selectionEnd;
+									const value = textarea.value;
+									const newValue = value.substring(0, start) + '\t' + value.substring(end);
+									setNewCommand({ ...newCommand, prompt: newValue });
+									setTimeout(() => {
+										textarea.selectionStart = textarea.selectionEnd = start + 1;
+									}, 0);
+								}
+							}}
+							placeholder="The actual prompt sent to the AI agent when this command is invoked... (type {{ for variables)"
+							rows={10}
+							className="w-full p-2 rounded border bg-transparent outline-none text-sm resize-y scrollbar-thin min-h-[150px]"
+							style={{
+								borderColor: theme.colors.border,
+								color: theme.colors.textMain,
+								...newPromptResize.style,
+							}}
+						/>
+						<TemplateAutocompleteDropdown
+							ref={newAutocompleteRef}
+							theme={theme}
+							state={newAutocompleteState}
+							onSelect={selectNewVariable}
+						/>
+					</div>
+					<div className="flex justify-end gap-2">
+						<button
+							onClick={handleCancelCreate}
+							className="flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium transition-all"
+							style={{
+								backgroundColor: theme.colors.bgActivity,
+								color: theme.colors.textMain,
+								border: `1px solid ${theme.colors.border}`,
+							}}
+						>
+							<X className="w-3 h-3" />
+							Cancel
+						</button>
+						<button
+							onClick={handleCreate}
+							disabled={!newCommand.command || !newCommand.description || !newCommand.prompt}
+							className="flex items-center gap-1 px-3 py-1.5 rounded text-xs font-medium transition-all disabled:opacity-50"
+							style={{
+								backgroundColor: theme.colors.success,
+								color: '#000000',
+							}}
+						>
+							<Save className="w-3 h-3" />
+							Create
+						</button>
+					</div>
+				</div>
+			)}
+
+			{/* Existing commands list - collapsible style */}
+			<div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+				{visibleCommands.map((cmd) => (
+					<div
+						key={cmd.id}
+						className="rounded-lg border overflow-hidden"
+						style={{ backgroundColor: theme.colors.bgMain, borderColor: theme.colors.border }}
+					>
+						{/*
+							  Compare only when something is actually being edited. `editingCommand?.id
+							  === cmd.id` looks equivalent but evaluates to `undefined === undefined`
+							  when nothing is being edited AND the persisted command has no `id`, which
+							  entered the editing branch and dereferenced the null `editingCommand`
+							  below, blanking the whole Settings modal via the ErrorBoundary.
+							*/}
+						{editingCommand !== null && editingCommand.id === cmd.id ? (
+							// Editing mode
+							<div className="p-3 space-y-3">
+								<div className="flex items-center justify-between">
+									<span
+										className="font-mono font-bold text-sm"
+										style={{ color: theme.colors.accent }}
+									>
+										{cmd.command}
+									</span>
+									<div className="flex items-center gap-1">
+										<button
+											onClick={handleCancelEdit}
+											className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all"
+											style={{
+												backgroundColor: theme.colors.bgActivity,
+												color: theme.colors.textMain,
+												border: `1px solid ${theme.colors.border}`,
+											}}
+										>
+											<X className="w-3 h-3" />
+											Cancel
+										</button>
+										<button
+											onClick={handleSaveEdit}
+											className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all"
+											style={{
+												backgroundColor: theme.colors.success,
+												color: '#000000',
+											}}
+										>
+											<Save className="w-3 h-3" />
+											Save
+										</button>
+									</div>
+								</div>
+								<div className="grid grid-cols-2 gap-3">
+									<div>
+										<label className="block text-xs font-medium opacity-70 mb-1">Command</label>
+										<input
+											type="text"
+											value={editingCommand.command}
+											onChange={(e) =>
+												setEditingCommand({ ...editingCommand, command: e.target.value })
+											}
+											className="w-full p-2 rounded border bg-transparent outline-none text-sm font-mono"
+											style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
+										/>
+									</div>
+									<div>
+										<label className="block text-xs font-medium opacity-70 mb-1">Description</label>
+										<input
+											type="text"
+											value={editingCommand.description}
+											onChange={(e) =>
+												setEditingCommand({ ...editingCommand, description: e.target.value })
+											}
+											className="w-full p-2 rounded border bg-transparent outline-none text-sm"
+											style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
+										/>
+									</div>
+								</div>
+								<div className="relative">
+									<textarea
+										ref={editCommandTextareaRef}
+										value={editingCommand.prompt}
+										onChange={handleEditAutocompleteChange}
+										onKeyDown={(e) => {
+											if (handleEditAutocompleteKeyDown(e)) {
+												return;
+											}
+											if (e.key === 'Tab') {
+												e.preventDefault();
+												const textarea = e.currentTarget;
+												const start = textarea.selectionStart;
+												const end = textarea.selectionEnd;
+												const value = textarea.value;
+												const newValue = value.substring(0, start) + '\t' + value.substring(end);
+												setEditingCommand({ ...editingCommand, prompt: newValue });
+												setTimeout(() => {
+													textarea.selectionStart = textarea.selectionEnd = start + 1;
+												}, 0);
+											}
+										}}
+										rows={15}
+										className="w-full p-2 rounded border bg-transparent outline-none text-sm resize-y scrollbar-thin min-h-[300px] font-mono"
+										style={{
+											borderColor: theme.colors.border,
+											color: theme.colors.textMain,
+											...editPromptResize.style,
+										}}
+									/>
+									<TemplateAutocompleteDropdown
+										ref={editAutocompleteRef}
+										theme={theme}
+										state={editAutocompleteState}
+										onSelect={selectEditVariable}
+									/>
+								</div>
+							</div>
+						) : (
+							// Display mode - collapsible
+							<>
+								<button
+									onClick={() => toggleExpanded(cmd.id)}
+									className="w-full px-3 py-2.5 flex items-center justify-between hover:bg-white/5 transition-colors"
+								>
+									<div className="flex items-center gap-2">
+										{expandedCommands.has(cmd.id) ? (
+											<ChevronDown
+												className="w-3.5 h-3.5"
+												style={{ color: theme.colors.textDim }}
+											/>
+										) : (
+											<ChevronRight
+												className="w-3.5 h-3.5"
+												style={{ color: theme.colors.textDim }}
+											/>
+										)}
+										<span
+											className="font-mono font-bold text-sm"
+											style={{ color: theme.colors.accent }}
+										>
+											{highlightSlashCommand(cmd.command, activeQuery)}
+										</span>
+										{cmd.isBuiltIn && (
+											<span
+												className="flex items-center gap-1 px-1.5 py-0.5 rounded text-2xs font-medium"
+												style={{
+													backgroundColor: theme.colors.bgActivity,
+													color: theme.colors.textDim,
+												}}
+											>
+												<Lock className="w-2.5 h-2.5" />
+												Built-in
+											</span>
+										)}
+									</div>
+									<span
+										className="text-xs truncate max-w-[300px]"
+										style={{ color: theme.colors.textDim }}
+									>
+										{activeQuery
+											? renderFuzzyHighlight(
+													cmd.description,
+													new Set(fuzzyMatchWithIndices(cmd.description, activeQuery))
+												)
+											: cmd.description}
+									</span>
+								</button>
+								{expandedCommands.has(cmd.id) && (
+									<div
+										className="px-3 pb-3 pt-1 border-t"
+										style={{ borderColor: theme.colors.border }}
+									>
+										<div className="flex items-center justify-end gap-1 mb-2">
+											<button
+												onClick={() =>
+													setEditingCommand({
+														id: cmd.id,
+														command: cmd.command,
+														description: cmd.description,
+														prompt: cmd.prompt,
+													})
+												}
+												className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all hover:bg-white/10"
+												style={{ color: theme.colors.textDim }}
+												title="Edit command"
+											>
+												<Edit2 className="w-3 h-3" />
+												Edit
+											</button>
+											{!cmd.isBuiltIn && (
+												<button
+													onClick={() => handleDelete(cmd.id)}
+													className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-all hover:bg-white/10"
+													style={{ color: theme.colors.error }}
+													title="Delete command"
+												>
+													<Trash2 className="w-3 h-3" />
+													Delete
+												</button>
+											)}
+										</div>
+										<div
+											className="text-xs p-2 rounded font-mono overflow-y-auto max-h-48 scrollbar-thin whitespace-pre-wrap"
+											style={{
+												backgroundColor: theme.colors.bgActivity,
+												color: theme.colors.textMain,
+											}}
+										>
+											{cmd.prompt.length > 500 ? cmd.prompt.substring(0, 500) + '...' : cmd.prompt}
+										</div>
+									</div>
+								)}
+							</>
+						)}
+					</div>
+				))}
+			</div>
+
+			{customAICommands.length > 0 && activeQuery && visibleCommands.length === 0 && (
+				<div
+					className="p-6 rounded-lg border border-dashed text-center"
+					style={{ borderColor: theme.colors.border }}
+				>
+					<p className="text-sm opacity-50" style={{ color: theme.colors.textDim }}>
+						{/* Echoes what was TYPED, slash and all - quoting back a query the
+						    user never entered reads as a bug. */}
+						No commands match "{typedQuery}"
+					</p>
+					<button
+						onClick={() => setFilter('')}
+						className="mt-2 text-xs font-medium"
+						style={{ color: theme.colors.accent }}
+					>
+						Show all commands
+					</button>
+				</div>
+			)}
+
+			{customAICommands.length === 0 && !isCreating && (
+				<div
+					className="p-6 rounded-lg border border-dashed text-center"
+					style={{ borderColor: theme.colors.border }}
+				>
+					<Terminal className="w-8 h-8 mx-auto mb-2 opacity-30" />
+					<p className="text-sm opacity-50" style={{ color: theme.colors.textDim }}>
+						No custom AI commands configured
+					</p>
+					<button
+						onClick={() => setIsCreating(true)}
+						className="mt-2 text-xs font-medium"
+						style={{ color: theme.colors.accent }}
+					>
+						Create your first command
+					</button>
+				</div>
+			)}
+		</div>
+	);
+}

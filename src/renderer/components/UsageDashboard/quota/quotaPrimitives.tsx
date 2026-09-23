@@ -1,0 +1,674 @@
+/**
+ * Presentational building blocks shared by the provider quota panels
+ * (`ClaudePlanUsage`, `CodexPlanUsage`). Each piece is provider-agnostic and
+ * parameterized only by labels / `data-testid` prefixes, so the two panels
+ * stay pixel-identical without copy-pasting markup.
+ */
+
+import { memo } from 'react';
+import { ChevronDown, Clock, Eye, EyeOff, Link2, Loader2, RefreshCw, Users } from 'lucide-react';
+import type { Theme } from '../../../types';
+import { formatFutureTime, formatTimestamp } from '../../../../shared/formatters';
+import {
+	isSampleBehindLatest,
+	isSampleExpired,
+	QUOTA_REFRESH_OPTIONS,
+	resolveQuotaFillColor,
+} from './quotaFormatting';
+import { formatShortcutKeys } from '../../../utils/shortcutFormatter';
+
+interface QuotaBarRowProps {
+	label: string;
+	percent: number;
+	/** Optional - Codex windows can omit a reset time; Claude always supplies one. */
+	resetsAt?: string;
+	theme: Theme;
+}
+
+/**
+ * One horizontal usage bar: label, fill (color-coded by threshold), inside or
+ * trailing percent text, and a reset-time caption. Percent is clamped 0-100.
+ */
+export const QuotaBarRow = memo(function QuotaBarRow({
+	label,
+	percent,
+	resetsAt,
+	theme,
+}: QuotaBarRowProps) {
+	const clampedPercent = Math.min(100, Math.max(0, percent));
+	const fillColor = resolveQuotaFillColor(clampedPercent, theme);
+	const showInsideLabel = clampedPercent >= 22;
+	const displayPercent = Math.round(clampedPercent);
+
+	return (
+		<div className="flex items-center gap-4">
+			<div
+				className="w-44 text-sm whitespace-nowrap flex-shrink-0"
+				style={{ color: theme.colors.textMain }}
+			>
+				{label}
+			</div>
+			<div
+				className="flex-1 h-7 rounded overflow-hidden relative"
+				style={{ backgroundColor: theme.colors.border }}
+				role="progressbar"
+				aria-label={`${label}: ${displayPercent}%`}
+				aria-valuenow={displayPercent}
+				aria-valuemin={0}
+				aria-valuemax={100}
+			>
+				<div
+					className="h-full rounded flex items-center"
+					style={{
+						width: `${Math.max(clampedPercent, 2)}%`,
+						backgroundColor: fillColor,
+						opacity: 0.9,
+						transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+					}}
+				>
+					{showInsideLabel && (
+						<span
+							className="text-sm font-semibold px-2"
+							style={{
+								color: theme.colors.bgMain,
+								textShadow: '0 1px 2px rgba(0,0,0,0.15)',
+							}}
+						>
+							{displayPercent}%
+						</span>
+					)}
+				</div>
+				{!showInsideLabel && (
+					// Low-percent fallback: print the number to the right of the
+					// fill at the same baseline so 0-21% rows aren't unreadable.
+					<span
+						className="absolute top-1/2 -translate-y-1/2 text-sm font-medium"
+						style={{
+							left: `calc(${Math.max(clampedPercent, 2)}% + 8px)`,
+							color: theme.colors.textMain,
+						}}
+					>
+						{displayPercent}%
+					</span>
+				)}
+			</div>
+			<div
+				className="text-xs text-left whitespace-nowrap flex-shrink-0 ml-auto"
+				style={{ color: theme.colors.textDim, minWidth: '12rem' }}
+				title={
+					resetsAt
+						? `Resets at ${new Date(resetsAt).toLocaleString()}`
+						: clampedPercent === 0
+							? 'No window is running yet, so there is no reset time. The window starts with the next request.'
+							: undefined
+				}
+			>
+				{/* A 0% window with no reset is idle, not unparsed: claude paints no
+				    "Resets" row until a request opens the window. */}
+				{resetsAt
+					? `resets ${formatFutureTime(resetsAt)}`
+					: clampedPercent === 0
+						? 'not started'
+						: 'reset unknown'}
+			</div>
+		</div>
+	);
+});
+
+/** Rounded account-name chip; `accountKey` becomes the hover title. */
+export const QuotaAccountPill = memo(function QuotaAccountPill({
+	accountKey,
+	displayName,
+	theme,
+}: {
+	accountKey: string;
+	displayName: string;
+	theme: Theme;
+}) {
+	return (
+		<span
+			className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium"
+			style={{
+				color: theme.colors.accent,
+				backgroundColor: `${theme.colors.accent}15`,
+				border: `1px solid ${theme.colors.accent}35`,
+			}}
+			title={accountKey}
+		>
+			{displayName}
+		</span>
+	);
+});
+
+/**
+ * "N agents" chip shown beside an account pill: how many agents of this
+ * provider currently run against that account. Zero is rendered too - it is the
+ * answer to "is this profile still being used?", which is why an unused account
+ * still shows quota burn is a question worth asking.
+ */
+export const QuotaAgentCountBadge = memo(function QuotaAgentCountBadge({
+	count,
+	providerLabel,
+	testId,
+	theme,
+	onClick,
+}: {
+	/**
+	 * Local agents on this account. SSH-remote agents are not counted: the
+	 * directory they name lives on the remote host and holds THAT host's login,
+	 * so the Agents grid files them under their own `account @ host` profile.
+	 */
+	count: number;
+	/** Provider name for the hover title (`Claude` / `Codex`). */
+	providerLabel: string;
+	testId?: string;
+	theme: Theme;
+	/** Makes the chip a button that shows those agents. Omitted when there are
+	 *  none to show - a button that lands on an empty grid is worse than text. */
+	onClick?: () => void;
+}) {
+	const noun = count === 1 ? 'agent' : 'agents';
+	const label = `${count} ${noun}`;
+	const title =
+		count === 0
+			? `No ${providerLabel} agents are configured to use this account`
+			: onClick
+				? `Show the ${label} that ${count === 1 ? 'runs' : 'run'} against this ${providerLabel} account`
+				: `${label} ${count === 1 ? 'runs' : 'run'} against this ${providerLabel} account`;
+	const className =
+		'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs-plus font-medium flex-shrink-0';
+	const style = {
+		color: theme.colors.textDim,
+		backgroundColor: `${theme.colors.border}55`,
+		border: `1px solid ${theme.colors.border}`,
+	};
+
+	if (!onClick) {
+		return (
+			<span className={className} style={style} title={title} data-testid={testId}>
+				<Users className="w-3 h-3" aria-hidden="true" />
+				{label}
+			</span>
+		);
+	}
+
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className={`${className} transition-colors cursor-pointer hover:brightness-125`}
+			style={{ ...style, color: theme.colors.accent, borderColor: `${theme.colors.accent}55` }}
+			title={title}
+			data-testid={testId}
+		>
+			<Users className="w-3 h-3" aria-hidden="true" />
+			{label}
+		</button>
+	);
+});
+
+/**
+ * The login email for an account row, printed beside the account pill.
+ *
+ * This is the account's real identity; the pill next to it is only the config
+ * DIRECTORY the user happened to name. The two disagree the moment someone runs
+ * `/login` inside an existing dir, so both are shown rather than picking one.
+ */
+export const QuotaAccountEmail = memo(function QuotaAccountEmail({
+	email,
+	testId,
+	theme,
+}: {
+	email: string;
+	testId?: string;
+	theme: Theme;
+}) {
+	return (
+		<div
+			className="text-xs truncate"
+			style={{ color: theme.colors.textDim, opacity: 0.7 }}
+			title={`Logged in as ${email}`}
+			data-testid={testId}
+		>
+			{email}
+		</div>
+	);
+});
+
+/**
+ * "Shares one quota with these other accounts" chip.
+ *
+ * Two config dirs logged into the SAME Anthropic account draw from one quota
+ * bucket, so their bars are identical by definition. Without this chip that
+ * looks like the sampler copying one account's numbers onto another row - the
+ * exact conclusion a user reaches when two differently-named rows show the same
+ * percentages. Naming the siblings turns an apparent bug into a fact.
+ */
+export const QuotaSharedAccountBadge = memo(function QuotaSharedAccountBadge({
+	siblingNames,
+	testId,
+	theme,
+}: {
+	/** Display names of the other accounts in this quota bucket. */
+	siblingNames: string[];
+	testId?: string;
+	theme: Theme;
+}) {
+	if (siblingNames.length === 0) return null;
+	const color = theme.colors.warning ?? theme.colors.accent;
+	const joined = siblingNames.join(', ');
+
+	return (
+		<span
+			className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs-plus font-medium flex-shrink-0"
+			style={{
+				color,
+				backgroundColor: `${color}15`,
+				border: `1px solid ${color}35`,
+			}}
+			title={`Same Anthropic account as ${joined}. These rows share one quota, so identical bars are expected.`}
+			data-testid={testId}
+		>
+			<Link2 className="w-3 h-3" aria-hidden="true" />
+			shared with {joined}
+		</span>
+	);
+});
+
+/**
+ * "Stale" chip for a row the latest refresh did not update.
+ *
+ * The dashboard footer reports the NEWEST sample, so one freshly-sampled account
+ * makes the whole panel read as just sampled - including a row whose bars are
+ * hours old because its account could not be sampled this pass (every agent
+ * using it runs over SSH, or the probe failed). The chip prints when that row
+ * was actually read. A clock time rather than an age, so it stays true without
+ * a ticking re-render.
+ *
+ * It also prints for any sample older than a day even when no row is newer -
+ * the state of an account whose agents have all moved elsewhere, whose row the
+ * panel keeps so the user can watch for its reset.
+ */
+export const QuotaStaleSampleBadge = memo(function QuotaStaleSampleBadge({
+	sampledAt,
+	latestSampledAtMs,
+	testId,
+	theme,
+}: {
+	/** This row's own `sampledAt` stamp. */
+	sampledAt: string | undefined;
+	/** Newest `sampledAt` across the panel (`resolveLatestSampledAt`). */
+	latestSampledAtMs: number | null;
+	testId?: string;
+	theme: Theme;
+}) {
+	if (!sampledAt) return null;
+	if (!isSampleBehindLatest(sampledAt, latestSampledAtMs) && !isSampleExpired(sampledAt)) {
+		return null;
+	}
+	const color = theme.colors.warning ?? theme.colors.accent;
+
+	return (
+		<span
+			className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs-plus font-medium flex-shrink-0"
+			style={{
+				color,
+				backgroundColor: `${color}15`,
+				border: `1px solid ${color}35`,
+			}}
+			title={`The last refresh did not update this account. These bars were read ${formatTimestamp(sampledAt, 'full')}.`}
+			data-testid={testId}
+		>
+			<Clock className="w-3 h-3" aria-hidden="true" />
+			stale, read {formatTimestamp(sampledAt, 'smart')}
+		</span>
+	);
+});
+
+/**
+ * "No snapshot cached yet - hit Refresh" body for a configured-but-unsampled
+ * account. `testIdPrefix` keeps each provider's testids distinct
+ * (`claude-plan` / `codex-plan`).
+ */
+export const QuotaPendingRow = memo(function QuotaPendingRow({
+	accountKey,
+	shortName,
+	displayName,
+	testIdPrefix,
+	agentCount,
+	providerLabel,
+	theme,
+	onShowAgents,
+}: {
+	accountKey: string;
+	shortName: string;
+	displayName: string;
+	testIdPrefix: string;
+	/** Agents attributed to this account; omit to hide the badge. */
+	agentCount?: number;
+	providerLabel: string;
+	theme: Theme;
+	/** Show those agents in the Agents tab, filtered to this account. */
+	onShowAgents?: () => void;
+}) {
+	return (
+		<div className="space-y-2" data-testid={`${testIdPrefix}-row-${shortName}-pending`}>
+			<div className="flex items-center gap-2">
+				<QuotaAccountPill accountKey={accountKey} displayName={displayName} theme={theme} />
+				{agentCount !== undefined && (
+					<QuotaAgentCountBadge
+						count={agentCount}
+						providerLabel={providerLabel}
+						testId={`${testIdPrefix}-agents-${shortName}`}
+						theme={theme}
+						onClick={agentCount > 0 ? onShowAgents : undefined}
+					/>
+				)}
+				<div className="text-xs truncate" style={{ color: theme.colors.textDim, opacity: 0.7 }}>
+					{accountKey}
+				</div>
+			</div>
+			<div
+				className="flex items-center gap-2 px-3 py-2 rounded text-xs"
+				style={{
+					backgroundColor: `${theme.colors.accent}10`,
+					color: theme.colors.textMain,
+					border: `1px solid ${theme.colors.accent}30`,
+				}}
+			>
+				<span style={{ color: theme.colors.accent }}>○</span>
+				<span>
+					No snapshot cached for this account yet. Hit{' '}
+					<strong style={{ color: theme.colors.accent }}>Refresh</strong>.
+				</span>
+			</div>
+		</div>
+	);
+});
+
+/** Auto-refresh interval dropdown + manual Refresh button with sampling sweep. */
+export const QuotaRefreshControls = memo(function QuotaRefreshControls({
+	theme,
+	refreshIntervalMs,
+	onChangeInterval,
+	onRefresh,
+	isBusy,
+	testIdPrefix,
+	sweepClassName,
+	intervalAriaLabel,
+	buttonAriaLabel,
+	showHotkeyHint = false,
+}: {
+	theme: Theme;
+	refreshIntervalMs: number;
+	onChangeInterval: (ms: number) => void;
+	onRefresh: () => void;
+	isBusy: boolean;
+	testIdPrefix: string;
+	/** CSS animation class for the in-flight sweep (per-provider keyframe alias). */
+	sweepClassName: string;
+	intervalAriaLabel: string;
+	buttonAriaLabel: string;
+	/**
+	 * Advertise the Cmd/Ctrl+R chord in the button tooltip. Only true where the
+	 * panel actually claims the chord (`refreshHotkey`), so the hint can never
+	 * promise a key that does nothing.
+	 */
+	showHotkeyHint?: boolean;
+}) {
+	return (
+		<div className="flex flex-wrap items-center justify-end gap-2">
+			<label className="relative flex items-center">
+				<Clock
+					className="w-3.5 h-3.5 absolute left-2.5 pointer-events-none"
+					style={{ color: theme.colors.textDim }}
+				/>
+				<select
+					value={refreshIntervalMs}
+					onChange={(event) => onChangeInterval(Number(event.target.value))}
+					className="pl-8 pr-7 py-1.5 rounded text-xs border cursor-pointer outline-none appearance-none"
+					style={{
+						backgroundColor: theme.colors.bgActivity,
+						borderColor: theme.colors.border,
+						color: theme.colors.textMain,
+					}}
+					aria-label={intervalAriaLabel}
+					data-testid={`${testIdPrefix}-refresh-interval`}
+				>
+					{QUOTA_REFRESH_OPTIONS.map((option) => (
+						<option key={option.value} value={option.value}>
+							Auto refresh: {option.label}
+						</option>
+					))}
+				</select>
+				<ChevronDown
+					className="absolute right-2 w-3 h-3 pointer-events-none"
+					style={{ color: theme.colors.textDim }}
+					aria-hidden="true"
+				/>
+			</label>
+			<button
+				type="button"
+				onClick={onRefresh}
+				disabled={isBusy}
+				className="relative flex items-center justify-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors disabled:cursor-not-allowed overflow-hidden"
+				style={{
+					color: isBusy ? theme.colors.bgMain : theme.colors.accent,
+					backgroundColor: isBusy ? theme.colors.accent : `${theme.colors.accent}15`,
+					border: `1px solid ${theme.colors.accent}40`,
+					// Floor just wide enough for the wider "Sampling..." state so the
+					// button doesn't resize between states; justify-center keeps the
+					// narrower "Refresh" content from drifting against the right edge.
+					minWidth: '6.75rem',
+				}}
+				data-testid={`${testIdPrefix}-refresh`}
+				aria-label={buttonAriaLabel}
+				title={showHotkeyHint ? `Refresh (${formatShortcutKeys(['Meta', 'r'])})` : undefined}
+				aria-busy={isBusy}
+			>
+				{isBusy ? (
+					<>
+						<span
+							className={`absolute inset-0 pointer-events-none ${sweepClassName}`}
+							style={{
+								backgroundImage: `linear-gradient(90deg, transparent 0%, ${theme.colors.bgMain}66 50%, transparent 100%)`,
+							}}
+							aria-hidden="true"
+						/>
+						<Loader2 className="w-3.5 h-3.5 animate-spin relative" aria-hidden="true" />
+						<span className="relative">Sampling...</span>
+					</>
+				) : (
+					<>
+						<RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+						<span>Refresh</span>
+					</>
+				)}
+			</button>
+		</div>
+	);
+});
+
+/**
+ * Per-account hide/show toggle shown in the top-right of each row when the panel
+ * lists every account (`showAllAccounts`). Eye-off = currently visible (click to
+ * hide); Eye = currently hidden (click to bring back). The hidden set persists
+ * across sessions via `uiStore.toggleHiddenQuotaAccount`.
+ */
+export const QuotaVisibilityToggle = memo(function QuotaVisibilityToggle({
+	theme,
+	hidden,
+	shortName,
+	testIdPrefix,
+	onToggle,
+}: {
+	theme: Theme;
+	hidden: boolean;
+	shortName: string;
+	testIdPrefix: string;
+	onToggle: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onToggle}
+			className="flex items-center justify-center w-6 h-6 rounded transition-colors flex-shrink-0"
+			style={{
+				color: theme.colors.textDim,
+				backgroundColor: `${theme.colors.border}55`,
+				border: `1px solid ${theme.colors.border}`,
+			}}
+			data-testid={`${testIdPrefix}-visibility-${shortName}`}
+			aria-pressed={hidden}
+			title={hidden ? 'Show this account' : 'Hide this account'}
+			aria-label={hidden ? `Show account ${shortName}` : `Hide account ${shortName}`}
+		>
+			{hidden ? (
+				<Eye className="w-3.5 h-3.5" aria-hidden="true" />
+			) : (
+				<EyeOff className="w-3.5 h-3.5" aria-hidden="true" />
+			)}
+		</button>
+	);
+});
+
+/**
+ * Header "Show All" toggle. Only mounts when at least one account is hidden;
+ * pressing it reveals the hidden rows (dimmed, with their own Eye toggle) so the
+ * user can bring any back. Pressing again re-collapses to visible-only.
+ */
+export const QuotaShowAllToggle = memo(function QuotaShowAllToggle({
+	theme,
+	hiddenCount,
+	revealing,
+	testIdPrefix,
+	onToggle,
+}: {
+	theme: Theme;
+	hiddenCount: number;
+	revealing: boolean;
+	testIdPrefix: string;
+	onToggle: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onToggle}
+			className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-medium transition-colors"
+			style={{
+				color: revealing ? theme.colors.bgMain : theme.colors.textDim,
+				backgroundColor: revealing ? theme.colors.accent : `${theme.colors.border}55`,
+				border: `1px solid ${revealing ? `${theme.colors.accent}40` : theme.colors.border}`,
+			}}
+			data-testid={`${testIdPrefix}-show-all`}
+			aria-pressed={revealing}
+			title={
+				revealing ? 'Collapse back to visible accounts' : 'Reveal hidden accounts to unhide them'
+			}
+		>
+			{revealing ? (
+				<EyeOff className="w-3.5 h-3.5" aria-hidden="true" />
+			) : (
+				<Eye className="w-3.5 h-3.5" aria-hidden="true" />
+			)}
+			<span>{revealing ? 'Hide hidden' : `Show all (${hiddenCount})`}</span>
+		</button>
+	);
+});
+
+/** Per-tab status dot state. `warning` = needs attention, `pending` = unsampled. */
+export type QuotaTabStatus = 'warning' | 'pending' | 'none';
+
+/**
+ * Horizontal account selector tab bar. The status dot logic is provider-specific
+ * (what counts as a "warning" differs), so the panel supplies `getTabStatus`
+ * and the `warningTitle` tooltip.
+ */
+export const QuotaAccountTabs = memo(function QuotaAccountTabs({
+	theme,
+	accountKeys,
+	effectiveSelectedKey,
+	onSelect,
+	testIdPrefix,
+	ariaLabel,
+	warningTitle,
+	deriveShortName,
+	deriveDisplayName,
+	getTabStatus,
+	getTabTitle,
+}: {
+	theme: Theme;
+	accountKeys: string[];
+	effectiveSelectedKey: string | null;
+	onSelect: (key: string) => void;
+	testIdPrefix: string;
+	ariaLabel: string;
+	warningTitle: string;
+	deriveShortName: (key: string | undefined) => string;
+	deriveDisplayName: (key: string | undefined) => string;
+	getTabStatus: (key: string) => QuotaTabStatus;
+	/**
+	 * Hover text for a tab. Defaults to the raw account key. Providers that can
+	 * resolve the account's real identity override this so a tab named after a
+	 * config directory still reveals which login it belongs to - two tabs can
+	 * be the same account, and the tab strip has no room to say so inline.
+	 */
+	getTabTitle?: (key: string) => string;
+}) {
+	return (
+		<div
+			className="flex items-center gap-1 mb-4 border-b"
+			style={{ borderColor: theme.colors.border }}
+			role="tablist"
+			aria-label={ariaLabel}
+			data-testid={`${testIdPrefix}-account-tabs`}
+		>
+			{accountKeys.map((key) => {
+				const shortName = deriveShortName(key);
+				const isActive = effectiveSelectedKey === key;
+				const status = getTabStatus(key);
+				return (
+					<button
+						key={key}
+						type="button"
+						role="tab"
+						aria-selected={isActive}
+						onClick={() => onSelect(key)}
+						className="px-3 py-1.5 text-sm font-medium transition-colors relative -mb-px"
+						style={{
+							color: isActive ? theme.colors.accent : theme.colors.textDim,
+							borderBottom: `2px solid ${isActive ? theme.colors.accent : 'transparent'}`,
+						}}
+						title={getTabTitle ? getTabTitle(key) : key}
+						data-testid={`${testIdPrefix}-tab-${shortName}`}
+					>
+						<span className="flex items-center gap-1.5">
+							{deriveDisplayName(key)}
+							{/* Status dot:
+							    - warning = provider-specific "needs attention"
+							    - pending = no snapshot yet, hit Refresh
+							    - none    = snapshot present + healthy */}
+							{status === 'warning' ? (
+								<span
+									className="text-2xs"
+									style={{ color: theme.colors.warning ?? theme.colors.accent }}
+									title={warningTitle}
+								>
+									●
+								</span>
+							) : status === 'pending' ? (
+								<span
+									className="text-2xs"
+									style={{ color: theme.colors.textDim, opacity: 0.6 }}
+									title="No snapshot yet - hit Refresh"
+								>
+									○
+								</span>
+							) : null}
+						</span>
+					</button>
+				);
+			})}
+		</div>
+	);
+});

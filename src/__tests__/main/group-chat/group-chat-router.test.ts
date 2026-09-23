@@ -1,0 +1,1447 @@
+/**
+ * @file group-chat-router.test.ts
+ * @description Unit tests for the Group Chat message router.
+ *
+ * Tests cover:
+ * - Extracting @mentions (5.1, 5.2)
+ * - Routing user messages (5.3)
+ * - Routing moderator responses (5.4)
+ * - Routing agent responses (5.5)
+ * - Read-only mode propagation (5.6)
+ */
+
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs/promises';
+
+// Mock Electron's app module before importing modules that use it
+let mockUserDataPath: string;
+vi.mock('electron', () => ({
+	app: {
+		getPath: vi.fn((name: string) => {
+			if (name === 'userData') {
+				return mockUserDataPath;
+			}
+			throw new Error(`Unknown path name: ${name}`);
+		}),
+	},
+}));
+
+// Mock electron-store to return no custom path (use userData)
+vi.mock('electron-store', () => {
+	return {
+		default: class MockStore {
+			get() {
+				return undefined;
+			} // No custom sync path
+			set() {}
+		},
+	};
+});
+
+// Mock wrapSpawnWithSsh so we can verify it's called for SSH sessions
+const mockWrapSpawnWithSsh = vi.fn();
+vi.mock('../../../main/utils/ssh-spawn-wrapper', () => ({
+	wrapSpawnWithSsh: (...args: unknown[]) => mockWrapSpawnWithSsh(...args),
+}));
+
+const mockCaptureException = vi.fn();
+vi.mock('../../../main/utils/sentry', () => ({
+	captureException: (...args: unknown[]) => mockCaptureException(...args),
+}));
+
+vi.mock('../../../main/prompt-manager', () => ({
+	getPrompt: vi.fn((id: string) => {
+		const fs = require('fs');
+		const path = require('path');
+		const promptsDir = path.resolve(__dirname, '..', '..', '..', '..', 'src', 'prompts');
+		const filenameMap: Record<string, string> = {
+			'group-chat-participant': 'group-chat-participant.md',
+			'group-chat-participant-request': 'group-chat-participant-request.md',
+			'group-chat-participant-continuation': 'group-chat-participant-continuation.md',
+			'group-chat-moderator-system': 'group-chat-moderator-system.md',
+			'group-chat-moderator-synthesis': 'group-chat-moderator-synthesis.md',
+		};
+		const filename = filenameMap[id];
+		if (!filename) throw new Error(`Unknown prompt ID in test mock: ${id}`);
+		return fs.readFileSync(path.join(promptsDir, filename), 'utf-8');
+	}),
+}));
+
+import {
+	extractMentions,
+	extractAllMentions,
+	extractAutoRunDirectives,
+	routeUserMessage,
+	routeModeratorResponse,
+	routeAgentResponse,
+	spawnModeratorSynthesis,
+	getGroupChatReadOnlyState,
+	clearPendingParticipants,
+	setGetSessionsCallback,
+	setSshStore,
+	type GroupChatSessionInfo,
+} from '../../../main/group-chat/group-chat-router';
+import {
+	spawnModerator,
+	clearAllModeratorSessions,
+	type IProcessManager,
+} from '../../../main/group-chat/group-chat-moderator';
+import {
+	addParticipant,
+	clearAllParticipantSessionsGlobal,
+} from '../../../main/group-chat/group-chat-agent';
+import {
+	createGroupChat,
+	deleteGroupChat,
+	loadGroupChat,
+	updateGroupChat,
+	getGroupChatHistory,
+	GroupChatParticipant,
+} from '../../../main/group-chat/group-chat-storage';
+import { readLog } from '../../../main/group-chat/group-chat-log';
+import { AgentDetector } from '../../../main/agents';
+import { groupChatEmitters } from '../../../main/ipc/handlers/groupChat';
+
+describe('group-chat-router', () => {
+	let mockProcessManager: IProcessManager;
+	let mockAgentDetector: AgentDetector;
+	let createdChats: string[] = [];
+	let testDir: string;
+
+	beforeEach(async () => {
+		// Create a unique temp directory for each test
+		testDir = path.join(
+			os.tmpdir(),
+			`group-chat-router-test-${Date.now()}-${Math.random().toString(36).slice(2)}`
+		);
+		await fs.mkdir(testDir, { recursive: true });
+
+		// Set the mock userData path to our test directory
+		mockUserDataPath = testDir;
+
+		// Create a fresh mock for each test
+		mockProcessManager = {
+			spawn: vi.fn().mockReturnValue({ pid: 12345, success: true }),
+			write: vi.fn().mockReturnValue(true),
+			kill: vi.fn().mockReturnValue(true),
+		};
+
+		// Create a mock agent detector that returns a mock agent config
+		mockAgentDetector = {
+			getAgent: vi.fn().mockResolvedValue({
+				id: 'claude-code',
+				name: 'Claude Code',
+				binaryName: 'claude',
+				command: 'claude',
+				args: ['--print', '--verbose', '--output-format', 'stream-json'],
+				available: true,
+				path: '/usr/local/bin/claude',
+				capabilities: {},
+			}),
+			detectAgents: vi.fn().mockResolvedValue([]),
+			clearCache: vi.fn(),
+			setCustomPaths: vi.fn(),
+			getCustomPaths: vi.fn().mockReturnValue({}),
+			discoverModels: vi.fn().mockResolvedValue([]),
+			clearModelCache: vi.fn(),
+		} as unknown as AgentDetector;
+
+		// Clear any leftover sessions from previous tests
+		clearAllModeratorSessions();
+		clearAllParticipantSessionsGlobal();
+	});
+
+	afterEach(async () => {
+		// Clean up any created chats
+		for (const id of createdChats) {
+			try {
+				await deleteGroupChat(id);
+			} catch {
+				// Ignore errors
+			}
+		}
+		createdChats = [];
+
+		// Clear sessions
+		clearAllModeratorSessions();
+		clearAllParticipantSessionsGlobal();
+
+		// Clean up temp directory
+		try {
+			await fs.rm(testDir, { recursive: true, force: true });
+		} catch {
+			// Ignore cleanup errors
+		}
+
+		// Clear mocks
+		vi.clearAllMocks();
+		groupChatEmitters.emitMessage = undefined;
+	});
+
+	// Helper to track created chats for cleanup
+	async function createTestChat(name: string, agentId: string = 'claude-code') {
+		const chat = await createGroupChat(name, agentId);
+		createdChats.push(chat.id);
+		return chat;
+	}
+
+	// Helper to create chat with moderator spawned
+	async function createTestChatWithModerator(name: string, agentId: string = 'claude-code') {
+		const chat = await createTestChat(name, agentId);
+		await spawnModerator(chat, mockProcessManager);
+		return chat;
+	}
+
+	// ===========================================================================
+	// Test 5.1: extractMentions finds @mentions
+	// ===========================================================================
+	describe('extractMentions', () => {
+		it('extracts @mentions from text', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+				{ name: 'Server', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('Hey @Client and @Server, please coordinate', participants);
+			expect(mentions).toEqual(['Client', 'Server']);
+		});
+
+		it('returns mentions in order of appearance', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Alpha', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+				{ name: 'Beta', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+				{ name: 'Gamma', agentId: 'claude-code', sessionId: '3', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@Gamma first, then @Alpha, finally @Beta', participants);
+			expect(mentions).toEqual(['Gamma', 'Alpha', 'Beta']);
+		});
+
+		it('handles single mention', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@Client: Please implement this', participants);
+			expect(mentions).toEqual(['Client']);
+		});
+
+		it('returns empty array for no mentions', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('No mentions here', participants);
+			expect(mentions).toEqual([]);
+		});
+
+		it('handles empty text', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('', participants);
+			expect(mentions).toEqual([]);
+		});
+
+		it('handles empty participants list', () => {
+			const mentions = extractMentions('@Client and @Server', []);
+			expect(mentions).toEqual([]);
+		});
+
+		it('does not duplicate mentions', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@Client and then @Client again', participants);
+			expect(mentions).toEqual(['Client']);
+		});
+
+		it('handles mentions with underscores', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Backend_Dev', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@Backend_Dev: Please help', participants);
+			expect(mentions).toEqual(['Backend_Dev']);
+		});
+
+		it('handles mentions with numbers', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Agent1', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+				{ name: 'Agent2', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@Agent1 and @Agent2', participants);
+			expect(mentions).toEqual(['Agent1', 'Agent2']);
+		});
+
+		it('handles mentions with emojis', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: '✅-autorun-wizard', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+				{ name: '🚀-launcher', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+			];
+
+			const mentions = extractMentions(
+				'@✅-autorun-wizard and @🚀-launcher please help',
+				participants
+			);
+			expect(mentions).toEqual(['✅-autorun-wizard', '🚀-launcher']);
+		});
+
+		it('handles mentions with mixed unicode characters', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: '日本語-agent', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+				{ name: 'émoji-✨-test', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@日本語-agent and @émoji-✨-test', participants);
+			expect(mentions).toEqual(['日本語-agent', 'émoji-✨-test']);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.2: extractMentions ignores unknown mentions
+	// ===========================================================================
+	describe('extractMentions - unknown mentions', () => {
+		it('ignores mentions not in participants', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('Hey @Client and @Unknown', participants);
+			expect(mentions).toEqual(['Client']);
+		});
+
+		it('returns empty when all mentions are unknown', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@Unknown1 and @Unknown2', participants);
+			expect(mentions).toEqual([]);
+		});
+
+		it('case sensitive - ignores wrong case', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			];
+
+			const mentions = extractMentions('@client @CLIENT @Client', participants);
+			expect(mentions).toEqual(['Client']); // Only exact match
+		});
+
+		it('only matches valid participant names', () => {
+			const participants: GroupChatParticipant[] = [
+				{ name: 'Client', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+				{ name: 'Server', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+			];
+
+			// @Cli shouldn't match Client, @ServerX shouldn't match Server
+			const mentions = extractMentions('@Cli and @ServerX and @Client', participants);
+			expect(mentions).toEqual(['Client']);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.2b: Markdown-formatted mentions
+	// AI moderators often wrap mentions in bold/italic/code markdown.
+	// ===========================================================================
+	describe('extractMentions - markdown formatting', () => {
+		const participants: GroupChatParticipant[] = [
+			{ name: 'controlplane', agentId: 'claude-code', sessionId: '1', addedAt: 0 },
+			{ name: 'dataplane', agentId: 'claude-code', sessionId: '2', addedAt: 0 },
+			{ name: 'Client', agentId: 'claude-code', sessionId: '3', addedAt: 0 },
+		];
+
+		it('handles bold markdown **@name**', () => {
+			const mentions = extractMentions(
+				'**@controlplane** — Please execute your plan.',
+				participants
+			);
+			expect(mentions).toEqual(['controlplane']);
+		});
+
+		it('handles italic markdown _@name_', () => {
+			const mentions = extractMentions('_@Client_ should review this', participants);
+			expect(mentions).toEqual(['Client']);
+		});
+
+		it('handles bold+italic markdown ***@name***', () => {
+			const mentions = extractMentions('***@dataplane*** is ready', participants);
+			expect(mentions).toEqual(['dataplane']);
+		});
+
+		it('handles backtick markdown `@name`', () => {
+			const mentions = extractMentions('`@controlplane` run the task', participants);
+			expect(mentions).toEqual(['controlplane']);
+		});
+
+		it('handles strikethrough markdown ~~@name~~', () => {
+			const mentions = extractMentions('~~@Client~~ was reassigned', participants);
+			expect(mentions).toEqual(['Client']);
+		});
+
+		it('handles multiple markdown-formatted mentions in one message', () => {
+			const mentions = extractMentions(
+				'- **@controlplane** — execute plan\n- **@dataplane** — verify results',
+				participants
+			);
+			expect(mentions).toEqual(['controlplane', 'dataplane']);
+		});
+
+		it('handles mixed formatted and plain mentions', () => {
+			const mentions = extractMentions(
+				'**@controlplane** and @dataplane should coordinate',
+				participants
+			);
+			expect(mentions).toEqual(['controlplane', 'dataplane']);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.2c: extractAllMentions with markdown formatting
+	// ===========================================================================
+	describe('extractAllMentions - markdown formatting', () => {
+		it('strips markdown from extracted mention names', () => {
+			const mentions = extractAllMentions('**@controlplane** and _@dataplane_');
+			expect(mentions).toEqual(['controlplane', 'dataplane']);
+		});
+
+		it('handles backtick-wrapped mentions', () => {
+			const mentions = extractAllMentions('`@myAgent` should handle this');
+			expect(mentions).toEqual(['myAgent']);
+		});
+
+		it('does not produce empty mentions from bare @**', () => {
+			const mentions = extractAllMentions('@** is not a real mention');
+			expect(mentions).toEqual([]);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.2d: extractAutoRunDirectives with markdown formatting
+	// ===========================================================================
+	describe('extractAutoRunDirectives - markdown formatting', () => {
+		it('strips markdown from autorun directive participant names', () => {
+			const result = extractAutoRunDirectives('!autorun @**controlplane**');
+			expect(result.autoRunParticipants).toEqual(['controlplane']);
+		});
+
+		it('handles autorun with filename and markdown', () => {
+			const result = extractAutoRunDirectives('!autorun @*controlplane*:plan.md');
+			expect(result.autoRunDirectives).toEqual([
+				{ participantName: 'controlplane', filename: 'plan.md' },
+			]);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.3: routeUserMessage spawns moderator process in batch mode
+	// Note: routeUserMessage now spawns a batch process per message instead of
+	// writing to a persistent session.
+	// ===========================================================================
+	describe('routeUserMessage', () => {
+		it('routes user message to moderator', async () => {
+			const chat = await createTestChatWithModerator('Route Test');
+
+			await routeUserMessage(chat.id, 'Hello', mockProcessManager, mockAgentDetector);
+
+			// Should be in log
+			const messages = await readLog(chat.logPath);
+			expect(messages.some((m) => m.from === 'user')).toBe(true);
+			expect(messages.some((m) => m.content === 'Hello')).toBe(true);
+
+			// Should spawn a batch process for the moderator
+			expect(mockProcessManager.spawn).toHaveBeenCalled();
+		});
+
+		it('logs message with correct sender', async () => {
+			const chat = await createTestChatWithModerator('Sender Test');
+
+			await routeUserMessage(chat.id, 'User message here', mockProcessManager, mockAgentDetector);
+
+			const messages = await readLog(chat.logPath);
+			const userMessage = messages.find((m) => m.from === 'user');
+			expect(userMessage).toBeDefined();
+			expect(userMessage?.content).toBe('User message here');
+		});
+
+		it('sends message to moderator session', async () => {
+			const chat = await createTestChatWithModerator('Session Test');
+
+			await routeUserMessage(chat.id, 'Test message', mockProcessManager, mockAgentDetector);
+
+			// Check that spawn was called with prompt containing the message
+			expect(mockProcessManager.spawn).toHaveBeenCalledWith(
+				expect.objectContaining({
+					prompt: expect.stringContaining('Test message'),
+				})
+			);
+		});
+
+		it('throws for non-existent chat', async () => {
+			await expect(
+				routeUserMessage('non-existent-id', 'Hello', mockProcessManager, mockAgentDetector)
+			).rejects.toThrow(/not found/i);
+		});
+
+		it('throws when moderator is not active', async () => {
+			const chat = await createTestChat('No Moderator');
+			// Don't spawn moderator
+
+			await expect(
+				routeUserMessage(chat.id, 'Hello', mockProcessManager, mockAgentDetector)
+			).rejects.toThrow(/not active/i);
+		});
+
+		it('records the user prompt in history', async () => {
+			const chat = await createTestChatWithModerator('User History Test');
+
+			await routeUserMessage(
+				chat.id,
+				'Ship the login form. Then tell me what broke.',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const history = await getGroupChatHistory(chat.id);
+			const userEntry = history.find((e) => e.type === 'user');
+			expect(userEntry).toBeDefined();
+			expect(userEntry?.participantName).toBe('You');
+			// Summary is the first sentence; the whole prompt stays searchable.
+			expect(userEntry?.summary).toBe('Ship the login form.');
+			expect(userEntry?.fullResponse).toBe('Ship the login form. Then tell me what broke.');
+			// A conductor prompt costs nothing and takes no time to run.
+			expect(userEntry?.cost).toBeUndefined();
+			expect(userEntry?.elapsedTimeMs).toBeUndefined();
+		});
+
+		it('works without process manager (log only)', async () => {
+			const chat = await createTestChatWithModerator('Log Only Test');
+
+			// No process manager - should still log
+			await routeUserMessage(chat.id, 'Log only message');
+
+			const messages = await readLog(chat.logPath);
+			expect(messages.some((m) => m.from === 'user' && m.content === 'Log only message')).toBe(
+				true
+			);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.4: routeModeratorResponse forwards to mentioned agents
+	// ===========================================================================
+	describe('routeModeratorResponse', () => {
+		it('spawns mentioned agents', async () => {
+			const chat = await createTestChatWithModerator('Forward Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement the login form',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const spawnCall = mockProcessManager.spawn.mock.calls.find((call) =>
+				call[0]?.prompt?.includes('login form')
+			);
+			expect(spawnCall).toBeDefined();
+		});
+
+		it('logs moderator message', async () => {
+			const chat = await createTestChatWithModerator('Log Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeModeratorResponse(chat.id, '@Client: Task for you', mockProcessManager);
+
+			const messages = await readLog(chat.logPath);
+			expect(
+				messages.some((m) => m.from === 'moderator' && m.content.includes('Task for you'))
+			).toBe(true);
+		});
+
+		it('spawns multiple mentioned agents', async () => {
+			const chat = await createTestChatWithModerator('Multi Forward Test');
+			const client = await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+			const server = await addParticipant(chat.id, 'Server', 'claude-code', mockProcessManager);
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client and @Server: Coordinate on API',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const spawnCalls = mockProcessManager.spawn.mock.calls;
+			const clientSpawn = spawnCalls.find((call) => call[0]?.prompt?.includes('Client'));
+			const serverSpawn = spawnCalls.find((call) => call[0]?.prompt?.includes('Server'));
+
+			expect(clientSpawn).toBeDefined();
+			expect(serverSpawn).toBeDefined();
+		});
+
+		it('ignores unknown mentions', async () => {
+			const chat = await createTestChatWithModerator('Unknown Mention Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			// Clear the write mock after setup
+			mockProcessManager.spawn.mockClear();
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Unknown: This should not route',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			// Should not spawn any participant (since Unknown doesn't exist)
+			expect(mockProcessManager.spawn).not.toHaveBeenCalled();
+		});
+
+		it('treats unresolved @tokens as plain text without emitting a system warning', async () => {
+			const chat = await createTestChatWithModerator('Literal At Symbol Test');
+			const emitMessage = vi.fn();
+			groupChatEmitters.emitMessage = emitMessage;
+
+			mockProcessManager.spawn.mockClear();
+
+			await routeModeratorResponse(
+				chat.id,
+				'Please keep the literal @example value in the final message.',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(mockProcessManager.spawn).not.toHaveBeenCalled();
+			expect(emitMessage).not.toHaveBeenCalledWith(
+				chat.id,
+				expect.objectContaining({
+					from: 'system',
+				})
+			);
+		});
+
+		it('is a no-op for non-existent chat (benign race on moderator exit)', async () => {
+			await expect(
+				routeModeratorResponse('non-existent-id', 'Hello', mockProcessManager)
+			).resolves.toBeUndefined();
+		});
+
+		it('works without process manager (log only)', async () => {
+			const chat = await createTestChatWithModerator('Log Only Mod Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			mockProcessManager.write.mockClear();
+
+			// No process manager - should still log
+			await routeModeratorResponse(chat.id, '@Client: Log only');
+
+			const messages = await readLog(chat.logPath);
+			expect(messages.some((m) => m.from === 'moderator')).toBe(true);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.4b: moderator history entries are classified by what the turn did
+	// ===========================================================================
+	describe('moderator history entry classification', () => {
+		it('classifies a turn that forwards work to participants as delegation', async () => {
+			const chat = await createTestChatWithModerator('Delegation Classify Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement the login form',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const history = await getGroupChatHistory(chat.id);
+			const moderatorEntry = history.find((e) => e.participantName === 'Moderator');
+			expect(moderatorEntry?.type).toBe('delegation');
+		});
+
+		it('classifies a plain moderator turn with no mentions as response', async () => {
+			const chat = await createTestChatWithModerator('Response Classify Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeModeratorResponse(
+				chat.id,
+				'Here is the final summary for the user.',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const history = await getGroupChatHistory(chat.id);
+			const moderatorEntry = history.find((e) => e.participantName === 'Moderator');
+			expect(moderatorEntry?.type).toBe('response');
+		});
+
+		it('classifies the post-round summary turn as synthesis', async () => {
+			const chat = await createTestChatWithModerator('Synthesis Classify Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			// Spawning synthesis marks the next moderator turn as a synthesis round.
+			await spawnModeratorSynthesis(chat.id, mockProcessManager, mockAgentDetector);
+
+			await routeModeratorResponse(
+				chat.id,
+				'Synthesizing: the participants agreed on the approach.',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const history = await getGroupChatHistory(chat.id);
+			const moderatorEntry = history.find((e) => e.participantName === 'Moderator');
+			expect(moderatorEntry?.type).toBe('synthesis');
+		});
+
+		it('records an error entry when a participant fails to spawn', async () => {
+			const chat = await createTestChatWithModerator('Spawn Error Classify Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			// Make the participant spawn throw (moderator was already spawned during setup).
+			mockProcessManager.spawn = vi.fn().mockImplementation(() => {
+				throw new Error('spawn failed');
+			});
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement the login form',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const history = await getGroupChatHistory(chat.id);
+			expect(history.some((e) => e.type === 'error' && e.participantName === 'Client')).toBe(true);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.5: routeAgentResponse logs and notifies moderator
+	// ===========================================================================
+	describe('routeAgentResponse', () => {
+		it('logs agent response', async () => {
+			const chat = await createTestChatWithModerator('Agent Response Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeAgentResponse(chat.id, 'Client', 'Done implementing the form', mockProcessManager);
+
+			// Should be in log
+			const messages = await readLog(chat.logPath);
+			expect(messages.some((m) => m.from === 'Client')).toBe(true);
+			expect(messages.some((m) => m.content === 'Done implementing the form')).toBe(true);
+		});
+
+		it('logs message with participant name as sender', async () => {
+			const chat = await createTestChatWithModerator('Sender Name Test');
+			await addParticipant(chat.id, 'Backend', 'claude-code', mockProcessManager);
+
+			await routeAgentResponse(chat.id, 'Backend', 'API endpoint created', mockProcessManager);
+
+			const messages = await readLog(chat.logPath);
+			const agentMessage = messages.find((m) => m.from === 'Backend');
+			expect(agentMessage).toBeDefined();
+			expect(agentMessage?.content).toBe('API endpoint created');
+		});
+
+		it('does not notify moderator via process manager write', async () => {
+			const chat = await createTestChatWithModerator('Format Test');
+			await addParticipant(chat.id, 'Frontend', 'claude-code', mockProcessManager);
+
+			mockProcessManager.write.mockClear();
+
+			await routeAgentResponse(chat.id, 'Frontend', 'Component ready', mockProcessManager);
+
+			expect(mockProcessManager.write).not.toHaveBeenCalled();
+		});
+
+		it('throws for non-existent chat', async () => {
+			await expect(
+				routeAgentResponse('non-existent-id', 'Client', 'Hello', mockProcessManager)
+			).rejects.toThrow(/not found/i);
+		});
+
+		it('throws for unknown participant', async () => {
+			const chat = await createTestChatWithModerator('Unknown Agent Test');
+
+			await expect(
+				routeAgentResponse(chat.id, 'Unknown', 'Hello', mockProcessManager)
+			).rejects.toThrow(/not found/i);
+		});
+
+		it('works without process manager (log only)', async () => {
+			const chat = await createTestChatWithModerator('Log Only Agent Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			mockProcessManager.write.mockClear();
+
+			// No process manager - should still log
+			await routeAgentResponse(chat.id, 'Client', 'Log only response');
+
+			const messages = await readLog(chat.logPath);
+			expect(messages.some((m) => m.from === 'Client' && m.content === 'Log only response')).toBe(
+				true
+			);
+		});
+
+		it('handles multiple responses from same agent', async () => {
+			const chat = await createTestChatWithModerator('Multi Response Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeAgentResponse(chat.id, 'Client', 'First message', mockProcessManager);
+			await routeAgentResponse(chat.id, 'Client', 'Second message', mockProcessManager);
+
+			const messages = await readLog(chat.logPath);
+			const clientMessages = messages.filter((m) => m.from === 'Client');
+			expect(clientMessages).toHaveLength(2);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.6: Read-only mode propagation
+	// ===========================================================================
+	describe('read-only mode propagation', () => {
+		it('moderator spawns with readOnlyMode: true', async () => {
+			const chat = await createTestChatWithModerator('Moderator ReadOnly Test');
+
+			await routeUserMessage(chat.id, 'Hello', mockProcessManager, mockAgentDetector);
+
+			// Moderator should always be spawned with readOnlyMode: true
+			expect(mockProcessManager.spawn).toHaveBeenCalledWith(
+				expect.objectContaining({
+					readOnlyMode: true,
+				})
+			);
+		});
+
+		it('includes READ-ONLY MODE in prompt when readOnly flag is set', async () => {
+			const chat = await createTestChatWithModerator('ReadOnly Prompt Test');
+
+			await routeUserMessage(chat.id, 'Hello', mockProcessManager, mockAgentDetector, true);
+
+			// Prompt should include READ-ONLY MODE indicator
+			expect(mockProcessManager.spawn).toHaveBeenCalledWith(
+				expect.objectContaining({
+					prompt: expect.stringContaining('READ-ONLY MODE'),
+				})
+			);
+		});
+
+		it('logs message with readOnly flag when set', async () => {
+			const chat = await createTestChatWithModerator('ReadOnly Log Test');
+
+			await routeUserMessage(
+				chat.id,
+				'Read-only message',
+				mockProcessManager,
+				mockAgentDetector,
+				true
+			);
+
+			const messages = await readLog(chat.logPath);
+			const userMessage = messages.find((m) => m.from === 'user');
+			expect(userMessage).toBeDefined();
+			expect(userMessage?.readOnly).toBe(true);
+		});
+
+		it('stores readOnly state for the group chat', async () => {
+			const chat = await createTestChatWithModerator('ReadOnly State Test');
+
+			// Initially should be false
+			expect(getGroupChatReadOnlyState(chat.id)).toBe(false);
+
+			// After sending read-only message, state should be true
+			await routeUserMessage(
+				chat.id,
+				'Read-only message',
+				mockProcessManager,
+				mockAgentDetector,
+				true
+			);
+			expect(getGroupChatReadOnlyState(chat.id)).toBe(true);
+
+			// After sending non-read-only message, state should be false
+			await routeUserMessage(
+				chat.id,
+				'Normal message',
+				mockProcessManager,
+				mockAgentDetector,
+				false
+			);
+			expect(getGroupChatReadOnlyState(chat.id)).toBe(false);
+		});
+
+		it('does not include READ-ONLY MODE in prompt when readOnly flag is not set', async () => {
+			const chat = await createTestChatWithModerator('No ReadOnly Prompt Test');
+
+			await routeUserMessage(
+				chat.id,
+				'Normal message',
+				mockProcessManager,
+				mockAgentDetector,
+				false
+			);
+
+			// Prompt should NOT include READ-ONLY MODE indicator
+			const spawnCall = mockProcessManager.spawn.mock.calls.find((call) =>
+				call[0].prompt?.includes('Normal message')
+			);
+			expect(spawnCall).toBeDefined();
+			expect(spawnCall?.[0].prompt).not.toContain('READ-ONLY MODE');
+		});
+
+		it('participants spawn with readOnlyMode matching the readOnly flag', async () => {
+			const chat = await createTestChatWithModerator('Participant ReadOnly Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			// Clear spawn mock to only capture the participant batch spawn
+			mockProcessManager.spawn.mockClear();
+
+			// This should trigger participant batch process with readOnly propagated
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please analyze this code',
+				mockProcessManager,
+				mockAgentDetector,
+				true // readOnly flag
+			);
+
+			// Participant should be spawned with readOnlyMode matching the flag
+			const participantSpawnCall = mockProcessManager.spawn.mock.calls.find((call) =>
+				call[0].sessionId?.includes('participant')
+			);
+			expect(participantSpawnCall).toBeDefined();
+			expect(participantSpawnCall?.[0].readOnlyMode).toBe(true);
+		});
+
+		it('participants spawn with readOnlyMode: false when readOnly is not set', async () => {
+			const chat = await createTestChatWithModerator('Participant No ReadOnly Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			// Clear spawn mock to only capture the participant batch spawn
+			mockProcessManager.spawn.mockClear();
+
+			// This should trigger participant batch process without readOnly
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement this feature',
+				mockProcessManager,
+				mockAgentDetector
+				// no readOnly flag = false
+			);
+
+			// Participant should be spawned with readOnlyMode: false
+			const participantSpawnCall = mockProcessManager.spawn.mock.calls.find((call) =>
+				call[0].sessionId?.includes('participant')
+			);
+			expect(participantSpawnCall).toBeDefined();
+			expect(participantSpawnCall?.[0].readOnlyMode).toBe(false);
+		});
+
+		it('auto-added participants are only started once for a moderator handoff', async () => {
+			const chat = await createTestChatWithModerator('Auto Add Single Spawn Test');
+			setGetSessionsCallback(() => [
+				{
+					id: 'session-client',
+					name: 'Client',
+					toolType: 'claude-code',
+					cwd: '/tmp/project',
+				},
+			]);
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please create the requested file',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const participantSpawns = mockProcessManager.spawn.mock.calls.filter((call) =>
+				call[0].sessionId?.includes(`group-chat-${chat.id}-participant-Client-`)
+			);
+			expect(participantSpawns).toHaveLength(1);
+		});
+
+		it('does not report auto-add races after the moderator has stopped', async () => {
+			const chat = await createTestChatWithModerator('Auto Add Stopped Moderator Test');
+			clearAllModeratorSessions();
+			mockCaptureException.mockClear();
+			setGetSessionsCallback(() => [
+				{
+					id: 'session-client',
+					name: 'Client',
+					toolType: 'claude-code',
+					cwd: '/tmp/project',
+				},
+			]);
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please create the requested file',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(mockCaptureException).not.toHaveBeenCalled();
+			expect((await loadGroupChat(chat.id))?.participants).toEqual([]);
+		});
+	});
+
+	// ===========================================================================
+	// Busy-agent gating (requireIdleParticipants)
+	// ===========================================================================
+	describe('only engaging agents that are free', () => {
+		const busyClientSession: GroupChatSessionInfo = {
+			id: 'session-client',
+			name: 'Client',
+			toolType: 'claude-code',
+			cwd: '/tmp/project',
+			isBusy: true,
+		};
+
+		function participantSpawnsFor(chatId: string) {
+			return mockProcessManager.spawn.mock.calls.filter((call) =>
+				call[0].sessionId?.includes(`group-chat-${chatId}-participant-Client-`)
+			);
+		}
+
+		/**
+		 * Drives the queued-delegation poll loop forward under fake timers until
+		 * `done()` reports the handoff landed. Each pass advances one poll interval
+		 * and then flushes the microtasks the delivery chain resolves on.
+		 */
+		async function runPollsUntil(done: () => boolean, passes = 10): Promise<void> {
+			for (let i = 0; i < passes && !done(); i++) {
+				await vi.advanceTimersByTimeAsync(5000);
+				await vi.advanceTimersByTimeAsync(0);
+			}
+		}
+
+		it('holds delegation for a busy agent and says who it is waiting on', async () => {
+			const chat = await createTestChatWithModerator('Busy Wait Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+			setGetSessionsCallback(() => [busyClientSession]);
+			mockProcessManager.spawn.mockClear();
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement this feature',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(participantSpawnsFor(chat.id)).toHaveLength(0);
+
+			// The wait is logged, not just emitted: the moderator reads recent log
+			// lines as context, so this is how it learns the work is still pending.
+			const messages = await readLog(chat.logPath);
+			const systemMessage = messages.find((m) => m.from === 'system');
+			expect(systemMessage?.content).toContain('@Client');
+			expect(systemMessage?.content).toContain('Waiting');
+
+			clearPendingParticipants(chat.id);
+		});
+
+		it('delivers the held delegation once the agent frees up', async () => {
+			vi.useFakeTimers();
+			try {
+				const chat = await createTestChatWithModerator('Busy Then Free Test');
+				await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+				let busy = true;
+				setGetSessionsCallback(() => [{ ...busyClientSession, isBusy: busy }]);
+				mockProcessManager.spawn.mockClear();
+
+				await routeModeratorResponse(
+					chat.id,
+					'@Client: Please implement this feature',
+					mockProcessManager,
+					mockAgentDetector
+				);
+				expect(participantSpawnsFor(chat.id)).toHaveLength(0);
+
+				// Still busy: the poll must not hand the work over early.
+				await runPollsUntil(() => false, 2);
+				expect(participantSpawnsFor(chat.id)).toHaveLength(0);
+
+				busy = false;
+				await runPollsUntil(() => participantSpawnsFor(chat.id).length > 0);
+				expect(participantSpawnsFor(chat.id)).toHaveLength(1);
+
+				clearPendingParticipants(chat.id);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		it('gives up on an agent that never frees up and says so', async () => {
+			const previousEmitMessage = groupChatEmitters.emitMessage;
+			vi.useFakeTimers();
+			try {
+				const chat = await createTestChatWithModerator('Busy Forever Test');
+				await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+				setGetSessionsCallback(() => [busyClientSession]);
+				mockProcessManager.spawn.mockClear();
+				const emitMessage = vi.fn();
+				groupChatEmitters.emitMessage = emitMessage;
+
+				await routeModeratorResponse(
+					chat.id,
+					'@Client: Please implement this feature',
+					mockProcessManager,
+					mockAgentDetector
+				);
+
+				// Past the 15 minute wait budget.
+				await runPollsUntil(() => false, 200);
+				// The queued handoff is deliberately fire-and-forget. Return to real
+				// timers and wait for its async log append instead of racing the file.
+				vi.useRealTimers();
+				await vi.waitFor(() =>
+					expect(emitMessage).toHaveBeenCalledWith(
+						chat.id,
+						expect.objectContaining({ content: expect.stringContaining('Gave up') })
+					)
+				);
+
+				const messages = await readLog(chat.logPath);
+				expect(messages.some((m) => m.from === 'system' && m.content.includes('Gave up'))).toBe(
+					true
+				);
+				expect(participantSpawnsFor(chat.id)).toHaveLength(0);
+
+				clearPendingParticipants(chat.id);
+			} finally {
+				groupChatEmitters.emitMessage = previousEmitMessage;
+				vi.useRealTimers();
+			}
+		});
+
+		it('stops waiting when the chat is stopped', async () => {
+			vi.useFakeTimers();
+			try {
+				const chat = await createTestChatWithModerator('Busy Cancel Test');
+				await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+				let busy = true;
+				setGetSessionsCallback(() => [{ ...busyClientSession, isBusy: busy }]);
+				mockProcessManager.spawn.mockClear();
+
+				await routeModeratorResponse(
+					chat.id,
+					'@Client: Please implement this feature',
+					mockProcessManager,
+					mockAgentDetector
+				);
+
+				clearPendingParticipants(chat.id);
+				busy = false;
+				await runPollsUntil(() => false, 3);
+
+				// The agent freed up, but the chat is no longer waiting on it.
+				expect(participantSpawnsFor(chat.id)).toHaveLength(0);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		it('delegates to a busy agent when the chat opted out', async () => {
+			const chat = await createTestChatWithModerator('Busy Override Test');
+			await updateGroupChat(chat.id, { requireIdleParticipants: false });
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+			setGetSessionsCallback(() => [busyClientSession]);
+			mockProcessManager.spawn.mockClear();
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement this feature',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(participantSpawnsFor(chat.id)).toHaveLength(1);
+			const messages = await readLog(chat.logPath);
+			expect(messages.some((m) => m.from === 'system')).toBe(false);
+		});
+
+		it('delegates to an idle agent with the default setting on', async () => {
+			const chat = await createTestChatWithModerator('Idle Delegation Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+			setGetSessionsCallback(() => [{ ...busyClientSession, isBusy: false }]);
+			mockProcessManager.spawn.mockClear();
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement this feature',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(participantSpawnsFor(chat.id)).toHaveLength(1);
+		});
+
+		it('still delegates when the agent has no matching Maestro agent to probe', async () => {
+			// Unknown must not read as busy - a participant whose agent was renamed
+			// would otherwise become permanently unreachable.
+			const chat = await createTestChatWithModerator('Unknown Agent Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+			setGetSessionsCallback(() => []);
+			mockProcessManager.spawn.mockClear();
+
+			await routeModeratorResponse(
+				chat.id,
+				'@Client: Please implement this feature',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(participantSpawnsFor(chat.id)).toHaveLength(1);
+		});
+
+		it('holds Auto Run for a busy agent and triggers it once free', async () => {
+			vi.useFakeTimers();
+			const emitAutoRunTriggered = vi.fn();
+			try {
+				const chat = await createTestChatWithModerator('Busy Auto Run Test');
+				await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+				let busy = true;
+				setGetSessionsCallback(() => [
+					{
+						...busyClientSession,
+						isBusy: busy,
+						autoRunFolderPath: '/tmp/project/.maestro/playbooks',
+					},
+				]);
+				groupChatEmitters.emitAutoRunTriggered = emitAutoRunTriggered;
+
+				await routeModeratorResponse(
+					chat.id,
+					'!autorun @Client',
+					mockProcessManager,
+					mockAgentDetector
+				);
+
+				expect(emitAutoRunTriggered).not.toHaveBeenCalled();
+
+				busy = false;
+				await runPollsUntil(() => emitAutoRunTriggered.mock.calls.length > 0);
+				expect(emitAutoRunTriggered).toHaveBeenCalledTimes(1);
+
+				clearPendingParticipants(chat.id);
+			} finally {
+				groupChatEmitters.emitAutoRunTriggered = undefined;
+				vi.useRealTimers();
+			}
+		});
+	});
+
+	// ===========================================================================
+	// Edge cases and integration scenarios
+	// ===========================================================================
+	describe('edge cases', () => {
+		it('handles full message flow', async () => {
+			const chat = await createTestChatWithModerator('Full Flow Test');
+			await addParticipant(chat.id, 'Dev', 'claude-code', mockProcessManager);
+
+			// User message
+			await routeUserMessage(
+				chat.id,
+				'Please help me build a feature',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			// Moderator response
+			await routeModeratorResponse(chat.id, '@Dev: Build the feature', mockProcessManager);
+
+			// Agent response
+			await routeAgentResponse(chat.id, 'Dev', 'Feature built!', mockProcessManager);
+
+			const messages = await readLog(chat.logPath);
+			expect(messages.filter((m) => m.from === 'user')).toHaveLength(1);
+			expect(messages.filter((m) => m.from === 'moderator')).toHaveLength(1);
+			expect(messages.filter((m) => m.from === 'Dev')).toHaveLength(1);
+		});
+
+		it('handles special characters in messages', async () => {
+			const chat = await createTestChatWithModerator('Special Char Test');
+			await addParticipant(chat.id, 'Client', 'claude-code', mockProcessManager);
+
+			await routeUserMessage(
+				chat.id,
+				'Message with pipes | and newlines\nand more',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			const messages = await readLog(chat.logPath);
+			const userMessage = messages.find((m) => m.from === 'user');
+			expect(userMessage?.content).toBe('Message with pipes | and newlines\nand more');
+		});
+
+		it('handles concurrent routing', async () => {
+			const chat = await createTestChatWithModerator('Concurrent Test');
+			await addParticipant(chat.id, 'Agent1', 'claude-code', mockProcessManager);
+			await addParticipant(chat.id, 'Agent2', 'claude-code', mockProcessManager);
+
+			// Send multiple messages concurrently
+			await Promise.all([
+				routeAgentResponse(chat.id, 'Agent1', 'Response 1', mockProcessManager),
+				routeAgentResponse(chat.id, 'Agent2', 'Response 2', mockProcessManager),
+			]);
+
+			const messages = await readLog(chat.logPath);
+			expect(messages.filter((m) => m.from === 'Agent1' || m.from === 'Agent2')).toHaveLength(2);
+		});
+	});
+
+	// ===========================================================================
+	// Test 5.7: SSH remote execution for group chat participants
+	// ===========================================================================
+	describe('SSH remote participant support', () => {
+		const sshRemoteConfig = {
+			enabled: true,
+			remoteId: 'remote-1',
+			workingDirOverride: '/home/user/project',
+		};
+
+		const mockSshStore = {
+			getSshRemotes: vi
+				.fn()
+				.mockReturnValue([
+					{ id: 'remote-1', name: 'PedTome', host: 'pedtome.local', user: 'user' },
+				]),
+		};
+
+		beforeEach(() => {
+			// Configure the SSH wrapping mock to return transformed spawn config
+			mockWrapSpawnWithSsh.mockResolvedValue({
+				command: 'ssh',
+				args: ['-t', 'user@pedtome.local', 'claude', '--print'],
+				cwd: '/home/user/project',
+				prompt: 'test prompt',
+				customEnvVars: {},
+				sshRemoteUsed: { name: 'PedTome' },
+			});
+		});
+
+		afterEach(() => {
+			// Clear the module-level callbacks after SSH tests
+			setGetSessionsCallback(() => []);
+			mockWrapSpawnWithSsh.mockReset();
+		});
+
+		it('user-mention auto-add stores SSH participant metadata without spawning yet', async () => {
+			const chat = await createTestChatWithModerator('SSH User Mention Test');
+
+			// Set up a session with SSH config that the router can discover
+			const sshSession: GroupChatSessionInfo = {
+				id: 'ses-ssh-1',
+				name: 'RemoteAgent',
+				toolType: 'claude-code',
+				cwd: '/home/user/project',
+				sshRemoteName: 'PedTome',
+				sshRemoteConfig,
+			};
+			setGetSessionsCallback(() => [sshSession]);
+			setSshStore(mockSshStore);
+
+			// User mentions @RemoteAgent - this should auto-add with SSH config
+			await routeUserMessage(
+				chat.id,
+				'@RemoteAgent: please help',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(mockWrapSpawnWithSsh).not.toHaveBeenCalled();
+			const updatedChat = await loadGroupChat(chat.id);
+			expect(updatedChat?.participants).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						name: 'RemoteAgent',
+						sshRemoteName: 'PedTome',
+					}),
+				])
+			);
+		});
+
+		it('moderator-mention participant spawn applies SSH wrapping', async () => {
+			const chat = await createTestChatWithModerator('SSH Moderator Mention Test');
+
+			// Set up session with SSH config
+			const sshSession: GroupChatSessionInfo = {
+				id: 'ses-ssh-2',
+				name: 'SSHWorker',
+				toolType: 'claude-code',
+				cwd: '/home/user/project',
+				sshRemoteName: 'PedTome',
+				sshRemoteConfig,
+			};
+			setGetSessionsCallback(() => [sshSession]);
+			setSshStore(mockSshStore);
+
+			// Add the participant (this triggers SSH wrapping during spawn)
+			await addParticipant(
+				chat.id,
+				'SSHWorker',
+				'claude-code',
+				mockProcessManager,
+				'/home/user/project',
+				mockAgentDetector,
+				{},
+				undefined,
+				{ sshRemoteName: 'PedTome', sshRemoteConfig },
+				mockSshStore
+			);
+
+			mockWrapSpawnWithSsh.mockClear();
+
+			// Moderator mentions the SSH participant - batch spawn should use SSH wrapping
+			await routeModeratorResponse(
+				chat.id,
+				'@SSHWorker: implement the feature',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			expect(mockWrapSpawnWithSsh).toHaveBeenCalledWith(
+				expect.objectContaining({
+					command: expect.any(String),
+					agentBinaryName: 'claude',
+				}),
+				sshRemoteConfig,
+				mockSshStore
+			);
+		});
+
+		it('does not apply SSH wrapping for non-SSH sessions', async () => {
+			const chat = await createTestChatWithModerator('No SSH Test');
+
+			// Session without SSH config
+			const localSession: GroupChatSessionInfo = {
+				id: 'ses-local-1',
+				name: 'LocalAgent',
+				toolType: 'claude-code',
+				cwd: '/Users/dev/project',
+			};
+			setGetSessionsCallback(() => [localSession]);
+			setSshStore(mockSshStore);
+
+			await routeUserMessage(
+				chat.id,
+				'@LocalAgent: help please',
+				mockProcessManager,
+				mockAgentDetector
+			);
+
+			// SSH wrapper should NOT be called for local sessions
+			expect(mockWrapSpawnWithSsh).not.toHaveBeenCalled();
+		});
+	});
+});
