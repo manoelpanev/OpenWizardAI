@@ -69,7 +69,6 @@ import { removeSubscriptionFromYaml, type SelfDestructResult } from './cue-self-
 import * as yaml from 'js-yaml';
 import { cueDebugLog } from '../../shared/cueDebug';
 import { captureException } from '../utils/sentry';
-import { recordRunCompleted as recordTelemetryRunCompleted } from './cue-telemetry';
 import {
 	parseCueSubscriptionId,
 	pipelineKeyForSubscription,
@@ -196,35 +195,16 @@ export class CueEngine {
 				// user explicitly cancelled and may want to reschedule. The YAML
 				// watcher reloads the config naturally after the rewrite.
 				this.maybeSelfDestructOnce(sessionId, result, subscriptionName);
-				// Telemetry: emit `run_completed` once per natural completion.
-				// task_kind is derived here rather than inside the run manager
-				// so the engine remains the sole authority on telemetry shape.
-				// `agent.completed` events came from chain propagation (handoff
-				// between agents). Subscriptions with `action: command` represent
-				// a command node firing. Everything else is a trigger-driven run.
-				const taskKind: 'agent_handoff' | 'command_node' | 'trigger_action' =
-					result.event.type === 'agent.completed'
-						? 'agent_handoff'
-						: result.event.payload?.actionKind === 'command'
-							? 'command_node'
-							: 'trigger_action';
-				recordTelemetryRunCompleted({
-					subscriptionName,
-					pipelineName: result.pipelineName,
-					taskKind,
-					chainRootId: chainRootId ?? null,
-					parentRunId: (result.event.payload?.parentRunId as string | undefined) ?? null,
-					durationMs: result.durationMs,
-					status: result.status,
-				});
 				// Conductor level credit: only autonomous AI time advances the
-				// podium (badge progression + leaderboard, which read the same
+				// podium (badge progression, which reads the same
 				// cumulativeTimeMs, so there is no drift). Command nodes are
 				// deterministic shell steps, not agent reasoning, so they never
 				// credit. Each run is floored to whole minutes: a sub-minute agent
 				// run yields 0, matching Auto Run's minute-granularity accrual and
 				// keeping trivial/quick automations off the podium.
-				if (taskKind !== 'command_node' && result.status === 'completed') {
+				const isCommandNode =
+					result.event.type !== 'agent.completed' && result.event.payload?.actionKind === 'command';
+				if (!isCommandNode && result.status === 'completed') {
 					const creditMs = Math.floor(result.durationMs / 60000) * 60000;
 					if (creditMs > 0) {
 						this.meteredOnLog('debug', '[CUE] Conductor time credit', {

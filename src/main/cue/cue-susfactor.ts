@@ -30,9 +30,22 @@
 
 import * as crypto from 'crypto';
 import { mapWithConcurrency } from '../utils/concurrency';
-import { fetchWithTimeout } from './cue-telemetry';
 
 const ACCESS_TOKEN_URL = 'https://0din.ai/api/v1/access_tokens';
+
+async function fetchWithTimeout(
+	url: string,
+	options: RequestInit,
+	timeoutMs: number
+): Promise<Response> {
+	const controller = new AbortController();
+	const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+	try {
+		return await fetch(url, { ...options, signal: controller.signal });
+	} finally {
+		clearTimeout(timeoutId);
+	}
+}
 const SUS_URL = 'https://defense.0din.ai/api/v1/sus';
 
 /** Per-request budget for a single sus call. */

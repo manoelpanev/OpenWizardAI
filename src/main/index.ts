@@ -21,7 +21,6 @@ import {
 	disposeGlobalHotkey,
 } from './global-hotkey-manager';
 import { CueEngine } from './cue/cue-engine';
-import { configureCueTelemetry } from './cue/cue-telemetry';
 import { executeCuePrompt, stopCueRun, getCueProcessList } from './cue/cue-executor';
 import { executeCueShell, stopCueShellRun } from './cue/cue-shell-executor';
 import { executeCueCli, stopCueCliRun } from './cue/cue-cli-executor';
@@ -1228,20 +1227,6 @@ app
 			// next time Cue is enabled, without an app restart.
 			getCueHistoryRetentionDays: () =>
 				store.get('cueHistoryRetentionDays', DEFAULT_CUE_HISTORY_RETENTION_DAYS),
-		});
-
-		// Configure Cue telemetry submitter. Reads installationId / encore flags
-		// on every event so toggling Cue or usageStats at runtime takes effect
-		// without an app restart. Same predicate as cue-stats.ts:isCueStatsEnabled
-		// - both flags required.
-		configureCueTelemetry({
-			getInstallationId: () => store.get('installationId') as string | null,
-			getAppVersion: () => app.getVersion(),
-			getPlatform: () => process.platform,
-			isEncoreEnabled: () => {
-				const ef = resolveEncoreFeatures(store.get('encoreFeatures'));
-				return ef.maestroCue && ef.usageStats;
-			},
 		});
 
 		logger.info('Core services initialized', 'Startup');

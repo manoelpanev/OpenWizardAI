@@ -2298,7 +2298,6 @@ interface MaestroAPI {
 			releasesUrl: string;
 			error?: string;
 		}>;
-		checkin: () => Promise<void>;
 		download: (targetTag?: string) => Promise<{ success: boolean; error?: string }>;
 		install: () => Promise<void>;
 		getStatus: () => Promise<{
