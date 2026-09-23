@@ -93,6 +93,9 @@ export class AgentDetector {
 	private cachedAgents: AgentConfig[] | null = null;
 	private detectionInProgress: Promise<AgentConfig[]> | null = null;
 	private customPaths: Record<string, string> = {};
+	// Launchers for agents that ship inside the app (e.g. DeepSeek). A user's
+	// custom path still wins.
+	private bundledPaths: Record<string, string> = {};
 	// Cache for model discovery results: agentId -> { models, timestamp }
 	private modelCache: Map<string, { models: string[]; timestamp: number }> = new Map();
 	// Cache for config option discovery: "agentId:optionKey" -> { options, timestamp }
@@ -114,6 +117,14 @@ export class AgentDetector {
 	setCustomPaths(paths: Record<string, string>): void {
 		this.customPaths = paths;
 		// Clear cache when custom paths change
+		this.cachedAgents = null;
+	}
+
+	/**
+	 * Register the launcher of an agent bundled with the app
+	 */
+	setBundledPath(agentId: string, launcherPath: string): void {
+		this.bundledPaths[agentId] = launcherPath;
 		this.cachedAgents = null;
 	}
 
@@ -157,7 +168,7 @@ export class AgentDetector {
 		logger.info(`Agent detection starting. PATH: ${expandedEnv.PATH}`, LOG_CONTEXT);
 
 		for (const agentDef of AGENT_DEFINITIONS) {
-			const customPath = this.customPaths[agentDef.id];
+			const customPath = this.customPaths[agentDef.id] ?? this.bundledPaths[agentDef.id];
 			let detection: { exists: boolean; path?: string };
 
 			// If user has specified a custom path, check that first

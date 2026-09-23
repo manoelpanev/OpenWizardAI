@@ -349,6 +349,46 @@ const CLAUDE_ERROR_PATTERNS: AgentErrorPatterns = {
 // OpenCode Error Patterns
 // ============================================================================
 
+/**
+ * DeepSeek agent (openwizardai-agent). Structured errors arrive as JSON events and
+ * are classified by the parser; these cover plain stderr from a failed launch.
+ */
+const DEEPSEEK_ERROR_PATTERNS: AgentErrorPatterns = {
+	auth_expired: [
+		{
+			pattern: /No DeepSeek API key|Authentication Fails|DeepSeek rejected this API key/i,
+			message: 'DeepSeek API key missing or invalid. Connect it via Cmd+K > Connect DeepSeek.',
+			recoverable: true,
+		},
+	],
+	rate_limited: [
+		{
+			pattern: /Insufficient Balance/i,
+			message: 'Your DeepSeek account balance is used up. Top it up at platform.deepseek.com.',
+			recoverable: true,
+		},
+		{
+			pattern: /Rate Limit Reached|DeepSeek API error 429/i,
+			message: 'DeepSeek rate limit reached. Wait a moment and try again.',
+			recoverable: true,
+		},
+	],
+	network_error: [
+		{
+			pattern: /Could not reach DeepSeek/i,
+			message: 'Could not reach the DeepSeek API. Check your internet connection.',
+			recoverable: true,
+		},
+	],
+	token_exhaustion: [
+		{
+			pattern: /maximum context length|context length exceeded/i,
+			message: 'The conversation is larger than the DeepSeek context window. Start a new tab.',
+			recoverable: true,
+		},
+	],
+};
+
 const OPENCODE_ERROR_PATTERNS: AgentErrorPatterns = {
 	auth_expired: [
 		{
@@ -1162,6 +1202,7 @@ const COPILOT_ERROR_PATTERNS: AgentErrorPatterns = {
 const patternRegistry = new Map<ToolType, AgentErrorPatterns>([
 	['claude-code', CLAUDE_ERROR_PATTERNS],
 	['opencode', OPENCODE_ERROR_PATTERNS],
+	['deepseek', DEEPSEEK_ERROR_PATTERNS],
 	['codex', CODEX_ERROR_PATTERNS],
 	['factory-droid', FACTORY_DROID_ERROR_PATTERNS],
 	['copilot-cli', COPILOT_ERROR_PATTERNS],

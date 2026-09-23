@@ -158,6 +158,53 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
 		hidden: true, // Internal agent, not shown in UI
 	},
 	{
+		// OpenWizardAI's own agent (src/openwizardai-agent). The app writes a small
+		// launcher for the bundled script and points the detector at it, so no
+		// separate install is needed. The API key is injected at spawn time from
+		// encrypted storage (see src/main/deepseek/credentials.ts), never via config.
+		id: 'deepseek',
+		name: 'DeepSeek',
+		binaryName: 'openwizardai-agent',
+		command: 'openwizardai-agent',
+		args: [],
+		jsonOutputArgs: ['--output-format', 'stream-json'],
+		resumeArgs: (sessionId: string) => ['--resume', sessionId],
+		readOnlyArgs: ['--read-only'],
+		readOnlyCliEnforced: true,
+		modelArgs: (modelId: string) => ['--model', modelId],
+		configOptions: [
+			{
+				key: 'model',
+				type: 'select',
+				label: 'Model',
+				description:
+					'deepseek-flash (DeepSeek V4.1 Flash) is fast and cheap. deepseek-v4-pro thinks deeper for large or tricky tasks.',
+				options: ['deepseek-flash', 'deepseek-v4-pro'],
+				default: 'deepseek-flash',
+				argBuilder: (value: string) => (value && value.trim() ? ['--model', value.trim()] : []),
+			},
+			{
+				key: 'effort',
+				type: 'select',
+				label: 'Thinking',
+				description: 'How much the model reasons before answering. "off" answers fastest.',
+				options: ['high', 'max', 'low', 'off'],
+				default: 'high',
+				argBuilder: (value: string) => {
+					if (value === 'off') return ['--no-thinking'];
+					return value && value.trim() ? ['--effort', value.trim()] : [];
+				},
+			},
+			{
+				key: 'contextWindow',
+				type: 'number',
+				label: 'Context Window Size',
+				description: 'Maximum context window size in tokens. DeepSeek V4 supports 1,000,000.',
+				default: 1000000,
+			},
+		],
+	},
+	{
 		id: 'claude-code',
 		name: 'Claude Code',
 		binaryName: 'claude',

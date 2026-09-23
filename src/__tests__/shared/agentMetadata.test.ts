@@ -152,9 +152,10 @@ describe('agentMetadata', () => {
 		});
 	});
 	describe('getAgentLoginCommand', () => {
-		it('returns the provider login command for every non-terminal agent', () => {
+		it('returns the provider login command for every CLI-authenticated agent', () => {
 			for (const id of AGENT_IDS) {
-				if (id === 'terminal') continue;
+				// Terminal has no login; DeepSeek's API key is entered in Settings.
+				if (id === 'terminal' || id === 'deepseek') continue;
 				const login = getAgentLoginCommand(id);
 				expect(login, `no login command for ${id}`).not.toBeNull();
 				expect(login!.binary.length).toBeGreaterThan(0);

@@ -218,6 +218,7 @@ import { useUIStore } from './stores/uiStore';
 import { useSettingsStore } from './stores/settingsStore';
 import { useTabStore } from './stores/tabStore';
 import { useFileExplorerStore } from './stores/fileExplorerStore';
+import { DeepSeekConnect } from './components/DeepSeekConnectModal';
 
 function OpenWizardAIConsoleInner() {
 	// --- LAYER STACK (for blocking shortcuts when modals are open) ---
@@ -3212,6 +3213,9 @@ function OpenWizardAIConsoleInner() {
 					onCloseSendToAgent={handleCloseSendToAgent}
 					onSendToAgent={handleSendToAgent}
 				/>
+
+				{/* --- DEEPSEEK CONNECT (opens on launch until an API key is saved) --- */}
+				<DeepSeekConnect theme={theme} />
 
 				{/* --- STANDALONE MODALS (debug, marketplace, wizard, settings, etc.) --- */}
 				{/* Self-sources modal open states from modalStore, sessionStore, fileExplorerStore, tabStore */}

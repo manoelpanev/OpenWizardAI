@@ -16,6 +16,7 @@ import type { AgentId } from './agentIds';
  */
 export const AGENT_DISPLAY_NAMES: Record<AgentId, string> = {
 	terminal: 'Terminal',
+	deepseek: 'DeepSeek',
 	'claude-code': 'Claude Code',
 	codex: 'Codex',
 	'gemini-cli': 'Gemini CLI',
@@ -106,6 +107,8 @@ export interface AgentLoginCommand {
  */
 const AGENT_LOGIN_COMMANDS: Record<AgentId, AgentLoginCommand | null> = {
 	terminal: null,
+	// The DeepSeek API key is entered in Settings, not through a CLI login.
+	deepseek: null,
 	'claude-code': { binary: 'claude', args: '/login' },
 	codex: { binary: 'codex', args: 'login' },
 	'gemini-cli': { binary: 'gemini', args: '', followUp: '/auth' },

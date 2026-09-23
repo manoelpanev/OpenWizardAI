@@ -15,6 +15,7 @@
  */
 export const AGENT_IDS = [
 	'terminal',
+	'deepseek',
 	'claude-code',
 	'codex',
 	'gemini-cli',

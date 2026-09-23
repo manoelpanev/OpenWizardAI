@@ -57,21 +57,21 @@ describe('parsers/index', () => {
 			expect(hasOutputParser('copilot-cli')).toBe(true);
 		});
 
-		it('should register exactly 5 parsers', () => {
+		it('should register exactly 6 parsers', () => {
 			initializeOutputParsers();
 
 			const parsers = getAllOutputParsers();
-			expect(parsers.length).toBe(5); // Claude, OpenCode, Codex, Factory Droid, Copilot
+			expect(parsers.length).toBe(6); // Claude, OpenCode, DeepSeek, Codex, Factory Droid, Copilot
 		});
 
 		it('should clear existing parsers before registering', () => {
 			// First initialization
 			initializeOutputParsers();
-			expect(getAllOutputParsers().length).toBe(5);
+			expect(getAllOutputParsers().length).toBe(6);
 
 			// Second initialization should still have exactly 5
 			initializeOutputParsers();
-			expect(getAllOutputParsers().length).toBe(5);
+			expect(getAllOutputParsers().length).toBe(6);
 		});
 	});
 

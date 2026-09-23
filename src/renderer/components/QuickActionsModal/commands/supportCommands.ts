@@ -2,6 +2,7 @@ import type { NotifyToastInput } from '../../../stores/notificationStore';
 import { captureException } from '../../../utils/sentry';
 import type { SettingsTab } from '../../../types';
 import type { QuickAction } from '../types';
+import { openDeepSeekConnect } from '../../DeepSeekConnectModal';
 
 interface BuildSupportCommandsArgs {
 	setQuickActionOpen: (open: boolean) => void;
@@ -105,6 +106,15 @@ export function buildSupportCommands({
 			label: 'Toggle JavaScript Console',
 			action: () => {
 				toggleDevtools();
+				setQuickActionOpen(false);
+			},
+		},
+		{
+			id: 'deepseek-connect',
+			label: 'Connect DeepSeek',
+			subtext: 'Add or change your DeepSeek API key',
+			action: () => {
+				openDeepSeekConnect();
 				setQuickActionOpen(false);
 			},
 		},

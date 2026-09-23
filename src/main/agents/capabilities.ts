@@ -211,6 +211,37 @@ export const AGENT_CAPABILITIES: Record<string, AgentCapabilities> = {
 	 * Verified capabilities based on CLI testing and documentation review.
 	 * See .openwizardai/playbooks/OpenCode-Support.md for investigation details.
 	 */
+	/**
+	 * DeepSeek - OpenWizardAI's own agent (src/openwizardai-agent) on the DeepSeek V4 API.
+	 */
+	deepseek: {
+		supportsResume: true, // --resume <id>, sessions stored under userData/deepseek-sessions
+		supportsReadOnlyMode: true, // --read-only drops write/edit/run tools
+		supportsJsonOutput: true, // --output-format stream-json
+		supportsSessionId: true, // session_id in init/result events
+		supportsImageInput: false,
+		supportsImageInputOnResume: false,
+		supportsSlashCommands: false,
+		supportsSessionStorage: false,
+		supportsCostTracking: true, // cost_usd in result events
+		supportsUsageStats: true, // token usage in result events
+		supportsBatchMode: true, // one turn per process
+		requiresPromptToStart: true,
+		supportsStreaming: true, // streams text and reasoning deltas
+		supportsResultMessages: true,
+		supportsModelSelection: true, // --model deepseek-flash | deepseek-v4-pro
+		supportsStreamJsonInput: false,
+		supportsThinkingDisplay: true, // reasoning events
+		supportsContextMerge: true,
+		supportsContextExport: false,
+		supportsWizard: true,
+		supportsGroupChatModeration: true,
+		usesJsonLineOutput: true,
+		usesCombinedContextWindow: false,
+		supportsAppendSystemPrompt: false,
+		supportsProjectMemory: false,
+	},
+
 	opencode: {
 		supportsResume: true, // --session flag (sessionID in output) - Verified
 		supportsReadOnlyMode: true, // --agent plan (plan mode) - Verified

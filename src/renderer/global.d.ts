@@ -193,6 +193,13 @@ import type {
 } from '../main/preload/git';
 import type { HistoryEntry } from '../shared/types';
 
+/** DeepSeek API key status (the key itself never reaches the renderer) */
+interface DeepSeekConnectionStatus {
+	configured: boolean;
+	encryptionAvailable: boolean;
+	keyHint: string | null;
+}
+
 interface OpenWizardAIAPI {
 	// Context merging API (for session context transfer and grooming)
 	context: {
@@ -3108,6 +3115,17 @@ interface OpenWizardAIAPI {
 			openwizardaiPMode?: 'interactive' | 'dynamic';
 			openwizardaiPPath?: string;
 		}) => Promise<string | null>;
+	};
+
+	// DeepSeek connection (API key status / save / remove)
+	deepseek: {
+		getStatus: () => Promise<DeepSeekConnectionStatus>;
+		saveApiKey: (
+			apiKey: string
+		) => Promise<
+			{ success: true; status: DeepSeekConnectionStatus } | { success: false; error: string }
+		>;
+		clearApiKey: () => Promise<DeepSeekConnectionStatus>;
 	};
 
 	// AI Command API (plain-English request -> one shell command line)

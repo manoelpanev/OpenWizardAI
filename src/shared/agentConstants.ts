@@ -15,6 +15,7 @@ import type { AgentCapabilitiesSnapshot } from './agentCapabilities';
  * should configure contextWindow via their configOptions in definitions.ts.
  */
 export const DEFAULT_CONTEXT_WINDOWS: Partial<Record<AgentId, number>> = {
+	deepseek: 1000000, // DeepSeek V4 (Flash and Pro)
 	'claude-code': 200000, // Claude 3.5 Sonnet/Claude 4 default context
 	codex: 200000, // OpenAI o3/o4-mini context window
 	opencode: 128000, // OpenCode (depends on model, 128k is conservative default)

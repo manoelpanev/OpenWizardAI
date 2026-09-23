@@ -102,6 +102,8 @@ import {
 	cleanupAllGroomingSessions,
 	getActiveGroomingSessionCount,
 } from './ipc/handlers';
+import { registerDeepSeekHandlers } from './ipc/handlers/deepseek';
+import { ensureDeepSeekAgentLauncher } from './deepseek/agent-launcher';
 import { initializeStatsDB, closeStatsDB } from './stats';
 import { groupChatEmitters } from './ipc/handlers/groupChat';
 import {
@@ -896,6 +898,8 @@ app
 				customPaths[agentId] = config.customPath as string;
 			}
 		}
+		const deepSeekLauncher = ensureDeepSeekAgentLauncher();
+		if (deepSeekLauncher) agentDetector.setBundledPath('deepseek', deepSeekLauncher);
 		if (Object.keys(customPaths).length > 0) {
 			agentDetector.setCustomPaths(customPaths);
 			logger.info(`Loaded custom agent paths: ${JSON.stringify(customPaths)}`, 'Startup');
@@ -1766,6 +1770,9 @@ function setupIpcHandlers() {
 		agentConfigsStore,
 		settingsStore: store,
 	});
+
+	// Register DeepSeek handlers (API key connect / status / remove)
+	registerDeepSeekHandlers();
 
 	// Register AI command mode handlers (plain-English request -> command line)
 	registerAiCommandHandlers({

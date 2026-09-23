@@ -14,6 +14,7 @@ import type { ToolType } from '../../shared/types';
 import type { AgentOutputParser } from './agent-output-parser';
 import { ClaudeOutputParser } from './claude-output-parser';
 import { OpenCodeOutputParser } from './opencode-output-parser';
+import { DeepSeekOutputParser } from './deepseek-output-parser';
 import { CodexOutputParser } from './codex-output-parser';
 import { FactoryDroidOutputParser } from './factory-droid-output-parser';
 import { CopilotOutputParser } from './copilot-output-parser';
@@ -21,6 +22,7 @@ import { CopilotOutputParser } from './copilot-output-parser';
 const PARSER_CONSTRUCTORS: Record<string, () => AgentOutputParser> = {
 	'claude-code': () => new ClaudeOutputParser(),
 	opencode: () => new OpenCodeOutputParser(),
+	deepseek: () => new DeepSeekOutputParser(),
 	codex: () => new CodexOutputParser(),
 	'factory-droid': () => new FactoryDroidOutputParser(),
 	'copilot-cli': () => new CopilotOutputParser(),

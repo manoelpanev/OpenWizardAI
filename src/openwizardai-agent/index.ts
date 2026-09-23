@@ -137,7 +137,7 @@ async function main(): Promise<number> {
 	if (!apiKey) {
 		emit({
 			type: 'error',
-			message: 'No DeepSeek API key. Add it in OpenWizardAI under Settings > DeepSeek.',
+			message: 'No DeepSeek API key. Connect it in OpenWizardAI: Cmd+K > Connect DeepSeek.',
 			code: 'auth',
 		});
 		return 1;

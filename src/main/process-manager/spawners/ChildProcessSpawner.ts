@@ -13,6 +13,7 @@ import { StdoutHandler } from '../handlers/StdoutHandler';
 import { StderrHandler } from '../handlers/StderrHandler';
 import { ExitHandler } from '../handlers/ExitHandler';
 import { buildChildProcessEnv, collectOpenWizardAIEnvVars } from '../utils/envBuilder';
+import { getDeepSeekSpawnEnv } from '../../deepseek/credentials';
 import { DEFAULT_QUERY_SOURCE } from '../../../shared/querySource';
 import { saveImageToTempFile, buildImagePromptPrefix } from '../utils/imageUtils';
 import { buildStreamJsonMessage } from '../utils/streamJsonBuilder';
@@ -230,6 +231,9 @@ export class ChildProcessSpawner {
 				config.extraPathDirs,
 				config.querySource
 			);
+			// The DeepSeek key lives in encrypted storage and only ever reaches the
+			// agent process itself, never configs or logs.
+			if (toolType === 'deepseek') Object.assign(env, getDeepSeekSpawnEnv());
 
 			// Log environment variable application for troubleshooting
 			if (shellEnvVars && Object.keys(shellEnvVars).length > 0) {

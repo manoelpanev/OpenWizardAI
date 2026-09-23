@@ -239,6 +239,9 @@ export const MODAL_PRIORITIES = {
 	/** About/info modal */
 	ABOUT: 600,
 
+	/** Connect DeepSeek (API key) */
+	DEEPSEEK_CONNECT: 608,
+
 	/** Update check modal */
 	UPDATE_CHECK: 610,
 

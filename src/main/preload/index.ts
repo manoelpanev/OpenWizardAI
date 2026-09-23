@@ -48,6 +48,7 @@ import { createFsApi } from './fs';
 import { createParquetApi } from './parquet';
 import { createAgentsApi } from './agents';
 import { createTabNamingApi } from './tabNaming';
+import { createDeepSeekApi } from './deepseek';
 import { createAiCommandApi } from './aiCommand';
 import { createDirectorNotesApi } from './directorNotes';
 import { createCueApi } from './cue';
@@ -193,6 +194,9 @@ contextBridge.exposeInMainWorld('openwizardai', {
 
 	// Tab Naming API (automatic tab name generation)
 	tabNaming: createTabNamingApi(),
+
+	// DeepSeek connection (API key status / save / remove)
+	deepseek: createDeepSeekApi(),
 
 	// AI Command API (plain-English request -> one shell command line)
 	aiCommand: createAiCommandApi(),
