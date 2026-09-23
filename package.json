@@ -15,7 +15,8 @@
 	},
 	"bin": {
 		"openwizardai-cli": "./dist/cli/openwizardai-cli.js",
-		"openwizardai-p": "./dist/cli/openwizardai-p.js"
+		"openwizardai-p": "./dist/cli/openwizardai-p.js",
+		"openwizardai-agent": "./dist/cli/openwizardai-agent.js"
 	},
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
@@ -26,7 +27,7 @@
 		"dev:renderer": "vite",
 		"dev:web": "vite --config vite.config.web.mts",
 		"dev:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-dev.ps1",
-		"build": "npm run build:main && npm run build:provenance && npm run build:preload && npm run build:renderer && npm run build:web && npm run build:cli && npm run build:openwizardai-p",
+		"build": "npm run build:main && npm run build:provenance && npm run build:preload && npm run build:renderer && npm run build:web && npm run build:cli && npm run build:openwizardai-p && npm run build:openwizardai-agent",
 		"build:provenance": "node scripts/write-build-provenance.mjs",
 		"verify:provenance": "node scripts/write-build-provenance.mjs --verify",
 		"build:main": "tsc -p tsconfig.main.json",
@@ -66,7 +67,8 @@
 		"refresh-openspec": "node scripts/refresh-openspec.mjs",
 		"refresh-bmad": "node scripts/refresh-bmad.mjs",
 		"fonts:fetch": "node scripts/fetch-webfonts.mjs",
-		"fonts:check": "node scripts/fetch-webfonts.mjs --check"
+		"fonts:check": "node scripts/fetch-webfonts.mjs --check",
+		"build:openwizardai-agent": "node scripts/build-openwizardai-agent.mjs"
 	},
 	"build": {
 		"npmRebuild": false,
@@ -155,6 +157,10 @@
 				{
 					"from": "src/prompts/bmad",
 					"to": "prompts/bmad"
+				},
+				{
+					"from": "dist/cli/openwizardai-agent.js",
+					"to": "openwizardai-agent.js"
 				}
 			]
 		},
@@ -202,6 +208,10 @@
 				{
 					"from": "src/prompts/bmad",
 					"to": "prompts/bmad"
+				},
+				{
+					"from": "dist/cli/openwizardai-agent.js",
+					"to": "openwizardai-agent.js"
 				}
 			]
 		},
@@ -241,6 +251,10 @@
 				{
 					"from": "src/prompts/bmad",
 					"to": "prompts/bmad"
+				},
+				{
+					"from": "dist/cli/openwizardai-agent.js",
+					"to": "openwizardai-agent.js"
 				}
 			]
 		},

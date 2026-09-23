@@ -24,6 +24,8 @@
 	"include": [
 		"src/cli/**/*",
 		"src/openwizardai-p/**/*",
+		"src/openwizardai-agent/**/*",
+		"src/main/deepseek-agent/**/*",
 		"src/shared/**/*",
 		"src/prompts/**/*",
 		"src/types/**/*"
