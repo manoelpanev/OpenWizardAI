@@ -318,58 +318,6 @@ describe('QuitConfirmModal', () => {
 		});
 	});
 
-	describe('feedback draft', () => {
-		it('shows feedback draft section when hasFeedbackDraft is true', () => {
-			renderWithLayerStack(
-				<QuitConfirmModal
-					theme={testTheme}
-					busyAgentCount={0}
-					busyAgentNames={[]}
-					hasFeedbackDraft={true}
-					onConfirmQuit={vi.fn()}
-					onCancel={vi.fn()}
-				/>
-			);
-
-			expect(screen.getByText('Unsent Feedback')).toBeInTheDocument();
-			expect(screen.getByText('Draft will be discarded')).toBeInTheDocument();
-			expect(screen.getByText(/unsent feedback in the Feedback window/)).toBeInTheDocument();
-			expect(screen.getByText(/Quitting now will discard your draft/)).toBeInTheDocument();
-		});
-
-		it('does not show feedback section when hasFeedbackDraft is false', () => {
-			renderWithLayerStack(
-				<QuitConfirmModal
-					theme={testTheme}
-					busyAgentCount={1}
-					busyAgentNames={['Agent A']}
-					hasFeedbackDraft={false}
-					onConfirmQuit={vi.fn()}
-					onCancel={vi.fn()}
-				/>
-			);
-
-			expect(screen.queryByText('Unsent Feedback')).not.toBeInTheDocument();
-		});
-
-		it('combines feedback draft with busy agents in description', () => {
-			renderWithLayerStack(
-				<QuitConfirmModal
-					theme={testTheme}
-					busyAgentCount={1}
-					busyAgentNames={['Agent A']}
-					hasFeedbackDraft={true}
-					onConfirmQuit={vi.fn()}
-					onCancel={vi.fn()}
-				/>
-			);
-
-			expect(screen.getByText(/discard your feedback draft/)).toBeInTheDocument();
-			expect(screen.getByText('Active Agents')).toBeInTheDocument();
-			expect(screen.getByText('Unsent Feedback')).toBeInTheDocument();
-		});
-	});
-
 	describe('OpenWizzard Cue and group chats', () => {
 		it('shows Cue runs in the background operations section', () => {
 			renderWithLayerStack(
@@ -423,23 +371,6 @@ describe('QuitConfirmModal', () => {
 
 			expect(screen.getByText('Quit when idle')).toBeInTheDocument();
 			expect(screen.getByRole('checkbox')).toBeInTheDocument();
-		});
-
-		it('hides the checkbox when only a feedback draft is pending (no operations)', () => {
-			renderWithLayerStack(
-				<QuitConfirmModal
-					theme={testTheme}
-					busyAgentCount={0}
-					busyAgentNames={[]}
-					hasFeedbackDraft={true}
-					onConfirmQuit={vi.fn()}
-					onQuitWhenIdle={vi.fn()}
-					onCancel={vi.fn()}
-				/>
-			);
-
-			expect(screen.queryByText('Quit when idle')).not.toBeInTheDocument();
-			expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
 		});
 
 		it('swaps the primary button to "Quit When Idle" and calls onQuitWhenIdle when checked', () => {

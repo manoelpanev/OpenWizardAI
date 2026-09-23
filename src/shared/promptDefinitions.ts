@@ -192,18 +192,6 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 		description: "Director's Notes prompt",
 		category: 'system',
 	},
-	{
-		id: 'feedback',
-		filename: 'feedback.md',
-		description: 'Feedback prompt',
-		category: 'system',
-	},
-	{
-		id: 'feedback-conversation',
-		filename: 'feedback-conversation.md',
-		description: 'Feedback conversation prompt',
-		category: 'system',
-	},
 	// Includes - reusable blocks referenced from other prompts via {{INCLUDE:name}}.
 	// Filenames are leading-underscore by convention; id matches filename stem.
 	{
@@ -303,8 +291,6 @@ export const PROMPT_IDS = {
 	// System
 	TAB_NAMING: 'tab-naming',
 	DIRECTOR_NOTES: 'director-notes',
-	FEEDBACK: 'feedback',
-	FEEDBACK_CONVERSATION: 'feedback-conversation',
 } as const;
 
 export type PromptId = (typeof PROMPT_IDS)[keyof typeof PROMPT_IDS];

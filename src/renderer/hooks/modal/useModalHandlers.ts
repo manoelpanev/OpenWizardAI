@@ -28,7 +28,6 @@ import { useTabStore } from '../../stores/tabStore';
 import { useGroupChatStore } from '../../stores/groupChatStore';
 import { useAgentStore } from '../../stores/agentStore';
 import { reportAuthFailure } from '../../stores/authOutageStore';
-import { useFeedbackDraftStore } from '../../stores/feedbackDraftStore';
 import { useQuitWhenIdleStore } from '../../stores/quitWhenIdleStore';
 import { useAgentErrorRecovery } from '../agent/useAgentErrorRecovery';
 import { aiTabFocusFields, getInitialRenameValue } from '../../utils/tabHelpers';
@@ -63,7 +62,6 @@ export interface ModalHandlersReturn {
 	handleCloseShortcutsHelp: () => void;
 	handleCloseAboutModal: () => void;
 	handleCloseUpdateCheckModal: () => void;
-	handleCloseFeedbackModal: () => void;
 	handleCloseProcessMonitor: () => void;
 	handleCloseLogViewer: () => void;
 	handleCloseConfirmModal: () => void;
@@ -110,7 +108,6 @@ export interface ModalHandlersReturn {
 	handleOpenFuzzySearch: () => void;
 	handleOpenCreatePR: () => void;
 	handleOpenAboutModal: () => void;
-	handleOpenFeedbackModal: () => void;
 	handleOpenBatchRunner: () => void;
 	handleOpenMarketplace: () => void;
 
@@ -231,10 +228,6 @@ export function useModalHandlers(
 
 	const handleCloseAboutModal = useCallback(() => {
 		getModalActions().setAboutModalOpen(false);
-	}, []);
-
-	const handleCloseFeedbackModal = useCallback(() => {
-		getModalActions().setFeedbackModalOpen(false);
 	}, []);
 
 	const handleCloseUpdateCheckModal = useCallback(() => {
@@ -512,17 +505,6 @@ export function useModalHandlers(
 
 	const handleOpenAboutModal = useCallback(() => {
 		getModalActions().setAboutModalOpen(true);
-	}, []);
-
-	const handleOpenFeedbackModal = useCallback(() => {
-		// If the modal is minimized to the sidebar Feedback button, restore it
-		// instead of opening a fresh one (preserves the in-flight draft).
-		const draft = useFeedbackDraftStore.getState();
-		if (draft.isMinimized) {
-			draft.setMinimized(false);
-			return;
-		}
-		getModalActions().setFeedbackModalOpen(true);
 	}, []);
 
 	const handleOpenBatchRunner = useCallback(() => {
@@ -1055,7 +1037,6 @@ export function useModalHandlers(
 		handleCloseDebugPackage,
 		handleCloseShortcutsHelp,
 		handleCloseAboutModal,
-		handleCloseFeedbackModal,
 		handleCloseUpdateCheckModal,
 		handleCloseProcessMonitor,
 		handleCloseLogViewer,
@@ -1103,7 +1084,6 @@ export function useModalHandlers(
 		handleOpenFuzzySearch,
 		handleOpenCreatePR,
 		handleOpenAboutModal,
-		handleOpenFeedbackModal,
 		handleOpenBatchRunner,
 		handleOpenMarketplace,
 

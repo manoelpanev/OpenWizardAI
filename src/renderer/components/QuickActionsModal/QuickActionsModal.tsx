@@ -21,7 +21,6 @@ import { useUIStore } from '../../stores/uiStore';
 import { useSettingsStore, selectIsLeaderboardRegistered } from '../../stores/settingsStore';
 import { useBatchStore, selectActiveBatchSessionIds } from '../../stores/batchStore';
 import { useFileExplorerStore } from '../../stores/fileExplorerStore';
-import { useFeedbackDraftStore } from '../../stores/feedbackDraftStore';
 import { useGroupChatStore } from '../../stores/groupChatStore';
 import type { GroupChatBusySnapshot } from '../../utils/groupChatStatus';
 import { openUrl } from '../../utils/openUrl';
@@ -96,7 +95,6 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 		setSettingsTab,
 		setShortcutsHelpOpen,
 		setAboutModalOpen,
-		setFeedbackModalOpen,
 		setLogViewerOpen,
 		setProcessMonitorOpen,
 		setUsageDashboardOpen,
@@ -649,13 +647,11 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			setAboutModalOpen,
 			onOpenLeaderboardRegistration: () => openModal('leaderboard'),
 			isLeaderboardRegistered,
-			setFeedbackModalOpen,
 			setLogViewerOpen,
 			setProcessMonitorOpen,
 			setUpdateCheckModalOpen,
 			setDebugPackageModalOpen,
 			startTour,
-			getFeedbackDraft: () => useFeedbackDraftStore.getState(),
 			createDebugPackage: () => createDebugPackage(),
 			notifyToast,
 			openUrl,

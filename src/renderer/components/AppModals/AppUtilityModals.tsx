@@ -86,7 +86,6 @@ export interface AppUtilityModalsProps {
 	setSettingsTab: (tab: SettingsTab) => void;
 	setShortcutsHelpOpen: (open: boolean) => void;
 	setAboutModalOpen: (open: boolean) => void;
-	setFeedbackModalOpen: (open: boolean) => void;
 	setLogViewerOpen: (open: boolean) => void;
 	setProcessMonitorOpen: (open: boolean) => void;
 	setUsageDashboardOpen?: (open: boolean) => void;
@@ -347,7 +346,6 @@ export const AppUtilityModals = memo(function AppUtilityModals({
 	setSettingsTab,
 	setShortcutsHelpOpen,
 	setAboutModalOpen,
-	setFeedbackModalOpen,
 	setLogViewerOpen,
 	setProcessMonitorOpen,
 	setUsageDashboardOpen,
@@ -582,7 +580,6 @@ export const AppUtilityModals = memo(function AppUtilityModals({
 					setSettingsTab={setSettingsTab}
 					setShortcutsHelpOpen={setShortcutsHelpOpen}
 					setAboutModalOpen={setAboutModalOpen}
-					setFeedbackModalOpen={setFeedbackModalOpen}
 					setLogViewerOpen={setLogViewerOpen}
 					setProcessMonitorOpen={setProcessMonitorOpen}
 					setUsageDashboardOpen={setUsageDashboardOpen}

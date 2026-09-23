@@ -63,8 +63,6 @@ export interface AppModalsProps {
 	hasNoAgents: boolean;
 	keyboardMasteryStats: KeyboardMasteryStats;
 	onCloseAboutModal: () => void;
-	feedbackModalOpen: boolean;
-	onCloseFeedbackModal: () => void;
 	autoRunStats: AutoRunStats;
 	usageStats?: MaestroUsageStats | null;
 	onSwitchToSession: (sessionId: string) => void;
@@ -204,7 +202,6 @@ export interface AppModalsProps {
 	setSettingsTab: (tab: SettingsTab) => void;
 	setShortcutsHelpOpen: (open: boolean) => void;
 	setAboutModalOpen: (open: boolean) => void;
-	setFeedbackModalOpen: (open: boolean) => void;
 	setLogViewerOpen: (open: boolean) => void;
 	setProcessMonitorOpen: (open: boolean) => void;
 	setUsageDashboardOpen?: (open: boolean) => void;
@@ -486,7 +483,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		activeTerminalTasks,
 		activeCueRunCount,
 		activeGroupChatCount,
-		hasFeedbackDraft,
 		newInstanceModalOpen,
 		editAgentModalOpen,
 		renameSessionModalOpen,
@@ -527,7 +523,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 							activeTerminalTasks?: string[];
 							activeCueRunCount?: number;
 							activeGroupChatCount?: number;
-							hasFeedbackDraft?: boolean;
 					  }
 					| undefined
 			)?.activeTerminalTasks,
@@ -538,7 +533,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 								activeTerminalTasks?: string[];
 								activeCueRunCount?: number;
 								activeGroupChatCount?: number;
-								hasFeedbackDraft?: boolean;
 						  }
 						| undefined
 				)?.activeCueRunCount ?? 0,
@@ -549,21 +543,9 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 								activeTerminalTasks?: string[];
 								activeCueRunCount?: number;
 								activeGroupChatCount?: number;
-								hasFeedbackDraft?: boolean;
 						  }
 						| undefined
 				)?.activeGroupChatCount ?? 0,
-			hasFeedbackDraft:
-				(
-					s.modals.get('quitConfirm')?.data as
-						| {
-								activeTerminalTasks?: string[];
-								activeCueRunCount?: number;
-								activeGroupChatCount?: number;
-								hasFeedbackDraft?: boolean;
-						  }
-						| undefined
-				)?.hasFeedbackDraft ?? false,
 			newInstanceModalOpen: s.modals.get('newInstance')?.open ?? false,
 			editAgentModalOpen: s.modals.get('editAgent')?.open ?? false,
 			renameSessionModalOpen: s.modals.get('renameInstance')?.open ?? false,
@@ -602,8 +584,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		hasNoAgents,
 		keyboardMasteryStats,
 		onCloseAboutModal,
-		feedbackModalOpen,
-		onCloseFeedbackModal,
 		autoRunStats,
 		usageStats,
 		onSwitchToSession,
@@ -693,7 +673,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		setSettingsTab,
 		setShortcutsHelpOpen,
 		setAboutModalOpen,
-		setFeedbackModalOpen,
 		setLogViewerOpen,
 		setProcessMonitorOpen,
 		setUsageDashboardOpen,
@@ -895,8 +874,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				keyboardMasteryStats={keyboardMasteryStats}
 				aboutModalOpen={aboutModalOpen}
 				onCloseAboutModal={onCloseAboutModal}
-				feedbackModalOpen={feedbackModalOpen}
-				onCloseFeedbackModal={onCloseFeedbackModal}
 				autoRunStats={autoRunStats}
 				usageStats={usageStats}
 				onSwitchToSession={onSwitchToSession}
@@ -937,7 +914,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				activeTerminalTasks={activeTerminalTasks ?? []}
 				activeCueRunCount={activeCueRunCount}
 				activeGroupChatCount={activeGroupChatCount}
-				hasFeedbackDraft={hasFeedbackDraft}
 			/>
 
 			{/* Session Management Modals */}
@@ -1049,7 +1025,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				setSettingsTab={setSettingsTab}
 				setShortcutsHelpOpen={setShortcutsHelpOpen}
 				setAboutModalOpen={setAboutModalOpen}
-				setFeedbackModalOpen={setFeedbackModalOpen}
 				setLogViewerOpen={setLogViewerOpen}
 				setProcessMonitorOpen={setProcessMonitorOpen}
 				setUsageDashboardOpen={setUsageDashboardOpen}

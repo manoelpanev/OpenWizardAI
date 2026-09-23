@@ -29,7 +29,6 @@ import { useQuitWhenIdleStore } from '../../../renderer/stores/quitWhenIdleStore
 import { useSessionStore } from '../../../renderer/stores/sessionStore';
 import { useBatchStore } from '../../../renderer/stores/batchStore';
 import { useGroupChatStore } from '../../../renderer/stores/groupChatStore';
-import { useFeedbackDraftStore } from '../../../renderer/stores/feedbackDraftStore';
 import type { GroupChat } from '../../../renderer/types';
 
 beforeEach(() => {
@@ -38,7 +37,6 @@ beforeEach(() => {
 	mockGetActiveCueRuns.mockResolvedValue([]);
 	useSessionStore.setState({ sessions: [], activeSessionId: '' });
 	useBatchStore.setState({ batchRunStates: {} });
-	useFeedbackDraftStore.setState({ hasDraft: false });
 	useGroupChatStore.setState({
 		groupChats: [],
 		activeGroupChatId: null,

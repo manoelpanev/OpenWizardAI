@@ -850,10 +850,10 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 		}
 		const unsubscribe = window.maestro.app.onQuitConfirmationRequest(async () => {
 			// Snapshot every active-operation source (busy agents, Auto Run, terminal
-			// tasks, Maestro Cue runs, group chats) plus any unsent feedback draft.
+			// tasks, Maestro Cue runs, group chats).
 			const ops = await collectActiveOperations();
 
-			if (!ops.hasActiveOperations && !ops.hasFeedbackDraft) {
+			if (!ops.hasActiveOperations) {
 				window.maestro.app.confirmQuit();
 			} else {
 				// Tell main the modal is up so it disarms the dead-renderer safety
@@ -864,7 +864,6 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 					activeTerminalTasks: ops.activeTerminalTasks,
 					activeCueRunCount: ops.activeCueRunCount,
 					activeGroupChatCount: ops.activeGroupChatCount,
-					hasFeedbackDraft: ops.hasFeedbackDraft,
 				});
 			}
 		});

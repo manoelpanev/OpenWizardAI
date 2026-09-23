@@ -13,7 +13,6 @@ import type {
 
 // Info/Display Modal Components
 import { AboutModal } from '../AboutModal';
-import { FeedbackModal } from '../FeedbackModal';
 import { ShortcutsHelpModal } from '../ShortcutsHelpModal';
 import { UpdateCheckModal } from '../UpdateCheckModal';
 import { getModalActions } from '../../stores/modalStore';
@@ -43,8 +42,6 @@ export interface AppInfoModalsProps {
 	// About Modal
 	aboutModalOpen: boolean;
 	onCloseAboutModal: () => void;
-	feedbackModalOpen: boolean;
-	onCloseFeedbackModal: () => void;
 	autoRunStats: AutoRunStats;
 	usageStats?: MaestroUsageStats | null;
 	onSwitchToSession: (sessionId: string) => void;
@@ -101,8 +98,6 @@ export const AppInfoModals = memo(function AppInfoModals({
 	// About Modal
 	aboutModalOpen,
 	onCloseAboutModal,
-	feedbackModalOpen,
-	onCloseFeedbackModal,
 	autoRunStats,
 	usageStats,
 	onSwitchToSession,
@@ -158,16 +153,6 @@ export const AppInfoModals = memo(function AppInfoModals({
 					onOpenLeaderboardRegistration={onOpenLeaderboardRegistration}
 					isLeaderboardRegistered={isLeaderboardRegistered}
 					leaderboardRegistration={leaderboardRegistration}
-				/>
-			)}
-
-			{/* --- FEEDBACK MODAL --- */}
-			{feedbackModalOpen && (
-				<FeedbackModal
-					theme={theme}
-					sessions={sessions}
-					onClose={onCloseFeedbackModal}
-					onSwitchToSession={onSwitchToSession}
 				/>
 			)}
 

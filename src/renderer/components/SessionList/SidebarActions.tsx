@@ -1,8 +1,7 @@
 import { memo } from 'react';
-import { PanelLeftClose, PanelLeftOpen, Bell, Bot, MessageSquarePlus } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Bell, Bot } from 'lucide-react';
 import type { Theme, Shortcut } from '../../types';
 import { formatShortcutKeys } from '../../utils/shortcutFormatter';
-import { useFeedbackDraftStore } from '../../stores/feedbackDraftStore';
 import { CornerDot } from '../ui/CornerDot';
 
 interface SidebarActionsProps {
@@ -14,7 +13,6 @@ interface SidebarActionsProps {
 	hasUnreadAgents: boolean;
 	sidebarWidth: number;
 	addNewSession: () => void;
-	openFeedback?: () => void;
 	setLeftSidebarOpen: (open: boolean) => void;
 	toggleShowUnreadAgentsOnly: () => void;
 }
@@ -28,12 +26,10 @@ export const SidebarActions = memo(function SidebarActions({
 	hasUnreadAgents,
 	sidebarWidth,
 	addNewSession,
-	openFeedback,
 	setLeftSidebarOpen,
 	toggleShowUnreadAgentsOnly,
 }: SidebarActionsProps) {
 	const compact = sidebarWidth < 320;
-	const feedbackMinimized = useFeedbackDraftStore((s) => s.isMinimized);
 	const toggleSidebarShortcutLabel = shortcuts.toggleSidebar?.keys?.length
 		? ` (${formatShortcutKeys(shortcuts.toggleSidebar.keys)})`
 		: '';
@@ -67,7 +63,7 @@ export const SidebarActions = memo(function SidebarActions({
 			{leftSidebarOpen && (
 				<div
 					className="flex-1 grid gap-2"
-					style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+					style={{ gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}
 				>
 					<button
 						type="button"
@@ -77,31 +73,6 @@ export const SidebarActions = memo(function SidebarActions({
 					>
 						{!compact && <Bot className="w-3 h-3 shrink-0" />} New Agent
 					</button>
-
-					<div className="relative">
-						<button
-							type="button"
-							onClick={openFeedback}
-							disabled={!openFeedback}
-							data-feedback-button="true"
-							className="w-full flex items-center justify-center gap-2 py-2 rounded text-xs font-bold transition-colors hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap overflow-hidden"
-							style={{
-								backgroundColor: theme.colors.accent,
-								color: theme.colors.accentForeground,
-							}}
-							title={feedbackMinimized ? 'Resume feedback draft' : 'Send product feedback'}
-						>
-							{!compact && <MessageSquarePlus className="w-3 h-3 shrink-0" />} Feedback
-						</button>
-						{feedbackMinimized && (
-							<CornerDot
-								color="#ef4444"
-								size="md"
-								ringColor={theme.colors.bgSidebar}
-								title="Feedback draft in progress"
-							/>
-						)}
-					</div>
 				</div>
 			)}
 

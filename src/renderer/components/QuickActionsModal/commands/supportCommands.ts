@@ -4,11 +4,6 @@ import { captureException } from '../../../utils/sentry';
 import type { SettingsTab } from '../../../types';
 import type { QuickAction } from '../types';
 
-interface FeedbackDraftActions {
-	isMinimized: boolean;
-	setMinimized: (minimized: boolean) => void;
-}
-
 interface BuildSupportCommandsArgs {
 	setQuickActionOpen: (open: boolean) => void;
 	setSettingsModalOpen: (open: boolean) => void;
@@ -17,13 +12,11 @@ interface BuildSupportCommandsArgs {
 	setAboutModalOpen: (open: boolean) => void;
 	onOpenLeaderboardRegistration: () => void;
 	isLeaderboardRegistered: boolean;
-	setFeedbackModalOpen: (open: boolean) => void;
 	setLogViewerOpen: (open: boolean) => void;
 	setProcessMonitorOpen: (open: boolean) => void;
 	setUpdateCheckModalOpen?: (open: boolean) => void;
 	setDebugPackageModalOpen?: (open: boolean) => void;
 	startTour?: () => void;
-	getFeedbackDraft: () => FeedbackDraftActions;
 	createDebugPackage: () => Promise<{ success?: boolean; path?: string; error?: string }>;
 	notifyToast: (args: NotifyToastInput) => void;
 	openUrl: (url: string) => void;
@@ -46,13 +39,11 @@ export function buildSupportCommands({
 	setAboutModalOpen,
 	onOpenLeaderboardRegistration,
 	isLeaderboardRegistered,
-	setFeedbackModalOpen,
 	setLogViewerOpen,
 	setProcessMonitorOpen,
 	setUpdateCheckModalOpen,
 	setDebugPackageModalOpen,
 	startTour,
-	getFeedbackDraft,
 	createDebugPackage,
 	notifyToast,
 	openUrl,
@@ -140,20 +131,6 @@ export function buildSupportCommands({
 				: 'Register for the global runmaestro.ai leaderboard',
 			action: () => {
 				onOpenLeaderboardRegistration();
-				setQuickActionOpen(false);
-			},
-		},
-		{
-			id: 'feedback',
-			label: 'Send Feedback',
-			subtext: 'Report a bug or suggest a feature via GitHub',
-			action: () => {
-				const draft = getFeedbackDraft();
-				if (draft.isMinimized) {
-					draft.setMinimized(false);
-				} else {
-					setFeedbackModalOpen(true);
-				}
 				setQuickActionOpen(false);
 			},
 		},

@@ -1,8 +1,7 @@
 /**
  * Tests for collectActiveOperations.ts - the single source of truth for "is
  * Maestro busy right now?" shared by the quit-confirmation check and the
- * "Quit when idle" watcher. Covers each operation source independently, the
- * feedback-draft carve-out (reported but never counts as an operation), and
+ * "Quit when idle" watcher. Covers each operation source independently and the
  * graceful degradation when the IPC probes fail.
  */
 
@@ -24,7 +23,6 @@ import { collectActiveOperations } from '../../../renderer/utils/collectActiveOp
 import { useSessionStore } from '../../../renderer/stores/sessionStore';
 import { useBatchStore } from '../../../renderer/stores/batchStore';
 import { useGroupChatStore } from '../../../renderer/stores/groupChatStore';
-import { useFeedbackDraftStore } from '../../../renderer/stores/feedbackDraftStore';
 import { createMockSession } from '../../helpers/mockSession';
 
 /** Minimal BatchRunState - the selector only reads isRunning + errorPaused. */
@@ -47,7 +45,6 @@ beforeEach(() => {
 		participantStates: new Map(),
 		allGroupChatParticipantStates: new Map(),
 	});
-	useFeedbackDraftStore.setState({ hasDraft: false });
 });
 
 describe('collectActiveOperations', () => {
@@ -59,7 +56,6 @@ describe('collectActiveOperations', () => {
 		expect(ops.activeTerminalTasks).toEqual([]);
 		expect(ops.activeCueRunCount).toBe(0);
 		expect(ops.activeGroupChatCount).toBe(0);
-		expect(ops.hasFeedbackDraft).toBe(false);
 	});
 
 	it('counts thinking AI agents but excludes terminal-driven busy state', async () => {
@@ -173,14 +169,6 @@ describe('collectActiveOperations', () => {
 		const ops = await collectActiveOperations();
 		expect(ops.activeGroupChatCount).toBe(1);
 		expect(ops.hasActiveOperations).toBe(true);
-	});
-
-	it('reports a feedback draft but never treats it as an active operation', async () => {
-		useFeedbackDraftStore.setState({ hasDraft: true });
-		const ops = await collectActiveOperations();
-		expect(ops.hasFeedbackDraft).toBe(true);
-		// A draft never finishes on its own, so it must not block an idle-quit.
-		expect(ops.hasActiveOperations).toBe(false);
 	});
 
 	it('degrades to "nothing running" when the IPC probes reject', async () => {

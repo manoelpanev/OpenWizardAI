@@ -69,7 +69,6 @@ export interface UseSessionListPropsDeps {
 		parentSessionId: string
 	) => Promise<boolean>;
 	openWizardModal: () => void;
-	handleOpenFeedbackModal: () => void;
 	handleStartTour: () => void;
 
 	// Group Chat handlers
@@ -136,7 +135,6 @@ export function useSessionListProps(deps: UseSessionListPropsDeps) {
 			onConfigureCue: deps.maestroCueEnabled ? deps.handleConfigureCue : undefined,
 			onJumpToStarredSession: deps.handleJumpToStarredSession,
 			openWizard: deps.openWizardModal,
-			openFeedback: deps.handleOpenFeedbackModal,
 			startTour: deps.handleStartTour,
 
 			// Group Chat handlers
@@ -187,7 +185,6 @@ export function useSessionListProps(deps: UseSessionListPropsDeps) {
 			deps.handleJumpToStarredSession,
 			deps.handleToggleWorktreeExpanded,
 			deps.openWizardModal,
-			deps.handleOpenFeedbackModal,
 			deps.handleStartTour,
 			deps.handleOpenGroupChat,
 			deps.handleNewGroupChat,

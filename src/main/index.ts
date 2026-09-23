@@ -98,7 +98,6 @@ import {
 	registerCueHandlers,
 	registerCueBackupHandlers,
 	registerWakatimeHandlers,
-	registerFeedbackHandlers,
 	registerMaestroCliHandlers,
 	registerPromptsHandlers,
 	registerMemoryHandlers,
@@ -1812,21 +1811,6 @@ function setupIpcHandlers() {
 
 	// Register Maestro CLI handlers (status check + install/update)
 	registerMaestroCliHandlers(maestroCliManager);
-
-	// Register feedback handlers (gh auth + feedback submission)
-	registerFeedbackHandlers({
-		getProcessManager: () => processManager,
-		getMaestroCliManager: () => maestroCliManager,
-		debugPackageDeps: {
-			getAgentDetector: () => agentDetector,
-			getProcessManager: () => processManager,
-			getWebServer: () => webServer,
-			settingsStore: store,
-			sessionsStore,
-			groupsStore,
-			bootstrapStore,
-		},
-	});
 }
 
 // Handle process output streaming (set up after initialization)

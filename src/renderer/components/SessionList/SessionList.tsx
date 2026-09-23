@@ -167,7 +167,6 @@ interface SessionListProps {
 
 	// Wizard props
 	openWizard?: () => void;
-	openFeedback?: () => void;
 
 	// Tour props
 	startTour?: () => void;
@@ -1953,7 +1952,6 @@ function SessionListInner(props: SessionListProps) {
 				hasUnreadAgents={hasUnreadAgents}
 				sidebarWidth={leftSidebarWidthState}
 				addNewSession={addNewSession}
-				openFeedback={props.openFeedback}
 				setLeftSidebarOpen={setLeftSidebarOpen}
 				toggleShowUnreadAgentsOnly={toggleShowUnreadAgentsOnly}
 			/>

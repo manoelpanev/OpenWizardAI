@@ -73,7 +73,6 @@ import { registerDirectorNotesHandlers, DirectorNotesHandlerDependencies } from 
 import { registerCueHandlers, CueHandlerDependencies } from './cue';
 import { registerCueBackupHandlers } from './cue-backup';
 import { registerWakatimeHandlers } from './wakatime';
-import { registerFeedbackHandlers } from './feedback';
 import { registerMaestroCliHandlers } from './maestro-cli';
 import { registerPromptsHandlers } from './prompts';
 import { registerMemoryHandlers } from './memory';
@@ -137,7 +136,6 @@ export { registerCueHandlers };
 export type { CueHandlerDependencies };
 export { registerCueBackupHandlers };
 export { registerWakatimeHandlers };
-export { registerFeedbackHandlers };
 export { registerMaestroCliHandlers };
 export { registerPromptsHandlers };
 export { registerMemoryHandlers };
@@ -337,10 +335,6 @@ export function registerAllHandlers(deps: HandlerDependencies): void {
 		getCueHistoryEntries,
 		getCueHistoryBuckets,
 		getCueHistoryFingerprint,
-	});
-	// Register Feedback handlers (gh auth + feedback submission)
-	registerFeedbackHandlers({
-		getProcessManager: deps.getProcessManager,
 	});
 	// Register Cue Backup handlers (Cue modal Backup tab)
 	registerCueBackupHandlers({

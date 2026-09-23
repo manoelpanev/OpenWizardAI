@@ -26,44 +26,12 @@ function createProps(overrides: Partial<Parameters<typeof SidebarActions>[0]> = 
 }
 
 describe('SidebarActions', () => {
-	it('renders collapse button, New Agent, and Feedback when sidebar is open', () => {
-		render(<SidebarActions {...createProps({ openFeedback: vi.fn() })} />);
-
-		expect(screen.getByText('New Agent')).toBeTruthy();
-		expect(screen.getByText('Feedback')).toBeTruthy();
-	});
-
-	it('hides New Agent, Feedback, and unread filter when sidebar is collapsed', () => {
-		render(<SidebarActions {...createProps({ leftSidebarOpen: false })} />);
-
-		expect(screen.queryByText('New Agent')).toBeNull();
-		expect(screen.queryByText('Feedback')).toBeNull();
-		expect(screen.queryByTitle(/Filter unread agents/)).toBeNull();
-		expect(screen.queryByTitle(/Showing unread agents only/)).toBeNull();
-	});
-
-	it('disables Feedback button when openFeedback is undefined', () => {
-		render(<SidebarActions {...createProps({ openFeedback: undefined })} />);
-
-		expect(screen.getByText('New Agent')).toBeTruthy();
-		const feedbackBtn = screen.getByText('Feedback').closest('button');
-		expect(feedbackBtn?.disabled).toBe(true);
-	});
-
 	it('calls addNewSession when New Agent is clicked', () => {
 		const addNewSession = vi.fn();
 		render(<SidebarActions {...createProps({ addNewSession })} />);
 
 		fireEvent.click(screen.getByText('New Agent'));
 		expect(addNewSession).toHaveBeenCalledOnce();
-	});
-
-	it('calls openFeedback when Feedback is clicked', () => {
-		const openFeedback = vi.fn();
-		render(<SidebarActions {...createProps({ openFeedback })} />);
-
-		fireEvent.click(screen.getByText('Feedback'));
-		expect(openFeedback).toHaveBeenCalledOnce();
 	});
 
 	it('toggles sidebar open/closed on collapse button click', () => {
@@ -120,23 +88,20 @@ describe('SidebarActions', () => {
 		expect(screen.getByTitle(/Showing unread agents only/)).toBeTruthy();
 	});
 
-	it('renders two-column grid layout', () => {
-		render(<SidebarActions {...createProps({ openFeedback: vi.fn() })} />);
+	it('renders single-column grid layout', () => {
+		render(<SidebarActions {...createProps()} />);
 
 		const newAgentBtn = screen.getByText('New Agent');
 		const grid = newAgentBtn.closest('div[style]');
-		expect(grid?.style.gridTemplateColumns).toBe('repeat(2, minmax(0, 1fr))');
+		expect(grid?.style.gridTemplateColumns).toBe('repeat(1, minmax(0, 1fr))');
 	});
 
 	it('prevents text wrapping in action buttons', () => {
-		render(<SidebarActions {...createProps({ openFeedback: vi.fn() })} />);
+		render(<SidebarActions {...createProps()} />);
 
 		const newAgentBtn = screen.getByText('New Agent').closest('button');
-		const feedbackBtn = screen.getByText('Feedback').closest('button');
 
 		expect(newAgentBtn?.className).toContain('whitespace-nowrap');
-		expect(feedbackBtn?.className).toContain('whitespace-nowrap');
 		expect(newAgentBtn?.className).toContain('overflow-hidden');
-		expect(feedbackBtn?.className).toContain('overflow-hidden');
 	});
 });
