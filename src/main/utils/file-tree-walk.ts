@@ -16,7 +16,7 @@
  *
  * The traversal rules match the renderer's former implementation exactly:
  * ignore patterns, an optional root `.gitignore`, a depth cap, a soft entry cap
- * that folders are exempt from, and an always-visible `.maestro` subtree that
+ * that folders are exempt from, and an always-visible `.openwizardai` subtree that
  * is loaded in full regardless of the cap.
  */
 
@@ -27,7 +27,7 @@ import { resolveDirentType } from './dirent-utils';
 import { logger } from './logger';
 
 /** Directories that are always loaded, whatever the ignore patterns or entry cap say. */
-const ALWAYS_VISIBLE_FILES = new Set(['.maestro']);
+const ALWAYS_VISIBLE_FILES = new Set(['.openwizardai']);
 
 /** A node in the local file tree. Structurally identical to the renderer's `FileTreeNode`. */
 export interface LocalTreeNode {
@@ -136,7 +136,7 @@ export async function walkLocalFileTree(
  * @param relPath `/`-joined path from the scan root, matched against the
  *   expanded folders. Empty for the root itself.
  * @param unlimitedBudget When true this subtree and its descendants ignore the
- *   entry cap. Set for always-visible directories like `.maestro`, whose
+ *   entry cap. Set for always-visible directories like `.openwizardai`, whose
  *   contents drive Cue and Auto Run and must never be truncated away.
  */
 async function walkDirectory(

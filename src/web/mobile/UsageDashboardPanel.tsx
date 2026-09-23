@@ -1,5 +1,5 @@
 /**
- * UsageDashboardPanel component for Maestro mobile web interface
+ * UsageDashboardPanel component for OpenWizardAI mobile web interface
  *
  * Displays usage analytics with token/cost summary cards,
  * a CSS-based daily usage bar chart, and session breakdown list.

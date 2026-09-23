@@ -36,10 +36,10 @@ async function launchApp(
 		args: [appPath],
 		env: {
 			...process.env,
-			MAESTRO_DATA_DIR: testDataDir,
+			OPENWIZARDAI_DATA_DIR: testDataDir,
 			ELECTRON_DISABLE_GPU: '1',
 			NODE_ENV: 'test',
-			MAESTRO_E2E_TEST: 'true',
+			OPENWIZARDAI_E2E_TEST: 'true',
 		},
 		timeout: 30000,
 	});
@@ -65,9 +65,9 @@ async function createTerminalTab(window: Page): Promise<void> {
 
 async function openFileTab(window: Page, filePath: string): Promise<void> {
 	await window.evaluate(async (targetPath) => {
-		const sessionId = await window.maestro.sessions.getActiveSessionId();
+		const sessionId = await window.openwizardai.sessions.getActiveSessionId();
 		window.dispatchEvent(
-			new CustomEvent('maestro:openFileTab', {
+			new CustomEvent('openwizardai:openFileTab', {
 				detail: { sessionId, filePath: targetPath },
 			})
 		);
@@ -149,7 +149,7 @@ test.describe('Browser Tab Prototype', () => {
 
 			await openFileTab(
 				window,
-				'/Users/jeffscottward/Github/tools/Maestro-worktrees/browser-tab/ARCHITECTURE.md'
+				'/Users/jeffscottward/Github/tools/OpenWizardAI-worktrees/browser-tab/ARCHITECTURE.md'
 			);
 			await expect(getTabByTitle(window, 'ARCHITECTURE')).toBeVisible({ timeout: 10000 });
 			await expect(getVisibleAddressInput(window)).toHaveCount(0);
@@ -221,7 +221,7 @@ test.describe('Browser Tab Prototype', () => {
 			await expect(getTabByTitle(window, LOCAL_TEST_TITLE)).toBeVisible({ timeout: 15000 });
 
 			await window.evaluate(() => {
-				const shellApi = window.maestro.shell as typeof window.maestro.shell & {
+				const shellApi = window.openwizardai.shell as typeof window.openwizardai.shell & {
 					__openExternalCalls?: string[];
 				};
 				shellApi.__openExternalCalls = [];
@@ -237,7 +237,7 @@ test.describe('Browser Tab Prototype', () => {
 					window.evaluate(() =>
 						(
 							(
-								window.maestro.shell as typeof window.maestro.shell & {
+								window.openwizardai.shell as typeof window.openwizardai.shell & {
 									__openExternalCalls?: string[];
 								}
 							).__openExternalCalls || []

@@ -4,11 +4,11 @@ description: Create custom slash commands with template variables for your AI wo
 icon: terminal
 ---
 
-Maestro includes an extensible slash command system with autocomplete. Type `/` in the input area to open the autocomplete menu, use arrow keys to navigate, and press `Tab` or `Enter` to select.
+OpenWizardAI includes an extensible slash command system with autocomplete. Type `/` in the input area to open the autocomplete menu, use arrow keys to navigate, and press `Tab` or `Enter` to select.
 
-## Built-in Maestro Commands
+## Built-in OpenWizardAI Commands
 
-Maestro provides built-in slash commands that are handled internally (not sent to the AI agent):
+OpenWizardAI provides built-in slash commands that are handled internally (not sent to the AI agent):
 
 | Command    | Description                                                             |
 | ---------- | ----------------------------------------------------------------------- |
@@ -36,7 +36,7 @@ Skills are loaded from:
 Each skill is displayed with its name, approximate token count, and description. This command is only available when using Claude Code as your AI provider.
 
 <Note>
-The `/skills` command is a Maestro feature that reads skill files directly - it doesn't invoke Claude Code's native `/skills` command (which requires an interactive terminal).
+The `/skills` command is an OpenWizardAI feature that reads skill files directly - it doesn't invoke Claude Code's native `/skills` command (which requires an interactive terminal).
 </Note>
 
 ## Custom AI Commands
@@ -143,41 +143,41 @@ Use `$ARGUMENTS` for precise control over where user input appears within your p
 
 ## Spec-Kit Commands
 
-Maestro bundles [GitHub's spec-kit](https://github.com/github/spec-kit) methodology for structured feature development:
+OpenWizardAI bundles [GitHub's spec-kit](https://github.com/github/spec-kit) methodology for structured feature development:
 
-| Command                  | Description                                                   |
-| ------------------------ | ------------------------------------------------------------- |
-| `/speckit.help`          | Learn how to use spec-kit with Maestro                        |
-| `/speckit.constitution`  | Create or update the project constitution                     |
-| `/speckit.specify`       | Create or update feature specification                        |
-| `/speckit.clarify`       | Identify underspecified areas and ask clarification questions |
-| `/speckit.plan`          | Execute implementation planning workflow                      |
-| `/speckit.tasks`         | Generate actionable, dependency-ordered tasks                 |
-| `/speckit.analyze`       | Cross-artifact consistency and quality analysis               |
-| `/speckit.checklist`     | Generate custom checklist for feature                         |
-| `/speckit.taskstoissues` | Convert tasks to GitHub issues                                |
-| `/speckit.implement`     | Execute tasks using Maestro Auto Run with worktree support    |
+| Command                  | Description                                                     |
+| ------------------------ | --------------------------------------------------------------- |
+| `/speckit.help`          | Learn how to use spec-kit with OpenWizardAI                     |
+| `/speckit.constitution`  | Create or update the project constitution                       |
+| `/speckit.specify`       | Create or update feature specification                          |
+| `/speckit.clarify`       | Identify underspecified areas and ask clarification questions   |
+| `/speckit.plan`          | Execute implementation planning workflow                        |
+| `/speckit.tasks`         | Generate actionable, dependency-ordered tasks                   |
+| `/speckit.analyze`       | Cross-artifact consistency and quality analysis                 |
+| `/speckit.checklist`     | Generate custom checklist for feature                           |
+| `/speckit.taskstoissues` | Convert tasks to GitHub issues                                  |
+| `/speckit.implement`     | Execute tasks using OpenWizardAI Auto Run with worktree support |
 
 See [Spec-Kit Commands](/speckit-commands) for the complete workflow guide.
 
 ## OpenSpec Commands
 
-Maestro bundles [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven change management. These commands help you propose, implement, and archive changes systematically:
+OpenWizardAI bundles [OpenSpec](https://github.com/Fission-AI/OpenSpec) for spec-driven change management. These commands help you propose, implement, and archive changes systematically:
 
 | Command               | Description                                                          |
 | --------------------- | -------------------------------------------------------------------- |
-| `/openspec.help`      | Learn how to use OpenSpec with Maestro                               |
+| `/openspec.help`      | Learn how to use OpenSpec with OpenWizardAI                          |
 | `/openspec.proposal`  | Create a change proposal with specs, tasks, and optional design docs |
 | `/openspec.apply`     | Implement an approved change proposal by executing tasks             |
 | `/openspec.archive`   | Archive a completed change after deployment                          |
-| `/openspec.implement` | Convert OpenSpec tasks to Maestro Auto Run documents                 |
+| `/openspec.implement` | Convert OpenSpec tasks to OpenWizardAI Auto Run documents            |
 
 See [OpenSpec Commands](/openspec-commands) for the complete workflow guide and directory structure.
 
 ## Agent Native Commands
 
-Maestro automatically discovers the commands your provider already knows about and
-shows them in the `/` autocomplete alongside Maestro's own. How they are discovered
+OpenWizardAI automatically discovers the commands your provider already knows about and
+shows them in the `/` autocomplete alongside OpenWizardAI's own. How they are discovered
 depends on the provider:
 
 | Provider    | Discovered from                                                                                    |
@@ -187,21 +187,21 @@ depends on the provider:
 | OpenCode    | `.opencode/commands/*.md`, `~/.opencode/commands/*.md`, and the `command` block in `opencode.json` |
 | Copilot CLI | A built-in list                                                                                    |
 
-For Codex and OpenCode, Maestro expands the command itself: the file's contents are
+For Codex and OpenCode, OpenWizardAI expands the command itself: the file's contents are
 substituted into your message before it is sent, because both CLIs run headless under
-Maestro and would otherwise receive a literal `/name`. A project-local command shadows
+OpenWizardAI and would otherwise receive a literal `/name`. A project-local command shadows
 a global one with the same name, and a Codex skill marked `user-invocable: false` is
 skipped, matching Codex's own picker.
 
 <Note>
 Provider **built-in** commands (`/compact`, `/model`, `/review`, ...) only work where the
 CLI implements them outside its interactive TUI. For Codex and OpenCode they are not
-offered at all, since there is no on-disk prompt for Maestro to expand.
+offered at all, since there is no on-disk prompt for OpenWizardAI to expand.
 </Note>
 
 ### Claude Code: Supported in Batch Mode
 
-Claude Code runs in batch/print mode within Maestro, which means only certain native commands work. The following commands are **supported**:
+Claude Code runs in batch/print mode within OpenWizardAI, which means only certain native commands work. The following commands are **supported**:
 
 | Command            | Description                                          |
 | ------------------ | ---------------------------------------------------- |
@@ -217,7 +217,7 @@ Additionally, any **custom commands from Claude Code plugins/skills** (e.g., `/c
 
 ### Claude Code: Not Supported in Batch Mode
 
-The following Claude Code commands are **interactive-only** and don't work through Maestro:
+The following Claude Code commands are **interactive-only** and don't work through OpenWizardAI:
 
 | Command              | Reason                                                     |
 | -------------------- | ---------------------------------------------------------- |

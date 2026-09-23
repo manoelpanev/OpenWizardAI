@@ -162,7 +162,7 @@ export function CreatePRModal({
 
 	const checkGhCli = async () => {
 		try {
-			const status = await window.maestro.git.checkGhCli();
+			const status = await window.openwizardai.git.checkGhCli();
 			setGhCliStatus(status);
 		} catch {
 			setGhCliStatus({ installed: false, authenticated: false });
@@ -171,7 +171,7 @@ export function CreatePRModal({
 
 	const checkUncommittedChanges = async () => {
 		try {
-			const result = await window.maestro.git.status(worktreePath);
+			const result = await window.openwizardai.git.status(worktreePath);
 			const lines = result.stdout
 				.trim()
 				.split('\n')

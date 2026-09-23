@@ -32,7 +32,7 @@ import {
  *
  * Returns:
  * - 'passthrough': xterm should NOT handle this key (return false to xterm) -
- *   the event bubbles to Maestro's window-level shortcut handler instead.
+ *   the event bubbles to OpenWizardAI's window-level shortcut handler instead.
  * - 'handle': xterm should handle this key normally (return true to xterm).
  */
 export type XtermKeyAction =
@@ -95,7 +95,7 @@ export function evaluateCustomKeyEvent(e: KeyboardEvent): XtermKeyAction {
 	if (e.metaKey) return 'passthrough';
 	// Let Ctrl+Shift combos through (cross-platform app shortcuts)
 	if (e.ctrlKey && e.shiftKey) return 'passthrough';
-	// Let Alt key combos through so Maestro shortcuts like Alt+Q (Cue),
+	// Let Alt key combos through so OpenWizardAI shortcuts like Alt+Q (Cue),
 	// Alt+J (jump to terminal), Alt+U (filter unread agents) work.
 	// macOptionIsMeta is not enabled, so Alt doesn't send escape sequences
 	// by default - these events would just produce dead/special characters
@@ -114,7 +114,7 @@ export function evaluateCustomKeyEvent(e: KeyboardEvent): XtermKeyAction {
 // ============================================================================
 
 /**
- * Map a Maestro Theme to xterm.js ITheme.
+ * Map an OpenWizardAI Theme to xterm.js ITheme.
  * Uses ANSI fields from ThemeColors when available, falling back to
  * mode-appropriate defaults (dark → One Dark palette, light → GitHub palette).
  */
@@ -222,7 +222,7 @@ export interface XTerminalHandle {
 export interface XTerminalProps {
 	/** IPC routing key - format: `{sessionId}-terminal-{tabId}` */
 	sessionId: string;
-	/** Active Maestro theme */
+	/** Active OpenWizardAI theme */
 	theme: Theme;
 	fontFamily: string;
 	fontSize?: number;
@@ -418,7 +418,7 @@ export const XTerminal = forwardRef<XTerminalHandle, XTerminalProps>(function XT
 		const last = lastSentSizeRef.current;
 		if (last && last.cols === cols && last.rows === rows) return;
 		onResize?.(cols, rows);
-		window.maestro.process
+		window.openwizardai.process
 			.resize(sessionId, cols, rows)
 			.then((delivered) => {
 				if (delivered) lastSentSizeRef.current = { cols, rows };
@@ -622,7 +622,7 @@ export const XTerminal = forwardRef<XTerminalHandle, XTerminalProps>(function XT
 			}
 		};
 
-		// Forward passthrough shortcuts to Maestro's window-level handler. xterm
+		// Forward passthrough shortcuts to OpenWizardAI's window-level handler. xterm
 		// captures keydown on its internal textarea and can prevent bubbling, so we
 		// stopPropagation the original event and re-dispatch a synthetic copy directly
 		// on window. This guarantees shortcuts like Cmd+K, Cmd+J, Cmd+W, Alt+Cmd+J
@@ -647,7 +647,7 @@ export const XTerminal = forwardRef<XTerminalHandle, XTerminalProps>(function XT
 
 			const action = evaluateCustomKeyEvent(e);
 			if (typeof action === 'object' && action.action === 'write') {
-				window.maestro.process.write(sessionId, action.data);
+				window.openwizardai.process.write(sessionId, action.data);
 				return false;
 			}
 			if (typeof action === 'object' && action.action === 'scroll') {
@@ -793,7 +793,7 @@ export const XTerminal = forwardRef<XTerminalHandle, XTerminalProps>(function XT
 
 	// IPC: receive data from PTY → write to terminal
 	useEffect(() => {
-		const cleanup = window.maestro.process.onData((sid: string, data: string) => {
+		const cleanup = window.openwizardai.process.onData((sid: string, data: string) => {
 			if (sid === sessionId && terminalRef.current) {
 				terminalRef.current.write(data);
 			}
@@ -807,7 +807,7 @@ export const XTerminal = forwardRef<XTerminalHandle, XTerminalProps>(function XT
 		if (!term) return;
 
 		const disposable = term.onData((data: string) => {
-			window.maestro.process.write(sessionId, data).catch(() => {
+			window.openwizardai.process.write(sessionId, data).catch(() => {
 				// Write failures are surfaced by the process exit handler
 			});
 			onData?.(data);

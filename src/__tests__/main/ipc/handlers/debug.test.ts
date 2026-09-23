@@ -132,7 +132,7 @@ describe('debug IPC handlers', () => {
 
 	describe('debug:createPackage', () => {
 		it('should create debug package with selected file path', async () => {
-			const mockFilePath = '/export/path/maestro-debug-2024-01-01.zip';
+			const mockFilePath = '/export/path/openwizardai-debug-2024-01-01.zip';
 			const mockOutputDir = '/export/path';
 
 			vi.mocked(dialog.showSaveDialog).mockResolvedValue({
@@ -182,7 +182,7 @@ describe('debug IPC handlers', () => {
 		});
 
 		it('should pass options to generateDebugPackage', async () => {
-			const mockFilePath = '/export/path/maestro-debug.zip';
+			const mockFilePath = '/export/path/openwizardai-debug.zip';
 			const mockOutputDir = '/export/path';
 			const options = {
 				includeLogs: false,
@@ -250,7 +250,7 @@ describe('debug IPC handlers', () => {
 		});
 
 		it('should return error when generateDebugPackage fails', async () => {
-			const mockFilePath = '/export/path/maestro-debug.zip';
+			const mockFilePath = '/export/path/openwizardai-debug.zip';
 			const mockOutputDir = '/export/path';
 
 			vi.mocked(dialog.showSaveDialog).mockResolvedValue({
@@ -275,7 +275,7 @@ describe('debug IPC handlers', () => {
 		});
 
 		it('should return error when generateDebugPackage throws', async () => {
-			const mockFilePath = '/export/path/maestro-debug.zip';
+			const mockFilePath = '/export/path/openwizardai-debug.zip';
 			const mockOutputDir = '/export/path';
 
 			vi.mocked(dialog.showSaveDialog).mockResolvedValue({

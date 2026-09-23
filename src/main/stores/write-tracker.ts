@@ -2,7 +2,7 @@
  * Internal store-write tracker.
  *
  * The settings file watcher exists to pick up EXTERNAL edits to
- * `maestro-settings.json` / `maestro-agent-configs.json` (maestro-cli, a text
+ * `openwizardai-settings.json` / `openwizardai-agent-configs.json` (openwizardai-cli, a text
  * editor, a file sync daemon). It cannot tell those apart from the app's own
  * writes on its own: both look like the same `fs.watch` event.
  *
@@ -27,7 +27,7 @@ const lastInternalWriteAt = new Map<string, number>();
  */
 export const INTERNAL_WRITE_SHADOW_MS = 500;
 
-/** Record that the app just wrote `fileName` (e.g. `maestro-settings.json`). */
+/** Record that the app just wrote `fileName` (e.g. `openwizardai-settings.json`). */
 export function markInternalWrite(fileName: string): void {
 	lastInternalWriteAt.set(fileName, Date.now());
 }

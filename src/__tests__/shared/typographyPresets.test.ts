@@ -155,7 +155,7 @@ describe('matchTypographyPreset', () => {
 	it('reports the shipped defaults as Hacker', () => {
 		// This is why the prompt cannot be gated on the current fonts: every
 		// existing user matches `hacker` exactly, since that was the only look
-		// Maestro had. Gating on it would mean never prompting anyone.
+		// OpenWizardAI had. Gating on it would mean never prompting anyone.
 		expect(matchTypographyPreset(TYPOGRAPHY_PRESETS.hacker.fonts)).toBe('hacker');
 	});
 });

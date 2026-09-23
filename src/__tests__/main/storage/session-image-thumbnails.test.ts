@@ -41,7 +41,7 @@ describe('session-image-thumbnails', () => {
 	const bigBytes = Buffer.alloc(200 * 1024, 7);
 
 	beforeEach(() => {
-		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-thumbs-'));
+		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-thumbs-'));
 		source = path.join(tmpDir, `${'a'.repeat(64)}.png`);
 		fs.writeFileSync(source, bigBytes);
 		decodeCalls.count = 0;

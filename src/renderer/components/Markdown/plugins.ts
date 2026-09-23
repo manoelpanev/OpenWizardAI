@@ -23,7 +23,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import rehypeKatex from 'rehype-katex';
 import { svgSanitizeSchema } from './sanitizeSchema';
 import { remarkAlert } from './remarkAlert';
-import { remarkMaestroMarkers } from './remarkMaestroMarkers';
+import { remarkOpenWizardAIMarkers } from './remarkOpenWizardAIMarkers';
 import { REMARK_GFM_PLUGINS } from '../../../shared/markdownPlugins';
 import { remarkFrontmatterTable } from '../../utils/remarkFrontmatterTable';
 import { remarkFileLinks, type buildFileTreeIndices } from '../../utils/remarkFileLinks';
@@ -56,8 +56,8 @@ export interface BuildMarkdownPluginsOptions {
 	/** Transform GitHub `[!NOTE]`-style blockquotes into styled callouts. Default true. */
 	alerts?: boolean;
 	/**
-	 * Render Auto Run markers (`MAESTRO:HITL`, `maestro:halt`, `MAESTRO:MODEL`)
-	 * as status pills. Document surfaces only - see `remarkMaestroMarkers` for
+	 * Render Auto Run markers (`OPENWIZARDAI:HITL`, `openwizardai:halt`, `OPENWIZARDAI:MODEL`)
+	 * as status pills. Document surfaces only - see `remarkOpenWizardAIMarkers` for
 	 * why a chat message must keep rendering them as prose. Default false.
 	 */
 	autorunMarkers?: boolean;
@@ -117,12 +117,12 @@ export function buildMarkdownPlugins(
 	// Runs before remark-breaks so a marker is still its own `html` node rather
 	// than something a `<br>` has been spliced into.
 	if (autorunMarkers) {
-		remarkPlugins.push(remarkMaestroMarkers);
+		remarkPlugins.push(remarkOpenWizardAIMarkers);
 	}
 
 	// Without rehype-raw, react-markdown renders every raw HTML node as visible
 	// text - which turns an HTML comment into body copy. Strip comment-only nodes
-	// here so they stay invisible, after remarkMaestroMarkers has claimed the
+	// here so they stay invisible, after remarkOpenWizardAIMarkers has claimed the
 	// markers it renders as pills.
 	if (!allowRawHtml) {
 		remarkPlugins.push(remarkStripHtmlComments);

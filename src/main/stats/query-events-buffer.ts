@@ -103,7 +103,7 @@ export function flushQueryEventsSync(): void {
 	// `before-quit` then runs the stats module's flush listener *after* the close.
 	// better-sqlite3 answers that with `TypeError: The database connection is not
 	// open`, thrown from inside the transaction, which the catch below used to
-	// report to Sentry as a crash (MAESTRO-ZC).
+	// report to Sentry as a crash (OPENWIZARDAI-ZC).
 	//
 	// A closed handle during shutdown is an expected boundary, not a bug: drop the
 	// batch with a warning and let go of the dead handle so a late `enqueueQueryEvent`

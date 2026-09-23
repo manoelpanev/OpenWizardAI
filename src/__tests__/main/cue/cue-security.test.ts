@@ -143,7 +143,7 @@ describe('Phase 11A - file-watcher runtime path containment', () => {
 	}
 
 	it('drops events whose resolved path escapes the project root', () => {
-		const projectRoot = path.resolve(os.tmpdir(), 'maestro-cue-security-test');
+		const projectRoot = path.resolve(os.tmpdir(), 'openwizardai-cue-security-test');
 		const onEvent = vi.fn();
 		const onLog = vi.fn();
 
@@ -175,7 +175,7 @@ describe('Phase 11A - file-watcher runtime path containment', () => {
 	});
 
 	it('accepts events whose resolved path is inside the project root', () => {
-		const projectRoot = path.resolve(os.tmpdir(), 'maestro-cue-security-test-ok');
+		const projectRoot = path.resolve(os.tmpdir(), 'openwizardai-cue-security-test-ok');
 		const onEvent = vi.fn();
 		const onLog = vi.fn();
 
@@ -198,7 +198,7 @@ describe('Phase 11A - file-watcher runtime path containment', () => {
 	});
 
 	it('does not throw when onLog is not provided and an escape occurs', () => {
-		const projectRoot = path.resolve(os.tmpdir(), 'maestro-cue-security-test-nolog');
+		const projectRoot = path.resolve(os.tmpdir(), 'openwizardai-cue-security-test-nolog');
 		const onEvent = vi.fn();
 
 		createCueFileWatcher({
@@ -383,10 +383,10 @@ describe('Phase 11C - prompt_file path containment', () => {
 	let projectRoot: string;
 
 	beforeEach(() => {
-		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-cue-sec-'));
+		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-cue-sec-'));
 		projectRoot = path.join(tmpDir, 'project');
-		fs.mkdirSync(path.join(projectRoot, '.maestro', 'prompts'), { recursive: true });
-		fs.writeFileSync(path.join(projectRoot, '.maestro', 'prompts', 'ok.md'), 'hello');
+		fs.mkdirSync(path.join(projectRoot, '.openwizardai', 'prompts'), { recursive: true });
+		fs.writeFileSync(path.join(projectRoot, '.openwizardai', 'prompts', 'ok.md'), 'hello');
 		// Sibling file outside the project root - what a traversal would target.
 		fs.writeFileSync(path.join(tmpDir, 'secret.md'), 'SECRET');
 	});
@@ -412,9 +412,9 @@ describe('Phase 11C - prompt_file path containment', () => {
 	}
 
 	it('resolves a legitimate prompt_file reference to its contents', () => {
-		const sub = parseWithPromptFile('.maestro/prompts/ok.md');
+		const sub = parseWithPromptFile('.openwizardai/prompts/ok.md');
 		expect(sub.prompt).toBe('hello');
-		expect(sub.promptSpec.file).toBe('.maestro/prompts/ok.md');
+		expect(sub.promptSpec.file).toBe('.openwizardai/prompts/ok.md');
 	});
 
 	it('refuses to read a prompt file outside the project root via relative traversal', () => {
@@ -432,7 +432,7 @@ describe('Phase 11C - prompt_file path containment', () => {
 	});
 
 	it('allows an absolute path that happens to be inside the project root', () => {
-		const sub = parseWithPromptFile(path.join(projectRoot, '.maestro', 'prompts', 'ok.md'));
+		const sub = parseWithPromptFile(path.join(projectRoot, '.openwizardai', 'prompts', 'ok.md'));
 		expect(sub.prompt).toBe('hello');
 	});
 
@@ -452,7 +452,7 @@ describe('Phase 11C - prompt_file path containment', () => {
 						interval_minutes: 1,
 						// Legitimate in-root path, but upper-cased - should
 						// still resolve to the real file's contents.
-						prompt_file: path.join(projectRoot, '.maestro', 'prompts', 'OK.MD').toUpperCase(),
+						prompt_file: path.join(projectRoot, '.openwizardai', 'prompts', 'OK.MD').toUpperCase(),
 					},
 				],
 			});
@@ -475,7 +475,7 @@ describe('Phase 11C - prompt_file path containment', () => {
 						name: 't',
 						event: 'time.heartbeat',
 						interval_minutes: 1,
-						prompt_file: '.maestro/prompts/ok.md',
+						prompt_file: '.openwizardai/prompts/ok.md',
 					},
 				],
 			});
@@ -627,7 +627,10 @@ describe('Phase 11D - cue-db file permissions', () => {
 		// better-sqlite3 is mocked (no real DB file created). Pre-create an
 		// empty file at the path so the real fs.chmodSync call inside
 		// initCueDb has something to tighten.
-		const dbPath = path.join(os.tmpdir(), `maestro-cue-chmod-${Date.now()}-${Math.random()}.db`);
+		const dbPath = path.join(
+			os.tmpdir(),
+			`openwizardai-cue-chmod-${Date.now()}-${Math.random()}.db`
+		);
 		fs.writeFileSync(dbPath, '');
 		// Start from an intentionally loose mode so the post-init mode proves
 		// the chmod call actually happened.
@@ -649,7 +652,7 @@ describe('Phase 11D - cue-db file permissions', () => {
 		// shape we want to exercise.
 		const parentDir = path.join(
 			os.tmpdir(),
-			`maestro-cue-chmod-missing-${Date.now()}-${Math.random()}`
+			`openwizardai-cue-chmod-missing-${Date.now()}-${Math.random()}`
 		);
 		const dbPath = path.join(parentDir, 'inner.db');
 		// initCueDb will create `parentDir` via mkdirSync(recursive) even

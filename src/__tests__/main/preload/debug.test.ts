@@ -137,7 +137,7 @@ describe('Debug Preload API', () => {
 			it('should invoke debug:stopProfiling and pass through the bundle result', async () => {
 				const stopResult = {
 					success: true,
-					path: '/Users/me/Desktop/maestro-profile.zip',
+					path: '/Users/me/Desktop/openwizardai-profile.zip',
 					cancelled: false,
 					bundleSizeBytes: 2048,
 					traceSizeBytes: 20480,

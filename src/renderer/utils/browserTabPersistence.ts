@@ -1,7 +1,7 @@
 import type { BrowserTab } from '../types';
 
-const BROWSER_TAB_PARTITION_PREFIX = 'persist:maestro-browser-session-';
-const BROWSER_TAB_PARTITION_PATTERN = /^persist:maestro-browser-session-[a-zA-Z0-9_-]+$/;
+const BROWSER_TAB_PARTITION_PREFIX = 'persist:openwizardai-browser-session-';
+const BROWSER_TAB_PARTITION_PATTERN = /^persist:openwizardai-browser-session-[a-zA-Z0-9_-]+$/;
 export const DEFAULT_BROWSER_TAB_URL = 'about:blank';
 export const DEFAULT_BROWSER_TAB_TITLE = 'New Tab';
 
@@ -100,7 +100,7 @@ export function normalizeBrowserTabUrl(value: string): string {
  * Electron resolves the `src` attribute with `new URL(src, location.href)` from
  * inside `WebViewElement.connectedCallback`, so an unparseable URL throws
  * "Failed to construct 'URL': Invalid URL" synchronously during React's commit
- * phase and takes the whole renderer tree down (MAESTRO-QX/QY/QZ).
+ * phase and takes the whole renderer tree down (OPENWIZARDAI-QX/QY/QZ).
  *
  * `tab.url` is NOT guaranteed parseable: the webview's own navigation events
  * write it back, and `did-fail-load` reports the raw target as `validatedURL` -
@@ -112,7 +112,7 @@ export function normalizeBrowserTabUrl(value: string): string {
  *
  * Parsed WITHOUT a base, unlike Electron, so a relative path also falls back to
  * about:blank. Relative is never what a browser tab wants: the base is
- * `app://app/index.html`, so it would load Maestro's own bundle into the tab.
+ * `app://app/index.html`, so it would load OpenWizardAI's own bundle into the tab.
  */
 export function toWebviewSrc(url: string | null | undefined): string {
 	const trimmed = typeof url === 'string' ? url.trim() : '';

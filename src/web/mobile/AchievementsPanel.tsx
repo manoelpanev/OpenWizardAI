@@ -1,5 +1,5 @@
 /**
- * AchievementsPanel component for Maestro mobile web interface
+ * AchievementsPanel component for OpenWizardAI mobile web interface
  *
  * Read-only viewer for achievements with progress tracking,
  * sorted with unlocked first then locked by progress.

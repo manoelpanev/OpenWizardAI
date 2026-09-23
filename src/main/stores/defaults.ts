@@ -7,11 +7,11 @@
 
 import path from 'path';
 import { isWindows } from '../../shared/platformDetection';
-import { MAESTRO_FONT_STACK } from '../../shared/fontStack';
+import { OPENWIZARDAI_FONT_STACK } from '../../shared/fontStack';
 import { DEFAULT_CUE_HISTORY_RETENTION_DAYS } from '../../shared/cue/retention';
 
 import type {
-	MaestroSettings,
+	OpenWizardAISettings,
 	SessionsData,
 	GroupsData,
 	AgentConfigsData,
@@ -74,11 +74,11 @@ export function resolveConfiguredShell(store: ShellSettingsReader): string {
 // Store Defaults
 // ============================================================================
 
-export const SETTINGS_DEFAULTS: MaestroSettings = {
+export const SETTINGS_DEFAULTS: OpenWizardAISettings = {
 	activeThemeId: 'dracula',
 	shortcuts: {},
 	fontSize: 14,
-	fontFamily: MAESTRO_FONT_STACK,
+	fontFamily: OPENWIZARDAI_FONT_STACK,
 	terminalFontFamily: '',
 	chatFontFamily: '',
 	filePreviewFontFamily: '',

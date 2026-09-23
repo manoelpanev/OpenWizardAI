@@ -80,7 +80,7 @@ describe('viewState', () => {
 				historySearchQuery: 'test query',
 				savedAt: Date.now(),
 			};
-			localStorageMock['maestro-web-view-state'] = JSON.stringify(savedState);
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify(savedState);
 
 			const state = loadViewState();
 
@@ -108,7 +108,7 @@ describe('viewState', () => {
 				historySearchQuery: 'old query',
 				savedAt: fiveMinutesAgo,
 			};
-			localStorageMock['maestro-web-view-state'] = JSON.stringify(staleState);
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify(staleState);
 
 			const state = loadViewState();
 
@@ -131,7 +131,7 @@ describe('viewState', () => {
 				historySearchQuery: '',
 				savedAt: fourMinutesAgo,
 			};
-			localStorageMock['maestro-web-view-state'] = JSON.stringify(freshState);
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify(freshState);
 
 			const state = loadViewState();
 
@@ -140,7 +140,7 @@ describe('viewState', () => {
 		});
 
 		it('should handle invalid JSON gracefully', () => {
-			localStorageMock['maestro-web-view-state'] = 'not valid json';
+			localStorageMock['openwizardai-web-view-state'] = 'not valid json';
 
 			const state = loadViewState();
 
@@ -164,7 +164,7 @@ describe('viewState', () => {
 				showAllSessions: true,
 				savedAt: Date.now(),
 			};
-			localStorageMock['maestro-web-view-state'] = JSON.stringify(partialState);
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify(partialState);
 
 			const state = loadViewState();
 
@@ -180,7 +180,7 @@ describe('viewState', () => {
 				showAllSessions: true,
 				// savedAt is undefined
 			};
-			localStorageMock['maestro-web-view-state'] = JSON.stringify(stateWithoutSavedAt);
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify(stateWithoutSavedAt);
 
 			const state = loadViewState();
 
@@ -194,7 +194,7 @@ describe('viewState', () => {
 			saveViewState({ showAllSessions: true });
 
 			expect(localStorage.setItem).toHaveBeenCalled();
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.showAllSessions).toBe(true);
 			expect(savedData.savedAt).toBeGreaterThan(0);
 		});
@@ -213,12 +213,12 @@ describe('viewState', () => {
 				historySearchQuery: '',
 				savedAt: Date.now(),
 			};
-			localStorageMock['maestro-web-view-state'] = JSON.stringify(existingState);
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify(existingState);
 
 			// Update only showAllSessions
 			saveViewState({ showAllSessions: true });
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.showAllSessions).toBe(true);
 			expect(savedData.showHistoryPanel).toBe(true); // Preserved from existing
 			expect(savedData.activeSessionId).toBe('session-1'); // Preserved
@@ -229,7 +229,7 @@ describe('viewState', () => {
 
 			saveViewState({ activeSessionId: 'new-session' });
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.savedAt).toBeGreaterThanOrEqual(beforeSave);
 		});
 
@@ -246,7 +246,7 @@ describe('viewState', () => {
 				historySearchQuery: 'search text',
 			});
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.showAllSessions).toBe(true);
 			expect(savedData.showHistoryPanel).toBe(true);
 			expect(savedData.showTabSearch).toBe(true);
@@ -270,13 +270,13 @@ describe('viewState', () => {
 
 	describe('clearViewState', () => {
 		it('should remove both view state and scroll state from localStorage', () => {
-			localStorageMock['maestro-web-view-state'] = JSON.stringify({ showAllSessions: true });
-			localStorageMock['maestro-web-scroll-state'] = JSON.stringify({ messageHistory: 100 });
+			localStorageMock['openwizardai-web-view-state'] = JSON.stringify({ showAllSessions: true });
+			localStorageMock['openwizardai-web-scroll-state'] = JSON.stringify({ messageHistory: 100 });
 
 			clearViewState();
 
-			expect(localStorage.removeItem).toHaveBeenCalledWith('maestro-web-view-state');
-			expect(localStorage.removeItem).toHaveBeenCalledWith('maestro-web-scroll-state');
+			expect(localStorage.removeItem).toHaveBeenCalledWith('openwizardai-web-view-state');
+			expect(localStorage.removeItem).toHaveBeenCalledWith('openwizardai-web-scroll-state');
 		});
 
 		it('should handle localStorage errors gracefully', () => {
@@ -306,7 +306,7 @@ describe('viewState', () => {
 				allSessions: 200,
 				historyPanel: 300,
 			};
-			localStorageMock['maestro-web-scroll-state'] = JSON.stringify(savedScroll);
+			localStorageMock['openwizardai-web-scroll-state'] = JSON.stringify(savedScroll);
 
 			const state = loadScrollState();
 
@@ -316,7 +316,7 @@ describe('viewState', () => {
 		});
 
 		it('should handle invalid JSON gracefully', () => {
-			localStorageMock['maestro-web-scroll-state'] = 'invalid json';
+			localStorageMock['openwizardai-web-scroll-state'] = 'invalid json';
 
 			const state = loadScrollState();
 
@@ -331,7 +331,7 @@ describe('viewState', () => {
 			const partialScroll = {
 				messageHistory: 100,
 			};
-			localStorageMock['maestro-web-scroll-state'] = JSON.stringify(partialScroll);
+			localStorageMock['openwizardai-web-scroll-state'] = JSON.stringify(partialScroll);
 
 			const state = loadScrollState();
 
@@ -345,21 +345,21 @@ describe('viewState', () => {
 		it('should save scroll position for messageHistory', () => {
 			saveScrollPosition('messageHistory', 250);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.messageHistory).toBe(250);
 		});
 
 		it('should save scroll position for allSessions', () => {
 			saveScrollPosition('allSessions', 150);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.allSessions).toBe(150);
 		});
 
 		it('should save scroll position for historyPanel', () => {
 			saveScrollPosition('historyPanel', 350);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.historyPanel).toBe(350);
 		});
 
@@ -369,11 +369,11 @@ describe('viewState', () => {
 				allSessions: 200,
 				historyPanel: 300,
 			};
-			localStorageMock['maestro-web-scroll-state'] = JSON.stringify(existingScroll);
+			localStorageMock['openwizardai-web-scroll-state'] = JSON.stringify(existingScroll);
 
 			saveScrollPosition('messageHistory', 500);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.messageHistory).toBe(500); // Updated
 			expect(savedData.allSessions).toBe(200); // Preserved
 			expect(savedData.historyPanel).toBe(300); // Preserved
@@ -427,7 +427,7 @@ describe('viewState', () => {
 			vi.advanceTimersByTime(200);
 			expect(localStorage.setItem).toHaveBeenCalledTimes(1);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.showAllSessions).toBe(false); // Second call's value
 		});
 
@@ -442,7 +442,7 @@ describe('viewState', () => {
 			vi.advanceTimersByTime(300);
 
 			expect(localStorage.setItem).toHaveBeenCalledTimes(1);
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.activeSessionId).toBe('final-session');
 		});
 	});
@@ -484,7 +484,7 @@ describe('viewState', () => {
 			vi.advanceTimersByTime(300);
 			expect(localStorage.setItem).toHaveBeenCalledTimes(1);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.messageHistory).toBe(200); // Second call's value
 		});
 
@@ -501,7 +501,7 @@ describe('viewState', () => {
 			vi.advanceTimersByTime(500);
 
 			expect(localStorage.setItem).toHaveBeenCalledTimes(1);
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.messageHistory).toBe(400);
 		});
 	});
@@ -510,35 +510,35 @@ describe('viewState', () => {
 		it('should handle zero scroll positions', () => {
 			saveScrollPosition('messageHistory', 0);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.messageHistory).toBe(0);
 		});
 
 		it('should handle large scroll positions', () => {
 			saveScrollPosition('messageHistory', 999999);
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-scroll-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-scroll-state']);
 			expect(savedData.messageHistory).toBe(999999);
 		});
 
 		it('should handle null activeSessionId', () => {
 			saveViewState({ activeSessionId: null });
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.activeSessionId).toBe(null);
 		});
 
 		it('should handle empty string historySearchQuery', () => {
 			saveViewState({ historySearchQuery: '' });
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.historySearchQuery).toBe('');
 		});
 
 		it('should handle special characters in historySearchQuery', () => {
 			saveViewState({ historySearchQuery: 'test<script>alert("xss")</script>' });
 
-			const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.historySearchQuery).toBe('test<script>alert("xss")</script>');
 		});
 
@@ -547,18 +547,18 @@ describe('viewState', () => {
 
 			for (const filter of filters) {
 				saveViewState({ historyFilter: filter });
-				const savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+				const savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 				expect(savedData.historyFilter).toBe(filter);
 			}
 		});
 
 		it('should handle both input modes', () => {
 			saveViewState({ inputMode: 'ai' });
-			let savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			let savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.inputMode).toBe('ai');
 
 			saveViewState({ inputMode: 'terminal' });
-			savedData = JSON.parse(localStorageMock['maestro-web-view-state']);
+			savedData = JSON.parse(localStorageMock['openwizardai-web-view-state']);
 			expect(savedData.inputMode).toBe('terminal');
 		});
 	});

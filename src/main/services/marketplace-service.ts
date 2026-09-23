@@ -2,7 +2,7 @@
  * Marketplace Service
  *
  * Pure helpers for fetching, caching, and importing playbooks from the
- * Maestro Playbooks marketplace. Extracted from the IPC handler so the
+ * OpenWizardAI Playbooks marketplace. Extracted from the IPC handler so the
  * web-server (mobile clients) can reuse the same logic without
  * round-tripping through the renderer.
  *
@@ -29,7 +29,7 @@ import { SshRemoteConfig } from '../../shared/types';
 import { writeFileRemote, mkdirRemote } from '../utils/remote-fs';
 import { captureException } from '../utils/sentry';
 
-const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/RunMaestro/Maestro-Playbooks/main';
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/manoelpanev/OpenWizardAI-Playbooks/main';
 const MANIFEST_URL = `${GITHUB_RAW_BASE}/manifest.json`;
 const CACHE_TTL_MS = 6 * 60 * 60 * 1000;
 const LOG_CONTEXT = '[Marketplace]';
@@ -494,8 +494,8 @@ export async function importMarketplacePlaybook(
 	const runningVersion = app.getVersion();
 	if (!isCompatible(marketplacePlaybook, runningVersion)) {
 		throw new MarketplaceImportError(
-			`This playbook requires OpenWizzard ${marketplacePlaybook.minMaestroVersion}+; ` +
-				`you have ${runningVersion}. Update OpenWizzard and try again.`
+			`This playbook requires OpenWizardAI ${marketplacePlaybook.minOpenWizardAIVersion}+; ` +
+				`you have ${runningVersion}. Update OpenWizardAI and try again.`
 		);
 	}
 

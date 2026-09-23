@@ -1,5 +1,5 @@
 /**
- * Tests for the starred-transcript mirror: Maestro's own copy of a starred
+ * Tests for the starred-transcript mirror: OpenWizardAI's own copy of a starred
  * session's provider transcript, so the conversation survives provider-side
  * deletion. Uses real fs against temp dirs and a fake session storage whose
  * getSessionPath() points at a temp "provider" file.

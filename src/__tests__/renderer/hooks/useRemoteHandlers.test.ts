@@ -127,8 +127,8 @@ beforeEach(() => {
 		setSuccessFlashNotification: vi.fn(),
 	} as any);
 
-	// Mock window.maestro APIs
-	(window as any).maestro = {
+	// Mock window.openwizardai APIs
+	(window as any).openwizardai = {
 		process: {
 			spawn: vi.fn().mockResolvedValue(undefined),
 			runCommand: vi.fn().mockResolvedValue(undefined),
@@ -143,7 +143,7 @@ beforeEach(() => {
 		prompts: {
 			get: vi.fn().mockResolvedValue({
 				success: true,
-				content: 'Maestro System Context: {{AGENT_NAME}}',
+				content: 'OpenWizardAI System Context: {{AGENT_NAME}}',
 			}),
 		},
 	};
@@ -357,14 +357,14 @@ describe('useRemoteHandlers', () => {
 			const { unmount } = renderHook(() => useRemoteHandlers(createMockDeps()));
 
 			expect(window.addEventListener).toHaveBeenCalledWith(
-				'maestro:remoteCommand',
+				'openwizardai:remoteCommand',
 				expect.any(Function)
 			);
 
 			unmount();
 
 			expect(window.removeEventListener).toHaveBeenCalledWith(
-				'maestro:remoteCommand',
+				'openwizardai:remoteCommand',
 				expect.any(Function)
 			);
 		});
@@ -379,14 +379,14 @@ describe('useRemoteHandlers', () => {
 
 			// Get the registered event handler
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			// Dispatch a terminal command
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'ls -la',
@@ -396,7 +396,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.runCommand).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.runCommand).toHaveBeenCalledWith(
 				expect.objectContaining({
 					sessionId: 'session-1',
 					command: 'ls -la',
@@ -413,13 +413,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'explain this code',
@@ -429,7 +429,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({
 					prompt: 'explain this code',
 				})
@@ -445,13 +445,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'hello',
@@ -461,8 +461,8 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.prompts.get).toHaveBeenCalledWith('maestro-system-prompt');
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.prompts.get).toHaveBeenCalledWith('openwizardai-system-prompt');
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({
 					appendSystemPrompt: expect.any(String),
 				})
@@ -490,13 +490,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'hello',
@@ -506,7 +506,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({
 					appendSystemPrompt: expect.any(String),
 				})
@@ -521,13 +521,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'nonexistent',
 							command: 'test',
@@ -536,8 +536,8 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
-			expect(window.maestro.process.runCommand).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.runCommand).not.toHaveBeenCalled();
 		});
 
 		it('skips AI commands for busy sessions', async () => {
@@ -549,13 +549,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'test',
@@ -565,7 +565,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('skips unsupported agent types for AI mode', async () => {
@@ -580,13 +580,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'test',
@@ -596,7 +596,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('handles slash commands by looking up custom commands', async () => {
@@ -615,13 +615,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: '/deploy',
@@ -631,7 +631,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({
 					prompt: 'Deploy the application to production',
 				})
@@ -655,13 +655,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'pwd',
@@ -671,7 +671,7 @@ describe('useRemoteHandlers', () => {
 				);
 			});
 
-			expect(window.maestro.process.runCommand).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.runCommand).toHaveBeenCalledWith(
 				expect.objectContaining({
 					cwd: '/remote/path',
 				})
@@ -687,13 +687,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'ls',
@@ -710,7 +710,9 @@ describe('useRemoteHandlers', () => {
 		});
 
 		it('handles terminal command errors gracefully', async () => {
-			(window.maestro.process.runCommand as any).mockRejectedValue(new Error('Connection refused'));
+			(window.openwizardai.process.runCommand as any).mockRejectedValue(
+				new Error('Connection refused')
+			);
 
 			const session = createMockSession({ inputMode: 'terminal' });
 			const deps = createMockDeps({
@@ -720,13 +722,13 @@ describe('useRemoteHandlers', () => {
 			renderHook(() => useRemoteHandlers(deps));
 
 			const addListenerCall = (window.addEventListener as any).mock.calls.find(
-				(call: any[]) => call[0] === 'maestro:remoteCommand'
+				(call: any[]) => call[0] === 'openwizardai:remoteCommand'
 			);
 			const handler = addListenerCall[1];
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: {
 							sessionId: 'session-1',
 							command: 'ls',
@@ -766,10 +768,10 @@ describe('useRemoteHandlers', () => {
 	// ========================================================================
 
 	describe('handleRemoteCommand – terminal mode edge cases', () => {
-		/** Helper: extract the maestro:remoteCommand event handler from addEventListener mock */
+		/** Helper: extract the openwizardai:remoteCommand event handler from addEventListener mock */
 		function getRemoteCommandHandler() {
 			const call = (window.addEventListener as any).mock.calls.find(
-				(c: any[]) => c[0] === 'maestro:remoteCommand'
+				(c: any[]) => c[0] === 'openwizardai:remoteCommand'
 			);
 			return call[1] as (event: Event) => Promise<void>;
 		}
@@ -783,7 +785,7 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'echo hello', inputMode: 'terminal' },
 					})
 				);
@@ -815,13 +817,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'pwd', inputMode: 'terminal' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.runCommand).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.runCommand).toHaveBeenCalledWith(
 				expect.objectContaining({ cwd: '/override/path' })
 			);
 		});
@@ -839,19 +841,19 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'ls', inputMode: 'terminal' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.runCommand).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.runCommand).toHaveBeenCalledWith(
 				expect.objectContaining({ cwd: '/my/project' })
 			);
 		});
 
 		it('handles non-Error thrown value in terminal command error path', async () => {
-			(window.maestro.process.runCommand as any).mockRejectedValue('string error value');
+			(window.openwizardai.process.runCommand as any).mockRejectedValue('string error value');
 
 			const session = createMockSession({ inputMode: 'terminal' });
 			const deps = createMockDeps({ sessionsRef: { current: [session] } });
@@ -861,7 +863,7 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'bad-cmd', inputMode: 'terminal' },
 					})
 				);
@@ -889,13 +891,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'ls', inputMode: 'terminal' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.runCommand).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.runCommand).toHaveBeenCalledWith(
 				expect.objectContaining({ sessionSshRemoteConfig: sshConfig })
 			);
 		});
@@ -908,7 +910,7 @@ describe('useRemoteHandlers', () => {
 	describe('handleRemoteCommand – AI mode edge cases', () => {
 		function getRemoteCommandHandler() {
 			const call = (window.addEventListener as any).mock.calls.find(
-				(c: any[]) => c[0] === 'maestro:remoteCommand'
+				(c: any[]) => c[0] === 'openwizardai:remoteCommand'
 			);
 			return call[1] as (event: Event) => Promise<void>;
 		}
@@ -923,13 +925,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'help me', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({ prompt: 'help me', toolType: 'codex' })
 			);
 		});
@@ -944,13 +946,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'explain', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({ prompt: 'explain', toolType: 'opencode' })
 			);
 		});
@@ -965,13 +967,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'test', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
 		it('rejects terminal agent type (no supportsBatchMode capability)', async () => {
@@ -984,13 +986,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'test', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('logs error and returns early for unknown slash commands', async () => {
@@ -1008,14 +1010,14 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: '/nonexistent', inputMode: 'ai' },
 					})
 				);
 			});
 
 			// Should NOT spawn - unknown slash command is early-returned
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 
 			// addLogToTab should have been called with an error log about the unknown command
 			const updated = useSessionStore.getState().sessions.find((s) => s.id === 'session-1');
@@ -1047,13 +1049,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: '/speckit-test', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({ prompt: 'Speckit prompt text' })
 			);
 		});
@@ -1079,19 +1081,19 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: '/openspec-run', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({ prompt: 'OpenSpec prompt text' })
 			);
 		});
 
 		it('returns early when agent config is not found', async () => {
-			(window.maestro.agents.get as any).mockResolvedValue(null);
+			(window.openwizardai.agents.get as any).mockResolvedValue(null);
 
 			const session = createMockSession({ inputMode: 'ai' });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' } as any);
@@ -1102,17 +1104,17 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'test', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('resets session to idle and adds error log on spawn failure', async () => {
-			(window.maestro.process.spawn as any).mockRejectedValue(new Error('Spawn failed'));
+			(window.openwizardai.process.spawn as any).mockRejectedValue(new Error('Spawn failed'));
 
 			const session = createMockSession({ inputMode: 'ai' });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' } as any);
@@ -1123,7 +1125,7 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'do something', inputMode: 'ai' },
 					})
 				);
@@ -1140,7 +1142,7 @@ describe('useRemoteHandlers', () => {
 		});
 
 		it('filters --dangerously-skip-permissions from args in readOnly mode', async () => {
-			(window.maestro.agents.get as any).mockResolvedValue({
+			(window.openwizardai.agents.get as any).mockResolvedValue({
 				command: 'claude',
 				path: '/usr/local/bin/claude',
 				args: ['--dangerously-skip-permissions', '--verbose'],
@@ -1169,19 +1171,19 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'explain code', inputMode: 'ai' },
 					})
 				);
 			});
 
-			const spawnCall = (window.maestro.process.spawn as any).mock.calls[0][0];
+			const spawnCall = (window.openwizardai.process.spawn as any).mock.calls[0][0];
 			expect(spawnCall.args).toContain('--verbose');
 			expect(spawnCall.args).not.toContain('--dangerously-skip-permissions');
 		});
 
 		it('filters --dangerously-bypass-approvals-and-sandbox from args in readOnly mode', async () => {
-			(window.maestro.agents.get as any).mockResolvedValue({
+			(window.openwizardai.agents.get as any).mockResolvedValue({
 				command: 'claude',
 				path: '/usr/local/bin/claude',
 				args: ['--dangerously-bypass-approvals-and-sandbox', '--json'],
@@ -1210,13 +1212,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'read file', inputMode: 'ai' },
 					})
 				);
 			});
 
-			const spawnCall = (window.maestro.process.spawn as any).mock.calls[0][0];
+			const spawnCall = (window.openwizardai.process.spawn as any).mock.calls[0][0];
 			expect(spawnCall.args).toContain('--json');
 			expect(spawnCall.args).not.toContain('--dangerously-bypass-approvals-and-sandbox');
 		});
@@ -1231,7 +1233,7 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'analyze code', inputMode: 'ai' },
 					})
 				);
@@ -1252,7 +1254,7 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'explain this', inputMode: 'ai' },
 					})
 				);
@@ -1276,15 +1278,15 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'explain this', inputMode: 'ai' },
 					})
 				);
 			});
 
 			// Should spawn (AI mode) instead of runCommand (terminal mode)
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
-			expect(window.maestro.process.runCommand).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+			expect(window.openwizardai.process.runCommand).not.toHaveBeenCalled();
 		});
 
 		it('falls back to session.inputMode when web inputMode is not provided', async () => {
@@ -1296,15 +1298,15 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'ls' },
 					})
 				);
 			});
 
 			// Should use terminal mode (session's inputMode)
-			expect(window.maestro.process.runCommand).toHaveBeenCalled();
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.runCommand).toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('passes sessionSshRemoteConfig to spawn for AI commands', async () => {
@@ -1321,13 +1323,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'help', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({ sessionSshRemoteConfig: sshConfig })
 			);
 		});
@@ -1349,13 +1351,13 @@ describe('useRemoteHandlers', () => {
 
 			await act(async () => {
 				await handler(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId: 'session-1', command: 'test', inputMode: 'ai' },
 					})
 				);
 			});
 
-			expect(window.maestro.process.spawn).toHaveBeenCalledWith(
+			expect(window.openwizardai.process.spawn).toHaveBeenCalledWith(
 				expect.objectContaining({
 					sessionCustomPath: '/custom/claude',
 					sessionCustomArgs: ['--custom-flag'],
@@ -1518,14 +1520,14 @@ describe('useRemoteHandlers', () => {
 			const { unmount } = renderHook(() => useRemoteHandlers(createMockDeps()));
 
 			const addCall = (window.addEventListener as any).mock.calls.find(
-				(c: any[]) => c[0] === 'maestro:remoteCommand'
+				(c: any[]) => c[0] === 'openwizardai:remoteCommand'
 			);
 			const addedFn = addCall[1];
 
 			unmount();
 
 			const removeCall = (window.removeEventListener as any).mock.calls.find(
-				(c: any[]) => c[0] === 'maestro:remoteCommand'
+				(c: any[]) => c[0] === 'openwizardai:remoteCommand'
 			);
 			const removedFn = removeCall[1];
 

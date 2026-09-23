@@ -4,7 +4,7 @@
  *
  * The classifier answers one question for every auth surface: can a login flow
  * repair this? Getting it wrong in the permissive direction is the expensive
- * failure - Maestro runs the provider's login, the user completes it, and the
+ * failure - OpenWizardAI runs the provider's login, the user completes it, and the
  * agent still presents the same rejected API key or gateway token. So the tests
  * below are mostly about what does NOT count as an OAuth agent.
  */

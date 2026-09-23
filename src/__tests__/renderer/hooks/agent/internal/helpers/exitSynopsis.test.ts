@@ -68,7 +68,7 @@ function makeSynopsisData(overrides: Partial<SynopsisData> = {}): SynopsisData {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		claude: { updateSessionName: vi.fn().mockResolvedValue(undefined) },
 		agentSessions: { setSessionName: vi.fn().mockResolvedValue(undefined) },
 	};
@@ -251,7 +251,7 @@ describe('runExitSynopsis', () => {
 
 		await runExitSynopsis(makeSynopsisData({ tabName: 'My Custom Name' }), deps);
 
-		expect((window as any).maestro.claude.updateSessionName).toHaveBeenCalledWith(
+		expect((window as any).openwizardai.claude.updateSessionName).toHaveBeenCalledWith(
 			'/cwd',
 			'agent-1',
 			'My Custom Name'
@@ -272,7 +272,7 @@ describe('runExitSynopsis', () => {
 			deps
 		);
 
-		expect((window as any).maestro.agentSessions.setSessionName).toHaveBeenCalledWith(
+		expect((window as any).openwizardai.agentSessions.setSessionName).toHaveBeenCalledWith(
 			'codex',
 			'/cwd',
 			'agent-1',
@@ -291,7 +291,7 @@ describe('runExitSynopsis', () => {
 
 		await runExitSynopsis(makeSynopsisData({ tabName: 'AB12CD34' }), deps);
 
-		expect((window as any).maestro.claude.updateSessionName).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.claude.updateSessionName).not.toHaveBeenCalled();
 	});
 
 	it('PERSISTS lowercase 8-hex tab names (real user-typed names, not the fallback)', async () => {
@@ -309,7 +309,7 @@ describe('runExitSynopsis', () => {
 
 		await runExitSynopsis(makeSynopsisData({ tabName: 'ab12cd34' }), deps);
 
-		expect((window as any).maestro.claude.updateSessionName).toHaveBeenCalledWith(
+		expect((window as any).openwizardai.claude.updateSessionName).toHaveBeenCalledWith(
 			'/cwd',
 			'agent-1',
 			'ab12cd34'

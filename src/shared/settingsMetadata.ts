@@ -1,7 +1,7 @@
 /**
  * Settings Metadata
  *
- * Centralized metadata for all Maestro settings, used by both
+ * Centralized metadata for all OpenWizardAI settings, used by both
  * the CLI (settings commands) and the main process (defaults).
  *
  * Each entry provides:
@@ -91,7 +91,7 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	globalShowHotkey: {
 		description:
-			'System-wide hotkey to summon (show + focus) the OpenWizzard window from any app. Empty array disables it. Stored as a key array (e.g. ["Meta","Shift","M"]); Meta maps to Cmd on macOS / Win on Windows.',
+			'System-wide hotkey to summon (show + focus) the OpenWizardAI window from any app. Empty array disables it. Stored as a key array (e.g. ["Meta","Shift","M"]); Meta maps to Cmd on macOS / Win on Windows.',
 		type: 'array',
 		default: [],
 		category: 'accessibility',
@@ -241,7 +241,7 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 
 	allowConcurrentSend: {
 		description:
-			'Allow `maestro-cli send --live --force` to dispatch prompts to an agent whose active tab is already busy. Enables concurrent writes to a single agent; off by default because it can interleave responses.',
+			'Allow `openwizardai-cli send --live --force` to dispatch prompts to an agent whose active tab is already busy. Enables concurrent writes to a single agent; off by default because it can interleave responses.',
 		type: 'boolean',
 		default: false,
 		category: 'advanced',
@@ -329,7 +329,7 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	audioFeedbackCommand: {
 		description:
-			'Shell command run when a task completes; the summary is piped to stdin. Runs in a shell (pipes/chains work). OpenWizzard context is exposed via env vars: MAESTRO_NOTIFY_AGENT, MAESTRO_NOTIFY_TAB, MAESTRO_NOTIFY_GROUP, MAESTRO_NOTIFY_TASK. Examples: say on macOS, espeak on Linux.',
+			'Shell command run when a task completes; the summary is piped to stdin. Runs in a shell (pipes/chains work). OpenWizardAI context is exposed via env vars: OPENWIZARDAI_NOTIFY_AGENT, OPENWIZARDAI_NOTIFY_TAB, OPENWIZARDAI_NOTIFY_GROUP, OPENWIZARDAI_NOTIFY_TASK. Examples: say on macOS, espeak on Linux.',
 		type: 'string',
 		default: 'say',
 		category: 'notifications',
@@ -342,23 +342,23 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	idleNotificationEnabled: {
 		description:
-			'Run a custom command when all agents and Auto Runs finish and OpenWizzard becomes idle.',
+			'Run a custom command when all agents and Auto Runs finish and OpenWizardAI becomes idle.',
 		type: 'boolean',
 		default: false,
 		category: 'notifications',
 	},
 	idleNotificationCommand: {
 		description:
-			'Shell command to execute when OpenWizzard becomes idle (no agents or Auto Runs running).',
+			'Shell command to execute when OpenWizardAI becomes idle (no agents or Auto Runs running).',
 		type: 'string',
-		default: 'say OpenWizzard is idle',
+		default: 'say OpenWizardAI is idle',
 		category: 'notifications',
 	},
 
 	// --- Updates & Crash Reporting ---
 	checkForUpdatesOnStartup: {
 		description:
-			'Automatically check for OpenWizzard updates on launch and once per day while running. Also sends an anonymous check-in (a random install ID, app version, OS, and theme) so we can count active installs. Turning this off disables both.',
+			'Automatically check for OpenWizardAI updates on launch and once per day while running. Also sends an anonymous check-in (a random install ID, app version, OS, and theme) so we can count active installs. Turning this off disables both.',
 		type: 'boolean',
 		default: true,
 		category: 'updates',
@@ -370,7 +370,7 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 		category: 'updates',
 	},
 	crashReportingEnabled: {
-		description: 'Send anonymous crash reports to help improve OpenWizzard (via Sentry).',
+		description: 'Send anonymous crash reports to help improve OpenWizardAI (via Sentry).',
 		type: 'boolean',
 		default: true,
 		category: 'updates',
@@ -590,7 +590,7 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 
 	// --- Accessibility & Performance ---
 	preventSleepEnabled: {
-		description: 'Prevent the system from sleeping while OpenWizzard is running.',
+		description: 'Prevent the system from sleeping while OpenWizardAI is running.',
 		type: 'boolean',
 		default: false,
 		category: 'accessibility',
@@ -686,12 +686,12 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	browserHomeUrl: {
 		description: 'The default URL loaded when opening a new browser tab.',
 		type: 'string',
-		default: 'https://runmaestro.ai/#leaderboard',
+		default: 'https://github.com/manoelpanev/OpenWizardAI',
 		category: 'editor',
 	},
 	htmlDoubleClickOpensInBrowser: {
 		description:
-			'When enabled, double-clicking an HTML file in the file explorer opens it in the OpenWizzard browser instead of the file preview.',
+			'When enabled, double-clicking an HTML file in the file explorer opens it in the OpenWizardAI browser instead of the file preview.',
 		type: 'boolean',
 		default: false,
 		category: 'editor',
@@ -732,14 +732,14 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	cueHistoryRetentionDays: {
 		description:
-			'How many days of OpenWizzard Cue run history to keep in the Cue database. Rows older than this are pruned when the Cue engine starts. Raise it to keep a longer Activity Log, lower it to keep the database small.',
+			'How many days of OpenWizardAI Cue run history to keep in the Cue database. Rows older than this are pruned when the Cue engine starts. Raise it to keep a longer Activity Log, lower it to keep the database small.',
 		type: 'number',
 		default: DEFAULT_CUE_HISTORY_RETENTION_DAYS,
 		category: 'advanced',
 	},
 	groupCueEntries: {
 		description:
-			'Collapse repeated OpenWizzard Cue runs in the History panel into one row per trigger, showing the run count, the most recent run time, and a failure count. Expand a row to reach the individual runs. Turn this off to list every Cue run separately.',
+			'Collapse repeated OpenWizardAI Cue runs in the History panel into one row per trigger, showing the run count, the most recent run time, and a failure count. Expand a row to reach the individual runs. Turn this off to list every Cue run separately.',
 		type: 'boolean',
 		default: true,
 		category: 'advanced',
@@ -760,7 +760,7 @@ export const SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	lastSelectedPromptId: {
 		description:
-			'ID of the prompt most recently edited in Settings → OpenWizzard Prompts. Restored on reopen.',
+			'ID of the prompt most recently edited in Settings → OpenWizardAI Prompts. Restored on reopen.',
 		type: 'string',
 		default: null,
 		category: 'internal',

@@ -8,9 +8,9 @@ import {
 
 describe('DocumentEditor command helpers', () => {
 	it('inserts text at a selection and returns the next cursor position', () => {
-		expect(insertTextAtSelection('hello world', 6, 11, 'Maestro')).toEqual({
-			content: 'hello Maestro',
-			cursorPosition: 13,
+		expect(insertTextAtSelection('hello world', 6, 11, 'OpenWizardAI')).toEqual({
+			content: 'hello OpenWizardAI',
+			cursorPosition: 18,
 		});
 	});
 

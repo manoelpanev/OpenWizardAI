@@ -16,7 +16,7 @@ import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import { remarkStripHtmlComments } from '../../shared/remarkStripHtmlComments';
 import { REMARK_GFM_PLUGINS } from '../../shared/markdownPlugins';
-import { remarkMaestroMarkers } from '../../renderer/components/Markdown/remarkMaestroMarkers';
+import { remarkOpenWizardAIMarkers } from '../../renderer/components/Markdown/remarkOpenWizardAIMarkers';
 import { createMarkdownComponents } from '../../renderer/utils/markdownConfig';
 import { mockTheme } from '../helpers/mockTheme';
 
@@ -78,22 +78,22 @@ describe('remarkStripHtmlComments', () => {
 	it('leaves a comment inside a fence alone', () => {
 		// A fence is a `code` node, never an `html` one, so documentation examples
 		// of marker syntax keep rendering as the examples they are.
-		const { container } = renderMarkdown('```\n<!-- MAESTRO:HITL -->\n```\n');
-		expect(container.textContent).toContain('<!-- MAESTRO:HITL -->');
+		const { container } = renderMarkdown('```\n<!-- OPENWIZARDAI:HITL -->\n```\n');
+		expect(container.textContent).toContain('<!-- OPENWIZARDAI:HITL -->');
 	});
 
-	it('runs after remarkMaestroMarkers, so marker pills survive and the rest do not', () => {
+	it('runs after remarkOpenWizardAIMarkers, so marker pills survive and the rest do not', () => {
 		const { container } = renderMarkdown(
 			[
 				'<!-- reminders:edit-boundary -->',
 				'',
-				'<!-- MAESTRO:HITL reason="Add STRIPE_SECRET_KEY to .env" -->',
+				'<!-- OPENWIZARDAI:HITL reason="Add STRIPE_SECRET_KEY to .env" -->',
 				'',
 				'- [ ] Bill the customer',
 			].join('\n'),
-			[...REMARK_GFM_PLUGINS, remarkMaestroMarkers, remarkStripHtmlComments]
+			[...REMARK_GFM_PLUGINS, remarkOpenWizardAIMarkers, remarkStripHtmlComments]
 		);
-		const pill = screen.getByTestId('maestro-marker-hitl');
+		const pill = screen.getByTestId('openwizardai-marker-hitl');
 		expect(pill).toHaveTextContent('Pauses here');
 		expect(container.textContent).not.toContain('reminders:edit-boundary');
 	});

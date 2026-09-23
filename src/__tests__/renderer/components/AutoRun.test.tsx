@@ -199,9 +199,9 @@ const createMockTheme = (): Theme => ({
 	},
 });
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -218,8 +218,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Helper to create a valid BatchRunState with the new interface
@@ -263,10 +263,10 @@ const createDefaultProps = (overrides: Partial<React.ComponentProps<typeof AutoR
 });
 
 describe('AutoRun', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -395,7 +395,7 @@ describe('AutoRun', () => {
 		});
 	});
 
-	// A run parked on an agent error or a MAESTRO:HITL gate is waiting on the
+	// A run parked on an agent error or a OPENWIZARDAI:HITL gate is waiting on the
 	// user, not driving the document. Holding the lock there makes the gate
 	// unanswerable: the user cannot tick the box the gate is asking about.
 	describe('Paused run releases the document', () => {
@@ -596,7 +596,7 @@ describe('AutoRun', () => {
 			// Click the Save button
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/test/folder',
 				'test-doc.md',
 				'Updated content',
@@ -977,7 +977,7 @@ describe('AutoRun', () => {
 			fireEvent.click(screen.getByText('Run'));
 
 			// Should save the dirty content before opening batch runner
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/test/folder',
 				'test-doc.md',
 				'new content',
@@ -1151,7 +1151,7 @@ describe('AutoRun', () => {
 
 	describe('Attachments', () => {
 		it('loads existing images on mount', async () => {
-			mockMaestro.autorun.listImages.mockResolvedValue({
+			mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'img1.png', relativePath: 'images/test-doc-123.png' }],
 			});
@@ -1160,7 +1160,7 @@ describe('AutoRun', () => {
 			renderWithProvider(<AutoRun {...props} />);
 
 			await waitFor(() => {
-				expect(mockMaestro.autorun.listImages).toHaveBeenCalledWith(
+				expect(mockOpenWizardAI.autorun.listImages).toHaveBeenCalledWith(
 					'/test/folder',
 					'test-doc',
 					undefined
@@ -1169,7 +1169,7 @@ describe('AutoRun', () => {
 		});
 
 		it('shows attachments section when there are images in edit mode', async () => {
-			mockMaestro.autorun.listImages.mockResolvedValue({
+			mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'img1.png', relativePath: 'images/test-doc-123.png' }],
 			});
@@ -1233,7 +1233,7 @@ describe('AutoRun', () => {
 
 			fireEvent.paste(textarea, { clipboardData: mockClipboardData });
 
-			expect(mockMaestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.saveImage).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1458,8 +1458,8 @@ describe('AutoRun.imageCache', () => {
 	// the caching behavior indirectly through repeated renders
 
 	it('component loads without throwing when images are present', async () => {
-		const mockMaestro = setupMaestroMock();
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		const mockOpenWizardAI = setupOpenWizardAIMock();
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
@@ -1468,16 +1468,16 @@ describe('AutoRun.imageCache', () => {
 		expect(() => renderWithProvider(<AutoRun {...props} />)).not.toThrow();
 
 		await waitFor(() => {
-			expect(mockMaestro.autorun.listImages).toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.listImages).toHaveBeenCalled();
 		});
 	});
 });
 
 describe('Undo/Redo Functionality', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -1535,10 +1535,10 @@ describe('Undo/Redo Functionality', () => {
 });
 
 describe('Lightbox Functionality', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -1548,11 +1548,11 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('opens lightbox when clicking an image', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1580,11 +1580,11 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('closes lightbox on Escape key', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1615,14 +1615,14 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('shows navigation buttons when multiple images are present', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [
 				{ filename: 'img1.png', relativePath: 'images/img1.png' },
 				{ filename: 'img2.png', relativePath: 'images/img2.png' },
 			],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1652,14 +1652,14 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('navigates to next image via button click', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [
 				{ filename: 'img1.png', relativePath: 'images/img1.png' },
 				{ filename: 'img2.png', relativePath: 'images/img2.png' },
 			],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1692,14 +1692,14 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('navigates to previous image via button click', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [
 				{ filename: 'img1.png', relativePath: 'images/img1.png' },
 				{ filename: 'img2.png', relativePath: 'images/img2.png' },
 			],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1732,14 +1732,14 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('navigates to next image via ArrowRight key', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [
 				{ filename: 'img1.png', relativePath: 'images/img1.png' },
 				{ filename: 'img2.png', relativePath: 'images/img2.png' },
 			],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1771,14 +1771,14 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('navigates to previous image via ArrowLeft key', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [
 				{ filename: 'img1.png', relativePath: 'images/img1.png' },
 				{ filename: 'img2.png', relativePath: 'images/img2.png' },
 			],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1810,11 +1810,11 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('closes lightbox via close button click', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1847,12 +1847,12 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('deletes image via delete button in lightbox', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
-		mockMaestro.autorun.deleteImage.mockResolvedValue({ success: true });
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.autorun.deleteImage.mockResolvedValue({ success: true });
 
 		const content = '# Test\n![test.png](images/test.png)\n';
 		const props = createDefaultProps({ content, mode: 'edit' });
@@ -1888,7 +1888,7 @@ describe('Lightbox Functionality', () => {
 
 		// Verify delete was called
 		await waitFor(() => {
-			expect(mockMaestro.autorun.deleteImage).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.deleteImage).toHaveBeenCalledWith(
 				'/test/folder',
 				'images/test.png',
 				undefined
@@ -1902,12 +1902,12 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('deletes image via Delete/Backspace key in lightbox', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
-		mockMaestro.autorun.deleteImage.mockResolvedValue({ success: true });
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.autorun.deleteImage.mockResolvedValue({ success: true });
 
 		const content = '# Test\n![test.png](images/test.png)\n';
 		const props = createDefaultProps({ content, mode: 'edit' });
@@ -1942,7 +1942,7 @@ describe('Lightbox Functionality', () => {
 
 		// Verify delete was called
 		await waitFor(() => {
-			expect(mockMaestro.autorun.deleteImage).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.deleteImage).toHaveBeenCalledWith(
 				'/test/folder',
 				'images/test.png',
 				undefined
@@ -1951,11 +1951,11 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('renders copy button in lightbox and handles click', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -1994,11 +1994,11 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('closes lightbox when clicking overlay background', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -2034,11 +2034,11 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('does not close lightbox when clicking on the image itself', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -2074,7 +2074,7 @@ describe('Lightbox Functionality', () => {
 	});
 
 	it('navigates after deleting middle image in carousel', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [
 				{ filename: 'img1.png', relativePath: 'images/img1.png' },
@@ -2082,8 +2082,8 @@ describe('Lightbox Functionality', () => {
 				{ filename: 'img3.png', relativePath: 'images/img3.png' },
 			],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
-		mockMaestro.autorun.deleteImage.mockResolvedValue({ success: true });
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.autorun.deleteImage.mockResolvedValue({ success: true });
 
 		const content =
 			'# Test\n![img1.png](images/img1.png)\n![img2.png](images/img2.png)\n![img3.png](images/img3.png)\n';
@@ -2120,16 +2120,16 @@ describe('Lightbox Functionality', () => {
 
 		// Verify delete was called
 		await waitFor(() => {
-			expect(mockMaestro.autorun.deleteImage).toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.deleteImage).toHaveBeenCalled();
 		});
 	});
 });
 
 describe('Attachment Management', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2139,12 +2139,12 @@ describe('Attachment Management', () => {
 	});
 
 	it('removes attachment when clicking remove button', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
-		mockMaestro.autorun.deleteImage.mockResolvedValue({ success: true });
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.autorun.deleteImage.mockResolvedValue({ success: true });
 
 		const content = '# Test\n![test.png](images/test.png)\n';
 		const props = createDefaultProps({ content, mode: 'edit' });
@@ -2166,7 +2166,7 @@ describe('Attachment Management', () => {
 
 		// Verify delete was called
 		await waitFor(() => {
-			expect(mockMaestro.autorun.deleteImage).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.deleteImage).toHaveBeenCalledWith(
 				'/test/folder',
 				'images/test.png',
 				undefined
@@ -2191,11 +2191,11 @@ describe('Attachment Management', () => {
 	});
 
 	it('expands and collapses attachments section', async () => {
-		mockMaestro.autorun.listImages.mockResolvedValue({
+		mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 			success: true,
 			images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 		});
-		mockMaestro.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('data:image/png;base64,abc123');
 
 		const props = createDefaultProps({ mode: 'edit' });
 		renderWithProvider(<AutoRun {...props} />);
@@ -2221,10 +2221,10 @@ describe('Attachment Management', () => {
 });
 
 describe('Mode Restoration After Batch Run', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2257,10 +2257,10 @@ describe('Mode Restoration After Batch Run', () => {
 });
 
 describe('Empty State Refresh', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2291,10 +2291,10 @@ describe('Empty State Refresh', () => {
 });
 
 describe('Search Bar Navigation Buttons', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2356,10 +2356,10 @@ describe('Search Bar Navigation Buttons', () => {
 });
 
 describe('Scroll Position Persistence', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2402,10 +2402,10 @@ describe('Focus via Imperative Handle', () => {
 });
 
 describe('Control Key Support (Windows/Linux)', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2454,10 +2454,10 @@ describe('Control Key Support (Windows/Linux)', () => {
 });
 
 describe('Preview Mode with Search', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2518,10 +2518,10 @@ describe('Preview Mode with Search', () => {
 });
 
 describe('Batch Run State UI', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2554,10 +2554,10 @@ describe('Batch Run State UI', () => {
 });
 
 describe('Content Sync Edge Cases', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2596,10 +2596,10 @@ describe('Content Sync Edge Cases', () => {
 });
 
 describe('Document Tree Support', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2622,10 +2622,10 @@ describe('Document Tree Support', () => {
 });
 
 describe('Document Switching', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2647,7 +2647,7 @@ describe('Document Switching', () => {
 		rerender(<AutoRun {...props} selectedFile="doc2" content="Doc 2 content" />);
 
 		// No automatic save should happen
-		expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 
 		// Content should be doc2's content
 		expect(screen.getByRole('textbox')).toHaveValue('Doc 2 content');
@@ -2728,10 +2728,10 @@ describe('Document Switching', () => {
 // ============================================================================
 
 describe('Document Tree Prop Rendering', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2856,10 +2856,10 @@ describe('Document Tree Prop Rendering', () => {
 });
 
 describe('hideTopControls Prop Behavior', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -2979,10 +2979,10 @@ describe('hideTopControls Prop Behavior', () => {
 });
 
 describe('Template Autocomplete Integration', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -3109,10 +3109,10 @@ describe('Template Autocomplete Integration', () => {
 });
 
 describe('Mermaid Diagram Rendering in Preview', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -3280,10 +3280,10 @@ A --> B
 });
 
 describe('Content Versioning and External Changes', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -3385,10 +3385,10 @@ describe('Content Versioning and External Changes', () => {
 });
 
 describe('Task Count Display', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -3492,10 +3492,10 @@ describe('Task Count Display', () => {
 });
 
 describe('Expand Button Behavior', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -3602,7 +3602,7 @@ describe('Responsive Bottom Panel', () => {
 
 describe('Reset Tasks Flash Notification', () => {
 	beforeEach(() => {
-		setupMaestroMock();
+		setupOpenWizardAIMock();
 	});
 
 	afterEach(() => {
@@ -3777,7 +3777,7 @@ describe('Reset Tasks Flash Notification', () => {
 
 describe('Document Selector Task Count Sync', () => {
 	beforeEach(() => {
-		setupMaestroMock();
+		setupOpenWizardAIMock();
 		useBatchStore.setState({ documentTaskCounts: new Map() });
 	});
 

@@ -1,5 +1,5 @@
 /**
- * Maestro Web Interface App
+ * OpenWizardAI Web Interface App
  *
  * Remote control interface for mobile/tablet devices.
  * Provides session monitoring and command input from anywhere on your network.
@@ -18,8 +18,8 @@ import {
 } from 'react';
 import { ThemeProvider } from './components/ThemeProvider';
 import { registerServiceWorker, isOffline } from './utils/serviceWorker';
-import { getMaestroConfig } from './utils/config';
-import type { MaestroConfig } from './utils/config';
+import { getOpenWizardAIConfig } from './utils/config';
+import type { OpenWizardAIConfig } from './utils/config';
 import { webLogger } from './utils/logger';
 import type { Theme } from '../shared/theme-types';
 
@@ -41,9 +41,9 @@ export function useOfflineStatus(): boolean {
 }
 
 /**
- * Context for Maestro mode (dashboard vs session)
+ * Context for OpenWizardAI mode (dashboard vs session)
  */
-interface MaestroModeContextValue {
+interface OpenWizardAIModeContextValue {
 	/** Whether we're viewing the dashboard (all live sessions) */
 	isDashboard: boolean;
 	/** Whether we're viewing a specific session */
@@ -62,7 +62,7 @@ interface MaestroModeContextValue {
 	updateUrl: (sessionId: string, tabId?: string | null) => void;
 }
 
-const MaestroModeContext = createContext<MaestroModeContextValue>({
+const OpenWizardAIModeContext = createContext<OpenWizardAIModeContextValue>({
 	isDashboard: true,
 	isSession: false,
 	sessionId: null,
@@ -74,10 +74,10 @@ const MaestroModeContext = createContext<MaestroModeContextValue>({
 });
 
 /**
- * Hook to access Maestro mode context
+ * Hook to access OpenWizardAI mode context
  */
-export function useMaestroMode(): MaestroModeContextValue {
-	return useContext(MaestroModeContext);
+export function useOpenWizardAIMode(): OpenWizardAIModeContextValue {
+	return useContext(OpenWizardAIModeContext);
 }
 
 /**
@@ -111,9 +111,11 @@ export function useDesktopTheme(): ThemeUpdateContextValue {
 }
 
 /**
- * Build the Maestro mode context based on injected config.
+ * Build the OpenWizardAI mode context based on injected config.
  */
-export function createMaestroModeContextValue(config: MaestroConfig): MaestroModeContextValue {
+export function createOpenWizardAIModeContextValue(
+	config: OpenWizardAIConfig
+): OpenWizardAIModeContextValue {
 	const baseUrl = `${window.location.origin}/${config.securityToken}`;
 	const isDashboard = config.sessionId === null;
 
@@ -174,12 +176,12 @@ function PlaceholderApp() {
 				backgroundColor: 'var(--color-background)',
 			}}
 		>
-			<h1 style={{ marginBottom: '16px', fontSize: '24px' }}>OpenWizzard Web</h1>
+			<h1 style={{ marginBottom: '16px', fontSize: '24px' }}>OpenWizardAI Web</h1>
 			<p style={{ marginBottom: '8px', color: 'var(--color-text-muted)' }}>
 				Remote control interface
 			</p>
 			<p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>
-				Connect to your OpenWizzard desktop app to get started
+				Connect to your OpenWizardAI desktop app to get started
 			</p>
 		</div>
 	);
@@ -220,10 +222,10 @@ export function App() {
 	const [offline, setOffline] = useState(() => isOffline());
 	const [desktopTheme, setDesktopTheme] = useState<Theme | null>(null);
 	const [desktopBionifyReadingMode, setDesktopBionifyReadingMode] = useState(false);
-	const config = useMemo(() => getMaestroConfig(), []);
+	const config = useMemo(() => getOpenWizardAIConfig(), []);
 
 	const modeContextValue = useMemo(
-		() => createMaestroModeContextValue(config),
+		() => createOpenWizardAIModeContextValue(config),
 		[config.securityToken, config.sessionId, config.tabId]
 	);
 
@@ -273,7 +275,7 @@ export function App() {
 	}, [modeContextValue.isDashboard, modeContextValue.sessionId]);
 
 	return (
-		<MaestroModeContext.Provider value={modeContextValue}>
+		<OpenWizardAIModeContext.Provider value={modeContextValue}>
 			<OfflineContext.Provider value={{ isOffline: offline }}>
 				<ThemeUpdateContext.Provider value={themeUpdateContextValue}>
 					{/*
@@ -289,7 +291,7 @@ export function App() {
 					</ThemeProvider>
 				</ThemeUpdateContext.Provider>
 			</OfflineContext.Provider>
-		</MaestroModeContext.Provider>
+		</OpenWizardAIModeContext.Provider>
 	);
 }
 

@@ -8,7 +8,7 @@ import type { DataBufferManager } from '../handlers/DataBufferManager';
 import {
 	buildPtyTerminalEnv,
 	buildChildProcessEnv,
-	collectMaestroEnvVars,
+	collectOpenWizardAIEnvVars,
 } from '../utils/envBuilder';
 import { DEFAULT_QUERY_SOURCE } from '../../../shared/querySource';
 import { resolveShellPath } from '../utils/pathResolver';
@@ -146,7 +146,7 @@ export class PtySpawner {
 				command: ptyCommand,
 				args: ptyArgs,
 				// Terminal PTY env only honors shellEnvVars; agents-in-PTY also honor customEnvVars.
-				maestroEnvVars: collectMaestroEnvVars(
+				openwizardaiEnvVars: collectOpenWizardAIEnvVars(
 					shellEnvVars,
 					isTerminal ? undefined : customEnvVars,
 					false,

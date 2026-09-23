@@ -61,7 +61,7 @@ type GistBody = { body: string } | { error: string };
  * Transcript body for `gist create <agent-id> --session <id>` - ONE provider
  * session, not the agent's open AI tabs.
  *
- * Headless callers (Maestro Relay, playbooks, Cue, CI) address a conversation
+ * Headless callers (OpenWizardAI Relay, playbooks, Cue, CI) address a conversation
  * by its provider session id and have no desktop tab, so publishing the
  * agent's tabs for them puts an unrelated conversation in a URL-readable gist.
  *
@@ -83,7 +83,7 @@ async function buildSessionGistBody(session: Session, agentSessionId: string): P
 
 	let result: { messages: SessionMessage[]; hasMore: boolean };
 	try {
-		result = await window.maestro.agentSessions.read(
+		result = await window.openwizardai.agentSessions.read(
 			session.toolType,
 			projectPathForSessions,
 			agentSessionId,
@@ -142,7 +142,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Broadcast active session change to web clients
 	useEffect(() => {
 		if (activeSessionId && isLiveMode) {
-			window.maestro.live.broadcastActiveSession(activeSessionId);
+			window.openwizardai.live.broadcastActiveSession(activeSessionId);
 		}
 	}, [activeSessionId, isLiveMode]);
 
@@ -150,7 +150,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// This allows web commands to go through the exact same code path as desktop commands
 	useEffect(() => {
 		logger.info('[useRemoteIntegration] Setting up onRemoteCommand listener');
-		const unsubscribeRemote = window.maestro.process.onRemoteCommand(
+		const unsubscribeRemote = window.openwizardai.process.onRemoteCommand(
 			(
 				sessionId: string,
 				command: string,
@@ -243,21 +243,25 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				// Dispatch event directly - handleRemoteCommand handles all the logic
 				// Don't set inputValue - we don't want command text to appear in the input bar
 				// Pass the inputMode from web so handleRemoteCommand uses it
-				logger.info('[useRemoteIntegration] Dispatching maestro:remoteCommand event:', undefined, {
-					sessionId,
-					commandLength: command?.length ?? 0,
-					inputMode,
-					tabId,
-					force,
-					imageCount: images?.length ?? 0,
-				});
+				logger.info(
+					'[useRemoteIntegration] Dispatching openwizardai:remoteCommand event:',
+					undefined,
+					{
+						sessionId,
+						commandLength: command?.length ?? 0,
+						inputMode,
+						tabId,
+						force,
+						imageCount: images?.length ?? 0,
+					}
+				);
 				logger.debug(
-					'[useRemoteIntegration] Dispatching maestro:remoteCommand preview:',
+					'[useRemoteIntegration] Dispatching openwizardai:remoteCommand preview:',
 					undefined,
 					{ sessionId, commandPreview: command?.substring(0, 50) }
 				);
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId, command, inputMode, tabId, force, images },
 					})
 				);
@@ -273,7 +277,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Handle remote mode switches from web interface
 	// This allows web mode switches to go through the same code path as desktop
 	useEffect(() => {
-		const unsubscribeSwitchMode = window.maestro.process.onRemoteSwitchMode(
+		const unsubscribeSwitchMode = window.openwizardai.process.onRemoteSwitchMode(
 			(sessionId: string, mode: 'ai' | 'terminal', background?: boolean) => {
 				// Find the session and update its mode
 				setSessions((prev) => {
@@ -318,7 +322,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Handle remote interrupts from web interface
 	// This allows web interrupts to go through the same code path as desktop (handleInterrupt)
 	useEffect(() => {
-		const unsubscribeInterrupt = window.maestro.process.onRemoteInterrupt(
+		const unsubscribeInterrupt = window.openwizardai.process.onRemoteInterrupt(
 			async (sessionId: string) => {
 				// Find the session
 				const session = sessionsRef.current.find((s) => s.id === sessionId);
@@ -333,7 +337,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 				try {
 					// Send interrupt signal (Ctrl+C)
-					await window.maestro.process.interrupt(targetSessionId);
+					await window.openwizardai.process.interrupt(targetSessionId);
 
 					// Set state to idle (same as handleInterrupt)
 					setSessions((prev) =>
@@ -362,7 +366,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// This allows web clients to switch the active session in the desktop app
 	// If tabId is provided, also switches to that tab within the session
 	useEffect(() => {
-		const unsubscribeSelectSession = window.maestro.process.onRemoteSelectSession(
+		const unsubscribeSelectSession = window.openwizardai.process.onRemoteSelectSession(
 			(sessionId: string, tabId?: string) => {
 				// Check if session exists
 				const session = sessionsRef.current.find((s) => s.id === sessionId);
@@ -391,7 +395,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 		// Handle remote tab selection from web interface
 		// This also switches to the session if not already active
-		const unsubscribeSelectTab = window.maestro.process.onRemoteSelectTab(
+		const unsubscribeSelectTab = window.openwizardai.process.onRemoteSelectTab(
 			(sessionId: string, tabId: string) => {
 				// First, switch to the session if not already active
 				const currentActiveId = activeSessionIdRef.current;
@@ -414,7 +418,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		);
 
 		// Handle remote new tab from web interface
-		const unsubscribeNewTab = window.maestro.process.onRemoteNewTab(
+		const unsubscribeNewTab = window.openwizardai.process.onRemoteNewTab(
 			(sessionId: string, responseChannel: string, background?: boolean) => {
 				let newTabId: string | null = null;
 
@@ -442,25 +446,27 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 				// Send response back with the new tab ID
 				if (newTabId) {
-					window.maestro.process.sendRemoteNewTabResponse(responseChannel, { tabId: newTabId });
+					window.openwizardai.process.sendRemoteNewTabResponse(responseChannel, {
+						tabId: newTabId,
+					});
 				} else {
-					window.maestro.process.sendRemoteNewTabResponse(responseChannel, null);
+					window.openwizardai.process.sendRemoteNewTabResponse(responseChannel, null);
 				}
 			}
 		);
 
 		// Handle remote "new AI tab with prompt" from CLI (send --live --new-tab).
 		// Atomically creates a fresh AI tab, makes it active, and dispatches the
-		// prompt through the same maestro:remoteCommand event path that --live
+		// prompt through the same openwizardai:remoteCommand event path that --live
 		// uses - so downstream spawn/history/state flows are identical.
 		// flushSync forces React to commit the new tab as active before we fire
 		// the event; without it the downstream handler reads stale activeTabId
 		// and writes the prompt into the previously-active tab.
 		// Ack the renderer result on responseChannel so the CLI only reports
 		// success when a tab was actually created.
-		const unsubscribeNewTabWithPrompt = window.maestro.process.onRemoteNewAITabWithPrompt(
+		const unsubscribeNewTabWithPrompt = window.openwizardai.process.onRemoteNewAITabWithPrompt(
 			(sessionId: string, prompt: string, responseChannel: string, background?: boolean) => {
-				// Guard: the downstream maestro:remoteCommand handler drops commands
+				// Guard: the downstream openwizardai:remoteCommand handler drops commands
 				// for missing or busy sessions. Check here so we don't create an
 				// orphan tab and falsely ack success.
 				const targetSession = sessionsRef.current.find((s) => s.id === sessionId);
@@ -468,14 +474,14 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 					logger.warn(
 						'[useRemoteIntegration] onRemoteNewAITabWithPrompt: session not found, dropping prompt'
 					);
-					window.maestro.process.sendRemoteNewAITabWithPromptResponse(responseChannel, false);
+					window.openwizardai.process.sendRemoteNewAITabWithPromptResponse(responseChannel, false);
 					return;
 				}
 				if (targetSession.state === 'busy') {
 					logger.warn(
 						'[useRemoteIntegration] onRemoteNewAITabWithPrompt: session is busy, dropping prompt'
 					);
-					window.maestro.process.sendRemoteNewAITabWithPromptResponse(responseChannel, false);
+					window.openwizardai.process.sendRemoteNewAITabWithPromptResponse(responseChannel, false);
 					return;
 				}
 				let createdTabId: string | undefined;
@@ -501,7 +507,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 					logger.warn(
 						'[useRemoteIntegration] onRemoteNewAITabWithPrompt: createTab failed, dropping prompt'
 					);
-					window.maestro.process.sendRemoteNewAITabWithPromptResponse(responseChannel, false);
+					window.openwizardai.process.sendRemoteNewAITabWithPromptResponse(responseChannel, false);
 					return;
 				}
 				// Pass the new tab id explicitly so the renderer writes into the tab
@@ -509,11 +515,11 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				// activeTabId, which is correct here but would race in any future
 				// caller that doesn't atomically setActiveSessionId.
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteCommand', {
+					new CustomEvent('openwizardai:remoteCommand', {
 						detail: { sessionId, command: prompt, inputMode: 'ai', tabId: createdTabId },
 					})
 				);
-				window.maestro.process.sendRemoteNewAITabWithPromptResponse(
+				window.openwizardai.process.sendRemoteNewAITabWithPromptResponse(
 					responseChannel,
 					true,
 					createdTabId
@@ -522,7 +528,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		);
 
 		// Handle remote close tab from web interface
-		const unsubscribeCloseTab = window.maestro.process.onRemoteCloseTab(
+		const unsubscribeCloseTab = window.openwizardai.process.onRemoteCloseTab(
 			(sessionId: string, tabId: string) => {
 				setSessions((prev) =>
 					prev.map((s) => {
@@ -537,7 +543,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		);
 
 		// Handle remote rename tab from web interface
-		const unsubscribeRenameTab = window.maestro.process.onRemoteRenameTab(
+		const unsubscribeRenameTab = window.openwizardai.process.onRemoteRenameTab(
 			(sessionId: string, tabId: string, newName: string) => {
 				setSessions((prev) =>
 					prev.map((s) => {
@@ -554,16 +560,16 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						if (tab.agentSessionId) {
 							const agentId = s.toolType || 'claude-code';
 							if (agentId === 'claude-code') {
-								window.maestro.claude
+								window.openwizardai.claude
 									.updateSessionName(s.projectRoot, tab.agentSessionId, newName || '')
 									.catch((err) => logger.error('Failed to persist tab name:', undefined, err));
 							} else {
-								window.maestro.agentSessions
+								window.openwizardai.agentSessions
 									.setSessionName(agentId, s.projectRoot, tab.agentSessionId, newName || null)
 									.catch((err) => logger.error('Failed to persist tab name:', undefined, err));
 							}
 							// Also update past history entries with this agentSessionId
-							window.maestro.history
+							window.openwizardai.history
 								.updateSessionName(tab.agentSessionId, newName || '')
 								.catch((err) =>
 									logger.error('Failed to update history session names:', undefined, err)
@@ -580,7 +586,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		);
 
 		// Handle remote star tab from web interface
-		const unsubscribeStarTab = window.maestro.process.onRemoteStarTab(
+		const unsubscribeStarTab = window.openwizardai.process.onRemoteStarTab(
 			(sessionId: string, tabId: string, starred: boolean) => {
 				setSessions((prev) =>
 					prev.map((s) => {
@@ -603,7 +609,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		);
 
 		// Handle remote reorder tab from web interface
-		const unsubscribeReorderTab = window.maestro.process.onRemoteReorderTab(
+		const unsubscribeReorderTab = window.openwizardai.process.onRemoteReorderTab(
 			(sessionId: string, fromIndex: number, toIndex: number) => {
 				setSessions((prev) =>
 					prev.map((s) => {
@@ -618,7 +624,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		);
 
 		// Handle remote bookmark toggle from web interface
-		const unsubscribeToggleBookmark = window.maestro.process.onRemoteToggleBookmark(
+		const unsubscribeToggleBookmark = window.openwizardai.process.onRemoteToggleBookmark(
 			(sessionId: string) => {
 				setSessions((prev) =>
 					prev.map((s) => {
@@ -652,14 +658,14 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Handle remote open file tab from web/CLI interface
 	// Dispatches a CustomEvent for App.tsx to handle (avoids hook ordering issues)
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteOpenFileTab(
+		const unsubscribe = window.openwizardai.process.onRemoteOpenFileTab(
 			(
 				sessionId: string,
 				filePath: string,
 				options: { background: boolean; switchToAgent: boolean }
 			) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:openFileTab', {
+					new CustomEvent('openwizardai:openFileTab', {
 						detail: {
 							sessionId,
 							filePath,
@@ -675,11 +681,11 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		};
 	}, []);
 
-	// Handle a remote request to open a modal / dashboard (`maestro-cli open`).
+	// Handle a remote request to open a modal / dashboard (`openwizardai-cli open`).
 	// The main process has already validated the surface and tab, so this is a
 	// straight hand-off to the shared opener.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteOpenModal((params) => {
+		const unsubscribe = window.openwizardai.process.onRemoteOpenModal((params) => {
 			openUiSurface(params.surface, params.tab);
 		});
 		return () => {
@@ -687,12 +693,12 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 		};
 	}, []);
 
-	// Handle a remote request to graph a set of documents (`maestro-cli
+	// Handle a remote request to graph a set of documents (`openwizardai-cli
 	// open-graph`). Paths arrive absolute; the graph addresses files relative to
 	// its own root, so they are relativized against the target agent here rather
 	// than in the main process, which does not know which root the view uses.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteOpenDocumentGraph((params) => {
+		const unsubscribe = window.openwizardai.process.onRemoteOpenDocumentGraph((params) => {
 			const session = useSessionStore
 				.getState()
 				.sessions.find((s: Session) => s.id === params.sessionId);
@@ -722,7 +728,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote refresh file tree from web/CLI interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteRefreshFileTree((sessionId: string) => {
+		const unsubscribe = window.openwizardai.process.onRemoteRefreshFileTree((sessionId: string) => {
 			requestFileTreeRefresh(sessionId);
 		});
 		return () => {
@@ -734,7 +740,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Resolves the agent (if provided) so the toast carries project/tab metadata,
 	// enabling click-to-jump behavior.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteNotifyToast((params) => {
+		const unsubscribe = window.openwizardai.process.onRemoteNotifyToast((params) => {
 			const {
 				title,
 				message,
@@ -791,7 +797,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote center-flash notifications from CLI/web interface.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteNotifyCenterFlash((params) => {
+		const unsubscribe = window.openwizardai.process.onRemoteNotifyCenterFlash((params) => {
 			notifyCenterFlash({
 				message: params.message,
 				detail: params.detail,
@@ -808,7 +814,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// responseChannel is forwarded so the App-level listener can ack the
 	// CLI once the browser tab actually exists.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteOpenBrowserTab(
+		const unsubscribe = window.openwizardai.process.onRemoteOpenBrowserTab(
 			(
 				sessionId: string,
 				url: string,
@@ -816,7 +822,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				options: { background?: boolean }
 			) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:openBrowserTab', {
+					new CustomEvent('openwizardai:openBrowserTab', {
 						detail: { sessionId, url, responseChannel, background: options?.background === true },
 					})
 				);
@@ -831,10 +837,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// is resolved by tab id in the App-level listener, so the caller only needs
 	// the id handed back by open-browser.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteCloseBrowserTab(
+		const unsubscribe = window.openwizardai.process.onRemoteCloseBrowserTab(
 			(tabId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:closeBrowserTab', {
+					new CustomEvent('openwizardai:closeBrowserTab', {
 						detail: { tabId, responseChannel },
 					})
 				);
@@ -849,7 +855,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// responseChannel is forwarded so the App-level listener can ack the
 	// CLI once the terminal tab actually exists.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteOpenTerminalTab(
+		const unsubscribe = window.openwizardai.process.onRemoteOpenTerminalTab(
 			(
 				sessionId: string,
 				config: { cwd?: string; shell?: string; name?: string | null; command?: string },
@@ -857,7 +863,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				options: { background?: boolean }
 			) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:openTerminalTab', {
+					new CustomEvent('openwizardai:openTerminalTab', {
 						detail: {
 							sessionId,
 							config,
@@ -875,10 +881,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote writes into an existing terminal tab from CLI/web interface.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteWriteTerminalTab(
+		const unsubscribe = window.openwizardai.process.onRemoteWriteTerminalTab(
 			(sessionId: string, payload: { tabRef?: string; data: string }, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:writeTerminalTab', {
+					new CustomEvent('openwizardai:writeTerminalTab', {
 						detail: { sessionId, ...payload, responseChannel },
 					})
 				);
@@ -891,10 +897,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote terminal tab listing from CLI/web interface.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteListTerminalTabs(
+		const unsubscribe = window.openwizardai.process.onRemoteListTerminalTabs(
 			(sessionId: string | undefined, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:listTerminalTabs', {
+					new CustomEvent('openwizardai:listTerminalTabs', {
 						detail: { sessionId, responseChannel },
 					})
 				);
@@ -907,10 +913,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote refresh auto-run docs from web/CLI interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteRefreshAutoRunDocs(
+		const unsubscribe = window.openwizardai.process.onRemoteRefreshAutoRunDocs(
 			(sessionId: string, background?: boolean) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:refreshAutoRunDocs', {
+					new CustomEvent('openwizardai:refreshAutoRunDocs', {
 						detail: { sessionId, background },
 					})
 				);
@@ -923,10 +929,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote configure auto-run from CLI/web interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteConfigureAutoRun(
+		const unsubscribe = window.openwizardai.process.onRemoteConfigureAutoRun(
 			(sessionId: string, config: any, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:configureAutoRun', {
+					new CustomEvent('openwizardai:configureAutoRun', {
 						detail: { sessionId, config, responseChannel },
 					})
 				);
@@ -940,10 +946,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Handle remote create-worktree-agent from the CLI. Creates a new agent in a
 	// git worktree branched off a parent agent, without an Auto Run playbook.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteCreateWorktreeSession(
+		const unsubscribe = window.openwizardai.process.onRemoteCreateWorktreeSession(
 			(parentSessionId: string, config: any, responseChannel: string, background?: boolean) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:createWorktreeSession', {
+					new CustomEvent('openwizardai:createWorktreeSession', {
 						detail: { parentSessionId, config, responseChannel, background },
 					})
 				);
@@ -955,13 +961,13 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	}, []);
 
 	// Handle remote set Auto Run folder from web interface - repoints a session
-	// at a different `.maestro/` folder, mirroring desktop's `dialog.selectFolder`
+	// at a different `.openwizardai/` folder, mirroring desktop's `dialog.selectFolder`
 	// + `handleAutoRunFolderSelected` flow.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteSetAutoRunFolder(
+		const unsubscribe = window.openwizardai.process.onRemoteSetAutoRunFolder(
 			(sessionId: string, folderPath: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:setAutoRunFolder', {
+					new CustomEvent('openwizardai:setAutoRunFolder', {
 						detail: { sessionId, folderPath, responseChannel },
 					})
 				);
@@ -974,10 +980,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote get auto-run docs from web interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteGetAutoRunDocs(
+		const unsubscribe = window.openwizardai.process.onRemoteGetAutoRunDocs(
 			(sessionId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:getAutoRunDocs', {
+					new CustomEvent('openwizardai:getAutoRunDocs', {
 						detail: { sessionId, responseChannel },
 					})
 				);
@@ -990,10 +996,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote get auto-run doc content from web interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteGetAutoRunDocContent(
+		const unsubscribe = window.openwizardai.process.onRemoteGetAutoRunDocContent(
 			(sessionId: string, filename: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:getAutoRunDocContent', {
+					new CustomEvent('openwizardai:getAutoRunDocContent', {
 						detail: { sessionId, filename, responseChannel },
 					})
 				);
@@ -1006,10 +1012,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote save auto-run doc from web interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteSaveAutoRunDoc(
+		const unsubscribe = window.openwizardai.process.onRemoteSaveAutoRunDoc(
 			(sessionId: string, filename: string, content: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:saveAutoRunDoc', {
+					new CustomEvent('openwizardai:saveAutoRunDoc', {
 						detail: { sessionId, filename, content, responseChannel },
 					})
 				);
@@ -1022,9 +1028,9 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote stop auto-run from web interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteStopAutoRun((sessionId: string) => {
+		const unsubscribe = window.openwizardai.process.onRemoteStopAutoRun((sessionId: string) => {
 			window.dispatchEvent(
-				new CustomEvent('maestro:stopAutoRun', {
+				new CustomEvent('openwizardai:stopAutoRun', {
 					detail: { sessionId },
 				})
 			);
@@ -1036,10 +1042,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote reset-tasks from web interface
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteResetAutoRunDocTasks(
+		const unsubscribe = window.openwizardai.process.onRemoteResetAutoRunDocTasks(
 			(sessionId: string, filename: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:resetAutoRunDocTasks', {
+					new CustomEvent('openwizardai:resetAutoRunDocTasks', {
 						detail: { sessionId, filename, responseChannel },
 					})
 				);
@@ -1052,28 +1058,28 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote auto-run error-recovery actions (resume / skip / abort) from web
 	useEffect(() => {
-		const unsubResume = window.maestro.process.onRemoteResumeAutoRunError(
+		const unsubResume = window.openwizardai.process.onRemoteResumeAutoRunError(
 			(sessionId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:resumeAutoRunError', {
+					new CustomEvent('openwizardai:resumeAutoRunError', {
 						detail: { sessionId, responseChannel },
 					})
 				);
 			}
 		);
-		const unsubSkip = window.maestro.process.onRemoteSkipAutoRunDocument(
+		const unsubSkip = window.openwizardai.process.onRemoteSkipAutoRunDocument(
 			(sessionId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:skipAutoRunDocument', {
+					new CustomEvent('openwizardai:skipAutoRunDocument', {
 						detail: { sessionId, responseChannel },
 					})
 				);
 			}
 		);
-		const unsubAbort = window.maestro.process.onRemoteAbortAutoRunError(
+		const unsubAbort = window.openwizardai.process.onRemoteAbortAutoRunError(
 			(sessionId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:abortAutoRunError', {
+					new CustomEvent('openwizardai:abortAutoRunError', {
 						detail: { sessionId, responseChannel },
 					})
 				);
@@ -1088,37 +1094,37 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote playbook CRUD from web interface (request-response)
 	useEffect(() => {
-		const unsubList = window.maestro.process.onRemoteListPlaybooks(
+		const unsubList = window.openwizardai.process.onRemoteListPlaybooks(
 			(sessionId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:listPlaybooks', {
+					new CustomEvent('openwizardai:listPlaybooks', {
 						detail: { sessionId, responseChannel },
 					})
 				);
 			}
 		);
-		const unsubCreate = window.maestro.process.onRemoteCreatePlaybook(
+		const unsubCreate = window.openwizardai.process.onRemoteCreatePlaybook(
 			(sessionId: string, playbook: unknown, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:createPlaybook', {
+					new CustomEvent('openwizardai:createPlaybook', {
 						detail: { sessionId, playbook, responseChannel },
 					})
 				);
 			}
 		);
-		const unsubUpdate = window.maestro.process.onRemoteUpdatePlaybook(
+		const unsubUpdate = window.openwizardai.process.onRemoteUpdatePlaybook(
 			(sessionId: string, playbookId: string, updates: unknown, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:updatePlaybook', {
+					new CustomEvent('openwizardai:updatePlaybook', {
 						detail: { sessionId, playbookId, updates, responseChannel },
 					})
 				);
 			}
 		);
-		const unsubDelete = window.maestro.process.onRemoteDeletePlaybook(
+		const unsubDelete = window.openwizardai.process.onRemoteDeletePlaybook(
 			(sessionId: string, playbookId: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:deletePlaybook', {
+					new CustomEvent('openwizardai:deletePlaybook', {
 						detail: { sessionId, playbookId, responseChannel },
 					})
 				);
@@ -1133,13 +1139,13 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	}, []);
 
 	// Handle remote set setting from the web interface and the CLI bridge
-	// (`maestro-cli set-theme`, `gloss`, `encore`, `theme import`, ...).
-	// Uses the existing settings infrastructure via window.maestro.settings.set().
+	// (`openwizardai-cli set-theme`, `gloss`, `encore`, `theme import`, ...).
+	// Uses the existing settings infrastructure via window.openwizardai.settings.set().
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteSetSetting(
+		const unsubscribe = window.openwizardai.process.onRemoteSetSetting(
 			async (key: string, value: unknown, responseChannel: string) => {
 				try {
-					await window.maestro.settings.set(key, value);
+					await window.openwizardai.settings.set(key, value);
 					// settings.set() only PERSISTS - it does not touch the Zustand
 					// store the live UI renders from, so without this the app kept
 					// showing the old value until the next launch (a CLI theme
@@ -1150,9 +1156,9 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 					// reuses the one mapping table that knows every setting key;
 					// the load already drops any key the user edited mid-flight.
 					await loadAllSettings();
-					window.maestro.process.sendRemoteSetSettingResponse(responseChannel, true);
+					window.openwizardai.process.sendRemoteSetSettingResponse(responseChannel, true);
 				} catch {
-					window.maestro.process.sendRemoteSetSettingResponse(responseChannel, false);
+					window.openwizardai.process.sendRemoteSetSettingResponse(responseChannel, false);
 				}
 			}
 		);
@@ -1162,15 +1168,15 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	}, []);
 
 	// Handle remote get git status from web interface
-	// Uses existing git IPC infrastructure (window.maestro.git.status + window.maestro.git.branch)
+	// Uses existing git IPC infrastructure (window.openwizardai.git.status + window.openwizardai.git.branch)
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteGetGitStatus(
+		const unsubscribe = window.openwizardai.process.onRemoteGetGitStatus(
 			async (sessionId: string, responseChannel: string) => {
 				try {
 					// Look up the session's cwd
 					const session = sessionsRef.current.find((s) => s.id === sessionId);
 					if (!session) {
-						window.maestro.process.sendRemoteGetGitStatusResponse(responseChannel, {
+						window.openwizardai.process.sendRemoteGetGitStatusResponse(responseChannel, {
 							branch: '',
 							files: [],
 							ahead: 0,
@@ -1183,8 +1189,8 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 					// Run git status --porcelain and git branch in parallel
 					const [statusResult, branchResult] = await Promise.all([
-						window.maestro.git.status(cwd),
-						window.maestro.git.branch(cwd),
+						window.openwizardai.git.status(cwd),
+						window.openwizardai.git.branch(cwd),
 					]);
 
 					// Parse status output
@@ -1209,21 +1215,21 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 					let ahead = 0;
 					let behind = 0;
 					try {
-						const infoResult = await window.maestro.git.info(cwd);
+						const infoResult = await window.openwizardai.git.info(cwd);
 						ahead = infoResult.ahead || 0;
 						behind = infoResult.behind || 0;
 					} catch {
 						// ahead/behind not available, that's fine
 					}
 
-					window.maestro.process.sendRemoteGetGitStatusResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteGetGitStatusResponse(responseChannel, {
 						branch,
 						files,
 						ahead,
 						behind,
 					});
 				} catch {
-					window.maestro.process.sendRemoteGetGitStatusResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteGetGitStatusResponse(responseChannel, {
 						branch: '',
 						files: [],
 						ahead: 0,
@@ -1238,15 +1244,15 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	}, []);
 
 	// Handle remote get git diff from web interface
-	// Uses existing git IPC infrastructure (window.maestro.git.diff)
+	// Uses existing git IPC infrastructure (window.openwizardai.git.diff)
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteGetGitDiff(
+		const unsubscribe = window.openwizardai.process.onRemoteGetGitDiff(
 			async (sessionId: string, filePath: string | undefined, responseChannel: string) => {
 				try {
 					// Look up the session's cwd
 					const session = sessionsRef.current.find((s) => s.id === sessionId);
 					if (!session) {
-						window.maestro.process.sendRemoteGetGitDiffResponse(responseChannel, {
+						window.openwizardai.process.sendRemoteGetGitDiffResponse(responseChannel, {
 							diff: '',
 							files: [],
 						});
@@ -1254,7 +1260,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 					}
 
 					const cwd = session.cwd;
-					const diffResult = await window.maestro.git.diff(cwd, filePath);
+					const diffResult = await window.openwizardai.git.diff(cwd, filePath);
 					const diff = diffResult.stdout || '';
 
 					// Extract changed file paths from diff output
@@ -1266,12 +1272,12 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						})
 						.filter(Boolean);
 
-					window.maestro.process.sendRemoteGetGitDiffResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteGetGitDiffResponse(responseChannel, {
 						diff,
 						files,
 					});
 				} catch {
-					window.maestro.process.sendRemoteGetGitDiffResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteGetGitDiffResponse(responseChannel, {
 						diff: '',
 						files: [],
 					});
@@ -1286,7 +1292,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// Handle remote session/group management from web interface
 	// These dispatch CustomEvents for App.tsx to handle via existing session/group management hooks
 	useEffect(() => {
-		const unsubscribeCreateSession = window.maestro.process.onRemoteCreateSession(
+		const unsubscribeCreateSession = window.openwizardai.process.onRemoteCreateSession(
 			(
 				name: string,
 				toolType: string,
@@ -1297,95 +1303,97 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				background?: boolean
 			) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteCreateSession', {
+					new CustomEvent('openwizardai:remoteCreateSession', {
 						detail: { name, toolType, cwd, groupId, config, responseChannel, background },
 					})
 				);
 			}
 		);
 
-		const unsubscribeDeleteSession = window.maestro.process.onRemoteDeleteSession(
+		const unsubscribeDeleteSession = window.openwizardai.process.onRemoteDeleteSession(
 			(sessionId: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteDeleteSession', {
+					new CustomEvent('openwizardai:remoteDeleteSession', {
 						detail: { sessionId },
 					})
 				);
 			}
 		);
 
-		const unsubscribeRenameSession = window.maestro.process.onRemoteRenameSession(
+		const unsubscribeRenameSession = window.openwizardai.process.onRemoteRenameSession(
 			(sessionId: string, newName: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteRenameSession', {
+					new CustomEvent('openwizardai:remoteRenameSession', {
 						detail: { sessionId, newName, responseChannel },
 					})
 				);
 			}
 		);
 
-		const unsubscribeUpdateSessionCwd = window.maestro.process.onRemoteUpdateSessionCwd(
+		const unsubscribeUpdateSessionCwd = window.openwizardai.process.onRemoteUpdateSessionCwd(
 			(sessionId: string, newCwd: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteUpdateSessionCwd', {
+					new CustomEvent('openwizardai:remoteUpdateSessionCwd', {
 						detail: { sessionId, newCwd, responseChannel },
 					})
 				);
 			}
 		);
 
-		const unsubscribeUpdateSessionSsh = window.maestro.process.onRemoteUpdateSessionSsh(
+		const unsubscribeUpdateSessionSsh = window.openwizardai.process.onRemoteUpdateSessionSsh(
 			(sessionId: string, sshPatch: Record<string, unknown>, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteUpdateSessionSsh', {
+					new CustomEvent('openwizardai:remoteUpdateSessionSsh', {
 						detail: { sessionId, sshPatch, responseChannel },
 					})
 				);
 			}
 		);
 
-		const unsubscribeUpdateSessionConfig = window.maestro.process.onRemoteUpdateSessionConfig(
+		const unsubscribeUpdateSessionConfig = window.openwizardai.process.onRemoteUpdateSessionConfig(
 			(sessionId: string, configPatch: Record<string, unknown>, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteUpdateSessionConfig', {
+					new CustomEvent('openwizardai:remoteUpdateSessionConfig', {
 						detail: { sessionId, configPatch, responseChannel },
 					})
 				);
 			}
 		);
 
-		const unsubscribeCreateGroup = window.maestro.process.onRemoteCreateGroup(
+		const unsubscribeCreateGroup = window.openwizardai.process.onRemoteCreateGroup(
 			(name: string, emoji: string | undefined, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteCreateGroup', {
+					new CustomEvent('openwizardai:remoteCreateGroup', {
 						detail: { name, emoji, responseChannel },
 					})
 				);
 			}
 		);
 
-		const unsubscribeRenameGroup = window.maestro.process.onRemoteRenameGroup(
+		const unsubscribeRenameGroup = window.openwizardai.process.onRemoteRenameGroup(
 			(groupId: string, name: string, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteRenameGroup', {
+					new CustomEvent('openwizardai:remoteRenameGroup', {
 						detail: { groupId, name, responseChannel },
 					})
 				);
 			}
 		);
 
-		const unsubscribeDeleteGroup = window.maestro.process.onRemoteDeleteGroup((groupId: string) => {
-			window.dispatchEvent(
-				new CustomEvent('maestro:remoteDeleteGroup', {
-					detail: { groupId },
-				})
-			);
-		});
+		const unsubscribeDeleteGroup = window.openwizardai.process.onRemoteDeleteGroup(
+			(groupId: string) => {
+				window.dispatchEvent(
+					new CustomEvent('openwizardai:remoteDeleteGroup', {
+						detail: { groupId },
+					})
+				);
+			}
+		);
 
-		const unsubscribeMoveSessionToGroup = window.maestro.process.onRemoteMoveSessionToGroup(
+		const unsubscribeMoveSessionToGroup = window.openwizardai.process.onRemoteMoveSessionToGroup(
 			(sessionId: string, groupId: string | null, responseChannel: string) => {
 				window.dispatchEvent(
-					new CustomEvent('maestro:remoteMoveSessionToGroup', {
+					new CustomEvent('openwizardai:remoteMoveSessionToGroup', {
 						detail: { sessionId, groupId, responseChannel },
 					})
 				);
@@ -1435,7 +1443,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				// This bypasses the debounced persistence which resets state to 'idle' before saving
 				const prevState = prevSessionStatesRef.current.get(session.id);
 				if (prevState !== session.state) {
-					window.maestro.web.broadcastSessionState(session.id, session.state, {
+					window.openwizardai.web.broadcastSessionState(session.id, session.state, {
 						name: session.name,
 						toolType: session.toolType,
 						inputMode: session.inputMode,
@@ -1480,7 +1488,11 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						hasUnread: tab.hasUnread,
 					}));
 
-					window.maestro.web.broadcastTabsChange(session.id, tabsForBroadcast, current.activeTabId);
+					window.openwizardai.web.broadcastTabsChange(
+						session.id,
+						tabsForBroadcast,
+						current.activeTabId
+					);
 
 					prevTabsRef.current.set(session.id, current);
 				}
@@ -1492,7 +1504,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 
 	// Handle remote trigger Cue subscription requests (from web/CLI clients)
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteTriggerCueSubscription(
+		const unsubscribe = window.openwizardai.process.onRemoteTriggerCueSubscription(
 			async (
 				subscriptionName: string,
 				prompt: string | undefined,
@@ -1505,7 +1517,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						prompt,
 						sourceAgentId
 					);
-					window.maestro.process.sendRemoteTriggerCueSubscriptionResponse(responseChannel, result);
+					window.openwizardai.process.sendRemoteTriggerCueSubscriptionResponse(
+						responseChannel,
+						result
+					);
 				} catch (error) {
 					console.error('[Remote Cue Trigger] Failed:', subscriptionName, error);
 					logger.error('[Remote Cue Trigger] Failed:', undefined, [subscriptionName, error]);
@@ -1522,7 +1537,10 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 							promptProvided: prompt !== undefined,
 						},
 					});
-					window.maestro.process.sendRemoteTriggerCueSubscriptionResponse(responseChannel, false);
+					window.openwizardai.process.sendRemoteTriggerCueSubscriptionResponse(
+						responseChannel,
+						false
+					);
 				}
 			}
 		);
@@ -1534,7 +1552,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 	// way the desktop "Publish Gist" flow does, and shells out to `gh gist
 	// create` via the existing git IPC handler.
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onRemoteCreateGist(
+		const unsubscribe = window.openwizardai.process.onRemoteCreateGist(
 			async (
 				sessionId: string,
 				description: string,
@@ -1545,7 +1563,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 				try {
 					const session = sessionsRef.current.find((s) => s.id === sessionId);
 					if (!session) {
-						window.maestro.process.sendRemoteCreateGistResponse(responseChannel, {
+						window.openwizardai.process.sendRemoteCreateGistResponse(responseChannel, {
 							success: false,
 							error: `Session not found: ${sessionId}`,
 						});
@@ -1560,7 +1578,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						// leaked it - gists are readable by anyone with the URL.
 						const result = await buildSessionGistBody(session, agentSessionId);
 						if ('error' in result) {
-							window.maestro.process.sendRemoteCreateGistResponse(responseChannel, {
+							window.openwizardai.process.sendRemoteCreateGistResponse(responseChannel, {
 								success: false,
 								error: result.error,
 							});
@@ -1577,7 +1595,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						}
 
 						if (sections.length === 0) {
-							window.maestro.process.sendRemoteCreateGistResponse(responseChannel, {
+							window.openwizardai.process.sendRemoteCreateGistResponse(responseChannel, {
 								success: false,
 								error: 'Session has no conversation history to publish',
 							});
@@ -1596,13 +1614,13 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 						? `${safeName}_${safeSessionId}_context.md`
 						: `${safeName}_context.md`;
 
-					const result = await window.maestro.git.createGist(
+					const result = await window.openwizardai.git.createGist(
 						filename,
 						content,
 						description,
 						isPublic
 					);
-					window.maestro.process.sendRemoteCreateGistResponse(responseChannel, result);
+					window.openwizardai.process.sendRemoteCreateGistResponse(responseChannel, result);
 				} catch (error) {
 					const message = error instanceof Error ? error.message : String(error);
 					// Known recoverable modes (session missing, empty history, `gh`
@@ -1619,7 +1637,7 @@ export function useRemoteIntegration(deps: UseRemoteIntegrationDeps): UseRemoteI
 							agentSessionTargeted: Boolean(agentSessionId),
 						},
 					});
-					window.maestro.process.sendRemoteCreateGistResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteCreateGistResponse(responseChannel, {
 						success: false,
 						error: message,
 					});

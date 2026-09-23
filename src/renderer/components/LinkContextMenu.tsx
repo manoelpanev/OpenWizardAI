@@ -10,7 +10,7 @@ import { Copy, ExternalLink, Globe } from 'lucide-react';
 import type { Theme } from '../types';
 import { useContextMenuPosition } from '../hooks/ui/useContextMenuPosition';
 import { safeClipboardWrite } from '../utils/clipboard';
-import { openInMaestroBrowser, openInSystemBrowser } from '../utils/openUrl';
+import { openInOpenWizardAIBrowser, openInSystemBrowser } from '../utils/openUrl';
 
 export interface LinkContextMenuState {
 	x: number;
@@ -57,8 +57,8 @@ export function LinkContextMenu({ menu, theme, onDismiss }: LinkContextMenuProps
 
 	const isOpenable = /^https?:\/\/|^mailto:/.test(menu.url);
 
-	const handleOpenMaestro = useCallback(() => {
-		if (isOpenable) openInMaestroBrowser(menu.url);
+	const handleOpenOpenWizardAI = useCallback(() => {
+		if (isOpenable) openInOpenWizardAIBrowser(menu.url);
 		onDismiss();
 	}, [menu.url, isOpenable, onDismiss]);
 
@@ -90,12 +90,12 @@ export function LinkContextMenu({ menu, theme, onDismiss }: LinkContextMenuProps
 				Copy Link
 			</button>
 			<button
-				onClick={handleOpenMaestro}
+				onClick={handleOpenOpenWizardAI}
 				className="w-full text-left px-3 py-1.5 text-xs hover:bg-white/5 transition-colors flex items-center gap-2"
 				style={{ color: theme.colors.textMain }}
 			>
 				<Globe className="w-3.5 h-3.5" />
-				Open in OpenWizzard Browser
+				Open in OpenWizardAI Browser
 			</button>
 			<button
 				onClick={handleOpenSystem}

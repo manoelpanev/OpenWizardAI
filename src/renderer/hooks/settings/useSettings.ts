@@ -19,7 +19,7 @@ import type {
 	Shortcut,
 	CustomAICommand,
 	AutoRunStats,
-	MaestroUsageStats,
+	OpenWizardAIUsageStats,
 	OnboardingStats,
 	ContextManagementSettings,
 	KeyboardMasteryStats,
@@ -53,7 +53,7 @@ export interface UseSettingsReturn {
 	conductorProfile: string;
 	setConductorProfile: (value: string) => void;
 
-	// Global show-Maestro hotkey (system-wide). Empty array = unset.
+	// Global show-OpenWizardAI hotkey (system-wide). Empty array = unset.
 	globalShowHotkey: string[];
 	setGlobalShowHotkey: (value: string[]) => void;
 
@@ -218,9 +218,9 @@ export interface UseSettingsReturn {
 	getUnacknowledgedBadgeLevel: () => number | null;
 
 	// Usage Stats (peak tracking for achievements image)
-	usageStats: MaestroUsageStats;
-	setUsageStats: (value: MaestroUsageStats) => void;
-	updateUsageStats: (currentValues: Partial<MaestroUsageStats>) => void;
+	usageStats: OpenWizardAIUsageStats;
+	setUsageStats: (value: OpenWizardAIUsageStats) => void;
+	updateUsageStats: (currentValues: Partial<OpenWizardAIUsageStats>) => void;
 
 	// UI collapse states (persistent)
 	ungroupedCollapsed: boolean;
@@ -404,7 +404,7 @@ export interface UseSettingsReturn {
 	directorNotesSettings: DirectorNotesSettings;
 	setDirectorNotesSettings: (value: DirectorNotesSettings) => void;
 
-	// Maestro Cue history retention (days kept in cue.db)
+	// OpenWizardAI Cue history retention (days kept in cue.db)
 	cueHistoryRetentionDays: number;
 	setCueHistoryRetentionDays: (value: number) => void;
 
@@ -507,7 +507,7 @@ export function useSettings(): UseSettingsReturn {
 	// only flips one field doesn't re-render every consumer of useSettings. Critically,
 	// when an action calls `set({ x: value })` where `x === value` already, the resulting
 	// state object has a new reference but identical fields - shallow equality stops the
-	// re-render cascade through MaestroConsoleInner → GitStatusProvider → workspace tree.
+	// re-render cascade through OpenWizardAIConsoleInner → GitStatusProvider → workspace tree.
 	const store = useStoreWithEqualityFn(useSettingsStore, selectAllSettings, shallow);
 
 	// Load settings on mount
@@ -518,22 +518,22 @@ export function useSettings(): UseSettingsReturn {
 
 	// Reload settings when system resumes from sleep/suspend
 	useEffect(() => {
-		if (!window.maestro?.app?.onSystemResume) {
+		if (!window.openwizardai?.app?.onSystemResume) {
 			return;
 		}
-		const cleanup = window.maestro.app.onSystemResume(() => {
+		const cleanup = window.openwizardai.app.onSystemResume(() => {
 			logger.info('[Settings] System resumed from sleep, reloading settings');
 			loadAllSettings();
 		});
 		return cleanup;
 	}, []);
 
-	// Reload settings when external change detected (e.g., maestro-cli settings set)
+	// Reload settings when external change detected (e.g., openwizardai-cli settings set)
 	useEffect(() => {
-		if (!window.maestro?.settings?.onExternalChange) {
+		if (!window.openwizardai?.settings?.onExternalChange) {
 			return;
 		}
-		const cleanup = window.maestro.settings.onExternalChange(() => {
+		const cleanup = window.openwizardai.settings.onExternalChange(() => {
 			logger.info('[Settings] External settings change detected, reloading');
 			loadAllSettings();
 		});
@@ -591,8 +591,8 @@ export function useSettings(): UseSettingsReturn {
 	// Surface global-hotkey registration failures (e.g. combo already owned by
 	// another app). Mounted here so the toast fires even when Settings is closed.
 	useEffect(() => {
-		if (!window.maestro?.app?.onGlobalHotkeyRegistrationFailed) return;
-		const cleanup = window.maestro.app.onGlobalHotkeyRegistrationFailed((keys) => {
+		if (!window.openwizardai?.app?.onGlobalHotkeyRegistrationFailed) return;
+		const cleanup = window.openwizardai.app.onGlobalHotkeyRegistrationFailed((keys) => {
 			const combo = keys.length > 0 ? formatShortcutKeys(keys) : '(none)';
 			logger.warn(`[Settings] Global hotkey registration failed: ${combo}`);
 			notifyToast({

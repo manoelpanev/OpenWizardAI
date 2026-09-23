@@ -32,8 +32,8 @@ test.describe('Auto Run Batch Processing', () => {
 
 	test.beforeEach(async () => {
 		// Create a temporary project directory
-		testProjectDir = path.join(os.tmpdir(), `maestro-batch-test-${Date.now()}`);
-		testAutoRunFolder = path.join(testProjectDir, '.maestro/playbooks');
+		testProjectDir = path.join(os.tmpdir(), `openwizardai-batch-test-${Date.now()}`);
+		testAutoRunFolder = path.join(testProjectDir, '.openwizardai/playbooks');
 		fs.mkdirSync(testAutoRunFolder, { recursive: true });
 
 		// Create test markdown files with tasks

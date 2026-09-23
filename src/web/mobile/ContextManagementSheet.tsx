@@ -1,5 +1,5 @@
 /**
- * ContextManagementSheet component for Maestro mobile web interface
+ * ContextManagementSheet component for OpenWizardAI mobile web interface
  *
  * Bottom sheet modal for context management operations:
  * merge, transfer, and summarize agent contexts.

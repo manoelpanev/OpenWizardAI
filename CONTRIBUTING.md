@@ -1,14 +1,14 @@
-# Contributing to Maestro
+# Contributing to OpenWizardAI
 
 NOTE: The project is currently changing rapidly, there's a high likelihood that PRs will be out of sync with latest code versions and may be hard to rebase.
 
-Thank you for your interest in contributing to Maestro! This document provides guidelines, setup instructions, and practical guidance for developers.
+Thank you for your interest in contributing to OpenWizardAI! This document provides guidelines, setup instructions, and practical guidance for developers.
 
 For architecture details, see [ARCHITECTURE.md](ARCHITECTURE.md). For quick reference while coding, see [CLAUDE.md](CLAUDE.md).
 
 ## Core Goals
 
-**Snappy interface and reduced battery consumption are fundamental goals for Maestro.** Every contribution should consider:
+**Snappy interface and reduced battery consumption are fundamental goals for OpenWizardAI.** Every contribution should consider:
 
 - **Responsiveness**: UI interactions should feel instant. Avoid blocking the main thread.
 - **Battery efficiency**: Minimize unnecessary timers, polling, and re-renders.
@@ -48,7 +48,7 @@ See [Performance Guidelines](#performance-guidelines) for specific practices.
 ```bash
 # Fork and clone the repository
 git clone <your-fork-url>
-cd maestro
+cd openwizardai
 
 # Install dependencies
 npm install
@@ -60,7 +60,7 @@ npm run dev
 ## Project Structure
 
 ```
-maestro/
+openwizardai/
 ├── src/
 │   ├── main/              # Electron main process (Node.js backend)
 │   │   ├── index.ts       # Entry point, IPC handlers
@@ -76,7 +76,7 @@ maestro/
 │   │   ├── constants/     # Themes, shortcuts, priorities
 │   │   ├── types/         # TypeScript definitions
 │   │   └── utils/         # Frontend utilities
-│   ├── cli/               # CLI tool (maestro-cli)
+│   ├── cli/               # CLI tool (openwizardai-cli)
 │   │   ├── index.ts       # CLI entry point
 │   │   ├── commands/      # Command implementations
 │   │   ├── services/      # CLI services (storage, batch processor)
@@ -86,7 +86,7 @@ maestro/
 │   │   └── templateVariables.ts # Template variable system
 │   └── web/               # Web interface (Remote Control)
 │       └── ...            # Mobile-optimized React app
-├── docs/                  # Mintlify documentation (hosted at docs.runmaestro.ai)
+├── docs/                  # Mintlify documentation (hosted at github.com/manoelpanev/OpenWizardAI/tree/main/docs)
 │   ├── docs.json          # Mintlify configuration and navigation
 │   ├── screenshots/       # All documentation screenshots
 │   ├── assets/            # Logos, icons, and static assets
@@ -119,13 +119,13 @@ npm run package:linux  # Package for Linux
 
 ### Development Data Directories
 
-By default, `npm run dev` uses an isolated data directory (`~/Library/Application Support/maestro-dev/`) separate from production. This allows you to run both dev and production instances simultaneously-useful when using the production Maestro to work on the dev instance.
+By default, `npm run dev` uses an isolated data directory (`~/Library/Application Support/openwizardai-dev/`) separate from production. This allows you to run both dev and production instances simultaneously-useful when using the production OpenWizardAI to work on the dev instance.
 
-| Command                 | Data Directory          | Can Run Alongside Production?  |
-| ----------------------- | ----------------------- | ------------------------------ |
-| `npm run dev`           | `maestro-dev/`          | ✅ Yes                         |
-| `npm run dev:prod-data` | `maestro/` (production) | ❌ No - close production first |
-| `npm run dev:demo`      | `/tmp/maestro-demo/`    | ✅ Yes                         |
+| Command                 | Data Directory               | Can Run Alongside Production?  |
+| ----------------------- | ---------------------------- | ------------------------------ |
+| `npm run dev`           | `openwizardai-dev/`          | ✅ Yes                         |
+| `npm run dev:prod-data` | `openwizardai/` (production) | ❌ No - close production first |
+| `npm run dev:demo`      | `/tmp/openwizardai-demo/`    | ✅ Yes                         |
 
 **When to use each:**
 
@@ -135,27 +135,27 @@ By default, `npm run dev` uses an isolated data directory (`~/Library/Applicatio
 
 ### Demo Mode
 
-Use demo mode to run Maestro with a fresh, isolated data directory - useful for demos, testing, or screenshots without affecting your real settings:
+Use demo mode to run OpenWizardAI with a fresh, isolated data directory - useful for demos, testing, or screenshots without affecting your real settings:
 
 ```bash
 npm run dev:demo
 ```
 
-Demo mode stores all data in `/tmp/maestro-demo`. For a completely fresh start each time:
+Demo mode stores all data in `/tmp/openwizardai-demo`. For a completely fresh start each time:
 
 ```bash
-rm -rf /tmp/maestro-demo && npm run dev:demo
+rm -rf /tmp/openwizardai-demo && npm run dev:demo
 ```
 
 You can also specify a custom demo directory via environment variable:
 
 ```bash
-MAESTRO_DEMO_DIR=~/Desktop/my-demo npm run dev
+OPENWIZARDAI_DEMO_DIR=~/Desktop/my-demo npm run dev
 ```
 
 ### Running Multiple Instances (Git Worktrees)
 
-When working with multiple git worktrees, you can run Maestro instances in parallel by specifying different ports using the `VITE_PORT` environment variable:
+When working with multiple git worktrees, you can run OpenWizardAI instances in parallel by specifying different ports using the `VITE_PORT` environment variable:
 
 ```bash
 # In the main worktree (uses default port 17173)
@@ -342,14 +342,14 @@ ESLint is configured with TypeScript and React plugins (`eslint.config.mjs`):
    ```typescript
    const setMySetting = (value) => {
    	setMySettingState(value);
-   	window.maestro.settings.set('mySetting', value);
+   	window.openwizardai.settings.set('mySetting', value);
    };
    ```
 
 3. Load in useEffect:
 
    ```typescript
-   const saved = await window.maestro.settings.get('mySetting');
+   const saved = await window.openwizardai.settings.get('mySetting');
    if (saved !== undefined) setMySettingState(saved);
    ```
 
@@ -373,7 +373,7 @@ For commands that need programmatic behavior (not just prompts), handle them in 
 
 ### Adding Bundled AI Command Sets (Spec-Kit / OpenSpec Pattern)
 
-Maestro bundles two spec-driven workflow systems. To add a similar bundled command set:
+OpenWizardAI bundles two spec-driven workflow systems. To add a similar bundled command set:
 
 1. **Create prompts directory**: `src/prompts/my-workflow/`
 2. **Add command markdown files**: `my-workflow.command1.md`, `my-workflow.command2.md`
@@ -390,7 +390,7 @@ Reference the existing Spec-Kit (`src/prompts/speckit/`, `src/main/speckit-manag
 
 ### Adding a New Theme
 
-Maestro has 16 themes across 3 modes: dark, light, and vibe.
+OpenWizardAI has 16 themes across 3 modes: dark, light, and vibe.
 
 Add to `src/renderer/constants/themes.ts`:
 
@@ -438,11 +438,11 @@ Then add the ID to `ThemeId` type in `src/shared/theme-types.ts` and to the `isV
    },
    ```
 
-3. Add types to `MaestroAPI` interface in preload.ts.
+3. Add types to `OpenWizardAIAPI` interface in preload.ts.
 
 ## Encore Features (Feature Gating)
 
-Encore Features is Maestro's system for user-toggled features. A capability starts life as a plugin: gated, off, and opt-in. When it earns its place in the core experience it graduates to an Encore Feature and ships on by default, with the toggle kept so users can turn it back off. The default state for every flag lives in `DEFAULT_ENCORE_FEATURES` (`src/shared/encoreFeatures.ts`).
+Encore Features is OpenWizardAI's system for user-toggled features. A capability starts life as a plugin: gated, off, and opt-in. When it earns its place in the core experience it graduates to an Encore Feature and ships on by default, with the toggle kept so users can turn it back off. The default state for every flag lives in `DEFAULT_ENCORE_FEATURES` (`src/shared/encoreFeatures.ts`).
 
 ### When to Use Encore Features
 
@@ -467,7 +467,7 @@ export interface EncoreFeatureFlags {
 }
 ```
 
-The flags live in `useSettings.ts` and persist via `window.maestro.settings`. The Encore Features panel in Settings (`SettingsModal.tsx`) provides toggle UI for each feature.
+The flags live in `useSettings.ts` and persist via `window.openwizardai.settings`. The Encore Features panel in Settings (`SettingsModal.tsx`) provides toggle UI for each feature.
 
 ### Adding a New Encore Feature
 
@@ -507,7 +507,7 @@ The flags live in `useSettings.ts` and persist via `window.maestro.settings`. Th
 
 ## Adding a New AI Agent
 
-Maestro supports multiple AI coding agents. Each agent has different capabilities that determine which UI features are available. For detailed architecture, see [PROVIDER-SUPPORT.md](PROVIDER-SUPPORT.md).
+OpenWizardAI supports multiple AI coding agents. Each agent has different capabilities that determine which UI features are available. For detailed architecture, see [PROVIDER-SUPPORT.md](PROVIDER-SUPPORT.md).
 
 ### Agent Capability Checklist
 
@@ -682,7 +682,7 @@ For detailed implementation guide, see [PROVIDER-SUPPORT.md](PROVIDER-SUPPORT.md
 
 ## Performance Guidelines
 
-Maestro prioritizes a snappy interface and minimal battery consumption. Follow these guidelines:
+OpenWizardAI prioritizes a snappy interface and minimal battery consumption. Follow these guidelines:
 
 ### React Rendering
 
@@ -777,7 +777,7 @@ Then run `npm run dev` - the app auto-connects (connection script in `src/render
 
 ### Settings Not Persisting
 
-1. Ensure wrapper function calls `window.maestro.settings.set()`
+1. Ensure wrapper function calls `window.openwizardai.settings.set()`
 2. Check loading code in `useSettings.ts` useEffect
 3. Verify the key name matches in both save and load
 
@@ -905,7 +905,7 @@ All PRs must pass these checks before review:
 
 ## Branching & Release Strategy
 
-Maestro uses a two-branch release model with **odd/even version numbering**:
+OpenWizardAI uses a two-branch release model with **odd/even version numbering**:
 
 | Branch | Version Pattern | Audience                                                | Example |
 | ------ | --------------- | ------------------------------------------------------- | ------- |
@@ -980,7 +980,7 @@ version bump comes **before** the merge, because guard check 1 is not bypassable
    set the matching local override:
 
    ```bash
-   MAESTRO_ALLOW_RC_TO_MAIN=1 git push origin main
+   OPENWIZARDAI_ALLOW_RC_TO_MAIN=1 git push origin main
    ```
 
 4. Tag the GA release off `main`. Releases are tag-triggered, so nothing ships
@@ -1009,7 +1009,7 @@ From here the cycle repeats: aggressive work lands on `rc`, safe fixes land on
 
 ### Release Tags
 
-Tags follow the pattern `v0.MINOR.PATCH`. Tags with `-RC` suffix (e.g., `v0.16.0-RC`) are automatically marked as pre-releases on GitHub. The update checker in Maestro uses tag naming to route updates to the correct channel.
+Tags follow the pattern `v0.MINOR.PATCH`. Tags with `-RC` suffix (e.g., `v0.16.0-RC`) are automatically marked as pre-releases on GitHub. The update checker in OpenWizardAI uses tag naming to route updates to the correct channel.
 
 ## Building for Release
 
@@ -1030,7 +1030,7 @@ These scripts fetch the latest prompts from their respective repositories:
 - **Spec-Kit**: [github/spec-kit](https://github.com/github/spec-kit) → `src/prompts/speckit/`
 - **OpenSpec**: [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) → `src/prompts/openspec/`
 
-Custom Maestro-specific prompts (`/speckit.implement`, `/openspec.implement`, `/openspec.help`) are never overwritten by the refresh scripts.
+Custom OpenWizardAI-specific prompts (`/speckit.implement`, `/openspec.implement`, `/openspec.help`) are never overwritten by the refresh scripts.
 
 Review any changes with `git diff` before committing.
 
@@ -1076,7 +1076,7 @@ GitHub Actions will build for all platforms and create a release.
 
 ## Documentation
 
-User documentation is hosted on [Mintlify](https://mintlify.com) at **[docs.runmaestro.ai](https://docs.runmaestro.ai)**. The source files live in the `docs/` directory.
+User documentation is hosted on [Mintlify](https://mintlify.com) at **[github.com/manoelpanev/OpenWizardAI/tree/main/docs](https://github.com/manoelpanev/OpenWizardAI/tree/main/docs)**. The source files live in the `docs/` directory.
 
 ### Documentation Structure
 
@@ -1147,10 +1147,10 @@ All screenshots are stored in `docs/screenshots/` and referenced with relative p
 
 **Adding a new screenshot:**
 
-1. **Capture the screenshot** using Maestro's demo mode for clean, consistent visuals:
+1. **Capture the screenshot** using OpenWizardAI's demo mode for clean, consistent visuals:
 
    ```bash
-   rm -rf /tmp/maestro-demo && npm run dev:demo
+   rm -rf /tmp/openwizardai-demo && npm run dev:demo
    ```
 
 2. **Save as PNG** in `docs/screenshots/` with a descriptive kebab-case name:
@@ -1177,12 +1177,12 @@ All screenshots are stored in `docs/screenshots/` and referenced with relative p
 
 Static assets like logos and icons live in `docs/assets/`:
 
-| File                    | Usage                                   |
-| ----------------------- | --------------------------------------- |
-| `icon.png`              | Main logo (used in light and dark mode) |
-| `icon.ico`              | Favicon                                 |
-| `made-with-maestro.svg` | Badge for README                        |
-| `maestro-app-icon.png`  | High-res app icon                       |
+| File                         | Usage                                   |
+| ---------------------------- | --------------------------------------- |
+| `icon.png`                   | Main logo (used in light and dark mode) |
+| `icon.ico`                   | Favicon                                 |
+| `made-with-openwizardai.svg` | Badge for README                        |
+| `openwizardai-app-icon.png`  | High-res app icon                       |
 
 Reference assets with `/assets/` paths in `docs.json` configuration.
 
@@ -1231,27 +1231,27 @@ This starts a local server at `http://localhost:3000` with hot reload.
 
 ### MCP Server
 
-Maestro provides a hosted MCP (Model Context Protocol) server that allows AI applications to search the documentation:
+OpenWizardAI provides a hosted MCP (Model Context Protocol) server that allows AI applications to search the documentation:
 
-**Server URL:** `https://docs.runmaestro.ai/mcp`
+**Server URL:** `https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp.md`
 
 **Available Tools:**
 
-- `SearchMaestro` - Search the Maestro knowledge base for documentation, code examples, and guides
+- `SearchOpenWizardAI` - Search the OpenWizardAI knowledge base for documentation, code examples, and guides
 
 To connect from Claude Desktop or Claude Code, add to your MCP configuration:
 
 ```json
 {
 	"mcpServers": {
-		"maestro": {
-			"url": "https://docs.runmaestro.ai/mcp"
+		"openwizardai": {
+			"url": "https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp.md"
 		}
 	}
 }
 ```
 
-See [MCP Server documentation](https://docs.runmaestro.ai/mcp-server) for full details.
+See [MCP Server documentation](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp-server.md) for full details.
 
 ### Deployment
 

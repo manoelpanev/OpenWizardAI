@@ -1,12 +1,12 @@
 /**
  * Tests for cue-config-repository.
  *
- * Verifies that the repository owns all `.maestro/cue.yaml` and
- * `.maestro/prompts/` filesystem operations behind a typed API:
+ * Verifies that the repository owns all `.openwizardai/cue.yaml` and
+ * `.openwizardai/prompts/` filesystem operations behind a typed API:
  * - resolve / read / write / delete config files
  * - canonical-vs-legacy fallback on read
  * - canonical-only behaviour on write (implicit migration)
- * - directory creation for `.maestro/` and `.maestro/prompts/`
+ * - directory creation for `.openwizardai/` and `.openwizardai/prompts/`
  * - prompt file write with arbitrary nested paths
  */
 
@@ -53,10 +53,10 @@ import {
 } from '../../../main/cue/config/cue-config-repository';
 
 const PROJECT_ROOT = '/projects/test';
-const CANONICAL = path.join(PROJECT_ROOT, '.maestro/cue.yaml');
-const LEGACY = path.join(PROJECT_ROOT, 'maestro-cue.yaml');
-const MAESTRO_DIR = path.join(PROJECT_ROOT, '.maestro');
-const PROMPTS_DIR = path.join(PROJECT_ROOT, '.maestro/prompts');
+const CANONICAL = path.join(PROJECT_ROOT, '.openwizardai/cue.yaml');
+const LEGACY = path.join(PROJECT_ROOT, 'openwizardai-cue.yaml');
+const OPENWIZARDAI_DIR = path.join(PROJECT_ROOT, '.openwizardai');
+const PROMPTS_DIR = path.join(PROJECT_ROOT, '.openwizardai/prompts');
 
 describe('cue-config-repository', () => {
 	beforeEach(() => {
@@ -64,7 +64,7 @@ describe('cue-config-repository', () => {
 	});
 
 	describe('resolveCueConfigPath', () => {
-		it('returns canonical path when .maestro/cue.yaml exists', () => {
+		it('returns canonical path when .openwizardai/cue.yaml exists', () => {
 			mockExistsSync.mockImplementation((p: string) => p === CANONICAL);
 
 			expect(resolveCueConfigPath(PROJECT_ROOT)).toBe(CANONICAL);
@@ -120,7 +120,7 @@ describe('cue-config-repository', () => {
 
 	describe('writeCueConfigFile', () => {
 		it('writes to the canonical path', () => {
-			mockExistsSync.mockReturnValue(true); // .maestro/ already exists
+			mockExistsSync.mockReturnValue(true); // .openwizardai/ already exists
 
 			const result = writeCueConfigFile(PROJECT_ROOT, 'subscriptions: []');
 
@@ -128,17 +128,17 @@ describe('cue-config-repository', () => {
 			expect(mockWriteFileSync).toHaveBeenCalledWith(CANONICAL, 'subscriptions: []', 'utf-8');
 		});
 
-		it('creates .maestro/ if missing before writing', () => {
-			mockExistsSync.mockImplementation((p: string) => p !== MAESTRO_DIR);
+		it('creates .openwizardai/ if missing before writing', () => {
+			mockExistsSync.mockImplementation((p: string) => p !== OPENWIZARDAI_DIR);
 
 			writeCueConfigFile(PROJECT_ROOT, 'content');
 
-			expect(mockMkdirSync).toHaveBeenCalledWith(MAESTRO_DIR, { recursive: true });
+			expect(mockMkdirSync).toHaveBeenCalledWith(OPENWIZARDAI_DIR, { recursive: true });
 			expect(mockWriteFileSync).toHaveBeenCalledWith(CANONICAL, 'content', 'utf-8');
 		});
 
 		it('always writes the canonical path even when only legacy exists', () => {
-			mockExistsSync.mockImplementation((p: string) => p === LEGACY || p === MAESTRO_DIR);
+			mockExistsSync.mockImplementation((p: string) => p === LEGACY || p === OPENWIZARDAI_DIR);
 
 			writeCueConfigFile(PROJECT_ROOT, 'content');
 
@@ -181,12 +181,16 @@ describe('cue-config-repository', () => {
 	});
 
 	describe('writeCuePromptFile', () => {
-		it('writes a prompt file under .maestro/prompts/', () => {
+		it('writes a prompt file under .openwizardai/prompts/', () => {
 			mockExistsSync.mockReturnValue(true); // all dirs exist
 
-			const result = writeCuePromptFile(PROJECT_ROOT, '.maestro/prompts/sub-1.md', 'prompt body 1');
+			const result = writeCuePromptFile(
+				PROJECT_ROOT,
+				'.openwizardai/prompts/sub-1.md',
+				'prompt body 1'
+			);
 
-			const expectedAbs = path.join(PROJECT_ROOT, '.maestro/prompts/sub-1.md');
+			const expectedAbs = path.join(PROJECT_ROOT, '.openwizardai/prompts/sub-1.md');
 			expect(result).toBe(expectedAbs);
 			expect(mockWriteFileSync).toHaveBeenCalledWith(expectedAbs, 'prompt body 1', 'utf-8');
 		});
@@ -194,20 +198,20 @@ describe('cue-config-repository', () => {
 		it('creates the prompts directory if missing', () => {
 			mockExistsSync.mockImplementation((p: string) => p !== PROMPTS_DIR);
 
-			writeCuePromptFile(PROJECT_ROOT, '.maestro/prompts/sub-1.md', 'body');
+			writeCuePromptFile(PROJECT_ROOT, '.openwizardai/prompts/sub-1.md', 'body');
 
 			expect(mockMkdirSync).toHaveBeenCalledWith(PROMPTS_DIR, { recursive: true });
 		});
 
 		it('creates parent directories for nested prompt paths', () => {
-			const nested = '.maestro/prompts/nested/dir/sub.md';
-			const expectedParent = path.join(PROJECT_ROOT, '.maestro/prompts/nested/dir');
+			const nested = '.openwizardai/prompts/nested/dir/sub.md';
+			const expectedParent = path.join(PROJECT_ROOT, '.openwizardai/prompts/nested/dir');
 			mockExistsSync.mockImplementation((p: string) => p !== expectedParent);
 
 			writeCuePromptFile(PROJECT_ROOT, nested, 'nested body');
 
 			// The parent dir is created with { recursive: true } which covers all
-			// intermediate directories (including .maestro/prompts) in one call.
+			// intermediate directories (including .openwizardai/prompts) in one call.
 			expect(mockMkdirSync).toHaveBeenCalledWith(expectedParent, { recursive: true });
 			expect(mockWriteFileSync).toHaveBeenCalledWith(
 				path.join(PROJECT_ROOT, nested),
@@ -219,7 +223,7 @@ describe('cue-config-repository', () => {
 		it('does not call mkdirSync if directories already exist', () => {
 			mockExistsSync.mockReturnValue(true);
 
-			writeCuePromptFile(PROJECT_ROOT, '.maestro/prompts/sub-1.md', 'body');
+			writeCuePromptFile(PROJECT_ROOT, '.openwizardai/prompts/sub-1.md', 'body');
 
 			expect(mockMkdirSync).not.toHaveBeenCalled();
 		});
@@ -232,15 +236,15 @@ describe('cue-config-repository', () => {
 		});
 
 		it('throws for a path that resolves outside the prompts directory', () => {
-			expect(() => writeCuePromptFile(PROJECT_ROOT, '.maestro/other/file.md', 'content')).toThrow(
-				'resolves outside the prompts directory'
-			);
+			expect(() =>
+				writeCuePromptFile(PROJECT_ROOT, '.openwizardai/other/file.md', 'content')
+			).toThrow('resolves outside the prompts directory');
 			expect(mockWriteFileSync).not.toHaveBeenCalled();
 		});
 
 		it('throws for a path traversal attempt', () => {
 			expect(() =>
-				writeCuePromptFile(PROJECT_ROOT, '.maestro/prompts/../../etc/passwd', 'content')
+				writeCuePromptFile(PROJECT_ROOT, '.openwizardai/prompts/../../etc/passwd', 'content')
 			).toThrow('resolves outside the prompts directory');
 			expect(mockWriteFileSync).not.toHaveBeenCalled();
 		});
@@ -250,11 +254,11 @@ describe('cue-config-repository', () => {
 		it('returns the file content when the prompt file exists', () => {
 			mockReadFileSync.mockReturnValue('body on disk');
 
-			const result = readCuePromptFile(PROJECT_ROOT, '.maestro/prompts/sub-1.md');
+			const result = readCuePromptFile(PROJECT_ROOT, '.openwizardai/prompts/sub-1.md');
 
 			expect(result).toBe('body on disk');
 			expect(mockReadFileSync).toHaveBeenCalledWith(
-				path.join(PROJECT_ROOT, '.maestro/prompts/sub-1.md'),
+				path.join(PROJECT_ROOT, '.openwizardai/prompts/sub-1.md'),
 				'utf-8'
 			);
 		});
@@ -264,11 +268,11 @@ describe('cue-config-repository', () => {
 				throw Object.assign(new Error('missing'), { code: 'ENOENT' });
 			});
 
-			expect(readCuePromptFile(PROJECT_ROOT, '.maestro/prompts/missing.md')).toBeNull();
+			expect(readCuePromptFile(PROJECT_ROOT, '.openwizardai/prompts/missing.md')).toBeNull();
 		});
 
 		it('returns null for a path outside the prompts directory without reading', () => {
-			expect(readCuePromptFile(PROJECT_ROOT, '.maestro/other/file.md')).toBeNull();
+			expect(readCuePromptFile(PROJECT_ROOT, '.openwizardai/other/file.md')).toBeNull();
 			expect(mockReadFileSync).not.toHaveBeenCalled();
 		});
 
@@ -279,7 +283,7 @@ describe('cue-config-repository', () => {
 	});
 
 	describe('removeEmptyPromptsDir', () => {
-		it('removes .maestro/prompts/ when it exists and is empty', () => {
+		it('removes .openwizardai/prompts/ when it exists and is empty', () => {
 			mockExistsSync.mockReturnValue(true);
 			mockReaddirSync.mockReturnValue([]);
 

@@ -45,7 +45,7 @@ export const CONDUCTOR_BADGES: ConductorBadge[] = [
 			achievement: 'Started as a youth orchestra conductor at age 18 in Venezuela',
 			wikipediaUrl: 'https://en.wikipedia.org/wiki/Gustavo_Dudamel',
 		},
-		flavorText: "Every maestro starts with their first downbeat. You've taken the podium.",
+		flavorText: "Every openwizardai starts with their first downbeat. You've taken the podium.",
 	},
 	{
 		id: 'assistant-conductor',
@@ -62,7 +62,7 @@ export const CONDUCTOR_BADGES: ConductorBadge[] = [
 			wikipediaUrl: 'https://en.wikipedia.org/wiki/Marin_Alsop',
 		},
 		flavorText:
-			"You've proven you can step in when the maestro needs you. The orchestra is starting to trust your cues.",
+			"You've proven you can step in when the openwizardai needs you. The orchestra is starting to trust your cues.",
 	},
 	{
 		id: 'associate-conductor',
@@ -154,9 +154,9 @@ export const CONDUCTOR_BADGES: ConductorBadge[] = [
 			'The orchestra is your instrument. You shape not just performances, but the very culture of music-making.',
 	},
 	{
-		id: 'maestro-emeritus',
+		id: 'openwizardai-emeritus',
 		level: 8,
-		name: 'OpenWizzard Emeritus',
+		name: 'OpenWizardAI Emeritus',
 		shortName: 'Emeritus',
 		description:
 			'An honorific status for legendary figures who shaped an orchestra. Still guest-conducts, but with legacy-level reverence.',
@@ -172,9 +172,9 @@ export const CONDUCTOR_BADGES: ConductorBadge[] = [
 			"Your legacy is written into the DNA of the orchestras you've led. Standing ovations greet your every appearance.",
 	},
 	{
-		id: 'world-maestro',
+		id: 'world-openwizardai',
 		level: 9,
-		name: 'World OpenWizzard',
+		name: 'World OpenWizardAI',
 		shortName: 'World',
 		description:
 			'Conducts top orchestras globally. Commands rarefied fees and has a distinctive interpretive "voice" recognized worldwide.',
@@ -190,9 +190,9 @@ export const CONDUCTOR_BADGES: ConductorBadge[] = [
 			"Your name alone fills concert halls. The world's finest orchestras compete for your calendar.",
 	},
 	{
-		id: 'grand-maestro',
+		id: 'grand-openwizardai',
 		level: 10,
-		name: 'Grand OpenWizzard',
+		name: 'Grand OpenWizardAI',
 		shortName: 'Grand',
 		description:
 			'Among the top 20 living conductors. Near-universal critical acclaim, regularly leads elite orchestras worldwide. Known for landmark recordings and signature interpretations.',
@@ -208,7 +208,7 @@ export const CONDUCTOR_BADGES: ConductorBadge[] = [
 			'You stand among the titans. Your interpretations are studied, your recordings are definitive, your legacy is assured.',
 	},
 	{
-		id: 'immortal-maestro',
+		id: 'immortal-openwizardai',
 		level: 11,
 		name: 'Titan of the Baton',
 		shortName: 'Titan',

@@ -180,7 +180,7 @@ export async function runCodexUsageSampling(deps: CodexUsageSamplingDeps): Promi
 		}
 	}
 
-	// Accounts Maestro has used before but the sweep above cannot see: a
+	// Accounts OpenWizardAI has used before but the sweep above cannot see: a
 	// symlinked CODEX_HOME, one outside $HOME, or one whose name trips the
 	// backup/scratch filter. Without this they stop refreshing as soon as their
 	// last agent moves away, and the dashboard row dies at the 24h TTL. Sampling

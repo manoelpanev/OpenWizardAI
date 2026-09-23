@@ -120,7 +120,7 @@ describe('marketplace IPC handlers', () => {
 				],
 				loopEnabled: false,
 				maxLoops: null,
-				prompt: null, // Uses Maestro default
+				prompt: null, // Uses OpenWizardAI default
 			},
 			{
 				id: 'test-playbook-2',
@@ -165,7 +165,7 @@ describe('marketplace IPC handlers', () => {
 		mockApp = {
 			getPath: vi.fn().mockReturnValue('/mock/userData'),
 			on: vi.fn(),
-			// Default to a version that satisfies all sample-manifest minMaestroVersion entries.
+			// Default to a version that satisfies all sample-manifest minOpenWizardAIVersion entries.
 			// Individual tests can override this via vi.mocked(mockApp.getVersion).mockReturnValue(...).
 			getVersion: vi.fn().mockReturnValue('999.0.0'),
 		} as unknown as App;
@@ -610,7 +610,7 @@ describe('marketplace IPC handlers', () => {
 			]);
 		});
 
-		it('should store empty string for null prompt (Maestro default fallback)', async () => {
+		it('should store empty string for null prompt (OpenWizardAI default fallback)', async () => {
 			// Setup cache with playbook that has prompt: null
 			const validCache: MarketplaceCache = {
 				fetchedAt: Date.now(),
@@ -750,7 +750,7 @@ describe('marketplace IPC handlers', () => {
 			expect(writtenData.playbooks).toHaveLength(2);
 		});
 
-		it('should reject install when running version is below minMaestroVersion (defense-in-depth)', async () => {
+		it('should reject install when running version is below minOpenWizardAIVersion (defense-in-depth)', async () => {
 			// Manifest with one playbook gated on a future version.
 			const gatedManifest: MarketplaceManifest = {
 				lastUpdated: '2024-01-15',
@@ -758,7 +758,7 @@ describe('marketplace IPC handlers', () => {
 					{
 						...sampleManifest.playbooks[0],
 						id: 'gated-playbook',
-						minMaestroVersion: '99.0.0',
+						minOpenWizardAIVersion: '99.0.0',
 					},
 				],
 			};
@@ -791,14 +791,14 @@ describe('marketplace IPC handlers', () => {
 			expect(fs.writeFile).not.toHaveBeenCalled();
 		});
 
-		it('should allow install when running version satisfies minMaestroVersion', async () => {
+		it('should allow install when running version satisfies minOpenWizardAIVersion', async () => {
 			const gatedManifest: MarketplaceManifest = {
 				lastUpdated: '2024-01-15',
 				playbooks: [
 					{
 						...sampleManifest.playbooks[0],
 						id: 'gated-playbook',
-						minMaestroVersion: '0.16.17-rc',
+						minOpenWizardAIVersion: '0.16.17-rc',
 					},
 				],
 			};
@@ -1098,7 +1098,7 @@ describe('marketplace IPC handlers', () => {
 			// Verify NO fetch calls were made (documents read from filesystem)
 			expect(mockFetch).not.toHaveBeenCalled();
 
-			// Verify null prompt is converted to empty string (Maestro default fallback)
+			// Verify null prompt is converted to empty string (OpenWizardAI default fallback)
 			expect(result.playbook.prompt).toBe('');
 		});
 

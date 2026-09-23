@@ -251,7 +251,6 @@ describe('system IPC handlers', () => {
 				'devtools:toggle',
 				// Update handlers
 				'updates:check',
-				'updates:checkin',
 				'updates:setAllowPrerelease',
 				// Logger handlers
 				'logger:log',
@@ -755,7 +754,7 @@ describe('system IPC handlers', () => {
 
 		it('should silently ignore non-URL strings like relative file paths', async () => {
 			const handler = handlers.get('shell:openExternal');
-			// These should return gracefully instead of throwing - Fixes MAESTRO-F4/E5
+			// These should return gracefully instead of throwing - Fixes OPENWIZARDAI-F4/E5
 			await expect(handler!({} as any, 'LICENSE')).resolves.toBeUndefined();
 			await expect(handler!({} as any, './README.md')).resolves.toBeUndefined();
 			await expect(handler!({} as any, '../docs/guide.md')).resolves.toBeUndefined();
@@ -835,7 +834,7 @@ describe('system IPC handlers', () => {
 		it('should resolve gracefully (no throw) for non-existent path', async () => {
 			// Stale paths are user-caused (file deleted between display and click);
 			// handler should log + return rather than reject the IPC. Fixes
-			// MAESTRO-K1/HN/HS.
+			// OPENWIZARDAI-K1/HN/HS.
 			vi.mocked(fsSync.existsSync).mockReturnValue(false);
 
 			const handler = handlers.get('shell:showItemInFolder');
@@ -863,7 +862,7 @@ describe('system IPC handlers', () => {
 
 		it('should resolve gracefully (no throw) for non-existent path', async () => {
 			// File already gone → user's intent is satisfied; treat as no-op
-			// instead of rejecting the IPC. Fixes MAESTRO-JD/JC.
+			// instead of rejecting the IPC. Fixes OPENWIZARDAI-JD/JC.
 			vi.mocked(fsSync.existsSync).mockReturnValue(false);
 			const handler = handlers.get('shell:trashItem');
 			await expect(handler!({} as any, '/non/existent/path')).resolves.toBeUndefined();
@@ -1493,12 +1492,12 @@ describe('system IPC handlers', () => {
 
 	describe('logger:getLogFilePath', () => {
 		it('should return log file path', async () => {
-			vi.mocked(logger.getLogFilePath).mockReturnValue('/tmp/maestro-debug.log');
+			vi.mocked(logger.getLogFilePath).mockReturnValue('/tmp/openwizardai-debug.log');
 
 			const handler = handlers.get('logger:getLogFilePath');
 			const result = await handler!({} as any);
 
-			expect(result).toBe('/tmp/maestro-debug.log');
+			expect(result).toBe('/tmp/openwizardai-debug.log');
 		});
 	});
 
@@ -1524,13 +1523,13 @@ describe('system IPC handlers', () => {
 
 	describe('sync:getDefaultPath', () => {
 		it('should return default user data path', async () => {
-			mockApp.getPath.mockReturnValue('/Users/test/Library/Application Support/Maestro');
+			mockApp.getPath.mockReturnValue('/Users/test/Library/Application Support/OpenWizardAI');
 
 			const handler = handlers.get('sync:getDefaultPath');
 			const result = await handler!({} as any);
 
 			expect(mockApp.getPath).toHaveBeenCalledWith('userData');
-			expect(result).toBe('/Users/test/Library/Application Support/Maestro');
+			expect(result).toBe('/Users/test/Library/Application Support/OpenWizardAI');
 		});
 	});
 
@@ -1602,7 +1601,7 @@ describe('system IPC handlers', () => {
 		it('should open dialog and return selected folder', async () => {
 			vi.mocked(dialog.showOpenDialog).mockResolvedValue({
 				canceled: false,
-				filePaths: ['/iCloud/Maestro'],
+				filePaths: ['/iCloud/OpenWizardAI'],
 			});
 
 			const handler = handlers.get('sync:selectSyncFolder');
@@ -1612,9 +1611,9 @@ describe('system IPC handlers', () => {
 				properties: ['openDirectory', 'createDirectory'],
 				title: 'Select Settings Folder',
 				message:
-					'Choose a folder for OpenWizzard settings. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share settings across devices.',
+					'Choose a folder for OpenWizardAI settings. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share settings across devices.',
 			});
-			expect(result).toBe('/iCloud/Maestro');
+			expect(result).toBe('/iCloud/OpenWizardAI');
 		});
 
 		it('should return null when dialog cancelled', async () => {

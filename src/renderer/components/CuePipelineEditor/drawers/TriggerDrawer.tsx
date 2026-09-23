@@ -78,7 +78,7 @@ const TRIGGER_ITEMS: TriggerItem[] = [
 	{
 		eventType: 'cli.trigger',
 		label: 'CLI Trigger',
-		description: 'Triggered via maestro-cli',
+		description: 'Triggered via openwizardai-cli',
 		icon: EVENT_ICONS['cli.trigger'],
 		color: EVENT_COLORS['cli.trigger'],
 	},

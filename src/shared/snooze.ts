@@ -321,7 +321,7 @@ function parseAbsoluteDate(
 		);
 	}
 
-	// US slash: 8/5 or 12/25/2026 (month first - Maestro's users are US-centric
+	// US slash: 8/5 or 12/25/2026 (month first - OpenWizardAI's users are US-centric
 	// and the modal previews the resolved date, so the ambiguity is visible).
 	const slash = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/.exec(text);
 	if (slash) {

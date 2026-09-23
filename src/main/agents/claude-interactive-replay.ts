@@ -1,7 +1,7 @@
 /**
  * Claude Interactive Replay Controller
  *
- * Reactive limit detection for the `maestro-p` interactive Claude spawn:
+ * Reactive limit detection for the `openwizardai-p` interactive Claude spawn:
  * when the wrapper exits with code 2 mid-turn (Max-plan quota exhausted
  * during the run), the controller transparently transitions the session
  * to API mode and respawns the same prompt under `claude --print` so the
@@ -39,8 +39,8 @@ import { EventEmitter } from 'events';
  *
  * `buildApiSpawnConfig()` is invoked at replay time (not at registration
  * time) so the closure can pick up the latest `agentSessionId` that
- * `maestro-p`'s session-id watcher discovered mid-turn and inject it via
- * `--resume`. It must strip `MAESTRO_CLAUDE_BIN` from the env, since API
+ * `openwizardai-p`'s session-id watcher discovered mid-turn and inject it via
+ * `--resume`. It must strip `OPENWIZARDAI_CLAUDE_BIN` from the env, since API
  * mode invokes the real `claude` binary directly without going through
  * the wrapper. Returning `null` skips the spawn step (e.g. when the
  * caller has since destroyed the session).
@@ -113,7 +113,7 @@ export interface InteractiveReplayController<TSpawnConfig> {
 	hasInteractiveReplay(sessionId: string): boolean;
 }
 
-/** Exit code emitted by `maestro-p` when the Max-plan quota is hit mid-turn. */
+/** Exit code emitted by `openwizardai-p` when the Max-plan quota is hit mid-turn. */
 export const LIMIT_EXIT_CODE = 2;
 
 /**
@@ -186,7 +186,7 @@ export function createInteractiveReplayController<TSpawnConfig>(
 		// (a) Refresh the usage snapshot in the BACKGROUND. It only feeds the usage
 		// dashboard and the next turn's resolver - the replay spawn below does not
 		// depend on it. Awaiting it here blocked re-sending the user's prompt on a
-		// `maestro-p --status` spawn (which can take ~30s), so a limit-hit Dynamic
+		// `openwizardai-p --status` spawn (which can take ~30s), so a limit-hit Dynamic
 		// turn looked like it produced no response for half a minute after the
 		// mode-switch banner. Fire-and-forget so the API replay spawns immediately.
 		// Wrapped in Promise.resolve().then() so a SYNCHRONOUS throw from

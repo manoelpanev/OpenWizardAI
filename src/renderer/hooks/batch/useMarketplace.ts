@@ -11,7 +11,7 @@
  * - Import operations (download playbook to Auto Run folder)
  * - Document preview fetching (README, individual documents)
  *
- * The marketplace data is fetched from the Maestro-Playbooks GitHub repository
+ * The marketplace data is fetched from the OpenWizardAI-Playbooks GitHub repository
  * and cached locally for 5 minutes to reduce API calls.
  */
 
@@ -132,7 +132,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 			setIsLoading(true);
 			setError(null);
 			try {
-				const result = await window.maestro.marketplace.getManifest();
+				const result = await window.openwizardai.marketplace.getManifest();
 				if (result.success && result.manifest) {
 					setManifest(result.manifest);
 					setFromCache(result.fromCache ?? false);
@@ -152,10 +152,10 @@ export function useMarketplace(): UseMarketplaceReturn {
 
 	// Hot reload: listen for manifest changes (local-manifest.json edits)
 	useEffect(() => {
-		const cleanup = window.maestro.marketplace.onManifestChanged(async () => {
+		const cleanup = window.openwizardai.marketplace.onManifestChanged(async () => {
 			logger.info('Local manifest changed, reloading...');
 			try {
-				const result = await window.maestro.marketplace.getManifest();
+				const result = await window.openwizardai.marketplace.getManifest();
 				if (result.success && result.manifest) {
 					setManifest(result.manifest);
 					setFromCache(result.fromCache ?? false);
@@ -211,7 +211,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 		setIsRefreshing(true);
 		setError(null);
 		try {
-			const result = await window.maestro.marketplace.refreshManifest();
+			const result = await window.openwizardai.marketplace.refreshManifest();
 			if (result.success && result.manifest) {
 				setManifest(result.manifest);
 				setFromCache(false);
@@ -237,7 +237,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 		): Promise<{ success: boolean; error?: string }> => {
 			setIsImporting(true);
 			try {
-				const result = await window.maestro.marketplace.importPlaybook(
+				const result = await window.openwizardai.marketplace.importPlaybook(
 					playbook.id,
 					targetFolderName,
 					autoRunFolderPath,
@@ -258,7 +258,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 	// Fetch README.md content for a playbook
 	const fetchReadme = useCallback(async (playbookPath: string): Promise<string | null> => {
 		try {
-			const result = await window.maestro.marketplace.getReadme(playbookPath);
+			const result = await window.openwizardai.marketplace.getReadme(playbookPath);
 			if (result.success) {
 				// content can be null if README doesn't exist, or undefined
 				return result.content ?? null;
@@ -274,7 +274,7 @@ export function useMarketplace(): UseMarketplaceReturn {
 	const fetchDocument = useCallback(
 		async (playbookPath: string, filename: string): Promise<string | null> => {
 			try {
-				const result = await window.maestro.marketplace.getDocument(playbookPath, filename);
+				const result = await window.openwizardai.marketplace.getDocument(playbookPath, filename);
 				if (result.success) {
 					return result.content ?? null;
 				}

@@ -64,7 +64,7 @@ export function checkWslEnvironment(cwd: string): boolean {
 		logger.warn(
 			'[WSL] Running from Windows mount path - this may cause socket binding failures, ' +
 				'Electron sandbox crashes, npm install issues, and git corruption. ' +
-				'Consider moving your project to the Linux filesystem (e.g., ~/projects/maestro).',
+				'Consider moving your project to the Linux filesystem (e.g., ~/projects/openwizardai).',
 			'WSLDetector',
 			{ cwd }
 		);

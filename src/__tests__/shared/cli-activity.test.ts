@@ -104,7 +104,7 @@ describe('cli-activity', () => {
 						'/Users/testuser',
 						'Library',
 						'Application Support',
-						'OpenWizzard',
+						'OpenWizardAI',
 						'cli-activity.json'
 					),
 					'utf-8'
@@ -122,7 +122,7 @@ describe('cli-activity', () => {
 				getCliActivityForSession('any-session');
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('C:\\Users\\testuser\\AppData\\Roaming', 'OpenWizzard', 'cli-activity.json'),
+					path.join('C:\\Users\\testuser\\AppData\\Roaming', 'OpenWizardAI', 'cli-activity.json'),
 					'utf-8'
 				);
 
@@ -142,7 +142,7 @@ describe('cli-activity', () => {
 						'C:\\Users\\testuser',
 						'AppData',
 						'Roaming',
-						'OpenWizzard',
+						'OpenWizardAI',
 						'cli-activity.json'
 					),
 					'utf-8'
@@ -162,7 +162,7 @@ describe('cli-activity', () => {
 				getCliActivityForSession('any-session');
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('/home/testuser/.custom-config', 'OpenWizzard', 'cli-activity.json'),
+					path.join('/home/testuser/.custom-config', 'OpenWizardAI', 'cli-activity.json'),
 					'utf-8'
 				);
 
@@ -178,7 +178,7 @@ describe('cli-activity', () => {
 				getCliActivityForSession('any-session');
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('/home/testuser', '.config', 'OpenWizzard', 'cli-activity.json'),
+					path.join('/home/testuser', '.config', 'OpenWizardAI', 'cli-activity.json'),
 					'utf-8'
 				);
 
@@ -196,7 +196,7 @@ describe('cli-activity', () => {
 				getCliActivityForSession('any-session');
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('/home/testuser', '.config', 'OpenWizzard', 'cli-activity.json'),
+					path.join('/home/testuser', '.config', 'OpenWizardAI', 'cli-activity.json'),
 					'utf-8'
 				);
 

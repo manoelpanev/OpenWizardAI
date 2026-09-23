@@ -2,7 +2,7 @@
 
 # IPC Patterns Reference
 
-Complete reference for Maestro's IPC (Inter-Process Communication) architecture: namespaces, handler registration, preload bridge, error handling conventions, and SSH-aware patterns.
+Complete reference for OpenWizardAI's IPC (Inter-Process Communication) architecture: namespaces, handler registration, preload bridge, error handling conventions, and SSH-aware patterns.
 
 ---
 
@@ -10,9 +10,9 @@ Complete reference for Maestro's IPC (Inter-Process Communication) architecture:
 
 ```text
 Renderer (React)                    Main (Electron)
-  window.maestro.settings.get()  -->  ipcMain.handle('settings:get', ...)
-  window.maestro.process.spawn() -->  ipcMain.handle('process:spawn', ...)
-  window.maestro.git.status()    -->  ipcMain.handle('git:status', ...)
+  window.openwizardai.settings.get()  -->  ipcMain.handle('settings:get', ...)
+  window.openwizardai.process.spawn() -->  ipcMain.handle('process:spawn', ...)
+  window.openwizardai.git.status()    -->  ipcMain.handle('git:status', ...)
         ^                                      |
         |                                      v
   ipcRenderer.on('output', ...)  <--  safeSend('output', data)
@@ -22,13 +22,13 @@ Three layers:
 
 1. **IPC Handlers** (`src/main/ipc/handlers/`) - Main process handlers registered via `ipcMain.handle()`
 2. **Preload Bridge** (`src/main/preload/`) - Renderer-safe API exposed via `contextBridge.exposeInMainWorld()`
-3. **Renderer Access** - Components call `window.maestro.<namespace>.<method>()`
+3. **Renderer Access** - Components call `window.openwizardai.<namespace>.<method>()`
 
 ---
 
 ## All IPC Namespaces
 
-These namespaces are exposed on `window.maestro` via the preload bridge:
+These namespaces are exposed on `window.openwizardai` via the preload bridge:
 
 | Namespace       | Preload Factory            | Handler File        | Purpose                                                 |
 | --------------- | -------------------------- | ------------------- | ------------------------------------------------------- |
@@ -78,7 +78,7 @@ These namespaces are exposed on `window.maestro` via the preload bridge:
 | `tabNaming`     | `createTabNamingApi()`     | `tabNaming.ts`      | Automatic tab name generation                           |
 | `directorNotes` | `createDirectorNotesApi()` | `director-notes.ts` | Unified history + synopsis                              |
 | `wakatime`      | `createWakatimeApi()`      | `wakatime.ts`       | WakaTime integration                                    |
-| `cue`           | `createCueApi()`           | `cue.ts`            | Maestro Cue event-driven automation                     |
+| `cue`           | `createCueApi()`           | `cue.ts`            | OpenWizardAI Cue event-driven automation                |
 
 ---
 
@@ -177,7 +177,7 @@ Edit `src/main/preload/index.ts`:
 import { createMyFeatureApi } from './myFeature';
 
 // In the contextBridge.exposeInMainWorld call:
-contextBridge.exposeInMainWorld('maestro', {
+contextBridge.exposeInMainWorld('openwizardai', {
 	// ...existing namespaces...
 	myFeature: createMyFeatureApi(),
 });
@@ -185,7 +185,7 @@ contextBridge.exposeInMainWorld('maestro', {
 
 ### Step 5: Add TypeScript types
 
-Add to the `Window` interface so TypeScript knows about `window.maestro.myFeature`:
+Add to the `Window` interface so TypeScript knows about `window.openwizardai.myFeature`:
 
 - Export the API type from preload index
 - Add to the renderer's type declarations
@@ -316,7 +316,7 @@ interface HandlerDependencies {
 	getAgentDetector: () => AgentDetector | null;
 	agentConfigsStore: Store<AgentConfigsData>;
 	getProcessManager: () => ProcessManager | null;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	sessionsStore: Store<SessionsData>;
 	groupsStore: Store<GroupsData>;
 	getWebServer: () => WebServer | null;
@@ -337,7 +337,7 @@ Each handler module exports a `register*Handlers(deps)` function and a `*Handler
 
 ```typescript
 // Renderer
-const result = await window.maestro.git.status(cwd, sshRemoteId);
+const result = await window.openwizardai.git.status(cwd, sshRemoteId);
 
 // Main (ipcMain.handle returns a value)
 ipcMain.handle('git:status', async (_event, cwd, sshRemoteId) => {
@@ -355,7 +355,7 @@ safeSend('usage-update', sessionId, usageStats);
 
 // Renderer: listen for events via preload
 // (preload exposes ipcRenderer.on wrappers in namespace APIs)
-window.maestro.process.onOutput((sessionId, data) => { ... });
+window.openwizardai.process.onOutput((sessionId, data) => { ... });
 ```
 
 ### Event Forwarding (Logger)
@@ -395,7 +395,7 @@ User presses Cmd+Shift+] in webview
 │  Preload bridge                                     │
 │  (src/main/preload/system.ts:226-229)               │
 │  ipcRenderer.on('browser-tab:shortcutKey', handler) │
-│  → exposes as window.maestro.app.                   │
+│  → exposes as window.openwizardai.app.                   │
 │    onBrowserTabShortcutKey(callback)                │
 └─────────────────────┬───────────────────────────────┘
                       │
@@ -417,11 +417,11 @@ User presses Cmd+Shift+] in webview
 
 ### Defense-in-Depth: Guest JS Injection
 
-A secondary forwarding path exists via JavaScript injection into the guest page. The main process injects a capture-phase keydown listener on `dom-ready` and `did-navigate` (`window-manager.ts:326-350`). This listener calls `console.log('__MAESTRO_KEY__...')`, which the main process picks up via `console-message` and forwards over the same `browser-tab:shortcutKey` IPC channel.
+A secondary forwarding path exists via JavaScript injection into the guest page. The main process injects a capture-phase keydown listener on `dom-ready` and `did-navigate` (`window-manager.ts:326-350`). This listener calls `console.log('__OPENWIZARDAI_KEY__...')`, which the main process picks up via `console-message` and forwards over the same `browser-tab:shortcutKey` IPC channel.
 
 This path is **redundant** when `before-input-event` is active (which blocks the keydown from reaching the page). It serves as a fallback for the narrow window between webview mount and guest attachment.
 
-`BrowserTabView.tsx` also injects a similar listener for scroll-based address bar auto-hide (`__MAESTRO_SCROLL__` messages).
+`BrowserTabView.tsx` also injects a similar listener for scroll-based address bar auto-hide (`__OPENWIZARDAI_SCROLL__` messages).
 
 ### Focus-Steal Prevention
 

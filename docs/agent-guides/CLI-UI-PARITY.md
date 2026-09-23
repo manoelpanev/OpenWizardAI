@@ -1,7 +1,7 @@
 # CLI / UI Parity Audit
 
-Goal: (almost) anything a person can do by pointing and clicking in Maestro, an
-agent should be able to do through `maestro-cli`. This file records where that
+Goal: (almost) anything a person can do by pointing and clicking in OpenWizardAI, an
+agent should be able to do through `openwizardai-cli`. This file records where that
 holds today, where it does not, and why.
 
 Audited 2026-08-19 against the three surfaces that define "clickable": the
@@ -14,7 +14,7 @@ Commander tree by `npm run gen:cli-reference`.
 ## Focus belongs to the human (`--background` / `--focus`)
 
 An agent may create a surface. It may not decide the human should be looking at
-it. Every verb that can move the Maestro view or raise a notice carries a
+it. Every verb that can move the OpenWizardAI view or raise a notice carries a
 `background` bit so a caller that wants to stay out of the way has a way to say
 so, and the bundled system prompt tells agents to pass it by DEFAULT.
 
@@ -176,7 +176,7 @@ things a scriptable operation needs:
    persistence.
 
 The handler lives in `useAppRemoteEventListeners.ts`
-(`maestro:remoteUpdateSessionConfig`). It holds two allowlists: agent fields,
+(`openwizardai:remoteUpdateSessionConfig`). It holds two allowlists: agent fields,
 and - when the patch carries a `tabId` - AI tab fields. Adding a scriptable
 field usually means one allowlist entry plus one CLI verb.
 

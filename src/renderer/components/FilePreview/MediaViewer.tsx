@@ -162,7 +162,7 @@ const PlaybackRateMenu = memo(function PlaybackRateMenu({
  * Wraps a native <audio>/<video> element - Electron ships Chromium with
  * proprietary codecs, so MP3/AAC/H.264 play without any bundled decoder - and
  * puts a themed transport on top of it. Bytes arrive over the
- * `maestro-media://` protocol with range support, so scrubbing a large file
+ * `openwizardai-media://` protocol with range support, so scrubbing a large file
  * does not load it into memory.
  *
  * Playback speed is read from and written back to the global settings store,
@@ -256,7 +256,7 @@ export const MediaViewer = memo(function MediaViewer({
 
 		void (async () => {
 			try {
-				const resolved = await window.maestro.fs.readFile(path);
+				const resolved = await window.openwizardai.fs.readFile(path);
 				if (cancelled) return;
 				if (resolved === null) {
 					// Deleted or moved: the read handler returns null for a path that
@@ -373,7 +373,7 @@ export const MediaViewer = memo(function MediaViewer({
 	const handleMediaError = useCallback(() => {
 		setLoadState('error');
 		const forPath = path;
-		void window.maestro.fs
+		void window.openwizardai.fs
 			.stat(forPath)
 			.then((info) => {
 				if (!info && pathRef.current === forPath) setLoadState('missing');
@@ -464,7 +464,7 @@ export const MediaViewer = memo(function MediaViewer({
 	}, []);
 
 	const openExternally = useCallback(() => {
-		void window.maestro.shell.openPath(path);
+		void window.openwizardai.shell.openPath(path);
 	}, [path]);
 
 	// Close the speed menu on any outside click. Both the button and the portaled

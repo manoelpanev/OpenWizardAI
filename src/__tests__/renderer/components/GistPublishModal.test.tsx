@@ -27,13 +27,13 @@ vi.mock('lucide-react', () => ({
 	ExternalLink: () => <svg data-testid="external-link-icon" />,
 }));
 
-// Mock window.maestro.git.createGist
+// Mock window.openwizardai.git.createGist
 const mockCreateGist = vi.fn();
 const mockOpenExternal = vi.fn();
 const mockClipboardWriteText = vi.fn();
 
 beforeEach(() => {
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		git: {
 			createGist: mockCreateGist,
 		},

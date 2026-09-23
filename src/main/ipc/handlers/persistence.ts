@@ -24,8 +24,13 @@ import {
 } from '../../web-server/web-settings-snapshot';
 
 // Re-export types from canonical source so existing imports from './persistence' still work
-export type { MaestroSettings, SessionsData, GroupsData } from '../../stores/types';
-import type { MaestroSettings, SessionsData, GroupsData, StoredSession } from '../../stores/types';
+export type { OpenWizardAISettings, SessionsData, GroupsData } from '../../stores/types';
+import type {
+	OpenWizardAISettings,
+	SessionsData,
+	GroupsData,
+	StoredSession,
+} from '../../stores/types';
 import type { Group, SessionCliActivity } from '../../../shared/types';
 import { relocateSessionImages, resolveToDataUrl } from '../../storage/session-image-store';
 import { clearGhCache } from '../../utils/cliDetection';
@@ -80,7 +85,7 @@ function notifyPeerWindows(senderWebContentsId: number | undefined): void {
  * Dependencies required for persistence handlers
  */
 export interface PersistenceHandlerDependencies {
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	sessionsStore: Store<SessionsData>;
 	groupsStore: Store<GroupsData>;
 	getWebServer: () => WebServer | null;
@@ -231,7 +236,7 @@ export function registerPersistenceHandlers(deps: PersistenceHandlerDependencies
 		// Heal legacy sessions files: relocate any images still stored inline as
 		// base64 data URLs into the content-addressed image store, returning
 		// lightweight refs. Before this existed, pasted screenshots ballooned
-		// maestro-sessions.json to hundreds of MB (264MB in one field trace),
+		// openwizardai-sessions.json to hundreds of MB (264MB in one field trace),
 		// freezing the main thread on every read/write. The scan is cheap and a
 		// no-op once healed (already-relocated sessions carry only refs). We
 		// rewrite the store once so the next launch reads the small file.
@@ -240,7 +245,7 @@ export function registerPersistenceHandlers(deps: PersistenceHandlerDependencies
 			if (count > 0) {
 				sessionsStore.set('sessions', relocated);
 				logger.info(
-					`Relocated ${count} inline session image(s) out of maestro-sessions.json`,
+					`Relocated ${count} inline session image(s) out of openwizardai-sessions.json`,
 					'Sessions'
 				);
 				logger.debug(`Loaded ${relocated.length} sessions from store`, 'Sessions');
@@ -259,8 +264,8 @@ export function registerPersistenceHandlers(deps: PersistenceHandlerDependencies
 		return sessions;
 	});
 
-	// Resolve a `maestro-image://` reference (or passthrough data URL) back to a
-	// data URL. Used by surfaces that cannot load the maestro-image protocol
+	// Resolve a `openwizardai-image://` reference (or passthrough data URL) back to a
+	// data URL. Used by surfaces that cannot load the openwizardai-image protocol
 	// directly (HTML export, clipboard copy, and any renderer code that needs the
 	// raw bytes rather than an <img src>).
 	ipcMain.handle('images:resolve', async (_, ref: string): Promise<string | null> => {

@@ -25,7 +25,7 @@ import { generateId } from '../../utils/ids';
 import { validateNewSession } from '../../utils/sessionValidation';
 import { getTerminalSessionId } from '../../utils/terminalTabHelpers';
 import { gitService } from '../../services/git';
-import { PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 import { logger } from '../../utils/logger';
 
 // ============================================================================
@@ -72,9 +72,9 @@ export interface UseSessionCrudReturn {
 		},
 		customEffort?: string,
 		groupId?: string,
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic',
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic',
 		retryOnAvailabilityErrors?: boolean,
 		retryOnTokenExhaustion?: boolean
 	) => Promise<void>;
@@ -153,15 +153,15 @@ export function useSessionCrud(deps: UseSessionCrudDeps): UseSessionCrudReturn {
 			},
 			customEffort?: string,
 			groupId?: string,
-			enableMaestroP?: boolean,
-			maestroPPath?: string,
-			maestroPMode?: 'interactive' | 'dynamic',
+			enableOpenWizardAIP?: boolean,
+			openwizardaiPPath?: string,
+			openwizardaiPMode?: 'interactive' | 'dynamic',
 			retryOnAvailabilityErrors?: boolean,
 			retryOnTokenExhaustion?: boolean
 		) => {
 			try {
 				// Get agent definition to get correct command
-				const agent = await (window as any).maestro.agents.get(agentId);
+				const agent = await (window as any).openwizardai.agents.get(agentId);
 				if (!agent) {
 					logger.error(`Agent not found: ${agentId}`);
 					return;
@@ -283,9 +283,9 @@ export function useSessionCrud(deps: UseSessionCrudDeps): UseSessionCrudReturn {
 					sessionSshRemoteConfig,
 					groupId,
 					autoRunFolderPath: `${workingDir}/${PLAYBOOKS_DIR}`,
-					enableMaestroP,
-					maestroPPath,
-					maestroPMode,
+					enableOpenWizardAIP,
+					openwizardaiPPath,
+					openwizardaiPMode,
 					// Agent Resilience: only persist an explicit OFF; leaving these
 					// undefined reads as ON via `resilienceEnabled`, so the default
 					// behavior needs no stored value.
@@ -297,7 +297,7 @@ export function useSessionCrud(deps: UseSessionCrudDeps): UseSessionCrudReturn {
 
 				setSessions((prev) => [...prev, newSession]);
 				setActiveSessionId(newId);
-				(window as any).maestro.stats.recordSessionCreated({
+				(window as any).openwizardai.stats.recordSessionCreated({
 					sessionId: newId,
 					agentType: agentId,
 					projectPath: workingDir,
@@ -347,19 +347,19 @@ export function useSessionCrud(deps: UseSessionCrudDeps): UseSessionCrudReturn {
 				async () => {
 					for (const session of groupSessions) {
 						try {
-							await (window as any).maestro.process.kill(`${session.id}-ai`);
+							await (window as any).openwizardai.process.kill(`${session.id}-ai`);
 						} catch (error) {
 							logger.error('Failed to kill AI process:', undefined, error);
 						}
 						try {
-							await (window as any).maestro.process.kill(`${session.id}-terminal`);
+							await (window as any).openwizardai.process.kill(`${session.id}-terminal`);
 						} catch (error) {
 							logger.error('Failed to kill terminal process:', undefined, error);
 						}
 						// Kill terminal tab PTYs - each tab has its own PTY
 						for (const tab of session.terminalTabs || []) {
 							try {
-								await (window as any).maestro.process.kill(
+								await (window as any).openwizardai.process.kill(
 									getTerminalSessionId(session.id, tab.id)
 								);
 							} catch (error) {
@@ -367,7 +367,7 @@ export function useSessionCrud(deps: UseSessionCrudDeps): UseSessionCrudReturn {
 							}
 						}
 						try {
-							await (window as any).maestro.playbooks.deleteAll(session.id);
+							await (window as any).openwizardai.playbooks.deleteAll(session.id);
 						} catch (error) {
 							logger.error('Failed to delete playbooks:', undefined, error);
 						}
@@ -439,13 +439,13 @@ export function useSessionCrud(deps: UseSessionCrudDeps): UseSessionCrudReturn {
 				if (providerSessionId && session?.projectRoot) {
 					const agentId = session.toolType || 'claude-code';
 					if (agentId === 'claude-code') {
-						(window as any).maestro.claude
+						(window as any).openwizardai.claude
 							.updateSessionName(session.projectRoot, providerSessionId, newName)
 							.catch((err: Error) =>
 								logger.warn('[finishRenamingSession] Failed to sync session name:', undefined, err)
 							);
 					} else {
-						(window as any).maestro.agentSessions
+						(window as any).openwizardai.agentSessions
 							.setSessionName(agentId, session.projectRoot, providerSessionId, newName)
 							.catch((err: Error) =>
 								logger.warn('[finishRenamingSession] Failed to sync session name:', undefined, err)

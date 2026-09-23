@@ -1,9 +1,9 @@
 /**
  * @fileoverview Tests for GroupChatModal component (create and edit modes)
  *
- * Regression test for: MAESTRO_SESSION_RESUMED env var display in group chat moderator customization
+ * Regression test for: OPENWIZARDAI_SESSION_RESUMED env var display in group chat moderator customization
  * This test ensures that when users customize the moderator agent in group chat modals,
- * they see the built-in MAESTRO_SESSION_RESUMED environment variable.
+ * they see the built-in OPENWIZARDAI_SESSION_RESUMED environment variable.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -127,10 +127,10 @@ describe('GroupChatModal', () => {
 	 */
 	function setupDefaultMocks(agents?: AgentConfig[]) {
 		const defaultAgents = agents ?? [createMockAgent({ id: 'claude-code', name: 'Claude Code' })];
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue(defaultAgents);
-		vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
-		vi.mocked(window.maestro.agents.setConfig).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.agents.getModels).mockResolvedValue([]);
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue(defaultAgents);
+		vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
+		vi.mocked(window.openwizardai.agents.setConfig).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([]);
 	}
 
 	beforeEach(() => {
@@ -142,7 +142,7 @@ describe('GroupChatModal', () => {
 	});
 
 	describe('create mode', () => {
-		it('should display MAESTRO_SESSION_RESUMED in moderator configuration panel', async () => {
+		it('should display OPENWIZARDAI_SESSION_RESUMED in moderator configuration panel', async () => {
 			const onCreate = vi.fn();
 			const onClose = vi.fn();
 
@@ -172,9 +172,9 @@ describe('GroupChatModal', () => {
 			const customizeButton = screen.getByRole('button', { name: /customize/i });
 			fireEvent.click(customizeButton);
 
-			// Wait for config panel to appear and verify MAESTRO_SESSION_RESUMED is displayed
+			// Wait for config panel to appear and verify OPENWIZARDAI_SESSION_RESUMED is displayed
 			await waitFor(() => {
-				expect(screen.getByText('MAESTRO_SESSION_RESUMED')).toBeInTheDocument();
+				expect(screen.getByText('OPENWIZARDAI_SESSION_RESUMED')).toBeInTheDocument();
 			});
 
 			// Also verify the value hint is shown
@@ -220,7 +220,7 @@ describe('GroupChatModal', () => {
 	});
 
 	describe('edit mode', () => {
-		it('should display MAESTRO_SESSION_RESUMED in moderator configuration panel', async () => {
+		it('should display OPENWIZARDAI_SESSION_RESUMED in moderator configuration panel', async () => {
 			const onSave = vi.fn();
 			const onClose = vi.fn();
 			const groupChat = createMockGroupChat();
@@ -252,9 +252,9 @@ describe('GroupChatModal', () => {
 			const customizeButton = screen.getByRole('button', { name: /customize/i });
 			fireEvent.click(customizeButton);
 
-			// Wait for config panel to appear and verify MAESTRO_SESSION_RESUMED is displayed
+			// Wait for config panel to appear and verify OPENWIZARDAI_SESSION_RESUMED is displayed
 			await waitFor(() => {
-				expect(screen.getByText('MAESTRO_SESSION_RESUMED')).toBeInTheDocument();
+				expect(screen.getByText('OPENWIZARDAI_SESSION_RESUMED')).toBeInTheDocument();
 			});
 
 			// Also verify the value hint is shown

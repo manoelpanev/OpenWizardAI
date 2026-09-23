@@ -17,7 +17,7 @@ const confirmQuit = vi.fn();
 
 // Augment the real jsdom `window` rather than replacing it - this suite renders
 // hooks, and swapping the global out from under React breaks its DOM access.
-(globalThis as unknown as { window: Record<string, unknown> }).window.maestro = {
+(globalThis as unknown as { window: Record<string, unknown> }).window.openwizardai = {
 	process: { getActiveProcesses: mockGetActiveProcesses },
 	cue: { getActiveRuns: mockGetActiveCueRuns },
 	app: { confirmQuit },

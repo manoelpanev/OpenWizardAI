@@ -5,7 +5,7 @@ import type { Theme, ThemeMode } from '../types';
 import type { ConductorBadge } from '../constants/conductorBadges';
 import { useModalLayer } from '../hooks/ui/useModalLayer';
 import { MODAL_PRIORITIES } from '../constants/modalPriorities';
-import { AnimatedMaestro } from './MaestroSilhouette';
+import { AnimatedOpenWizardAI } from './OpenWizardAISilhouette';
 import {
 	formatCumulativeTime,
 	formatTimeRemaining,
@@ -30,7 +30,7 @@ interface StandingOvationOverlayProps {
 
 /**
  * Full-screen celebration overlay for badge unlocks and new records
- * Features animated maestro, confetti-like effects, and badge information
+ * Features animated openwizardai, confetti-like effects, and badge information
  */
 export function StandingOvationOverlay({
 	theme,
@@ -52,7 +52,7 @@ export function StandingOvationOverlay({
 	// State
 	const nextBadge = getNextBadge(badge);
 	const isDark = themeMode === 'dark';
-	const maestroVariant = isDark ? 'light' : 'dark';
+	const openwizardaiVariant = isDark ? 'light' : 'dark';
 	const [shareMenuOpen, setShareMenuOpen] = useState(false);
 	const [copySuccess, setCopySuccess] = useState(false);
 	const [isClosing, setIsClosing] = useState(false);
@@ -281,7 +281,7 @@ export function StandingOvationOverlay({
 		ctx.font = 'bold 12px system-ui';
 		ctx.fillStyle = textDim;
 		ctx.textAlign = 'center';
-		ctx.fillText('OPENWIZZARD • Agent Orchestration Command Center', width / 2, height - 20);
+		ctx.fillText('OPENWIZARDAI • Agent Orchestration Command Center', width / 2, height - 20);
 
 		return canvas;
 	}, [badge, cumulativeTimeMs, recordTimeMs, isNewRecord, purpleAccent, theme.colors]);
@@ -331,7 +331,7 @@ export function StandingOvationOverlay({
 		try {
 			const canvas = await generateShareImage();
 			const link = document.createElement('a');
-			link.download = `maestro-achievement-level-${badge.level}.png`;
+			link.download = `openwizardai-achievement-level-${badge.level}.png`;
 			link.href = canvas.toDataURL('image/png');
 			link.click();
 		} catch (error) {
@@ -410,7 +410,7 @@ export function StandingOvationOverlay({
 						</p>
 					</div>
 
-					{/* Maestro silhouette */}
+					{/* OpenWizardAI silhouette */}
 					<div className="flex justify-center py-4">
 						<div
 							className="relative"
@@ -418,7 +418,7 @@ export function StandingOvationOverlay({
 								filter: `drop-shadow(0 0 20px ${purpleAccent}60)`,
 							}}
 						>
-							<AnimatedMaestro variant={maestroVariant} size={160} />
+							<AnimatedOpenWizardAI variant={openwizardaiVariant} size={160} />
 						</div>
 					</div>
 
@@ -458,7 +458,7 @@ export function StandingOvationOverlay({
 							}}
 						>
 							<p className="text-xs mb-1" style={{ color: theme.colors.textDim }}>
-								Example OpenWizzard
+								Example OpenWizardAI
 							</p>
 							<p className="font-medium" style={{ color: theme.colors.textMain }}>
 								{badge.exampleConductor.name}

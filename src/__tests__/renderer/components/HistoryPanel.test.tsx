@@ -149,13 +149,13 @@ describe('HistoryPanel', () => {
 		// Reset uiStore state used by HistoryPanel
 		useUIStore.setState({ historySearchFilterOpen: false });
 
-		// Default: maestroCue disabled
+		// Default: openwizardaiCue disabled
 		useSettingsStore.setState({
 			encoreFeatures: {
 				directorNotes: false,
 				usageStats: false,
 				symphony: false,
-				maestroCue: false,
+				openwizardaiCue: false,
 			},
 		});
 
@@ -167,7 +167,7 @@ describe('HistoryPanel', () => {
 		mockHistoryDelete = vi.fn().mockResolvedValue(true);
 		mockHistoryUpdate = vi.fn().mockResolvedValue(true);
 
-		// Add history, settings, and directorNotes mocks to window.maestro.
+		// Add history, settings, and directorNotes mocks to window.openwizardai.
 		// `getAll` is no longer called by HistoryPanel (replaced by paginated
 		// loading), but tests still drive the entry set through
 		// `mockHistoryGetAll.mockResolvedValue([...])`. We bridge that via an
@@ -209,7 +209,7 @@ describe('HistoryPanel', () => {
 		);
 		(
 			window as unknown as {
-				maestro: {
+				openwizardai: {
 					history: {
 						getAll: typeof mockHistoryGetAll;
 						getAllPaginated: typeof getAllPaginatedAdapter;
@@ -227,7 +227,7 @@ describe('HistoryPanel', () => {
 					};
 				};
 			}
-		).maestro = {
+		).openwizardai = {
 			history: {
 				getAll: mockHistoryGetAll,
 				getAllPaginated: getAllPaginatedAdapter,
@@ -578,13 +578,13 @@ describe('HistoryPanel', () => {
 		});
 
 		it('should toggle CUE filter', async () => {
-			// Enable maestroCue so CUE filter button is visible
+			// Enable openwizardaiCue so CUE filter button is visible
 			useSettingsStore.setState({
 				encoreFeatures: {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 
@@ -632,15 +632,15 @@ describe('HistoryPanel', () => {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 			mockHistoryGetAll.mockResolvedValue([]);
 			const getAllPaginated = (
 				window as unknown as {
-					maestro: { history: { getAllPaginated: ReturnType<typeof vi.fn> } };
+					openwizardai: { history: { getAllPaginated: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.history.getAllPaginated;
+			).openwizardai.history.getAllPaginated;
 
 			render(<HistoryPanel session={createMockSession()} theme={mockTheme} />);
 
@@ -673,7 +673,7 @@ describe('HistoryPanel', () => {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 			mockHistoryGetAll.mockResolvedValue([
@@ -710,13 +710,13 @@ describe('HistoryPanel', () => {
 			});
 		});
 
-		it('should hide CUE filter button when maestroCue is disabled', async () => {
+		it('should hide CUE filter button when openwizardaiCue is disabled', async () => {
 			useSettingsStore.setState({
 				encoreFeatures: {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: false,
+					openwizardaiCue: false,
 				},
 			});
 
@@ -1067,9 +1067,9 @@ describe('HistoryPanel', () => {
 		const paginatedCalls = () =>
 			(
 				window as unknown as {
-					maestro: { history: { getAllPaginated: { mock: { calls: unknown[][] } } } };
+					openwizardai: { history: { getAllPaginated: { mock: { calls: unknown[][] } } } };
 				}
-			).maestro.history.getAllPaginated.mock.calls;
+			).openwizardai.history.getAllPaginated.mock.calls;
 
 		it('forwards the setting to the paginated read', async () => {
 			useSettingsStore.setState({ groupCueEntries: true });
@@ -1098,7 +1098,7 @@ describe('HistoryPanel', () => {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 			mockHistoryGetAll.mockResolvedValue([
@@ -1147,7 +1147,7 @@ describe('HistoryPanel', () => {
 			directorNotes: false,
 			usageStats: false,
 			symphony: false,
-			maestroCue: true,
+			openwizardaiCue: true,
 		};
 
 		// Two runs of one chatty trigger. Neither summary contains the trigger
@@ -1176,9 +1176,9 @@ describe('HistoryPanel', () => {
 		const paginatedMock = () =>
 			(
 				window as unknown as {
-					maestro: { history: { getAllPaginated: ReturnType<typeof vi.fn> } };
+					openwizardai: { history: { getAllPaginated: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.history.getAllPaginated;
+			).openwizardai.history.getAllPaginated;
 
 		const lastRequest = () => {
 			const calls = paginatedMock().mock.calls;
@@ -1214,9 +1214,9 @@ describe('HistoryPanel', () => {
 			});
 			(
 				window as unknown as {
-					maestro: { history: { getAllPaginated: unknown } };
+					openwizardai: { history: { getAllPaginated: unknown } };
 				}
-			).maestro.history.getAllPaginated = read;
+			).openwizardai.history.getAllPaginated = read;
 			return read;
 		};
 
@@ -2270,7 +2270,7 @@ describe('HistoryPanel', () => {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 

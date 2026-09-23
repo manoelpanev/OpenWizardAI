@@ -17,7 +17,7 @@ import type { SshRemoteConfig, AgentSshRemoteConfig } from '../../../shared/type
 import { logger } from '../../utils/logger';
 
 declare const window: Window & {
-	maestro: {
+	openwizardai: {
 		agents: {
 			detect: (sshRemoteId?: string) => Promise<AgentConfig[]>;
 			getConfig: (agentId: string) => Promise<Record<string, any> | null>;
@@ -50,11 +50,11 @@ export interface UseAgentConfigurationOptions {
 		/** Env vars switched off in the editor: parked, never spawned with. */
 		customEnvVarsDisabled?: Record<string, string>;
 		/** Claude token-source: legacy Adaptive opt-in (off => pure API). */
-		enableMaestroP?: boolean;
-		/** Refines `enableMaestroP`: 'interactive' always TUI, 'dynamic' auto-switch. */
-		maestroPMode?: 'interactive' | 'dynamic';
-		/** Optional override path to the maestro-p binary. */
-		maestroPPath?: string;
+		enableOpenWizardAIP?: boolean;
+		/** Refines `enableOpenWizardAIP`: 'interactive' always TUI, 'dynamic' auto-switch. */
+		openwizardaiPMode?: 'interactive' | 'dynamic';
+		/** Optional override path to the openwizardai-p binary. */
+		openwizardaiPPath?: string;
 	};
 }
 
@@ -87,13 +87,13 @@ export interface UseAgentConfigurationReturn {
 	customEnvVarsDisabled: Record<string, string>;
 	setCustomEnvVarsDisabled: Dispatch<SetStateAction<Record<string, string>>>;
 
-	// Claude token source (maestro-p TUI vs `claude --print` API)
-	enableMaestroP: boolean;
-	setEnableMaestroP: (enabled: boolean) => void;
-	maestroPMode: 'interactive' | 'dynamic';
-	setMaestroPMode: (mode: 'interactive' | 'dynamic') => void;
-	maestroPPath: string;
-	setMaestroPPath: (path: string) => void;
+	// Claude token source (openwizardai-p TUI vs `claude --print` API)
+	enableOpenWizardAIP: boolean;
+	setEnableOpenWizardAIP: (enabled: boolean) => void;
+	openwizardaiPMode: 'interactive' | 'dynamic';
+	setOpenWizardAIPMode: (mode: 'interactive' | 'dynamic') => void;
+	openwizardaiPPath: string;
+	setOpenWizardAIPPath: (path: string) => void;
 
 	// Agent config (model, context window, etc.)
 	agentConfig: Record<string, any>;
@@ -160,12 +160,16 @@ export function useAgentConfiguration(
 		initialValues?.customEnvVarsDisabled ?? {}
 	);
 
-	// Claude token source (maestro-p TUI vs `claude --print` API)
-	const [enableMaestroP, setEnableMaestroP] = useState(initialValues?.enableMaestroP ?? false);
-	const [maestroPMode, setMaestroPMode] = useState<'interactive' | 'dynamic'>(
-		initialValues?.maestroPMode ?? 'dynamic'
+	// Claude token source (openwizardai-p TUI vs `claude --print` API)
+	const [enableOpenWizardAIP, setEnableOpenWizardAIP] = useState(
+		initialValues?.enableOpenWizardAIP ?? false
 	);
-	const [maestroPPath, setMaestroPPath] = useState(initialValues?.maestroPPath ?? '');
+	const [openwizardaiPMode, setOpenWizardAIPMode] = useState<'interactive' | 'dynamic'>(
+		initialValues?.openwizardaiPMode ?? 'dynamic'
+	);
+	const [openwizardaiPPath, setOpenWizardAIPPath] = useState(
+		initialValues?.openwizardaiPPath ?? ''
+	);
 
 	// Agent config
 	const [agentConfig, setAgentConfig] = useState<Record<string, any>>({});
@@ -200,9 +204,9 @@ export function useAgentConfiguration(
 		setCustomPath('');
 		setCustomArgs('');
 		setCustomEnvVars({});
-		setEnableMaestroP(false);
-		setMaestroPMode('dynamic');
-		setMaestroPPath('');
+		setEnableOpenWizardAIP(false);
+		setOpenWizardAIPMode('dynamic');
+		setOpenWizardAIPPath('');
 		setAgentConfig({});
 		agentConfigRef.current = {};
 		setAvailableModels([]);
@@ -217,7 +221,7 @@ export function useAgentConfiguration(
 	const detectAgents = useCallback(async () => {
 		setIsDetecting(true);
 		try {
-			const agents = await window.maestro.agents.detect();
+			const agents = await window.openwizardai.agents.detect();
 			const filtered = agentFilter
 				? agents.filter(agentFilter)
 				: agents.filter((a: AgentConfig) => a.available && !a.hidden);
@@ -239,7 +243,7 @@ export function useAgentConfiguration(
 		async (agentId: string) => {
 			const requestId = ++latestLoadRequestRef.current;
 
-			const config = await window.maestro.agents.getConfig(agentId);
+			const config = await window.openwizardai.agents.getConfig(agentId);
 			if (latestLoadRequestRef.current !== requestId) return; // stale
 			setAgentConfig(config || {});
 			agentConfigRef.current = config || {};
@@ -249,7 +253,7 @@ export function useAgentConfiguration(
 			if (agent?.capabilities?.supportsModelSelection) {
 				setLoadingModels(true);
 				try {
-					const models = await window.maestro.agents.getModels(agentId);
+					const models = await window.openwizardai.agents.getModels(agentId);
 					if (latestLoadRequestRef.current !== requestId) return; // stale
 					setAvailableModels(models);
 				} catch (err) {
@@ -273,7 +277,10 @@ export function useAgentConfiguration(
 						await Promise.all(
 							dynamicSelects.map(async (opt: any) => {
 								try {
-									const options = await window.maestro.agents.getConfigOptions(agentId, opt.key);
+									const options = await window.openwizardai.agents.getConfigOptions(
+										agentId,
+										opt.key
+									);
 									results[opt.key] = options;
 								} catch {
 									// Silently fall back to static options
@@ -295,7 +302,7 @@ export function useAgentConfiguration(
 
 	// Save agent config via IPC
 	const saveAgentConfig = useCallback(async (agentId: string): Promise<boolean> => {
-		return await window.maestro.agents.setConfig(agentId, agentConfigRef.current);
+		return await window.openwizardai.agents.setConfig(agentId, agentConfigRef.current);
 	}, []);
 
 	// Refresh models
@@ -303,7 +310,7 @@ export function useAgentConfiguration(
 		if (!selectedAgent) return;
 		setLoadingModels(true);
 		try {
-			const models = await window.maestro.agents.getModels(selectedAgent, true);
+			const models = await window.openwizardai.agents.getModels(selectedAgent, true);
 			setAvailableModels(models);
 		} catch (err) {
 			logger.error('Failed to refresh models:', undefined, err);
@@ -316,7 +323,7 @@ export function useAgentConfiguration(
 	const refreshAgent = useCallback(async () => {
 		setRefreshingAgent(true);
 		try {
-			const agents = await window.maestro.agents.detect();
+			const agents = await window.openwizardai.agents.detect();
 			const filtered = agentFilter
 				? agents.filter(agentFilter)
 				: agents.filter((a: AgentConfig) => a.available && !a.hidden);
@@ -338,9 +345,9 @@ export function useAgentConfiguration(
 			setCustomPath('');
 			setCustomArgs('');
 			setCustomEnvVars({});
-			setEnableMaestroP(false);
-			setMaestroPMode('dynamic');
-			setMaestroPPath('');
+			setEnableOpenWizardAIP(false);
+			setOpenWizardAIPMode('dynamic');
+			setOpenWizardAIPPath('');
 			setAgentConfig({});
 			agentConfigRef.current = {};
 			setAvailableModels([]);
@@ -371,7 +378,7 @@ export function useAgentConfiguration(
 		if (shouldLoadSshRemotes) {
 			(async () => {
 				try {
-					const configsResult = await window.maestro.sshRemote.getConfigs();
+					const configsResult = await window.openwizardai.sshRemote.getConfigs();
 					if (configsResult.success && configsResult.configs) {
 						setSshRemotes(configsResult.configs);
 					}
@@ -417,12 +424,12 @@ export function useAgentConfiguration(
 		setCustomEnvVarsDisabled,
 
 		// Claude token source
-		enableMaestroP,
-		setEnableMaestroP,
-		maestroPMode,
-		setMaestroPMode,
-		maestroPPath,
-		setMaestroPPath,
+		enableOpenWizardAIP,
+		setEnableOpenWizardAIP,
+		openwizardaiPMode,
+		setOpenWizardAIPMode,
+		openwizardaiPPath,
+		setOpenWizardAIPPath,
 
 		// Agent config
 		agentConfig,

@@ -180,7 +180,7 @@ interface WebTerminalProps {
 	onData: (data: string) => void;
 	/** Called when the terminal is resized */
 	onResize?: (cols: number, rows: number) => void;
-	/** Maestro theme for terminal styling */
+	/** OpenWizardAI theme for terminal styling */
 	theme: Theme;
 	/** Font size (default: 13) */
 	fontSize?: number;

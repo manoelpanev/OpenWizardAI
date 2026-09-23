@@ -52,7 +52,7 @@ Read fully and follow: `./steps/step-01-document-discovery.md` to begin the work
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ## src/bmm/workflows/3-solutioning/bmad-check-implementation-readiness/steps/step-01-document-discovery.md
 

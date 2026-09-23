@@ -61,7 +61,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	useAiCommandStore.setState({ entries: {} });
 	suggest = vi.fn().mockResolvedValue({ success: true, command: 'du -sh *' });
-	(window as unknown as { maestro: unknown }).maestro = { aiCommand: { suggest } };
+	(window as unknown as { openwizardai: unknown }).openwizardai = { aiCommand: { suggest } };
 });
 
 describe('requestAiCommand', () => {

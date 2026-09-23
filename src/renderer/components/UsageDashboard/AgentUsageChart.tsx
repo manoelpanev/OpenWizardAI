@@ -1,11 +1,11 @@
 /**
  * AgentUsageChart
  *
- * Line chart showing Maestro agent (session) usage over time with one line per agent.
+ * Line chart showing OpenWizardAI agent (session) usage over time with one line per agent.
  * Displays query counts and duration for each agent that was used during the time period.
  *
  * Features:
- * - One line per Maestro agent (named session from left panel)
+ * - One line per OpenWizardAI agent (named session from left panel)
  * - Toggle between query count and time metrics
  * - Session ID to name mapping when names are available
  * - Hover tooltips with exact values

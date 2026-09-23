@@ -2,7 +2,7 @@
  * @file open-graph.test.ts
  * @description Tests for the open-graph CLI command.
  *
- * `open-graph` is a separate verb rather than a `maestro-cli open <surface>`
+ * `open-graph` is a separate verb rather than a `openwizardai-cli open <surface>`
  * entry because `open_modal` carries only a surface name and a tab. These tests
  * pin the parts that are easy to get wrong: paths go over the wire ABSOLUTE
  * (the renderer roots the graph at `projectRoot || cwd`, which is not always
@@ -18,8 +18,8 @@ vi.mock('fs', () => ({
 	readdirSync: vi.fn(),
 }));
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 const mockSession = {
@@ -36,7 +36,7 @@ vi.mock('../../../cli/services/storage', () => ({
 }));
 
 import { openGraph } from '../../../cli/commands/open-graph';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { existsSync, statSync, readdirSync } from 'fs';
 
 interface SentMessage {
@@ -50,7 +50,7 @@ interface SentMessage {
 /** Capture the message the command puts on the wire. */
 function captureSend(): { sent: SentMessage } {
 	const captured: { sent: SentMessage } = { sent: {} };
-	vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 		const client = {
 			sendCommand: vi.fn().mockImplementation((msg: SentMessage) => {
 				captured.sent = msg;

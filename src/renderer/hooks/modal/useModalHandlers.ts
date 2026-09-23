@@ -276,12 +276,12 @@ export function useModalHandlers(
 
 	const handleConfirmQuit = useCallback(() => {
 		getModalActions().setQuitConfirmModalOpen(false);
-		window.maestro.app.confirmQuit();
+		window.openwizardai.app.confirmQuit();
 	}, []);
 
 	const handleCancelQuit = useCallback(() => {
 		getModalActions().setQuitConfirmModalOpen(false);
-		window.maestro.app.cancelQuit();
+		window.openwizardai.app.cancelQuit();
 	}, []);
 
 	// Defer the quit: close the modal, release this quit attempt so the app keeps
@@ -290,7 +290,7 @@ export function useModalHandlers(
 	const handleQuitWhenIdle = useCallback(() => {
 		getModalActions().setQuitConfirmModalOpen(false);
 		useQuitWhenIdleStore.getState().arm();
-		window.maestro.app.cancelQuit();
+		window.openwizardai.app.cancelQuit();
 	}, []);
 
 	// ====================================================================
@@ -329,7 +329,7 @@ export function useModalHandlers(
 			}
 			// Also bump the daily-firings counter so the Usage Dashboard bar
 			// chart includes shortcuts handled inside the System Log Viewer.
-			void window.maestro?.stats?.recordShortcutUsage?.(Date.now());
+			void window.openwizardai?.stats?.recordShortcutUsage?.(Date.now());
 		},
 		[onKeyboardMasteryLevelUp]
 	);

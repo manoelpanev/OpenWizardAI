@@ -57,7 +57,7 @@ interface UseFileContextMenuResult {
 	handleCopyFileName: () => void;
 	handleDownloadFile: () => Promise<void>;
 	handleOpenInDefaultApp: () => void;
-	handleOpenInMaestroBrowser: () => void;
+	handleOpenInOpenWizardAIBrowser: () => void;
 	handleOpenInExplorer: () => void;
 	handleOpenNewFile: () => void;
 	handleOpenNewFolder: () => void;
@@ -487,7 +487,7 @@ export function useFileContextMenu({
 		const openAll = () => {
 			for (const file of files) {
 				const absolutePath = `${session.fullPath}/${file.path}`;
-				void window.maestro?.shell?.openPath(absolutePath);
+				void window.openwizardai?.shell?.openPath(absolutePath);
 			}
 			onShowFlash?.(`Opened ${files.length} file${files.length !== 1 ? 's' : ''}`);
 		};
@@ -535,7 +535,7 @@ export function useFileContextMenu({
 			const nodesByAbsolutePath = new Map(
 				multiDeleteModal.nodes.map((item) => [`${session.fullPath}/${item.path}`, item])
 			);
-			const { results } = await window.maestro.fs.deleteMany([...nodesByAbsolutePath.keys()], {
+			const { results } = await window.openwizardai.fs.deleteMany([...nodesByAbsolutePath.keys()], {
 				sshRemoteId,
 			});
 			batchCompleted = true;
@@ -627,14 +627,14 @@ export function useFileContextMenu({
 		const remotePath = `${session.fullPath}/${menu.path}`;
 		const fileName = menu.node.name;
 		try {
-			const destPath = await window.maestro.dialog.saveFile({
+			const destPath = await window.openwizardai.dialog.saveFile({
 				defaultPath: fileName,
 				title: 'Download File',
 			});
 			// User cancelled the save dialog.
 			if (!destPath) return;
 
-			await window.maestro.fs.downloadRemoteFile(remotePath, sshRemoteId, destPath);
+			await window.openwizardai.fs.downloadRemoteFile(remotePath, sshRemoteId, destPath);
 			onShowFlash?.(`Downloaded "${fileName}"`);
 		} catch (error) {
 			captureException(error, {
@@ -654,12 +654,12 @@ export function useFileContextMenu({
 	const handleOpenInDefaultApp = useCallback(() => {
 		if (contextMenu) {
 			const absolutePath = `${session.fullPath}/${contextMenu.path}`;
-			window.maestro?.shell?.openPath(absolutePath);
+			window.openwizardai?.shell?.openPath(absolutePath);
 		}
 		setContextMenu(null);
 	}, [contextMenu, session.fullPath]);
 
-	const handleOpenInMaestroBrowser = useCallback(() => {
+	const handleOpenInOpenWizardAIBrowser = useCallback(() => {
 		if (contextMenu && contextMenu.node && contextMenu.node.type === 'file' && onOpenBrowserTabAt) {
 			const absolutePath = `${session.fullPath}/${contextMenu.path}`;
 			const normalizedPath = absolutePath.replace(/\\/g, '/');
@@ -678,7 +678,7 @@ export function useFileContextMenu({
 	const handleOpenInExplorer = useCallback(() => {
 		if (contextMenu) {
 			const absolutePath = `${session.fullPath}/${contextMenu.path}`;
-			window.maestro?.shell?.showItemInFolder(absolutePath);
+			window.openwizardai?.shell?.showItemInFolder(absolutePath);
 		}
 		setContextMenu(null);
 	}, [contextMenu, session.fullPath]);
@@ -730,7 +730,7 @@ export function useFileContextMenu({
 		const folderName = menu.node.name;
 		const absolutePath = `${session.fullPath}/${menu.path}`;
 		try {
-			const result = await window.maestro.fs.compressFolder(absolutePath, { sshRemoteId });
+			const result = await window.openwizardai.fs.compressFolder(absolutePath, { sshRemoteId });
 			notifyToast({
 				color: 'green',
 				title: 'Folder compressed',
@@ -784,7 +784,7 @@ export function useFileContextMenu({
 		handleCopyFileName,
 		handleDownloadFile,
 		handleOpenInDefaultApp,
-		handleOpenInMaestroBrowser,
+		handleOpenInOpenWizardAIBrowser,
 		handleOpenInExplorer,
 		handleOpenNewFile,
 		handleOpenNewFolder,

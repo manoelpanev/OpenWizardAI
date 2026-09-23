@@ -72,8 +72,8 @@ export function SpecKitCommandsPanel({
 			setIsLoading(true);
 			try {
 				const [promptsResult, metadataResult] = await Promise.all([
-					window.maestro.speckit.getPrompts(),
-					window.maestro.speckit.getMetadata(),
+					window.openwizardai.speckit.getPrompts(),
+					window.openwizardai.speckit.getMetadata(),
 				]);
 
 				if (promptsResult.success && promptsResult.commands) {
@@ -101,7 +101,7 @@ export function SpecKitCommandsPanel({
 		if (!editingCommand) return;
 
 		try {
-			const result = await window.maestro.speckit.savePrompt(
+			const result = await window.openwizardai.speckit.savePrompt(
 				editingCommand.id,
 				editingCommand.prompt
 			);
@@ -124,7 +124,7 @@ export function SpecKitCommandsPanel({
 
 	const handleReset = async (id: string) => {
 		try {
-			const result = await window.maestro.speckit.resetPrompt(id);
+			const result = await window.openwizardai.speckit.resetPrompt(id);
 			if (result.success && result.prompt) {
 				setCommands(
 					commands.map((cmd) =>
@@ -140,11 +140,11 @@ export function SpecKitCommandsPanel({
 	const handleRefresh = async () => {
 		setIsRefreshing(true);
 		try {
-			const result = await window.maestro.speckit.refresh();
+			const result = await window.openwizardai.speckit.refresh();
 			if (result.success && result.metadata) {
 				setMetadata(result.metadata);
 				// Reload prompts after refresh
-				const promptsResult = await window.maestro.speckit.getPrompts();
+				const promptsResult = await window.openwizardai.speckit.getPrompts();
 				if (promptsResult.success && promptsResult.commands) {
 					setCommands(promptsResult.commands);
 				}
@@ -409,7 +409,7 @@ export function SpecKitCommandsPanel({
 														color: theme.colors.accent,
 													}}
 												>
-													OpenWizzard
+													OpenWizardAI
 												</span>
 											)}
 											{cmd.isModified && (

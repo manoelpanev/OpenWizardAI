@@ -1,5 +1,5 @@
 /**
- * PipelineListTab - the reading view of Maestro Cue's pipelines.
+ * PipelineListTab - the reading view of OpenWizardAI Cue's pipelines.
  *
  * The Pipeline Graph tab answers "how is this wired?" by drawing it. This tab
  * answers the two questions the canvas is bad at: what does each pipeline

@@ -43,7 +43,7 @@ export interface DirectorNotesSynopsisPromptResult {
 }
 
 /**
- * A merged corpus of runs performed by OTHER Maestro instances against the same
+ * A merged corpus of runs performed by OTHER OpenWizardAI instances against the same
  * project (see `director-notes-shared-history.ts`). Materialized to a local
  * file by the caller, because the synopsis agent runs on this machine and
  * cannot open a path on the host that produced those runs.
@@ -180,7 +180,7 @@ export async function buildDirectorNotesSynopsisPrompt(params: {
 			]
 		: [];
 
-	// Runs performed by another Maestro instance against the same project (an
+	// Runs performed by another OpenWizardAI instance against the same project (an
 	// agent living on the remote box, rather than one this machine drives over
 	// SSH). They are one file of pre-merged entries, so they are listed apart
 	// from the per-agent manifest and labeled with the hosts they came from.
@@ -189,7 +189,7 @@ export async function buildDirectorNotesSynopsisPrompt(params: {
 				'',
 				'## Other Hosts',
 				'',
-				`Work done by OpenWizzard on ${sharedHistoryFile.hosts.join(', ') || 'other hosts'} against`,
+				`Work done by OpenWizardAI on ${sharedHistoryFile.hosts.join(', ') || 'other hosts'} against`,
 				'the same projects, merged into one file. Same entry shape as the files',
 				'above; treat it as part of the same body of work.',
 				'',

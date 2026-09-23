@@ -3,7 +3,7 @@
 // playbook first. Mirrors `playbook <id>` (run-playbook) but builds an ephemeral
 // playbook on the fly from the given document paths. Self-contained: spawns the
 // target agent via batch-processor and does NOT depend on the desktop renderer,
-// so it works whether or not the Maestro window is open. This is the reliable
+// so it works whether or not the OpenWizardAI window is open. This is the reliable
 // path for group-chat participants asked to run a document they just wrote.
 
 import { getSessionById, resolveAgentId } from '../services/storage';

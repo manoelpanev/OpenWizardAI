@@ -17,7 +17,7 @@
  * - close_tab: Close a tab within a session
  * - rename_tab: Rename a tab within a session
  * - open_file_tab: Open a file in a preview tab
- * - open_modal: Open a Maestro modal/dashboard, optionally on a specific tab
+ * - open_modal: Open an OpenWizardAI modal/dashboard, optionally on a specific tab
  * - open_browser_tab: Open a URL in a browser tab (optionally in the background)
  * - close_browser_tab: Close a browser tab by id
  * - refresh_file_tree: Refresh the file tree for a session
@@ -180,7 +180,7 @@ export interface SessionDetailForHandler {
 	agentSessionId?: string;
 	cwd?: string;
 	/** Currently active AI tab id; surfaced in send_command responses so callers
-	 *  (`maestro-cli dispatch`) can address the same tab on follow-up calls. */
+	 *  (`openwizardai-cli dispatch`) can address the same tab on follow-up calls. */
 	activeTabId?: string;
 }
 
@@ -428,11 +428,11 @@ export interface MessageHandlerCallbacks {
 		playbookId: string,
 		targetFolderName: string
 	) => Promise<MarketplaceImportResult>;
-	/** External-pickup primitive used by `maestro-cli session list`. Surfaces every
-	 *  open AI tab across all desktop agents so consumers (Maestro-Discord, Cue)
+	/** External-pickup primitive used by `openwizardai-cli session list`. Surfaces every
+	 *  open AI tab across all desktop agents so consumers (OpenWizardAI-Discord, Cue)
 	 *  can address tabs by id without owning a persistent channel. */
 	listDesktopSessions: () => DesktopSessionEntry[];
-	/** Read-only conversation history fetch used by `maestro-cli session show
+	/** Read-only conversation history fetch used by `openwizardai-cli session show
 	 *  <tabId>`. Filters (`sinceMs`, `tail`) live alongside the read so we don't
 	 *  ship the full transcript over the wire on every poll. */
 	getSessionHistory: (
@@ -915,11 +915,11 @@ export class WebSocketMessageHandler {
 		const clientInputMode = message.inputMode as 'ai' | 'terminal' | undefined;
 		// Optional explicit tab target. When omitted, the renderer falls back to
 		// the active tab (legacy `send --live` behavior). Used by
-		// `maestro-cli dispatch --session <tabId>` to address a specific tab.
+		// `openwizardai-cli dispatch --session <tabId>` to address a specific tab.
 		const requestedTabId = typeof message.tabId === 'string' ? message.tabId : undefined;
 		// force=true bypasses the busy-state guard below, allowing callers to
 		// dispatch concurrent writes to an already-running agent. Used by
-		// `maestro-cli dispatch --force`.
+		// `openwizardai-cli dispatch --force`.
 		const force = message.force === true;
 		// Placement: the renderer selects the target agent "for visual feedback"
 		// today, which is right for a phone tapping send and wrong for an agent
@@ -959,7 +959,7 @@ export class WebSocketMessageHandler {
 		}
 
 		// Check if session is busy - prevent race conditions between desktop and web.
-		// `force: true` opts out of this guard (see `maestro-cli send --live --force`).
+		// `force: true` opts out of this guard (see `openwizardai-cli send --live --force`).
 		if (sessionDetail.state === 'busy' && !force) {
 			this.sendError(
 				client,
@@ -2091,7 +2091,7 @@ export class WebSocketMessageHandler {
 		this.callbacks
 			.openModal({ surface: surface.id, tab: tabId })
 			.then((success) =>
-				sendResult(success, success ? undefined : 'OpenWizzard window is not available')
+				sendResult(success, success ? undefined : 'OpenWizardAI window is not available')
 			)
 			.catch((error) => sendResult(false, `Failed to open ${surface.label}: ${error.message}`));
 	}
@@ -5096,7 +5096,7 @@ export class WebSocketMessageHandler {
 		}
 
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-		const tracePath = path.join(app.getPath('temp'), `maestro-trace-${timestamp}.json`);
+		const tracePath = path.join(app.getPath('temp'), `openwizardai-trace-${timestamp}.json`);
 
 		try {
 			const outcome = await stopProfiling(tracePath);
@@ -5525,7 +5525,7 @@ export class WebSocketMessageHandler {
 	/**
 	 * Handle list_desktop_sessions message - enumerate every open AI tab across
 	 * desktop agents. Stateless read backed by the persisted session store; no
-	 * subscription side-effects so external pollers (Maestro-Discord, Cue) can
+	 * subscription side-effects so external pollers (OpenWizardAI-Discord, Cue) can
 	 * call this every few seconds without leaking state into the desktop.
 	 */
 	private handleListDesktopSessions(client: WebClient, message: WebClientMessage): void {

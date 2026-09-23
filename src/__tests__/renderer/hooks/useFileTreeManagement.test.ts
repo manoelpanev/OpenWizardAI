@@ -91,16 +91,16 @@ const createDeps = (
 // ============================================================================
 
 describe('useFileTreeManagement', () => {
-	let originalHistory: typeof window.maestro.history | undefined;
+	let originalHistory: typeof window.openwizardai.history | undefined;
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		useFileExplorerStore.setState({ fileTreeFilter: '' });
 		// Most tests assume sessions are loaded (safety timeout can fire)
 		useSessionStore.setState({ sessionsLoaded: true });
-		originalHistory = window.maestro.history as typeof window.maestro.history | undefined;
-		window.maestro = {
-			...window.maestro,
+		originalHistory = window.openwizardai.history as typeof window.openwizardai.history | undefined;
+		window.openwizardai = {
+			...window.openwizardai,
 			history: {
 				reload: vi.fn().mockResolvedValue(true),
 			},
@@ -110,9 +110,9 @@ describe('useFileTreeManagement', () => {
 	afterEach(() => {
 		useSessionStore.setState({ sessionsLoaded: false, initialFileTreeReady: false });
 		if (originalHistory) {
-			window.maestro.history = originalHistory;
+			window.openwizardai.history = originalHistory;
 		} else {
-			delete (window.maestro as { history?: unknown }).history;
+			delete (window.openwizardai as { history?: unknown }).history;
 		}
 	});
 
@@ -190,7 +190,7 @@ describe('useFileTreeManagement', () => {
 
 		it('rescans with the expanded folders and skips the stats scan', async () => {
 			const { expand } = renderWithExpansion(2);
-			vi.mocked(window.maestro.fs.directorySize).mockClear();
+			vi.mocked(window.openwizardai.fs.directorySize).mockClear();
 
 			await act(async () => {
 				expand(['a', 'a/b']);
@@ -208,7 +208,7 @@ describe('useFileTreeManagement', () => {
 					undefined
 				);
 			});
-			expect(window.maestro.fs.directorySize).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.directorySize).not.toHaveBeenCalled();
 		});
 
 		it('does not rescan when the opened folder is above the cap', async () => {
@@ -281,7 +281,7 @@ describe('useFileTreeManagement', () => {
 		expect(gitService.isRepo).toHaveBeenCalledWith('/test/shell', undefined);
 		expect(gitService.getBranches).toHaveBeenCalledWith('/test/shell', undefined);
 		expect(gitService.getTags).toHaveBeenCalledWith('/test/shell', undefined);
-		expect(window.maestro.history.reload).toHaveBeenCalled();
+		expect(window.openwizardai.history.reload).toHaveBeenCalled();
 		expect(rightPanelRef.current?.refreshHistoryPanel).toHaveBeenCalled();
 
 		const updated = state.getSessions()[0];
@@ -422,9 +422,9 @@ describe('useFileTreeManagement', () => {
 			totalSize: 1000,
 		});
 
-		const originalFs = window.maestro?.fs;
-		window.maestro = {
-			...window.maestro,
+		const originalFs = window.openwizardai?.fs;
+		window.openwizardai = {
+			...window.openwizardai,
 			fs: {
 				...originalFs,
 				directorySize: mockDirectorySize,
@@ -472,7 +472,7 @@ describe('useFileTreeManagement', () => {
 		});
 
 		if (originalFs) {
-			window.maestro.fs = originalFs;
+			window.openwizardai.fs = originalFs;
 		}
 	});
 
@@ -557,7 +557,7 @@ describe('useFileTreeManagement', () => {
 			folderCount: number;
 			totalSize: number;
 		}) => void = () => {};
-		vi.mocked(window.maestro.fs.directorySize).mockReturnValue(
+		vi.mocked(window.openwizardai.fs.directorySize).mockReturnValue(
 			new Promise((resolve) => {
 				resolveStats = resolve;
 			})
@@ -675,9 +675,9 @@ describe('useFileTreeManagement', () => {
 		);
 		const mockDirectorySize = vi.fn().mockReturnValue(statsPromise);
 
-		const originalFs = window.maestro?.fs;
-		window.maestro = {
-			...window.maestro,
+		const originalFs = window.openwizardai?.fs;
+		window.openwizardai = {
+			...window.openwizardai,
 			fs: {
 				...originalFs,
 				directorySize: mockDirectorySize,
@@ -713,7 +713,7 @@ describe('useFileTreeManagement', () => {
 		});
 
 		if (originalFs) {
-			window.maestro.fs = originalFs;
+			window.openwizardai.fs = originalFs;
 		}
 	});
 
@@ -725,9 +725,9 @@ describe('useFileTreeManagement', () => {
 			totalSize: 5000000,
 		});
 
-		const originalFs = window.maestro?.fs;
-		window.maestro = {
-			...window.maestro,
+		const originalFs = window.openwizardai?.fs;
+		window.openwizardai = {
+			...window.openwizardai,
 			fs: {
 				...originalFs,
 				directorySize: mockDirectorySize,
@@ -768,7 +768,7 @@ describe('useFileTreeManagement', () => {
 
 		// Restore original
 		if (originalFs) {
-			window.maestro.fs = originalFs;
+			window.openwizardai.fs = originalFs;
 		}
 	});
 
@@ -842,9 +842,9 @@ describe('useFileTreeManagement', () => {
 	it('does not fetch stats when session already has stats', async () => {
 		const mockDirectorySize = vi.fn();
 
-		const originalFs = window.maestro?.fs;
-		window.maestro = {
-			...window.maestro,
+		const originalFs = window.openwizardai?.fs;
+		window.openwizardai = {
+			...window.openwizardai,
 			fs: {
 				...originalFs,
 				directorySize: mockDirectorySize,
@@ -872,7 +872,7 @@ describe('useFileTreeManagement', () => {
 
 		// Restore original
 		if (originalFs) {
-			window.maestro.fs = originalFs;
+			window.openwizardai.fs = originalFs;
 		}
 	});
 });

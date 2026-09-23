@@ -103,7 +103,7 @@ export function useUnifiedTabHandlers({
 					hasStartupCommand: !!tab?.startupCommand,
 					isRemote: !!(session.sessionSshRemoteConfig?.enabled || session.sshRemoteId),
 				});
-				window.maestro.process.kill(getTerminalSessionId(session.id, tabId));
+				window.openwizardai.process.kill(getTerminalSessionId(session.id, tabId));
 			}
 
 			for (const tabId of wizardTabIds) {

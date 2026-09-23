@@ -177,7 +177,7 @@ export function MarketplaceBrowseTab({
 										className="text-xs uppercase tracking-wide font-semibold"
 										style={{ color: theme.colors.textDim }}
 									>
-										Requires a newer OpenWizzard
+										Requires a newer OpenWizardAI
 									</span>
 									<div className="flex-1 h-px" style={{ backgroundColor: theme.colors.border }} />
 								</div>

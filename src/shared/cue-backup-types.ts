@@ -1,8 +1,8 @@
 /**
  * Cue backup - shared types between main and renderer.
  *
- * A backup is a zip file capturing every workspace's `.maestro/cue.yaml`
- * plus the contents of `.maestro/prompts/` so that Cue configuration can
+ * A backup is a zip file capturing every workspace's `.openwizardai/cue.yaml`
+ * plus the contents of `.openwizardai/prompts/` so that Cue configuration can
  * be snapshot and restored independently of the project's own VCS.
  */
 
@@ -38,7 +38,7 @@ export interface CueBackupWorkspaceEntry {
 export interface CueBackupManifest {
 	version: number;
 	createdAt: string;
-	/** Maestro app version, recorded for forward-compat debugging. */
+	/** OpenWizardAI app version, recorded for forward-compat debugging. */
 	appVersion?: string;
 	workspaces: CueBackupWorkspaceEntry[];
 }

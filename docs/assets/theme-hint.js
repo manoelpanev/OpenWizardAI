@@ -1,8 +1,8 @@
 /* global window, document, localStorage, URLSearchParams */
 /**
- * Theme Hint Script for Maestro Docs
+ * Theme Hint Script for OpenWizardAI Docs
  *
- * When the Maestro app opens a docs URL with a ?theme= query parameter,
+ * When the OpenWizardAI app opens a docs URL with a ?theme= query parameter,
  * this script sets the Mintlify theme to match.
  *
  * Supported values: ?theme=dark | ?theme=light

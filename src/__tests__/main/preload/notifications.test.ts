@@ -113,7 +113,7 @@ describe('Notification Preload API', () => {
 			expect(mockInvoke).toHaveBeenCalledWith('notification:speak', 'Hi', 'say');
 		});
 
-		it('should forward Maestro context vars as a 4th arg when provided', async () => {
+		it('should forward OpenWizardAI context vars as a 4th arg when provided', async () => {
 			mockInvoke.mockResolvedValue({ success: true, notificationId: 901 });
 
 			const vars = { agent: 'refactor-auth', tab: 'main', group: 'Backend', task: 'Fix login' };

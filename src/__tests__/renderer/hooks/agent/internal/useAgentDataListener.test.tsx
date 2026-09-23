@@ -44,8 +44,8 @@ beforeEach(() => {
 		initialLoadComplete: false,
 		removedWorktreePaths: new Set(),
 	});
-	(window as any).maestro = {
-		...((window as any).maestro || {}),
+	(window as any).openwizardai = {
+		...((window as any).openwizardai || {}),
 		process: mockProcess,
 		agentError: { clearError: vi.fn().mockResolvedValue(undefined) },
 	};

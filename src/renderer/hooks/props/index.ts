@@ -3,7 +3,7 @@
  *
  * Exports memoized props hooks for major components.
  * These hooks extract and memoize props objects to prevent React from
- * re-evaluating 50-100 props on every state change in MaestroConsoleInner.
+ * re-evaluating 50-100 props on every state change in OpenWizardAIConsoleInner.
  *
  * Key benefits:
  * - Props objects only change when dependencies change

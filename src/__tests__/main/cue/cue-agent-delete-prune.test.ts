@@ -3,7 +3,7 @@
  * from a Cue pipeline.
  *
  * User requirement: deleting an agent must remove ONLY that agent's
- * associated `.md` file from `.maestro/prompts/`, never a file still
+ * associated `.md` file from `.openwizardai/prompts/`, never a file still
  * referenced by another node. A single pipeline can legitimately contain
  * multiple instances of the same agent (e.g. A → B → A, or a duplicate
  * agent across fan-out branches) and each instance lives in its own
@@ -93,7 +93,7 @@ function writeAllPromptFiles(promptFiles: Map<string, string>) {
 /**
  * Mirrors what `cue:writeYaml` does: parse the new YAML to build the
  * keep-set of referenced prompt files, then prune everything else in
- * `.maestro/prompts/`. Returns the files actually removed from disk so
+ * `.openwizardai/prompts/`. Returns the files actually removed from disk so
  * tests can assert the exact delta.
  */
 function simulateSaveAndPrune(pipelines: CuePipeline[]): {
@@ -124,7 +124,7 @@ function simulateSaveAndPrune(pipelines: CuePipeline[]): {
 
 	const removed = pruneOrphanedPromptFiles(projectRoot, keepPaths);
 
-	const promptsDir = path.join(projectRoot, '.maestro/prompts');
+	const promptsDir = path.join(projectRoot, '.openwizardai/prompts');
 	const keptOnDisk: string[] = [];
 	if (fs.existsSync(promptsDir)) {
 		const walk = (dir: string) => {
@@ -172,7 +172,7 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 
 		// Step 1: save the initial pipeline. Every node has its own .md file.
 		simulateSaveAndPrune([initial]);
-		const afterInitial = fs.readdirSync(path.join(projectRoot, '.maestro/prompts')).sort();
+		const afterInitial = fs.readdirSync(path.join(projectRoot, '.openwizardai/prompts')).sort();
 		expect(afterInitial).toEqual([
 			'claude_1-refine-chain-1.md',
 			'codex_1-refine-chain-2.md',
@@ -193,11 +193,11 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 		// The first Codex's file (`codex_1-refine.md`) and Claude's file must
 		// survive because they're still referenced by the surviving subs.
 		expect(keptOnDisk).toEqual([
-			'.maestro/prompts/claude_1-refine-chain-1.md',
-			'.maestro/prompts/codex_1-refine.md',
+			'.openwizardai/prompts/claude_1-refine-chain-1.md',
+			'.openwizardai/prompts/codex_1-refine.md',
 		]);
 		// The tail Codex's file is the ONLY one pruned.
-		expect(removed).toEqual(['.maestro/prompts/codex_1-refine-chain-2.md']);
+		expect(removed).toEqual(['.openwizardai/prompts/codex_1-refine-chain-2.md']);
 	});
 
 	it("deleting one of several fan-out agents with differing prompts removes only that agent's file", () => {
@@ -226,10 +226,10 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 		const { keptOnDisk, removed } = simulateSaveAndPrune([deleted]);
 
 		expect(keptOnDisk).toEqual([
-			'.maestro/prompts/claude_1-fanout.md',
-			'.maestro/prompts/codex_1-fanout.md',
+			'.openwizardai/prompts/claude_1-fanout.md',
+			'.openwizardai/prompts/codex_1-fanout.md',
 		]);
-		expect(removed).toEqual(['.maestro/prompts/opencode_1-fanout.md']);
+		expect(removed).toEqual(['.openwizardai/prompts/opencode_1-fanout.md']);
 	});
 
 	it('deleting a fan-out agent when all targets share the same prompt does NOT remove the shared file', () => {
@@ -251,7 +251,7 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 		simulateSaveAndPrune([initial]);
 
 		// Confirm initial: a single shared prompt file named after the first agent.
-		const afterInitial = fs.readdirSync(path.join(projectRoot, '.maestro/prompts')).sort();
+		const afterInitial = fs.readdirSync(path.join(projectRoot, '.openwizardai/prompts')).sort();
 		expect(afterInitial).toEqual(['codex_1-sharedfanout.md']);
 
 		// Delete OpenCode. Remaining fan-out: [Codex, Claude] - still share
@@ -263,7 +263,7 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 		};
 		const { keptOnDisk, removed } = simulateSaveAndPrune([deleted]);
 
-		expect(keptOnDisk).toEqual(['.maestro/prompts/codex_1-sharedfanout.md']);
+		expect(keptOnDisk).toEqual(['.openwizardai/prompts/codex_1-sharedfanout.md']);
 		expect(removed).toEqual([]);
 	});
 
@@ -295,9 +295,12 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 		const { keptOnDisk, removed } = simulateSaveAndPrune([deleted]);
 
 		// Only the initial sub (Alpha's) survives.
-		expect(keptOnDisk).toEqual(['.maestro/prompts/alpha-chain.md']);
+		expect(keptOnDisk).toEqual(['.openwizardai/prompts/alpha-chain.md']);
 		expect(removed.sort()).toEqual(
-			['.maestro/prompts/beta-chain-chain-1.md', '.maestro/prompts/gamma-chain-chain-2.md'].sort()
+			[
+				'.openwizardai/prompts/beta-chain-chain-1.md',
+				'.openwizardai/prompts/gamma-chain-chain-2.md',
+			].sort()
 		);
 	});
 
@@ -339,10 +342,10 @@ describe("agent deletion prunes only the deleted node's prompt file", () => {
 		// Pipeline B's Claude file must survive - sharing sessionName with
 		// the deleted agent doesn't matter because the file is keyed by sub
 		// name, not agent name.
-		expect(keptOnDisk).toContain('.maestro/prompts/claude_1-b-chain-1.md');
-		expect(keptOnDisk).toContain('.maestro/prompts/codex_1-b.md');
-		expect(keptOnDisk).toContain('.maestro/prompts/codex_1-a.md');
+		expect(keptOnDisk).toContain('.openwizardai/prompts/claude_1-b-chain-1.md');
+		expect(keptOnDisk).toContain('.openwizardai/prompts/codex_1-b.md');
+		expect(keptOnDisk).toContain('.openwizardai/prompts/codex_1-a.md');
 		// Only A's Claude file is removed.
-		expect(removed).toEqual(['.maestro/prompts/claude_1-a-chain-1.md']);
+		expect(removed).toEqual(['.openwizardai/prompts/claude_1-a-chain-1.md']);
 	});
 });

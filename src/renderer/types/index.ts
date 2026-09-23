@@ -1,4 +1,4 @@
-// Type definitions for Maestro renderer
+// Type definitions for OpenWizardAI renderer
 
 // Re-export context merge types
 export * from './contextMerge';
@@ -179,11 +179,11 @@ export interface SessionWizardState {
 	totalDocuments?: number;
 	/** Folder path for Auto Run docs (base folder, e.g., "/path/Auto Run Docs") */
 	autoRunFolderPath?: string;
-	/** Full path to the subfolder where documents are saved (e.g., "/path/Auto Run Docs/Maestro-Marketing") */
+	/** Full path to the subfolder where documents are saved (e.g., "/path/Auto Run Docs/OpenWizardAI-Marketing") */
 	subfolderPath?: string;
 	/** The Claude agent session ID (from session_id in output) - used to switch tab after wizard completes */
 	agentSessionId?: string;
-	/** Subfolder name where documents were saved (e.g., "Maestro-Marketing") - used for tab naming */
+	/** Subfolder name where documents were saved (e.g., "OpenWizardAI-Marketing") - used for tab naming */
 	subfolderName?: string;
 
 	// Thinking display state
@@ -247,7 +247,7 @@ export interface LogEntry {
 	};
 	// How this turn was captured. 'structured' (default) is the normal JSON-stream
 	// pipeline from `claude --print`; 'text-stream' marks entries captured during
-	// maestro-p interactive-mode turns. The renderer uses the same tool-card /
+	// openwizardai-p interactive-mode turns. The renderer uses the same tool-card /
 	// code-block / diff pipeline for both - the flag's only visible effect is the
 	// "Captured via interactive TUI" footer pill on non-user entries. Exists as
 	// forward-compatible metadata for any future divergence.
@@ -277,7 +277,7 @@ export interface LogEntry {
 	// readout (attempt count, elapsed, next-retry countdown, Retry now / Stop).
 	retryOutageId?: string;
 	// Command mode: anchors the live output card for a `!command` the user ran
-	// from the AI composer. The command never reaches the agent - Maestro runs
+	// from the AI composer. The command never reaches the agent - OpenWizardAI runs
 	// it directly and streams stdout/stderr into `text`. See
 	// services/shellCommand.ts and components/ShellCommandCard.tsx.
 	shellCommand?: {
@@ -536,7 +536,7 @@ export type AchievementTimeSource = 'autoRun' | 'cue';
 export interface AutoRunStats {
 	cumulativeTimeMs: number; // Total cumulative AutoRun time across all sessions
 	/**
-	 * Subset of `cumulativeTimeMs` credited by autonomous Maestro Cue runs
+	 * Subset of `cumulativeTimeMs` credited by autonomous OpenWizardAI Cue runs
 	 * (the remainder came from Auto Run). Optional because it was added after
 	 * Cue credit already existed: stats persisted before this field report
 	 * `undefined`, which reads as 0 and attributes all prior time to Auto Run.
@@ -551,9 +551,9 @@ export interface AutoRunStats {
 	badgeHistory: BadgeUnlockRecord[]; // History of badge unlocks with timestamps
 }
 
-// Maestro usage peak statistics (survives app restarts)
+// OpenWizardAI usage peak statistics (survives app restarts)
 // These track maximum usage peaks for achievement display
-export interface MaestroUsageStats {
+export interface OpenWizardAIUsageStats {
 	maxAgents: number; // Maximum number of agents active at once
 	maxDefinedAgents: number; // Maximum number of defined agents (ever configured)
 	maxSimultaneousAutoRuns: number; // Maximum concurrent Auto Run sessions
@@ -611,7 +611,7 @@ export interface ProviderTabSession {
 	customEffort?: string;
 }
 
-// AI Tab for multi-tab support within a Maestro session
+// AI Tab for multi-tab support within an OpenWizardAI session
 // Each tab represents a separate AI agent conversation (Claude Code, OpenCode, etc.)
 export interface AITab {
 	id: string; // Unique tab ID (generated UUID)
@@ -755,7 +755,7 @@ export interface FilePreviewTab {
 	// Toggled via the Globe icon in the FilePreview header.
 	htmlRenderMode?: boolean;
 	// Transient request to scroll the file editor to a specific 1-based line on
-	// next render. Set when a maestro://file/...#L<n> deep link opens this tab;
+	// next render. Set when a openwizardai://file/...#L<n> deep link opens this tab;
 	// FilePreview consumes it (flips to edit mode if needed, scrolls + places
 	// the caret) and then clears it.
 	pendingScrollToLine?: number;
@@ -1131,8 +1131,8 @@ export interface Session {
 		enabled: boolean; // Whether SSH is enabled for this session
 		remoteId: string | null; // SSH remote config ID to use
 		workingDirOverride?: string; // Override remote working directory
-		syncHistory?: boolean; // When SSH is enabled: push entries to the remote's .maestro/history/
-		shareHistoryToProjectDir?: boolean; // Mirror entries to the local project's .maestro/history/ (independent of SSH; for remote-controlled agents)
+		syncHistory?: boolean; // When SSH is enabled: push entries to the remote's .openwizardai/history/
+		shareHistoryToProjectDir?: boolean; // Mirror entries to the local project's .openwizardai/history/ (independent of SSH; for remote-controlled agents)
 	};
 
 	// SSH connection status - runtime only, not persisted
@@ -1140,19 +1140,19 @@ export interface Session {
 	sshConnectionFailed?: boolean;
 
 	// Per-session token-source opt-in (Claude Code only). When true, the spawner
-	// runs through maestro-p (Time Limits / Max plan) instead of `claude --print`
-	// (API Limits / per-token). The exact behavior is refined by `maestroPMode`.
-	enableMaestroP?: boolean;
-	// Refines `enableMaestroP`: 'interactive' always drives the maestro-p TUI,
-	// 'dynamic' (default when absent) auto-switches between maestro-p and `claude
+	// runs through openwizardai-p (Time Limits / Max plan) instead of `claude --print`
+	// (API Limits / per-token). The exact behavior is refined by `openwizardaiPMode`.
+	enableOpenWizardAIP?: boolean;
+	// Refines `enableOpenWizardAIP`: 'interactive' always drives the openwizardai-p TUI,
+	// 'dynamic' (default when absent) auto-switches between openwizardai-p and `claude
 	// --print` based on the latest usage snapshot. Together the pair encodes the
-	// three user-facing modes: API (enableMaestroP off), TUI (on + interactive),
+	// three user-facing modes: API (enableOpenWizardAIP off), TUI (on + interactive),
 	// Dynamic (on + dynamic). See `getClaudeTokenMode` in shared/claudeTokenMode.
-	maestroPMode?: 'interactive' | 'dynamic';
-	// Optional override for the maestro-p binary path. When empty/undefined,
-	// the spawner uses the bundled script (`process.resourcesPath/maestro-p.js`
-	// in packaged builds, `dist/cli/maestro-p.js` in dev).
-	maestroPPath?: string;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	// Optional override for the openwizardai-p binary path. When empty/undefined,
+	// the spawner uses the bundled script (`process.resourcesPath/openwizardai-p.js`
+	// in packaged builds, `dist/cli/openwizardai-p.js` in dev).
+	openwizardaiPPath?: string;
 
 	// Agent Resilience (auto-retry). Both default ON - `undefined` reads as
 	// enabled via `resilienceEnabled` in shared/agentConstants, so existing
@@ -1164,7 +1164,7 @@ export interface Session {
 	retryOnTokenExhaustion?: boolean;
 
 	// Last resolved Claude headless-mode state (only meaningful for Claude Code
-	// sessions with `enableMaestroP === true`). The spawner writes this after
+	// sessions with `enableOpenWizardAIP === true`). The spawner writes this after
 	// each `selectMode()` call so the context-window popover, sticky-limit
 	// logic, and reactive replay all read from a single source of truth.
 	claudeInteractive?: {
@@ -1211,7 +1211,7 @@ export interface ProcessConfig {
 	sendPromptViaStdin?: boolean; // If true, send the prompt via stdin as JSON instead of command line
 	sendPromptViaStdinRaw?: boolean; // If true, send the prompt via stdin as raw text instead of command line
 	/** Who asked for this turn: a human ('user') or Auto Run ('auto'). Stamped into
-	 *  the spawned process env as MAESTRO_QUERY_SOURCE. Cue runs never come through
+	 *  the spawned process env as OPENWIZARDAI_QUERY_SOURCE. Cue runs never come through
 	 *  this IPC path - they spawn in the main process and mark themselves 'cue'. */
 	querySource?: 'user' | 'auto';
 }
@@ -1233,7 +1233,7 @@ export interface SpecKitCommand {
 	command: string; // e.g., '/speckit.constitution'
 	description: string;
 	prompt: string;
-	isCustom: boolean; // true only for 'implement' (our OpenWizzard-specific version)
+	isCustom: boolean; // true only for 'implement' (our OpenWizardAI-specific version)
 	isModified: boolean; // true if user has edited
 }
 
@@ -1251,7 +1251,7 @@ export interface OpenSpecCommand {
 	command: string; // e.g., '/openspec.proposal'
 	description: string;
 	prompt: string;
-	isCustom: boolean; // true for 'help' and 'implement' (OpenWizzard-specific)
+	isCustom: boolean; // true for 'help' and 'implement' (OpenWizardAI-specific)
 	isModified: boolean; // true if user has edited
 }
 
@@ -1282,11 +1282,16 @@ export interface BmadMetadata {
 }
 
 // Keyboard Mastery gamification types
-export type KeyboardMasteryLevel = 'beginner' | 'student' | 'performer' | 'virtuoso' | 'maestro';
+export type KeyboardMasteryLevel =
+	| 'beginner'
+	| 'student'
+	| 'performer'
+	| 'virtuoso'
+	| 'openwizardai';
 
 export interface KeyboardMasteryStats {
 	usedShortcuts: string[]; // Array of shortcut IDs that have been used
-	currentLevel: number; // 0-4 (Beginner to Keyboard OpenWizzard)
+	currentLevel: number; // 0-4 (Beginner to Keyboard Wizard)
 	lastLevelUpTimestamp: number; // When user last leveled up
 	lastAcknowledgedLevel: number; // Last level user dismissed celebration for
 }

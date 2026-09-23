@@ -1,14 +1,14 @@
 // Gist create - publish an agent's session transcript to a GitHub gist.
-// Routes through the running Maestro desktop app (which holds live tab
+// Routes through the running OpenWizardAI desktop app (which holds live tab
 // transcripts) and reuses the existing `gh gist create` IPC handler.
 //
 // `--session` narrows the publish to one provider session instead of the
-// agent's open AI tabs. Headless callers (Maestro Relay, playbooks, Cue, CI)
+// agent's open AI tabs. Headless callers (OpenWizardAI Relay, playbooks, Cue, CI)
 // hold a session id from `send -s <id>` and have no desktop tab, so without it
 // they publish whatever unrelated conversation the agent has open.
 
 import { resolveAgentId } from '../services/storage';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 
 interface GistCreateOptions {
 	description?: string;
@@ -53,7 +53,7 @@ export async function gistCreate(agentIdArg: string, options: GistCreateOptions)
 	}
 
 	try {
-		const result = await withMaestroClient((client) =>
+		const result = await withOpenWizardAIClient((client) =>
 			client.sendCommand<{
 				success: boolean;
 				gistUrl?: string;
@@ -94,7 +94,10 @@ export async function gistCreate(agentIdArg: string, options: GistCreateOptions)
 			lower.includes('etimedout') ||
 			lower.includes('not running')
 		) {
-			emitErrorJson('OpenWizzard desktop is not running or not reachable', 'MAESTRO_NOT_RUNNING');
+			emitErrorJson(
+				'OpenWizardAI desktop is not running or not reachable',
+				'OPENWIZARDAI_NOT_RUNNING'
+			);
 		} else {
 			emitErrorJson(`Gist creation failed: ${msg}`, 'GIST_CREATE_FAILED');
 		}

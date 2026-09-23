@@ -140,18 +140,18 @@ describe('MarkdownPreviewFast', () => {
 	});
 
 	describe('delegated link click handling', () => {
-		it('routes data-maestro-file links via onFileClick', () => {
+		it('routes data-openwizardai-file links via onFileClick', () => {
 			const onFileClick = vi.fn();
 			const { container } = renderPreview({
 				content: 'no links here',
 				onFileClick,
 			});
 			// Inject an anchor matching what a rewritten link would look like.
-			// We can't easily get a maestro link via plain markdown-it, so we
+			// We can't easily get a openwizardai link via plain markdown-it, so we
 			// inject one into the rendered DOM to exercise the click path.
 			const block = container.querySelector('.markdown-fast-block')!;
 			const a = document.createElement('a');
-			a.setAttribute('data-maestro-file', 'docs/readme.md');
+			a.setAttribute('data-openwizardai-file', 'docs/readme.md');
 			a.textContent = 'link';
 			block.appendChild(a);
 
@@ -165,7 +165,7 @@ describe('MarkdownPreviewFast', () => {
 			const { container } = renderPreview({ content: 'x', onFileClick });
 			const block = container.querySelector('.markdown-fast-block')!;
 			const a = document.createElement('a');
-			a.setAttribute('data-maestro-file', 'x.md');
+			a.setAttribute('data-openwizardai-file', 'x.md');
 			a.textContent = 'link';
 			block.appendChild(a);
 

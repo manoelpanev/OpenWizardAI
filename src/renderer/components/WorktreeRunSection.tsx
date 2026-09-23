@@ -54,7 +54,7 @@ export function WorktreeRunSection({
 
 		Promise.all([
 			gitService.getBranches(activeSession.cwd),
-			window.maestro.git.branch(activeSession.cwd, sshRemoteId),
+			window.openwizardai.git.branch(activeSession.cwd, sshRemoteId),
 		])
 			.then(([result, branchResult]) => {
 				if (cancelled) return;
@@ -102,11 +102,11 @@ export function WorktreeRunSection({
 		let cancelled = false;
 		setIsScanning(true);
 
-		window.maestro.git
+		window.openwizardai.git
 			.scanWorktreeDirectory(basePath, sshRemoteId)
 			.then((result) => {
 				if (cancelled) return;
-				// Filter out worktrees already open in Maestro
+				// Filter out worktrees already open in OpenWizardAI
 				const openPaths = new Set(worktreeChildren.map((s) => s.cwd));
 				const filtered = result.gitSubdirs.filter((wt) => !openPaths.has(wt.path));
 				setAvailableWorktrees(filtered);
@@ -326,7 +326,7 @@ export function WorktreeRunSection({
 							}}
 						>
 							{worktreeChildren.length > 0 && (
-								<optgroup label="Open in OpenWizzard">
+								<optgroup label="Open in OpenWizardAI">
 									{worktreeChildren.map((s) => {
 										const isBusy = s.state === 'busy' || s.state === 'connecting';
 										return (

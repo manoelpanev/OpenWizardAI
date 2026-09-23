@@ -192,7 +192,7 @@ export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
 			.sessions.find((s: Session) => s.id === activeSessionId);
 		const closingTab = activeSession?.filePreviewTabs.find((t) => t.id === tabId);
 		if (closingTab?.isLoading && closingTab.loadRequestId) {
-			void window.maestro.fs.cancelReadFile(closingTab.loadRequestId);
+			void window.openwizardai.fs.cancelReadFile(closingTab.loadRequestId);
 		}
 
 		setSessions((prev: Session[]) =>
@@ -328,8 +328,8 @@ export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
 
 		try {
 			const [content, stat] = await Promise.all([
-				window.maestro.fs.readFile(fileTab.path, fileTab.sshRemoteId),
-				window.maestro.fs.stat(fileTab.path, fileTab.sshRemoteId),
+				window.openwizardai.fs.readFile(fileTab.path, fileTab.sshRemoteId),
+				window.openwizardai.fs.stat(fileTab.path, fileTab.sshRemoteId),
 			]);
 			if (content === null) return;
 			const newMtime = stat?.modifiedAt ? new Date(stat.modifiedAt).getTime() : Date.now();
@@ -381,13 +381,13 @@ export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
 		const { fileTabAutoRefreshEnabled } = useSettingsStore.getState();
 		if (fileTabAutoRefreshEnabled && !fileTab.editContent) {
 			try {
-				const stat = await window.maestro.fs.stat(fileTab.path, fileTab.sshRemoteId);
+				const stat = await window.openwizardai.fs.stat(fileTab.path, fileTab.sshRemoteId);
 				if (!stat || !stat.modifiedAt) return;
 
 				const currentMtime = new Date(stat.modifiedAt).getTime();
 
 				if (currentMtime > fileTab.lastModified) {
-					const content = await window.maestro.fs.readFile(fileTab.path, fileTab.sshRemoteId);
+					const content = await window.openwizardai.fs.readFile(fileTab.path, fileTab.sshRemoteId);
 					if (content === null) return;
 					useSessionStore.getState().setSessions((prev: Session[]) =>
 						prev.map((s) => {
@@ -474,7 +474,7 @@ export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
 
 			try {
 				const sshRemoteId = currentTab.sshRemoteId;
-				const content = await window.maestro.fs.readFile(historyEntry.path, sshRemoteId);
+				const content = await window.openwizardai.fs.readFile(historyEntry.path, sshRemoteId);
 				if (content === null) return;
 
 				setSessions((prev: Session[]) =>
@@ -522,7 +522,7 @@ export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
 
 			try {
 				const sshRemoteId = currentTab.sshRemoteId;
-				const content = await window.maestro.fs.readFile(historyEntry.path, sshRemoteId);
+				const content = await window.openwizardai.fs.readFile(historyEntry.path, sshRemoteId);
 				if (content === null) return;
 
 				setSessions((prev: Session[]) =>
@@ -568,7 +568,7 @@ export function useFilePreviewTabHandlers(): FilePreviewTabHandlersReturn {
 
 			try {
 				const sshRemoteId = currentTab.sshRemoteId;
-				const content = await window.maestro.fs.readFile(historyEntry.path, sshRemoteId);
+				const content = await window.openwizardai.fs.readFile(historyEntry.path, sshRemoteId);
 				if (content === null) return;
 
 				setSessions((prev: Session[]) =>

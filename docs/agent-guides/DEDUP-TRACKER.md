@@ -2,7 +2,7 @@
 
 # Deduplication Tracker
 
-Consolidated tracking of all duplicate/dead code in the Maestro codebase. Grep-verified counts from scan files.
+Consolidated tracking of all duplicate/dead code in the OpenWizardAI codebase. Grep-verified counts from scan files.
 
 > **Note:** This `agent-guides` branch does not include the underlying `SCAN-*.md` evidence files (they live on the companion `docs/codebase-dedup-guides` branch). The tracker below references them by name for cross-reference; counts here were grep-verified as of the "Refreshed" date at the top. To re-verify against current code, grep the patterns described in each finding.
 
@@ -55,7 +55,7 @@ Consolidated tracking of all duplicate/dead code in the Maestro codebase. Grep-v
 - **KEEP:** Files that still have used exports
 - **NOTE (re-vetted 2026-03-28):** `ORPHANED_SESSION_ID` removed from this list - it IS used in `main/ipc/handlers/history.ts:18`
 - **DE-EXPORT (keep internal), not remove:** `AGENT_DISPLAY_NAMES` and `BETA_AGENTS` in `src/shared/agentMetadata.ts` are consumed inside the file itself by `getAgentDisplayName()` (line 32) and `isBetaAgent()` (line 73). External callers should go through the wrapper functions. Drop the `export` keyword on these two constants but leave the values in place. `SHARED-UTILS.md` documents them as internal-only.
-- **REMOVE:** 41 other exports including all of `cli-activity.ts` exports; `CliServerInfo`; `DebateConfig`, `PipelineNodePosition`, `PipelineNodeType`, `PipelineViewport` (cue-pipeline-types); `buildFocusDeepLink`; 6 gitUtils exports; `DEFAULT_PAGINATION`; `shouldLogLevel`; 6 maestro-paths exports; `PlaybookSource`; `parseVersion`; `PerformanceLogger`, `createNoOpMetrics`; 3 symphony-constants exports; `SymphonyLabel`, `SymphonyErrorType`; `ParsedSynopsis`, `isNothingToReport`; `TemplateSessionInfo`; `WalkTreeOptions`, `walkTree`, `PartitionedPaths`; `SshRemoteStatus`
+- **REMOVE:** 41 other exports including all of `cli-activity.ts` exports; `CliServerInfo`; `DebateConfig`, `PipelineNodePosition`, `PipelineNodeType`, `PipelineViewport` (cue-pipeline-types); `buildFocusDeepLink`; 6 gitUtils exports; `DEFAULT_PAGINATION`; `shouldLogLevel`; 6 openwizardai-paths exports; `PlaybookSource`; `parseVersion`; `PerformanceLogger`, `createNoOpMetrics`; 3 symphony-constants exports; `SymphonyLabel`, `SymphonyErrorType`; `ParsedSynopsis`, `isNothingToReport`; `TemplateSessionInfo`; `WalkTreeOptions`, `walkTree`, `PartitionedPaths`; `SshRemoteStatus`
 - **Estimated savings:** ~290 lines across 18 files
 
 ### 4. Dead Main Process Exports (75 exports across 35 files)
@@ -118,10 +118,10 @@ Consolidated tracking of all duplicate/dead code in the Maestro codebase. Grep-v
 - **REMOVE:** 97 local definitions, replace with imports from shared helper
 - **Estimated savings:** ~500 lines
 
-### 11. Test window.maestro Mock Setup (64 files)
+### 11. Test window.openwizardai Mock Setup (64 files)
 
-- **Evidence:** SCAN-MOCKS.md, "Test files with window.maestro mock setup"
-- **Count:** 117 test file instances set up their own `window.maestro` mock (was 64, REGRESSION) despite shared mock existing in `src/__tests__/setup.ts:205`
+- **Evidence:** SCAN-MOCKS.md, "Test files with window.openwizardai mock setup"
+- **Count:** 117 test file instances set up their own `window.openwizardai` mock (was 64, REGRESSION) despite shared mock existing in `src/__tests__/setup.ts:205`
 - **KEEP:** `src/__tests__/setup.ts` centralized mock
 - **CONSOLIDATE:** Extend `setup.ts` to cover all namespaces, remove 117 local setups
 - **Estimated savings:** ~1,755 lines (avg ~15 lines per instance)
@@ -306,7 +306,7 @@ Numbered out of document order for the same reason as #41: a targeted 2026-09-15
 
 - **Evidence:** SCAN-TYPES.md, "Duplicate Constant Definitions"
 - **Count:** 3 identical definitions of `AUTO_RUN_FOLDER_NAME = PLAYBOOKS_DIR`
-- **KEEP:** `PLAYBOOKS_DIR` from `shared/maestro-paths.ts:14` (already canonical)
+- **KEEP:** `PLAYBOOKS_DIR` from `shared/openwizardai-paths.ts:14` (already canonical)
 - **REMOVE:** `phaseGenerator.ts:153`, `inlineWizardDocumentGeneration.ts:25`, `existingDocsDetector.ts:13` - use `PLAYBOOKS_DIR` directly
 - **Estimated savings:** ~6 lines
 
@@ -422,7 +422,7 @@ _Last validated: 2026-04-01 against origin/rc. All 40 findings re-verified. Chan
 
 - App.tsx: grew from 3619 to 4034 lines (+415)
 - `as any` casts: 108 -> 115 (+7)
-- Test mock proliferation accelerating: mockTheme 66->119, window.maestro 64->117
+- Test mock proliferation accelerating: mockTheme 66->119, window.openwizardai 64->117
 - lucide-react redundant mocks: 51 -> 54
 - Logger mocks: 128 -> 133
 - 2000ms timeouts: 25 -> 32
@@ -445,7 +445,7 @@ _Last validated: 2026-04-01 against origin/rc. All 40 findings re-verified. Chan
 
 2. **Fix AgentCapabilities double-definition bug (P0 #5)** - Eliminate the duplicate interface in `renderer/global.d.ts` that may cause type shadowing.
 
-3. **Consolidate test mock factories (P1 #9, #10, #11, P3 #34)** - Create `src/__tests__/helpers/` with shared `mockSession.ts`, `mockTheme.ts`, `mockTab.ts`. Extend `setup.ts` for `window.maestro`. Touches only test files, zero production risk. Saves ~2,240 lines.
+3. **Consolidate test mock factories (P1 #9, #10, #11, P3 #34)** - Create `src/__tests__/helpers/` with shared `mockSession.ts`, `mockTheme.ts`, `mockTab.ts`. Extend `setup.ts` for `window.openwizardai`. Touches only test files, zero production risk. Saves ~2,240 lines.
 
 4. **Extract shared formatters (P1 #12, P2 #22-24, P3 #31-33)** - Consolidate all `formatDuration`, `formatElapsedTime`, `formatTime`, `formatNumber`, `estimateTokens`, `stripAnsi`, `generateId` into `shared/formatters.ts`. Start with UsageDashboard (11 identical copies). Saves ~505 lines.
 

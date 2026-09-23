@@ -1,5 +1,5 @@
 /**
- * PullToRefresh Component for Maestro Mobile Web
+ * PullToRefresh Component for OpenWizardAI Mobile Web
  *
  * A visual indicator for pull-to-refresh functionality.
  * Shows progress during pull and a spinner during refresh.

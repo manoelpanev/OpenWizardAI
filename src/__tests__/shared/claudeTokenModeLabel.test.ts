@@ -40,9 +40,9 @@ describe('getTokenSourcePill', () => {
 	});
 
 	describe('title', () => {
-		it('describes the maestro-p TUI capture for interactive turns', () => {
+		it('describes the openwizardai-p TUI capture for interactive turns', () => {
 			expect(getTokenSourcePill({ mode: 'interactive' }).title).toBe(
-				'Captured via maestro-p driving the Claude TUI'
+				'Captured via openwizardai-p driving the Claude TUI'
 			);
 		});
 
@@ -52,7 +52,7 @@ describe('getTokenSourcePill', () => {
 
 		it('notes Dynamic Mode in the tooltip when adaptive is set', () => {
 			expect(getTokenSourcePill({ mode: 'interactive', adaptive: true }).title).toBe(
-				'Captured via maestro-p driving the Claude TUI (Dynamic Mode enabled)'
+				'Captured via openwizardai-p driving the Claude TUI (Dynamic Mode enabled)'
 			);
 			expect(getTokenSourcePill({ mode: 'api', adaptive: true }).title).toBe(
 				'Captured via claude --print (Dynamic Mode enabled - fell back to API)'

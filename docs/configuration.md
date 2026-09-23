@@ -10,22 +10,22 @@ Open Settings with `Cmd+,` / `Ctrl+,` or via **Quick Actions** (`Cmd+K` / `Ctrl+
 
 Settings are organized into tabs:
 
-| Tab                             | Contents                                                                                                                                                                                                                                                                                             |
-| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **General**                     | About Me (conductor profile), [system-wide hotkey to summon Maestro](./keyboard-shortcuts#system-wide-hotkey-summon-maestro), shell configuration, input send behavior, default toggles (history, thinking), automatic tab naming, power management, updates, privacy, usage stats, storage location |
-| **Display**                     | [Typography](#typography) (a font and size per surface, presets, custom fonts, zoom), terminal width, log level and buffer, max output lines per response, document graph settings, context window warnings, [Accessibility](#accessibility) (Color Blind Mode, Bionify reading emphasis)            |
-| **Shortcuts**                   | Customize keyboard shortcuts (see [Keyboard Shortcuts](./keyboard-shortcuts))                                                                                                                                                                                                                        |
-| **Themes**                      | Dark, light, and vibe mode themes, custom theme builder with import/export                                                                                                                                                                                                                           |
-| **Notifications**               | OS notifications, custom command notifications, toast notification duration and width                                                                                                                                                                                                                |
-| **AI Commands**                 | View and edit slash commands, [Spec-Kit](./speckit-commands), [OpenSpec](./openspec-commands), and [BMAD](./bmad-commands) prompts                                                                                                                                                                   |
-| **Maestro Prompts**             | Browse and edit the 23 core system prompts (wizard, Auto Run, group chat, context, etc.). Changes take effect immediately; reset to bundled defaults at any time                                                                                                                                     |
-| **SSH Hosts**                   | Configure remote hosts for [SSH agent execution](./ssh-remote-execution)                                                                                                                                                                                                                             |
-| **Environment**                 | Global environment variables that cascade to all agents and terminal sessions                                                                                                                                                                                                                        |
-| **WakaTime** _(in General tab)_ | WakaTime integration toggle, API key, detailed file tracking                                                                                                                                                                                                                                         |
+| Tab                             | Contents                                                                                                                                                                                                                                                                                                       |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **General**                     | About Me (conductor profile), [system-wide hotkey to summon OpenWizardAI](./keyboard-shortcuts#system-wide-hotkey-summon-openwizardai), shell configuration, input send behavior, default toggles (history, thinking), automatic tab naming, power management, updates, privacy, usage stats, storage location |
+| **Display**                     | [Typography](#typography) (a font and size per surface, presets, custom fonts, zoom), terminal width, log level and buffer, max output lines per response, document graph settings, context window warnings, [Accessibility](#accessibility) (Color Blind Mode, Bionify reading emphasis)                      |
+| **Shortcuts**                   | Customize keyboard shortcuts (see [Keyboard Shortcuts](./keyboard-shortcuts))                                                                                                                                                                                                                                  |
+| **Themes**                      | Dark, light, and vibe mode themes, custom theme builder with import/export                                                                                                                                                                                                                                     |
+| **Notifications**               | OS notifications, custom command notifications, toast notification duration and width                                                                                                                                                                                                                          |
+| **AI Commands**                 | View and edit slash commands, [Spec-Kit](./speckit-commands), [OpenSpec](./openspec-commands), and [BMAD](./bmad-commands) prompts                                                                                                                                                                             |
+| **OpenWizardAI Prompts**        | Browse and edit the 23 core system prompts (wizard, Auto Run, group chat, context, etc.). Changes take effect immediately; reset to bundled defaults at any time                                                                                                                                               |
+| **SSH Hosts**                   | Configure remote hosts for [SSH agent execution](./ssh-remote-execution)                                                                                                                                                                                                                                       |
+| **Environment**                 | Global environment variables that cascade to all agents and terminal sessions                                                                                                                                                                                                                                  |
+| **WakaTime** _(in General tab)_ | WakaTime integration toggle, API key, detailed file tracking                                                                                                                                                                                                                                                   |
 
 ## Typography
 
-**Settings → Display → Fonts.** Maestro does not have one font: it has a font per surface, so the places you read and the places you work can use different faces.
+**Settings → Display → Fonts.** OpenWizardAI does not have one font: it has a font per surface, so the places you read and the places you work can use different faces.
 
 ![The Display tab's font controls, with a picker per surface](./screenshots/settings-fonts.png)
 
@@ -50,19 +50,19 @@ Each surface has its own size, which can also inherit. Press **Up** / **Down** o
 **Factory Reset Fonts** sets every font and size at once:
 
 - **Default** - proportional to read, monospace to work. The interface, AI chat, and file preview are proportional; the terminal and file editor are monospace.
-- **Hacker** - monospace everywhere. The original Maestro look.
+- **Hacker** - monospace everywhere. The original OpenWizardAI look.
 
-Maestro tells you which preset is active, or that you have customized away from both.
+OpenWizardAI tells you which preset is active, or that you have customized away from both.
 
 ### Save and restore your own setup
 
 A preset overwrites every font and size, so **Save & Restore Customizations** keeps yours. Click **Save Customizations** once you like what you have, then try a preset or keep tinkering, and **Restore Customizations** puts your fonts back in one click.
 
-There is one slot, and saving again replaces it (Maestro asks first). Zoom is not part of a saved setup, so restoring one never changes how big everything is.
+There is one slot, and saving again replaces it (OpenWizardAI asks first). Zoom is not part of a saved setup, so restoring one never changes how big everything is.
 
 ### Custom fonts
 
-The pickers list fonts Maestro knows about. If you have a font installed that is not in the list, add its name once under **Manage Custom Fonts** and it becomes available in every picker.
+The pickers list fonts OpenWizardAI knows about. If you have a font installed that is not in the list, add its name once under **Manage Custom Fonts** and it becomes available in every picker.
 
 <Warning>
 Type the family name exactly as the system reports it. A name that is not installed cannot be resolved, and the surface falls back to the browser default rather than telling you it failed.
@@ -73,16 +73,16 @@ Type the family name exactly as the system reports it. A name that is not instal
 **Zoom** scales every surface by the same amount, so the sizes you set relative to each other are preserved. `Cmd+=` / `Cmd+-` adjusts it and `Cmd+Shift+0` resets it.
 
 <Tip>
-You are offered the Default and Hacker presets once, on first run, so you do not have to find this screen to make Maestro readable. Nothing there is permanent - every choice is a setting you can change here later. See [First run](./getting-started#first-run).
+You are offered the Default and Hacker presets once, on first run, so you do not have to find this screen to make OpenWizardAI readable. Nothing there is permanent - every choice is a setting you can change here later. See [First run](./getting-started#first-run).
 </Tip>
 
-## Maestro Prompts
+## OpenWizardAI Prompts
 
-Maestro ships with 23 core system prompts that control wizard conversations, Auto Run behavior, group chat moderation, context management, and more. You can customize any of them via the **Maestro Prompts** tab in Settings.
+OpenWizardAI ships with 23 core system prompts that control wizard conversations, Auto Run behavior, group chat moderation, context management, and more. You can customize any of them via the **OpenWizardAI Prompts** tab in Settings.
 
 **To edit a prompt:**
 
-1. Open **Settings** (`Cmd+,` / `Ctrl+,`) → **Maestro Prompts** tab
+1. Open **Settings** (`Cmd+,` / `Ctrl+,`) → **OpenWizardAI Prompts** tab
 2. Select a prompt from the category list on the left
 3. Edit the content in the editor
 4. Click **Save** - changes take effect immediately (no restart needed)
@@ -91,7 +91,7 @@ Maestro ships with 23 core system prompts that control wizard conversations, Aut
 
 Click **Reset to Default** to restore the bundled version. This also takes effect immediately.
 
-Customizations are stored separately from bundled prompts and survive app updates. You can also access the four most common prompts directly from **Quick Actions** (`Cmd+K` / `Ctrl+K`): Maestro System Prompt, Auto Run Default, Commit Command, and Group Chat Moderator.
+Customizations are stored separately from bundled prompts and survive app updates. You can also access the four most common prompts directly from **Quick Actions** (`Cmd+K` / `Ctrl+K`): OpenWizardAI System Prompt, Auto Run Default, Commit Command, and Group Chat Moderator.
 
 For template variables, the `{{INCLUDE:name}}` and `{{REF:name}}` directives, creating reusable prompt fragments, and more, see the full [Prompt Customization](/prompt-customization) guide.
 
@@ -101,7 +101,7 @@ The **Display** tab includes an **Accessibility** section that groups visual aid
 
 ### Color Blind Mode
 
-Toggle **Color Blind Mode** to swap Maestro's default red / green / yellow semantics for [Wong's colorblind-safe palette](https://www.nature.com/articles/nmeth.1618) (_Nature Methods_, 2011). The palette uses distinct hue **and** luminance steps so the signal survives protanopia, deuteranopia, tritanopia, and grayscale displays.
+Toggle **Color Blind Mode** to swap OpenWizardAI's default red / green / yellow semantics for [Wong's colorblind-safe palette](https://www.nature.com/articles/nmeth.1618) (_Nature Methods_, 2011). The palette uses distinct hue **and** luminance steps so the signal survives protanopia, deuteranopia, tritanopia, and grayscale displays.
 
 The toggle applies across the desktop app:
 
@@ -156,7 +156,7 @@ Generate markdown for Obsidian. CST timezone.
 
 ### How Agents Use It
 
-When you start a session, Maestro includes your conductor profile in the system prompt sent to the AI agent. This means:
+When you start a session, OpenWizardAI includes your conductor profile in the system prompt sent to the AI agent. This means:
 
 - Agents adapt their response style to match your preferences
 - Technical context helps agents make appropriate assumptions
@@ -177,7 +177,7 @@ Configure environment variables once in Settings and they automatically apply to
 3. Variables apply immediately to new agent sessions and terminals
 4. Click the eye button on a row to switch that variable off without deleting it
 
-A new row starts with no name, and the name field opens straight onto the suggestions. It offers each provider's own variables (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `COPILOT_HOME`, and so on) plus every name you have already set elsewhere in Maestro, so a variable you configured once on one agent is one keystroke away on the next. Type to narrow the list, pick with the arrow keys and `Enter`, or ignore it and type any name you like.
+A new row starts with no name, and the name field opens straight onto the suggestions. It offers each provider's own variables (`CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `COPILOT_HOME`, and so on) plus every name you have already set elsewhere in OpenWizardAI, so a variable you configured once on one agent is one keystroke away on the next. Type to narrow the list, pick with the arrow keys and `Enter`, or ignore it and type any name you like.
 
 ![Environment Variables](./screenshots/env-vars.png)
 
@@ -187,13 +187,13 @@ A new row starts with no name, and the name field opens straight onto the sugges
 ANTHROPIC_API_KEY=sk-proj-xxxxx
 HTTP_PROXY=http://proxy.company.com:8080
 HTTPS_PROXY=http://proxy.company.com:8080
-DEBUG=maestro:*
+DEBUG=openwizardai:*
 MY_TOOL_PATH=~/tools/custom
 ```
 
 ### Important Features
 
-- **Switch a variable off**: The eye button parks a variable - the row stays in the list with its key and value intact and still editable, but the variable is no longer passed to anything Maestro runs. Use it to test without a proxy or an API key instead of deleting the value and retyping it later. Parked variables are stored separately and are never merged into an agent or terminal environment.
+- **Switch a variable off**: The eye button parks a variable - the row stays in the list with its key and value intact and still editable, but the variable is no longer passed to anything OpenWizardAI runs. Use it to test without a proxy or an API key instead of deleting the value and retyping it later. Parked variables are stored separately and are never merged into an agent or terminal environment.
 - **Path expansion**: Use `~/` for home directory (e.g., `~/workspace` expands to `/Users/username/workspace`)
 - **Quotes for special characters**: Variables with spaces or special characters should be quoted
 - **Applied to both agents and terminals**: Global vars are available to all agent processes (Claude, OpenCode, etc.) and all terminal sessions
@@ -204,7 +204,7 @@ MY_TOOL_PATH=~/tools/custom
 
 When an agent or terminal is spawned, its environment is built in this order (lowest to highest priority). Each layer overrides the one before it:
 
-1. **System environment** - System and parent process variables Maestro inherits
+1. **System environment** - System and parent process variables OpenWizardAI inherits
 2. **Global environment variables** (Settings → Environment) - Applied to all agents and terminals
 3. **The agent's own variables, or else the provider-level variables** - One set, never both
 
@@ -219,7 +219,7 @@ Provider-level variables have no editor in the current UI, so unless you have ol
 - **API keys**: Set `ANTHROPIC_API_KEY` once → all Claude sessions can access it
 - **Proxy settings**: Set `HTTP_PROXY` and `HTTPS_PROXY` → all network requests respect the proxy
 - **Custom tool paths**: Set `MY_TOOLS=/opt/mytools` → agents can find custom utilities
-- **Debugging**: Set `DEBUG=maestro:*` → enable consistent logging across all sessions
+- **Debugging**: Set `DEBUG=openwizardai:*` → enable consistent logging across all sessions
 - **Language settings**: Set `LANG=en_US.UTF-8` → consistent text encoding
 
 ### Per-Agent Environment Variables
@@ -242,9 +242,9 @@ Three ways to reach Edit Agent:
 You can also set them from the CLI without opening the app:
 
 ```bash
-maestro-cli update-agent <agent-id> --env MY_KEY=value
-maestro-cli create-agent "Reviewer" --env ANTHROPIC_BASE_URL=https://proxy.internal
-maestro-cli update-agent <agent-id> --clear-env   # remove all per-agent variables
+openwizardai-cli update-agent <agent-id> --env MY_KEY=value
+openwizardai-cli create-agent "Reviewer" --env ANTHROPIC_BASE_URL=https://proxy.internal
+openwizardai-cli update-agent <agent-id> --clear-env   # remove all per-agent variables
 ```
 
 The eye button parks a variable here too: the row keeps its key and value and stays editable, but the variable is not passed to the agent. Parked variables are stored separately and are never merged into a spawned process.
@@ -259,7 +259,7 @@ This is the quickest way to catch the case where an agent behaves oddly because 
 
 ### Using a Different Token Backend
 
-Maestro spawns each provider's own CLI, so it does not have a "model gateway" setting of its own. What an agent bills to, and which endpoint it talks to, is whatever its CLI reads from the environment. That makes per-agent variables the way to point one agent at a proxy, a gateway, or a company account while every other agent keeps its normal login.
+OpenWizardAI spawns each provider's own CLI, so it does not have a "model gateway" setting of its own. What an agent bills to, and which endpoint it talks to, is whatever its CLI reads from the environment. That makes per-agent variables the way to point one agent at a proxy, a gateway, or a company account while every other agent keeps its normal login.
 
 Set these in **Edit Agent → Environment Variables (optional)** (`Alt+Cmd+,` / `Alt+Ctrl+,`) so they apply to that agent alone, or in **Settings → Environment** to apply them everywhere.
 
@@ -269,15 +269,15 @@ Set these in **Edit Agent → Environment Variables (optional)** (`Alt+Cmd+,` / 
 | **Codex**         | `OPENAI_API_KEY`, and `CODEX_HOME` to point at a config directory with its own `base_url`                                             | Codex reads a custom model provider from its own config file.                    |
 | **OpenCode**      | `OPENCODE_CONFIG_DIR`, plus the provider key var for whichever backend you configure (`ANTHROPIC_API_KEY`, `GROQ_API_KEY`, and so on) | OpenCode recognizes roughly a hundred `*_API_KEY` vars and stores them together. |
 | **Copilot CLI**   | `COPILOT_GITHUB_TOKEN`, `GH_TOKEN`, `GITHUB_TOKEN` (the CLI's own precedence order)                                                   | Selects which GitHub account is used. The backend itself is not redirectable.    |
-| **Factory Droid** | Configured in Droid's own settings                                                                                                    | Maestro passes the environment through but does not define the vars.             |
+| **Factory Droid** | Configured in Droid's own settings                                                                                                    | OpenWizardAI passes the environment through but does not define the vars.        |
 
 Claude Code also honors `CLAUDE_CODE_USE_BEDROCK=1` and `CLAUDE_CODE_USE_VERTEX=1`, which route it to AWS Bedrock or Google Vertex AI. Those take credentials from the cloud SDK chain rather than from an Anthropic key, and they override the variables above.
 
 To set one from the CLI instead:
 
 ```bash
-maestro-cli update-agent <agent-id> --env ANTHROPIC_BASE_URL=https://gateway.internal/v1
-maestro-cli update-agent <agent-id> --env ANTHROPIC_AUTH_TOKEN=sk-gateway-...
+openwizardai-cli update-agent <agent-id> --env ANTHROPIC_BASE_URL=https://gateway.internal/v1
+openwizardai-cli update-agent <agent-id> --env ANTHROPIC_AUTH_TOKEN=sk-gateway-...
 ```
 
 #### What Will Not Work
@@ -289,11 +289,11 @@ An OpenAI-compatible gateway cannot back Claude Code directly. OpenRouter, Reque
 Two more things that surprise people:
 
 - **A per-agent variable replaces the provider-level set, it does not merge with it.** An agent that sets only `ANTHROPIC_BASE_URL` stops receiving a provider-level `CLAUDE_CONFIG_DIR`. Set both on the agent if it needs both.
-- **Re-authenticating cannot fix a gateway.** When an agent runs against a base URL or an API key, a failure belongs to that operator or that key, so running the provider's login command produces a successful-looking flow that changes nothing. Maestro detects this and tells you which credential is actually in play instead of offering a login that would not help.
+- **Re-authenticating cannot fix a gateway.** When an agent runs against a base URL or an API key, a failure belongs to that operator or that key, so running the provider's login command produces a successful-looking flow that changes nothing. OpenWizardAI detects this and tells you which credential is actually in play instead of offering a login that would not help.
 
 ## Checking for Updates
 
-Maestro checks for updates automatically on startup (configurable in Settings → General → **Check for updates on startup**).
+OpenWizardAI checks for updates automatically on startup (configurable in Settings → General → **Check for updates on startup**).
 
 **To manually check for updates:**
 
@@ -309,27 +309,27 @@ When an update is available, you'll see:
 
 ### Anonymous Check-in
 
-Alongside each update check, Maestro sends a small anonymous ping so we can count how many installs are active and which platforms and themes people actually use. It is the only usage data the app reports about itself.
+Alongside each update check, OpenWizardAI sends a small anonymous ping so we can count how many installs are active and which platforms and themes people actually use. It is the only usage data the app reports about itself.
 
 **What it sends:**
 
 | Field      | Example           | Notes                                                        |
 | ---------- | ----------------- | ------------------------------------------------------------ |
 | Install ID | `9f3a...` (UUID)  | Randomly generated once, stored locally. Not your machine ID |
-| Version    | `0.17.3`          | The Maestro version you're running                           |
+| Version    | `0.17.3`          | The OpenWizardAI version you're running                      |
 | Platform   | `darwin`, `win32` | Operating system                                             |
 | Arch       | `arm64`, `x64`    | CPU architecture                                             |
 | Theme      | `dracula`         | Active theme ID                                              |
 
 **What it does not send:** your name, email, IP-derived location, file paths, project names, prompts, agent output, or anything you type. The install ID is a random UUID generated on first run and kept in your local app data - it is not derived from your hardware, and it cannot be traced back to you.
 
-**Frequency:** once when Maestro launches, then once per day if you leave it running.
+**Frequency:** once when OpenWizardAI launches, then once per day if you leave it running.
 
 **To turn it off:** Settings → General → **Check for updates on startup**. The check-in rides along with the update check, so disabling that disables both. Development and test builds never check in.
 
 ### Pre-release Channel (Beta Opt-in)
 
-By default, Maestro only notifies you about stable releases. If you want to try new features before they're officially released, you can opt into the pre-release channel.
+By default, OpenWizardAI only notifies you about stable releases. If you want to try new features before they're officially released, you can opt into the pre-release channel.
 
 **To enable beta updates:**
 
@@ -355,7 +355,7 @@ By default, Maestro only notifies you about stable releases. If you want to try 
 **Reverting to stable:** Toggle the setting off and download the latest stable release from GitHub. Pre-releases won't auto-downgrade to stable versions.
 
 <Warning>
-Pre-release versions may contain experimental features and bugs. Use at your own risk. If you encounter issues, you can always download the latest stable release from [GitHub Releases](https://github.com/RunMaestro/Maestro/releases).
+Pre-release versions may contain experimental features and bugs. Use at your own risk. If you encounter issues, you can always download the latest stable release from [GitHub Releases](https://github.com/manoelpanev/OpenWizardAI/releases).
 </Warning>
 
 ## Notifications & Sound
@@ -384,7 +384,7 @@ Execute a custom command when AI tasks complete. Use any notification method tha
 1. Toggle **Enable Custom Notification** on
 2. Set the **Command Chain** - the command(s) that accept text via stdin:
    - **macOS:** `say` (text-to-speech), `afplay /path/to/sound.wav` (audio file)
-   - **Linux:** `notify-send "Maestro"`, `espeak`, `paplay /path/to/sound.wav`
+   - **Linux:** `notify-send "OpenWizardAI"`, `espeak`, `paplay /path/to/sound.wav`
    - **Windows:** PowerShell scripts or third-party tools
    - **Custom:** Any command or script that accepts stdin
 3. Click **Test** to verify your command works
@@ -394,7 +394,7 @@ Execute a custom command when AI tasks complete. Use any notification method tha
 
 - `say` - speak aloud using macOS text-to-speech
 - `tee ~/log.txt | say` - log to a file AND speak aloud
-- `notify-send "Maestro" && espeak` - show desktop notification and speak (Linux)
+- `notify-send "OpenWizardAI" && espeak` - show desktop notification and speak (Linux)
 - `afplay ~/sounds/done.wav` - play a sound file (macOS)
 
 ### Toast Notifications
@@ -428,7 +428,7 @@ Most toasts are clickable, and where the click takes you depends on what the toa
 | An in-app browser tab           | Focuses that tab, or opens the URL in a new one  |
 | An external link                | Opens it in your system browser                  |
 
-If the target tab was closed since the toast appeared, the click still switches to the agent and tells you what was missing, so a click never silently does nothing. Scripts and agents choose the target with the `--open-*` flags on [`maestro-cli notify toast`](/cli#notifications). A toast can also carry a separate inline link button beneath its message (`--action-url`); that link is independent of the body click.
+If the target tab was closed since the toast appeared, the click still switches to the agent and tells you what was missing, so a click never silently does nothing. Scripts and agents choose the target with the `--open-*` flags on [`openwizardai-cli notify toast`](/cli#notifications). A toast can also carry a separate inline link button beneath its message (`--action-url`); that link is independent of the body click.
 
 ### When Notifications Trigger
 
@@ -439,7 +439,7 @@ Notifications are sent when:
 
 ## Sleep Prevention
 
-Maestro can prevent your computer from sleeping while AI agents are actively working, ensuring long-running tasks complete without interruption.
+OpenWizardAI can prevent your computer from sleeping while AI agents are actively working, ensuring long-running tasks complete without interruption.
 
 **To enable:**
 
@@ -459,9 +459,9 @@ When all activity stops, sleep prevention deactivates automatically.
 
 ### Keep the Display Awake
 
-By default Maestro keeps the machine running but lets the screen go dark, so the screen saver, the screen lock, and your normal power settings all behave as usual.
+By default OpenWizardAI keeps the machine running but lets the screen go dark, so the screen saver, the screen lock, and your normal power settings all behave as usual.
 
-Turn on **Keep the display awake** (in the same **Power** section, off by default) when you want to watch a long run instead: the display stays lit, the screen saver and lock screen never arrive, and you are not logged out for being idle. It only takes effect while sleep prevention is holding the machine awake, so an idle Maestro still lets everything sleep.
+Turn on **Keep the display awake** (in the same **Power** section, off by default) when you want to watch a long run instead: the display stays lit, the screen saver and lock screen never arrive, and you are not logged out for being idle. It only takes effect while sleep prevention is holding the machine awake, so an idle OpenWizardAI still lets everything sleep.
 
 <Warning>
 On macOS, a lit display is how the OS decides someone is at the machine, and it parks discretionary background maintenance while that is true. Spotlight indexing, Photos analysis, XProtect scans, Time Machine thinning, and background updates all wait until the run finishes. That is the trade: an uninterrupted, still-signed-in session in exchange for deferred housekeeping.
@@ -494,7 +494,7 @@ On unsupported Linux configurations, the feature silently does nothing - your sy
 
 ## WakaTime Integration
 
-Maestro integrates with [WakaTime](https://wakatime.com) to track coding activity across your AI sessions. The WakaTime CLI is auto-installed when you enable the integration.
+OpenWizardAI integrates with [WakaTime](https://wakatime.com) to track coding activity across your AI sessions. The WakaTime CLI is auto-installed when you enable the integration.
 
 **To enable:**
 
@@ -504,11 +504,11 @@ Maestro integrates with [WakaTime](https://wakatime.com) to track coding activit
 
 ### What Gets Tracked
 
-By default, Maestro sends **app-level heartbeats** - WakaTime sees time spent in Maestro as a single project entry with language detected from your project's manifest files (e.g., `tsconfig.json` → TypeScript).
+By default, OpenWizardAI sends **app-level heartbeats** - WakaTime sees time spent in OpenWizardAI as a single project entry with language detected from your project's manifest files (e.g., `tsconfig.json` → TypeScript).
 
 ### Detailed File Tracking
 
-Enable **Detailed file tracking** to send per-file heartbeats for write operations. When an agent writes or edits a file, Maestro sends that file path to WakaTime with:
+Enable **Detailed file tracking** to send per-file heartbeats for write operations. When an agent writes or edits a file, OpenWizardAI sends that file path to WakaTime with:
 
 - The file's language (detected from extension)
 - A write flag indicating the file was modified
@@ -530,7 +530,7 @@ Read operations and shell commands are excluded to avoid inflating tracked time.
 
 ### Activity Categories
 
-Maestro assigns WakaTime categories based on how the session was initiated:
+OpenWizardAI assigns WakaTime categories based on how the session was initiated:
 
 - **Interactive sessions** (user-driven) are tracked as `building`
 - **Auto Run / batch sessions** are tracked as `ai coding`
@@ -541,24 +541,24 @@ This lets you distinguish time you spent actively directing agents from time the
 
 Settings are stored in:
 
-- **macOS**: `~/Library/Application Support/maestro/`
-- **Windows**: `%APPDATA%/maestro/`
-- **Linux**: `~/.config/maestro/`
+- **macOS**: `~/Library/Application Support/openwizardai/`
+- **Windows**: `%APPDATA%/openwizardai/`
+- **Linux**: `~/.config/openwizardai/`
 
 ## Cross-Device Sync (Beta)
 
-Maestro can sync settings, sessions, and groups across multiple devices by storing them in a cloud-synced folder like iCloud Drive, Dropbox, or OneDrive.
+OpenWizardAI can sync settings, sessions, and groups across multiple devices by storing them in a cloud-synced folder like iCloud Drive, Dropbox, or OneDrive.
 
 **Setup:**
 
 1. Open **Settings** (`Cmd+,` / `Ctrl+,`) → **General** tab
 2. Scroll to **Storage Location**
 3. Click **Choose Folder...** and select a synced folder:
-   - **iCloud Drive**: `~/Library/Mobile Documents/com~apple~CloudDocs/Maestro`
-   - **Dropbox**: `~/Dropbox/Maestro`
-   - **OneDrive**: `~/OneDrive/Maestro`
-4. Maestro will migrate your existing settings to the new location
-5. Restart Maestro for changes to take effect
+   - **iCloud Drive**: `~/Library/Mobile Documents/com~apple~CloudDocs/OpenWizardAI`
+   - **Dropbox**: `~/Dropbox/OpenWizardAI`
+   - **OneDrive**: `~/OneDrive/OpenWizardAI`
+4. OpenWizardAI will migrate your existing settings to the new location
+5. Restart OpenWizardAI for changes to take effect
 6. Repeat on your other devices, selecting the same synced folder
 
 **What syncs:**
@@ -576,7 +576,7 @@ Maestro can sync settings, sessions, and groups across multiple devices by stori
 
 **Important limitations:**
 
-- **Single-device usage**: Only run Maestro on one device at a time. Running simultaneously on multiple devices can cause sync conflicts where the last write wins.
+- **Single-device usage**: Only run OpenWizardAI on one device at a time. Running simultaneously on multiple devices can cause sync conflicts where the last write wins.
 - **No conflict resolution**: If settings are modified on two devices before syncing completes, one set of changes will be lost.
 - **Restart required**: Changes to storage location require an app restart to take effect.
 

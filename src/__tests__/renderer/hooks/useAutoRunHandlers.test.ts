@@ -122,7 +122,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			// Verify writeDoc was NOT called - content changes don't persist immediately
-			expect(window.maestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('should do nothing when activeSession is null', async () => {
@@ -300,7 +300,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: '# Phase 2\n\nNew document content',
 			});
@@ -311,7 +311,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunSelectDocument('Phase 2');
 			});
 
-			expect(window.maestro.autorun.readDoc).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.readDoc).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Phase 2.md',
 				undefined // sshRemoteId - not set in test session
@@ -328,7 +328,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: false,
 				content: undefined,
 			});
@@ -354,7 +354,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunSelectDocument('Phase 1');
 			});
 
-			expect(window.maestro.autorun.readDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.readDoc).not.toHaveBeenCalled();
 			expect(mockDeps.setSessions).not.toHaveBeenCalled();
 		});
 
@@ -368,7 +368,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunSelectDocument('Phase 1');
 			});
 
-			expect(window.maestro.autorun.readDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.readDoc).not.toHaveBeenCalled();
 			expect(mockDeps.setSessions).not.toHaveBeenCalled();
 		});
 
@@ -376,7 +376,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession({ autoRunContentVersion: 5 });
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: 'Content',
 			});
@@ -409,7 +409,7 @@ describe('useAutoRunHandlers', () => {
 			const mockDeps = createMockDeps();
 			mockDeps.autoRunDocumentList = ['Phase 1', 'Phase 2'];
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'Phase 2', 'Phase 3'],
 				tree: [],
@@ -422,7 +422,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			expect(mockDeps.setAutoRunIsLoadingDocuments).toHaveBeenCalledWith(true);
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/test/autorun', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith('/test/autorun', undefined);
 			expect(mockDeps.setAutoRunDocumentList).toHaveBeenCalledWith([
 				'Phase 1',
 				'Phase 2',
@@ -441,7 +441,7 @@ describe('useAutoRunHandlers', () => {
 			const mockDeps = createMockDeps();
 			mockDeps.autoRunDocumentList = ['Phase 1'];
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'Phase 2'],
 				tree: [],
@@ -465,7 +465,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1'],
 				tree: [],
@@ -487,7 +487,7 @@ describe('useAutoRunHandlers', () => {
 			const mockDeps = createMockDeps();
 			mockDeps.autoRunDocumentList = ['Phase 1'];
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'],
 				tree: [],
@@ -507,7 +507,7 @@ describe('useAutoRunHandlers', () => {
 			const mockDeps = createMockDeps();
 			mockDeps.autoRunDocumentList = ['Phase 1', 'Phase 2', 'Phase 3'];
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1'],
 				tree: [],
@@ -527,7 +527,7 @@ describe('useAutoRunHandlers', () => {
 			const mockDeps = createMockDeps();
 			mockDeps.autoRunDocumentList = ['Phase 1', 'Phase 2'];
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'Phase 2'],
 				tree: [],
@@ -548,7 +548,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1'],
 				tree: [],
@@ -580,7 +580,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunRefresh();
 			});
 
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 		});
 
 		it('should do nothing when autoRunFolderPath is not set', async () => {
@@ -593,14 +593,14 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunRefresh();
 			});
 
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 		});
 
 		it('should stop loading indicator even on failure', async () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: false,
 				files: [],
 				tree: [],
@@ -625,8 +625,8 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.writeDoc).mockResolvedValue({ success: true });
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.writeDoc).mockResolvedValue({ success: true });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'Phase 2', 'New Document'],
 				tree: [],
@@ -640,7 +640,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			expect(success).toBe(true);
-			expect(window.maestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.writeDoc).toHaveBeenCalledWith(
 				'/test/autorun',
 				'New Document.md',
 				'',
@@ -652,8 +652,8 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.writeDoc).mockResolvedValue({ success: true });
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.writeDoc).mockResolvedValue({ success: true });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'New Doc'],
 				tree: [{ name: 'Phase 1', type: 'file', path: 'Phase 1.md' }],
@@ -665,7 +665,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunCreateDocument('New Doc');
 			});
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/test/autorun', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith('/test/autorun', undefined);
 			expect(mockDeps.setAutoRunDocumentList).toHaveBeenCalledWith(['Phase 1', 'New Doc']);
 			expect(mockDeps.setAutoRunDocumentTree).toHaveBeenCalledWith([
 				{ name: 'Phase 1', type: 'file', path: 'Phase 1.md' },
@@ -676,8 +676,8 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession({ autoRunMode: 'preview' });
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.writeDoc).mockResolvedValue({ success: true });
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.writeDoc).mockResolvedValue({ success: true });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['New Doc'],
 				tree: [],
@@ -700,8 +700,8 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession({ autoRunContentVersion: 3 });
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.writeDoc).mockResolvedValue({ success: true });
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.writeDoc).mockResolvedValue({ success: true });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['New Doc'],
 				tree: [],
@@ -722,7 +722,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.writeDoc).mockResolvedValue({ success: false });
+			vi.mocked(window.openwizardai.autorun.writeDoc).mockResolvedValue({ success: false });
 
 			const { result } = renderHook(() => useAutoRunHandlers(mockSession, mockDeps));
 
@@ -746,7 +746,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			expect(success).toBe(false);
-			expect(window.maestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('should return false when autoRunFolderPath is not set', async () => {
@@ -761,14 +761,14 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			expect(success).toBe(false);
-			expect(window.maestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('should handle write exception gracefully', async () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.writeDoc).mockRejectedValue(new Error('Write failed'));
+			vi.mocked(window.openwizardai.autorun.writeDoc).mockRejectedValue(new Error('Write failed'));
 
 			const { result } = renderHook(() => useAutoRunHandlers(mockSession, mockDeps));
 
@@ -790,7 +790,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: `# Tasks
 - [ ] Task one
@@ -807,7 +807,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			expect(count).toBe(3);
-			expect(window.maestro.autorun.readDoc).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.readDoc).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Tasks.md',
 				undefined // sshRemoteId - not set in test session
@@ -818,7 +818,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: '# Just a heading\n\nSome text without tasks.',
 			});
@@ -837,7 +837,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: `# Done
 - [x] Done 1
@@ -859,7 +859,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: false,
 				content: undefined,
 			});
@@ -886,14 +886,14 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			expect(count).toBe(0);
-			expect(window.maestro.autorun.readDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.readDoc).not.toHaveBeenCalled();
 		});
 
 		it('should handle indented tasks', async () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: `# Nested
 - [ ] Parent
@@ -915,7 +915,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: `# Special
 - [ ] Task with "quotes"
@@ -938,7 +938,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: '',
 			});
@@ -963,12 +963,12 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession({ autoRunFolderPath: undefined });
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Phase 1', 'Phase 2'],
 				tree: [{ name: 'Phase 1', type: 'file', path: 'Phase 1.md' }],
 			});
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: '# Phase 1 Content',
 			});
@@ -979,7 +979,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunFolderSelected('/new/folder');
 			});
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/new/folder', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith('/new/folder', undefined);
 			expect(mockDeps.setAutoRunDocumentList).toHaveBeenCalledWith(['Phase 1', 'Phase 2']);
 			expect(mockDeps.setAutoRunDocumentTree).toHaveBeenCalled();
 			expect(mockDeps.setAutoRunSetupModalOpen).toHaveBeenCalledWith(false);
@@ -992,12 +992,12 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['First Doc', 'Second Doc'],
 				tree: [],
 			});
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: '# First Doc Content',
 			});
@@ -1008,7 +1008,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunFolderSelected('/folder');
 			});
 
-			expect(window.maestro.autorun.readDoc).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.readDoc).toHaveBeenCalledWith(
 				'/folder',
 				'First Doc.md',
 				undefined
@@ -1025,7 +1025,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: [],
 				tree: [],
@@ -1038,7 +1038,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			// Should not try to read a document when folder is empty
-			expect(window.maestro.autorun.readDoc).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.readDoc).not.toHaveBeenCalled();
 
 			const updateFn = mockDeps.setSessions.mock.calls[0][0];
 			const updatedSessions = updateFn([mockSession]);
@@ -1051,7 +1051,7 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession();
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: false,
 				files: [],
 				tree: [],
@@ -1081,7 +1081,7 @@ describe('useAutoRunHandlers', () => {
 				await result.current.handleAutoRunFolderSelected('/folder');
 			});
 
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 			expect(mockDeps.setSessions).not.toHaveBeenCalled();
 		});
 
@@ -1089,12 +1089,12 @@ describe('useAutoRunHandlers', () => {
 			const mockSession = createMockSession({ autoRunContentVersion: 7 });
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['Doc'],
 				tree: [],
 			});
-			vi.mocked(window.maestro.autorun.readDoc).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.readDoc).mockResolvedValue({
 				success: true,
 				content: 'Content',
 			});
@@ -1230,7 +1230,7 @@ describe('useAutoRunHandlers', () => {
 				defaultShowThinking: 'off',
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main', 'auto-run-main-0222']);
@@ -1254,7 +1254,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			// Should have called worktreeSetup to create the worktree
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/test/project',
 				'/projects/worktrees/auto-run-main-0222',
 				'auto-run-main-0222',
@@ -1286,7 +1286,7 @@ describe('useAutoRunHandlers', () => {
 				defaultShowThinking: 'off',
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -1325,7 +1325,7 @@ describe('useAutoRunHandlers', () => {
 			});
 			const mockDeps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: false,
 				error: 'branch already exists',
 			});
@@ -1369,7 +1369,7 @@ describe('useAutoRunHandlers', () => {
 				defaultShowThinking: 'off',
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue([]);
@@ -1392,7 +1392,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			// /test/project -> parent is /test, so basePath = /test/worktrees
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/test/project',
 				'/test/worktrees/my-branch',
 				'my-branch',
@@ -1430,7 +1430,7 @@ describe('useAutoRunHandlers', () => {
 			});
 
 			// Should NOT call worktreeSetup (worktree already exists on disk)
-			expect(window.maestro.git.worktreeSetup).not.toHaveBeenCalled();
+			expect(window.openwizardai.git.worktreeSetup).not.toHaveBeenCalled();
 
 			// Should dispatch batch run to a new session
 			expect(mockDeps.startBatchRun).toHaveBeenCalledTimes(1);

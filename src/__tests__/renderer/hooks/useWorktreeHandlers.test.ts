@@ -167,11 +167,11 @@ beforeEach(() => {
 		defaultShowThinking: 'off',
 	} as any);
 
-	// Ensure window.maestro.git has our mocks
-	if (!(window.maestro as any).git) {
-		(window.maestro as any).git = {};
+	// Ensure window.openwizardai.git has our mocks
+	if (!(window.openwizardai as any).git) {
+		(window.openwizardai as any).git = {};
 	}
-	Object.assign((window.maestro as any).git, mockGit);
+	Object.assign((window.openwizardai as any).git, mockGit);
 });
 
 afterEach(() => {
@@ -768,7 +768,7 @@ describe('handleCreateWorktreeFromConfig', () => {
 		);
 	});
 
-	it('focuses existing session and skips duplicate when branch is already open in Maestro', async () => {
+	it('focuses existing session and skips duplicate when branch is already open in OpenWizardAI', async () => {
 		const existingChild = createChildSession({
 			id: 'child-existing',
 			cwd: '/projects/other/feature-new',

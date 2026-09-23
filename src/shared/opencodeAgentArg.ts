@@ -6,7 +6,7 @@
  * by plugins such as oh-my-opencode, which never appear in `opencode agent list`
  * but are still resolvable at run time.
  *
- * Maestro stores the flag inside the per-agent Custom CLI Args string rather
+ * OpenWizardAI stores the flag inside the per-agent Custom CLI Args string rather
  * than in the provider-level agent config, because Custom CLI Args are
  * per-agent (`session.customArgs`) while config options are shared by every
  * agent using that provider. These helpers let the UI expose a dedicated

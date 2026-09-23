@@ -303,7 +303,7 @@ describe('codex-usage-sampler', () => {
 		expect(snapshot.session).toBeUndefined();
 	});
 
-	it('treats HTTP 401 as unauthenticated without reporting to Sentry (MAESTRO-RR)', async () => {
+	it('treats HTTP 401 as unauthenticated without reporting to Sentry (OPENWIZARDAI-RR)', async () => {
 		await fs.writeFile(
 			path.join(TEST_ROOT, 'auth.json'),
 			JSON.stringify({ tokens: { access_token: 'expired-token' } })
@@ -316,13 +316,13 @@ describe('codex-usage-sampler', () => {
 		expect(captureMessageMock).not.toHaveBeenCalled();
 	});
 
-	it('does not report network request failures to Sentry (MAESTRO-RR)', async () => {
+	it('does not report network request failures to Sentry (OPENWIZARDAI-RR)', async () => {
 		await fs.writeFile(
 			path.join(TEST_ROOT, 'auth.json'),
 			JSON.stringify({ tokens: { access_token: 'redacted-token' } })
 		);
 		// A thrown fetch (offline, DNS/TLS failure, unreachable endpoint, or our
-		// own abort timeout) is the dominant MAESTRO-RR cause - an expected,
+		// own abort timeout) is the dominant OPENWIZARDAI-RR cause - an expected,
 		// recoverable user-environment condition, not a Sentry-worthy crash.
 		vi.mocked(globalThis.fetch).mockRejectedValue(new TypeError('fetch failed'));
 
@@ -334,14 +334,14 @@ describe('codex-usage-sampler', () => {
 	});
 
 	it.each([408, 429, 500, 502, 503, 504])(
-		'does not report a throttled or degraded upstream (HTTP %i) to Sentry (MAESTRO-RR)',
+		'does not report a throttled or degraded upstream (HTTP %i) to Sentry (OPENWIZARDAI-RR)',
 		async (status) => {
 			await fs.writeFile(
 				path.join(TEST_ROOT, 'auth.json'),
 				JSON.stringify({ tokens: { access_token: 'redacted-token' } })
 			);
 			// The sampler runs on a timer, so one ChatGPT outage would otherwise
-			// report once per tick per install - the dominant MAESTRO-RR volume.
+			// report once per tick per install - the dominant OPENWIZARDAI-RR volume.
 			vi.mocked(globalThis.fetch).mockResolvedValue(new Response('Upstream error', { status }));
 
 			const snapshot = await sampleCodexUsage({ codexHome: TEST_ROOT });
@@ -351,7 +351,7 @@ describe('codex-usage-sampler', () => {
 		}
 	);
 
-	it('reports unexpected HTTP errors to Sentry (MAESTRO-RR)', async () => {
+	it('reports unexpected HTTP errors to Sentry (OPENWIZARDAI-RR)', async () => {
 		await fs.writeFile(
 			path.join(TEST_ROOT, 'auth.json'),
 			JSON.stringify({ tokens: { access_token: 'redacted-token' } })

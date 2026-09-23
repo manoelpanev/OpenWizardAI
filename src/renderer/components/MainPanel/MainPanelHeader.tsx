@@ -685,7 +685,7 @@ export const MainPanelHeader = React.memo(function MainPanelHeader({
 												)}
 
 												{/* TUI usage limits - shown for Claude Code tabs driving the TUI
-												    (Adaptive Mode toggle OR static maestro-p Path) when a usage
+												    (Adaptive Mode toggle OR static openwizardai-p Path) when a usage
 												    snapshot is cached. Bar color rules match the Usage Dashboard
 												    so the same percent reads the same way in both places:
 												    accent at low, warning at 75%, error at 99%. */}

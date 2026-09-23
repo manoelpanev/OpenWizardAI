@@ -1,7 +1,7 @@
 /**
  * Toast width presets - controls how wide toast notifications render.
  *
- * 'small' preserves Maestro's original fixed sizing (320-400px). 'medium' and
+ * 'small' preserves OpenWizardAI's original fixed sizing (320-400px). 'medium' and
  * 'large' scale the min/max pair up for users who want roomier notifications.
  * 'dynamic' has no fixed pixels: it matches the current Right Bar width so the
  * toast fills the same column and tracks the panel as the user resizes it.

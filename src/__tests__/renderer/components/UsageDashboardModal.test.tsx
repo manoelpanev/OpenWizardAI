@@ -84,7 +84,7 @@ vi.mock('../../../renderer/contexts/LayerStackContext', () => ({
 	}),
 }));
 
-// Mock maestro stats API
+// Mock openwizardai stats API
 const mockGetAggregation = vi.fn();
 const mockExportCsv = vi.fn();
 const mockOnStatsUpdate = vi.fn(() => vi.fn()); // Returns unsubscribe function
@@ -99,7 +99,7 @@ const mockWriteFile = vi.fn();
 const mockGetShortcutUsageByDay = vi.fn(() => Promise.resolve([]));
 const mockGetShortcutUsageTotal = vi.fn(() => Promise.resolve(0));
 
-const mockMaestro = {
+const mockOpenWizardAI = {
 	stats: {
 		getAggregation: mockGetAggregation,
 		exportCsv: mockExportCsv,
@@ -117,7 +117,7 @@ const mockMaestro = {
 		writeFile: mockWriteFile,
 	},
 	// Usage snapshot samplers fired by the dashboard's quota-on-open effect.
-	// Without these the effect throws on `window.maestro.agents` and leaks an
+	// Without these the effect throws on `window.openwizardai.agents` and leaks an
 	// unhandled rejection.
 	agents: {
 		refreshClaudeUsageSnapshots: vi.fn().mockResolvedValue({ refreshed: 0 }),
@@ -133,9 +133,9 @@ const mockMaestro = {
 	},
 };
 
-// Set up window.maestro mock
-Object.defineProperty(window, 'maestro', {
-	value: mockMaestro,
+// Set up window.openwizardai mock
+Object.defineProperty(window, 'openwizardai', {
+	value: mockOpenWizardAI,
 	writable: true,
 });
 
@@ -417,7 +417,7 @@ describe('UsageDashboardModal', () => {
 
 			await waitFor(() => {
 				expect(screen.getByText('No usage data yet')).toBeInTheDocument();
-				expect(screen.getByText('Start using OpenWizzard to see your stats!')).toBeInTheDocument();
+				expect(screen.getByText('Start using OpenWizardAI to see your stats!')).toBeInTheDocument();
 			});
 		});
 

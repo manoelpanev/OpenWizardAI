@@ -1,7 +1,7 @@
 /**
  * @file themeGloss.test.ts
  * @description Tests for the surface gloss vocabulary shared by the Settings
- * slider, the renderer's `<html data-gloss>` publisher, and `maestro-cli gloss`.
+ * slider, the renderer's `<html data-gloss>` publisher, and `openwizardai-cli gloss`.
  */
 
 import { describe, it, expect } from 'vitest';

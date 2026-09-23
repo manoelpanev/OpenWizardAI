@@ -682,7 +682,7 @@ export const useTabStore = create<TabStore>()((set) => ({
 			ageMs: tab ? Date.now() - tab.createdAt : undefined,
 		});
 		// Kill the PTY process after confirming the tab will be removed
-		window.maestro.process.kill(getTerminalSessionId(session.id, tabId));
+		window.openwizardai.process.kill(getTerminalSessionId(session.id, tabId));
 		updateActiveSession(updatedSession);
 	},
 
@@ -701,7 +701,7 @@ export const useTabStore = create<TabStore>()((set) => ({
 		// Defensive: kill any lingering PTY for this tab before the spawn effects
 		// re-create it. On a clean exit the process map entry is already gone, so
 		// this is a no-op (and emits no exit event) in the common case.
-		window.maestro.process.kill(getTerminalSessionId(session.id, tabId));
+		window.openwizardai.process.kill(getTerminalSessionId(session.id, tabId));
 		updateActiveSession({ ...updatedSession, inputMode: 'terminal' });
 	},
 

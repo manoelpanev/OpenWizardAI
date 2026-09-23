@@ -173,7 +173,7 @@ const snapshots = new Map<string, DispatchSnapshot>();
 /**
  * Dispatch snapshots that must survive an app restart, keyed the same way.
  *
- * Re-authenticating means leaving Maestro - often to a terminal, often quitting
+ * Re-authenticating means leaving OpenWizardAI - often to a terminal, often quitting
  * on the way back - and the in-memory `snapshots` map dies with the process. So
  * "Resume Agent" found nothing to replay in exactly the flow it exists for.
  *
@@ -209,7 +209,7 @@ let persistedSnapshots: Record<string, PersistedSnapshot> | null = null;
 async function loadPersistedSnapshots(): Promise<Record<string, PersistedSnapshot>> {
 	if (persistedSnapshots) return persistedSnapshots;
 	try {
-		const raw = (await window.maestro.settings.get(PERSISTED_SNAPSHOTS_KEY)) as
+		const raw = (await window.openwizardai.settings.get(PERSISTED_SNAPSHOTS_KEY)) as
 			| Record<string, PersistedSnapshot>
 			| undefined;
 		const cutoff = Date.now() - PERSISTED_SNAPSHOT_TTL_MS;
@@ -229,7 +229,7 @@ async function loadPersistedSnapshots(): Promise<Record<string, PersistedSnapsho
 
 function writePersistedSnapshots(next: Record<string, PersistedSnapshot>): void {
 	persistedSnapshots = next;
-	void window.maestro.settings.set(PERSISTED_SNAPSHOTS_KEY, next);
+	void window.openwizardai.settings.set(PERSISTED_SNAPSHOTS_KEY, next);
 }
 
 /**
@@ -811,7 +811,7 @@ function resolveOutage(outageId: string, status: Exclude<OutageStatus, 'active'>
 	// block or fail the resolution itself; optional-chained because unit tests
 	// (and headless spawns) run this store without the preload bridge.
 	const session = selectSessionById(record.sessionId)(useSessionStore.getState());
-	void window.maestro?.stats
+	void window.openwizardai?.stats
 		?.recordResilience({
 			id: record.outageId,
 			sessionId: record.sessionId,

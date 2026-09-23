@@ -41,8 +41,8 @@ function setSession(state: Session['state'], executionQueue: QueuedItem[] = []):
 
 beforeEach(() => {
 	speak.mockClear();
-	(globalThis as any).window.maestro = {
-		...((globalThis as any).window.maestro ?? {}),
+	(globalThis as any).window.openwizardai = {
+		...((globalThis as any).window.openwizardai ?? {}),
 		notification: { speak },
 	};
 
@@ -52,7 +52,7 @@ beforeEach(() => {
 		config: {
 			...s.config,
 			idleNotificationEnabled: true,
-			idleNotificationCommand: 'say Maestro is idle',
+			idleNotificationCommand: 'say OpenWizardAI is idle',
 		},
 	}));
 });

@@ -66,7 +66,7 @@ export function isSelfContainedCard(entry: LogEntry): boolean {
 		// a marker also fixes transcripts already on disk.
 		//
 		// Anchored and length-capped by isClaudeLimitNotice, so an agent
-		// *discussing* limits (which Maestro's own agents do constantly) carries
+		// *discussing* limits (which OpenWizardAI's own agents do constantly) carries
 		// surrounding prose and does not match.
 		isClaudeLimitNotice(entry.text)
 	);

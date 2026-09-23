@@ -1,5 +1,5 @@
 /**
- * GitDiffViewer component for Maestro mobile web interface
+ * GitDiffViewer component for OpenWizardAI mobile web interface
  *
  * Displays a unified diff with line-by-line coloring, line numbers parsed
  * from @@ hunks, and horizontal scroll for long lines.

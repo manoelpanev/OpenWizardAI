@@ -199,7 +199,7 @@ describe('claude-usage-sampler', () => {
 			);
 			primeSuccess(unreadEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(getSnapshotMock).toHaveBeenCalledWith(path.resolve('/Users/test/.claude'));
 			expect(snap?.weekSonnetOnly).toEqual({
@@ -215,7 +215,7 @@ describe('claude-usage-sampler', () => {
 			);
 			primeSuccess(unreadEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(snap?.weekSonnetOnly).toEqual({ percent: 0, resetsAt: '2026-05-22T12:00:00.000Z' });
 		});
@@ -223,7 +223,7 @@ describe('claude-usage-sampler', () => {
 		it('keeps the placeholder when nothing is cached for the account', async () => {
 			primeSuccess(unreadEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(snap?.weekSonnetOnly).toEqual({ percent: 0, resetsAt: '2026-05-22T12:00:00.000Z' });
 		});
@@ -234,7 +234,7 @@ describe('claude-usage-sampler', () => {
 			});
 			primeSuccess(unreadEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(snap?.weekSonnetOnly).toEqual({ percent: 0, resetsAt: '2026-05-22T12:00:00.000Z' });
 		});
@@ -242,7 +242,7 @@ describe('claude-usage-sampler', () => {
 		it('never consults the cache for a window it did read', async () => {
 			primeSuccess(wireEnvelope());
 
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(getSnapshotMock).not.toHaveBeenCalled();
 		});
@@ -261,7 +261,7 @@ describe('claude-usage-sampler', () => {
 			});
 			primeSuccess(wireEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(snap?.accountEmail).toBe('pedram@smashlabs.com');
 			expect(snap?.accountUuid).toBe('2acf84ae-d765-4a12-ae90-296b9f903018');
@@ -269,14 +269,14 @@ describe('claude-usage-sampler', () => {
 		});
 
 		it('reads the identity from the canonical config dir, not the wire echo', async () => {
-			// `config_dir` in the wire is whatever string maestro-p printed;
+			// `config_dir` in the wire is whatever string openwizardai-p printed;
 			// the snapshot key is the locally-resolved path. Reading the
 			// identity from anything but the key would let the two disagree.
 			readAccountIdentityMock.mockResolvedValue(null);
 			primeSuccess(wireEnvelope({ config_dir: '/some/echoed/path/' }));
 
 			await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				configDir: '/Users/test/.claude-smash',
 			});
 
@@ -290,7 +290,7 @@ describe('claude-usage-sampler', () => {
 			readAccountIdentityMock.mockResolvedValue(null);
 			primeSuccess(wireEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(snap).not.toHaveProperty('accountEmail');
 			expect(snap).not.toHaveProperty('accountUuid');
@@ -301,7 +301,7 @@ describe('claude-usage-sampler', () => {
 			readAccountIdentityMock.mockResolvedValue({ email: 'legacy@example.com' });
 			primeSuccess(wireEnvelope());
 
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 
 			expect(snap?.accountEmail).toBe('legacy@example.com');
 			expect(snap).not.toHaveProperty('accountUuid');
@@ -312,7 +312,7 @@ describe('claude-usage-sampler', () => {
 		it('returns a snapshot with the wire fields mapped to camelCase', async () => {
 			primeSuccess(wireEnvelope());
 			const snap = await sampleUsage({
-				binPath: '/opt/maestro/resources/maestro-p.js',
+				binPath: '/opt/openwizardai/resources/openwizardai-p.js',
 			});
 			expect(snap).toEqual({
 				sampledAt: new Date(FROZEN_NOW).toISOString(),
@@ -331,44 +331,44 @@ describe('claude-usage-sampler', () => {
 			primeSuccess(wireEnvelope());
 			const localIso = new Date(FROZEN_NOW).toISOString();
 			const snap = await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 			});
 			expect(snap?.sampledAt).toBe(localIso);
 		});
 
 		it('spawns process.execPath with [binPath, --status]', async () => {
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/opt/maestro/maestro-p.js' });
+			await sampleUsage({ binPath: '/opt/openwizardai/openwizardai-p.js' });
 			const call = inspect();
 			expect(call?.cmd).toBe(process.execPath);
-			expect(call?.args).toEqual(['/opt/maestro/maestro-p.js', '--status']);
+			expect(call?.args).toEqual(['/opt/openwizardai/openwizardai-p.js', '--status']);
 		});
 
 		it('starts claude in the private usage probe folder and opts into trusting it', async () => {
 			// Not the caller's folder: an agent's project would load its hooks and
 			// MCP servers on every probe, and the home dir's trust prompt says "No".
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			const options = inspect()?.options as { cwd: string; env: Record<string, string> };
 			expect(options.cwd).toBe(path.join(os.tmpdir(), USAGE_PROBE_DIR_NAME));
-			expect(options.env.MAESTRO_P_ACCEPT_WORKSPACE_TRUST).toBe('1');
+			expect(options.env.OPENWIZARDAI_P_ACCEPT_WORKSPACE_TRUST).toBe('1');
 		});
 
 		it('uses the default 30s timeout when none is provided', async () => {
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(inspect()?.options.timeout).toBe(30_000);
 		});
 
 		it('honors a custom timeoutMs', async () => {
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/bin/maestro-p.js', timeoutMs: 5_000 });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js', timeoutMs: 5_000 });
 			expect(inspect()?.options.timeout).toBe(5_000);
 		});
 
 		it('caps maxBuffer at 1MB', async () => {
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(inspect()?.options.maxBuffer).toBe(1 * 1024 * 1024);
 		});
 	});
@@ -378,12 +378,12 @@ describe('claude-usage-sampler', () => {
 			process.env.PATH = '/usr/bin';
 			const inspect = primeSuccess(wireEnvelope());
 			await sampleUsage({
-				binPath: '/bin/maestro-p.js',
-				customEnvVars: { MAESTRO_CLAUDE_BIN: '/opt/claude' },
+				binPath: '/bin/openwizardai-p.js',
+				customEnvVars: { OPENWIZARDAI_CLAUDE_BIN: '/opt/claude' },
 			});
 			const env = inspect()?.options.env as NodeJS.ProcessEnv;
 			expect(env.PATH).toBe('/usr/bin');
-			expect(env.MAESTRO_CLAUDE_BIN).toBe('/opt/claude');
+			expect(env.OPENWIZARDAI_CLAUDE_BIN).toBe('/opt/claude');
 		});
 
 		it('forces BROWSER to a no-op so an expired-token account can never pop the OAuth browser', async () => {
@@ -394,17 +394,17 @@ describe('claude-usage-sampler', () => {
 			// re-pops authorization windows.
 			process.env.BROWSER = '/usr/bin/open-a-real-browser';
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			const env = inspect()?.options.env as NodeJS.ProcessEnv;
 			expect(env.BROWSER).toBe('/usr/bin/true');
 		});
 
-		it('sets ELECTRON_RUN_AS_NODE=1 so the Electron execPath runs maestro-p as Node', async () => {
+		it('sets ELECTRON_RUN_AS_NODE=1 so the Electron execPath runs openwizardai-p as Node', async () => {
 			// Without this, a packaged app would spawn a second GUI instance
-			// instead of executing the maestro-p script, and --status would
+			// instead of executing the openwizardai-p script, and --status would
 			// never produce a snapshot.
 			const inspect = primeSuccess(wireEnvelope());
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			const env = inspect()?.options.env as NodeJS.ProcessEnv;
 			expect(env.ELECTRON_RUN_AS_NODE).toBe('1');
 		});
@@ -417,15 +417,15 @@ describe('claude-usage-sampler', () => {
 			// directory" (silently broke every packaged Claude usage sample).
 			const originalResourcesPath = process.resourcesPath;
 			Object.defineProperty(process, 'resourcesPath', {
-				value: '/Apps/Maestro.app/Contents/Resources',
+				value: '/Apps/OpenWizardAI.app/Contents/Resources',
 				configurable: true,
 			});
 			process.env.NODE_PATH = '/pre/existing';
 			try {
 				const inspect = primeSuccess(wireEnvelope());
-				await sampleUsage({ binPath: '/bin/maestro-p.js' });
+				await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 				const env = inspect()?.options.env as NodeJS.ProcessEnv;
-				const asar = '/Apps/Maestro.app/Contents/Resources/app.asar/node_modules';
+				const asar = '/Apps/OpenWizardAI.app/Contents/Resources/app.asar/node_modules';
 				expect(env.NODE_PATH).toBe(`${asar}${path.delimiter}/pre/existing`);
 			} finally {
 				Object.defineProperty(process, 'resourcesPath', {
@@ -444,7 +444,7 @@ describe('claude-usage-sampler', () => {
 			delete process.env.NODE_PATH;
 			try {
 				const inspect = primeSuccess(wireEnvelope());
-				await sampleUsage({ binPath: '/bin/maestro-p.js' });
+				await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 				const env = inspect()?.options.env as NodeJS.ProcessEnv;
 				expect(env.NODE_PATH).toBeUndefined();
 			} finally {
@@ -458,7 +458,7 @@ describe('claude-usage-sampler', () => {
 		it('lets explicit configDir win over customEnvVars.CLAUDE_CONFIG_DIR', async () => {
 			const inspect = primeSuccess(wireEnvelope());
 			await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				configDir: '/Users/test/.claude-explicit',
 				customEnvVars: { CLAUDE_CONFIG_DIR: '/Users/test/.claude-smuggled' },
 			});
@@ -472,7 +472,7 @@ describe('claude-usage-sampler', () => {
 			// wire's echo. This protects against path-form drift across hosts.
 			primeSuccess(wireEnvelope({ config_dir: '/echoed/by/binary/that/we/ignore' }));
 			const snap = await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				configDir: '/Users/test/.claude-gmail',
 			});
 			expect(snap?.configDirKey).toBe('/Users/test/.claude-gmail');
@@ -481,7 +481,7 @@ describe('claude-usage-sampler', () => {
 		it('canonicalizes a configDir with redundant separators in the key', async () => {
 			primeSuccess(wireEnvelope());
 			const snap = await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				configDir: '/Users/test/./.claude-smash/',
 			});
 			expect(snap?.configDirKey).toBe('/Users/test/.claude-smash');
@@ -490,14 +490,14 @@ describe('claude-usage-sampler', () => {
 		it('falls back to ~/.claude when no configDir and no env var', async () => {
 			delete process.env.CLAUDE_CONFIG_DIR;
 			primeSuccess(wireEnvelope());
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap?.configDirKey).toBe('/Users/test/.claude');
 		});
 
 		it('lets customEnvVars.CLAUDE_CONFIG_DIR drive the key when configDir is omitted', async () => {
 			primeSuccess(wireEnvelope());
 			const snap = await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				customEnvVars: { CLAUDE_CONFIG_DIR: '/Users/test/.claude-via-env' },
 			});
 			expect(snap?.configDirKey).toBe('/Users/test/.claude-via-env');
@@ -511,19 +511,19 @@ describe('claude-usage-sampler', () => {
 				'(Use `node --trace-deprecation ...` to show where the warning was created)\n' +
 				wireEnvelope();
 			primeSuccess(noisy);
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap?.session.percent).toBe(42);
 		});
 
 		it('tolerates whitespace before the JSON line', async () => {
 			primeSuccess(`   ${wireEnvelope()}`);
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).not.toBeNull();
 		});
 
 		it('ignores stderr content entirely (only stdout drives parsing)', async () => {
 			primeSuccess(wireEnvelope(), 'some random stderr output');
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).not.toBeNull();
 		});
 	});
@@ -534,7 +534,7 @@ describe('claude-usage-sampler', () => {
 			const snap = await sampleUsage({ binPath: '/nope.js' });
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'spawn', reason: 'ENOENT' })
 			);
@@ -545,7 +545,7 @@ describe('claude-usage-sampler', () => {
 			const snap = await sampleUsage({ binPath: '/locked.js' });
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'spawn', reason: 'EACCES' })
 			);
@@ -555,12 +555,12 @@ describe('claude-usage-sampler', () => {
 			const err = Object.assign(new Error('timed out'), { killed: true, signal: 'SIGTERM' });
 			primeFailure(err);
 			const snap = await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				timeoutMs: 1_000,
 			});
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'spawn', reason: 'timeout' })
 			);
@@ -568,10 +568,10 @@ describe('claude-usage-sampler', () => {
 
 		it('returns null on non-zero exit (code is a number)', async () => {
 			primeFailure(Object.assign(new Error('exit 2'), { code: 2 }));
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'spawn', reason: expect.stringContaining('exit') })
 			);
@@ -579,10 +579,10 @@ describe('claude-usage-sampler', () => {
 
 		it('returns null on empty stdout', async () => {
 			primeSuccess('');
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'parse', reason: 'empty stdout' })
 			);
@@ -590,10 +590,10 @@ describe('claude-usage-sampler', () => {
 
 		it('returns null when stdout has only non-JSON noise', async () => {
 			primeSuccess('this is not json\nneither is this\n');
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'parse' })
 			);
@@ -601,10 +601,10 @@ describe('claude-usage-sampler', () => {
 
 		it('returns null on malformed JSON', async () => {
 			primeSuccess('{ not really json }\n');
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 			expect(captureMessageMock).toHaveBeenCalledWith(
-				'maestro-p --status sample failed',
+				'openwizardai-p --status sample failed',
 				'warning',
 				expect.objectContaining({ stage: 'parse', reason: expect.stringMatching(/json parse/) })
 			);
@@ -612,13 +612,13 @@ describe('claude-usage-sampler', () => {
 
 		it('returns null when type is not status', async () => {
 			primeSuccess(wireEnvelope({ type: 'something-else' }));
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 		});
 
 		it('returns null when session window is missing', async () => {
 			primeSuccess(wireEnvelope({ session: undefined }));
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 		});
 
@@ -628,7 +628,7 @@ describe('claude-usage-sampler', () => {
 					session: { percent: '42' as unknown as number, resets_at: '2026-05-15T17:00:00.000Z' },
 				})
 			);
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 		});
 
@@ -639,7 +639,7 @@ describe('claude-usage-sampler', () => {
 		// needs to show.
 		it('keeps the snapshot when a resets_at field is missing, dropping only that field', async () => {
 			primeSuccess(wireEnvelope({ week_all_models: { percent: 50 } }));
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap?.weekAllModels).toEqual({ percent: 50 });
 			expect(snap?.session.resetsAt).toBeTruthy();
 		});
@@ -650,7 +650,7 @@ describe('claude-usage-sampler', () => {
 					week_all_models: { percent: 50, resets_at: 12345 as unknown as string },
 				})
 			);
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap).toBeNull();
 		});
 
@@ -664,7 +664,7 @@ describe('claude-usage-sampler', () => {
 					},
 				})
 			);
-			const snap = await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			const snap = await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			expect(snap?.weekSonnetOnly.label).toBe('Fable');
 		});
 	});
@@ -673,7 +673,7 @@ describe('claude-usage-sampler', () => {
 		it('does not include the full env or full stdout in the Sentry breadcrumb', async () => {
 			primeSuccess('totally not json that mentions secret_token=abc123\n');
 			await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				customEnvVars: { SECRET: 'should-not-leak' },
 			});
 			expect(captureMessageMock).toHaveBeenCalledTimes(1);
@@ -689,7 +689,7 @@ describe('claude-usage-sampler', () => {
 		it('uses the explicit configDir in the breadcrumb when provided', async () => {
 			primeSuccess('garbage\n');
 			await sampleUsage({
-				binPath: '/bin/maestro-p.js',
+				binPath: '/bin/openwizardai-p.js',
 				configDir: '/Users/test/.claude-explicit',
 			});
 			const extras = captureMessageMock.mock.calls[0][2] as Record<string, unknown>;
@@ -698,7 +698,7 @@ describe('claude-usage-sampler', () => {
 
 		it('falls back to ~/.claude in the breadcrumb when configDir is omitted', async () => {
 			primeSuccess('garbage\n');
-			await sampleUsage({ binPath: '/bin/maestro-p.js' });
+			await sampleUsage({ binPath: '/bin/openwizardai-p.js' });
 			const extras = captureMessageMock.mock.calls[0][2] as Record<string, unknown>;
 			expect(extras.configDir).toBe('/Users/test/.claude');
 		});

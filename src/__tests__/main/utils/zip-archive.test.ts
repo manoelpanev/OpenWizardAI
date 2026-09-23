@@ -45,7 +45,7 @@ describe('zip-archive', () => {
 	let tmp: string;
 
 	beforeEach(() => {
-		tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-zip-archive-'));
+		tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-zip-archive-'));
 	});
 
 	afterEach(() => {

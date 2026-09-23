@@ -12,7 +12,7 @@ Not documented in detail below but present in `constants/`: `cueYamlDefaults.ts`
 
 ## Services Overview
 
-The services directory provides a clean API layer between React components and the Electron main process via IPC. Services wrap `window.maestro.*` calls exposed by the preload bridge.
+The services directory provides a clean API layer between React components and the Electron main process via IPC. Services wrap `window.openwizardai.*` calls exposed by the preload bridge.
 
 ### Architecture
 
@@ -23,7 +23,7 @@ React Components
  renderer/services/  <--- createIpcMethod() pattern
       |
       v
- window.maestro.*   (preload bridge)
+ window.openwizardai.*   (preload bridge)
       |
       v
  main process IPC handlers
@@ -54,7 +54,7 @@ Two overloaded option interfaces enforce mutual exclusivity:
 - `invalidate(key)` / `invalidatePrefix(prefix)` / `clear()` - Cache invalidation
 - Exported as singleton `ipcCache`
 
-**Adoption**: Only `git.ts` and `process.ts` use `createIpcMethod`. The wizard services, contextGroomer, contextSummarizer, speckit, and openspec all make direct `window.maestro.*` calls with their own try/catch patterns.
+**Adoption**: Only `git.ts` and `process.ts` use `createIpcMethod`. The wizard services, contextGroomer, contextSummarizer, speckit, and openspec all make direct `window.openwizardai.*` calls with their own try/catch patterns.
 
 ---
 
@@ -78,7 +78,7 @@ Exported as `gitService` object (not a class).
 
 ### process.ts (~120 lines)
 
-Process management service. Wraps `window.maestro.process.*` calls.
+Process management service. Wraps `window.openwizardai.process.*` calls.
 
 Methods using `createIpcMethod` with `rethrow: true`:
 
@@ -208,7 +208,7 @@ Turns a plain-English request into one shell command line, shows it, and runs it
 
 **State** lives in `stores/aiCommandStore.ts`, keyed per AI tab (`${sessionId}:${tabId}`), never on the session model: nothing here survives a restart, and a proposal the user never answered must not come back days later attached to a stale working directory. Each attempt carries a `requestId`, because the model round trip cannot be cancelled once dispatched - a reply that lands after a dismissal (or after a second request replaced the first) is dropped rather than resurrecting a card the user closed.
 
-**The model call** is `aiCommand:suggest` in the main process (`ipc/handlers/aiCommand.ts`), which builds the prompt with `shared/aiCommand.ts` and runs it through `groomContext` with `readOnlyMode` AND `disableTools`. Both flags matter: with tools available, a task-shaped request ("clean up the build output") makes the model try to DO the work instead of naming the command. The prompt itself is `src/prompts/ai-command.md`, editable in Settings -> Maestro Prompts like any other core prompt.
+**The model call** is `aiCommand:suggest` in the main process (`ipc/handlers/aiCommand.ts`), which builds the prompt with `shared/aiCommand.ts` and runs it through `groomContext` with `readOnlyMode` AND `disableTools`. Both flags matter: with tools available, a task-shaped request ("clean up the build output") makes the model try to DO the work instead of naming the command. The prompt itself is `src/prompts/ai-command.md`, editable in Settings -> OpenWizardAI Prompts like any other core prompt.
 
 **The handler never executes anything.** The accepted command goes back through the ordinary command-mode path, so a suggested command and a typed one run in the same directory, on the same SSH remote, through the same code.
 
@@ -246,7 +246,7 @@ Fire it AFTER the content is in the store, or the transcript scrolls to a bottom
 
 One confirmation, one delete, behind every surface that offers to remove the file you are looking at: the File Preview toolbar's trash button and the command palette's `File: Delete` entry.
 
-**Key export:** `requestFileDeletion({ path, sshRemoteId?, sessionId? })` - opens the shared `confirm` modal (destructive, titled "Delete File") and, only on confirm, runs `window.maestro.fs.delete` - the same IPC the Files panel context menu uses, so SSH remotes are honored. `sessionId` defaults to the active session, which is what both surfaces are scoped to.
+**Key export:** `requestFileDeletion({ path, sshRemoteId?, sessionId? })` - opens the shared `confirm` modal (destructive, titled "Delete File") and, only on confirm, runs `window.openwizardai.fs.delete` - the same IPC the Files panel context menu uses, so SSH remotes are honored. `sessionId` defaults to the active session, which is what both surfaces are scoped to.
 
 After a successful delete it force-closes every file preview tab in that session pointing at the path, then calls `requestFileTreeRefresh(sessionId)` (`src/renderer/utils/fileTreeRefresh.ts`) so the Files panel drops the entry without waiting for its next auto-refresh. The close deliberately skips the unsaved-changes prompt `handleCloseFileTab` puts up: the file is gone, so keeping the tab would leave the user editing a buffer that can no longer be saved back. A failed delete leaves the tab alone and reports through a red toast.
 
@@ -263,7 +263,7 @@ One picker, one landing, one "nothing to edit" message, behind both surfaces tha
 Four rules the two surfaces must not disagree on:
 
 - **Everything is read from the stores at call time**, never from a render snapshot. The pencil on a queued row reads live props, so a stale snapshot is the one way this can claim nothing is queued while a card sits on screen.
-- **Only `type === 'command'` items are skipped** (they carry no editable prompt text). Nothing else is filtered out: the queue the user sees is not filtered by tab membership, so a filter here could only reject an item Maestro is actively displaying.
+- **Only `type === 'command'` items are skipped** (they carry no editable prompt text). Nothing else is filtered out: the queue the user sees is not filtered by tab membership, so a filter here could only reject an item OpenWizardAI is actively displaying.
 - **A missing tab RANKS, it does not filter.** Items whose tab still exists are preferred, but falling back to the full list keeps a closed tab from turning into "nothing is queued".
 - **Say WHICH empty it is.** `Nothing queued to edit` and `Only commands are queued` are different states, and the second one renders on a screen that is visibly showing queued cards.
 
@@ -302,7 +302,7 @@ One thing the service cannot do for you: a caller rendered UNDER a full-window m
 
 ### unreadFilters.ts - the two "show unread only" filters
 
-Maestro has two independent unread filters: `uiStore.showUnreadAgentsOnly` narrows the Left Bar to agents with unread activity, `uiStore.showUnreadOnly` narrows the tab bar to unread/draft tabs. Each is useful alone, but sweeping a busy fleet means turning both on.
+OpenWizardAI has two independent unread filters: `uiStore.showUnreadAgentsOnly` narrows the Left Bar to agents with unread activity, `uiStore.showUnreadOnly` narrows the tab bar to unread/draft tabs. Each is useful alone, but sweeping a busy fleet means turning both on.
 
 **Key exports:**
 
@@ -334,7 +334,7 @@ Manages merging multiple conversation contexts across agents.
 
 1. Collect and format source contexts
 2. Calculate original token count
-3. Call `window.maestro.context.groomContext()` with grooming prompt
+3. Call `window.openwizardai.context.groomContext()` with grooming prompt
 4. Parse groomed output via `parseGroomedOutput` (from contextExtractor utils)
 5. Report token savings
 
@@ -345,7 +345,7 @@ Shared utilities imported from `renderer/utils/contextExtractor`:
 - `estimateTokenCount` - Estimates tokens from a ContextSource
 - `calculateTotalTokens` - Sums token counts across sources
 
-Does NOT use `createIpcMethod`; uses direct `window.maestro.context.*` calls.
+Does NOT use `createIpcMethod`; uses direct `window.openwizardai.context.*` calls.
 
 ---
 
@@ -365,7 +365,7 @@ Manages compacting a single conversation context to reduce context window usage.
 
 - `summarizeContext(request, sourceLogs, onProgress)` - Main entry. Chunks large contexts automatically.
 - `canSummarize(contextUsage, logs?)` - Triple-fallback eligibility check (context %, token estimate, log count)
-- `cancelSummarization()` - Calls `window.maestro.context.cancelGrooming()`
+- `cancelSummarization()` - Calls `window.openwizardai.context.cancelGrooming()`
 - `formatCompactedTabName(originalName)` - Generates "Name Compacted YYYY-MM-DD"
 
 **Chunked summarization:**
@@ -422,7 +422,7 @@ Manages AI conversations during inline wizard mode. Each message spawns a new ag
 **Process management:**
 
 - 20-minute inactivity timeout (resets on any output)
-- Registers `onData`, `onExit`, `onThinkingChunk`, `onToolExecution` listeners directly on `window.maestro.process`
+- Registers `onData`, `onExit`, `onThinkingChunk`, `onToolExecution` listeners directly on `window.openwizardai.process`
 - Does NOT use `processService` wrapper
 
 ---
@@ -440,7 +440,7 @@ Generates Auto Run documents from wizard conversation results. The largest servi
   4. Routes both chokidar file-change events and a periodic disk poll through a shared `createPlaybookDocumentEmitter` so each doc surfaces to the UI exactly once (the poll backstops the macOS fsevents cold-start window where add events go missing)
   5. Falls back to parsing document markers from output if neither watcher nor poll caught the file
   6. Creates a playbook configuration for generated documents
-- `createPlaybookDocumentEmitter(options)` - Factory returning a `PlaybookDocumentEmitter` that owns the dedup set across watcher + poll inputs. Exposes `tryEmitFile`, `pollAndEmit`, `getEmittedDocuments`, `hasEmitted`. Built as a factory (not a class) so tests can mock `window.maestro.fs` / `window.maestro.autorun` without subclassing.
+- `createPlaybookDocumentEmitter(options)` - Factory returning a `PlaybookDocumentEmitter` that owns the dedup set across watcher + poll inputs. Exposes `tryEmitFile`, `pollAndEmit`, `getEmittedDocuments`, `hasEmitted`. Built as a factory (not a class) so tests can mock `window.openwizardai.fs` / `window.openwizardai.autorun` without subclassing.
 - `generateDocumentPrompt(config, subfolder?)` - Builds prompt from mode-specific templates
 - `parseGeneratedDocuments(output)` - Extracts `---BEGIN DOCUMENT---` / `---END DOCUMENT---` blocks with FILENAME, UPDATE, and CONTENT fields
 - `splitIntoPhases(content)` - Fallback splitter when agent produces single large document
@@ -457,7 +457,7 @@ Generates Auto Run documents from wizard conversation results. The largest servi
 
 ### speckit.ts (~57 lines)
 
-SpecKit slash command service. Wraps `window.maestro.speckit.*`:
+SpecKit slash command service. Wraps `window.openwizardai.speckit.*`:
 
 - `getSpeckitCommands()` - Get all spec-kit commands
 - `getSpeckitMetadata()` - Get version and refresh date
@@ -469,7 +469,7 @@ Uses manual try/catch (does not use `createIpcMethod`).
 
 ### openspec.ts (~57 lines)
 
-OpenSpec slash command service. Wraps `window.maestro.openspec.*`:
+OpenSpec slash command service. Wraps `window.openwizardai.openspec.*`:
 
 - `getOpenSpecCommands()` - Get all OpenSpec commands
 - `getOpenSpecMetadata()` - Get version and refresh date
@@ -656,9 +656,9 @@ Gamification system tracking cumulative AutoRun time with conductor-themed achie
 | 5     | Principal Guest Conductor | 1 week        |
 | 6     | Chief Conductor           | 30 days       |
 | 7     | Music Director            | 3 months      |
-| 8     | Maestro Emeritus          | 6 months      |
-| 9     | World Maestro             | 1 year        |
-| 10    | Grand Maestro             | 5 years       |
+| 8     | OpenWizardAI Emeritus     | 6 months      |
+| 9     | World OpenWizardAI        | 1 year        |
+| 10    | Grand OpenWizardAI        | 5 years       |
 | 11    | Titan of the Baton        | 10 years      |
 
 Each badge includes name, description, a historical example conductor with Wikipedia link, and flavor text.
@@ -681,13 +681,13 @@ Keyboard shortcut mastery progression system.
 
 **5 levels:**
 
-| Level     | Name             | Threshold |
-| --------- | ---------------- | --------- |
-| beginner  | Beginner         | 0%        |
-| student   | Student          | 25%       |
-| performer | Performer        | 50%       |
-| virtuoso  | Virtuoso         | 75%       |
-| maestro   | Keyboard Maestro | 100%      |
+| Level        | Name                  | Threshold |
+| ------------ | --------------------- | --------- |
+| beginner     | Beginner              | 0%        |
+| student      | Student               | 25%       |
+| performer    | Performer             | 50%       |
+| virtuoso     | Virtuoso              | 75%       |
+| openwizardai | Keyboard OpenWizardAI | 100%      |
 
 **Helper functions:**
 
@@ -712,13 +712,13 @@ Defines `CuePattern` interface and the `CUE_PATTERNS` array - preset Cue YAML te
 
 **Services using `createIpcMethod`:** `git.ts` (7 calls), `process.ts` (5 calls)
 
-**Services with direct `window.maestro.*` calls:**
+**Services with direct `window.openwizardai.*` calls:**
 
-- `contextGroomer.ts` - 2 calls to `window.maestro.context.*`
-- `contextSummarizer.ts` - 4 calls to `window.maestro.context.*`
-- `inlineWizardConversation.ts` - 8 calls to `window.maestro.process.*` and `window.maestro.agents.*`
-- `inlineWizardDocumentGeneration.ts` - 15+ calls across `window.maestro.process.*`, `window.maestro.autorun.*`, `window.maestro.agents.*`, `window.maestro.fs.*`
-- `speckit.ts` - 3 calls to `window.maestro.speckit.*`
-- `openspec.ts` - 3 calls to `window.maestro.openspec.*`
+- `contextGroomer.ts` - 2 calls to `window.openwizardai.context.*`
+- `contextSummarizer.ts` - 4 calls to `window.openwizardai.context.*`
+- `inlineWizardConversation.ts` - 8 calls to `window.openwizardai.process.*` and `window.openwizardai.agents.*`
+- `inlineWizardDocumentGeneration.ts` - 15+ calls across `window.openwizardai.process.*`, `window.openwizardai.autorun.*`, `window.openwizardai.agents.*`, `window.openwizardai.fs.*`
+- `speckit.ts` - 3 calls to `window.openwizardai.speckit.*`
+- `openspec.ts` - 3 calls to `window.openwizardai.openspec.*`
 
 The wizard services and context services bypass both `createIpcMethod` and `processService`, calling the preload bridge directly. They manage their own error handling, event listeners, timeouts, and cleanup.

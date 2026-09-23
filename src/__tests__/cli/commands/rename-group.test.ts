@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/services/storage', () => ({
 	resolveGroupId: vi.fn((id: string) => id),
 	resolveAgentId: vi.fn((id: string) => id),
@@ -16,13 +16,13 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { renameGroup } from '../../../cli/commands/rename-group';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveGroupId } from '../../../cli/services/storage';
 import { formatError, formatSuccess } from '../../../cli/output/formatter';
 
 function mockSend(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				captured = payload;
@@ -59,7 +59,7 @@ describe('rename-group command', () => {
 	it('rejects an empty name', async () => {
 		await expect(renameGroup('group-1', '  ', {})).rejects.toThrow('__exit__');
 		expect(formatError).toHaveBeenCalledWith('New name must not be empty');
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 

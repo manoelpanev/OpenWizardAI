@@ -34,7 +34,7 @@ import {
 	CreateHandlerOptions,
 } from '../../utils/ipcHandler';
 import { getSshRemoteConfig, createSshRemoteStoreAdapter } from '../../utils/ssh-remote-resolver';
-import { ensureRemoteMaestroPProbed } from '../../agents/probeRemoteMaestroP';
+import { ensureRemoteOpenWizardAIPProbed } from '../../agents/probeRemoteOpenWizardAIP';
 import { getPrompt } from '../../prompt-manager';
 import { shellEscape } from '../../utils/shell-escape';
 import { buildSshCommandWithStdin } from '../../utils/ssh-command-builder';
@@ -45,7 +45,7 @@ import { buildExpandedEnv, encodeClaudeProjectPath } from '../../../shared/pathU
 import { resolveSshPath } from '../../utils/cliDetection';
 import type { SshRemoteConfig } from '../../../shared/types';
 import { powerManager } from '../../power-manager';
-import { MaestroSettings } from './persistence';
+import { OpenWizardAISettings } from './persistence';
 import { getDefaultShell, resolveConfiguredShell } from '../../stores/defaults';
 
 const LOG_CONTEXT = '[ProcessManager]';
@@ -66,7 +66,7 @@ const handlerOpts = (
  * Strip subscription-account thinking blocks from a Claude Code transcript before
  * an API-mode `--resume` re-sends them.
  *
- * Interactive (maestro-p) turns persist thinking as signature-only shells bound
+ * Interactive (openwizardai-p) turns persist thinking as signature-only shells bound
  * to the Max-plan subscription account. Resuming them under the API token source
  * trips Anthropic's "thinking blocks cannot be modified" 400 and poisons the
  * conversation for every later `--resume`. Stripping is benign (thinking is
@@ -129,13 +129,13 @@ export interface ProcessHandlerDependencies {
 	getProcessManager: () => ProcessManager | null;
 	getAgentDetector: () => AgentDetector | null;
 	agentConfigsStore: Store<AgentConfigsData>;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	getMainWindow: () => BrowserWindow | null;
 	sessionsStore: Store<{ sessions: any[] }>;
 	/** Optional callback to get active Cue run processes for Process Monitor */
 	getCueProcesses?: () => CueProcessEntry[];
 	/**
-	 * Optional reactive limit replay controller. When `maestro-p` exits with
+	 * Optional reactive limit replay controller. When `openwizardai-p` exits with
 	 * code 2 (Max-plan quota hit mid-turn), the controller respawns the same
 	 * turn under `claude --print` so the user sees one continuous response.
 	 * Optional so test harnesses and CLI paths that don't run the replay flow
@@ -196,18 +196,18 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 					remoteId: string | null;
 					workingDirOverride?: string;
 				};
-				// Batch Mode (Claude Code only). When true and a maestro-p binary resolves,
-				// the spawner picks between maestro-p (Time Limits / Max plan) and
+				// Batch Mode (Claude Code only). When true and a openwizardai-p binary resolves,
+				// the spawner picks between openwizardai-p (Time Limits / Max plan) and
 				// claude --print (API Limits) based on the latest usage snapshot.
-				enableMaestroP?: boolean;
-				// Refines the Adaptive opt-in: 'interactive' always drives the maestro-p
+				enableOpenWizardAIP?: boolean;
+				// Refines the Adaptive opt-in: 'interactive' always drives the openwizardai-p
 				// TUI, 'dynamic' (default) auto-switches to API when over the usage
 				// limit. Authoritative value is read from the persisted session; this is
 				// only a fallback for callers that pass it inline.
-				maestroPMode?: 'interactive' | 'dynamic';
-				// Optional override for the maestro-p binary path. When unset/empty, the
-				// spawner falls back to the bundled maestro-p script.
-				maestroPPath?: string;
+				openwizardaiPMode?: 'interactive' | 'dynamic';
+				// Optional override for the openwizardai-p binary path. When unset/empty, the
+				// spawner falls back to the bundled openwizardai-p script.
+				openwizardaiPPath?: string;
 				// System prompt delivery (separate from user message for token efficiency)
 				appendSystemPrompt?: string; // System prompt to pass via --append-system-prompt or embed in prompt
 				// Stats tracking options
@@ -253,22 +253,22 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 							}
 						: null,
 				});
-				// Claude Code's `maestro-p` interactive wrapper is opt-in per-session via
+				// Claude Code's `openwizardai-p` interactive wrapper is opt-in per-session via
 				// the Batch Mode toggle in AgentConfigPanel. When the toggle is on AND a
-				// maestro-p binary resolves (per-session override OR bundled auto-detect),
-				// the auto-resolver picks between maestro-p (interactive / Time Limits)
+				// openwizardai-p binary resolves (per-session override OR bundled auto-detect),
+				// the auto-resolver picks between openwizardai-p (interactive / Time Limits)
 				// and `claude --print` (api / API Limits) based on the latest usage
 				// snapshot. When the toggle is off, the spawner stays on the api path
 				// regardless of usage state. SSH-enabled tabs always skip interactive -
 				// the wrapper needs the real claude binary on the local machine.
 				let claudeResolvedMode: 'interactive' | 'api' = 'api';
 				let claudeResolvedReason: 'auto' | 'limit' = 'auto';
-				let resolvedMaestroPBinPath: string | null = null;
+				let resolvedOpenWizardAIPBinPath: string | null = null;
 				let resolvedConfigDirKey: string | undefined;
-				// The real claude binary maestro-p should drive, as decided by the
+				// The real claude binary openwizardai-p should drive, as decided by the
 				// resolver. Consumed by the interactive command swap below.
 				let claudeDecisionRealBinPath: string | undefined;
-				// Interactive resolved for an SSH remote spawn: maestro-p runs on the
+				// Interactive resolved for an SSH remote spawn: openwizardai-p runs on the
 				// remote host (not a local script). Realized in the SSH block below.
 				let claudeResolvedRemote = false;
 				const isClaudeCode =
@@ -281,7 +281,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				// keyed by the bare agent id. Strip the `-ai-…` suffix so both the token-mode
 				// lookup and the `claudeInteractive` write-back below match the right record.
 				// Without this every desktop claude-code turn missed the persisted record,
-				// fell through to the inline `config.enableMaestroP` (which the desktop caller
+				// fell through to the inline `config.enableOpenWizardAIP` (which the desktop caller
 				// never sends), and silently resolved to `api` (`claude --print`) even when the
 				// agent was set to TUI/Dynamic. Background surfaces (tab naming, synopsis, group
 				// chat, Cue) pass their token-mode fields inline, so they were unaffected. The
@@ -289,21 +289,21 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				// its side, so it still receives `config.sessionId` unchanged.
 				const baseSessionId = config.sessionId.replace(REGEX_AI_SUFFIX, '');
 
-				// Resolve the Claude token source (maestro-p TUI vs `claude --print`)
+				// Resolve the Claude token source (openwizardai-p TUI vs `claude --print`)
 				// through the shared resolver. Token-mode fields are read from the
 				// persisted session record (authoritative) with the spawn payload as
 				// a fallback, so every desktop spawn surface that reaches this handler
 				// (main turn, Auto Run, background synopsis) honors the per-agent
 				// selection. The resolver folds in the former three branches:
-				// dynamic/interactive selection, the direct-maestro-p-Path power-user
+				// dynamic/interactive selection, the direct-openwizardai-p-Path power-user
 				// case, and stale `claudeInteractive` cleanup.
 				if (isClaudeCode) {
 					const persistedSession = (
 						deps.sessionsStore.get('sessions', []) as Array<{
 							id?: string;
-							enableMaestroP?: boolean;
-							maestroPMode?: 'interactive' | 'dynamic';
-							maestroPPath?: string;
+							enableOpenWizardAIP?: boolean;
+							openwizardaiPMode?: 'interactive' | 'dynamic';
+							openwizardaiPPath?: string;
 							claudeInteractive?: {
 								mode?: 'interactive' | 'api';
 								modeReason?: 'auto' | 'limit';
@@ -311,34 +311,35 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 						}>
 					).find((s) => s?.id === baseSessionId);
 
-					// Over SSH, warm the remote maestro-p probe BEFORE resolving so the
+					// Over SSH, warm the remote openwizardai-p probe BEFORE resolving so the
 					// resolver's TUI->API backstop fires on the very first spawn - the
 					// readiness probe / config modal that would otherwise warm the cache
 					// may never have run (app just launched, agent sent to directly).
 					// Without this an unconfigured/interactive SSH agent resolves to the
-					// remote TUI on a cold cache and exits 127 when maestro-p is absent.
-					let remoteMaestroPAvailable: boolean | undefined;
+					// remote TUI on a cold cache and exits 127 when openwizardai-p is absent.
+					let remoteOpenWizardAIPAvailable: boolean | undefined;
 					if (isSshEnabled) {
 						const sshRemote = getSshRemoteConfig(createSshRemoteStoreAdapter(settingsStore), {
 							sessionSshConfig: config.sessionSshRemoteConfig,
 						}).config;
 						if (sshRemote) {
-							remoteMaestroPAvailable = await ensureRemoteMaestroPProbed(sshRemote);
+							remoteOpenWizardAIPAvailable = await ensureRemoteOpenWizardAIPProbed(sshRemote);
 						}
 					}
 
 					const tokenMode = getClaudeTokenMode(
 						{
-							enableMaestroP: persistedSession?.enableMaestroP ?? config.enableMaestroP,
+							enableOpenWizardAIP:
+								persistedSession?.enableOpenWizardAIP ?? config.enableOpenWizardAIP,
 							// Fall back to the inline config when the persisted lookup misses
 							// (e.g. background synopsis spawns under a synthetic sessionId that
 							// won't match any persisted session, so they forward the token-mode
 							// fields explicitly on the spawn payload).
-							maestroPMode: persistedSession?.maestroPMode ?? config.maestroPMode,
+							openwizardaiPMode: persistedSession?.openwizardaiPMode ?? config.openwizardaiPMode,
 						},
 						// Remote agents default to the TUI when the user hasn't chosen,
-						// unless the remote has no maestro-p to run it (then API).
-						{ sshEnabled: isSshEnabled, sshMaestroPAvailable: remoteMaestroPAvailable }
+						// unless the remote has no openwizardai-p to run it (then API).
+						{ sshEnabled: isSshEnabled, sshOpenWizardAIPAvailable: remoteOpenWizardAIPAvailable }
 					);
 
 					const decision = resolveClaudeSpawnMode({
@@ -346,26 +347,26 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 						tokenMode,
 						sshEnabled: isSshEnabled,
 						// Lets the resolver fall a remote TUI spawn back to API when the
-						// remote has no maestro-p on its PATH (avoids exit 127).
+						// remote has no openwizardai-p on its PATH (avoids exit 127).
 						sshRemoteId: config.sessionSshRemoteConfig?.remoteId ?? undefined,
 						command: config.command,
 						sessionCustomPath: config.sessionCustomPath,
 						sessionCustomEnvVars: config.sessionCustomEnvVars,
-						maestroPPath: persistedSession?.maestroPPath ?? config.maestroPPath,
+						openwizardaiPPath: persistedSession?.openwizardaiPPath ?? config.openwizardaiPPath,
 						persisted: persistedSession?.claudeInteractive,
 						now: new Date(),
 					});
 
 					claudeResolvedMode = decision.mode;
 					claudeResolvedReason = decision.reason;
-					resolvedMaestroPBinPath = decision.maestroPBinPath;
+					resolvedOpenWizardAIPBinPath = decision.openwizardaiPBinPath;
 					resolvedConfigDirKey = decision.configDirKey;
 					claudeDecisionRealBinPath = decision.claudeRealBinPath;
 					claudeResolvedRemote = !!decision.remote;
 				}
 
 				// Pick the binary and arg list based on the resolved mode. Interactive
-				// uses maestro-p (a Node script) invoked through `process.execPath`, so
+				// uses openwizardai-p (a Node script) invoked through `process.execPath`, so
 				// the OS shebang is irrelevant and the script's basename never has to
 				// be on `$PATH`. API mode stays on the original command/args.
 				let effectiveCommand = config.command;
@@ -374,18 +375,18 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				let claudeRealBinPath: string | undefined;
 				if (
 					claudeResolvedMode === 'interactive' &&
-					resolvedMaestroPBinPath &&
+					resolvedOpenWizardAIPBinPath &&
 					agent?.interactiveModeArgs
 				) {
-					// Preserve the original claude path so maestro-p can find the TUI binary.
+					// Preserve the original claude path so openwizardai-p can find the TUI binary.
 					claudeRealBinPath =
 						claudeDecisionRealBinPath ?? config.sessionCustomPath ?? config.command;
 					effectiveCommand = process.execPath;
 					effectiveSessionCustomPath = undefined;
-					baseArgsForSpawn = [resolvedMaestroPBinPath, ...agent.interactiveModeArgs];
-					logger.debug('Spawning Claude Code in interactive mode (maestro-p)', LOG_CONTEXT, {
+					baseArgsForSpawn = [resolvedOpenWizardAIPBinPath, ...agent.interactiveModeArgs];
+					logger.debug('Spawning Claude Code in interactive mode (openwizardai-p)', LOG_CONTEXT, {
 						sessionId: config.sessionId,
-						maestroPBin: resolvedMaestroPBinPath,
+						openwizardaiPBin: resolvedOpenWizardAIPBinPath,
 						claudeRealBin: claudeRealBinPath,
 						configDirKey: resolvedConfigDirKey,
 					});
@@ -393,12 +394,12 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 
 				// Resuming a Claude Code conversation under the API token source? Strip
 				// any subscription-account thinking shells first. The sanitizer is
-				// narrowly scoped to empty-thinking blocks (maestro-p's signature-only
+				// narrowly scoped to empty-thinking blocks (openwizardai-p's signature-only
 				// shells); validly-signed API thinking blocks always carry non-empty
 				// reasoning text and are preserved, so this is safe to run on any
 				// transcript - including pure-API sessions that never touched
 				// Adaptive Mode. If `resolvedConfigDirKey` wasn't already computed
-				// (Batch Mode currently off, no maestro-p Path, no stale interactive
+				// (Batch Mode currently off, no openwizardai-p Path, no stale interactive
 				// state), compute it now so we can locate the transcript on disk.
 				if (
 					claudeResolvedMode === 'api' &&
@@ -505,7 +506,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 							const tmpDir = os.tmpdir();
 							systemPromptTempFile = path.join(
 								tmpDir,
-								`maestro-sysprompt-${config.sessionId}-${Date.now()}.txt`
+								`openwizardai-sysprompt-${config.sessionId}-${Date.now()}.txt`
 							);
 							await fsp.writeFile(systemPromptTempFile, config.appendSystemPrompt, 'utf-8');
 							// Schedule cleanup early so the file is removed even if spawn fails.
@@ -586,7 +587,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				// Copilot's `-p` mode auto-flips into autopilot, where the model ends
 				// each run by calling the `task_complete` tool. The built-in autopilot
 				// system prompt biases the model toward calling that tool *early*,
-				// which manifests in Maestro as "the turn came back to me but the
+				// which manifests in OpenWizardAI as "the turn came back to me but the
 				// task wasn't actually done". The remedy isn't a CLI flag - it's a
 				// user-message preamble injected on every batch invocation that
 				// pushes back on premature completion and instructs the model to
@@ -596,7 +597,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				// Repeated every turn intentionally: each batch spawn is a fresh
 				// Copilot process with its own system prompt reload, and the
 				// preamble has to ride in the user prompt to be in-context for
-				// that turn's reasoning. The text is user-editable via Maestro
+				// that turn's reasoning. The text is user-editable via OpenWizardAI
 				// Prompts (`copilot-preamble`); an empty customization disables it.
 				if (agent?.id === 'copilot-cli' && effectivePrompt) {
 					try {
@@ -713,7 +714,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 					}),
 				});
 
-				// Add breadcrumb for crash diagnostics (MAESTRO-5A/4Y)
+				// Add breadcrumb for crash diagnostics (OPENWIZARDAI-5A/4Y)
 				await addBreadcrumb('agent', `Spawn: ${config.toolType}`, {
 					sessionId: config.sessionId,
 					toolType: config.toolType,
@@ -746,38 +747,38 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				let sshRemoteCommand: string | undefined;
 
 				// When interactive mode resolved, thread the underlying claude binary
-				// through `MAESTRO_CLAUDE_BIN` so maestro-p knows which TUI to drive.
+				// through `OPENWIZARDAI_CLAUDE_BIN` so openwizardai-p knows which TUI to drive.
 				if (claudeRealBinPath) {
 					customEnvVarsToPass = {
 						...(customEnvVarsToPass ?? {}),
-						MAESTRO_CLAUDE_BIN: claudeRealBinPath,
+						OPENWIZARDAI_CLAUDE_BIN: claudeRealBinPath,
 					};
 				}
 
-				// maestro-p is a Node script launched through `process.execPath` (the
+				// openwizardai-p is a Node script launched through `process.execPath` (the
 				// Electron binary). Without ELECTRON_RUN_AS_NODE a PACKAGED app ignores
-				// the script arg and launches a SECOND Maestro GUI instead of running
-				// maestro-p, so the turn emits no stream-json and dies with no thinking
+				// the script arg and launches a SECOND OpenWizardAI GUI instead of running
+				// openwizardai-p, so the turn emits no stream-json and dies with no thinking
 				// pill and no response - while `npm run dev` happens to load the script
 				// as an app entry and works, masking it. envBuilder strips
 				// ELECTRON_RUN_AS_NODE from the inherited env and applies customEnvVars
 				// AFTER the strip, so setting it here survives. The batch/cue surfaces
 				// set the same flag in applyClaudeSpawnDecision(); the desktop
 				// process:spawn path applies the decision inline and must mirror it.
-				if (claudeResolvedMode === 'interactive' && resolvedMaestroPBinPath) {
+				if (claudeResolvedMode === 'interactive' && resolvedOpenWizardAIPBinPath) {
 					customEnvVarsToPass = {
 						...(customEnvVarsToPass ?? {}),
 						ELECTRON_RUN_AS_NODE: '1',
 					};
 				}
 
-				// LOCAL interactive turns run maestro-p as pure Node (via
+				// LOCAL interactive turns run openwizardai-p as pure Node (via
 				// `process.execPath` + ELECTRON_RUN_AS_NODE) and it does
 				// `require('node-pty')`, which esbuild left external. In a PACKAGED
-				// app maestro-p.js sits at the resources root, OUTSIDE the asar, so
+				// app openwizardai-p.js sits at the resources root, OUTSIDE the asar, so
 				// Node can't find node-pty without help and every TUI turn dies on
 				// startup with "Cannot find module 'node-pty'" - while API mode (no
-				// maestro-p) and `npm run dev` (node-pty in the project tree) work.
+				// openwizardai-p) and `npm run dev` (node-pty in the project tree) work.
 				// Point NODE_PATH at the IN-ASAR node_modules (`<resources>/app.asar/
 				// node_modules`), NOT the unpacked copy: node-pty's JS loads from the
 				// asar (the native `pty.node` is auto-redirected to app.asar.unpacked),
@@ -790,7 +791,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				// this only fires when packaged.
 				if (
 					claudeResolvedMode === 'interactive' &&
-					resolvedMaestroPBinPath &&
+					resolvedOpenWizardAIPBinPath &&
 					typeof process.resourcesPath === 'string' &&
 					process.resourcesPath.length > 0
 				) {
@@ -807,13 +808,13 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				// Persist the resolved Claude headless-mode state back to the session
 				// record and notify the renderer. Fires when:
 				//   - Adaptive Mode's auto-resolver ran (toggle on), OR
-				//   - The user wired `Path` directly at maestro-p (resolved-interactive
+				//   - The user wired `Path` directly at openwizardai-p (resolved-interactive
 				//     without the toggle), OR
 				//   - We need to clear stale `mode === 'interactive'` from a prior
 				//     turn (both `resolvedConfigDirKey` above branches resolve it,
 				//     gate on `!== undefined`).
 				// When none of those apply we leave `claudeInteractive` alone - the
-				// popover hides itself anyway when `enableMaestroP` is false.
+				// popover hides itself anyway when `enableOpenWizardAIP` is false.
 				if (isClaudeCode && resolvedConfigDirKey) {
 					try {
 						const allSessions = deps.sessionsStore.get('sessions', []) as Array<
@@ -939,10 +940,10 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 						// This completely bypasses shell escaping issues by sending the script via stdin
 						sshRemoteUsed = sshResult.config;
 
-						// Claude interactive/dynamic over SSH: run maestro-p on the remote
+						// Claude interactive/dynamic over SSH: run openwizardai-p on the remote
 						// host (it strips the headless flags, drives the remote claude TUI
 						// on the Max subscription, and reads the prompt from the stdin
-						// passthrough below) instead of `claude --print`. maestro-p must be
+						// passthrough below) instead of `claude --print`. openwizardai-p must be
 						// installed on the remote PATH. For the API path this is null and
 						// the spawn stays on the plain claude binary.
 						const remoteInteractive =
@@ -951,7 +952,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 										decision: {
 											mode: 'interactive',
 											reason: claudeResolvedReason,
-											maestroPBinPath: null,
+											openwizardaiPBinPath: null,
 											remote: true,
 											claudeRealBinPath: claudeDecisionRealBinPath,
 										},
@@ -990,7 +991,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 						//   (e.g., -i /tmp/image.png for Codex, -f /tmp/image.png for OpenCode).
 						const hasImages = config.images && config.images.length > 0;
 						// Prepend the interactive flags ahead of the headless arg list when
-						// running maestro-p on the remote (it forwards the interactive flags
+						// running openwizardai-p on the remote (it forwards the interactive flags
 						// to the TUI and strips the headless ones). No-op for the API path.
 						let sshArgs = remoteInteractive
 							? [...remoteInteractive.prependArgs, ...finalArgs]
@@ -1018,8 +1019,8 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 
 						// Merge global environment variables with session custom env vars
 						// Session vars take precedence over global vars. Remote interactive
-						// adds MAESTRO_CLAUDE_BIN only when a custom remote claude path is
-						// set (otherwise maestro-p defaults to `claude` on the remote PATH).
+						// adds OPENWIZARDAI_CLAUDE_BIN only when a custom remote claude path is
+						// set (otherwise openwizardai-p defaults to `claude` on the remote PATH).
 						const mergedSshEnvVars = {
 							...globalShellEnvVars,
 							...(effectiveCustomEnvVars || {}),
@@ -1175,13 +1176,13 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 				);
 
 				// Arm the interactive-mode replay controller when this turn ran
-				// through maestro-p. If the wrapper exits with code 2 (Max-plan
+				// through openwizardai-p. If the wrapper exits with code 2 (Max-plan
 				// quota hit mid-turn), the controller re-spawns the same prompt
 				// under `claude --print` so the user sees one continuous response
 				// after a single visible mode switch.
 				if (
 					claudeResolvedMode === 'interactive' &&
-					resolvedMaestroPBinPath &&
+					resolvedOpenWizardAIPBinPath &&
 					resolvedConfigDirKey &&
 					deps.interactiveReplayController &&
 					agent
@@ -1198,7 +1199,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 						prompt: replayPrompt,
 						buildApiSpawnConfig: ({ prompt }): ProcessSpawnConfig | null => {
 							// Pull the freshest agentSessionId for this session/tab off the
-							// sessions store - maestro-p's session-id watcher may have stamped
+							// sessions store - openwizardai-p's session-id watcher may have stamped
 							// one between spawn and exit.
 							let freshAgentSessionId: string | undefined = originalConfig.agentSessionId;
 							try {
@@ -1244,7 +1245,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 
 							const replayEnv = originalCustomEnvVars ? { ...originalCustomEnvVars } : undefined;
 							if (replayEnv) {
-								delete replayEnv.MAESTRO_CLAUDE_BIN;
+								delete replayEnv.OPENWIZARDAI_CLAUDE_BIN;
 							}
 
 							const apiCommand = originalAgent.apiCommand ?? 'claude';
@@ -1342,7 +1343,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 			// Detach any interactive replay listener. A user-initiated kill
 			// shouldn't trigger an API-mode replay even if it happens to exit 2.
 			deps.interactiveReplayController?.clearInteractiveReplay(sessionId);
-			// Add breadcrumb for crash diagnostics (MAESTRO-5A/4Y)
+			// Add breadcrumb for crash diagnostics (OPENWIZARDAI-5A/4Y)
 			await addBreadcrumb('agent', `Kill: ${sessionId}`, { sessionId });
 			return processManager.kill(sessionId);
 		})
@@ -1380,7 +1381,7 @@ export function registerProcessHandlers(deps: ProcessHandlerDependencies): void 
 						startTime: p.startTime,
 						command: p.command,
 						args: p.args,
-						maestroEnvVars: p.maestroEnvVars,
+						openwizardaiEnvVars: p.openwizardaiEnvVars,
 						sshRemoteCommand: p.sshRemoteCommand,
 					};
 					if (p.isTerminal && p.pid) {

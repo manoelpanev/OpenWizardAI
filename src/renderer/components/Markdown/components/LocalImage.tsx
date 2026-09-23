@@ -3,7 +3,7 @@
  *
  * Extracted from MarkdownRenderer so the unified renderer and any future
  * surface can share the same loader + module-level cache. Resolves `file://`
- * and bare file paths through `window.maestro.fs.readFile`; HTTP(S) and data
+ * and bare file paths through `window.openwizardai.fs.readFile`; HTTP(S) and data
  * URLs render immediately. The cache prevents flicker when react-markdown
  * rebuilds the component tree during streaming.
  */
@@ -112,7 +112,7 @@ export const LocalImage = memo(({ src, alt, theme, width, sshRemoteId }: LocalIm
 			return;
 		}
 
-		window.maestro.fs
+		window.openwizardai.fs
 			.readFile(filePath, sshRemoteId)
 			.then((result) => {
 				if (isStale) return;

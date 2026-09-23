@@ -250,10 +250,10 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 					inputMode: s.inputMode,
 					cwd: s.cwd,
 					// Claude token-source selection, so web-initiated group chat
-					// participants honor the maestro-p TUI / API / dynamic choice.
-					enableMaestroP: s.enableMaestroP,
-					maestroPMode: s.maestroPMode,
-					maestroPPath: s.maestroPPath,
+					// participants honor the openwizardai-p TUI / API / dynamic choice.
+					enableOpenWizardAIP: s.enableOpenWizardAIP,
+					openwizardaiPMode: s.openwizardaiPMode,
+					openwizardaiPPath: s.openwizardaiPPath,
 					groupId: s.groupId || null,
 					groupName: group?.name || null,
 					groupEmoji: group?.emoji || null,
@@ -269,7 +269,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 					worktreeBranch: s.worktreeBranch || null,
 					isGitRepo: s.isGitRepo ?? false,
 					worktreeBasePath: s.worktreeConfig?.basePath || null,
-					// Auto Run folder - exposes the session's configured `.maestro/`
+					// Auto Run folder - exposes the session's configured `.openwizardai/`
 					// playbook folder to web clients so the folder picker can show
 					// the current selection.
 					autoRunFolderPath: s.autoRunFolderPath || null,
@@ -277,7 +277,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 			});
 		});
 
-		// `maestro-cli session list` - flatten all open AI tabs into addressable
+		// `openwizardai-cli session list` - flatten all open AI tabs into addressable
 		// entries. The CLI does not need group/cwd metadata; the structurally
 		// smaller payload keeps polling cheap. Reads straight from the persisted
 		// session store (same source the renderer pushes to via `sessions:save`),
@@ -336,7 +336,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 			return entries;
 		});
 
-		// `maestro-cli session show <tabId>` - return the tab's conversation
+		// `openwizardai-cli session show <tabId>` - return the tab's conversation
 		// history with optional `--since` (poll cursor) and `--tail` (cap)
 		// filters applied here so the CLI never receives more than it asked for.
 		// `LogEntry.source` values map to a coarse `role` for conversational
@@ -432,7 +432,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 					const rawLogs = (targetTab || session.aiTabs[0])?.logs || [];
 					// Include thinking and tool logs for UX parity with desktop.
 					// Web/mobile clients run in a plain browser and can't load the
-					// maestro-image protocol, so resolve any relocated image refs back
+					// openwizardai-image protocol, so resolve any relocated image refs back
 					// to inline data URLs for transport (desktop keeps the lean ref).
 					aiLogs = rawLogs.map((log: any) => {
 						if (!Array.isArray(log?.images) || log.images.length === 0) return log;
@@ -638,7 +638,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 				// proprietary code, or PII; the full prompt goes to debug, which is
 				// only enabled by users who have explicitly opted in.
 				logger.info(
-					`[Web → Renderer] Forwarding command | OpenWizzard: ${sessionId} | Claude: ${agentSessionId} | Mode: ${inputMode || 'auto'} | Tab: ${tabId || 'active'} | Force: ${force ? 'yes' : 'no'} | Images: ${images?.length ?? 0} | CommandLength: ${command.length}`,
+					`[Web → Renderer] Forwarding command | OpenWizardAI: ${sessionId} | Claude: ${agentSessionId} | Mode: ${inputMode || 'auto'} | Tab: ${tabId || 'active'} | Force: ${force ? 'yes' : 'no'} | Images: ${images?.length ?? 0} | CommandLength: ${command.length}`,
 					'WebServer'
 				);
 				logger.debug(
@@ -2454,7 +2454,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 		);
 
 		// Playbook CRUD callbacks - list / create / update / delete.
-		// All forward to the renderer which calls window.maestro.playbooks.* IPC.
+		// All forward to the renderer which calls window.openwizardai.playbooks.* IPC.
 		server.setListPlaybooksCallback(async (sessionId) =>
 			remoteRequest<WebPlaybook[]>(
 				'listPlaybooks',
@@ -3177,7 +3177,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 				}
 
 				// Same cross-host corpus the desktop path folds in, so a CLI-driven
-				// synopsis covers work done by peer Maestro instances too.
+				// synopsis covers work done by peer OpenWizardAI instances too.
 				const { prepareSharedHistoryForSynopsis } =
 					await import('../utils/director-notes-shared-history');
 				const cutoffTime = lookbackDays > 0 ? Date.now() - lookbackDays * 24 * 60 * 60 * 1000 : 0;

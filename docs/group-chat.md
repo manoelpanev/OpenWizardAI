@@ -24,14 +24,14 @@ Group Chat lets you coordinate multiple AI agents in a single conversation. A mo
 
 1. **Create a Group Chat** - Use keyboard shortcut `Opt+Cmd+C` / `Alt+Ctrl+C`, click "+ New Chat" in the Group Chats section of the sidebar, or use Quick Actions (`Cmd+K` / `Ctrl+K`)
 2. **Select a moderator** - Choose which AI agent (Claude Code, OpenCode, or Codex) will coordinate the conversation
-3. **@mention agents** - In your message, @mention any Maestro session (e.g., `@Frontend`, `@Backend`). Agents are automatically added as participants when mentioned.
+3. **@mention agents** - In your message, @mention any OpenWizardAI session (e.g., `@Frontend`, `@Backend`). Agents are automatically added as participants when mentioned.
 4. **Send your question** - The moderator receives it first and decides how to proceed
 5. **Moderator coordinates** - Routes to relevant agents via @mentions, can make multiple rounds
 6. **Agents respond** - Each agent works in their own project context
 7. **Moderator synthesizes** - Combines responses into a coherent answer
 
 <Tip>
-  Agents are automatically added as participants when you or the moderator @mention them. You don't need to pre-configure participants - just @mention any active Maestro session by name.
+  Agents are automatically added as participants when you or the moderator @mention them. You don't need to pre-configure participants - just @mention any active OpenWizardAI session by name.
 </Tip>
 
 ## The Moderator's Role
@@ -48,20 +48,20 @@ The moderator won't return to you until your question is properly answered - it 
 ## Example Conversation
 
 ```
-You: "How does @Maestro relate to @RunMaestro.ai?"
+You: "How does @OpenWizardAI relate to @manoelpanev.ai?"
 
 Moderator: "Let me gather information from both projects.
-            @Maestro @RunMaestro.ai - please explain your role in the ecosystem."
+            @OpenWizardAI @manoelpanev.ai - please explain your role in the ecosystem."
 
 [Agents work in parallel...]
 
-Maestro: "I'm the core Electron desktop app for AI orchestration..."
+OpenWizardAI: "I'm the core Electron desktop app for AI orchestration..."
 
-RunMaestro.ai: "I'm the marketing website and leaderboard..."
+manoelpanev.ai: "I'm the marketing website and leaderboard..."
 
 Moderator: "Here's how they relate:
-            - Maestro is the desktop app (the product)
-            - RunMaestro.ai is the website (discovery and community)
+            - OpenWizardAI is the desktop app (the product)
+            - manoelpanev.ai is the website (discovery and community)
             - They share theme definitions for visual consistency
 
             Next steps: Would you like details on any specific integration?"

@@ -137,7 +137,7 @@ export function createProgressPoll(deps: ProgressPollDeps): ProgressPollControll
 			const currentSession = getSessions().find((s) => s.id === sessionId);
 			const selectedDoc = currentSession?.autoRunSelectedFile;
 			if (selectedDoc) {
-				const selectedDocResult = await window.maestro.autorun.readDoc(
+				const selectedDocResult = await window.openwizardai.autorun.readDoc(
 					folderPath,
 					selectedDoc + '.md',
 					sshRemoteId

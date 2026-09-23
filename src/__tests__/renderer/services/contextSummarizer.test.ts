@@ -14,12 +14,12 @@ import {
 } from '../../../renderer/services/contextSummarizer';
 import type { LogEntry } from '../../../renderer/types';
 
-// Mock window.maestro for IPC calls
+// Mock window.openwizardai for IPC calls
 const mockGroomContext = vi.fn();
 const mockCancelGrooming = vi.fn();
 
 vi.stubGlobal('window', {
-	maestro: {
+	openwizardai: {
 		context: {
 			groomContext: mockGroomContext,
 			cancelGrooming: mockCancelGrooming,

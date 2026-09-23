@@ -1,4 +1,4 @@
-// Doctor command - diagnose the CLI's connection to the Maestro desktop app and
+// Doctor command - diagnose the CLI's connection to the OpenWizardAI desktop app and
 // surface the most common failure modes as a checklist:
 //   - is the app running and reachable (discovery file + PID + live ping)?
 //   - does the running app's build match this CLI's version (skew detection)?
@@ -11,7 +11,7 @@
 
 import { readCliServerInfo, isCliServerRunning } from '../../shared/cli-server-discovery';
 import { readSshRemotes } from '../services/storage';
-import { MaestroClient, UnsupportedCommandError } from '../services/maestro-client';
+import { OpenWizardAIClient, UnsupportedCommandError } from '../services/openwizardai-client';
 import { colorize } from '../output/formatter';
 import { ExitCode } from '../exit-codes';
 
@@ -46,7 +46,7 @@ export async function doctor(cliVersion: string, options: DoctorOptions): Promis
 		checks.push({
 			label: 'Desktop app running',
 			status: 'fail',
-			detail: 'No discovery file found. Start the OpenWizzard desktop app.',
+			detail: 'No discovery file found. Start the OpenWizardAI desktop app.',
 		});
 		return report(checks, cliVersion, null, options, ExitCode.NotRunning);
 	}
@@ -57,7 +57,7 @@ export async function doctor(cliVersion: string, options: DoctorOptions): Promis
 		checks.push({
 			label: 'App process alive',
 			status: 'fail',
-			detail: 'Discovery file is stale (the app may have crashed). Restart OpenWizzard.',
+			detail: 'Discovery file is stale (the app may have crashed). Restart OpenWizardAI.',
 		});
 		return report(checks, cliVersion, info.version ?? null, options, ExitCode.NotRunning);
 	}
@@ -84,7 +84,7 @@ export async function doctor(cliVersion: string, options: DoctorOptions): Promis
 	// 4. Live reachability (ping) + new-handler support probe. The probe sends a
 	// recent message type; an UnsupportedCommandError means the running app is an
 	// older build than this CLI (the rebuild-skew trap).
-	const client = new MaestroClient();
+	const client = new OpenWizardAIClient();
 	try {
 		await client.connect();
 		await client.sendCommand<{ type: string }>({ type: 'ping' }, 'pong');

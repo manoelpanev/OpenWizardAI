@@ -19,7 +19,7 @@
  *  - `'shell'` is classic command mode: the draft IS the command line.
  *  - `'ai'` is AI command mode: the draft is a plain-English description of
  *    what you want to accomplish. Enter asks the tab's own model (at its
- *    current model and effort) for one command line, which Maestro shows for
+ *    current model and effort) for one command line, which OpenWizardAI shows for
  *    confirmation before running it exactly like a `'shell'` command.
  *
  * There is no rung above `'ai'`, so a `!` typed there is ordinary text - the

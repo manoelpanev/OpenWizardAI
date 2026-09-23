@@ -1,5 +1,5 @@
 /**
- * useDeviceColorScheme hook for Maestro web interface
+ * useDeviceColorScheme hook for OpenWizardAI web interface
  *
  * Detects and tracks the device's preferred color scheme (dark/light mode).
  * Uses the `prefers-color-scheme` media query to determine user preference.

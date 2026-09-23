@@ -1,5 +1,5 @@
 /**
- * Tests for the tail-truncation helper behind `maestro-cli read-terminal`.
+ * Tests for the tail-truncation helper behind `openwizardai-cli read-terminal`.
  *
  * The truncation runs in the renderer, before the buffer crosses IPC, so these
  * cover the boundary that decides how much of a `tail -f` tab reaches an agent's

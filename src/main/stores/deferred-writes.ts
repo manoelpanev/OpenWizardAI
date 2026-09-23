@@ -1,7 +1,7 @@
 /**
  * Deferred, cached store writes.
  *
- * `maestro-sessions.json` is the app's hottest store file and by far its
+ * `openwizardai-sessions.json` is the app's hottest store file and by far its
  * largest - one entry per agent, each carrying its tabs and the tail of every
  * tab's transcript. A user with dozens of agents runs a 5-10 MB file, and the
  * renderer flushes it every 2 s for the whole duration of any streaming turn
@@ -36,8 +36,8 @@
  *     go out as an async atomic write (temp file + rename), off the UI thread.
  *
  * Safe to cache because the main process is the sole writer of this file: the
- * app takes a single-instance lock, `maestro-sessions.json` is not watched, and
- * maestro-cli only ever READS it (it writes settings and agent-configs, which
+ * app takes a single-instance lock, `openwizardai-sessions.json` is not watched, and
+ * openwizardai-cli only ever READS it (it writes settings and agent-configs, which
  * are deliberately left on the synchronous path).
  *
  * The on-disk format is unchanged - the serializer reproduces conf's

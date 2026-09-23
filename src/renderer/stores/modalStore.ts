@@ -30,7 +30,7 @@ import { logger } from '../utils/logger';
 // the two while the modal is open, so this lives in the store (shared by the
 // keyboard handler and the modal) rather than as component-local state.
 
-const PROMPT_COMPOSER_FULLSCREEN_KEY = 'maestro.promptComposer.fullscreen';
+const PROMPT_COMPOSER_FULLSCREEN_KEY = 'openwizardai.promptComposer.fullscreen';
 
 function readStoredPromptComposerFullscreen(): boolean {
 	if (typeof window === 'undefined') return false;
@@ -366,7 +366,7 @@ export type ModalId =
 	| 'windowsWarning'
 	// Director's Notes
 	| 'directorNotes'
-	// Maestro Cue
+	// OpenWizardAI Cue
 	| 'cueModal'
 	| 'cueYamlEditor';
 
@@ -389,7 +389,7 @@ export type ModalId =
  *
  * Membership test: does it fill the window, own its own header/tabs, and is it
  * reachable on its own from a hotkey, the command palette, the Left Bar footer,
- * or `maestro-cli open`? Dialogs that answer a question ABOUT the surface
+ * or `openwizardai-cli open`? Dialogs that answer a question ABOUT the surface
  * beneath them are not members and are meant to layer: confirmations, rename
  * prompts, the Cue YAML editor, the Playbook name box, the Usage Dashboard's
  * per-agent detail.
@@ -1092,12 +1092,12 @@ export function getModalActions() {
 		setDirectorNotesOpen: (open: boolean) =>
 			open ? openModal('directorNotes') : closeModal('directorNotes'),
 
-		// Maestro Cue Modal
+		// OpenWizardAI Cue Modal
 		setCueModalOpen: (open: boolean) => (open ? openModal('cueModal') : closeModal('cueModal')),
 		openCueModalWithTab: (tab: NonNullable<CueModalData['initialTab']>) =>
 			openModal('cueModal', { initialTab: tab }),
 
-		// Maestro Cue YAML Editor (standalone, bypasses CueModal dashboard)
+		// OpenWizardAI Cue YAML Editor (standalone, bypasses CueModal dashboard)
 		openCueYamlEditor: (sessionId: string, projectRoot: string) =>
 			openModal('cueYamlEditor', { sessionId, projectRoot }),
 		closeCueYamlEditor: () => closeModal('cueYamlEditor'),
@@ -1386,10 +1386,10 @@ export function useModalActions() {
 		// Director's Notes Modal
 		directorNotesOpen,
 
-		// Maestro Cue Modal
+		// OpenWizardAI Cue Modal
 		cueModalOpen,
 
-		// Maestro Cue YAML Editor (standalone)
+		// OpenWizardAI Cue YAML Editor (standalone)
 		cueYamlEditorOpen,
 		cueYamlEditorSessionId: cueYamlEditorData?.sessionId ?? null,
 		cueYamlEditorProjectRoot: cueYamlEditorData?.projectRoot ?? null,

@@ -5,9 +5,9 @@
 // messages.
 //
 // Mutating verbs accept a tab ID (exact or unique prefix) and resolve the
-// owning agent automatically, so "maestro-cli tab close <tab-id>" just works.
+// owning agent automatically, so "openwizardai-cli tab close <tab-id>" just works.
 // The literal "active" targets whatever tab is on screen (of --agent's agent,
-// or of the focused agent). Find tab IDs with "maestro-cli session list".
+// or of the focused agent). Find tab IDs with "openwizardai-cli session list".
 //
 // The per-tab settings verbs (thinking, read-only, model, effort,
 // enter-to-send, save-to-history) are the CLI half of the composer chips: one
@@ -233,7 +233,7 @@ export async function tabMove(
  * These ride `update_session_config` with a `tabId` rather than a dedicated
  * message: that path is allowlisted, acked, and flushed to disk before it
  * returns, so a script can write a flag and immediately read it back with
- * `maestro-cli session list --json`.
+ * `openwizardai-cli session list --json`.
  */
 async function writeTabPatch(
 	owner: { agentId: string; tabId: string },
@@ -348,7 +348,7 @@ export async function tabReadOnly(
  * Override the model for one tab, or pass `null` to drop the override so the
  * tab inherits the agent's model again. Values are not validated against the
  * provider's model list - same as `update-agent --model`, which lets you name a
- * model the local install knows about before Maestro has probed for it.
+ * model the local install knows about before OpenWizardAI has probed for it.
  */
 export async function tabModel(
 	tabId: string,

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Global type declarations for the renderer process.
- * This file makes the window.maestro API available throughout the renderer.
+ * This file makes the window.openwizardai API available throughout the renderer.
  */
 
 // Vite raw imports for .md files
@@ -43,7 +43,7 @@ type AutoRunTreeNode = {
 	children?: AutoRunTreeNode[];
 };
 
-/** A node returned by `window.maestro.fs.readDirTree`. Matches `FileTreeNode`. */
+/** A node returned by `window.openwizardai.fs.readDirTree`. Matches `FileTreeNode`. */
 type LocalFileScanNode = {
 	name: string;
 	type: 'file' | 'folder';
@@ -84,15 +84,15 @@ interface ProcessConfig {
 	sendPromptViaStdin?: boolean; // If true, send the prompt via stdin as JSON instead of command line
 	sendPromptViaStdinRaw?: boolean; // If true, send the prompt via stdin as raw text instead of command line
 	/** Who asked for this turn: a human ('user') or Auto Run ('auto'). Stamped into
-	 *  the spawned process env as MAESTRO_QUERY_SOURCE. Cue runs never come through
+	 *  the spawned process env as OPENWIZARDAI_QUERY_SOURCE. Cue runs never come through
 	 *  this IPC path - they spawn in the main process and mark themselves 'cue'. */
 	querySource?: 'user' | 'auto';
 	// Claude token-source selection. Normally resolved server-side from the
 	// persisted session by sessionId, but spawns using a synthetic sessionId
 	// (e.g. background synopsis) forward these inline so the handler can resolve.
-	enableMaestroP?: boolean;
-	maestroPMode?: 'interactive' | 'dynamic';
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	openwizardaiPPath?: string;
 }
 
 type AgentConfigOption = import('../shared/types').AgentConfigOption;
@@ -173,7 +173,10 @@ import type { CueGraphSession, CueRunResult, CueSessionStatus, CueSettings } fro
 import type { CueLogPayload } from '../shared/cue-log-types';
 import type { CueStatsAggregation, CueStatsTimeRange } from '../shared/cue-stats-types';
 import type { QueryEvent, StatsAggregation } from '../shared/stats-types';
-import type { MaestroCliStatus, MaestroCliInstallResult } from '../shared/maestro-cli';
+import type {
+	OpenWizardAICliStatus,
+	OpenWizardAICliInstallResult,
+} from '../shared/openwizardai-cli';
 import type { DebugPackageOptions } from '../shared/debugPackage';
 import type {
 	ParquetFetchProgress,
@@ -190,7 +193,7 @@ import type {
 } from '../main/preload/git';
 import type { HistoryEntry } from '../shared/types';
 
-interface MaestroAPI {
+interface OpenWizardAIAPI {
 	// Context merging API (for session context transfer and grooming)
 	context: {
 		getStoredSession: (
@@ -1252,8 +1255,11 @@ interface MaestroAPI {
 		onSnapshotUpdated: (
 			callback: (payload: import('../shared/agentCapabilities').SnapshotUpdatedPayload) => void
 		) => () => void;
-		getMaestroPDetectedPath: () => Promise<string | null>;
-		getRemoteMaestroPAvailable: (sshRemoteId: string, force?: boolean) => Promise<boolean | null>;
+		getOpenWizardAIPDetectedPath: () => Promise<string | null>;
+		getRemoteOpenWizardAIPAvailable: (
+			sshRemoteId: string,
+			force?: boolean
+		) => Promise<boolean | null>;
 		getClaudeUsageSnapshots: () => Promise<
 			Record<
 				string,
@@ -2487,9 +2493,9 @@ interface MaestroAPI {
 				customPath?: string;
 				customArgs?: string;
 				customEnvVars?: Record<string, string>;
-				enableMaestroP?: boolean;
-				maestroPMode?: 'interactive' | 'dynamic';
-				maestroPPath?: string;
+				enableOpenWizardAIP?: boolean;
+				openwizardaiPMode?: 'interactive' | 'dynamic';
+				openwizardaiPPath?: string;
 			},
 			requireIdleParticipants?: boolean
 		) => Promise<GroupChatData>;
@@ -2506,9 +2512,9 @@ interface MaestroAPI {
 					customPath?: string;
 					customArgs?: string;
 					customEnvVars?: Record<string, string>;
-					enableMaestroP?: boolean;
-					maestroPMode?: 'interactive' | 'dynamic';
-					maestroPPath?: string;
+					enableOpenWizardAIP?: boolean;
+					openwizardaiPMode?: 'interactive' | 'dynamic';
+					openwizardaiPPath?: string;
 				};
 				requireIdleParticipants?: boolean;
 			}
@@ -3054,7 +3060,7 @@ interface MaestroAPI {
 	};
 	// Cue Stats API (Phase 03 - Cue Dashboard aggregation query)
 	// Throws 'CueStatsDisabled' when either encoreFeatures.usageStats or
-	// encoreFeatures.maestroCue is off; consumers should catch and render
+	// encoreFeatures.openwizardaiCue is off; consumers should catch and render
 	// the "feature off" state.
 	cueStats: {
 		// `excludeTriggerTypes` drops the named raw event types (`time.heartbeat`,
@@ -3098,9 +3104,9 @@ interface MaestroAPI {
 			// Session-level custom env vars, forwarded so naming inherits the same provider auth as the chat.
 			sessionCustomEnvVars?: Record<string, string>;
 			// Claude token-source selection, forwarded so tab naming honors TUI/Dynamic/API.
-			enableMaestroP?: boolean;
-			maestroPMode?: 'interactive' | 'dynamic';
-			maestroPPath?: string;
+			enableOpenWizardAIP?: boolean;
+			openwizardaiPMode?: 'interactive' | 'dynamic';
+			openwizardaiPPath?: string;
 		}) => Promise<string | null>;
 	};
 
@@ -3391,10 +3397,10 @@ interface MaestroAPI {
 		validateApiKey: (key: string) => Promise<{ valid: boolean }>;
 	};
 
-	// Maestro CLI API (status check + install/update)
-	maestroCli: {
-		checkStatus: () => Promise<MaestroCliStatus>;
-		installOrUpdate: () => Promise<MaestroCliInstallResult>;
+	// OpenWizardAI CLI API (status check + install/update)
+	openwizardaiCli: {
+		checkStatus: () => Promise<OpenWizardAICliStatus>;
+		installOrUpdate: () => Promise<OpenWizardAICliInstallResult>;
 	};
 
 	prompts: {
@@ -3496,8 +3502,8 @@ interface MaestroAPI {
 	};
 	/**
 	 * Session Images API. Pasted transcript images are stored content-addressed
-	 * on disk and referenced as `maestro-image://store/<sha>.<ext>` (loaded
-	 * directly by `<img src>` via the maestro-image protocol). `resolve` turns a
+	 * on disk and referenced as `openwizardai-image://store/<sha>.<ext>` (loaded
+	 * directly by `<img src>` via the openwizardai-image protocol). `resolve` turns a
 	 * ref back into a data URL for consumers that need the raw bytes (export,
 	 * clipboard, replay).
 	 */
@@ -3508,8 +3514,8 @@ interface MaestroAPI {
 
 declare global {
 	interface Window {
-		maestro: MaestroAPI;
-		maestroTest?: {
+		openwizardai: OpenWizardAIAPI;
+		openwizardaiTest?: {
 			addToast: (
 				type: 'success' | 'info' | 'warning' | 'error',
 				title: string,

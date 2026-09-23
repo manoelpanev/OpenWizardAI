@@ -3,7 +3,7 @@
  *
  * Extracts and memoizes all props for the MainPanel component.
  * This prevents React from re-evaluating 100+ props on every state change
- * in MaestroConsoleInner by only recomputing when actual dependencies change.
+ * in OpenWizardAIConsoleInner by only recomputing when actual dependencies change.
  *
  * Key optimization: Uses primitive values in dependency arrays (e.g., activeSession?.id
  * instead of activeSession) to minimize re-renders.
@@ -293,7 +293,7 @@ export interface UseMainPanelPropsDeps {
 	setLastGraphFocusFilePath: (path: string) => void;
 	setIsGraphViewOpen: (open: boolean) => void;
 
-	// Open the active file preview in a new Maestro browser tab
+	// Open the active file preview in a new OpenWizardAI browser tab
 	handleOpenBrowserTabAt: (url: string, options?: { title?: string }) => void;
 
 	// Wizard callbacks
@@ -527,7 +527,7 @@ export function useMainPanelProps(deps: UseMainPanelPropsDeps) {
 				// Also bump the daily-firings counter so the Usage Dashboard bar
 				// chart reflects shortcuts handled inside subcomponents (not just
 				// the ones routed through useMainKeyboardHandler).
-				void window.maestro?.stats?.recordShortcutUsage?.(Date.now());
+				void window.openwizardai?.stats?.recordShortcutUsage?.(Date.now());
 			},
 			ghCliAvailable: deps.ghCliAvailable,
 			onPublishGist: () => deps.setGistPublishModalOpen(true),
@@ -551,7 +551,7 @@ export function useMainPanelProps(deps: UseMainPanelPropsDeps) {
 					deps.setIsGraphViewOpen(true);
 				}
 			},
-			// Open the active file preview in a new Maestro browser tab. Encodes
+			// Open the active file preview in a new OpenWizardAI browser tab. Encodes
 			// each path segment so spaces and reserved chars survive the file:// URL.
 			onOpenInBrowser: () => {
 				if (!deps.activeFileTab) return;

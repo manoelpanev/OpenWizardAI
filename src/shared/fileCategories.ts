@@ -4,7 +4,7 @@
  * One extension table answering two related questions that were previously
  * answered by private sets inside `FileSearchModal`:
  *
- *   1. "Can Maestro open this file at all?" (`isPreviewableFile`)
+ *   1. "Can OpenWizardAI open this file at all?" (`isPreviewableFile`)
  *   2. "Which bucket does it belong to?" (`getFileCategory`)
  *
  * Both answers come from the SAME table on purpose. A file that classifies
@@ -208,7 +208,7 @@ function baseName(filePath: string): string {
 }
 
 /**
- * Which bucket a file belongs to, or `null` when Maestro cannot open it.
+ * Which bucket a file belongs to, or `null` when OpenWizardAI cannot open it.
  *
  * `null` and `'other'` mean different things: `null` is "not a file we list at
  * all" (a binary, an archive, an unknown extension), while `'other'` is a file
@@ -237,7 +237,7 @@ export function getFileCategory(filePath: string): FileCategory | null {
 }
 
 /**
- * Whether Maestro can preview a file or hand it to the OS. Derived from
+ * Whether OpenWizardAI can preview a file or hand it to the OS. Derived from
  * `getFileCategory` so the two can never disagree.
  */
 export function isPreviewableFile(filePath: string): boolean {

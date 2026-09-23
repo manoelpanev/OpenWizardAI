@@ -11,7 +11,7 @@ import {
 	getOpenSpecCommand,
 } from '../../../renderer/services/openspec';
 
-// Mock the window.maestro.openspec object
+// Mock the window.openwizardai.openspec object
 const mockOpenspec = {
 	getPrompts: vi.fn(),
 	getMetadata: vi.fn(),
@@ -22,9 +22,9 @@ const mockOpenspec = {
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	// Ensure window.maestro.openspec is mocked
-	(window as any).maestro = {
-		...(window as any).maestro,
+	// Ensure window.openwizardai.openspec is mocked
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		openspec: mockOpenspec,
 	};
 

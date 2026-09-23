@@ -115,7 +115,7 @@ vi.mock('../../../renderer/services/git', () => ({
 }));
 
 vi.mock('../../../prompts', () => ({
-	maestroSystemPrompt: 'Mock system prompt',
+	openwizardaiSystemPrompt: 'Mock system prompt',
 	commitCommandPrompt: 'Mock commit prompt',
 	autorunSynopsisPrompt: 'Mock synopsis prompt',
 }));
@@ -204,8 +204,8 @@ beforeEach(() => {
 	stableDeps.activeSessionIdRef.current = 'session-1';
 	(stableDeps.setActiveSessionId as ReturnType<typeof vi.fn>).mockReset();
 
-	// Mock window.maestro APIs
-	(window as any).maestro = {
+	// Mock window.openwizardai APIs
+	(window as any).openwizardai = {
 		notification: { show: vi.fn() },
 		agents: {
 			get: vi.fn().mockResolvedValue({
@@ -531,7 +531,7 @@ describe('useMergeTransferHandlers', () => {
 				if (sendResult.success) {
 					// Allow the async IIFE to execute
 					await new Promise((r) => setTimeout(r, 50));
-					expect((window as any).maestro.process.spawn).toHaveBeenCalled();
+					expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
 				}
 			});
 		});
@@ -808,7 +808,7 @@ describe('useMergeTransferHandlers', () => {
 					title: 'Session Merged',
 				})
 			);
-			expect((window as any).maestro.notification.show).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.notification.show).toHaveBeenCalledWith(
 				'Session Merged',
 				expect.stringContaining('Merged Session')
 			);
@@ -980,7 +980,7 @@ describe('useMergeTransferHandlers', () => {
 				if (sendResult.success) {
 					// Allow async IIFE to run
 					await new Promise((r) => setTimeout(r, 50));
-					expect((window as any).maestro.process.spawn).toHaveBeenCalledWith(
+					expect((window as any).openwizardai.process.spawn).toHaveBeenCalledWith(
 						expect.objectContaining({
 							sessionSshRemoteConfig: expect.objectContaining({
 								enabled: true,
@@ -1005,7 +1005,9 @@ describe('useMergeTransferHandlers', () => {
 			});
 
 			// Make agents.get reject
-			(window as any).maestro.agents.get = vi.fn().mockRejectedValue(new Error('Agent not found'));
+			(window as any).openwizardai.agents.get = vi
+				.fn()
+				.mockRejectedValue(new Error('Agent not found'));
 
 			const deps = createMockDeps();
 			const { result } = renderHook(() => useMergeTransferHandlers(deps));
@@ -1342,7 +1344,7 @@ describe('useMergeTransferHandlers', () => {
 				});
 			});
 
-			expect((window as any).maestro.notification.show).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.notification.show).toHaveBeenCalledWith(
 				'Session Merged',
 				'Created "My Merged Session" with merged context'
 			);

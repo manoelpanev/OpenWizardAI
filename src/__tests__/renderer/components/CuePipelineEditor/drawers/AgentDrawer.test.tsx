@@ -9,7 +9,7 @@ const mockGroups = [
 ];
 
 const mockSessions = [
-	{ id: 'sess-1', name: 'Maestro', toolType: 'claude-code', groupId: 'grp-1' },
+	{ id: 'sess-1', name: 'OpenWizardAI', toolType: 'claude-code', groupId: 'grp-1' },
 	{ id: 'sess-2', name: 'Codex Helper', toolType: 'codex', groupId: 'grp-2' },
 	{ id: 'sess-3', name: 'Review Bot', toolType: 'claude-code', groupId: 'grp-1' },
 ];
@@ -20,7 +20,7 @@ describe('AgentDrawer', () => {
 			<AgentDrawer isOpen={true} onClose={() => {}} sessions={mockSessions} theme={mockTheme} />
 		);
 
-		expect(screen.getByText('Maestro')).toBeInTheDocument();
+		expect(screen.getByText('OpenWizardAI')).toBeInTheDocument();
 		expect(screen.getByText('Codex Helper')).toBeInTheDocument();
 		expect(screen.getByText('Review Bot')).toBeInTheDocument();
 	});
@@ -31,9 +31,9 @@ describe('AgentDrawer', () => {
 		);
 
 		const input = screen.getByPlaceholderText('Search agents...');
-		fireEvent.change(input, { target: { value: 'maestro' } });
+		fireEvent.change(input, { target: { value: 'openwizardai' } });
 
-		expect(screen.getByText('Maestro')).toBeInTheDocument();
+		expect(screen.getByText('OpenWizardAI')).toBeInTheDocument();
 		expect(screen.queryByText('Codex Helper')).not.toBeInTheDocument();
 		expect(screen.queryByText('Review Bot')).not.toBeInTheDocument();
 	});
@@ -47,7 +47,7 @@ describe('AgentDrawer', () => {
 		fireEvent.change(input, { target: { value: 'codex' } });
 
 		expect(screen.getByText('Codex Helper')).toBeInTheDocument();
-		expect(screen.queryByText('Maestro')).not.toBeInTheDocument();
+		expect(screen.queryByText('OpenWizardAI')).not.toBeInTheDocument();
 	});
 
 	it('should show empty state when no agents match', () => {
@@ -171,8 +171,8 @@ describe('AgentDrawer', () => {
 			<AgentDrawer isOpen={true} onClose={() => {}} sessions={mockSessions} theme={mockTheme} />
 		);
 
-		const maestro = screen.getByText('Maestro').closest('[draggable]');
-		expect(maestro).toHaveAttribute('draggable', 'true');
+		const openwizardai = screen.getByText('OpenWizardAI').closest('[draggable]');
+		expect(openwizardai).toHaveAttribute('draggable', 'true');
 	});
 
 	it('should auto-focus search input when drawer opens', () => {
@@ -194,7 +194,7 @@ describe('AgentDrawer', () => {
 			);
 
 			expect(screen.getByText('Command')).toBeInTheDocument();
-			expect(screen.getByText('shell or maestro-cli')).toBeInTheDocument();
+			expect(screen.getByText('shell or openwizardai-cli')).toBeInTheDocument();
 			const pill = screen.getByTestId('command-pill');
 			expect(pill).toHaveAttribute('draggable', 'true');
 		});
@@ -228,7 +228,7 @@ describe('AgentDrawer', () => {
 			);
 
 			const input = screen.getByPlaceholderText('Search agents...');
-			fireEvent.change(input, { target: { value: 'maestro' } });
+			fireEvent.change(input, { target: { value: 'openwizardai' } });
 
 			expect(screen.queryByTestId('command-pill')).not.toBeInTheDocument();
 		});
@@ -241,9 +241,9 @@ describe('AgentDrawer', () => {
 				<AgentDrawer isOpen={true} onClose={() => {}} sessions={mockSessions} theme={mockTheme} />
 			);
 
-			const maestroRow = screen.getByText('Maestro').closest('[draggable="true"]');
-			expect(maestroRow).not.toBeNull();
-			const nestedDraggable = maestroRow!.querySelector('[draggable="true"]');
+			const openwizardaiRow = screen.getByText('OpenWizardAI').closest('[draggable="true"]');
+			expect(openwizardaiRow).not.toBeNull();
+			const nestedDraggable = openwizardaiRow!.querySelector('[draggable="true"]');
 			expect(nestedDraggable).toBeNull();
 
 			// And the old footer hint is gone.

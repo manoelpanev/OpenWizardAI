@@ -119,7 +119,7 @@ export function useAppInitialization(): AppInitializationReturn {
 			// then a short delay lets the file tree and heavy components settle.
 			requestAnimationFrame(() => {
 				requestAnimationFrame(() => {
-					window.__updateSplash?.(95, 'OpenWizzard takes the podium...');
+					window.__updateSplash?.(95, 'OpenWizardAI takes the podium...');
 					setTimeout(() => {
 						window.__hideSplash?.();
 					}, 150);
@@ -130,7 +130,7 @@ export function useAppInitialization(): AppInitializationReturn {
 
 	// --- GitHub CLI availability check ---
 	useEffect(() => {
-		window.maestro.git
+		window.openwizardai.git
 			.checkGhCli()
 			.then((status) => {
 				setGhCliAvailable(status.installed && status.authenticated);
@@ -150,7 +150,7 @@ export function useAppInitialization(): AppInitializationReturn {
 		if (suppressWindowsWarning) return;
 		if (windowsWarningShownRef.current) return;
 
-		window.maestro.power
+		window.openwizardai.power
 			.getStatus()
 			.then((status) => {
 				if (status.platform === 'win32') {
@@ -209,7 +209,7 @@ export function useAppInitialization(): AppInitializationReturn {
 
 	// --- Load file gist URLs from settings ---
 	useEffect(() => {
-		window.maestro.settings
+		window.openwizardai.settings
 			.get('fileGistUrls')
 			.then((savedUrls) => {
 				if (savedUrls && typeof savedUrls === 'object') {
@@ -226,13 +226,13 @@ export function useAppInitialization(): AppInitializationReturn {
 		const { fileGistUrls: current } = useTabStore.getState();
 		const updated = { ...current, [filePath]: gistInfo };
 		useTabStore.getState().setFileGistUrls(updated);
-		window.maestro.settings.set('fileGistUrls', updated);
+		window.openwizardai.settings.set('fileGistUrls', updated);
 	}, []);
 
 	// --- Sync beta updates setting to electron-updater ---
 	useEffect(() => {
 		if (settingsLoaded) {
-			window.maestro.updates.setAllowPrerelease(enableBetaUpdates);
+			window.openwizardai.updates.setAllowPrerelease(enableBetaUpdates);
 		}
 	}, [settingsLoaded, enableBetaUpdates]);
 
@@ -242,7 +242,7 @@ export function useAppInitialization(): AppInitializationReturn {
 
 		const runCheck = async () => {
 			try {
-				const result = await window.maestro.updates.check(enableBetaUpdates);
+				const result = await window.openwizardai.updates.check(enableBetaUpdates);
 				if (result.updateAvailable && !result.error) {
 					getModalActions().setUpdateCheckModalOpen(true);
 				}
@@ -325,7 +325,7 @@ export function useAppInitialization(): AppInitializationReturn {
 	// Non-critical: SSH may not be configured. Failures are logged but not
 	// reported to Sentry since the app functions fully without SSH remotes.
 	useEffect(() => {
-		window.maestro?.sshRemote
+		window.openwizardai?.sshRemote
 			?.getConfigs()
 			.then((result) => {
 				if (result.success && result.configs) {
@@ -344,7 +344,7 @@ export function useAppInitialization(): AppInitializationReturn {
 
 	// --- Stats DB corruption check ---
 	useEffect(() => {
-		window.maestro?.stats
+		window.openwizardai?.stats
 			?.getInitializationResult()
 			.then((result) => {
 				if (result?.userMessage) {
@@ -354,7 +354,7 @@ export function useAppInitialization(): AppInitializationReturn {
 						message: result.userMessage,
 						duration: 10000,
 					});
-					window.maestro?.stats?.clearInitializationResult();
+					window.openwizardai?.stats?.clearInitializationResult();
 				}
 			})
 			.catch(console.error);

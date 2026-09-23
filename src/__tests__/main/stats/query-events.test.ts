@@ -50,7 +50,7 @@ vi.mock('better-sqlite3', () => {
 });
 
 // Mock electron's app module with trackable userData path
-const mockUserDataPath = path.join(os.tmpdir(), 'maestro-test-stats-db');
+const mockUserDataPath = path.join(os.tmpdir(), 'openwizardai-test-stats-db');
 vi.mock('electron', () => ({
 	app: {
 		getPath: vi.fn((name: string) => {

@@ -95,7 +95,7 @@ export async function extractStoredSessionContext(
 ): Promise<ContextSource | null> {
 	try {
 		// Fetch session messages via IPC
-		const result = (await window.maestro.agentSessions.read(
+		const result = (await window.openwizardai.agentSessions.read(
 			agentId,
 			projectRoot,
 			agentSessionId
@@ -121,7 +121,7 @@ export async function extractStoredSessionContext(
 
 		return {
 			type: 'session',
-			sessionId: '', // Stored sessions don't have an OpenWizzard session ID
+			sessionId: '', // Stored sessions don't have an OpenWizardAI session ID
 			agentSessionId,
 			projectRoot,
 			name: displayName,

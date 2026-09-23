@@ -144,17 +144,17 @@ describe('imgToDataUrl', () => {
 		await expect(imgToDataUrl(makeImg(PNG_DATA_URL))).resolves.toBe(PNG_DATA_URL);
 	});
 
-	it('resolves a maestro-image store reference back to its bytes', async () => {
+	it('resolves a openwizardai-image store reference back to its bytes', async () => {
 		const resolve = vi.fn().mockResolvedValue(PNG_DATA_URL);
-		const bridge = window.maestro as unknown as Record<string, unknown>;
+		const bridge = window.openwizardai as unknown as Record<string, unknown>;
 		const previous = bridge.images;
 		bridge.images = { resolve };
 
 		try {
-			await expect(imgToDataUrl(makeImg('maestro-image://store/abc.png'))).resolves.toBe(
+			await expect(imgToDataUrl(makeImg('openwizardai-image://store/abc.png'))).resolves.toBe(
 				PNG_DATA_URL
 			);
-			expect(resolve).toHaveBeenCalledWith('maestro-image://store/abc.png');
+			expect(resolve).toHaveBeenCalledWith('openwizardai-image://store/abc.png');
 		} finally {
 			bridge.images = previous;
 		}
@@ -163,7 +163,7 @@ describe('imgToDataUrl', () => {
 
 describe('copyImageElementToClipboard', () => {
 	let previousShell: unknown;
-	const bridge = () => window.maestro as unknown as Record<string, any>;
+	const bridge = () => window.openwizardai as unknown as Record<string, any>;
 
 	beforeEach(() => {
 		previousShell = bridge().shell;
@@ -223,9 +223,11 @@ describe('saveImageElementToDisk', () => {
 	beforeEach(() => {
 		// The bridge mocks live in the global setup and are shared across tests in
 		// this file, so call counts have to be reset per test.
-		vi.mocked(window.maestro.dialog.saveFile).mockClear();
-		vi.mocked(window.maestro.fs.writeFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeImageFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.dialog.saveFile).mockClear();
+		vi.mocked(window.openwizardai.fs.writeFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeImageFile)
+			.mockClear()
+			.mockResolvedValue({ success: true });
 	});
 
 	afterEach(() => {
@@ -233,37 +235,40 @@ describe('saveImageElementToDisk', () => {
 	});
 
 	it('writes an SVG target as markup when the user keeps the .svg extension', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue('/tmp/diagram.svg');
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue('/tmp/diagram.svg');
 
 		const result = await saveImageElementToDisk(makeSvg());
 
 		expect(result).toEqual({ saved: true, path: '/tmp/diagram.svg' });
-		expect(window.maestro.fs.writeFile).toHaveBeenCalledWith(
+		expect(window.openwizardai.fs.writeFile).toHaveBeenCalledWith(
 			'/tmp/diagram.svg',
 			expect.stringContaining('<circle')
 		);
-		expect(window.maestro.fs.writeImageFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeImageFile).not.toHaveBeenCalled();
 	});
 
 	it('writes a raster target through the binary path, not the UTF-8 one', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue('/tmp/shot.png');
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue('/tmp/shot.png');
 
 		const result = await saveImageElementToDisk(makeImg(PNG_DATA_URL));
 
 		expect(result).toEqual({ saved: true, path: '/tmp/shot.png' });
 		// writeFile would encode the base64 payload as text and corrupt the image.
-		expect(window.maestro.fs.writeImageFile).toHaveBeenCalledWith('/tmp/shot.png', PNG_DATA_URL);
-		expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeImageFile).toHaveBeenCalledWith(
+			'/tmp/shot.png',
+			PNG_DATA_URL
+		);
+		expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('offers the source extension first and PNG as the alternative', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue(null);
 
 		await saveImageElementToDisk(makeImg('data:image/jpeg;base64,AAAA'));
 
-		expect(window.maestro.dialog.saveFile).toHaveBeenCalledWith(
+		expect(window.openwizardai.dialog.saveFile).toHaveBeenCalledWith(
 			expect.objectContaining({
-				defaultPath: 'maestro-image.jpg',
+				defaultPath: 'openwizardai-image.jpg',
 				filters: [
 					{ name: 'Image', extensions: ['jpg'] },
 					{ name: 'PNG Image', extensions: ['png'] },
@@ -273,15 +278,15 @@ describe('saveImageElementToDisk', () => {
 	});
 
 	it('reports a cancelled dialog as not-saved with no error', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue(null);
 
 		await expect(saveImageElementToDisk(makeSvg())).resolves.toEqual({ saved: false });
-		expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('surfaces a write failure instead of claiming success', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue('/tmp/diagram.svg');
-		vi.mocked(window.maestro.fs.writeFile).mockRejectedValue(new Error('EACCES'));
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue('/tmp/diagram.svg');
+		vi.mocked(window.openwizardai.fs.writeFile).mockRejectedValue(new Error('EACCES'));
 
 		await expect(saveImageElementToDisk(makeSvg())).resolves.toEqual({
 			saved: false,
@@ -296,15 +301,17 @@ describe('saveImageElementToDisk', () => {
 			saved: false,
 			error: 'Could not read the image data',
 		});
-		expect(window.maestro.dialog.saveFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.dialog.saveFile).not.toHaveBeenCalled();
 	});
 });
 
 describe('saveImageDataUrlToDisk', () => {
 	beforeEach(() => {
-		vi.mocked(window.maestro.dialog.saveFile).mockClear();
-		vi.mocked(window.maestro.fs.writeFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeImageFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.dialog.saveFile).mockClear();
+		vi.mocked(window.openwizardai.fs.writeFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeImageFile)
+			.mockClear()
+			.mockResolvedValue({ success: true });
 	});
 
 	afterEach(() => {
@@ -312,45 +319,48 @@ describe('saveImageDataUrlToDisk', () => {
 	});
 
 	it('writes the bytes through the binary path with the caller name suggested', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue('/tmp/graph.png');
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue('/tmp/graph.png');
 
 		const result = await saveImageDataUrlToDisk(PNG_DATA_URL, 'graph-20260908-101500.png');
 
 		expect(result).toEqual({ saved: true, path: '/tmp/graph.png' });
-		expect(window.maestro.dialog.saveFile).toHaveBeenCalledWith(
+		expect(window.openwizardai.dialog.saveFile).toHaveBeenCalledWith(
 			expect.objectContaining({
 				defaultPath: 'graph-20260908-101500.png',
 				filters: [{ name: 'PNG Image', extensions: ['png'] }],
 			})
 		);
 		// writeFile would encode the base64 payload as text and corrupt the image.
-		expect(window.maestro.fs.writeImageFile).toHaveBeenCalledWith('/tmp/graph.png', PNG_DATA_URL);
-		expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeImageFile).toHaveBeenCalledWith(
+			'/tmp/graph.png',
+			PNG_DATA_URL
+		);
+		expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('falls back to the data URL extension when no name is given', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue(null);
 
 		await saveImageDataUrlToDisk('data:image/jpeg;base64,AAAA');
 
-		expect(window.maestro.dialog.saveFile).toHaveBeenCalledWith(
+		expect(window.openwizardai.dialog.saveFile).toHaveBeenCalledWith(
 			expect.objectContaining({
-				defaultPath: 'maestro-image.jpg',
+				defaultPath: 'openwizardai-image.jpg',
 				filters: [{ name: 'JPG Image', extensions: ['jpg'] }],
 			})
 		);
 	});
 
 	it('reports a cancelled dialog as not-saved with no error', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue(null);
 
 		await expect(saveImageDataUrlToDisk(PNG_DATA_URL)).resolves.toEqual({ saved: false });
-		expect(window.maestro.fs.writeImageFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeImageFile).not.toHaveBeenCalled();
 	});
 
 	it('surfaces a write failure instead of claiming success', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue('/tmp/graph.png');
-		vi.mocked(window.maestro.fs.writeImageFile).mockRejectedValue(new Error('EACCES'));
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue('/tmp/graph.png');
+		vi.mocked(window.openwizardai.fs.writeImageFile).mockRejectedValue(new Error('EACCES'));
 
 		await expect(saveImageDataUrlToDisk(PNG_DATA_URL)).resolves.toEqual({
 			saved: false,
@@ -359,8 +369,8 @@ describe('saveImageDataUrlToDisk', () => {
 	});
 
 	it('reports a write the main process refused rather than a silent success', async () => {
-		vi.mocked(window.maestro.dialog.saveFile).mockResolvedValue('/tmp/graph.png');
-		vi.mocked(window.maestro.fs.writeImageFile).mockResolvedValue({ success: false });
+		vi.mocked(window.openwizardai.dialog.saveFile).mockResolvedValue('/tmp/graph.png');
+		vi.mocked(window.openwizardai.fs.writeImageFile).mockResolvedValue({ success: false });
 
 		await expect(saveImageDataUrlToDisk(PNG_DATA_URL)).resolves.toEqual({
 			saved: false,
@@ -371,11 +381,13 @@ describe('saveImageDataUrlToDisk', () => {
 
 describe('saveImageToProject', () => {
 	beforeEach(() => {
-		vi.mocked(window.maestro.fs.mkdir).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeImageFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.mkdir).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeImageFile)
+			.mockClear()
+			.mockResolvedValue({ success: true });
 		// stat() answering null means "no file there", so no de-duplication suffix.
-		vi.mocked(window.maestro.fs.stat)
+		vi.mocked(window.openwizardai.fs.stat)
 			.mockClear()
 			.mockResolvedValue(null as never);
 	});
@@ -384,23 +396,23 @@ describe('saveImageToProject', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('writes an SVG into .maestro/diagrams under the project root', async () => {
+	it('writes an SVG into .openwizardai/diagrams under the project root', async () => {
 		const result = await saveImageToProject(
 			makeSvg(),
 			{ projectRoot: '/home/me/proj', fileName: 'diagram.svg' },
 			'svg'
 		);
 
-		expect(window.maestro.fs.mkdir).toHaveBeenCalledWith(
-			'/home/me/proj/.maestro/diagrams',
+		expect(window.openwizardai.fs.mkdir).toHaveBeenCalledWith(
+			'/home/me/proj/.openwizardai/diagrams',
 			undefined
 		);
-		expect(window.maestro.fs.writeFile).toHaveBeenCalledWith(
-			'/home/me/proj/.maestro/diagrams/diagram.svg',
+		expect(window.openwizardai.fs.writeFile).toHaveBeenCalledWith(
+			'/home/me/proj/.openwizardai/diagrams/diagram.svg',
 			expect.stringContaining('<svg'),
 			undefined
 		);
-		expect(result.relativePath).toBe('.maestro/diagrams/diagram.svg');
+		expect(result.relativePath).toBe('.openwizardai/diagrams/diagram.svg');
 	});
 
 	it('honors a custom folder', async () => {
@@ -410,12 +422,12 @@ describe('saveImageToProject', () => {
 			'svg'
 		);
 
-		expect(window.maestro.fs.mkdir).toHaveBeenCalledWith('/home/me/proj/docs/img', undefined);
+		expect(window.openwizardai.fs.mkdir).toHaveBeenCalledWith('/home/me/proj/docs/img', undefined);
 	});
 
 	it('suffixes rather than overwriting an existing name', async () => {
 		// First two candidates exist, the third is free.
-		vi.mocked(window.maestro.fs.stat)
+		vi.mocked(window.openwizardai.fs.stat)
 			.mockResolvedValueOnce({ isFile: true } as never)
 			.mockResolvedValueOnce({ isFile: true } as never)
 			.mockResolvedValue(null as never);
@@ -426,7 +438,7 @@ describe('saveImageToProject', () => {
 			'svg'
 		);
 
-		expect(result.relativePath).toBe('.maestro/diagrams/diagram-3.svg');
+		expect(result.relativePath).toBe('.openwizardai/diagrams/diagram-3.svg');
 	});
 
 	it('routes raster bytes through writeImageFile, never the UTF-8 writeFile', async () => {
@@ -436,12 +448,12 @@ describe('saveImageToProject', () => {
 			'original'
 		);
 
-		expect(window.maestro.fs.writeImageFile).toHaveBeenCalledWith(
-			'/p/.maestro/diagrams/shot.png',
+		expect(window.openwizardai.fs.writeImageFile).toHaveBeenCalledWith(
+			'/p/.openwizardai/diagrams/shot.png',
 			PNG_DATA_URL,
 			undefined
 		);
-		expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('threads the SSH remote id through every filesystem call', async () => {
@@ -451,16 +463,19 @@ describe('saveImageToProject', () => {
 			'svg'
 		);
 
-		expect(window.maestro.fs.mkdir).toHaveBeenCalledWith('/remote/proj/.maestro/diagrams', 'box-1');
-		expect(window.maestro.fs.writeFile).toHaveBeenCalledWith(
-			'/remote/proj/.maestro/diagrams/d.svg',
+		expect(window.openwizardai.fs.mkdir).toHaveBeenCalledWith(
+			'/remote/proj/.openwizardai/diagrams',
+			'box-1'
+		);
+		expect(window.openwizardai.fs.writeFile).toHaveBeenCalledWith(
+			'/remote/proj/.openwizardai/diagrams/d.svg',
 			expect.any(String),
 			'box-1'
 		);
 	});
 
 	it('throws when the write reports failure instead of returning a path', async () => {
-		vi.mocked(window.maestro.fs.writeFile).mockResolvedValue({ success: false });
+		vi.mocked(window.openwizardai.fs.writeFile).mockResolvedValue({ success: false });
 
 		await expect(
 			saveImageToProject(makeSvg(), { projectRoot: '/p', fileName: 'd.svg' }, 'svg')
@@ -493,7 +508,7 @@ describe('saveImageToProject', () => {
 	});
 
 	it('does not refresh when the write failed', async () => {
-		vi.mocked(window.maestro.fs.writeFile).mockResolvedValue({ success: false });
+		vi.mocked(window.openwizardai.fs.writeFile).mockResolvedValue({ success: false });
 		const listener = vi.fn();
 		window.addEventListener(FILE_TREE_REFRESH_EVENT, listener);
 
@@ -519,10 +534,12 @@ describe('suggestImageFileName', () => {
 
 describe('saveImageToProject path safety', () => {
 	beforeEach(() => {
-		vi.mocked(window.maestro.fs.mkdir).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeImageFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.stat)
+		vi.mocked(window.openwizardai.fs.mkdir).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeImageFile)
+			.mockClear()
+			.mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.stat)
 			.mockClear()
 			.mockResolvedValue(null as never);
 	});
@@ -538,8 +555,8 @@ describe('saveImageToProject path safety', () => {
 				saveImageToProject(makeSvg(), { projectRoot: '/p', relativeDir, fileName: 'd.svg' }, 'svg')
 			).rejects.toThrow(/outside the project/);
 			// Nothing may touch the filesystem once the path is rejected.
-			expect(window.maestro.fs.mkdir).not.toHaveBeenCalled();
-			expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.mkdir).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 		}
 	);
 
@@ -551,14 +568,14 @@ describe('saveImageToProject path safety', () => {
 				'svg'
 			)
 		).rejects.toThrow(/absolute path/);
-		expect(window.maestro.fs.mkdir).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.mkdir).not.toHaveBeenCalled();
 	});
 
 	it('refuses a file name carrying a path separator', async () => {
 		await expect(
 			saveImageToProject(makeSvg(), { projectRoot: '/p', fileName: '../../evil.svg' }, 'svg')
 		).rejects.toThrow(/path separator/);
-		expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('still allows an ordinary nested folder', async () => {
@@ -567,26 +584,28 @@ describe('saveImageToProject path safety', () => {
 			{ projectRoot: '/p', relativeDir: 'docs/img/diagrams', fileName: 'd.svg' },
 			'svg'
 		);
-		expect(window.maestro.fs.mkdir).toHaveBeenCalledWith('/p/docs/img/diagrams', undefined);
+		expect(window.openwizardai.fs.mkdir).toHaveBeenCalledWith('/p/docs/img/diagrams', undefined);
 	});
 
 	it('errors rather than overwriting when every candidate name is taken', async () => {
 		// Including the final one: picking a name without testing it is the bug.
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({ isFile: true } as never);
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({ isFile: true } as never);
 
 		await expect(
 			saveImageToProject(makeSvg(), { projectRoot: '/p', fileName: 'd.svg' }, 'svg')
 		).rejects.toThrow(/Too many files/);
-		expect(window.maestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.writeFile).not.toHaveBeenCalled();
 	});
 });
 
 describe('save extension matches the encoded bytes', () => {
 	beforeEach(() => {
-		vi.mocked(window.maestro.fs.mkdir).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.writeImageFile).mockClear().mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.fs.stat)
+		vi.mocked(window.openwizardai.fs.mkdir).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeFile).mockClear().mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.writeImageFile)
+			.mockClear()
+			.mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.fs.stat)
 			.mockClear()
 			.mockResolvedValue(null as never);
 	});
@@ -604,7 +623,7 @@ describe('save extension matches the encoded bytes', () => {
 			'original'
 		);
 
-		expect(result.relativePath).toBe('.maestro/diagrams/shot.jpg');
+		expect(result.relativePath).toBe('.openwizardai/diagrams/shot.jpg');
 	});
 
 	// The SVG -> PNG direction can't be asserted here: it goes through

@@ -1,4 +1,4 @@
-// Read-terminal command - read the scrollback of an open Maestro terminal tab.
+// Read-terminal command - read the scrollback of an open OpenWizardAI terminal tab.
 //
 // The read half of `send-terminal`. Without it the terminal is a write-only
 // device for an agent: `open-terminal --command "npm run dev"` is the right way
@@ -9,7 +9,7 @@
 // sequences, so what arrives here is plain text - there are no colour codes to
 // strip and no --raw opt-out to offer.
 
-import { withMaestroClient, resolveSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveSessionId } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 
 interface ReadTerminalOptions {
@@ -67,7 +67,7 @@ export async function readTerminal(options: ReadTerminalOptions): Promise<void> 
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<ReadResult>(
 				{ type: 'read_terminal_tab', sessionId, tabRef: options.tab, tail },
 				'read_terminal_tab_result'

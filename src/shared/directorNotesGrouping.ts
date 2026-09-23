@@ -7,7 +7,7 @@
  * line. This module buckets those bullets for presentation: by the agent's
  * GROUP when it belongs to one, and by the agent itself when it does not.
  *
- * The mapping is deterministic and comes from Maestro's own session/group
+ * The mapping is deterministic and comes from OpenWizardAI's own session/group
  * state, never from the model: the agent only has to name which session a
  * bullet belongs to, which it already does. That is the whole reason this is
  * not a new field in the prompt contract - a model-authored group name would
@@ -23,7 +23,7 @@ import type { NarrativeItem } from './directorNotesNarrative';
 /** Bucket label used for bullets the agent left unattributed. */
 export const UNATTRIBUTED_BUCKET_LABEL = 'General';
 
-/** One agent's group membership, as known to Maestro (not to the model). */
+/** One agent's group membership, as known to OpenWizardAI (not to the model). */
 export interface NarrativeAgentGroupEntry {
 	/** The agent's display name, as it appears in the synopsis manifest. */
 	agent: string;
@@ -54,7 +54,7 @@ export interface NarrativeBucket {
  * Normalize a name for matching. The manifest hands the model a sanitized
  * display name (markdown punctuation stripped, whitespace collapsed), so the
  * string that comes back rarely matches a session's stored name byte for byte.
- * Matching on the stripped, case-folded form is what makes "Maestro Cue Main"
+ * Matching on the stripped, case-folded form is what makes "OpenWizardAI Cue Main"
  * find the session it names.
  */
 export function normalizeAgentKey(name: string): string {
@@ -66,7 +66,7 @@ export function normalizeAgentKey(name: string): string {
 }
 
 /**
- * Build a lookup from Maestro's live session/group state. Entries whose group
+ * Build a lookup from OpenWizardAI's live session/group state. Entries whose group
  * is absent or blank simply resolve to `null`, which buckets that agent under
  * its own name.
  */

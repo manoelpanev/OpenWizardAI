@@ -1,1 +1,1 @@
-export { useMaestroCliState } from './useMaestroCliState';
+export { useOpenWizardAICliState } from './useOpenWizardAICliState';

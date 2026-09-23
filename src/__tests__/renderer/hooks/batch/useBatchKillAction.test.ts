@@ -17,7 +17,7 @@ beforeEach(() => {
 	killProcess.mockReset();
 	killProcess.mockResolvedValue(undefined);
 	removeReason.mockReset();
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		stats: { endAutoRun },
 		process: { getActiveProcesses, kill: killProcess },
 		power: { addReason: vi.fn(), removeReason },

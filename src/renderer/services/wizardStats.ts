@@ -3,7 +3,7 @@
  *
  * One shared recorder for BOTH wizard surfaces: the inline `/wizard` command
  * (`useInlineWizard`, keyed per AI tab) and the first-run onboarding wizard
- * (`MaestroWizard`, a single run at a time). They have very different shapes but
+ * (`OpenWizardAIWizard`, a single run at a time). They have very different shapes but
  * answer the same four questions - how long, how often, how many documents, how
  * many tasks - so the row shape and the flush live here once.
  *
@@ -41,10 +41,10 @@ export const ONBOARDING_RUN_KEY = 'onboarding-wizard';
  *
  * Deliberately defensive about the bridge itself, not just the call: this runs
  * inside the wizard's own lifecycle, so a missing or partially-stubbed
- * `window.maestro` must degrade to "no analytics", never to a broken wizard.
+ * `window.openwizardai` must degrade to "no analytics", never to a broken wizard.
  */
 function flush(run: WizardRun): void {
-	const record = window.maestro?.stats?.recordWizardRun;
+	const record = window.openwizardai?.stats?.recordWizardRun;
 	if (typeof record !== 'function') return;
 	// Promise.resolve() rather than a bare .catch(), for the same reason: a stub
 	// that returns a non-promise must not turn analytics into a thrown error.

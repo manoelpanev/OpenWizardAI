@@ -1,7 +1,7 @@
 /**
  * Claude Usage Sampler
  *
- * Wraps a `maestro-p --status` spawn into a swallow-everything async function
+ * Wraps a `openwizardai-p --status` spawn into a swallow-everything async function
  * that returns a `UsageSnapshot` (the camelCase store shape) or `null` on any
  * failure. The mode selector consults the snapshot whenever the per-agent
  * Batch Mode toggle is on; the snapshot store caches it per canonical
@@ -9,27 +9,27 @@
  *
  * Design choices baked in:
  *
- * - Spawn shape: `process.execPath` invokes the bundled `maestro-p.js` (passed
- *   as `binPath`), so we don't depend on a global `maestro-p` shim on PATH and
+ * - Spawn shape: `process.execPath` invokes the bundled `openwizardai-p.js` (passed
+ *   as `binPath`), so we don't depend on a global `openwizardai-p` shim on PATH and
  *   the binary's node-script-with-shebang packaging stays valid on Windows
  *   where shebangs aren't honored.
  *
  * - Env precedence: `process.env` < `customEnvVars` < explicit `configDir`.
  *   Explicit `configDir` wins so a caller cannot accidentally smuggle a
  *   `CLAUDE_CONFIG_DIR` through `customEnvVars` that contradicts the path the
- *   spawner picked. `MAESTRO_CLAUDE_BIN` is intentionally the caller's
+ *   spawner picked. `OPENWIZARDAI_CLAUDE_BIN` is intentionally the caller's
  *   responsibility (the spawner already knows the real claude binary path and
  *   threads it via `customEnvVars`).
  *
  * - `configDirKey` canonicalization: we key the returned snapshot by
  *   `resolveConfigDirKey(childEnv)`, NOT by the wire envelope's `config_dir`
- *   echo. The wrapper writes whatever string the maestro-p binary picked
+ *   echo. The wrapper writes whatever string the openwizardai-p binary picked
  *   (`process.env.CLAUDE_CONFIG_DIR ?? path.join(os.homedir(), '.claude')`),
  *   which is the same precedence the store uses but exposed to path-form
  *   drift across hosts; pinning the key locally keeps every consumer aligned.
  *
  * - Wire→store transform: snake_case maps to camelCase here so the rest of
- *   Maestro never sees the wire shape. `sampledAt` is set at parse time on
+ *   OpenWizardAI never sees the wire shape. `sampledAt` is set at parse time on
  *   the sampling host (not lifted from the wire) because the TTL clock is
  *   owned here, not by the binary.
  *
@@ -65,14 +65,14 @@ import { readClaudeAccountIdentity } from './claude-account-identity';
 
 const execFileAsync = promisify(execFile);
 
-/** Default timeout - comfortably wider than maestro-p's internal /usage budget. */
+/** Default timeout - comfortably wider than openwizardai-p's internal /usage budget. */
 const DEFAULT_TIMEOUT_MS = 30_000;
 
 /** maxBuffer cap. The real payload is <1KB; 1MB is paranoia. */
 const MAX_BUFFER_BYTES = 1 * 1024 * 1024;
 
 export interface SampleUsageOptions {
-	/** Absolute path to `maestro-p.js` (the bundled script, not a PATH lookup). */
+	/** Absolute path to `openwizardai-p.js` (the bundled script, not a PATH lookup). */
 	binPath: string;
 	/**
 	 * Override the `CLAUDE_CONFIG_DIR` passed to the spawn. Wins over any
@@ -81,7 +81,7 @@ export interface SampleUsageOptions {
 	configDir?: string;
 	/**
 	 * Per-spawn env overrides layered onto `process.env`. The caller is
-	 * responsible for setting `MAESTRO_CLAUDE_BIN` here when the real claude
+	 * responsible for setting `OPENWIZARDAI_CLAUDE_BIN` here when the real claude
 	 * binary is not on PATH.
 	 */
 	customEnvVars?: Record<string, string>;
@@ -90,10 +90,10 @@ export interface SampleUsageOptions {
 }
 
 /**
- * The wire shape `maestro-p --status` emits on stdout. Local to this module;
+ * The wire shape `openwizardai-p --status` emits on stdout. Local to this module;
  * the store / selector only ever see the canonical camelCase `UsageSnapshot`.
  *
- * `auth_state` is optional for back-compat with older maestro-p builds that
+ * `auth_state` is optional for back-compat with older openwizardai-p builds that
  * didn't emit the field - readers treat its absence as `'authenticated'`.
  */
 // `resets_at` is optional per window - claude paints no "Resets ..." row for a
@@ -110,16 +110,16 @@ interface StatusWireEnvelope {
 }
 
 /** Name of the folder, under the OS temp dir, that every `/usage` probe runs in. */
-export const USAGE_PROBE_DIR_NAME = 'maestro-claude-usage-probe';
+export const USAGE_PROBE_DIR_NAME = 'openwizardai-claude-usage-probe';
 
 /**
- * The folder `maestro-p --status` starts claude in, created on demand.
+ * The folder `openwizardai-p --status` starts claude in, created on demand.
  *
  * Every existing location is wrong for it. The home and temp dirs put claude's
  * folder-trust prompt on "No, exit", so the probe quits before /usage renders.
  * An agent's project folder loads that project's hooks, MCP servers, and
  * CLAUDE.md on every refresh tick. So the probe gets a folder of its own, and
- * maestro-p answers the trust prompt for it (MAESTRO_P_ACCEPT_WORKSPACE_TRUST).
+ * openwizardai-p answers the trust prompt for it (OPENWIZARDAI_P_ACCEPT_WORKSPACE_TRUST).
  * claude records that trust per account on the first probe and skips the
  * prompt from then on.
  *
@@ -154,7 +154,7 @@ export async function ensureUsageProbeDir(baseDir = os.tmpdir()): Promise<string
 }
 
 /**
- * Run `maestro-p --status`, parse the wire envelope, and return a
+ * Run `openwizardai-p --status`, parse the wire envelope, and return a
  * canonicalized `UsageSnapshot`. Resolves to `null` on any failure - see the
  * module docblock for the full list of swallowed failure modes.
  */
@@ -167,10 +167,10 @@ export async function sampleUsage(opts: SampleUsageOptions): Promise<UsageSnapsh
 
 	// `process.execPath` is the Electron binary in a packaged app. Running it
 	// against a `.js` script without this flag launches a second GUI instance
-	// instead of executing the script as Node - so `maestro-p --status` would
+	// instead of executing the script as Node - so `openwizardai-p --status` would
 	// never run and the snapshot would always be null. Every other execPath
 	// node-script spawn in the app sets this (see `cue-cli-executor.ts`,
-	// `maestro-cli-manager.ts`); the sampler was missing it.
+	// `openwizardai-cli-manager.ts`); the sampler was missing it.
 	childEnv.ELECTRON_RUN_AS_NODE = '1';
 
 	// Hard guarantee: this read-only `/usage` probe must never be able to launch
@@ -186,7 +186,7 @@ export async function sampleUsage(opts: SampleUsageOptions): Promise<UsageSnapsh
 	// sessions - those spawn through the process manager, not this sampler.
 	childEnv.BROWSER = '/usr/bin/true';
 
-	// Start claude in the private probe folder, and let maestro-p answer the
+	// Start claude in the private probe folder, and let openwizardai-p answer the
 	// folder-trust prompt there. See ensureUsageProbeDir for why neither the
 	// caller's working directory nor the home dir will do.
 	const probeDir = await ensureUsageProbeDir();
@@ -194,9 +194,9 @@ export async function sampleUsage(opts: SampleUsageOptions): Promise<UsageSnapsh
 		void reportFailure('spawn', opts, 'usage probe folder is missing or not private');
 		return null;
 	}
-	childEnv.MAESTRO_P_ACCEPT_WORKSPACE_TRUST = '1';
+	childEnv.OPENWIZARDAI_P_ACCEPT_WORKSPACE_TRUST = '1';
 
-	// `maestro-p.js` is shipped via `extraResources` at the resources root and
+	// `openwizardai-p.js` is shipped via `extraResources` at the resources root and
 	// `require('node-pty')` (left external by its esbuild bundle). From outside
 	// the asar, Node can't find node-pty without help. Point NODE_PATH at the
 	// IN-ASAR node_modules (`<resources>/app.asar/node_modules`), NOT the
@@ -419,7 +419,7 @@ async function reportFailure(
 	opts: SampleUsageOptions,
 	reason: string
 ): Promise<void> {
-	await captureMessage('maestro-p --status sample failed', 'warning', {
+	await captureMessage('openwizardai-p --status sample failed', 'warning', {
 		stage,
 		binPath: opts.binPath,
 		configDir: opts.configDir ?? path.join(os.homedir(), '.claude'),

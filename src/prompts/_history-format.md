@@ -21,14 +21,14 @@ Each `entries[]` element has the following fields (optional unless marked requir
 - `summary` _(required, string)_ - short description of the task / response
 - `projectPath` _(required, string)_ - absolute path of the working directory at the time
 - `fullResponse` - complete AI response text; pull this when you need full context, not just the summary
-- `agentSessionId` - OpenWizzard agent UUID (the in-app session container)
+- `agentSessionId` - OpenWizardAI agent UUID (the in-app session container)
 - `sessionId` - provider session id (e.g. Claude Code's resume id)
 - `sessionName` - human-readable agent/tab name
 - `success` - boolean; whether the run completed without error
 - `elapsedTimeMs` - wall-clock duration of the run
 - `contextUsage` - context window usage percentage at completion (0-100)
 - `usageStats` - `{ inputTokens, outputTokens, cacheReadInputTokens, cacheCreationInputTokens, totalCostUsd }`
-- `tokenSource` - Claude-only, per-turn: `'interactive'` (maestro-p TUI / Max plan quota) or `'api'` (`claude --print` / per-token billing); absent on non-Claude and older entries
+- `tokenSource` - Claude-only, per-turn: `'interactive'` (openwizardai-p TUI / Max plan quota) or `'api'` (`claude --print` / per-token billing); absent on non-Claude and older entries
 - `tokenSourceReason` - Claude-only, per-turn: `'auto'` (user/usage selected) or `'limit'` (forced API fallback because the Max plan quota was exhausted)
 - `validated` - boolean; user marked the entry as reviewed
 - `cueTriggerName`, `cueEventType`, `cueSourceSession` - populated when `type === 'CUE'`; identify the subscription, event, and upstream agent that triggered the run

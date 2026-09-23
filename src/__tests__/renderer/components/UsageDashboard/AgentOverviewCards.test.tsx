@@ -1016,7 +1016,7 @@ describe('AgentOverviewCards', () => {
 			// the filter on that render, before the account existed, dropped the
 			// quota chip's selection on the way into this tab.
 			const BANACO = '/Users/me/.claude-banaco';
-			vi.mocked(window.maestro.agents.getCustomEnvVars).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.agents.getCustomEnvVars).mockResolvedValueOnce({
 				CLAUDE_CONFIG_DIR: BANACO,
 			});
 			const onChange = vi.fn();
@@ -1055,7 +1055,7 @@ describe('AgentOverviewCards', () => {
 		});
 
 		it('files agents by the env their process receives: own vars replace, a key outranks a login', async () => {
-			vi.mocked(window.maestro.agents.getCustomEnvVars).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.agents.getCustomEnvVars).mockResolvedValueOnce({
 				CLAUDE_CONFIG_DIR: '/Users/me/.claude-banaco',
 			});
 			render(
@@ -1093,7 +1093,7 @@ describe('AgentOverviewCards', () => {
 		it('files an SSH-remote agent under its own account @ host profile', async () => {
 			// The dir names a path on the remote host, holding that host's login, so
 			// it must not share a bucket with the local account of the same name.
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [{ id: 'r1', name: 'pedtome' }],
 			} as never);

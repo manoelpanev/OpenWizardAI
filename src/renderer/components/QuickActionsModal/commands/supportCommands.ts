@@ -1,4 +1,3 @@
-import { buildMaestroUrl } from '../../../utils/buildMaestroUrl';
 import type { NotifyToastInput } from '../../../stores/notificationStore';
 import { captureException } from '../../../utils/sentry';
 import type { SettingsTab } from '../../../types';
@@ -111,7 +110,7 @@ export function buildSupportCommands({
 		},
 		{
 			id: 'about',
-			label: 'About OpenWizzard',
+			label: 'About OpenWizardAI',
 			action: () => {
 				setAboutModalOpen(true);
 				setQuickActionOpen(false);
@@ -119,28 +118,28 @@ export function buildSupportCommands({
 		},
 		{
 			id: 'website',
-			label: 'OpenWizzard Website',
-			subtext: 'Open the OpenWizzard website',
+			label: 'OpenWizardAI Website',
+			subtext: 'Open the OpenWizardAI website',
 			action: () => {
-				openUrl(buildMaestroUrl('https://runmaestro.ai/'));
+				openUrl('https://github.com/manoelpanev/OpenWizardAI');
 				setQuickActionOpen(false);
 			},
 		},
 		{
 			id: 'docs',
 			label: 'Documentation and User Guide',
-			subtext: 'Open the OpenWizzard documentation',
+			subtext: 'Open the OpenWizardAI documentation',
 			action: () => {
-				openUrl(buildMaestroUrl('https://docs.runmaestro.ai/'));
+				openUrl('https://github.com/manoelpanev/OpenWizardAI/tree/main/docs');
 				setQuickActionOpen(false);
 			},
 		},
 		{
 			id: 'discord',
-			label: 'Join Discord',
-			subtext: 'Join the OpenWizzard community',
+			label: 'Community Discussions',
+			subtext: 'Ask questions and share ideas on GitHub',
 			action: () => {
-				openUrl(buildMaestroUrl('https://runmaestro.ai/discord'));
+				openUrl('https://github.com/manoelpanev/OpenWizardAI/discussions');
 				setQuickActionOpen(false);
 			},
 		},

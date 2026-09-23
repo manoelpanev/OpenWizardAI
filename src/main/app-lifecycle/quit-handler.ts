@@ -58,7 +58,7 @@ const UPDATE_EXIT_GRACE_MS = 2000;
  * Environment::CleanupHandles, which finalizes native-addon ThreadSafeFunctions.
  * A node-pty / fsevents TSFN whose underlying mutex is already gone deadlocks
  * there on uv_mutex_lock and hangs the process forever, forcing the user to kill
- * it from Activity Monitor (MAESTRO-3B). Confirmed via `sample`: on quit the main
+ * it from Activity Monitor (OPENWIZARDAI-3B). Confirmed via `sample`: on quit the main
  * thread parks in napi_release_threadsafe_function -> uv_mutex_lock ->
  * __psynch_mutexwait and never returns, even after app.exit(0) is called.
  *
@@ -108,7 +108,7 @@ export interface QuitHandlerDependencies {
 	stopSessionCleanup?: () => void;
 	/**
 	 * Returns the persisted session list (StoredSession[]) so the quit path can
-	 * flush every open starred tab's transcript to Maestro's mirror before exit.
+	 * flush every open starred tab's transcript to OpenWizardAI's mirror before exit.
 	 */
 	getPersistedSessions?: () => Array<Record<string, unknown>>;
 }
@@ -280,7 +280,7 @@ export function createQuitHandler(deps: QuitHandlerDependencies): QuitHandler {
 				// ShipIt helper that quitAndInstall already spawned before this handler
 				// fires - it only needs our PID to die, not a graceful exit. Routing it
 				// through the graceful path instead reintroduced the very deadlock the
-				// hardExit() change was made to avoid, leaving "Maestro (not responding)"
+				// hardExit() change was made to avoid, leaving "OpenWizardAI (not responding)"
 				// after "Restart to Update" until the user force-quit. So on macOS we
 				// hard-exit here too (after a longer settle window). Windows/Linux keep
 				// the graceful teardown their updater handoffs are written against.
@@ -344,7 +344,7 @@ export function createQuitHandler(deps: QuitHandlerDependencies): QuitHandler {
 		// Stop history manager watcher
 		getHistoryManager().stopWatching();
 
-		// Flush every open starred tab's transcript to Maestro's own mirror. Done
+		// Flush every open starred tab's transcript to OpenWizardAI's own mirror. Done
 		// synchronously (not fire-and-forget) because the process is SIGKILLed
 		// shortly after cleanup - async copies could be cut off. Each copy is
 		// mtime-gated, so unchanged transcripts cost only a stat.
@@ -394,7 +394,7 @@ export function createQuitHandler(deps: QuitHandlerDependencies): QuitHandler {
 		// N-API ThreadSafeFunctions before Electron tears down the Node
 		// environment. Otherwise CleanupHandles can finalize a TSFN whose
 		// underlying mutex is already gone, aborting the main process
-		// (Sentry MAESTRO-3B).
+		// (Sentry OPENWIZARDAI-3B).
 		logger.info('Killing all running processes', 'Shutdown');
 		processManager?.killAll({ shutdown: true });
 

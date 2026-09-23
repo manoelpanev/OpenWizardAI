@@ -1,7 +1,7 @@
 /**
  * Command mode ("bang commands") for the AI chat.
  *
- * When a composer message starts with `!`, Maestro runs the rest as a shell
+ * When a composer message starts with `!`, OpenWizardAI runs the rest as a shell
  * command instead of sending it to the agent. The command executes in the
  * agent's working directory (on the agent's SSH remote, when it has one) and
  * its output streams into the transcript as a live card.
@@ -95,7 +95,7 @@ export async function cancelShellCommand(logId: string): Promise<boolean> {
 	const run = activeRuns.get(logId);
 	if (!run) return false;
 	run.markCancelled();
-	return window.maestro.process.cancelCommand(run.runSessionId);
+	return window.openwizardai.process.cancelCommand(run.runSessionId);
 }
 
 /** True while the given output entry's command is still running. */
@@ -212,8 +212,8 @@ export async function runShellCommand(options: RunShellCommandOptions): Promise<
 		scheduleFlush();
 	};
 
-	const unsubscribeData = window.maestro.process.onData(appendOutput);
-	const unsubscribeStderr = window.maestro.process.onStderr(appendOutput);
+	const unsubscribeData = window.openwizardai.process.onData(appendOutput);
+	const unsubscribeStderr = window.openwizardai.process.onStderr(appendOutput);
 
 	let settle: (() => void) | null = null;
 	const finished = new Promise<void>((resolve) => {
@@ -248,14 +248,14 @@ export async function runShellCommand(options: RunShellCommandOptions): Promise<
 		settle?.();
 	};
 
-	const unsubscribeExit = window.maestro.process.onCommandExit((sid, code) => {
+	const unsubscribeExit = window.openwizardai.process.onCommandExit((sid, code) => {
 		if (sid !== runSessionId) return;
 		finish(code);
 	});
 
 	let result: { exitCode: number };
 	try {
-		result = await window.maestro.process.runCommand({
+		result = await window.openwizardai.process.runCommand({
 			sessionId: runSessionId,
 			command,
 			cwd,

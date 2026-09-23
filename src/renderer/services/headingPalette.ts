@@ -22,7 +22,7 @@
  */
 
 /** Event name the mounted `FilePreview` listens for. */
-export const HEADING_PALETTE_EVENT = 'maestro:openHeadingPalette';
+export const HEADING_PALETTE_EVENT = 'openwizardai:openHeadingPalette';
 
 /**
  * Ask the mounted markdown preview to open its heading palette.

@@ -8,7 +8,7 @@ import { createIpcHandler, CreateHandlerOptions } from '../../utils/ipcHandler';
 import { resolveDirentType } from '../../utils/dirent-utils';
 import { WINDOWS_LOCKED_SYSTEM_FILES } from '../../utils/watcher-ignore';
 import { SshRemoteConfig } from '../../../shared/types';
-import { MaestroSettings } from './persistence';
+import { OpenWizardAISettings } from './persistence';
 import { isWebContentsAvailable } from '../../utils/safe-send';
 import {
 	readDirRemote,
@@ -20,7 +20,7 @@ import {
 	statRemote,
 	listTreeRemote,
 } from '../../utils/remote-fs';
-import { PLAYBOOKS_DIR, LEGACY_PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR, LEGACY_PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 
 const LOG_CONTEXT = '[AutoRun]';
 
@@ -45,8 +45,8 @@ const handlerOpts = (operation: string, logSuccess = true): CreateHandlerOptions
  * Optional for backward compatibility - SSH remote support requires settingsStore.
  */
 export interface AutorunHandlerDependencies {
-	/** The settings store (MaestroSettings) - required for SSH remote lookup */
-	settingsStore?: Store<MaestroSettings>;
+	/** The settings store (OpenWizardAISettings) - required for SSH remote lookup */
+	settingsStore?: Store<OpenWizardAISettings>;
 }
 
 /**
@@ -54,7 +54,7 @@ export interface AutorunHandlerDependencies {
  * Returns undefined if not found or store not provided.
  */
 function getSshRemoteById(
-	store: Store<MaestroSettings> | undefined,
+	store: Store<OpenWizardAISettings> | undefined,
 	sshRemoteId: string
 ): SshRemoteConfig | undefined {
 	if (!store) {
@@ -914,7 +914,7 @@ export function registerAutorunHandlers(
 	);
 
 	// Delete the playbooks folder (for wizard "start fresh" feature)
-	// Checks canonical .maestro/playbooks first, then legacy Auto Run Docs
+	// Checks canonical .openwizardai/playbooks first, then legacy Auto Run Docs
 	ipcMain.handle(
 		'autorun:deleteFolder',
 		createIpcHandler(handlerOpts('deleteFolder'), async (projectPath: string) => {

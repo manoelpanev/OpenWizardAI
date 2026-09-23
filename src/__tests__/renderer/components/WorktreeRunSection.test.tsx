@@ -75,7 +75,7 @@ describe('WorktreeRunSection', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// Restore git.branch to default mock (previous tests may override it)
-		(window.maestro.git as Record<string, unknown>).branch = vi
+		(window.openwizardai.git as Record<string, unknown>).branch = vi
 			.fn()
 			.mockResolvedValue({ stdout: 'main' });
 		mockOnWorktreeTargetChange = vi.fn();
@@ -111,7 +111,7 @@ describe('WorktreeRunSection', () => {
 			worktreeParentPath: '/project/worktrees',
 		});
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -135,7 +135,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession({ worktreeConfig: undefined });
 		const child = createWorktreeChild();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -194,7 +194,7 @@ describe('WorktreeRunSection', () => {
 				},
 			],
 		});
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -217,7 +217,7 @@ describe('WorktreeRunSection', () => {
 		});
 	});
 
-	it('filters out worktrees already open in Maestro', async () => {
+	it('filters out worktrees already open in OpenWizardAI', async () => {
 		const session = createMockSession();
 		const openChild = createWorktreeChild({
 			cwd: '/project/worktrees/feature-branch',
@@ -240,7 +240,7 @@ describe('WorktreeRunSection', () => {
 				},
 			],
 		});
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -259,7 +259,7 @@ describe('WorktreeRunSection', () => {
 		});
 
 		// feature-branch is already open, should NOT appear in Available Worktrees optgroup
-		// (it appears in "Open in Maestro" instead)
+		// (it appears in "Open in OpenWizardAI" instead)
 		const availableOptions = screen.getAllByRole('option');
 		const closedOptions = availableOptions.filter((opt) =>
 			(opt as HTMLOptionElement).value.startsWith('__closed__:')
@@ -283,7 +283,7 @@ describe('WorktreeRunSection', () => {
 				},
 			],
 		});
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -316,7 +316,7 @@ describe('WorktreeRunSection', () => {
 	it('does not scan when toggle is disabled', () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -345,7 +345,7 @@ describe('WorktreeRunSection', () => {
 				},
 			],
 		});
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -376,7 +376,7 @@ describe('WorktreeRunSection', () => {
 			resolveScan = resolve;
 		});
 		const scanMock = vi.fn().mockReturnValue(scanPromise);
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -415,7 +415,7 @@ describe('WorktreeRunSection', () => {
 			sshRemoteId: 'ssh-remote-1',
 		});
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -437,7 +437,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const child = createWorktreeChild();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -467,7 +467,7 @@ describe('WorktreeRunSection', () => {
 			worktreeBranch: 'branch-b',
 		});
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -510,7 +510,7 @@ describe('WorktreeRunSection', () => {
 			worktreeBranch: 'busy-branch',
 		});
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -546,7 +546,7 @@ describe('WorktreeRunSection', () => {
 	it('shows base branch dropdown and branch name input when Create New Worktree is selected', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		const { rerender } = render(
 			<WorktreeRunSection
@@ -581,9 +581,9 @@ describe('WorktreeRunSection', () => {
 	it('defaults to current branch as base branch', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		// Current branch is 'develop', not main
-		(window.maestro.git as Record<string, unknown>).branch = vi
+		(window.openwizardai.git as Record<string, unknown>).branch = vi
 			.fn()
 			.mockResolvedValue({ stdout: 'develop' });
 		vi.mocked(gitService.getBranches).mockResolvedValue(['main', 'develop', 'feature/xyz']);
@@ -616,7 +616,7 @@ describe('WorktreeRunSection', () => {
 	it('auto-generates branch name from selected base branch', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		vi.mocked(gitService.getBranches).mockResolvedValue(['main', 'develop', 'feature/xyz']);
 
 		render(
@@ -658,7 +658,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const child = createWorktreeChild();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		// Start with toggle off, then toggle on to set internal selectedValue
 		const { rerender } = render(
@@ -710,7 +710,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const child = createWorktreeChild({ id: 'child-1' });
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -742,7 +742,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const child = createWorktreeChild();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -766,7 +766,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const idleChild = createWorktreeChild({ id: 'child-idle', state: 'idle', name: 'Idle' });
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -793,7 +793,7 @@ describe('WorktreeRunSection', () => {
 	it('clicking toggle on with no children also selects create-new', () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -859,7 +859,7 @@ describe('WorktreeRunSection', () => {
 	it('shows "No worktrees found" message and auto-selects create-new when no agents or worktrees exist', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -893,7 +893,7 @@ describe('WorktreeRunSection', () => {
 	it('shows error message when getBranches fails', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		vi.mocked(gitService.getBranches).mockRejectedValue(new Error('git not found'));
 
 		render(
@@ -932,7 +932,7 @@ describe('WorktreeRunSection', () => {
 	it('shows validation message when branch name is empty', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
 
 		render(
@@ -970,7 +970,7 @@ describe('WorktreeRunSection', () => {
 	it('keeps incomplete branch suffixes while typing a new worktree branch name', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
 
 		render(
@@ -1018,7 +1018,7 @@ describe('WorktreeRunSection', () => {
 	it('shows "Off" badge in off state and "Enabled" badge in on state', () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		const { rerender } = render(
 			<WorktreeRunSection
@@ -1073,7 +1073,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const idleChild = createWorktreeChild({ id: 'child-idle', name: 'Idle Agent', state: 'idle' });
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -1104,7 +1104,7 @@ describe('WorktreeRunSection', () => {
 	it('shows worktree path preview when creating a new worktree with a branch name', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
 
 		render(
@@ -1139,7 +1139,7 @@ describe('WorktreeRunSection', () => {
 	it('hides path preview when branch name is cleared', async () => {
 		const session = createMockSession();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 		vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
 
 		render(
@@ -1177,7 +1177,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const child = createWorktreeChild();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		render(
 			<WorktreeRunSection
@@ -1217,7 +1217,7 @@ describe('WorktreeRunSection', () => {
 		const session = createMockSession();
 		const child = createWorktreeChild();
 		const scanMock = vi.fn().mockResolvedValue({ gitSubdirs: [] });
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = scanMock;
 
 		const { container } = render(
 			<WorktreeRunSection

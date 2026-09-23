@@ -241,7 +241,7 @@ describe('QuickActionsMenu', () => {
 			const actions = [makeAction({ id: 'recent-test', label: 'Recent Test', action: actionFn })];
 
 			// Simulate a prior usage by pre-populating localStorage
-			localStorage.setItem('maestro-command-palette-recent', JSON.stringify(['recent-test']));
+			localStorage.setItem('openwizardai-command-palette-recent', JSON.stringify(['recent-test']));
 
 			render(<QuickActionsMenu {...defaultProps} actions={actions} />);
 			expect(screen.getByText('Recent')).toBeInTheDocument();

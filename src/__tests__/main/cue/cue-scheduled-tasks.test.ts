@@ -1,6 +1,6 @@
 /**
  * Tests for the Scheduled Tasks domain module - the code both the Cue modal's
- * Scheduled Tasks tab (over IPC) and `maestro-cli cue schedule` sit on top of.
+ * Scheduled Tasks tab (over IPC) and `openwizardai-cli cue schedule` sit on top of.
  *
  * Everything runs against a real temp project root so the YAML round-trip is
  * asserted on disk rather than against a mocked writer.
@@ -21,7 +21,7 @@ import {
 } from '../../../main/cue/cue-scheduled-tasks';
 
 function readSubs(projectRoot: string): Record<string, unknown>[] {
-	const filePath = path.join(projectRoot, '.maestro', 'cue.yaml');
+	const filePath = path.join(projectRoot, '.openwizardai', 'cue.yaml');
 	const parsed = yaml.load(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>;
 	return parsed.subscriptions as Record<string, unknown>[];
 }
@@ -125,8 +125,11 @@ describe('cue-scheduled-tasks', () => {
 		});
 
 		it('reports a broken config as a warning instead of throwing', () => {
-			fs.mkdirSync(path.join(projectRoot, '.maestro'), { recursive: true });
-			fs.writeFileSync(path.join(projectRoot, '.maestro', 'cue.yaml'), 'subscriptions: [oops\n');
+			fs.mkdirSync(path.join(projectRoot, '.openwizardai'), { recursive: true });
+			fs.writeFileSync(
+				path.join(projectRoot, '.openwizardai', 'cue.yaml'),
+				'subscriptions: [oops\n'
+			);
 
 			const { tasks, warnings } = collectScheduledTasks([agent]);
 
@@ -175,7 +178,7 @@ describe('cue-scheduled-tasks', () => {
 		});
 
 		it('refuses a subscription that is not a scheduled task', async () => {
-			const filePath = path.join(projectRoot, '.maestro', 'cue.yaml');
+			const filePath = path.join(projectRoot, '.openwizardai', 'cue.yaml');
 			const parsed = yaml.load(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>;
 			(parsed.subscriptions as Record<string, unknown>[]).push({
 				name: 'on-push',
@@ -191,7 +194,7 @@ describe('cue-scheduled-tasks', () => {
 		});
 
 		it('preserves the leading comment header on rewrite', async () => {
-			const filePath = path.join(projectRoot, '.maestro', 'cue.yaml');
+			const filePath = path.join(projectRoot, '.openwizardai', 'cue.yaml');
 			fs.writeFileSync(filePath, '# Pipeline: Tasks\n' + fs.readFileSync(filePath, 'utf-8'));
 
 			await updateScheduledTask(projectRoot, 'standup', { label: 'Morning standup' });

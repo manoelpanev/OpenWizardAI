@@ -482,8 +482,8 @@ describe('agentSessions IPC handlers', () => {
 describe('isExpectedSessionReadError', () => {
 	// The global-stats loops read provider transcripts that belong to the agent
 	// CLI, not to us. Failures rooted in the user's filesystem must not reach
-	// Sentry (MAESTRO-W9); a genuine parse fault still must.
-	it('treats an unreadable transcript as expected (MAESTRO-W9)', () => {
+	// Sentry (OPENWIZARDAI-W9); a genuine parse fault still must.
+	it('treats an unreadable transcript as expected (OPENWIZARDAI-W9)', () => {
 		const error = Object.assign(
 			new Error("EACCES: permission denied, open '/Users/x/.claude/projects/a/b.jsonl'"),
 			{ code: 'EACCES' }

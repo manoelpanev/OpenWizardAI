@@ -2,7 +2,7 @@
 
 # Shared Utilities Reference
 
-All utilities in Maestro organized by category. Each entry lists the file path, function name, signature, purpose, and which process it runs in (Main, Renderer, or Both via `src/shared/`).
+All utilities in OpenWizardAI organized by category. Each entry lists the file path, function name, signature, purpose, and which process it runs in (Main, Renderer, or Both via `src/shared/`).
 
 ---
 
@@ -28,7 +28,7 @@ All utilities in Maestro organized by category. Each entry lists the file path, 
 | `isBetaAgent`             | `src/shared/agentMetadata.ts`  | `(agentId: AgentId \| string) => boolean`                   | Both    | Check if an agent is in beta.                                                                                                                                                                                                                              |
 | `getAgentLoginCommand`    | `src/shared/agentMetadata.ts`  | `(agentId, customPath?) => AgentLoginCommand \| null`       | Both    | Re-authentication command for an agent. Returns `null` for `terminal` and for unknown ids: never guess a command to run in a shell. Pass the agent's `customPath` so a non-PATH install still works.                                                       |
 | `formatAgentLoginCommand` | `src/shared/agentMetadata.ts`  | `(login, syntax?: LoginShellSyntax) => string`              | Both    | Render a login command as the single line typed into a shell. Quotes a binary path containing spaces, and in PowerShell prefixes the call operator `&` - without it PowerShell echoes the quoted path instead of running it. `syntax` defaults to `posix`. |
-| `loginShellSyntaxFor`     | `src/shared/agentMetadata.ts`  | `(shellId: string, isWindows: boolean) => LoginShellSyntax` | Both    | Map a Maestro shell id to its command-line dialect (`posix` \| `powershell` \| `cmd`). Everything is `posix` off Windows; Git Bash and WSL stay `posix` on it. Feed the result to `formatAgentLoginCommand`.                                               |
+| `loginShellSyntaxFor`     | `src/shared/agentMetadata.ts`  | `(shellId: string, isWindows: boolean) => LoginShellSyntax` | Both    | Map an OpenWizardAI shell id to its command-line dialect (`posix` \| `powershell` \| `cmd`). Everything is `posix` off Windows; Git Bash and WSL stay `posix` on it. Feed the result to `formatAgentLoginCommand`.                                         |
 | `DEFAULT_CONTEXT_WINDOWS` | `src/shared/agentConstants.ts` | `Partial<Record<AgentId, number>>`                          | Both    | Default context window sizes per agent (e.g., claude-code: 200000).                                                                                                                                                                                        |
 | `FALLBACK_CONTEXT_WINDOW` | `src/shared/agentConstants.ts` | `number` (200000)                                           | Both    | Fallback when agent has no entry in DEFAULT_CONTEXT_WINDOWS.                                                                                                                                                                                               |
 | `COMBINED_CONTEXT_AGENTS` | `src/shared/agentConstants.ts` | `ReadonlySet<AgentId>`                                      | Both    | Agents with combined input+output context windows (currently: codex).                                                                                                                                                                                      |
@@ -44,7 +44,7 @@ does and reports WHERE each surviving value came from.
 
 Precedence (later wins), mirroring `process:spawnTerminalTab`:
 
-1. `global` - Settings -> Environment, applies to every process Maestro spawns
+1. `global` - Settings -> Environment, applies to every process OpenWizardAI spawns
 2. `agent` - Settings -> Agents, applies to every agent of one provider
 3. `session` - this agent's own overrides, from Edit Agent
 
@@ -74,7 +74,7 @@ This is distinct from `Settings/EnvVarsEditor`, which EDITS one layer.
 | `getWhichCommand()` | `() => string`  | Returns `'where'` on Windows, `'which'` on Unix.              |
 
 Resolution order: `globalThis.process.platform` first, then the preload bridge at
-`globalThis.maestro.platform`, then `'linux'`. The bare `process` identifier is
+`globalThis.openwizardai.platform`, then `'linux'`. The bare `process` identifier is
 never touched (that throws a `ReferenceError` in the renderer sandbox).
 
 **The `'browser'` sentinel.** The renderer loads a `process` polyfill
@@ -92,9 +92,9 @@ never see the shim.
 
 | Function                   | Signature                      | Purpose                                                        |
 | -------------------------- | ------------------------------ | -------------------------------------------------------------- |
-| `isWindowsPlatform()`      | `() => boolean`                | Uses `window.maestro.platform` (from preload bridge).          |
-| `isMacOSPlatform()`        | `() => boolean`                | Uses `window.maestro.platform`.                                |
-| `isLinuxPlatform()`        | `() => boolean`                | Uses `window.maestro.platform`.                                |
+| `isWindowsPlatform()`      | `() => boolean`                | Uses `window.openwizardai.platform` (from preload bridge).     |
+| `isMacOSPlatform()`        | `() => boolean`                | Uses `window.openwizardai.platform`.                           |
+| `isLinuxPlatform()`        | `() => boolean`                | Uses `window.openwizardai.platform`.                           |
 | `getRevealLabel(platform)` | `(platform: string) => string` | Platform-appropriate "Reveal in Finder/Explorer/File Manager". |
 | `getOpenInLabel(platform)` | `(platform: string) => string` | Platform-appropriate "Open in Finder/Explorer/File Manager".   |
 
@@ -155,7 +155,7 @@ Playbook import and Cue backup inspect/restore only need entry names and bytes. 
 | `resolveSurfaceFont(surfaceFont, interfaceFont)` | `(string \| undefined \| null, string \| undefined \| null) => string` | Resolve a per-surface font setting against the interface font, then apply the fallback. The empty string means "inherit", so this is what that empty string MEANS - see the note below.                                                                              |
 | `MONO_FALLBACK_STACK`                            | `string`                                                               | The safe monospace chain appended by `withMonoFallback` (`ui-monospace` -> ... -> `monospace`). Matches the file-preview surfaces so the whole app degrades to the same faces.                                                                                       |
 | `SANS_FALLBACK_STACK`                            | `string`                                                               | The proportional counterpart, for the sans typography preset. Leads with each platform's own UI face so it looks native, and ends in `sans-serif`.                                                                                                                   |
-| `WORDMARK_FONT_STACK`                            | `string`                                                               | The MAESTRO wordmark's font. Fixed, and deliberately NOT derived from any setting - a brand mark that changes identity with the reading font is a bug. Kept in sync by hand with the two `index.html` splash rules, which paint before any JavaScript runs.          |
+| `WORDMARK_FONT_STACK`                            | `string`                                                               | The OPENWIZARDAI wordmark's font. Fixed, and deliberately NOT derived from any setting - a brand mark that changes identity with the reading font is a bug. Kept in sync by hand with the two `index.html` splash rules, which paint before any JavaScript runs.     |
 
 The font picker stores a bare name (`Roboto Mono`) with no generic fallback, which resolves to serif on iOS / the web-desktop bundle. Do NOT re-derive a fallback chain inline; call `withMonoFallback(s.fontFamily)` at the render site.
 
@@ -351,7 +351,7 @@ renderer's per-turn stats row and nothing else can measure them.
 
 ## File Categories (`src/shared/fileCategories.ts` - Both)
 
-One extension table that answers two questions at once: "can Maestro open this
+One extension table that answers two questions at once: "can OpenWizardAI open this
 file?" and "which bucket is it in?". `isPreviewableFile` is DERIVED from
 `getFileCategory`, so the two cannot disagree - a file that classifies into a
 bucket but refuses to open, or one that opens but is invisible under every
@@ -368,7 +368,7 @@ by question, and do not merge them.
 
 | Function / Constant                 | Signature                                         | Purpose                                                                                    |
 | ----------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| `getFileCategory(path)`             | `(string) => FileCategory \| null`                | Bucket a file, or `null` when Maestro cannot open it. `null` != `'other'`.                 |
+| `getFileCategory(path)`             | `(string) => FileCategory \| null`                | Bucket a file, or `null` when OpenWizardAI cannot open it. `null` != `'other'`.            |
 | `isPreviewableFile(path)`           | `(string) => boolean`                             | Whether the file is listable/openable. Derived from `getFileCategory`.                     |
 | `matchesFileCategory(path, filter)` | `(string, FileCategoryFilter) => boolean`         | Filter predicate. `'all'` passes everything, including unclassified files.                 |
 | `getFileExtension(path)`            | `(string) => string`                              | Lowercase extension of the basename. `.gitignore` has none; parent-directory dots ignored. |
@@ -410,7 +410,7 @@ expecting an absolute path and silently opens nothing.
 
 ## Media Types (`src/shared/mediaTypes.ts` - Both)
 
-Audio/video detection plus the `maestro-media://` stream URL format used by the
+Audio/video detection plus the `openwizardai-media://` stream URL format used by the
 file preview's `MediaViewer`. Unlike images (which `fs:readFile` inlines as a
 base64 data URL), media is streamed: the main process returns a short stream URL
 and `src/main/media/media-stream.ts` serves range requests off disk, so a
@@ -533,7 +533,7 @@ Tier maps ship only where model IDs are stable (`claude-code` permanent aliases,
 
 ## Auto Run Model Hints (`src/shared/autorunModelHints.ts`, `src/shared/autorunTurnSettings.ts` - Both)
 
-`<!-- MAESTRO:MODEL tier="high" effort="high" -->` sets the model and effort. **Placement is the scope**, and there is no third syntax: a marker on its OWN line applies from there down until the next standalone marker (above the first task that is the whole document, under a section heading it is that phase), while a marker at the END of a task line applies to that ONE task and the next task reverts. Resolution is recomputed before every dispatch rather than tracked as run state, so editing a document mid-run takes effect on the next task.
+`<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->` sets the model and effort. **Placement is the scope**, and there is no third syntax: a marker on its OWN line applies from there down until the next standalone marker (above the first task that is the whole document, under a section heading it is that phase), while a marker at the END of a task line applies to that ONE task and the next task reverts. Resolution is recomputed before every dispatch rather than tracked as run state, so editing a document mid-run takes effect on the next task.
 
 | Function                                                         | File                     | Purpose                                                                                                                |
 | ---------------------------------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
@@ -595,22 +595,22 @@ A checked task is stepped over entirely, marker and all. That keeps a half-finis
 
 Singleton `logger` instance (class `Logger extends EventEmitter`):
 
-| Method                    | Signature                                            | Purpose                                                                                   |
-| ------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `debug/info/warn/error`   | `(message, context?, data?) => void`                 | Standard log levels. Filtered by `minLevel`.                                              |
-| `toast`                   | `(message, context?, data?) => void`                 | User-facing notification logs. Always logged.                                             |
-| `autorun`                 | `(message, context?, data?) => void`                 | Auto Run workflow tracking. Always logged.                                                |
-| `getLogs(filter?)`        | `({ level?, context?, limit? }) => SystemLogEntry[]` | Retrieve buffered logs with optional filtering.                                           |
-| `setLogLevel/getLogLevel` | Level control                                        | Default: `'info'`.                                                                        |
-| `enableFileLogging()`     | `() => void`                                         | Write to disk. Auto-enabled on Windows. Path: `%APPDATA%/Maestro/logs/maestro-debug.log`. |
+| Method                    | Signature                                            | Purpose                                                                                             |
+| ------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `debug/info/warn/error`   | `(message, context?, data?) => void`                 | Standard log levels. Filtered by `minLevel`.                                                        |
+| `toast`                   | `(message, context?, data?) => void`                 | User-facing notification logs. Always logged.                                                       |
+| `autorun`                 | `(message, context?, data?) => void`                 | Auto Run workflow tracking. Always logged.                                                          |
+| `getLogs(filter?)`        | `({ level?, context?, limit? }) => SystemLogEntry[]` | Retrieve buffered logs with optional filtering.                                                     |
+| `setLogLevel/getLogLevel` | Level control                                        | Default: `'info'`.                                                                                  |
+| `enableFileLogging()`     | `() => void`                                         | Write to disk. Auto-enabled on Windows. Path: `%APPDATA%/OpenWizardAI/logs/openwizardai-debug.log`. |
 
 ### Renderer Logger (`src/renderer/utils/logger.ts`)
 
 Singleton `logger` instance (class `RendererLogger`):
 
-| Method                  | Signature                            | Purpose                                                    |
-| ----------------------- | ------------------------------------ | ---------------------------------------------------------- |
-| `debug/info/warn/error` | `(message, context?, data?) => void` | Proxies to main process via `window.maestro.logger.log()`. |
+| Method                  | Signature                            | Purpose                                                         |
+| ----------------------- | ------------------------------------ | --------------------------------------------------------------- |
+| `debug/info/warn/error` | `(message, context?, data?) => void` | Proxies to main process via `window.openwizardai.logger.log()`. |
 
 ### Logger Types (`src/shared/logger-types.ts`)
 

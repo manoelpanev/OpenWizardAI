@@ -441,7 +441,7 @@ describe('filesystem handlers', () => {
 		it('should return null when path resolves to a directory (EISDIR)', async () => {
 			// Caller may pass a path that turned out to be a folder. Returning
 			// null instead of throwing keeps the IPC promise from rejecting and
-			// surfacing as an unhandled rejection. Fixes MAESTRO-JP.
+			// surfacing as an unhandled rejection. Fixes OPENWIZARDAI-JP.
 			vi.mocked(fs.readFile).mockRejectedValue(
 				Object.assign(new Error('EISDIR'), { code: 'EISDIR' })
 			);
@@ -471,7 +471,7 @@ describe('filesystem handlers', () => {
 			const handler = registeredHandlers.get('fs:readFile');
 			const result = await handler!({}, '/test/song.mp3');
 
-			expect(result).toMatch(/^maestro-media:\/\//);
+			expect(result).toMatch(/^openwizardai-media:\/\//);
 			// Never inlined: the bytes come over the protocol, not the IPC payload.
 			expect(fs.readFile).not.toHaveBeenCalled();
 		});
@@ -487,7 +487,7 @@ describe('filesystem handlers', () => {
 
 		it('should return null when a remote file is missing', async () => {
 			// Remote not-found mirrors the local ENOENT path: return null instead of
-			// throwing so the IPC promise does not reject and reach Sentry. (MAESTRO-MG/MF)
+			// throwing so the IPC promise does not reject and reach Sentry. (OPENWIZARDAI-MG/MF)
 			const mockSshConfig = { id: 'remote-1', host: 'server.com', username: 'user' };
 			vi.mocked(getSshRemoteById).mockReturnValue(mockSshConfig as any);
 			vi.mocked(readFileRemote).mockResolvedValue({
@@ -575,7 +575,7 @@ describe('filesystem handlers', () => {
 
 		it('should return null when a local path is missing (ENOENT)', async () => {
 			// Missing files return null instead of throwing so callers can handle
-			// absence without an unhandled IPC rejection reaching Sentry. (MAESTRO-MH/ME)
+			// absence without an unhandled IPC rejection reaching Sentry. (OPENWIZARDAI-MH/ME)
 			vi.mocked(fs.stat).mockRejectedValue(Object.assign(new Error('ENOENT'), { code: 'ENOENT' }));
 
 			const handler = registeredHandlers.get('fs:stat');

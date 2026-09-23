@@ -197,7 +197,7 @@ function SshRemoteDropdown({
 							Sync history to remote
 						</span>
 						<span className="text-2xs" style={{ color: theme.colors.textDim }}>
-							Share history entries via .maestro/history/ on the remote host for cross-machine
+							Share history entries via .openwizardai/history/ on the remote host for cross-machine
 							visibility.
 						</span>
 					</div>
@@ -238,8 +238,8 @@ function SshRemoteDropdown({
 							This agent is remote-controlled
 						</span>
 						<span className="text-2xs" style={{ color: theme.colors.textDim }}>
-							Mirror history entries to this project's local .maestro/history/ so another
-							OpenWizzard (SSH'd into this machine) can see what was done here.
+							Mirror history entries to this project's local .openwizardai/history/ so another
+							OpenWizardAI (SSH'd into this machine) can see what was done here.
 						</span>
 					</div>
 				</label>

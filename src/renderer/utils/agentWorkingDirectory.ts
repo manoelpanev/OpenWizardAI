@@ -4,7 +4,7 @@
  * An agent's location is spread across fields that are each written once at
  * creation: `cwd` (where the agent spawns), `fullPath`, `shellCwd`,
  * `projectRoot` (what the Files panel and the Edit dialog read), and
- * `autoRunFolderPath` (normally `<projectRoot>/.maestro/playbooks`). Updating
+ * `autoRunFolderPath` (normally `<projectRoot>/.openwizardai/playbooks`). Updating
  * only some of them leaves an agent that runs in one directory while its Files
  * panel lists another (#1565), so a relocation goes through
  * `withWorkingDirectory()` and moves them together.

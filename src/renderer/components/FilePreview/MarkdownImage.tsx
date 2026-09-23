@@ -104,7 +104,7 @@ export const MarkdownImage = React.memo(function MarkdownImage({
 		// For local files, load via IPC (supports SSH remote). Pass the clean
 		// resolved path - the cache key's ssh: prefix must never reach the shell.
 		setLoading(true);
-		window.maestro.fs
+		window.openwizardai.fs
 			.readFile(resolvedPath ?? cacheKey, sshRemoteId)
 			.then((result) => {
 				if (result && result.startsWith('data:')) {

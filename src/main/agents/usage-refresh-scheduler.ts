@@ -33,7 +33,7 @@
 import type Store from 'electron-store';
 
 import type { AgentDetector } from './detector';
-import type { AgentConfigsData, MaestroSettings, SessionsData } from '../stores/types';
+import type { AgentConfigsData, OpenWizardAISettings, SessionsData } from '../stores/types';
 import { logger } from '../utils/logger';
 import { runStartupUsageSampling } from './claude-usage-startup';
 import { runCodexUsageSampling } from './codex-usage-startup';
@@ -60,7 +60,7 @@ const MIN_INTERVAL_MS = 60_000;
 export interface UsageRefreshSchedulerDeps {
 	sessionsStore: Pick<Store<SessionsData>, 'get'>;
 	agentConfigsStore: Store<AgentConfigsData>;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	agentDetector: AgentDetector;
 }
 
@@ -169,7 +169,7 @@ export class UsageRefreshScheduler {
 					agentConfigsStore: this.deps.agentConfigsStore,
 					settingsStore: this.deps.settingsStore,
 					agentDetector: this.deps.agentDetector,
-					// 'manual': sample every configured account, not just maestro-p
+					// 'manual': sample every configured account, not just openwizardai-p
 					// sessions in the 7-day window. The user asked for live data.
 					mode: 'manual',
 				});

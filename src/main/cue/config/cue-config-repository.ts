@@ -1,11 +1,11 @@
 /**
- * Cue config repository - single owner of `.maestro/cue.yaml` and the
- * `.maestro/prompts/` directory on disk. All filesystem reads, writes, deletes,
+ * Cue config repository - single owner of `.openwizardai/cue.yaml` and the
+ * `.openwizardai/prompts/` directory on disk. All filesystem reads, writes, deletes,
  * and watches for Cue config files flow through this module so that path
  * resolution, directory creation, and the canonical-vs-legacy fallback are
  * encoded in exactly one place.
  *
- * Callers should NOT touch fs/path directly for `.maestro/cue.yaml` files.
+ * Callers should NOT touch fs/path directly for `.openwizardai/cue.yaml` files.
  */
 
 import * as fs from 'fs';
@@ -15,14 +15,14 @@ import {
 	CUE_CONFIG_PATH,
 	CUE_PROMPTS_DIR,
 	LEGACY_CUE_CONFIG_PATH,
-	MAESTRO_DIR,
-} from '../../../shared/maestro-paths';
+	OPENWIZARDAI_DIR,
+} from '../../../shared/openwizardai-paths';
 import { captureException } from '../../utils/sentry';
 import { logger } from '../../utils/logger';
 
 /**
- * Resolve the cue config file path, preferring `.maestro/cue.yaml`
- * with fallback to legacy `maestro-cue.yaml`. Returns `null` if neither exists.
+ * Resolve the cue config file path, preferring `.openwizardai/cue.yaml`
+ * with fallback to legacy `openwizardai-cue.yaml`. Returns `null` if neither exists.
  */
 export function resolveCueConfigPath(projectRoot: string): string | null {
 	const canonical = path.join(projectRoot, CUE_CONFIG_PATH);
@@ -50,15 +50,15 @@ export function readCueConfigFile(projectRoot: string): { filePath: string; raw:
 
 /**
  * Write the raw YAML for a project's Cue config to the canonical path.
- * Creates `.maestro/` if it does not exist. Returns the absolute path written.
+ * Creates `.openwizardai/` if it does not exist. Returns the absolute path written.
  *
- * Note: this always writes to the canonical `.maestro/cue.yaml`, never the
- * legacy `maestro-cue.yaml` location, so saves implicitly migrate the file.
+ * Note: this always writes to the canonical `.openwizardai/cue.yaml`, never the
+ * legacy `openwizardai-cue.yaml` location, so saves implicitly migrate the file.
  */
 export function writeCueConfigFile(projectRoot: string, content: string): string {
-	const maestroDir = path.join(projectRoot, MAESTRO_DIR);
-	if (!fs.existsSync(maestroDir)) {
-		fs.mkdirSync(maestroDir, { recursive: true });
+	const openwizardaiDir = path.join(projectRoot, OPENWIZARDAI_DIR);
+	if (!fs.existsSync(openwizardaiDir)) {
+		fs.mkdirSync(openwizardaiDir, { recursive: true });
 	}
 	const filePath = path.join(projectRoot, CUE_CONFIG_PATH);
 	fs.writeFileSync(filePath, content, 'utf-8');
@@ -79,9 +79,9 @@ export function deleteCueConfigFile(projectRoot: string): boolean {
 }
 
 /**
- * Remove `.maestro/prompts/` if it exists and contains no files. Called
+ * Remove `.openwizardai/prompts/` if it exists and contains no files. Called
  * after pruning with an empty keep-set (e.g. from `cue:deleteYaml`) so
- * the project's `.maestro` footprint collapses cleanly. Non-empty
+ * the project's `.openwizardai` footprint collapses cleanly. Non-empty
  * directories are left alone - a non-`.md` file the user placed here
  * manually is none of Cue's business.
  *
@@ -107,7 +107,7 @@ export function removeEmptyPromptsDir(projectRoot: string): boolean {
 }
 
 /**
- * Remove `.maestro/` if it exists and is completely empty. Called after
+ * Remove `.openwizardai/` if it exists and is completely empty. Called after
  * deleting `cue.yaml` (and after pruning prompts) so the project's footprint
  * collapses fully when there is nothing left to own. Non-empty directories
  * are left untouched - user-placed files (memories, other configs) are none
@@ -116,18 +116,18 @@ export function removeEmptyPromptsDir(projectRoot: string): boolean {
  * Returns `true` if the directory was removed, `false` otherwise. Swallows
  * errors (reports to Sentry) so callers can use this as best-effort cleanup.
  */
-export function removeEmptyMaestroDir(projectRoot: string): boolean {
-	const maestroDir = path.resolve(path.join(projectRoot, MAESTRO_DIR));
-	if (!fs.existsSync(maestroDir)) return false;
+export function removeEmptyOpenWizardAIDir(projectRoot: string): boolean {
+	const openwizardaiDir = path.resolve(path.join(projectRoot, OPENWIZARDAI_DIR));
+	if (!fs.existsSync(openwizardaiDir)) return false;
 	try {
-		const entries = fs.readdirSync(maestroDir);
+		const entries = fs.readdirSync(openwizardaiDir);
 		if (entries.length > 0) return false;
-		fs.rmdirSync(maestroDir);
+		fs.rmdirSync(openwizardaiDir);
 		return true;
 	} catch (err) {
 		captureException(err, {
-			operation: 'removeEmptyMaestroDir',
-			dir: maestroDir,
+			operation: 'removeEmptyOpenWizardAIDir',
+			dir: openwizardaiDir,
 		});
 		return false;
 	}
@@ -137,7 +137,7 @@ export function removeEmptyMaestroDir(projectRoot: string): boolean {
  * Write a Cue prompt file (a .md file referenced by `prompt_file:` in YAML).
  *
  * `relativePath` is interpreted relative to `projectRoot`. Parent directories
- * are created as needed. Callers typically pass paths under `.maestro/prompts/`
+ * are created as needed. Callers typically pass paths under `.openwizardai/prompts/`
  * (see {@link CUE_PROMPTS_DIR}).
  */
 export function writeCuePromptFile(
@@ -150,7 +150,7 @@ export function writeCuePromptFile(
 	}
 	const promptsDir = path.resolve(path.join(projectRoot, CUE_PROMPTS_DIR));
 	const absPath = path.resolve(path.join(projectRoot, relativePath));
-	// Must be strictly inside .maestro/prompts/ - equality with promptsDir would
+	// Must be strictly inside .openwizardai/prompts/ - equality with promptsDir would
 	// mean the caller asked to write to the directory path itself.
 	if (!absPath.startsWith(promptsDir + path.sep)) {
 		throw new Error(
@@ -173,7 +173,7 @@ export function writeCuePromptFile(
 
 /**
  * Read a Cue prompt file's content. Returns `null` if the file does not exist
- * (or the path resolves outside `.maestro/prompts/`).
+ * (or the path resolves outside `.openwizardai/prompts/`).
  *
  * Used by the `cue:writeYaml` handler to detect whether a save actually
  * changes prompt-file content. A pipeline-editor save that only moved nodes
@@ -197,13 +197,13 @@ export function readCuePromptFile(projectRoot: string, relativePath: string): st
 }
 
 /**
- * Remove `.md` files under `.maestro/prompts/` that are not referenced by the
+ * Remove `.md` files under `.openwizardai/prompts/` that are not referenced by the
  * current YAML. Called after a successful `cue:writeYaml` so that renames and
  * deletions do not leave orphan prompt files behind.
  *
  * `referencedRelativePaths` is the set of project-root-relative paths the YAML
  * references (via `prompt_file` / `output_prompt_file`). Any `.md` file inside
- * `.maestro/prompts/` whose relative path is not in this set is deleted.
+ * `.openwizardai/prompts/` whose relative path is not in this set is deleted.
  *
  * Silently skips when the prompts directory does not exist. Errors on
  * individual files are swallowed to keep the save path non-fatal.
@@ -260,7 +260,7 @@ export function pruneOrphanedPromptFiles(
 
 /**
  * Watches both canonical and legacy Cue config paths, plus every `.md` file
- * under `.maestro/prompts/`. Debounces onChange by 1 second.
+ * under `.openwizardai/prompts/`. Debounces onChange by 1 second.
  *
  * Prompt files are watched so that a "YAML written first, prompt files
  * written later" sequence - common when an agent uses a generic file-write
@@ -289,7 +289,7 @@ export function watchCueConfigFile(
 	const canonicalPath = path.join(projectRoot, CUE_CONFIG_PATH);
 	const legacyPath = path.join(projectRoot, LEGACY_CUE_CONFIG_PATH);
 	// Glob pattern (chokidar v3 supports globs in absolute paths). Matches
-	// every `.md` file directly inside `.maestro/prompts/` - recursive
+	// every `.md` file directly inside `.openwizardai/prompts/` - recursive
 	// subdirectories aren't part of the prompt layout, so a single-level
 	// glob keeps the watch set focused. The directory itself can be missing;
 	// chokidar starts watching once it appears.

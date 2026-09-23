@@ -104,7 +104,7 @@ export interface UseAgentSessionManagementReturn {
  */
 export interface ResumeSessionOptions {
 	/**
-	 * Resume into a specific Maestro agent (Session.id) resolved fresh from the
+	 * Resume into a specific OpenWizardAI agent (Session.id) resolved fresh from the
 	 * store, rather than the closure's active session. Required when jumping
 	 * across agents (e.g. the Left Bar "Starred Sessions" list), where the active
 	 * session has just switched and the closure value is stale.
@@ -173,7 +173,7 @@ export function useAgentSessionManagement(
 			// override from the caller (background/Auto Run/Cue) always wins; otherwise
 			// read the resolved session's live `claudeInteractive`. For Claude Code we
 			// always emit a token source: when `claudeInteractive` is absent the turn
-			// ran the default `claude --print` (API) path - the adaptive/maestro-p
+			// ran the default `claude --print` (API) path - the adaptive/openwizardai-p
 			// machinery only writes that field when it engages, so absence means API.
 			// Non-Claude agents get no field at all.
 			const tokenSourceFields = (() => {
@@ -196,7 +196,7 @@ export function useAgentSessionManagement(
 				return {};
 			})();
 
-			await window.maestro.history.add(
+			await window.openwizardai.history.add(
 				{
 					id: generateId(),
 					type: entry.type,
@@ -309,7 +309,7 @@ export function useAgentSessionManagement(
 					// Use projectRoot (not cwd) for consistent session storage access
 					// Pass sshRemoteId so SSH-remote sessions read from the correct host
 					const agentId = targetSession.toolType || 'claude-code';
-					const result = await window.maestro.agentSessions.read(
+					const result = await window.openwizardai.agentSessions.read(
 						agentId,
 						resolvedProjectRoot,
 						agentSessionId,
@@ -346,7 +346,7 @@ export function useAgentSessionManagement(
 					try {
 						// Look up session metadata from session origins (name, starred, contextUsage)
 						// Note: getSessionOrigins is still Claude-specific until we add generic origin tracking
-						const origins = await window.maestro.claude.getSessionOrigins(resolvedProjectRoot);
+						const origins = await window.openwizardai.claude.getSessionOrigins(resolvedProjectRoot);
 						const originData = origins[agentSessionId];
 						if (originData && typeof originData === 'object') {
 							if (sessionName === undefined && originData.sessionName) {

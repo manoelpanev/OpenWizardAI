@@ -2,7 +2,7 @@
  * Stats IPC Handlers
  *
  * These handlers provide access to the stats tracking database for recording
- * and querying AI interaction metrics across Maestro sessions.
+ * and querying AI interaction metrics across OpenWizardAI sessions.
  *
  * Features:
  * - Record query events (interactive AI conversations)
@@ -291,7 +291,7 @@ export function registerStatsHandlers(deps: StatsHandlerDependencies): void {
 				// spawned by the wizard) before the stats DB has finished initializing.
 				// Skip that window rather than throwing "Database not initialized", an
 				// unactionable error that otherwise crosses the IPC bridge into Sentry.
-				// (MAESTRO-2S, same startup race as MAESTRO-SP below.)
+				// (OPENWIZARDAI-2S, same startup race as OPENWIZARDAI-SP below.)
 				if (!db.isReady()) {
 					return null;
 				}
@@ -315,7 +315,7 @@ export function registerStatsHandlers(deps: StatsHandlerDependencies): void {
 				const db = getStatsDB();
 				// Same fire-and-forget startup race as record-session-created: agents torn
 				// down during early boot would otherwise throw "Database not initialized".
-				// (MAESTRO-2Z)
+				// (OPENWIZARDAI-2Z)
 				if (!db.isReady()) {
 					return false;
 				}
@@ -399,7 +399,7 @@ export function registerStatsHandlers(deps: StatsHandlerDependencies): void {
 			// during early startup before the stats DB has finished initializing;
 			// skip silently in that window rather than throwing "Database not
 			// initialized" - an unactionable error that otherwise propagates
-			// across the IPC bridge and into Sentry. (MAESTRO-SP)
+			// across the IPC bridge and into Sentry. (OPENWIZARDAI-SP)
 			if (!db.isReady()) {
 				return null;
 			}

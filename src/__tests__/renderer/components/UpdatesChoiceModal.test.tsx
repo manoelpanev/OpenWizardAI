@@ -10,10 +10,13 @@ vi.mock('../../../renderer/contexts/LayerStackContext', () => ({
 }));
 
 import { UpdatesChoiceModal } from '../../../renderer/components/UpdatesChoiceModal';
-import type { MaestroCliInstallResult, MaestroCliStatus } from '../../../shared/maestro-cli';
+import type {
+	OpenWizardAICliInstallResult,
+	OpenWizardAICliStatus,
+} from '../../../shared/openwizardai-cli';
 import { mockTheme } from '../../helpers/mockTheme';
 
-function cliStatus(overrides: Partial<MaestroCliStatus> = {}): MaestroCliStatus {
+function cliStatus(overrides: Partial<OpenWizardAICliStatus> = {}): OpenWizardAICliStatus {
 	return {
 		expectedVersion: '1.0.0',
 		installed: false,
@@ -37,11 +40,11 @@ const INSTALLED = cliStatus({
 	needsInstallOrUpdate: false,
 });
 
-const maestroWindow = window as unknown as { maestro: Record<string, unknown> };
+const openwizardaiWindow = window as unknown as { openwizardai: Record<string, unknown> };
 let originalCliApi: unknown;
 
-function mockCliApi(status: MaestroCliStatus) {
-	const installResult: MaestroCliInstallResult = {
+function mockCliApi(status: OpenWizardAICliStatus) {
+	const installResult: OpenWizardAICliInstallResult = {
 		success: true,
 		status: INSTALLED,
 		pathUpdated: false,
@@ -52,7 +55,7 @@ function mockCliApi(status: MaestroCliStatus) {
 		checkStatus: vi.fn().mockResolvedValue(status),
 		installOrUpdate: vi.fn().mockResolvedValue(installResult),
 	};
-	maestroWindow.maestro.maestroCli = api;
+	openwizardaiWindow.openwizardai.openwizardaiCli = api;
 	return api;
 }
 
@@ -74,13 +77,13 @@ function renderModal(overrides: Partial<React.ComponentProps<typeof UpdatesChoic
 }
 
 beforeEach(() => {
-	originalCliApi = maestroWindow.maestro.maestroCli;
-	maestroWindow.maestro.maestroCli = undefined;
+	originalCliApi = openwizardaiWindow.openwizardai.openwizardaiCli;
+	openwizardaiWindow.openwizardai.openwizardaiCli = undefined;
 });
 
 afterEach(() => {
 	cleanup();
-	maestroWindow.maestro.maestroCli = originalCliApi;
+	openwizardaiWindow.openwizardai.openwizardaiCli = originalCliApi;
 	vi.restoreAllMocks();
 });
 
@@ -148,12 +151,12 @@ describe('UpdatesChoiceModal', () => {
 		expect(onBack).toHaveBeenCalledTimes(1);
 	});
 
-	describe('OpenWizzard CLI', () => {
+	describe('OpenWizardAI CLI', () => {
 		it('offers one button that installs the CLI when it is missing', async () => {
 			const api = mockCliApi(cliStatus());
 			renderModal();
 
-			const button = await screen.findByText('Install OpenWizzard CLI');
+			const button = await screen.findByText('Install OpenWizardAI CLI');
 			fireEvent.click(button);
 
 			expect(api.installOrUpdate).toHaveBeenCalledTimes(1);
@@ -164,7 +167,7 @@ describe('UpdatesChoiceModal', () => {
 			mockCliApi(cliStatus({ installed: true, installedVersion: '0.9.0' }));
 			renderModal();
 
-			expect(await screen.findByText('Update OpenWizzard CLI')).toBeInTheDocument();
+			expect(await screen.findByText('Update OpenWizardAI CLI')).toBeInTheDocument();
 		});
 
 		it('shows the CLI as installed when it already matches', async () => {
@@ -180,11 +183,11 @@ describe('UpdatesChoiceModal', () => {
 			api.installOrUpdate.mockRejectedValue(new Error('EACCES'));
 			renderModal();
 
-			fireEvent.click(await screen.findByText('Install OpenWizzard CLI'));
+			fireEvent.click(await screen.findByText('Install OpenWizardAI CLI'));
 
 			await waitFor(() =>
 				expect(screen.getByRole('alert')).toHaveTextContent(
-					'Failed to install/update OpenWizzard CLI'
+					'Failed to install/update OpenWizardAI CLI'
 				)
 			);
 			expect(screen.queryByTestId('updates-choice-cli-installed')).not.toBeInTheDocument();

@@ -9,10 +9,6 @@ vi.mock('../../../../../renderer/utils/openUrl', () => ({
 	openUrl: (...args: unknown[]) => openUrlMock(...args),
 }));
 
-vi.mock('../../../../../renderer/utils/buildMaestroUrl', () => ({
-	buildMaestroUrl: (url: string) => `maestro:${url}`,
-}));
-
 const baseProps = (overrides: Partial<React.ComponentProps<typeof MarketplaceHeader>> = {}) => ({
 	theme: mockTheme,
 	fromCache: true,
@@ -79,15 +75,19 @@ describe('MarketplaceHeader', () => {
 		);
 
 		fireEvent.click(getByTitle('Submit your playbook to the community'));
-		expect(openUrlMock).toHaveBeenCalledWith('https://github.com/RunMaestro/Maestro-Playbooks');
+		expect(openUrlMock).toHaveBeenCalledWith(
+			'https://github.com/manoelpanev/OpenWizardAI-Playbooks'
+		);
 
-		fireEvent.click(getByText('github.com/RunMaestro/Maestro-Playbooks'));
-		expect(openUrlMock).toHaveBeenCalledWith('https://github.com/RunMaestro/Maestro-Playbooks');
+		fireEvent.click(getByText('github.com/manoelpanev/OpenWizardAI-Playbooks'));
+		expect(openUrlMock).toHaveBeenCalledWith(
+			'https://github.com/manoelpanev/OpenWizardAI-Playbooks'
+		);
 		expect(onCloseHelp).toHaveBeenCalledTimes(1);
 
-		fireEvent.click(getByText('Read more at docs.runmaestro.ai/playbook-exchange'));
+		fireEvent.click(getByText('Read the Playbook Exchange docs'));
 		expect(openUrlMock).toHaveBeenCalledWith(
-			'maestro:https://docs.runmaestro.ai/playbook-exchange'
+			'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/playbook-exchange.md'
 		);
 		expect(onCloseHelp).toHaveBeenCalledTimes(2);
 	});

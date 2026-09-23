@@ -1460,7 +1460,7 @@ describe('AICommandsPanel', () => {
 		});
 	});
 
-	describe('Malformed persisted commands (MAESTRO-YP/YQ/YR)', () => {
+	describe('Malformed persisted commands (OPENWIZARDAI-YP/YQ/YR)', () => {
 		// settings.json is user/sync/legacy editable, so a stored command can be
 		// missing its `id`. That used to make `editingCommand?.id === cmd.id`
 		// evaluate `undefined === undefined` -> true while nothing was being

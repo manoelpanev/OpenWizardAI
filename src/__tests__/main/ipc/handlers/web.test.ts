@@ -462,7 +462,7 @@ describe('web handlers', () => {
 		});
 
 		// Regression tests for #859: CLI discovery file must be refreshed so
-		// `maestro-cli` can reconnect after a stop/start cycle.
+		// `openwizardai-cli` can reconnect after a stop/start cycle.
 		it('should refresh CLI discovery file after starting a freshly-created server', async () => {
 			webServerRef.current = null;
 			mockWebServer.isActive.mockReturnValue(false);
@@ -567,7 +567,7 @@ describe('web handlers', () => {
 			expect(mockWebServer.stop).toHaveBeenCalled();
 			expect(deleteCliServerInfo).toHaveBeenCalledTimes(1);
 			// ensureCliServer recreates the server and republishes discovery so
-			// maestro-cli keeps working after Live Mode is turned off.
+			// openwizardai-cli keeps working after Live Mode is turned off.
 			expect(webServerRef.current).toBe(mockWebServer);
 			expect(writeCliServerInfo).toHaveBeenCalled();
 			expect(result).toEqual({ success: true });

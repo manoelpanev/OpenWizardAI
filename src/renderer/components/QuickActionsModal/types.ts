@@ -177,7 +177,7 @@ export interface QuickActionsModalProps {
 	currentGraphFile?: string;
 	onOpenCurrentFileInGraph?: () => void;
 	onOpenDirectorNotes?: () => void;
-	onOpenMaestroCue?: () => void;
+	onOpenOpenWizardAICue?: () => void;
 	onConfigureCue?: (session: Session) => void;
 	onOpenQueueBrowser?: () => void;
 	onNewTab?: () => void;

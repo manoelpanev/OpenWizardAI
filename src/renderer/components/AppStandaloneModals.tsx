@@ -22,7 +22,7 @@ import { GistPublishModal } from './GistPublishModal';
 import type { GistInfo } from './GistPublishModal';
 import { DeleteAgentConfirmModal } from './DeleteAgentConfirmModal';
 import { ImageAnnotator } from './ImageAnnotator/ImageAnnotator';
-import { MaestroWizard, WizardResumeModal } from './Wizard';
+import { OpenWizardAIWizard, WizardResumeModal } from './Wizard';
 import { TourOverlay } from './Wizard/tour';
 import type { MindMapLayoutType } from './DocumentGraph/mindMapLayouts';
 
@@ -389,19 +389,19 @@ function AppStandaloneModalsInner({
 				</Suspense>
 			)}
 
-			{/* --- MAESTRO CUE MODAL (lazy-loaded, Encore Feature) --- */}
-			{encoreFeatures.maestroCue && cueModalOpen && (
+			{/* --- OPENWIZARDAI CUE MODAL (lazy-loaded, Encore Feature) --- */}
+			{encoreFeatures.openwizardaiCue && cueModalOpen && (
 				<Suspense fallback={null}>
 					<CueModal
 						theme={theme}
 						onClose={() => setCueModalOpen(false)}
-						cueShortcutKeys={shortcuts.maestroCue?.keys}
+						cueShortcutKeys={shortcuts.openwizardaiCue?.keys}
 					/>
 				</Suspense>
 			)}
 
-			{/* --- MAESTRO CUE YAML EDITOR (standalone, lazy-loaded) --- */}
-			{encoreFeatures.maestroCue &&
+			{/* --- OPENWIZARDAI CUE YAML EDITOR (standalone, lazy-loaded) --- */}
+			{encoreFeatures.openwizardaiCue &&
 				cueYamlEditorOpen &&
 				cueYamlEditorSessionId &&
 				cueYamlEditorProjectRoot && (
@@ -541,8 +541,8 @@ function AppStandaloneModalsInner({
 							try {
 								// Fetch content and stat in parallel for efficiency
 								const [content, stat] = await Promise.all([
-									window.maestro.fs.readFile(fullPath, sshRemoteId),
-									window.maestro.fs.stat(fullPath, sshRemoteId).catch(() => null), // stat is optional
+									window.openwizardai.fs.readFile(fullPath, sshRemoteId),
+									window.openwizardai.fs.stat(fullPath, sshRemoteId).catch(() => null), // stat is optional
 								]);
 								if (content !== null) {
 									const lastModified = stat?.modifiedAt
@@ -638,10 +638,10 @@ function AppStandaloneModalsInner({
 				/>
 			)}
 
-			{/* --- MAESTRO WIZARD (onboarding wizard for new users) --- */}
+			{/* --- OPENWIZARDAI WIZARD (onboarding wizard for new users) --- */}
 			{/* PERF: Only mount wizard component when open to avoid running hooks/effects */}
 			{wizardIsOpen && (
-				<MaestroWizard
+				<OpenWizardAIWizard
 					theme={theme}
 					onLaunchSession={onWizardLaunchSession}
 					onWizardStart={recordWizardStart}

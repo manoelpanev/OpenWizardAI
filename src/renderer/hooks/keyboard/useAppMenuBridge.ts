@@ -30,7 +30,7 @@ export function useAppMenuBridge(): void {
 	const tabShortcuts = useSettingsStore((s) => s.tabShortcuts);
 
 	useEffect(() => {
-		const app = window.maestro?.app;
+		const app = window.openwizardai?.app;
 		if (!app?.setMenuShortcutKeys) return;
 
 		const keys: Record<string, string[]> = {};
@@ -49,7 +49,7 @@ export function useAppMenuBridge(): void {
 	}, [shortcuts, tabShortcuts]);
 
 	useEffect(() => {
-		const app = window.maestro?.app;
+		const app = window.openwizardai?.app;
 		if (!app?.onMenuCommand) return;
 
 		return app.onMenuCommand((shortcutId) => {

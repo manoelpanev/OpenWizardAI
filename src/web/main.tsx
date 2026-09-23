@@ -1,5 +1,5 @@
 /**
- * Maestro Web Interface Entry Point
+ * OpenWizardAI Web Interface Entry Point
  */
 
 import { createRoot } from 'react-dom/client';
@@ -7,7 +7,7 @@ import { AppRoot } from './App';
 import { webLogger } from './utils/logger';
 import './index.css';
 
-export { useOfflineStatus, useMaestroMode, useDesktopTheme } from './App';
+export { useOfflineStatus, useOpenWizardAIMode, useDesktopTheme } from './App';
 
 // Mount the application
 const container = document.getElementById('root');

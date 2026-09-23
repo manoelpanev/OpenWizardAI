@@ -54,8 +54,8 @@ const renderPanel = (enabled: boolean, onEnabledChange = vi.fn()) =>
 
 describe('SpecKitCommandsPanel', () => {
 	beforeEach(() => {
-		(window as unknown as { maestro: Record<string, unknown> }).maestro = {
-			...(window as unknown as { maestro: Record<string, unknown> }).maestro,
+		(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai = {
+			...(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai,
 			speckit: {
 				getPrompts: vi.fn().mockResolvedValue({ success: true, commands: mockCommands }),
 				getMetadata: vi.fn().mockResolvedValue({

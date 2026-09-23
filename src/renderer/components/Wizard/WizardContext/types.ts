@@ -44,9 +44,9 @@ export interface WizardState {
 	// Claude token-source choice (claude-code only). Mirrors the per-session
 	// fields so the wizard-created session inherits the user's API/TUI/Dynamic
 	// pick. Undefined means "never chosen" - the per-agent default applies.
-	enableMaestroP?: boolean;
-	maestroPMode?: 'interactive' | 'dynamic';
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	openwizardaiPPath?: string;
 	/**
 	 * Model the WIZARD plans with, for this run only. Undefined means "whatever
 	 * the agent is configured to use". Deliberately not carried onto the created
@@ -91,9 +91,9 @@ export type WizardAction =
 	| { type: 'SET_CUSTOM_PATH'; path: string | undefined }
 	| { type: 'SET_CUSTOM_ARGS'; args: string | undefined }
 	| { type: 'SET_CUSTOM_ENV_VARS'; envVars: Record<string, string> | undefined }
-	| { type: 'SET_ENABLE_MAESTRO_P'; value: boolean | undefined }
-	| { type: 'SET_MAESTRO_P_MODE'; mode: 'interactive' | 'dynamic' }
-	| { type: 'SET_MAESTRO_P_PATH'; path: string | undefined }
+	| { type: 'SET_ENABLE_OPENWIZARDAI_P'; value: boolean | undefined }
+	| { type: 'SET_OPENWIZARDAI_P_MODE'; mode: 'interactive' | 'dynamic' }
+	| { type: 'SET_OPENWIZARDAI_P_PATH'; path: string | undefined }
 	| { type: 'SET_PLANNER_MODEL'; model: string | undefined }
 	| {
 			type: 'SET_SESSION_SSH_REMOTE_CONFIG';
@@ -153,9 +153,9 @@ export interface WizardContextAPI {
 	setCustomPath: (path: string | undefined) => void;
 	setCustomArgs: (args: string | undefined) => void;
 	setCustomEnvVars: (envVars: Record<string, string> | undefined) => void;
-	setEnableMaestroP: (value: boolean | undefined) => void;
-	setMaestroPMode: (mode: 'interactive' | 'dynamic') => void;
-	setMaestroPPath: (path: string | undefined) => void;
+	setEnableOpenWizardAIP: (value: boolean | undefined) => void;
+	setOpenWizardAIPMode: (mode: 'interactive' | 'dynamic') => void;
+	setOpenWizardAIPPath: (path: string | undefined) => void;
 	setPlannerModel: (model: string | undefined) => void;
 	setSessionSshRemoteConfig: (config: WizardSessionSshRemoteConfig | undefined) => void;
 	setDirectoryPath: (path: string) => void;

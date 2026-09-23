@@ -77,7 +77,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	useModalStore.setState({ modals: new Map() } as never);
 	fsDelete = vi.fn().mockResolvedValue({ success: true });
-	(window as unknown as { maestro: unknown }).maestro = { fs: { delete: fsDelete } };
+	(window as unknown as { openwizardai: unknown }).openwizardai = { fs: { delete: fsDelete } };
 });
 
 describe('requestFileDeletion', () => {
@@ -99,12 +99,12 @@ describe('requestFileDeletion', () => {
 		seedSession();
 		const refreshed: string[] = [];
 		const listener = (e: Event) => refreshed.push((e as CustomEvent).detail.sessionId);
-		window.addEventListener('maestro:refreshFileTree', listener);
+		window.addEventListener('openwizardai:refreshFileTree', listener);
 
 		requestFileDeletion({ path: FILE_PATH, sshRemoteId: 'remote-1' });
 		await confirm();
 
-		window.removeEventListener('maestro:refreshFileTree', listener);
+		window.removeEventListener('openwizardai:refreshFileTree', listener);
 
 		expect(fsDelete).toHaveBeenCalledWith(FILE_PATH, { sshRemoteId: 'remote-1' });
 		const session = useSessionStore.getState().sessions[0];

@@ -2,7 +2,7 @@
  * Integration tests for useMergeTransferHandlers.ts - Windows stdin transport flags
  *
  * These tests verify that the handleSendToAgent spawn path correctly passes
- * stdin transport flags to window.maestro.process.spawn on Windows, avoiding
+ * stdin transport flags to window.openwizardai.process.spawn on Windows, avoiding
  * command line length limits (~8KB cmd.exe).
  *
  * Context transfer prompts include the full conversation history from the
@@ -85,7 +85,7 @@ vi.mock('../../../renderer/services/git', () => ({
 }));
 
 vi.mock('../../../prompts', () => ({
-	maestroSystemPrompt: 'Mock system prompt',
+	openwizardaiSystemPrompt: 'Mock system prompt',
 	commitCommandPrompt: 'Mock commit prompt',
 	autorunSynopsisPrompt: 'Mock synopsis prompt',
 }));
@@ -178,8 +178,8 @@ beforeEach(() => {
 	stableDeps.activeSessionIdRef.current = 'session-1';
 	(stableDeps.setActiveSessionId as ReturnType<typeof vi.fn>).mockReset();
 
-	// Mock window.maestro APIs with platform set to win32 for stdin tests
-	(window as any).maestro = {
+	// Mock window.openwizardai APIs with platform set to win32 for stdin tests
+	(window as any).openwizardai = {
 		platform: 'win32',
 		notification: { show: vi.fn() },
 		agents: {
@@ -197,7 +197,7 @@ beforeEach(() => {
 		prompts: {
 			get: vi.fn().mockResolvedValue({
 				success: true,
-				content: 'Maestro System Context: {{AGENT_NAME}}',
+				content: 'OpenWizardAI System Context: {{AGENT_NAME}}',
 			}),
 		},
 		history: {
@@ -209,8 +209,8 @@ beforeEach(() => {
 afterEach(() => {
 	cleanup();
 	// Restore platform to default
-	if ((window as any).maestro) {
-		(window as any).maestro.platform = 'darwin';
+	if ((window as any).openwizardai) {
+		(window as any).openwizardai.platform = 'darwin';
 	}
 });
 
@@ -232,10 +232,10 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 
 		// Wait for the fire-and-forget async IIFE spawn to execute
 		await vi.waitFor(() => {
-			expect((window as any).maestro.process.spawn).toHaveBeenCalled();
+			expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// On Windows without SSH, text-only prompts use raw stdin
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -273,10 +273,10 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 		});
 
 		await vi.waitFor(() => {
-			expect((window as any).maestro.process.spawn).toHaveBeenCalled();
+			expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// SSH sessions must NOT use stdin flags
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
@@ -284,7 +284,7 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 	});
 
 	it('should pass both stdin flags as false on non-Windows platforms', async () => {
-		(window as any).maestro.platform = 'darwin';
+		(window as any).openwizardai.platform = 'darwin';
 
 		const deps = createMockDeps();
 		const { result } = renderHook(() => useMergeTransferHandlers(deps));
@@ -297,17 +297,17 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 		});
 
 		await vi.waitFor(() => {
-			expect((window as any).maestro.process.spawn).toHaveBeenCalled();
+			expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(false);
 	});
 
 	it('should pass sendPromptViaStdinRaw for agents without stream-json support', async () => {
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'codex',
 			command: 'codex',
 			args: [],
@@ -326,10 +326,10 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 		});
 
 		await vi.waitFor(() => {
-			expect((window as any).maestro.process.spawn).toHaveBeenCalled();
+			expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// Agents without stream-json always use raw stdin on Windows
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -339,7 +339,7 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 	it('should always pass hasImages=false for context transfer (sendPromptViaStdin is false)', async () => {
 		// Context transfer never sends images, so sendPromptViaStdin should always be false
 		// even when the agent supports stream-json input
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'claude-code',
 			command: 'claude',
 			args: [],
@@ -358,10 +358,10 @@ describe('useMergeTransferHandlers - context transfer stdin flags (integration)'
 		});
 
 		await vi.waitFor(() => {
-			expect((window as any).maestro.process.spawn).toHaveBeenCalled();
+			expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// sendPromptViaStdin requires hasImages=true, which context transfer never sets
 		expect(spawnCall.sendPromptViaStdin).toBe(false);

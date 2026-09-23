@@ -2,12 +2,12 @@
  * CueStats
  *
  * Renders the "Cue" tab of the Usage Dashboard. Consumes
- * `window.maestro.cueStats.getAggregation()` and surfaces totals plus a set of
+ * `window.openwizardai.cueStats.getAggregation()` and surfaces totals plus a set of
  * focused diagnostic panels: failure spotlight, time-series, hour-of-day,
  * trigger-type, pipeline, agent, and slowest-runs.
  *
  * The component is responsible only for read+display - gating lives in the
- * parent dashboard (tab is hidden when `encoreFeatures.maestroCue` is off)
+ * parent dashboard (tab is hidden when `encoreFeatures.openwizardaiCue` is off)
  * and in the IPC handler (throws `'CueStatsDisabled'` when either Encore
  * flag is off, which we render as a friendly note as defense in depth).
  */
@@ -866,7 +866,7 @@ const SlowestRunsTable = memo(function SlowestRunsTable({
 
 /* -------------------------- Trigger type filter -------------------------- */
 
-const EXCLUDED_TRIGGERS_STORAGE_KEY = 'maestro.usageDashboard.cueExcludedTriggers';
+const EXCLUDED_TRIGGERS_STORAGE_KEY = 'openwizardai.usageDashboard.cueExcludedTriggers';
 
 /**
  * Read the persisted exclusion set. Survives reopening the dashboard because
@@ -1271,7 +1271,7 @@ const DisabledNote = memo(function DisabledNote({ theme }: { theme: Theme }) {
 				Cue stats are unavailable.
 			</div>
 			<div className="text-xs" style={{ color: theme.colors.textDim, maxWidth: 420 }}>
-				Both <strong>OpenWizzard Cue</strong> and <strong>Usage Dashboard</strong> Encore features
+				Both <strong>OpenWizardAI Cue</strong> and <strong>Usage Dashboard</strong> Encore features
 				must be enabled to view Cue analytics. Open Settings → Encore Features to turn them on.
 			</div>
 		</div>
@@ -1337,7 +1337,7 @@ export const CueStats = memo(function CueStats({
 		setError(null);
 		try {
 			const excluded = excludedKey.length === 0 ? [] : excludedKey.split('\u0000');
-			const result = await window.maestro.cueStats.getAggregation(timeRange, excluded);
+			const result = await window.openwizardai.cueStats.getAggregation(timeRange, excluded);
 			setAggregation(result);
 		} catch (err) {
 			// Preload normalizes the disabled sentinel to a bare 'CueStatsDisabled'

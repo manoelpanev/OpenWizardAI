@@ -1,7 +1,7 @@
 /**
  * Preload API for process management
  *
- * Provides the window.maestro.process namespace for:
+ * Provides the window.openwizardai.process namespace for:
  * - Spawning and managing agent/terminal processes
  * - Writing to processes
  * - Handling process events (data, exit, errors)
@@ -312,7 +312,7 @@ export function createProcessApi() {
 		/**
 		 * Subscribe to Claude headless-mode resolution.
 		 * Emitted after a Claude Code spawn succeeds, carrying the mode the spawner
-		 * actually picked (`api` vs `interactive`/maestro-p), the reason tag for
+		 * actually picked (`api` vs `interactive`/openwizardai-p), the reason tag for
 		 * persistence, and the canonical CLAUDE_CONFIG_DIR key the snapshot was
 		 * consulted under. Non-Claude agents and SSH Claude spawns don't fire this.
 		 */
@@ -556,7 +556,7 @@ export function createProcessApi() {
 
 		/**
 		 * Subscribe to a remote request to open one of the app's modals /
-		 * dashboards (from `maestro-cli open`). `surface` is a `UiSurface.id`
+		 * dashboards (from `openwizardai-cli open`). `surface` is a `UiSurface.id`
 		 * and `tab` (when present) has already been validated against it in
 		 * the main process.
 		 */
@@ -570,7 +570,7 @@ export function createProcessApi() {
 
 		/**
 		 * Subscribe to a remote request to render the Document Graph over an
-		 * explicit set of documents (from `maestro-cli open-graph`). Paths are
+		 * explicit set of documents (from `openwizardai-cli open-graph`). Paths are
 		 * ABSOLUTE - the renderer relativizes them against the graph's own root,
 		 * which is not always the cwd the caller resolved against.
 		 */
@@ -904,7 +904,7 @@ export function createProcessApi() {
 		/**
 		 * Send response for remote "new AI tab with prompt".
 		 * `tabId` is the id of the freshly-created tab - surfaced so
-		 * `maestro-cli dispatch --new-tab` can return an addressable id to its
+		 * `openwizardai-cli dispatch --new-tab` can return an addressable id to its
 		 * caller without owning a persistent channel.
 		 */
 		sendRemoteNewAITabWithPromptResponse: (
@@ -1016,7 +1016,7 @@ export function createProcessApi() {
 		/**
 		 * Subscribe to remote set Auto Run folder from web interface
 		 * (request-response). Web clients use this to repoint a session at a
-		 * different `.maestro/` folder, mirroring desktop's `dialog.selectFolder`
+		 * different `.openwizardai/` folder, mirroring desktop's `dialog.selectFolder`
 		 * + `handleAutoRunFolderSelected` flow.
 		 */
 		onRemoteSetAutoRunFolder: (
@@ -1270,7 +1270,7 @@ export function createProcessApi() {
 
 		/**
 		 * Subscribe to remote playbook CRUD from web interface (request-response).
-		 * Renderer forwards to window.maestro.playbooks.* IPC and replies on the channel.
+		 * Renderer forwards to window.openwizardai.playbooks.* IPC and replies on the channel.
 		 *
 		 * Failure handling: each handler acks the IPC channel with a neutral
 		 * fallback (`[]` / `null` / `false`) so the web client doesn't hang on a

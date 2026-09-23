@@ -81,7 +81,7 @@ export function useResizablePanel({
 				setIsResizing(false);
 				setWidth(currentWidth);
 				if (settingsKey) {
-					window.maestro.settings.set(settingsKey, currentWidth);
+					window.openwizardai.settings.set(settingsKey, currentWidth);
 				}
 				document.removeEventListener('mousemove', handleMouseMove);
 				document.removeEventListener('mouseup', handleMouseUp);

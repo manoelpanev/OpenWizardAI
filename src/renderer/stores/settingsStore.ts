@@ -3,7 +3,7 @@
  *
  * Replaces the 2,088-line useSettings hook with a centralized Zustand store.
  * All settings are loaded once from electron-store via loadAllSettings() and
- * persisted back on each mutation via window.maestro.settings.set().
+ * persisted back on each mutation via window.openwizardai.settings.set().
  *
  * Key advantages:
  * - Selector-based subscriptions: components only re-render when their slice changes
@@ -23,7 +23,7 @@ import type {
 	CustomAICommand,
 	AchievementTimeSource,
 	AutoRunStats,
-	MaestroUsageStats,
+	OpenWizardAIUsageStats,
 	OnboardingStats,
 	ContextManagementSettings,
 	KeyboardMasteryStats,
@@ -35,7 +35,7 @@ import { DEFAULT_CUSTOM_THEME_COLORS } from '../constants/themes';
 import { resolveThemeId } from '../../shared/theme-types';
 import { DEFAULT_SHORTCUTS, TAB_SHORTCUTS, FIXED_SHORTCUTS } from '../constants/shortcuts';
 import { findReservedShortcutCombo } from '../../shared/shortcutKeys';
-import { MAESTRO_FONT_STACK } from '../../shared/fontStack';
+import { OPENWIZARDAI_FONT_STACK } from '../../shared/fontStack';
 import { TYPOGRAPHY_PRESETS, type TypographyPresetId } from '../../shared/typographyPresets';
 import {
 	BASE_FONT_SIZE_DEFAULT,
@@ -107,7 +107,7 @@ let settingsStorePromptsLoaded = false;
 export async function loadSettingsStorePrompts(force = false): Promise<void> {
 	if (settingsStorePromptsLoaded && !force) return;
 
-	const result = await window.maestro.prompts.get('commit-command');
+	const result = await window.openwizardai.prompts.get('commit-command');
 	if (!result.success) {
 		throw new Error(`Failed to load commit-command prompt: ${result.error}`);
 	}
@@ -121,7 +121,7 @@ export async function loadSettingsStorePrompts(force = false): Promise<void> {
 	if (commitCmd && commitCmd.prompt !== cachedCommitCommandPrompt) {
 		if (commitCmd.prompt && !force) {
 			// User has a non-empty custom prompt from AI Commands (old way) - migrate it
-			const saveResult = await window.maestro.prompts.save('commit-command', commitCmd.prompt);
+			const saveResult = await window.openwizardai.prompts.save('commit-command', commitCmd.prompt);
 			if (saveResult.success) {
 				cachedCommitCommandPrompt = commitCmd.prompt;
 			}
@@ -220,7 +220,7 @@ const DEFAULT_AUTO_RUN_STATS: AutoRunStats = {
 	badgeHistory: [],
 };
 
-const DEFAULT_USAGE_STATS: MaestroUsageStats = { ...ZERO_USAGE_PEAKS };
+const DEFAULT_USAGE_STATS: OpenWizardAIUsageStats = { ...ZERO_USAGE_PEAKS };
 
 const DEFAULT_KEYBOARD_MASTERY_STATS: KeyboardMasteryStats = {
 	usedShortcuts: [],
@@ -424,7 +424,7 @@ export interface SettingsStoreState {
 	customAICommands: CustomAICommand[];
 	totalActiveTimeMs: number;
 	autoRunStats: AutoRunStats;
-	usageStats: MaestroUsageStats;
+	usageStats: OpenWizardAIUsageStats;
 	ungroupedCollapsed: boolean;
 	groupChatsExpanded: boolean;
 	groupChatSortAlphabetical: boolean;
@@ -704,8 +704,8 @@ export interface SettingsStoreActions {
 	addTotalActiveTimeMs: (delta: number) => void;
 
 	// Usage stats
-	setUsageStats: (value: MaestroUsageStats) => void;
-	updateUsageStats: (currentValues: Partial<MaestroUsageStats>) => void;
+	setUsageStats: (value: OpenWizardAIUsageStats) => void;
+	updateUsageStats: (currentValues: Partial<OpenWizardAIUsageStats>) => void;
 
 	// Auto-run stats
 	setAutoRunStats: (value: AutoRunStats) => void;
@@ -790,7 +790,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		shellEnvVars: {},
 		shellEnvVarsDisabled: {},
 		ghPath: '',
-		fontFamily: MAESTRO_FONT_STACK,
+		fontFamily: OPENWIZARDAI_FONT_STACK,
 		fontSize: BASE_FONT_SIZE_DEFAULT,
 		terminalFontFamily: '',
 		chatFontFamily: '',
@@ -841,7 +841,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		audioFeedbackCommand: 'say',
 		toastDuration: 20,
 		idleNotificationEnabled: false,
-		idleNotificationCommand: 'say OpenWizzard is idle',
+		idleNotificationCommand: 'say OpenWizardAI is idle',
 		checkForUpdatesOnStartup: true,
 		enableBetaUpdates: false,
 		crashReportingEnabled: true,
@@ -893,7 +893,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		sshRemoteIgnorePatterns: ['.git', '*cache*'],
 		sshRemoteHonorGitignore: true,
 		useSystemBrowser: false,
-		browserHomeUrl: 'https://runmaestro.ai/#leaderboard',
+		browserHomeUrl: 'https://github.com/manoelpanev/OpenWizardAI',
 		htmlDoubleClickOpensInBrowser: false,
 		browserTabKeepAlive: 'off',
 		browserTabKeepAliveLimit: 10,
@@ -960,78 +960,78 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		setConductorProfile: (value) => {
 			const trimmed = value.slice(0, 5000);
 			set({ conductorProfile: trimmed });
-			window.maestro.settings.set('conductorProfile', trimmed);
+			window.openwizardai.settings.set('conductorProfile', trimmed);
 		},
 
 		setGlobalShowHotkey: (value) => {
 			set({ globalShowHotkey: value });
-			window.maestro.settings.set('globalShowHotkey', value);
+			window.openwizardai.settings.set('globalShowHotkey', value);
 		},
 
 		setDefaultShell: (value) => {
 			set({ defaultShell: value });
-			window.maestro.settings.set('defaultShell', value);
+			window.openwizardai.settings.set('defaultShell', value);
 		},
 
 		setCustomShellPath: (value) => {
 			set({ customShellPath: value });
-			window.maestro.settings.set('customShellPath', value);
+			window.openwizardai.settings.set('customShellPath', value);
 		},
 
 		setShellArgs: (value) => {
 			set({ shellArgs: value });
-			window.maestro.settings.set('shellArgs', value);
+			window.openwizardai.settings.set('shellArgs', value);
 		},
 
 		setShellEnvVars: (value) => {
 			set({ shellEnvVars: value });
-			window.maestro.settings.set('shellEnvVars', value);
+			window.openwizardai.settings.set('shellEnvVars', value);
 		},
 
 		setShellEnvVarsDisabled: (value) => {
 			set({ shellEnvVarsDisabled: value });
-			window.maestro.settings.set('shellEnvVarsDisabled', value);
+			window.openwizardai.settings.set('shellEnvVarsDisabled', value);
 		},
 
 		setGhPath: (value) => {
 			set({ ghPath: value });
-			window.maestro.settings.set('ghPath', value);
+			window.openwizardai.settings.set('ghPath', value);
 		},
 
 		setFontFamily: (value) => {
 			set({ fontFamily: value });
-			window.maestro.settings.set('fontFamily', value);
+			window.openwizardai.settings.set('fontFamily', value);
 		},
 
 		setTerminalFontFamily: (value) => {
 			set({ terminalFontFamily: value });
-			window.maestro.settings.set('terminalFontFamily', value);
+			window.openwizardai.settings.set('terminalFontFamily', value);
 		},
 
 		setChatFontFamily: (value) => {
 			set({ chatFontFamily: value });
-			window.maestro.settings.set('chatFontFamily', value);
+			window.openwizardai.settings.set('chatFontFamily', value);
 		},
 
 		setFilePreviewFontFamily: (value) => {
 			set({ filePreviewFontFamily: value });
-			window.maestro.settings.set('filePreviewFontFamily', value);
+			window.openwizardai.settings.set('filePreviewFontFamily', value);
 		},
 
 		setFileEditorFontFamily: (value) => {
 			set({ fileEditorFontFamily: value });
-			window.maestro.settings.set('fileEditorFontFamily', value);
+			window.openwizardai.settings.set('fileEditorFontFamily', value);
 		},
 
 		setFontSize: (value) => {
 			set({ fontSize: value });
-			window.maestro.settings.set('fontSize', value);
+			window.openwizardai.settings.set('fontSize', value);
 		},
 
 		setSurfaceFontFamily: (surface, value) => {
 			const spec = TYPOGRAPHY_SURFACE_SPECS[surface];
 			set({ [spec.fontKey]: value } as Partial<SettingsStoreState>);
-			window.maestro.settings.set(spec.fontKey, value);
+			window.openwizardai.settings.set(spec.fontKey, value);
 		},
 
 		setSurfaceFontSize: (surface, value) => {
@@ -1042,18 +1042,18 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 					Math.min(SURFACE_FONT_SIZE_MAX, Math.round(value) || BASE_FONT_SIZE_DEFAULT)
 				);
 				set({ fontSize: clamped });
-				window.maestro.settings.set('fontSize', clamped);
+				window.openwizardai.settings.set('fontSize', clamped);
 				return;
 			}
 			const clamped = clampSurfaceFontSize(value);
 			set({ [spec.sizeKey]: clamped } as Partial<SettingsStoreState>);
-			window.maestro.settings.set(spec.sizeKey, clamped);
+			window.openwizardai.settings.set(spec.sizeKey, clamped);
 		},
 
 		setFontZoom: (value) => {
 			const zoom = clampFontZoom(value);
 			set({ fontZoom: zoom });
-			window.maestro.settings.set('fontZoom', zoom);
+			window.openwizardai.settings.set('fontZoom', zoom);
 		},
 
 		resetTypography: (id) => {
@@ -1061,14 +1061,14 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const patch = { ...preset.fonts, ...preset.sizes };
 			set(patch);
 			for (const [key, value] of Object.entries(patch)) {
-				window.maestro.settings.set(key, value);
+				window.openwizardai.settings.set(key, value);
 			}
 		},
 
 		saveTypographySnapshot: () => {
 			const snapshot = captureTypographySnapshot(get() as unknown as Record<string, unknown>);
 			set({ typographySnapshot: snapshot });
-			window.maestro.settings.set('typographySnapshot', snapshot);
+			window.openwizardai.settings.set('typographySnapshot', snapshot);
 		},
 
 		restoreTypographySnapshot: () => {
@@ -1077,28 +1077,28 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const patch = typographySnapshotPatch(snapshot);
 			set(patch as Partial<SettingsStoreState>);
 			for (const [key, value] of Object.entries(patch)) {
-				window.maestro.settings.set(key, value);
+				window.openwizardai.settings.set(key, value);
 			}
 		},
 
 		setTypographyPromptSeen: (value) => {
 			set({ typographyPromptSeen: value });
-			window.maestro.settings.set('typographyPromptSeen', value);
+			window.openwizardai.settings.set('typographyPromptSeen', value);
 		},
 
 		setThemePromptSeen: (value) => {
 			set({ themePromptSeen: value });
-			window.maestro.settings.set('themePromptSeen', value);
+			window.openwizardai.settings.set('themePromptSeen', value);
 		},
 
 		setUpdatesPromptSeen: (value) => {
 			set({ updatesPromptSeen: value });
-			window.maestro.settings.set('updatesPromptSeen', value);
+			window.openwizardai.settings.set('updatesPromptSeen', value);
 		},
 
 		setAgentPowersPromptSeen: (value) => {
 			set({ agentPowersPromptSeen: value });
-			window.maestro.settings.set('agentPowersPromptSeen', value);
+			window.openwizardai.settings.set('agentPowersPromptSeen', value);
 		},
 
 		applyTypographyPreset: (id) => {
@@ -1106,77 +1106,77 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const patch = { ...preset.fonts, ...preset.sizes };
 			set(patch);
 			for (const [key, value] of Object.entries(patch)) {
-				window.maestro.settings.set(key, value);
+				window.openwizardai.settings.set(key, value);
 			}
 		},
 
 		setMediaPlaybackRate: (value) => {
 			const rate = normalizePlaybackRate(value);
 			set({ mediaPlaybackRate: rate });
-			window.maestro.settings.set('mediaPlaybackRate', rate);
+			window.openwizardai.settings.set('mediaPlaybackRate', rate);
 		},
 
 		setActiveThemeId: (value) => {
 			set({ activeThemeId: value });
-			window.maestro.settings.set('activeThemeId', value);
+			window.openwizardai.settings.set('activeThemeId', value);
 		},
 
 		setCustomThemeColors: (value) => {
 			set({ customThemeColors: value });
-			window.maestro.settings.set('customThemeColors', value);
+			window.openwizardai.settings.set('customThemeColors', value);
 		},
 
 		setCustomThemeBaseId: (value) => {
 			set({ customThemeBaseId: value });
-			window.maestro.settings.set('customThemeBaseId', value);
+			window.openwizardai.settings.set('customThemeBaseId', value);
 		},
 
 		setEnterToSendAI: (value) => {
 			set({ enterToSendAI: value });
-			window.maestro.settings.set('enterToSendAI', value);
+			window.openwizardai.settings.set('enterToSendAI', value);
 		},
 
 		setEnterToSendAIExpanded: (value) => {
 			set({ enterToSendAIExpanded: value });
-			window.maestro.settings.set('enterToSendAIExpanded', value);
+			window.openwizardai.settings.set('enterToSendAIExpanded', value);
 		},
 
 		setForcedParallelExecution: (value) => {
 			set({ forcedParallelExecution: value });
-			window.maestro.settings.set('forcedParallelExecution', value);
+			window.openwizardai.settings.set('forcedParallelExecution', value);
 		},
 
 		setForcedParallelAcknowledged: (value) => {
 			set({ forcedParallelAcknowledged: value });
-			window.maestro.settings.set('forcedParallelAcknowledged', value);
+			window.openwizardai.settings.set('forcedParallelAcknowledged', value);
 		},
 
 		setDefaultSaveToHistory: (value) => {
 			set({ defaultSaveToHistory: value });
-			window.maestro.settings.set('defaultSaveToHistory', value);
+			window.openwizardai.settings.set('defaultSaveToHistory', value);
 		},
 
 		setSynopsisDebounceSeconds: (value) => {
 			const clamped = Math.max(0, Math.round(value));
 			set({ synopsisDebounceSeconds: clamped });
-			window.maestro.settings.set('synopsisDebounceSeconds', clamped);
+			window.openwizardai.settings.set('synopsisDebounceSeconds', clamped);
 		},
 
 		setDefaultShowThinking: (value) => {
 			set({ defaultShowThinking: value });
-			window.maestro.settings.set('defaultShowThinking', value);
+			window.openwizardai.settings.set('defaultShowThinking', value);
 		},
 
 		setLeftSidebarWidth: (value) => {
 			const clamped = Math.max(256, Math.min(600, value));
 			set({ leftSidebarWidth: clamped });
-			window.maestro.settings.set('leftSidebarWidth', clamped);
+			window.openwizardai.settings.set('leftSidebarWidth', clamped);
 		},
 
 		setRightPanelWidth: (value) => {
 			const clamped = Math.max(RIGHT_PANEL_MIN_WIDTH, Math.min(RIGHT_PANEL_MAX_WIDTH, value));
 			set({ rightPanelWidth: clamped });
-			window.maestro.settings.set('rightPanelWidth', clamped);
+			window.openwizardai.settings.set('rightPanelWidth', clamped);
 		},
 
 		setModalSize: (key, value) => {
@@ -1187,7 +1187,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				[key]: normalized,
 			};
 			set({ modalSizes: next });
-			window.maestro.settings.set('modalSizes', next);
+			window.openwizardai.settings.set('modalSizes', next);
 		},
 
 		// Single-key counterpart to resetModalSizes, backing the double-click-to-reset
@@ -1198,12 +1198,12 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const next = { ...current };
 			delete next[key];
 			set({ modalSizes: next });
-			window.maestro.settings.set('modalSizes', next);
+			window.openwizardai.settings.set('modalSizes', next);
 		},
 
 		resetModalSizes: () => {
 			set({ modalSizes: {} });
-			window.maestro.settings.set('modalSizes', {});
+			window.openwizardai.settings.set('modalSizes', {});
 		},
 
 		setTextareaHeight: (key, value) => {
@@ -1215,22 +1215,22 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				[key]: normalized,
 			};
 			set({ textareaHeights: next });
-			window.maestro.settings.set('textareaHeights', next);
+			window.openwizardai.settings.set('textareaHeights', next);
 		},
 
 		setMarkdownEditMode: (value) => {
 			set({ markdownEditMode: value });
-			window.maestro.settings.set('markdownEditMode', value);
+			window.openwizardai.settings.set('markdownEditMode', value);
 		},
 
 		setChatRawTextMode: (value) => {
 			set({ chatRawTextMode: value });
-			window.maestro.settings.set('chatRawTextMode', value);
+			window.openwizardai.settings.set('chatRawTextMode', value);
 		},
 
 		setBionifyReadingMode: (value) => {
 			set({ bionifyReadingMode: value });
-			window.maestro.settings.set('bionifyReadingMode', value);
+			window.openwizardai.settings.set('bionifyReadingMode', value);
 		},
 
 		setBionifyIntensity: (value) => {
@@ -1239,27 +1239,27 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				? Math.max(0.6, Math.min(1.5, numericValue))
 				: 1;
 			set({ bionifyIntensity: clamped });
-			window.maestro.settings.set('bionifyIntensity', clamped);
+			window.openwizardai.settings.set('bionifyIntensity', clamped);
 		},
 
 		setBionifyAlgorithm: (value) => {
 			set({ bionifyAlgorithm: value });
-			window.maestro.settings.set('bionifyAlgorithm', value);
+			window.openwizardai.settings.set('bionifyAlgorithm', value);
 		},
 
 		setShowHiddenFiles: (value) => {
 			set({ showHiddenFiles: value });
-			window.maestro.settings.set('showHiddenFiles', value);
+			window.openwizardai.settings.set('showHiddenFiles', value);
 		},
 
 		setFileExplorerIconTheme: (value) => {
 			set({ fileExplorerIconTheme: value });
-			window.maestro.settings.set('fileExplorerIconTheme', value);
+			window.openwizardai.settings.set('fileExplorerIconTheme', value);
 		},
 
 		setToastWidth: (value) => {
 			set({ toastWidth: value });
-			window.maestro.settings.set('toastWidth', value);
+			window.openwizardai.settings.set('toastWidth', value);
 			// Fire a sample toast at the new width so the size is visible the
 			// moment it is picked, instead of waiting for the next real
 			// notification. Replaces its own previous preview so clicking
@@ -1280,107 +1280,107 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setTerminalWidth: (value) => {
 			set({ terminalWidth: value });
-			window.maestro.settings.set('terminalWidth', value);
+			window.openwizardai.settings.set('terminalWidth', value);
 		},
 
 		setMaxOutputLines: (value) => {
 			set({ maxOutputLines: value });
-			window.maestro.settings.set('maxOutputLines', value);
+			window.openwizardai.settings.set('maxOutputLines', value);
 		},
 
 		setOsNotificationsEnabled: (value) => {
 			set({ osNotificationsEnabled: value });
-			window.maestro.settings.set('osNotificationsEnabled', value);
+			window.openwizardai.settings.set('osNotificationsEnabled', value);
 		},
 
 		setAudioFeedbackEnabled: (value) => {
 			set({ audioFeedbackEnabled: value });
-			window.maestro.settings.set('audioFeedbackEnabled', value);
+			window.openwizardai.settings.set('audioFeedbackEnabled', value);
 		},
 
 		setAudioFeedbackCommand: (value) => {
 			set({ audioFeedbackCommand: value });
-			window.maestro.settings.set('audioFeedbackCommand', value);
+			window.openwizardai.settings.set('audioFeedbackCommand', value);
 		},
 
 		setToastDuration: (value) => {
 			set({ toastDuration: value });
-			window.maestro.settings.set('toastDuration', value);
+			window.openwizardai.settings.set('toastDuration', value);
 		},
 
 		setIdleNotificationEnabled: (value) => {
 			set({ idleNotificationEnabled: value });
-			window.maestro.settings.set('idleNotificationEnabled', value);
+			window.openwizardai.settings.set('idleNotificationEnabled', value);
 		},
 
 		setIdleNotificationCommand: (value) => {
 			set({ idleNotificationCommand: value });
-			window.maestro.settings.set('idleNotificationCommand', value);
+			window.openwizardai.settings.set('idleNotificationCommand', value);
 		},
 
 		setCheckForUpdatesOnStartup: (value) => {
 			set({ checkForUpdatesOnStartup: value });
-			window.maestro.settings.set('checkForUpdatesOnStartup', value);
+			window.openwizardai.settings.set('checkForUpdatesOnStartup', value);
 		},
 
 		setEnableBetaUpdates: (value) => {
 			set({ enableBetaUpdates: value });
-			window.maestro.settings.set('enableBetaUpdates', value);
+			window.openwizardai.settings.set('enableBetaUpdates', value);
 		},
 
 		setCrashReportingEnabled: (value) => {
 			set({ crashReportingEnabled: value });
-			window.maestro.settings.set('crashReportingEnabled', value);
+			window.openwizardai.settings.set('crashReportingEnabled', value);
 		},
 
 		setLogViewerSelectedLevels: (value) => {
 			set({ logViewerSelectedLevels: value });
-			window.maestro.settings.set('logViewerSelectedLevels', value);
+			window.openwizardai.settings.set('logViewerSelectedLevels', value);
 		},
 
 		setShortcuts: (value) => {
 			set({ shortcuts: value });
-			window.maestro.settings.set('shortcuts', value);
+			window.openwizardai.settings.set('shortcuts', value);
 		},
 
 		setTabShortcuts: (value) => {
 			set({ tabShortcuts: value });
-			window.maestro.settings.set('tabShortcuts', value);
+			window.openwizardai.settings.set('tabShortcuts', value);
 		},
 
 		setCustomAICommands: (value) => {
 			set({ customAICommands: value });
-			window.maestro.settings.set('customAICommands', value);
+			window.openwizardai.settings.set('customAICommands', value);
 		},
 
 		setUngroupedCollapsed: (value) => {
 			set({ ungroupedCollapsed: value });
-			window.maestro.settings.set('ungroupedCollapsed', value);
+			window.openwizardai.settings.set('ungroupedCollapsed', value);
 		},
 
 		setGroupChatsExpanded: (value) => {
 			set({ groupChatsExpanded: value });
-			window.maestro.settings.set('groupChatsExpanded', value);
+			window.openwizardai.settings.set('groupChatsExpanded', value);
 		},
 
 		setGroupChatSortAlphabetical: (value) => {
 			set({ groupChatSortAlphabetical: value });
-			window.maestro.settings.set('groupChatSortAlphabetical', value);
+			window.openwizardai.settings.set('groupChatSortAlphabetical', value);
 		},
 
 		setStarredSessionsCollapsed: (value) => {
 			set({ starredSessionsCollapsed: value });
-			window.maestro.settings.set('starredSessionsCollapsed', value);
+			window.openwizardai.settings.set('starredSessionsCollapsed', value);
 		},
 
 		setTourCompleted: (value) => {
 			set({ tourCompleted: value });
-			window.maestro.settings.set('tourCompleted', value);
+			window.openwizardai.settings.set('tourCompleted', value);
 		},
 
 		setFirstAutoRunCompleted: (value) => {
 			set({ firstAutoRunCompleted: value });
-			window.maestro.settings.set('firstAutoRunCompleted', value);
+			window.openwizardai.settings.set('firstAutoRunCompleted', value);
 		},
 
 		setPersistentWebLink: async (value) => {
@@ -1392,7 +1392,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 					// persistCurrentToken writes both webAuthToken and persistentWebLink
 					// on the main side - the factory ignores webAuthToken unless
 					// persistentWebLink is also true, so partial writes are safe
-					const result = await window.maestro.live.persistCurrentToken();
+					const result = await window.openwizardai.live.persistCurrentToken();
 					if (requestSeq !== persistentWebLinkRequestSeq) {
 						// Stale: another call was made while this IPC was in-flight.
 						// The IPC handler already wrote the token and flag in main -
@@ -1402,7 +1402,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 						// second call - the handler is idempotent.
 						if (!get().persistentWebLink) {
 							try {
-								await window.maestro.live.clearPersistentToken();
+								await window.openwizardai.live.clearPersistentToken();
 							} catch (clearError) {
 								logger.error(
 									'[Settings] Failed to clear stale persistent web link:',
@@ -1428,7 +1428,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			} else {
 				try {
 					// Atomically clear both keys on the main side
-					const result = await window.maestro.live.clearPersistentToken();
+					const result = await window.openwizardai.live.clearPersistentToken();
 					if (requestSeq !== persistentWebLinkRequestSeq) {
 						// Stale: user re-enabled while this clear was in-flight.
 						// The enable path will handle persisting - nothing to undo here.
@@ -1456,7 +1456,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setWebInterfaceUseCustomPort: (value) => {
 			set({ webInterfaceUseCustomPort: value });
-			window.maestro.settings.set('webInterfaceUseCustomPort', value);
+			window.openwizardai.settings.set('webInterfaceUseCustomPort', value);
 		},
 
 		setWebInterfaceCustomPort: (value) => {
@@ -1464,13 +1464,13 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			set({ webInterfaceCustomPort: value });
 			// Only persist valid port values
 			if (value >= 1024 && value <= 65535) {
-				window.maestro.settings.set('webInterfaceCustomPort', value);
+				window.openwizardai.settings.set('webInterfaceCustomPort', value);
 			}
 		},
 
 		setColorBlindMode: (value) => {
 			set({ colorBlindMode: value });
-			window.maestro.settings.set('colorBlindMode', value);
+			window.openwizardai.settings.set('colorBlindMode', value);
 		},
 
 		setThemeGloss: (value) => {
@@ -1480,58 +1480,58 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			// no rule, so the user sees the control silently do nothing.
 			const level = asGlossLevel(value);
 			set({ themeGloss: level });
-			window.maestro.settings.set('themeGloss', level);
+			window.openwizardai.settings.set('themeGloss', level);
 		},
 
 		setShowStarredInUnreadFilter: (value) => {
 			set({ showStarredInUnreadFilter: value });
-			window.maestro.settings.set('showStarredInUnreadFilter', value);
+			window.openwizardai.settings.set('showStarredInUnreadFilter', value);
 		},
 
 		setShowFilePreviewsInUnreadFilter: (value) => {
 			set({ showFilePreviewsInUnreadFilter: value });
-			window.maestro.settings.set('showFilePreviewsInUnreadFilter', value);
+			window.openwizardai.settings.set('showFilePreviewsInUnreadFilter', value);
 		},
 
 		setShowTerminalTabsInUnreadFilter: (value) => {
 			set({ showTerminalTabsInUnreadFilter: value });
-			window.maestro.settings.set('showTerminalTabsInUnreadFilter', value);
+			window.openwizardai.settings.set('showTerminalTabsInUnreadFilter', value);
 		},
 
 		setShowBrowserTabsInUnreadFilter: (value) => {
 			set({ showBrowserTabsInUnreadFilter: value });
-			window.maestro.settings.set('showBrowserTabsInUnreadFilter', value);
+			window.openwizardai.settings.set('showBrowserTabsInUnreadFilter', value);
 		},
 
 		setUseCmd0AsLastTab: (value) => {
 			set({ useCmd0AsLastTab: value });
-			window.maestro.settings.set('useCmd0AsLastTab', value);
+			window.openwizardai.settings.set('useCmd0AsLastTab', value);
 		},
 
 		setShowBrowserTabDomain: (value) => {
 			set({ showBrowserTabDomain: value });
-			window.maestro.settings.set('showBrowserTabDomain', value);
+			window.openwizardai.settings.set('showBrowserTabDomain', value);
 		},
 
 		setShowTabCountBadge: (value) => {
 			set({ showTabCountBadge: value });
-			window.maestro.settings.set('showTabCountBadge', value);
+			window.openwizardai.settings.set('showTabCountBadge', value);
 		},
 
 		setDocumentGraphShowExternalLinks: (value) => {
 			set({ documentGraphShowExternalLinks: value });
-			window.maestro.settings.set('documentGraphShowExternalLinks', value);
+			window.openwizardai.settings.set('documentGraphShowExternalLinks', value);
 		},
 
 		setDocumentGraphConfirmClose: (value) => {
 			set({ documentGraphConfirmClose: value });
-			window.maestro.settings.set('documentGraphConfirmClose', value);
+			window.openwizardai.settings.set('documentGraphConfirmClose', value);
 		},
 
 		setDocumentGraphMaxNodes: (value) => {
 			const clamped = Math.max(50, Math.min(1000, value));
 			set({ documentGraphMaxNodes: clamped });
-			window.maestro.settings.set('documentGraphMaxNodes', clamped);
+			window.openwizardai.settings.set('documentGraphMaxNodes', clamped);
 		},
 
 		setDocumentGraphPreviewCharLimit: (value) => {
@@ -1539,43 +1539,43 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			// which draws each node as a filename pill.
 			const clamped = Math.max(0, Math.min(500, value));
 			set({ documentGraphPreviewCharLimit: clamped });
-			window.maestro.settings.set('documentGraphPreviewCharLimit', clamped);
+			window.openwizardai.settings.set('documentGraphPreviewCharLimit', clamped);
 		},
 
 		setDocumentGraphLayoutType: (value) => {
 			const layoutType = isMindMapLayoutType(value) ? value : 'hierarchical';
 			set({ documentGraphLayoutType: layoutType });
-			window.maestro.settings.set('documentGraphLayoutType', layoutType);
+			window.openwizardai.settings.set('documentGraphLayoutType', layoutType);
 		},
 
 		setStatsCollectionEnabled: (value) => {
 			set({ statsCollectionEnabled: value });
-			window.maestro.settings.set('statsCollectionEnabled', value);
+			window.openwizardai.settings.set('statsCollectionEnabled', value);
 		},
 
 		setDefaultStatsTimeRange: (value) => {
 			set({ defaultStatsTimeRange: value });
-			window.maestro.settings.set('defaultStatsTimeRange', value);
+			window.openwizardai.settings.set('defaultStatsTimeRange', value);
 		},
 
 		setDisableGpuAcceleration: (value) => {
 			set({ disableGpuAcceleration: value });
-			window.maestro.settings.set('disableGpuAcceleration', value);
+			window.openwizardai.settings.set('disableGpuAcceleration', value);
 		},
 
 		setDisableConfetti: (value) => {
 			set({ disableConfetti: value });
-			window.maestro.settings.set('disableConfetti', value);
+			window.openwizardai.settings.set('disableConfetti', value);
 		},
 
 		setLocalIgnorePatterns: (value) => {
 			set({ localIgnorePatterns: value });
-			window.maestro.settings.set('localIgnorePatterns', value);
+			window.openwizardai.settings.set('localIgnorePatterns', value);
 		},
 
 		setLocalHonorGitignore: (value) => {
 			set({ localHonorGitignore: value });
-			window.maestro.settings.set('localHonorGitignore', value);
+			window.openwizardai.settings.set('localHonorGitignore', value);
 		},
 
 		setFileExplorerMaxDepth: (value) => {
@@ -1584,7 +1584,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				Math.min(FILE_EXPLORER_MAX_DEPTH_CAP, Math.floor(value))
 			);
 			set({ fileExplorerMaxDepth: clamped });
-			window.maestro.settings.set('fileExplorerMaxDepth', clamped);
+			window.openwizardai.settings.set('fileExplorerMaxDepth', clamped);
 		},
 
 		setFileExplorerMaxEntries: (value) => {
@@ -1593,12 +1593,12 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				Math.min(FILE_EXPLORER_MAX_ENTRIES_CAP, Math.floor(value))
 			);
 			set({ fileExplorerMaxEntries: clamped });
-			window.maestro.settings.set('fileExplorerMaxEntries', clamped);
+			window.openwizardai.settings.set('fileExplorerMaxEntries', clamped);
 		},
 
 		setSshReduceEntryCapEnabled: (value) => {
 			set({ sshReduceEntryCapEnabled: value });
-			window.maestro.settings.set('sshReduceEntryCapEnabled', value);
+			window.openwizardai.settings.set('sshReduceEntryCapEnabled', value);
 		},
 
 		setSshReduceEntryCapFraction: (value) => {
@@ -1611,214 +1611,214 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				Math.min(SSH_REDUCE_ENTRY_CAP_MAX_FRACTION, snapped)
 			);
 			set({ sshReduceEntryCapFraction: clamped });
-			window.maestro.settings.set('sshReduceEntryCapFraction', clamped);
+			window.openwizardai.settings.set('sshReduceEntryCapFraction', clamped);
 		},
 
 		setSshRemoteIgnorePatterns: (value) => {
 			set({ sshRemoteIgnorePatterns: value });
-			window.maestro.settings.set('sshRemoteIgnorePatterns', value);
+			window.openwizardai.settings.set('sshRemoteIgnorePatterns', value);
 		},
 
 		setSshRemoteHonorGitignore: (value) => {
 			set({ sshRemoteHonorGitignore: value });
-			window.maestro.settings.set('sshRemoteHonorGitignore', value);
+			window.openwizardai.settings.set('sshRemoteHonorGitignore', value);
 		},
 
 		setUseSystemBrowser: (value) => {
 			set({ useSystemBrowser: value });
-			window.maestro.settings.set('useSystemBrowser', value);
+			window.openwizardai.settings.set('useSystemBrowser', value);
 		},
 
 		setBrowserHomeUrl: (value) => {
 			set({ browserHomeUrl: value });
-			window.maestro.settings.set('browserHomeUrl', value);
+			window.openwizardai.settings.set('browserHomeUrl', value);
 		},
 
 		setHtmlDoubleClickOpensInBrowser: (value) => {
 			set({ htmlDoubleClickOpensInBrowser: value });
-			window.maestro.settings.set('htmlDoubleClickOpensInBrowser', value);
+			window.openwizardai.settings.set('htmlDoubleClickOpensInBrowser', value);
 		},
 
 		setBrowserTabKeepAlive: (value) => {
 			set({ browserTabKeepAlive: value });
-			window.maestro.settings.set('browserTabKeepAlive', value);
+			window.openwizardai.settings.set('browserTabKeepAlive', value);
 		},
 
 		setBrowserTabKeepAliveLimit: (value) => {
 			const clamped = Math.max(1, Math.floor(value) || 1);
 			set({ browserTabKeepAliveLimit: clamped });
-			window.maestro.settings.set('browserTabKeepAliveLimit', clamped);
+			window.openwizardai.settings.set('browserTabKeepAliveLimit', clamped);
 		},
 
 		setAutomaticTabNamingEnabled: (value) => {
 			set({ automaticTabNamingEnabled: value });
-			window.maestro.settings.set('automaticTabNamingEnabled', value);
+			window.openwizardai.settings.set('automaticTabNamingEnabled', value);
 		},
 
 		setNewTabPlacement: (value) => {
 			set({ newTabPlacement: value });
-			window.maestro.settings.set('newTabPlacement', value);
+			window.openwizardai.settings.set('newTabPlacement', value);
 		},
 
 		setNewBrowserTabPlacement: (value) => {
 			set({ newBrowserTabPlacement: value });
-			window.maestro.settings.set('newBrowserTabPlacement', value);
+			window.openwizardai.settings.set('newBrowserTabPlacement', value);
 		},
 
 		setNewTerminalPlacement: (value) => {
 			set({ newTerminalPlacement: value });
-			window.maestro.settings.set('newTerminalPlacement', value);
+			window.openwizardai.settings.set('newTerminalPlacement', value);
 		},
 
 		setOpenedFilePlacement: (value) => {
 			set({ openedFilePlacement: value });
-			window.maestro.settings.set('openedFilePlacement', value);
+			window.openwizardai.settings.set('openedFilePlacement', value);
 		},
 
 		setFileTabAutoRefreshEnabled: (value) => {
 			set({ fileTabAutoRefreshEnabled: value });
-			window.maestro.settings.set('fileTabAutoRefreshEnabled', value);
+			window.openwizardai.settings.set('fileTabAutoRefreshEnabled', value);
 		},
 
 		setSuppressWindowsWarning: (value) => {
 			set({ suppressWindowsWarning: value });
-			window.maestro.settings.set('suppressWindowsWarning', value);
+			window.openwizardai.settings.set('suppressWindowsWarning', value);
 		},
 
 		setUserMessageAlignment: (value) => {
 			set({ userMessageAlignment: value });
-			window.maestro.settings.set('userMessageAlignment', value);
+			window.openwizardai.settings.set('userMessageAlignment', value);
 		},
 
 		setEncoreFeatures: (value) => {
 			set({ encoreFeatures: value });
-			window.maestro.settings.set('encoreFeatures', value);
+			window.openwizardai.settings.set('encoreFeatures', value);
 		},
 
 		setDirectorNotesSettings: (value) => {
 			set({ directorNotesSettings: value });
-			window.maestro.settings.set('directorNotesSettings', value);
+			window.openwizardai.settings.set('directorNotesSettings', value);
 		},
 
 		setCueHistoryRetentionDays: (value) => {
 			set({ cueHistoryRetentionDays: value });
-			window.maestro.settings.set('cueHistoryRetentionDays', value);
+			window.openwizardai.settings.set('cueHistoryRetentionDays', value);
 		},
 
 		setGroupCueEntries: (value) => {
 			set({ groupCueEntries: value });
-			window.maestro.settings.set('groupCueEntries', value);
+			window.openwizardai.settings.set('groupCueEntries', value);
 		},
 
 		setWakatimeApiKey: (value) => {
 			set({ wakatimeApiKey: value });
-			window.maestro.settings.set('wakatimeApiKey', value);
+			window.openwizardai.settings.set('wakatimeApiKey', value);
 		},
 
 		setWakatimeEnabled: (value) => {
 			set({ wakatimeEnabled: value });
-			window.maestro.settings.set('wakatimeEnabled', value);
+			window.openwizardai.settings.set('wakatimeEnabled', value);
 		},
 
 		setWakatimeDetailedTracking: (value) => {
 			set({ wakatimeDetailedTracking: value });
-			window.maestro.settings.set('wakatimeDetailedTracking', value);
+			window.openwizardai.settings.set('wakatimeDetailedTracking', value);
 		},
 
 		setUseNativeTitleBar: (value) => {
 			set({ useNativeTitleBar: value });
-			window.maestro.settings.set('useNativeTitleBar', value);
+			window.openwizardai.settings.set('useNativeTitleBar', value);
 		},
 
 		setAutoHideMenuBar: (value) => {
 			set({ autoHideMenuBar: value });
-			window.maestro.settings.set('autoHideMenuBar', value);
+			window.openwizardai.settings.set('autoHideMenuBar', value);
 		},
 
 		setShowAgentName: (value) => {
 			set({ showAgentName: value });
-			window.maestro.settings.set('showAgentName', value);
+			window.openwizardai.settings.set('showAgentName', value);
 		},
 
 		setShowSessionIdPill: (value) => {
 			set({ showSessionIdPill: value });
-			window.maestro.settings.set('showSessionIdPill', value);
+			window.openwizardai.settings.set('showSessionIdPill', value);
 		},
 
 		setShowSessionCostPill: (value) => {
 			set({ showSessionCostPill: value });
-			window.maestro.settings.set('showSessionCostPill', value);
+			window.openwizardai.settings.set('showSessionCostPill', value);
 		},
 
 		setShowProviderModePill: (value) => {
 			set({ showProviderModePill: value });
-			window.maestro.settings.set('showProviderModePill', value);
+			window.openwizardai.settings.set('showProviderModePill', value);
 		},
 
 		setShowWorktreePill: (value) => {
 			set({ showWorktreePill: value });
-			window.maestro.settings.set('showWorktreePill', value);
+			window.openwizardai.settings.set('showWorktreePill', value);
 		},
 
 		setShowWorktreeBranchName: (value) => {
 			set({ showWorktreeBranchName: value });
-			window.maestro.settings.set('showWorktreeBranchName', value);
+			window.openwizardai.settings.set('showWorktreeBranchName', value);
 		},
 
 		setShowStarredSessionsSection: (value) => {
 			set({ showStarredSessionsSection: value });
-			window.maestro.settings.set('showStarredSessionsSection', value);
+			window.openwizardai.settings.set('showStarredSessionsSection', value);
 		},
 
 		setShowLeftPanelGroupMemberCount: (value) => {
 			set({ showLeftPanelGroupMemberCount: value });
-			window.maestro.settings.set('showLeftPanelGroupMemberCount', value);
+			window.openwizardai.settings.set('showLeftPanelGroupMemberCount', value);
 		},
 
 		setLeftPanelCollapsedPillsPerRow: (value) => {
 			const clamped = Math.max(5, Math.min(50, Math.round(value)));
 			set({ leftPanelCollapsedPillsPerRow: clamped });
-			window.maestro.settings.set('leftPanelCollapsedPillsPerRow', clamped);
+			window.openwizardai.settings.set('leftPanelCollapsedPillsPerRow', clamped);
 		},
 
 		setShowLeftPanelLocationPills: (value) => {
 			set({ showLeftPanelLocationPills: value });
-			window.maestro.settings.set('showLeftPanelLocationPills', value);
+			window.openwizardai.settings.set('showLeftPanelLocationPills', value);
 		},
 
 		setShowLeftPanelGitIndicator: (value) => {
 			set({ showLeftPanelGitIndicator: value });
-			window.maestro.settings.set('showLeftPanelGitIndicator', value);
+			window.openwizardai.settings.set('showLeftPanelGitIndicator', value);
 		},
 
 		setShowLeftPanelCueIndicator: (value) => {
 			set({ showLeftPanelCueIndicator: value });
-			window.maestro.settings.set('showLeftPanelCueIndicator', value);
+			window.openwizardai.settings.set('showLeftPanelCueIndicator', value);
 		},
 
 		setShowLeftPanelStartupCommandIndicator: (value) => {
 			set({ showLeftPanelStartupCommandIndicator: value });
-			window.maestro.settings.set('showLeftPanelStartupCommandIndicator', value);
+			window.openwizardai.settings.set('showLeftPanelStartupCommandIndicator', value);
 		},
 
 		setShowGroupLabelInBookmarks: (value) => {
 			set({ showGroupLabelInBookmarks: value });
-			window.maestro.settings.set('showGroupLabelInBookmarks', value);
+			window.openwizardai.settings.set('showGroupLabelInBookmarks', value);
 		},
 
 		setShowFullGroupLabelInBookmarks: (value) => {
 			set({ showFullGroupLabelInBookmarks: value });
-			window.maestro.settings.set('showFullGroupLabelInBookmarks', value);
+			window.openwizardai.settings.set('showFullGroupLabelInBookmarks', value);
 		},
 
 		setFileEditWordWrap: (value) => {
 			set({ fileEditWordWrap: value });
-			window.maestro.settings.set('fileEditWordWrap', value);
+			window.openwizardai.settings.set('fileEditWordWrap', value);
 		},
 
 		setFileEditShowLineNumbers: (value) => {
 			set({ fileEditShowLineNumbers: value });
-			window.maestro.settings.set('fileEditShowLineNumbers', value);
+			window.openwizardai.settings.set('fileEditShowLineNumbers', value);
 		},
 
 		setFilePreviewToolbarButtonVisibility: (button, value) => {
@@ -1827,38 +1827,38 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				[button]: value,
 			};
 			set({ filePreviewToolbarVisibility: next });
-			window.maestro.settings.set('filePreviewToolbarVisibility', next);
+			window.openwizardai.settings.set('filePreviewToolbarVisibility', next);
 		},
 
 		setModeratorStandingInstructions: (value) => {
 			const trimmed = value.slice(0, 2000);
 			set({ moderatorStandingInstructions: trimmed });
-			window.maestro.settings.set('moderatorStandingInstructions', trimmed);
+			window.openwizardai.settings.set('moderatorStandingInstructions', trimmed);
 		},
 
 		setAutoRunDisabled: (value) => {
 			set({ autoRunDisabled: value });
-			window.maestro.settings.set('autoRunDisabled', value);
+			window.openwizardai.settings.set('autoRunDisabled', value);
 		},
 
 		setDotfilesToggleHidden: (value) => {
 			set({ dotfilesToggleHidden: value });
-			window.maestro.settings.set('dotfilesToggleHidden', value);
+			window.openwizardai.settings.set('dotfilesToggleHidden', value);
 		},
 
 		setSpeckitEnabled: (value) => {
 			set({ speckitEnabled: value });
-			window.maestro.settings.set('speckitEnabled', value);
+			window.openwizardai.settings.set('speckitEnabled', value);
 		},
 
 		setOpenspecEnabled: (value) => {
 			set({ openspecEnabled: value });
-			window.maestro.settings.set('openspecEnabled', value);
+			window.openwizardai.settings.set('openspecEnabled', value);
 		},
 
 		setBmadEnabled: (value) => {
 			set({ bmadEnabled: value });
-			window.maestro.settings.set('bmadEnabled', value);
+			window.openwizardai.settings.set('bmadEnabled', value);
 		},
 
 		setAutoRunInactivityTimeoutMin: (value) => {
@@ -1866,72 +1866,72 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const rounded = Math.round(value);
 			const clamped = rounded <= 0 ? 0 : Math.max(1, Math.min(1440, rounded));
 			set({ autoRunInactivityTimeoutMin: clamped });
-			window.maestro.settings.set('autoRunInactivityTimeoutMin', clamped);
+			window.openwizardai.settings.set('autoRunInactivityTimeoutMin', clamped);
 		},
 
 		setLastSelectedPromptId: (value) => {
 			set({ lastSelectedPromptId: value });
-			window.maestro.settings.set('lastSelectedPromptId', value);
+			window.openwizardai.settings.set('lastSelectedPromptId', value);
 		},
 
 		setSpellCheck: (value) => {
 			set({ spellCheck: value });
-			window.maestro.settings.set('spellCheck', value);
+			window.openwizardai.settings.set('spellCheck', value);
 		},
 
 		setAnnotatorPenColor: (value) => {
 			set({ annotatorPenColor: value });
-			window.maestro.settings.set('annotatorPenColor', value);
+			window.openwizardai.settings.set('annotatorPenColor', value);
 		},
 
 		setAnnotatorPenSize: (value) => {
 			set({ annotatorPenSize: value });
-			window.maestro.settings.set('annotatorPenSize', value);
+			window.openwizardai.settings.set('annotatorPenSize', value);
 		},
 
 		setAnnotatorThinning: (value) => {
 			set({ annotatorThinning: value });
-			window.maestro.settings.set('annotatorThinning', value);
+			window.openwizardai.settings.set('annotatorThinning', value);
 		},
 
 		setAnnotatorSmoothing: (value) => {
 			set({ annotatorSmoothing: value });
-			window.maestro.settings.set('annotatorSmoothing', value);
+			window.openwizardai.settings.set('annotatorSmoothing', value);
 		},
 
 		setAnnotatorStreamline: (value) => {
 			set({ annotatorStreamline: value });
-			window.maestro.settings.set('annotatorStreamline', value);
+			window.openwizardai.settings.set('annotatorStreamline', value);
 		},
 
 		setAnnotatorTaperStart: (value) => {
 			set({ annotatorTaperStart: value });
-			window.maestro.settings.set('annotatorTaperStart', value);
+			window.openwizardai.settings.set('annotatorTaperStart', value);
 		},
 
 		setAnnotatorTaperEnd: (value) => {
 			set({ annotatorTaperEnd: value });
-			window.maestro.settings.set('annotatorTaperEnd', value);
+			window.openwizardai.settings.set('annotatorTaperEnd', value);
 		},
 
 		setAnnotatorTextColor: (value) => {
 			set({ annotatorTextColor: value });
-			window.maestro.settings.set('annotatorTextColor', value);
+			window.openwizardai.settings.set('annotatorTextColor', value);
 		},
 
 		setAnnotatorTextSize: (value) => {
 			set({ annotatorTextSize: value });
-			window.maestro.settings.set('annotatorTextSize', value);
+			window.openwizardai.settings.set('annotatorTextSize', value);
 		},
 
 		setAnnotatorTextFont: (value) => {
 			set({ annotatorTextFont: value });
-			window.maestro.settings.set('annotatorTextFont', value);
+			window.openwizardai.settings.set('annotatorTextFont', value);
 		},
 
 		setAnnotatorTextBgColor: (value) => {
 			set({ annotatorTextBgColor: value });
-			window.maestro.settings.set('annotatorTextBgColor', value);
+			window.openwizardai.settings.set('annotatorTextBgColor', value);
 		},
 
 		// ============================================================================
@@ -1940,20 +1940,20 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setLogLevel: async (value) => {
 			set({ logLevel: value });
-			await window.maestro.logger.setLogLevel(value);
+			await window.openwizardai.logger.setLogLevel(value);
 		},
 
 		setMaxLogBuffer: async (value) => {
 			set({ maxLogBuffer: value });
-			await window.maestro.logger.setMaxLogBuffer(value);
+			await window.openwizardai.logger.setMaxLogBuffer(value);
 		},
 
 		setPreventSleepEnabled: async (value) => {
 			const prev = get().preventSleepEnabled;
 			set({ preventSleepEnabled: value });
 			try {
-				await window.maestro.settings.set('preventSleepEnabled', value);
-				await window.maestro.power.setEnabled(value);
+				await window.openwizardai.settings.set('preventSleepEnabled', value);
+				await window.openwizardai.power.setEnabled(value);
 			} catch (error) {
 				// Rollback on failure so UI stays in sync with actual power state
 				set({ preventSleepEnabled: prev });
@@ -1965,8 +1965,8 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const prev = get().preventDisplaySleepEnabled;
 			set({ preventDisplaySleepEnabled: value });
 			try {
-				await window.maestro.settings.set('preventDisplaySleepEnabled', value);
-				await window.maestro.power.setKeepDisplayAwake(value);
+				await window.openwizardai.settings.set('preventDisplaySleepEnabled', value);
+				await window.openwizardai.power.setKeepDisplayAwake(value);
 			} catch (error) {
 				// Rollback on failure so UI stays in sync with actual power state
 				set({ preventDisplaySleepEnabled: prev });
@@ -1980,14 +1980,14 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setTotalActiveTimeMs: (value) => {
 			set({ totalActiveTimeMs: value });
-			window.maestro.settings.set('totalActiveTimeMs', value);
+			window.openwizardai.settings.set('totalActiveTimeMs', value);
 		},
 
 		addTotalActiveTimeMs: (delta) => {
 			const prev = get().totalActiveTimeMs;
 			const updated = prev + delta;
 			set({ totalActiveTimeMs: updated });
-			window.maestro.settings.set('totalActiveTimeMs', updated);
+			window.openwizardai.settings.set('totalActiveTimeMs', updated);
 		},
 
 		// ============================================================================
@@ -1998,7 +1998,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			const prev = get().usageStats;
 			const updated = mergeUsagePeaks(prev, value);
 			set({ usageStats: updated });
-			window.maestro.settings.set('usageStats', updated);
+			window.openwizardai.settings.set('usageStats', updated);
 		},
 
 		updateUsageStats: (currentValues) => {
@@ -2018,10 +2018,10 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			// updateUsageStats fires from useAutoRunAchievements on every `sessions` ref flip
 			// (i.e., every ~200ms streaming flush). Calling `set` with a fresh object identity
 			// each time triggers every consumer of useSettingsStore() to re-render, which
-			// cascades through MaestroConsoleInner → GitStatusProvider → entire workspace tree.
+			// cascades through OpenWizardAIConsoleInner → GitStatusProvider → entire workspace tree.
 			if (usagePeaksEqual(updated, prev)) return;
 
-			window.maestro.settings.set('usageStats', updated);
+			window.openwizardai.settings.set('usageStats', updated);
 			set({ usageStats: updated });
 		},
 
@@ -2031,7 +2031,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setAutoRunStats: (value) => {
 			set({ autoRunStats: value });
-			window.maestro.settings.set('autoRunStats', value);
+			window.openwizardai.settings.set('autoRunStats', value);
 		},
 
 		recordAutoRunComplete: (elapsedTimeMs) => {
@@ -2073,7 +2073,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			};
 
 			set({ autoRunStats: updated });
-			window.maestro.settings.set('autoRunStats', updated);
+			window.openwizardai.settings.set('autoRunStats', updated);
 
 			return { newBadgeLevel, isNewRecord };
 		},
@@ -2115,7 +2115,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			};
 
 			set({ autoRunStats: updated });
-			window.maestro.settings.set('autoRunStats', updated);
+			window.openwizardai.settings.set('autoRunStats', updated);
 
 			// Note: isNewRecord is always false during progress - we don't know total run time yet
 			return { newBadgeLevel, isNewRecord: false };
@@ -2128,7 +2128,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				lastAcknowledgedBadgeLevel: Math.max(level, prev.lastAcknowledgedBadgeLevel ?? 0),
 			};
 			set({ autoRunStats: updated });
-			window.maestro.settings.set('autoRunStats', updated);
+			window.openwizardai.settings.set('autoRunStats', updated);
 		},
 
 		getUnacknowledgedBadgeLevel: () => {
@@ -2147,7 +2147,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setOnboardingStats: (value) => {
 			set({ onboardingStats: value });
-			window.maestro.settings.set('onboardingStats', value);
+			window.openwizardai.settings.set('onboardingStats', value);
 		},
 
 		recordWizardStart: () => {
@@ -2157,7 +2157,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				wizardStartCount: prev.wizardStartCount + 1,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		recordWizardComplete: (durationMs, conversationExchanges, phasesGenerated, tasksGenerated) => {
@@ -2192,7 +2192,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 					newTotalPhases > 0 ? Math.round((newTotalTasks / newTotalPhases) * 10) / 10 : 0,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		recordWizardAbandon: () => {
@@ -2202,7 +2202,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				wizardAbandonCount: prev.wizardAbandonCount + 1,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		recordWizardResume: () => {
@@ -2212,7 +2212,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				wizardResumeCount: prev.wizardResumeCount + 1,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		recordTourStart: () => {
@@ -2222,7 +2222,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				tourStartCount: prev.tourStartCount + 1,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		recordTourComplete: (stepsViewed) => {
@@ -2239,7 +2239,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 					totalTours > 0 ? Math.round((newTotalStepsViewed / totalTours) * 10) / 10 : stepsViewed,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		recordTourSkip: (stepsViewed) => {
@@ -2256,7 +2256,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 					totalTours > 0 ? Math.round((newTotalStepsViewed / totalTours) * 10) / 10 : stepsViewed,
 			};
 			set({ onboardingStats: updated });
-			window.maestro.settings.set('onboardingStats', updated);
+			window.openwizardai.settings.set('onboardingStats', updated);
 		},
 
 		getOnboardingAnalytics: () => {
@@ -2284,14 +2284,14 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setContextManagementSettings: (value) => {
 			set({ contextManagementSettings: value });
-			window.maestro.settings.set('contextManagementSettings', value);
+			window.openwizardai.settings.set('contextManagementSettings', value);
 		},
 
 		updateContextManagementSettings: (partial) => {
 			const prev = get().contextManagementSettings;
 			const updated = { ...prev, ...partial };
 			set({ contextManagementSettings: updated });
-			window.maestro.settings.set('contextManagementSettings', updated);
+			window.openwizardai.settings.set('contextManagementSettings', updated);
 		},
 
 		// ============================================================================
@@ -2300,7 +2300,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 
 		setKeyboardMasteryStats: (value) => {
 			set({ keyboardMasteryStats: value });
-			window.maestro.settings.set('keyboardMasteryStats', value);
+			window.openwizardai.settings.set('keyboardMasteryStats', value);
 		},
 
 		recordShortcutUsage: (shortcutId) => {
@@ -2336,7 +2336,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 			};
 
 			set({ keyboardMasteryStats: updated });
-			window.maestro.settings.set('keyboardMasteryStats', updated);
+			window.openwizardai.settings.set('keyboardMasteryStats', updated);
 
 			return { newLevel };
 		},
@@ -2348,7 +2348,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 				lastAcknowledgedLevel: Math.max(level, prev.lastAcknowledgedLevel),
 			};
 			set({ keyboardMasteryStats: updated });
-			window.maestro.settings.set('keyboardMasteryStats', updated);
+			window.openwizardai.settings.set('keyboardMasteryStats', updated);
 		},
 
 		getUnacknowledgedKeyboardMasteryLevel: () => {
@@ -2524,11 +2524,11 @@ export async function loadAllSettings(): Promise<void> {
 
 	try {
 		// Batch load all settings in a single IPC call
-		const allSettings = (await window.maestro.settings.getAll()) as Record<string, unknown>;
+		const allSettings = (await window.openwizardai.settings.getAll()) as Record<string, unknown>;
 
 		// Logger settings need separate calls (different IPC channel)
-		const savedLogLevel = await window.maestro.logger.getLogLevel();
-		const savedMaxLogBuffer = await window.maestro.logger.getMaxLogBuffer();
+		const savedLogLevel = await window.openwizardai.logger.getLogLevel();
+		const savedMaxLogBuffer = await window.openwizardai.logger.getMaxLogBuffer();
 
 		// Build a single patch to apply to the store
 		const patch: Partial<SettingsStoreState> = {};
@@ -2756,7 +2756,7 @@ export async function loadAllSettings(): Promise<void> {
 			);
 			patch.shortcuts = result.shortcuts;
 			if (result.needsMigration) {
-				window.maestro.settings.set('shortcuts', result.migratedRaw);
+				window.openwizardai.settings.set('shortcuts', result.migratedRaw);
 			}
 		}
 
@@ -2767,7 +2767,7 @@ export async function loadAllSettings(): Promise<void> {
 			);
 			patch.tabShortcuts = result.shortcuts;
 			if (result.needsMigration) {
-				window.maestro.settings.set('tabShortcuts', result.migratedRaw);
+				window.openwizardai.settings.set('tabShortcuts', result.migratedRaw);
 			}
 		}
 
@@ -2832,7 +2832,7 @@ export async function loadAllSettings(): Promise<void> {
 				| undefined;
 			if (legacyGlobalStats?.totalActiveTimeMs && legacyGlobalStats.totalActiveTimeMs > 0) {
 				patch.totalActiveTimeMs = legacyGlobalStats.totalActiveTimeMs;
-				window.maestro.settings.set('totalActiveTimeMs', legacyGlobalStats.totalActiveTimeMs);
+				window.openwizardai.settings.set('totalActiveTimeMs', legacyGlobalStats.totalActiveTimeMs);
 			}
 		}
 
@@ -2861,7 +2861,7 @@ export async function loadAllSettings(): Promise<void> {
 			// a missing or non-numeric stored key to 0 instead of NaN.
 			patch.usageStats = mergeUsagePeaks(
 				useSettingsStore.getState().usageStats,
-				allSettings['usageStats'] as Partial<MaestroUsageStats>
+				allSettings['usageStats'] as Partial<OpenWizardAIUsageStats>
 			);
 		}
 
@@ -3008,7 +3008,7 @@ export async function loadAllSettings(): Promise<void> {
 		}
 
 		// Narrowed rather than cast: this value can arrive from an older build, a
-		// hand-edited settings file, or `maestro-cli settings set`, and an
+		// hand-edited settings file, or `openwizardai-cli settings set`, and an
 		// unrecognized level would render as permanently-off with no error.
 		if (allSettings['themeGloss'] !== undefined)
 			patch.themeGloss = asGlossLevel(allSettings['themeGloss']);
@@ -3436,10 +3436,10 @@ export async function loadAllSettings(): Promise<void> {
 async function backfillCueTimeIfNeeded(alreadyApplied: boolean): Promise<void> {
 	if (alreadyApplied) return;
 	try {
-		const historicalCreditMs = await window.maestro.cueStats.getHistoricalConductorCredit();
+		const historicalCreditMs = await window.openwizardai.cueStats.getHistoricalConductorCredit();
 		// Mark applied regardless of the amount: a user with no retained Cue
 		// history should not re-query the database on every launch.
-		window.maestro.settings.set('cueTimeBackfillApplied', true);
+		window.openwizardai.settings.set('cueTimeBackfillApplied', true);
 		if (!Number.isFinite(historicalCreditMs) || historicalCreditMs <= 0) return;
 
 		const prev = useSettingsStore.getState().autoRunStats;
@@ -3454,7 +3454,7 @@ async function backfillCueTimeIfNeeded(alreadyApplied: boolean): Promise<void> {
 
 		const updated: AutoRunStats = { ...prev, cueTimeMs };
 		useSettingsStore.setState({ autoRunStats: updated });
-		window.maestro.settings.set('autoRunStats', updated);
+		window.openwizardai.settings.set('autoRunStats', updated);
 		logger.info(
 			`[Settings] Backfilled Cue Conductor time from cue.db: ${Math.round(cueTimeMs / 60000)} minutes`
 		);

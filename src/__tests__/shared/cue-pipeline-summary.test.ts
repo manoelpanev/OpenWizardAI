@@ -45,7 +45,7 @@ function pipeline(overrides: Partial<CuePipeline> = {}): CuePipeline {
 		id: 'p1',
 		name: 'Daily Digest',
 		color: '#06b6d4',
-		nodes: [trigger('t1'), agent('a1', 'rc'), agent('a2', 'Maestro')],
+		nodes: [trigger('t1'), agent('a1', 'rc'), agent('a2', 'OpenWizardAI')],
 		edges: [
 			{ id: 'e1', source: 't1', target: 'a1', mode: 'pass' },
 			{ id: 'e2', source: 'a1', target: 'a2', mode: 'pass' },
@@ -77,9 +77,9 @@ function run(overrides: Partial<CueRunResult> = {}): CueRunResult {
 describe('describePipeline', () => {
 	it('reads the flow left-to-right from the trigger', () => {
 		const desc = describePipeline(pipeline());
-		expect(desc.flow).toBe('Scheduled (09:00) → rc → Maestro');
-		expect(desc.steps.map((s) => s.label)).toEqual(['rc', 'Maestro']);
-		expect(desc.agentIds).toEqual(['rc-id', 'Maestro-id']);
+		expect(desc.flow).toBe('Scheduled (09:00) → rc → OpenWizardAI');
+		expect(desc.steps.map((s) => s.label)).toEqual(['rc', 'OpenWizardAI']);
+		expect(desc.agentIds).toEqual(['rc-id', 'OpenWizardAI-id']);
 	});
 
 	// Node ORDER in the array is not execution order - a hand-authored YAML can
@@ -87,10 +87,10 @@ describe('describePipeline', () => {
 	it('orders steps by edge depth, not array position', () => {
 		const desc = describePipeline(
 			pipeline({
-				nodes: [agent('a2', 'Maestro'), agent('a1', 'rc'), trigger('t1')],
+				nodes: [agent('a2', 'OpenWizardAI'), agent('a1', 'rc'), trigger('t1')],
 			})
 		);
-		expect(desc.flow).toBe('Scheduled (09:00) → rc → Maestro');
+		expect(desc.flow).toBe('Scheduled (09:00) → rc → OpenWizardAI');
 	});
 
 	it('keeps nodes unreachable from any trigger, sorted last', () => {
@@ -141,7 +141,7 @@ describe('describePipeline', () => {
 	// literal flow; a wide one must NOT, because chaining 39 independent
 	// sibling agents with arrows describes a sequence that does not exist.
 	it('headline keeps the flow for a small pipeline', () => {
-		expect(describePipeline(pipeline()).headline).toBe('Scheduled (09:00) → rc → Maestro');
+		expect(describePipeline(pipeline()).headline).toBe('Scheduled (09:00) → rc → OpenWizardAI');
 	});
 
 	it('headline switches to counts once the pipeline is wide', () => {

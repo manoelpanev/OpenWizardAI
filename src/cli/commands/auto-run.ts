@@ -1,8 +1,8 @@
-// Auto-run command - configure and optionally launch an auto-run session in Maestro
+// Auto-run command - configure and optionally launch an auto-run session in OpenWizardAI
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { withMaestroClient, resolveTargetSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveTargetSessionId } from '../services/openwizardai-client';
 
 interface AutoRunOptions {
 	agent?: string;
@@ -111,7 +111,7 @@ export async function autoRun(docs: string[], options: AutoRunOptions): Promise<
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

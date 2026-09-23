@@ -45,7 +45,7 @@ function ensureSubscribed(): void {
 	if (unsubscribeResume) {
 		return;
 	}
-	const onSystemResume = window.maestro?.app?.onSystemResume;
+	const onSystemResume = window.openwizardai?.app?.onSystemResume;
 	if (!onSystemResume) {
 		return;
 	}

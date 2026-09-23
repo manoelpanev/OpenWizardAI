@@ -2,15 +2,15 @@
  * Playbooks Folder Migration
  *
  * One-shot move of legacy Auto Run document folders from the old
- * `<root>/Auto Run Docs` location to the canonical `<root>/.maestro/playbooks`
- * (see `PLAYBOOKS_DIR` / `LEGACY_PLAYBOOKS_DIR` in `src/shared/maestro-paths.ts`).
+ * `<root>/Auto Run Docs` location to the canonical `<root>/.openwizardai/playbooks`
+ * (see `PLAYBOOKS_DIR` / `LEGACY_PLAYBOOKS_DIR` in `src/shared/openwizardai-paths.ts`).
  *
  * Two things happen, both keyed off the legacy folder name so intentional
  * custom Auto Run folders are never touched:
  *   1. On disk: every distinct `<root>/Auto Run Docs` directory referenced by a
- *      session is moved (or merged) into `<root>/.maestro/playbooks`.
+ *      session is moved (or merged) into `<root>/.openwizardai/playbooks`.
  *   2. In the sessions store: any session whose `autoRunFolderPath` still points
- *      at a legacy `Auto Run Docs` folder is repointed to `.maestro/playbooks`.
+ *      at a legacy `Auto Run Docs` folder is repointed to `.openwizardai/playbooks`.
  *
  * Idempotent via a marker in the settings store. Sessions with an unset
  * `autoRunFolderPath` need no repoint - they already resolve to the canonical
@@ -23,10 +23,10 @@ import * as path from 'path';
 
 import type Store from 'electron-store';
 
-import { PLAYBOOKS_DIR, LEGACY_PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR, LEGACY_PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 import { logger } from '../../utils/logger';
 import { getSessionsStore } from '../getters';
-import type { MaestroSettings, StoredSession } from '../types';
+import type { OpenWizardAISettings, StoredSession } from '../types';
 
 /** Settings key marking the one-time playbooks-folder migration as done. */
 export const PLAYBOOKS_FOLDER_MIGRATION_MARKER = 'migration_playbooksFolderV1';
@@ -38,14 +38,14 @@ function isLegacyFolder(folderPath: string): boolean {
 	return path.basename(folderPath) === LEGACY_PLAYBOOKS_DIR;
 }
 
-/** Canonical `.maestro/playbooks` path for the project root that owns `legacyDir`. */
+/** Canonical `.openwizardai/playbooks` path for the project root that owns `legacyDir`. */
 function canonicalFor(legacyDir: string): string {
 	return path.join(path.dirname(legacyDir), PLAYBOOKS_DIR);
 }
 
 /**
  * Move a single legacy `Auto Run Docs` directory to its canonical
- * `.maestro/playbooks` location. Returns true if a move/merge happened.
+ * `.openwizardai/playbooks` location. Returns true if a move/merge happened.
  *
  * - No canonical folder yet: rename the legacy folder into place.
  * - Canonical folder exists: copy legacy contents in WITHOUT overwriting
@@ -66,7 +66,7 @@ function moveLegacyFolder(legacyDir: string): boolean {
 	const canonicalDir = canonicalFor(legacyDir);
 
 	if (!fs.existsSync(canonicalDir)) {
-		// Ensure the `.maestro` parent exists, then move the whole folder.
+		// Ensure the `.openwizardai` parent exists, then move the whole folder.
 		fs.mkdirSync(path.dirname(canonicalDir), { recursive: true });
 		fs.renameSync(legacyDir, canonicalDir);
 	} else {
@@ -82,10 +82,10 @@ function moveLegacyFolder(legacyDir: string): boolean {
 }
 
 /**
- * Migrate legacy Auto Run folders to `.maestro/playbooks` once. Reads/writes the
+ * Migrate legacy Auto Run folders to `.openwizardai/playbooks` once. Reads/writes the
  * sessions store directly; guarded by a marker in the passed settings store.
  */
-export function migratePlaybooksFolder(store: Store<MaestroSettings>): void {
+export function migratePlaybooksFolder(store: Store<OpenWizardAISettings>): void {
 	if (store.get(PLAYBOOKS_FOLDER_MIGRATION_MARKER)) {
 		return;
 	}

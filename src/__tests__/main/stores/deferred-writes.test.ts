@@ -5,7 +5,7 @@
  *
  * 1. **The bytes on disk do not change.** The serializer reproduces conf's
  *    `JSON.stringify(data, undefined, '\t')` output exactly, so an existing
- *    `maestro-sessions.json` round-trips identically. A drift here would not
+ *    `openwizardai-sessions.json` round-trips identically. A drift here would not
  *    fail at runtime (the file still parses) - it would just quietly reformat
  *    every user's store, so it is asserted byte for byte.
  *
@@ -152,8 +152,8 @@ describe('deferStoreWrites', () => {
 	const readFile = () => JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
 	beforeEach(() => {
-		dir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-deferred-'));
-		filePath = path.join(dir, 'maestro-sessions.json');
+		dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-deferred-'));
+		filePath = path.join(dir, 'openwizardai-sessions.json');
 	});
 
 	afterEach(() => {
@@ -383,6 +383,6 @@ describe('deferStoreWrites', () => {
 		writer.store.set('sessions', [{ id: 'a' }]);
 		await writer.flushAsync();
 
-		expect(fs.readdirSync(dir)).toEqual(['maestro-sessions.json']);
+		expect(fs.readdirSync(dir)).toEqual(['openwizardai-sessions.json']);
 	});
 });

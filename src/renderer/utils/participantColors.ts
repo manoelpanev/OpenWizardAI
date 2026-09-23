@@ -88,7 +88,7 @@ const COLOR_PREF_KEY = 'groupChatColorPreferences';
  */
 export async function loadColorPreferences(): Promise<Record<string, number>> {
 	try {
-		const prefs = await window.maestro.settings.get(COLOR_PREF_KEY);
+		const prefs = await window.openwizardai.settings.get(COLOR_PREF_KEY);
 		return (prefs as Record<string, number>) || {};
 	} catch {
 		return {};
@@ -101,7 +101,7 @@ export async function loadColorPreferences(): Promise<Record<string, number>> {
  * @param preferences - Map of sessionPath -> colorIndex
  */
 export async function saveColorPreferences(preferences: Record<string, number>): Promise<void> {
-	await window.maestro.settings.set(COLOR_PREF_KEY, preferences);
+	await window.openwizardai.settings.set(COLOR_PREF_KEY, preferences);
 }
 
 /**

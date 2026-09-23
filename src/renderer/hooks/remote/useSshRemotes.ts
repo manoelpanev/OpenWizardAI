@@ -83,7 +83,7 @@ export function useSshRemotes(): UseSshRemotesReturn {
 		try {
 			const result = await ipcCache.getOrFetch(
 				'ssh-configs',
-				() => window.maestro.sshRemote.getConfigs(),
+				() => window.openwizardai.sshRemote.getConfigs(),
 				30000
 			);
 			if (result.success && result.configs) {
@@ -102,7 +102,7 @@ export function useSshRemotes(): UseSshRemotesReturn {
 	 */
 	const loadDefaultId = useCallback(async () => {
 		try {
-			const result = await window.maestro.sshRemote.getDefaultId();
+			const result = await window.openwizardai.sshRemote.getDefaultId();
 			if (result.success) {
 				setDefaultIdState(result.id ?? null);
 			} else {
@@ -138,7 +138,7 @@ export function useSshRemotes(): UseSshRemotesReturn {
 			config: Partial<SshRemoteConfig> & { id?: string }
 		): Promise<{ success: boolean; config?: SshRemoteConfig; error?: string }> => {
 			try {
-				const result = await window.maestro.sshRemote.saveConfig(config);
+				const result = await window.openwizardai.sshRemote.saveConfig(config);
 				if (result.success && result.config) {
 					// Invalidate cache since configs changed
 					ipcCache.invalidate('ssh-configs');
@@ -179,7 +179,7 @@ export function useSshRemotes(): UseSshRemotesReturn {
 	const deleteConfig = useCallback(
 		async (id: string): Promise<{ success: boolean; error?: string }> => {
 			try {
-				const result = await window.maestro.sshRemote.deleteConfig(id);
+				const result = await window.openwizardai.sshRemote.deleteConfig(id);
 				if (result.success) {
 					// Invalidate cache since configs changed
 					ipcCache.invalidate('ssh-configs');
@@ -213,7 +213,7 @@ export function useSshRemotes(): UseSshRemotesReturn {
 	const setDefaultId = useCallback(
 		async (id: string | null): Promise<{ success: boolean; error?: string }> => {
 			try {
-				const result = await window.maestro.sshRemote.setDefaultId(id);
+				const result = await window.openwizardai.sshRemote.setDefaultId(id);
 				if (result.success) {
 					setDefaultIdState(id);
 					setError(null);
@@ -246,7 +246,7 @@ export function useSshRemotes(): UseSshRemotesReturn {
 			setTestingConfigId(testId);
 
 			try {
-				const result = await window.maestro.sshRemote.test(configOrId, agentCommand);
+				const result = await window.openwizardai.sshRemote.test(configOrId, agentCommand);
 				setTestingConfigId(null);
 
 				if (result.success && result.result) {

@@ -24,7 +24,7 @@ const REASON_OVERLAY_MAX_WIDTH = 320;
 /**
  * The visible form of an Auto Run marker in a rendered document.
  *
- * Maestro's markers are HTML comments, so they render as nothing - which is
+ * OpenWizardAI's markers are HTML comments, so they render as nothing - which is
  * correct for the file and wrong for the reader. Two of the three do not just
  * change the next run, they stop it: a live HITL gate pauses every re-run until
  * a box is ticked, and a halt marker makes Auto Run refuse to start. Both of
@@ -35,7 +35,7 @@ const REASON_OVERLAY_MAX_WIDTH = 320;
  * "HITL". Someone reading a playbook for the first time should not need to have
  * learned the vocabulary to understand why their run stopped.
  *
- * Color follows the five-color language used elsewhere in Maestro, chosen by
+ * Color follows the five-color language used elsewhere in OpenWizardAI, chosen by
  * what the marker will do rather than by which marker it is:
  *
  * - **error** - a halt. The run will not start.
@@ -100,7 +100,7 @@ export function MarkerPill({
 
 	return (
 		<span
-			data-testid={`maestro-marker-${kind}`}
+			data-testid={`openwizardai-marker-${kind}`}
 			data-marker-status={status}
 			// Announced as one unit so a screen reader gets "Pauses here, Add the
 			// API key" rather than two unrelated fragments.
@@ -174,7 +174,7 @@ export function MarkerPill({
 					 * overlay, showing the reader two boxes at once.
 					 */}
 					<span
-						data-testid="maestro-marker-reason"
+						data-testid="openwizardai-marker-reason"
 						title=""
 						aria-hidden="true"
 						style={{ opacity: 0.75, fontWeight: 400 }}

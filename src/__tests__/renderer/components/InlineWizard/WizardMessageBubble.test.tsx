@@ -363,7 +363,7 @@ describe('WizardMessageBubble', () => {
 			const link = screen.getByText('this link');
 			fireEvent.click(link);
 			// Uses the global mock from setup.ts
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith('https://example.com');
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith('https://example.com');
 		});
 
 		it('does not render markdown for user messages', () => {

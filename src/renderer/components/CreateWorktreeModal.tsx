@@ -78,7 +78,7 @@ export function CreateWorktreeModal({
 		let cancelled = false;
 		Promise.all([
 			gitService.getBranches(session.cwd, sshRemoteId),
-			window.maestro.git.branch(session.cwd, sshRemoteId),
+			window.openwizardai.git.branch(session.cwd, sshRemoteId),
 		])
 			.then(([result, branchResult]) => {
 				if (cancelled) return;
@@ -111,7 +111,7 @@ export function CreateWorktreeModal({
 
 	const checkGhCli = async () => {
 		try {
-			const status = await window.maestro.git.checkGhCli();
+			const status = await window.openwizardai.git.checkGhCli();
 			setGhCliStatus(status);
 		} catch {
 			setGhCliStatus({ installed: false, authenticated: false });

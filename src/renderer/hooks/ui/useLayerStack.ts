@@ -17,7 +17,7 @@ import { logger } from '../../utils/logger';
  */
 declare global {
 	interface Window {
-		__MAESTRO_DEBUG__?: {
+		__OPENWIZARDAI_DEBUG__?: {
 			layers?: {
 				list: () => void;
 				top: () => void;
@@ -243,17 +243,17 @@ export function useLayerStack(): LayerStackAPI {
 
 	/**
 	 * Debug API - only available in development mode
-	 * Access via window.__MAESTRO_DEBUG__.layers in browser console
+	 * Access via window.__OPENWIZARDAI_DEBUG__.layers in browser console
 	 */
 	useEffect(() => {
 		if (process.env.NODE_ENV === 'development') {
-			// Initialize __MAESTRO_DEBUG__ if it doesn't exist
-			if (!window.__MAESTRO_DEBUG__) {
-				window.__MAESTRO_DEBUG__ = {};
+			// Initialize __OPENWIZARDAI_DEBUG__ if it doesn't exist
+			if (!window.__OPENWIZARDAI_DEBUG__) {
+				window.__OPENWIZARDAI_DEBUG__ = {};
 			}
 
 			// Set up the layers debug API
-			window.__MAESTRO_DEBUG__.layers = {
+			window.__OPENWIZARDAI_DEBUG__.layers = {
 				/**
 				 * List all layers in a formatted table
 				 */
@@ -315,8 +315,8 @@ export function useLayerStack(): LayerStackAPI {
 
 			// Cleanup on unmount
 			return () => {
-				if (window.__MAESTRO_DEBUG__) {
-					delete window.__MAESTRO_DEBUG__.layers;
+				if (window.__OPENWIZARDAI_DEBUG__) {
+					delete window.__OPENWIZARDAI_DEBUG__.layers;
 				}
 			};
 		}

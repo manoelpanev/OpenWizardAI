@@ -2,7 +2,7 @@
 
 # Plugin Development Guide
 
-How to write a Maestro plugin. For the system internals (why each control exists, the broker, gotchas), see [CLAUDE-PLUGINS.md](../../CLAUDE-PLUGINS.md). Everything below is verified against `src/shared/plugins/` and `src/main/plugins/`; do NOT assume a field or method that is not listed here.
+How to write an OpenWizardAI plugin. For the system internals (why each control exists, the broker, gotchas), see [CLAUDE-PLUGINS.md](../../CLAUDE-PLUGINS.md). Everything below is verified against `src/shared/plugins/` and `src/main/plugins/`; do NOT assume a field or method that is not listed here.
 
 A plugin is one folder under `<userData>/plugins/` with a `plugin.json` manifest. The plugin system is behind the `plugins` Encore feature flag (off by default) - enable it in Settings before anything below works.
 
@@ -10,30 +10,30 @@ A plugin is one folder under `<userData>/plugins/` with a `plugin.json` manifest
 
 ## Quickstart: scaffold your first plugin
 
-Use the `maestro plugin` CLI rather than hand-writing files - `init` produces a manifest that already passes validation and (for code tiers) a runnable entrypoint.
+Use the `openwizardai plugin` CLI rather than hand-writing files - `init` produces a manifest that already passes validation and (for code tiers) a runnable entrypoint.
 
 ```bash
 # data-only plugin (no code, tier 0)
-maestro plugin init my-data --tier 0 --id com.example.data --name "My Data"
+openwizardai plugin init my-data --tier 0 --id com.example.data --name "My Data"
 
 # code plugin (tier 1)
-maestro plugin init my-plugin --tier 1 --id com.example.demo --name "Demo"
+openwizardai plugin init my-plugin --tier 1 --id com.example.demo --name "Demo"
 ```
 
 What `init` writes:
 
 - **Tier 0** - `plugin.json`, `README.md`, `.gitignore`. No code; the host runs nothing.
-- **Tier 1/2** - the above plus `entry.js` (the sandboxed entrypoint), `package.json` (`"type": "commonjs"`, pins `@maestro/plugin-sdk` as a dev dependency), and `tsconfig.json` (`NodeNext`, `checkJs`) so your editor type-checks `entry.js` with no build step.
+- **Tier 1/2** - the above plus `entry.js` (the sandboxed entrypoint), `package.json` (`"type": "commonjs"`, pins `@openwizardai/plugin-sdk` as a dev dependency), and `tsconfig.json` (`NodeNext`, `checkJs`) so your editor type-checks `entry.js` with no build step.
 
 The scaffolded `entry.js` is plain **CommonJS**. The sandbox loads it as a classic script (no ESM, no bundler, no `require`), so you assign `activate`/`deactivate` to `module.exports` and pull SDK types in through a JSDoc `@import` tag:
 
 ```js
-/** @import { MaestroSdk, PluginModule } from '@maestro/plugin-sdk' */
+/** @import { OpenWizardAISdk, PluginModule } from '@openwizardai/plugin-sdk' */
 
-/** @param {MaestroSdk} maestro The brokered Maestro host API. */
-function activate(maestro) {
+/** @param {OpenWizardAISdk} openwizardai The brokered OpenWizardAI host API. */
+function activate(openwizardai) {
 	// your plugin code here
-	void maestro;
+	void openwizardai;
 }
 function deactivate() {}
 
@@ -46,9 +46,9 @@ module.exports = { activate, deactivate };
 Then iterate and ship:
 
 ```bash
-maestro plugin validate ./my-plugin
-maestro plugin sign ./my-plugin --gen-key --key-out ./signing-key.pem
-maestro plugin pack ./my-plugin            # -> com.example.demo-0.1.0.tgz
+openwizardai plugin validate ./my-plugin
+openwizardai plugin sign ./my-plugin --gen-key --key-out ./signing-key.pem
+openwizardai plugin pack ./my-plugin            # -> com.example.demo-0.1.0.tgz
 ```
 
 Drop the folder into `<userData>/plugins/` (or install the `.tgz` from Settings -> Plugins). Tier 0 is active immediately; tier 1/2 stay disabled until you enable them and approve capabilities. Each step is detailed below.
@@ -73,7 +73,7 @@ Tier 0 auto-enables on discovery. Tier 1 and 2 stay DISABLED until the user enab
 
 ```
 <userData>/plugins/
-  maestro-vet-code/
+  openwizardai-vet-code/
     plugin.json        required
     entry.js           required for tier >= 1 (relative, inside the folder, no traversal)
     panel.html         a panel's HTML entry (tier 1/2)
@@ -88,21 +88,21 @@ One folder per plugin. The folder name and the manifest `id` must agree on insta
 
 `PluginManifest` (`src/shared/plugins/plugin-manifest.ts`):
 
-| Field         | Type                     | Required  | Notes                                                                                                                                                                                                              |
-| ------------- | ------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `id`          | string                   | yes       | `^[a-z][a-z0-9]*([._-][a-z0-9]+)*$`, 3-100 chars                                                                                                                                                                   |
-| `name`        | string                   | yes       | display name                                                                                                                                                                                                       |
-| `version`     | string                   | yes       | semver (distinct from `minHostApi`)                                                                                                                                                                                |
-| `tier`        | `0 \| 1 \| 2`            | yes       | trust/capability tier                                                                                                                                                                                              |
-| `maestro`     | `{ minHostApi: string }` | yes       | minimum host API (current host is `1.16.0`)                                                                                                                                                                        |
-| `description` | string                   | no        |                                                                                                                                                                                                                    |
-| `author`      | string                   | no        |                                                                                                                                                                                                                    |
-| `license`     | string                   | no        |                                                                                                                                                                                                                    |
-| `homepage`    | string                   | no        |                                                                                                                                                                                                                    |
-| `beta`        | boolean                  | no        | presentation-only marketplace flag; surfaces a warning-colored BETA pill on the tile and details pane. Additive and backward-compatible; no `minHostApi` bump. Omitted from the normalized manifest unless `true`. |
-| `contributes` | object                   | no        | declarative contributions (see catalog)                                                                                                                                                                            |
-| `entry`       | string                   | tier >= 1 | relative path to the sandboxed code entry; FORBIDDEN for tier 0                                                                                                                                                    |
-| `permissions` | `PermissionRequest[]`    | no        | only meaningful for tier >= 1                                                                                                                                                                                      |
+| Field          | Type                     | Required  | Notes                                                                                                                                                                                                              |
+| -------------- | ------------------------ | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id`           | string                   | yes       | `^[a-z][a-z0-9]*([._-][a-z0-9]+)*$`, 3-100 chars                                                                                                                                                                   |
+| `name`         | string                   | yes       | display name                                                                                                                                                                                                       |
+| `version`      | string                   | yes       | semver (distinct from `minHostApi`)                                                                                                                                                                                |
+| `tier`         | `0 \| 1 \| 2`            | yes       | trust/capability tier                                                                                                                                                                                              |
+| `openwizardai` | `{ minHostApi: string }` | yes       | minimum host API (current host is `1.16.0`)                                                                                                                                                                        |
+| `description`  | string                   | no        |                                                                                                                                                                                                                    |
+| `author`       | string                   | no        |                                                                                                                                                                                                                    |
+| `license`      | string                   | no        |                                                                                                                                                                                                                    |
+| `homepage`     | string                   | no        |                                                                                                                                                                                                                    |
+| `beta`         | boolean                  | no        | presentation-only marketplace flag; surfaces a warning-colored BETA pill on the tile and details pane. Additive and backward-compatible; no `minHostApi` bump. Omitted from the normalized manifest unless `true`. |
+| `contributes`  | object                   | no        | declarative contributions (see catalog)                                                                                                                                                                            |
+| `entry`        | string                   | tier >= 1 | relative path to the sandboxed code entry; FORBIDDEN for tier 0                                                                                                                                                    |
+| `permissions`  | `PermissionRequest[]`    | no        | only meaningful for tier >= 1                                                                                                                                                                                      |
 
 `minHostApi` is checked same-major and `host >= min`. A v2-targeted plugin will not load on a v1 host and vice versa.
 
@@ -110,11 +110,11 @@ One folder per plugin. The folder name and the manifest `id` must agree on insta
 
 ```json
 {
-	"id": "maestro-vet-data",
-	"name": "Maestro Vet (Data)",
+	"id": "openwizardai-vet-data",
+	"name": "OpenWizardAI Vet (Data)",
 	"version": "1.0.0",
 	"tier": 0,
-	"maestro": { "minHostApi": "1.9.0" },
+	"openwizardai": { "minHostApi": "1.9.0" },
 	"description": "Data-only contributions for the vet workflow.",
 	"contributes": {
 		"themes": [
@@ -144,11 +144,11 @@ One folder per plugin. The folder name and the manifest `id` must agree on insta
 
 ```json
 {
-	"id": "maestro-horizon-icons",
-	"name": "Maestro Horizon Icons",
+	"id": "openwizardai-horizon-icons",
+	"name": "OpenWizardAI Horizon Icons",
 	"version": "1.0.0",
 	"tier": 0,
-	"maestro": { "minHostApi": "1.9.0" },
+	"openwizardai": { "minHostApi": "1.9.0" },
 	"contributes": {
 		"iconPacks": [
 			{
@@ -172,11 +172,11 @@ One folder per plugin. The folder name and the manifest `id` must agree on insta
 
 ```json
 {
-	"id": "maestro-vet-code",
-	"name": "Maestro Vet (Code)",
+	"id": "openwizardai-vet-code",
+	"name": "OpenWizardAI Vet (Code)",
 	"version": "1.0.0",
 	"tier": 1,
-	"maestro": { "minHostApi": "1.9.0" },
+	"openwizardai": { "minHostApi": "1.9.0" },
 	"entry": "entry.js",
 	"permissions": [
 		{ "capability": "storage:read", "reason": "Remember the last greeting." },
@@ -280,7 +280,7 @@ Only `action: 'notify'` runs on tier 0. `action: 'dispatch'` needs `agents:dispa
 
 ### commands (tier 1)
 
-`{ id, title, description? }` - invoking it sends an `invokeCommand` RPC into the sandbox, where the plugin did `maestro.commands.register(localId, fn)`.
+`{ id, title, description? }` - invoking it sends an `invokeCommand` RPC into the sandbox, where the plugin did `openwizardai.commands.register(localId, fn)`.
 
 ```json
 { "id": "say-hello", "title": "Vet: Say Hello" }
@@ -303,7 +303,7 @@ Only `action: 'notify'` runs on tier 0. `action: 'dispatch'` needs `agents:dispa
 ### hostViews (tier 0 static; tier 1 updates)
 
 `{ id, surface: 'movement' | 'cadenza', title, description?, blocks? }` declares a static,
-host-rendered view. A host view is **not** a plugin panel: Maestro renders its BlockView data
+host-rendered view. A host view is **not** a plugin panel: OpenWizardAI renders its BlockView data
 with the active theme, and no plugin renderer code or HTML executes. A tier-0 manifest can use
 this contribution with no code and no permission grant. A tier-1 plugin needs `ui:hostView` only
 to update or remove a view after activation, and should declare `minHostApi: "1.9.0"`.
@@ -325,11 +325,11 @@ to update or remove a view after activation, and should declare `minHostApi: "1.
 }
 ```
 
-The manifest author writes the local `id`; Maestro namespaces it to
+The manifest author writes the local `id`; OpenWizardAI namespaces it to
 `<pluginId>/run-status`. An enabled plugin renders its declared static blocks. A running,
 granted tier-1 plugin may change only the blocks of one of its own declared views with
-`maestro.ui.hostView.update('run-status', blocks)`, or remove it with
-`maestro.ui.hostView.remove('run-status')`; it cannot change the title or surface.
+`openwizardai.ui.hostView.update('run-status', blocks)`, or remove it with
+`openwizardai.ui.hostView.remove('run-status')`; it cannot change the title or surface.
 
 ### uiItems (tier 1)
 
@@ -376,7 +376,7 @@ host controls the frame, icon mapping, tooltip, and non-suppressible plugin prov
 
 ### tools (tier 1)
 
-`{ id, name, description, inputSchema? }` - a named operation an agent can call. Register a handler with `maestro.tools.register(localId, fn)`; the host invokes it via a brokered request/response (`plugins:invoke-tool`) and your handler's return value is returned to the caller. When the `plugins` feature is on, registered tools are also exposed to a spawned agent's model over MCP: the host points the agent at `maestro-cli mcp serve` (claude and codex auto-inject the ephemeral config; other agents are best-guess), and every model-initiated call is risk-gated before the broker runs it.
+`{ id, name, description, inputSchema? }` - a named operation an agent can call. Register a handler with `openwizardai.tools.register(localId, fn)`; the host invokes it via a brokered request/response (`plugins:invoke-tool`) and your handler's return value is returned to the caller. When the `plugins` feature is on, registered tools are also exposed to a spawned agent's model over MCP: the host points the agent at `openwizardai-cli mcp serve` (claude and codex auto-inject the ephemeral config; other agents are best-guess), and every model-initiated call is risk-gated before the broker runs it.
 
 ### keybindings (tier 1)
 
@@ -400,7 +400,7 @@ Request these in `permissions` as `{ capability, scope?, reason? }`. `scope` nar
 | `settings:read`       | low    | none  | read non-secret app settings + own `plugins.<id>.*`                                    | `{ "capability": "settings:read" }`                              |
 | `settings:write`      | low    | none  | write ONLY own `plugins.<id>.*` keys                                                   | `{ "capability": "settings:write" }`                             |
 | `sessions:read`       | medium | none  | list session METADATA (never transcript)                                               | `{ "capability": "sessions:read" }`                              |
-| `sessions:focus`      | low    | none  | switch Maestro to one of the user's existing sessions (navigation only)                | `{ "capability": "sessions:focus" }`                             |
+| `sessions:focus`      | low    | none  | switch OpenWizardAI to one of the user's existing sessions (navigation only)           | `{ "capability": "sessions:focus" }`                             |
 | `transcripts:read`    | high   | path  | read PROJECTED session content (you declare fields)                                    | `{ "capability": "transcripts:read", "scope": "/abs/project" }`  |
 | `storage:read`        | low    | none  | read own private key-value store                                                       | `{ "capability": "storage:read" }`                               |
 | `storage:write`       | low    | none  | write own private key-value store                                                      | `{ "capability": "storage:write" }`                              |
@@ -408,7 +408,7 @@ Request these in `permissions` as `{ capability, scope?, reason? }`. `scope` nar
 | `events:subscribe`    | medium | none  | subscribe to metadata-only host topics                                                 | `{ "capability": "events:subscribe" }`                           |
 | `process:spawn`       | high   | none  | run a shell command (LIVE, gated: trusted + allowlisted + risk-capped)                 | `{ "capability": "process:spawn" }`                              |
 | `ui:contribute`       | medium | none  | add declarative controls in approved host-owned surfaces                               | `{ "capability": "ui:contribute" }`                              |
-| `ui:panel`            | medium | none  | render sandboxed panels in approved Maestro regions                                    | `{ "capability": "ui:panel" }`                                   |
+| `ui:panel`            | medium | none  | render sandboxed panels in approved OpenWizardAI regions                               | `{ "capability": "ui:panel" }`                                   |
 | `ui:hostView`         | medium | none  | render/update declared host BlockView data                                             | `{ "capability": "ui:hostView" }`                                |
 | `ui:render-unsafe`    | high   | none  | render custom UI only in host-approved, non-protected regions                          | `{ "capability": "ui:render-unsafe" }`                           |
 
@@ -416,7 +416,7 @@ Request these in `permissions` as `{ capability, scope?, reason? }`. `scope` nar
 
 `transcripts:read` is project-scoped: `scope` is a project path, and an absent scope means all projects (presented as such at consent). It is refused for an untrusted plugin that also holds `net:fetch`, `net:connect`, or `process:spawn` (the content-exfiltration combination) - sign with a trusted key to allow both. Reads are rate-limited as a high-risk verb and every read is audited.
 
-The `ui:*` capabilities gate what the host accepts and renders: `ui:contribute` admits declarative `uiItems` into approved host-owned surfaces, `ui:panel` admits sandboxed `panels` into approved Maestro regions, and `ui:hostView` admits brokered updates/removals for declared host views. Static `hostViews` remain available to tier-0 plugins because they are host-rendered data, not plugin UI. `ui:render-unsafe` is a high-trust policy for host-approved custom UI only; it neither grants another UI capability nor bypasses trusted chrome. An enabled plugin without the matching grant contributes none of that surface.
+The `ui:*` capabilities gate what the host accepts and renders: `ui:contribute` admits declarative `uiItems` into approved host-owned surfaces, `ui:panel` admits sandboxed `panels` into approved OpenWizardAI regions, and `ui:hostView` admits brokered updates/removals for declared host views. Static `hostViews` remain available to tier-0 plugins because they are host-rendered data, not plugin UI. `ui:render-unsafe` is a high-trust policy for host-approved custom UI only; it neither grants another UI capability nor bypasses trusted chrome. An enabled plugin without the matching grant contributes none of that surface.
 
 ### Trusted chrome (never plugin-accessible)
 
@@ -424,11 +424,11 @@ The host permanently excludes plugin-management and enable/disable controls, per
 
 ---
 
-## 6. Tier-1 entry code + the maestro SDK
+## 6. Tier-1 entry code + the openwizardai SDK
 
-Your `entry` file is plain **CommonJS** JavaScript run inside a confined `vm` context (it is NOT `require`d, and ESM `export`/`import` will not parse). Assign `module.exports = { activate(maestro) {}, deactivate() {} }`; `activate` receives the frozen `maestro` SDK. Pull SDK types into the plain-JS file with a JSDoc `@import` tag (shown below).
+Your `entry` file is plain **CommonJS** JavaScript run inside a confined `vm` context (it is NOT `require`d, and ESM `export`/`import` will not parse). Assign `module.exports = { activate(openwizardai) {}, deactivate() {} }`; `activate` receives the frozen `openwizardai` SDK. Pull SDK types into the plain-JS file with a JSDoc `@import` tag (shown below).
 
-**Sandbox globals available:** `maestro`, `module`, `exports`, `console` (`log`/`info`/`warn`/`error` route to the host log), `setTimeout`, `clearTimeout`. `async`/`await`/`Promise` work.
+**Sandbox globals available:** `openwizardai`, `module`, `exports`, `console` (`log`/`info`/`warn`/`error` route to the host log), `setTimeout`, `clearTimeout`. `async`/`await`/`Promise` work.
 
 **Absent by design:** `require`, `process`, `Buffer`, `globalThis`, Node builtins; `eval`/`Function` code-gen is disabled. There is no direct host access - every effect goes through a brokered SDK call that rejects if the capability is not granted.
 
@@ -439,17 +439,17 @@ Your `entry` file is plain **CommonJS** JavaScript run inside a confined `vm` co
 ### Minimal entry.js
 
 ```js
-/** @import { MaestroSdk, PluginModule } from '@maestro/plugin-sdk' */
+/** @import { OpenWizardAISdk, PluginModule } from '@openwizardai/plugin-sdk' */
 
-/** @param {MaestroSdk} maestro */
-async function activate(maestro) {
-	maestro.commands.register('say-hello', async () => {
-		await maestro.notifications.toast('Hello from the vet plugin');
+/** @param {OpenWizardAISdk} openwizardai */
+async function activate(openwizardai) {
+	openwizardai.commands.register('say-hello', async () => {
+		await openwizardai.notifications.toast('Hello from the vet plugin');
 	});
-	maestro.events.on('session.updated', (payload, meta) => {
+	openwizardai.events.on('session.updated', (payload, meta) => {
 		console.log('session updated', payload.sessionId, meta.topic);
 	});
-	await maestro.events.subscribe(['session.updated']);
+	await openwizardai.events.subscribe(['session.updated']);
 }
 function deactivate() {}
 
@@ -461,42 +461,42 @@ module.exports = { activate, deactivate };
 
 Every method below is broker-gated and needs the matching capability granted. Signatures are copied from `buildSdk` (`src/main/plugins/plugin-sandbox-entry.ts`).
 
-| SDK method                                                                          | Capability                   |
-| ----------------------------------------------------------------------------------- | ---------------------------- |
-| `maestro.pluginId` (string)                                                         | -                            |
-| `maestro.fs.read(path)` -> `Promise<string>`                                        | `fs:read`                    |
-| `maestro.fs.write(path, contents)` -> `Promise<void>`                               | `fs:write`                   |
-| `maestro.net.fetch(url, init?)` -> `Promise<unknown>`                               | `net:fetch`                  |
-| `maestro.net.connect(url, opts?)` -> `Promise<{ socketId }>` (`wss://` only)        | `net:connect`                |
-| `maestro.net.send(socketId, data)` -> `Promise<{ ok: true }>`                       | `net:connect`                |
-| `maestro.net.close(socketId, opts?)` -> `Promise<{ ok: true }>`                     | `net:connect`                |
-| `maestro.agents.list()`                                                             | `agents:read`                |
-| `maestro.agents.get(agentId)`                                                       | `agents:read`                |
-| `maestro.agents.dispatch(agentId, prompt, opts?)` (needs unattended consent)        | `agents:dispatch`            |
-| `maestro.notifications.toast(message, opts?)` -> `Promise<void>`                    | `notifications:toast`        |
-| `maestro.settings.get(key)`                                                         | `settings:read`              |
-| `maestro.settings.set(key, value)` (key must be `plugins.<id>.*`)                   | `settings:write`             |
-| `maestro.sessions.list()` (metadata only)                                           | `sessions:read`              |
-| `maestro.sessions.get(sessionId)` (metadata only)                                   | `sessions:read`              |
-| `maestro.sessions.focus(sessionId, tabId?)` -> `Promise<void>` (lands on an AI tab) | `sessions:focus`             |
-| `maestro.transcripts.read({ sessionId, fields, projectPath?, limit?, since? })`     | `transcripts:read`           |
-| `maestro.storage.get(key)`                                                          | `storage:read`               |
-| `maestro.storage.keys()`                                                            | `storage:read`               |
-| `maestro.storage.set(key, value)` (value is a string)                               | `storage:write`              |
-| `maestro.storage.delete(key)`                                                       | `storage:write`              |
-| `maestro.ui.runCommand(commandId, args?)`                                           | `ui:command`                 |
-| `maestro.ui.hostView.update(localId, blocks)` -> `Promise<void>`                    | `ui:hostView`                |
-| `maestro.ui.hostView.remove(localId)` -> `Promise<void>`                            | `ui:hostView`                |
-| `maestro.ui.panelPost(panelId, data)` -> `Promise<void>` (own panels, 64 KB JSON)   | `ui:panel`                   |
-| `maestro.ui.openPanel(panelId)` -> `Promise<void>` (own `modal` panels only)        | `ui:panel`                   |
-| `maestro.ui.closePanel(panelId)` -> `Promise<void>` (own `modal` panels only)       | `ui:panel`                   |
-| `maestro.ui.togglePanel(panelId)` -> `Promise<void>` (own `modal` panels only)      | `ui:panel`                   |
-| `maestro.events.on(topic, handler(payload, meta))`                                  | - (delivery needs subscribe) |
-| `maestro.events.subscribe(topics[])`                                                | `events:subscribe`           |
-| `maestro.events.unsubscribe(topics?)`                                               | `events:subscribe`           |
-| `maestro.commands.register(commandId, handler(args))`                               | - (invoked by host)          |
-| `maestro.tools.register(toolId, handler(args))` (result returned to host)           | - (invoked by host)          |
-| `maestro.process.spawn(command, opts?)` (trusted + gated)                           | `process:spawn`              |
+| SDK method                                                                               | Capability                   |
+| ---------------------------------------------------------------------------------------- | ---------------------------- |
+| `openwizardai.pluginId` (string)                                                         | -                            |
+| `openwizardai.fs.read(path)` -> `Promise<string>`                                        | `fs:read`                    |
+| `openwizardai.fs.write(path, contents)` -> `Promise<void>`                               | `fs:write`                   |
+| `openwizardai.net.fetch(url, init?)` -> `Promise<unknown>`                               | `net:fetch`                  |
+| `openwizardai.net.connect(url, opts?)` -> `Promise<{ socketId }>` (`wss://` only)        | `net:connect`                |
+| `openwizardai.net.send(socketId, data)` -> `Promise<{ ok: true }>`                       | `net:connect`                |
+| `openwizardai.net.close(socketId, opts?)` -> `Promise<{ ok: true }>`                     | `net:connect`                |
+| `openwizardai.agents.list()`                                                             | `agents:read`                |
+| `openwizardai.agents.get(agentId)`                                                       | `agents:read`                |
+| `openwizardai.agents.dispatch(agentId, prompt, opts?)` (needs unattended consent)        | `agents:dispatch`            |
+| `openwizardai.notifications.toast(message, opts?)` -> `Promise<void>`                    | `notifications:toast`        |
+| `openwizardai.settings.get(key)`                                                         | `settings:read`              |
+| `openwizardai.settings.set(key, value)` (key must be `plugins.<id>.*`)                   | `settings:write`             |
+| `openwizardai.sessions.list()` (metadata only)                                           | `sessions:read`              |
+| `openwizardai.sessions.get(sessionId)` (metadata only)                                   | `sessions:read`              |
+| `openwizardai.sessions.focus(sessionId, tabId?)` -> `Promise<void>` (lands on an AI tab) | `sessions:focus`             |
+| `openwizardai.transcripts.read({ sessionId, fields, projectPath?, limit?, since? })`     | `transcripts:read`           |
+| `openwizardai.storage.get(key)`                                                          | `storage:read`               |
+| `openwizardai.storage.keys()`                                                            | `storage:read`               |
+| `openwizardai.storage.set(key, value)` (value is a string)                               | `storage:write`              |
+| `openwizardai.storage.delete(key)`                                                       | `storage:write`              |
+| `openwizardai.ui.runCommand(commandId, args?)`                                           | `ui:command`                 |
+| `openwizardai.ui.hostView.update(localId, blocks)` -> `Promise<void>`                    | `ui:hostView`                |
+| `openwizardai.ui.hostView.remove(localId)` -> `Promise<void>`                            | `ui:hostView`                |
+| `openwizardai.ui.panelPost(panelId, data)` -> `Promise<void>` (own panels, 64 KB JSON)   | `ui:panel`                   |
+| `openwizardai.ui.openPanel(panelId)` -> `Promise<void>` (own `modal` panels only)        | `ui:panel`                   |
+| `openwizardai.ui.closePanel(panelId)` -> `Promise<void>` (own `modal` panels only)       | `ui:panel`                   |
+| `openwizardai.ui.togglePanel(panelId)` -> `Promise<void>` (own `modal` panels only)      | `ui:panel`                   |
+| `openwizardai.events.on(topic, handler(payload, meta))`                                  | - (delivery needs subscribe) |
+| `openwizardai.events.subscribe(topics[])`                                                | `events:subscribe`           |
+| `openwizardai.events.unsubscribe(topics?)`                                               | `events:subscribe`           |
+| `openwizardai.commands.register(commandId, handler(args))`                               | - (invoked by host)          |
+| `openwizardai.tools.register(toolId, handler(args))` (result returned to host)           | - (invoked by host)          |
+| `openwizardai.process.spawn(command, opts?)` (trusted + gated)                           | `process:spawn`              |
 
 `net.fetch` returns `{ status, statusText, headers, body }` (body is text, capped at 5 MB). Requests are egress-guarded: loopback, link-local, RFC1918, cloud-metadata, and the app's own port are blocked, and redirects are not followed (`redirect: 'error'`), so a 3xx to a non-granted host fails.
 
@@ -509,7 +509,7 @@ declared local id. Neither method accepts cadenza decision/options payloads or a
 
 ### Persistent network connections (net:connect)
 
-`net:connect` holds an open, two-way `wss://` socket from inside the sandbox, so a plugin can bridge a chat gateway (Discord Gateway, Slack Socket Mode) into Maestro. Unlike `net.fetch`'s one-shot request/response, the connection stays open and pushes frames to you as they arrive.
+`net:connect` holds an open, two-way `wss://` socket from inside the sandbox, so a plugin can bridge a chat gateway (Discord Gateway, Slack Socket Mode) into OpenWizardAI. Unlike `net.fetch`'s one-shot request/response, the connection stays open and pushes frames to you as they arrive.
 
 Request it with a **host scope** (the gateway hostname) and remember it requires a **trusted (signed) plugin** - a persistent egress channel is a larger exfiltration surface than one-shot fetch, so an untrusted plugin is refused even with the grant:
 
@@ -523,27 +523,29 @@ Request it with a **host scope** (the gateway hostname) and remember it requires
 
 The API is three brokered calls plus event delivery:
 
-- `maestro.net.connect(url, opts?)` -> `{ socketId }` - opens the socket (`wss://` only; `ws://` and any other scheme are rejected). `opts` may carry `protocols`.
-- `maestro.net.send(socketId, data)` - send one frame (`data` is a string, capped at 64 KB).
-- `maestro.net.close(socketId, opts?)` - close it (`opts` may carry `code` / `reason`).
-- Frames arrive as events on the topic `net.connect:<socketId>` via `maestro.events.on(...)`. These per-socket frame events do NOT need `events:subscribe` (that gates only the fixed metadata catalog). Each event payload is `{ socketId, type: 'message' | 'close' | 'error', data?, code?, reason?, message? }`.
+- `openwizardai.net.connect(url, opts?)` -> `{ socketId }` - opens the socket (`wss://` only; `ws://` and any other scheme are rejected). `opts` may carry `protocols`.
+- `openwizardai.net.send(socketId, data)` - send one frame (`data` is a string, capped at 64 KB).
+- `openwizardai.net.close(socketId, opts?)` - close it (`opts` may carry `code` / `reason`).
+- Frames arrive as events on the topic `net.connect:<socketId>` via `openwizardai.events.on(...)`. These per-socket frame events do NOT need `events:subscribe` (that gates only the fixed metadata catalog). Each event payload is `{ socketId, type: 'message' | 'close' | 'error', data?, code?, reason?, message? }`.
 
 Caps and guarantees: at most **4 open sockets** per plugin; **64 KB** per frame in both directions; the connect is pinned through the same egress guard as `net.fetch` (loopback / RFC1918 / link-local / cloud-metadata are blocked); and `send`/`close` re-authorize your still-held grant on every call, so if the user revokes `net:connect` mid-stream the next call is denied. Every socket is force-closed when the plugin is disabled, crashes, or is uninstalled.
 
-Because the gateway must survive a crash, pair `net:connect` with `maestro.background.register(...)` (`background:service`) so the supervisor restarts your plugin and you reopen the socket in `activate`. And if your bridge turns inbound messages into agent work via `maestro.agents.dispatch(...)`, that path needs BOTH the allowlist `agents:dispatch` grant AND the separate **unattended consent** - dispatch driven by a socket event is never user-present.
+Because the gateway must survive a crash, pair `net:connect` with `openwizardai.background.register(...)` (`background:service`) so the supervisor restarts your plugin and you reopen the socket in `activate`. And if your bridge turns inbound messages into agent work via `openwizardai.agents.dispatch(...)`, that path needs BOTH the allowlist `agents:dispatch` grant AND the separate **unattended consent** - dispatch driven by a socket event is never user-present.
 
 ```js
-/** @import { MaestroSdk } from '@maestro/plugin-sdk' */
+/** @import { OpenWizardAISdk } from '@openwizardai/plugin-sdk' */
 
-/** @param {MaestroSdk} maestro */
-async function activate(maestro) {
-	const { socketId } = await maestro.net.connect('wss://gateway.discord.gg/?v=10&encoding=json');
+/** @param {OpenWizardAISdk} openwizardai */
+async function activate(openwizardai) {
+	const { socketId } = await openwizardai.net.connect(
+		'wss://gateway.discord.gg/?v=10&encoding=json'
+	);
 
-	maestro.events.on('net.connect:' + socketId, async (frame) => {
+	openwizardai.events.on('net.connect:' + socketId, async (frame) => {
 		if (frame.type === 'message') {
 			const msg = JSON.parse(frame.data);
 			// ... react to the gateway payload, e.g. heartbeat or dispatch to an agent
-			await maestro.net.send(socketId, JSON.stringify({ op: 1, d: null }));
+			await openwizardai.net.send(socketId, JSON.stringify({ op: 1, d: null }));
 		} else if (frame.type === 'close' || frame.type === 'error') {
 			// let the background supervisor restart us; reopen in the next activate()
 			console.warn('gateway closed', frame.code, frame.reason || frame.message);
@@ -565,7 +567,7 @@ The ONLY channel out is:
 ```js
 parent.postMessage(
 	{
-		type: 'maestro:invokeCommand',
+		type: 'openwizardai:invokeCommand',
 		commandId: 'say-hello',
 		args: {
 			/* optional */
@@ -575,7 +577,7 @@ parent.postMessage(
 );
 ```
 
-The host's guest preload accepts the message only from the panel document's own window, namespaces it to `<pluginId>/<commandId>`, and forwards it over the broker-gated `invokeCommand` RPC to your `maestro.commands.register('say-hello', ...)` handler. (In the panel, `parent === window` - existing panels keep working unchanged.)
+The host's guest preload accepts the message only from the panel document's own window, namespaces it to `<pluginId>/<commandId>`, and forwards it over the broker-gated `invokeCommand` RPC to your `openwizardai.commands.register('say-hello', ...)` handler. (In the panel, `parent === window` - existing panels keep working unchanged.)
 
 ### Minimal panel.html
 
@@ -589,41 +591,41 @@ The host's guest preload accepts the message only from the panel document's own 
 		<button id="hi">Say hello</button>
 		<script>
 			document.getElementById('hi').addEventListener('click', () => {
-				parent.postMessage({ type: 'maestro:invokeCommand', commandId: 'say-hello' }, '*');
+				parent.postMessage({ type: 'openwizardai:invokeCommand', commandId: 'say-hello' }, '*');
 			});
 		</script>
 	</body>
 </html>
 ```
 
-Flow: panel button posts the command -> host forwards over the broker -> the plugin's `say-hello` handler runs in the sandbox -> it calls `maestro.notifications.toast(...)` (a brokered effect).
+Flow: panel button posts the command -> host forwards over the broker -> the plugin's `say-hello` handler runs in the sandbox -> it calls `openwizardai.notifications.toast(...)` (a brokered effect).
 
 ### Pushing live data to your panel
 
-The `invokeCommand` bridge above is panel -> host. To push data the OTHER way (host -> panel) - e.g. stream a live snapshot into an open panel as events arrive - use `maestro.ui.panelPost(panelId, data)` from the sandbox. It requires `ui:panel`, targets ONLY one of your own declared panels (`panelId` is the LOCAL id from your `panels` contribution), and the payload must be JSON-serializable and under 64 KB. It is a one-way push: there is no reply channel back to the sandbox. Declare `minHostApi: '1.14.0'`.
+The `invokeCommand` bridge above is panel -> host. To push data the OTHER way (host -> panel) - e.g. stream a live snapshot into an open panel as events arrive - use `openwizardai.ui.panelPost(panelId, data)` from the sandbox. It requires `ui:panel`, targets ONLY one of your own declared panels (`panelId` is the LOCAL id from your `panels` contribution), and the payload must be JSON-serializable and under 64 KB. It is a one-way push: there is no reply channel back to the sandbox. Declare `minHostApi: '1.14.0'`.
 
-The data is delivered to the panel page as a `maestro:panelData` window message:
+The data is delivered to the panel page as a `openwizardai:panelData` window message:
 
 ```js
 // Sandbox side (in activate / a command handler):
-await maestro.ui.panelPost('my-panel', { nodes });
+await openwizardai.ui.panelPost('my-panel', { nodes });
 ```
 
 ```html
 <!-- Panel side (in panel.html): -->
 <script>
 	window.addEventListener('message', (e) => {
-		if (e.data?.type === 'maestro:panelData') render(e.data.data);
+		if (e.data?.type === 'openwizardai:panelData') render(e.data.data);
 	});
 </script>
 ```
 
 ### Summoning your own panel
 
-A `modal` panel normally opens from Settings -> Encore -> Plugins. To open it yourself - e.g. bind a `keybindings` chord to a command that pops a full-window overlay - call `maestro.ui.openPanel(panelId)`, `maestro.ui.closePanel(panelId)`, or `maestro.ui.togglePanel(panelId)`. All three take the LOCAL panel id, require `ui:panel` (no extra consent), and act ONLY on your own `modal` panels: a docked (`left`/`right`/`main`/`settings`) panel is rejected, since it is always mounted and has its own hide control, and `closePanel` is a no-op unless that exact panel is the one currently open, so you can never dismiss another plugin's surface. Escape, the backdrop, and the close button dismiss the panel too. Requires `minHostApi: '1.16.0'`.
+A `modal` panel normally opens from Settings -> Encore -> Plugins. To open it yourself - e.g. bind a `keybindings` chord to a command that pops a full-window overlay - call `openwizardai.ui.openPanel(panelId)`, `openwizardai.ui.closePanel(panelId)`, or `openwizardai.ui.togglePanel(panelId)`. All three take the LOCAL panel id, require `ui:panel` (no extra consent), and act ONLY on your own `modal` panels: a docked (`left`/`right`/`main`/`settings`) panel is rejected, since it is always mounted and has its own hide control, and `closePanel` is a no-op unless that exact panel is the one currently open, so you can never dismiss another plugin's surface. Escape, the backdrop, and the close button dismiss the panel too. Requires `minHostApi: '1.16.0'`.
 
 ```js
-maestro.commands.register('overlay', () => maestro.ui.togglePanel('flow'));
+openwizardai.commands.register('overlay', () => openwizardai.ui.togglePanel('flow'));
 ```
 
 ---
@@ -647,15 +649,15 @@ A plugin with `events:subscribe` receives a FIXED catalog of host topics (`src/s
 
 `session.activated` fires when the focused agent changes (opaque ids only, debounced to at most one event per ~100ms, and never re-fired for the session that is already focused). Use it to highlight whichever agent the user is looking at. Requires `minHostApi: '1.16.0'`.
 
-Register handlers with `maestro.events.on(topic, fn)` first, then start delivery with `maestro.events.subscribe([...])`. Stop with `maestro.events.unsubscribe([...])` (or no argument for all). The handler receives `(payload, meta)` where `meta` is `{ topic, at }`. Unknown topics are ignored.
+Register handlers with `openwizardai.events.on(topic, fn)` first, then start delivery with `openwizardai.events.subscribe([...])`. Stop with `openwizardai.events.unsubscribe([...])` (or no argument for all). The handler receives `(payload, meta)` where `meta` is `{ topic, at }`. Unknown topics are ignored.
 
 ---
 
 ## 9. Settings and storage namespacing
 
-- `maestro.settings.get(key)` reads non-secret app settings and your own `plugins.<id>.*` keys. It will NOT return a secret-looking key, the `encoreFeatures` gate, or another plugin's `plugins.<other>.*` namespace.
-- `maestro.settings.set(key, value)` writes ONLY `plugins.<id>.*` keys (where `<id>` is your plugin id). The same secret/prototype/gate guards apply, the value must be JSON-serializable, and it is capped at 64 KB.
-- `maestro.storage.*` is your own private key-value store, scoped to your plugin. Values are strings. Use `set`/`get`/`delete`/`keys`. It is purged on uninstall.
+- `openwizardai.settings.get(key)` reads non-secret app settings and your own `plugins.<id>.*` keys. It will NOT return a secret-looking key, the `encoreFeatures` gate, or another plugin's `plugins.<other>.*` namespace.
+- `openwizardai.settings.set(key, value)` writes ONLY `plugins.<id>.*` keys (where `<id>` is your plugin id). The same secret/prototype/gate guards apply, the value must be JSON-serializable, and it is capped at 64 KB.
+- `openwizardai.storage.*` is your own private key-value store, scoped to your plugin. Values are strings. Use `set`/`get`/`delete`/`keys`. It is purged on uninstall.
 
 ---
 
@@ -671,7 +673,7 @@ Ship a `signature.json` (ed25519) alongside your files. It covers a deterministi
 
 - `unsigned` - no signature.
 - `invalid` - tampered or malformed. NEVER runnable.
-- `untrusted` - valid signature, key not in Maestro's trusted set (integral but unknown publisher).
+- `untrusted` - valid signature, key not in OpenWizardAI's trusted set (integral but unknown publisher).
 - `trusted` - valid signature, key in the trusted set.
 
 An integral-but-untrusted plugin still runs once the user enables = consents. A tampered (`invalid`) plugin is never run.
@@ -690,7 +692,7 @@ An integral-but-untrusted plugin still runs once the user enables = consents. A 
 ## 13. Constraints and gotchas
 
 - **Tier 1 is a full-trust decision.** The `vm` sandbox is realm-escapable; a malicious tier-1 plugin can reach full Node/system access. The real controls are process isolation, the default-deny broker, and signature/consent. Only install plugins you trust. (See [CLAUDE-PLUGINS.md](../../CLAUDE-PLUGINS.md) for the full threat model.)
-- **Panels cannot fetch directly.** The CSP blocks all network from the iframe. Route any network or effect through a brokered command (`maestro:invokeCommand` -> your command handler -> brokered SDK).
+- **Panels cannot fetch directly.** The CSP blocks all network from the iframe. Route any network or effect through a brokered command (`openwizardai:invokeCommand` -> your command handler -> brokered SDK).
 - **Events are metadata only.** Never expect transcript or prompt text in an event payload.
 - **Built-in wins on collisions.** Your contributed ids can never shadow a first-party theme, command, or agent.
 - **Host-API compatibility is strict.** Same major and `host >= minHostApi`, or the plugin will not load.
@@ -699,26 +701,26 @@ An integral-but-untrusted plugin still runs once the user enables = consents. A 
 - **Inert capabilities:** `agents:dispatch` and `process:spawn` are declared but have no production handler; do not build on them yet.
 - **Trusted chrome cannot be extended.** Declarative `uiItems`, sandboxed panels, and any high-trust `ui:render-unsafe` UI must never target or cover plugin management/enable-disable controls, consent dialogs, uninstall/grant-revoke flows, or SSH/permission-mode/agent-identity indicators.
 
-## 14. Tooling: the SDK package and the `maestro plugin` CLI
+## 14. Tooling: the SDK package and the `openwizardai plugin` CLI
 
-**`@maestro/plugin-sdk`** (`packages/plugin-sdk/`) is the typed authoring surface: the manifest, capability, contribution, and event types, the `MaestroSdk` runtime shape, and `defineManifest()` / `definePlugin()` helpers. The scaffold adds it as a dev dependency so your editor type-checks the manifest and entry code. Because the runtime `entry.js` is plain CommonJS, reference the types with a JSDoc `@import` tag - no runtime import, no build step:
+**`@openwizardai/plugin-sdk`** (`packages/plugin-sdk/`) is the typed authoring surface: the manifest, capability, contribution, and event types, the `OpenWizardAISdk` runtime shape, and `defineManifest()` / `definePlugin()` helpers. The scaffold adds it as a dev dependency so your editor type-checks the manifest and entry code. Because the runtime `entry.js` is plain CommonJS, reference the types with a JSDoc `@import` tag - no runtime import, no build step:
 
 ```js
-/** @import { MaestroSdk, PluginModule } from '@maestro/plugin-sdk' */
+/** @import { OpenWizardAISdk, PluginModule } from '@openwizardai/plugin-sdk' */
 ```
 
 If you instead author in TypeScript and compile down to a CommonJS `entry.js`, the ESM type imports work too:
 
 ```ts
-import { defineManifest, type PluginModule, type MaestroSdk } from '@maestro/plugin-sdk';
+import { defineManifest, type PluginModule, type OpenWizardAISdk } from '@openwizardai/plugin-sdk';
 ```
 
-**The `maestro plugin` CLI** scaffolds, validates, signs, and packages a plugin:
+**The `openwizardai plugin` CLI** scaffolds, validates, signs, and packages a plugin:
 
-- `maestro plugin init [dir] --tier <0|1|2> --id <id> --name <name>` - scaffold a valid `plugin.json` (plus `entry.js`, README, and an SDK-typed `tsconfig.json` + `package.json` for code tiers). Refuses a non-empty dir without `--force`.
-- `maestro plugin validate [dir]` - run `validatePluginManifest`, report errors, and resolve the `signature.json` trust status (`unsigned` / `invalid` / `untrusted` / `trusted`).
-- `maestro plugin sign <dir> --key <pem|base64>` (or `--gen-key --key-out <path>` to generate an ed25519 keypair) - write a `signature.json` whose payload is byte-identical to what the host verifies.
-- `maestro plugin pack <dir> --out <file>` - build a distributable `.tgz` (excludes `node_modules`, `.git`, and key files).
+- `openwizardai plugin init [dir] --tier <0|1|2> --id <id> --name <name>` - scaffold a valid `plugin.json` (plus `entry.js`, README, and an SDK-typed `tsconfig.json` + `package.json` for code tiers). Refuses a non-empty dir without `--force`.
+- `openwizardai plugin validate [dir]` - run `validatePluginManifest`, report errors, and resolve the `signature.json` trust status (`unsigned` / `invalid` / `untrusted` / `trusted`).
+- `openwizardai plugin sign <dir> --key <pem|base64>` (or `--gen-key --key-out <path>` to generate an ed25519 keypair) - write a `signature.json` whose payload is byte-identical to what the host verifies.
+- `openwizardai plugin pack <dir> --out <file>` - build a distributable `.tgz` (excludes `node_modules`, `.git`, and key files).
 
 Typical flow: `init` -> edit -> `validate` -> `sign --gen-key --key-out key.pem` -> `pack`.
 
@@ -729,11 +731,11 @@ Typical flow: `init` -> edit -> `validate` -> `sign --gen-key --key-out key.pem`
 - `src/shared/plugins/permissions.ts` - capability vocabulary, risk/scope, grant matching.
 - `src/shared/plugins/contributions.ts` - contribution interfaces and validation.
 - `src/shared/plugins/events.ts` - event topic catalog and payloads.
-- `src/main/plugins/plugin-sandbox-entry.ts` - the `maestro` SDK (`buildSdk`) and sandbox globals.
+- `src/main/plugins/plugin-sandbox-entry.ts` - the `openwizardai` SDK (`buildSdk`) and sandbox globals.
 - `src/main/plugins/plugin-host-handlers.ts` - what each brokered call actually does.
 - `src/renderer/components/plugins/PluginPanelFrame.tsx` + `src/main/plugins/plugin-panel-host.ts` - the panel render host (isolated webview), CSP, and the postMessage bridge.
-- `packages/plugin-sdk/` - the `@maestro/plugin-sdk` typed authoring package.
-- `src/cli/commands/plugin.ts` - the `maestro plugin` init/validate/sign/pack CLI.
+- `packages/plugin-sdk/` - the `@openwizardai/plugin-sdk` typed authoring package.
+- `src/cli/commands/plugin.ts` - the `openwizardai plugin` init/validate/sign/pack CLI.
 
 ## Virtual sidebar groupings
 
@@ -763,7 +765,7 @@ expressions. A tier-1 plugin with the `ui:grouping` permission can publish a
 computed version of one of its declared grouping ids:
 
 ```ts
-await maestro.ui.grouping.publish({
+await openwizardai.ui.grouping.publish({
 	id: 'by-agent-type',
 	groups: [{ id: 'claude', label: 'Claude' }],
 	assignments: { 'session-id': 'claude' },

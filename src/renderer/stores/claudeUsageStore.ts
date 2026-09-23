@@ -92,7 +92,7 @@ export const useClaudeUsageStore = create<ClaudeUsageState>((set, get) => ({
 		if (get().refreshing) return;
 		set({ refreshing: true });
 		try {
-			const next = await window.maestro.agents.getClaudeUsageSnapshots();
+			const next = await window.openwizardai.agents.getClaudeUsageSnapshots();
 			set({ snapshots: next ?? {}, loaded: true });
 		} catch {
 			// Swallow - main-side errors surface in main logs; the renderer just
@@ -171,7 +171,7 @@ let claudeAgentEnvPromise: Promise<Record<string, string>> | undefined;
 
 function fetchClaudeAgentEnv(): Promise<Record<string, string>> {
 	if (claudeAgentEnvPromise) return claudeAgentEnvPromise;
-	const bridge = (window as any)?.maestro?.agents?.getCustomEnvVars;
+	const bridge = (window as any)?.openwizardai?.agents?.getCustomEnvVars;
 	if (typeof bridge !== 'function') {
 		claudeAgentEnvPromise = Promise.resolve({});
 		return claudeAgentEnvPromise;

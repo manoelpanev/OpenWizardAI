@@ -1,13 +1,13 @@
 // Stats commands - introspect the Usage Dashboard's SQLite store.
 //
-//   maestro-cli stats [--range <r>] [--json]   -> aggregated dashboard metrics
-//   maestro-cli stats-query "<sql>" [--json]    -> arbitrary read-only SQL
+//   openwizardai-cli stats [--range <r>] [--json]   -> aggregated dashboard metrics
+//   openwizardai-cli stats-query "<sql>" [--json]    -> arbitrary read-only SQL
 //
 // Both route through the running desktop app over the existing WebSocket
 // bridge; the app owns the open stats database and runs the query/aggregation
 // against it. The SQL path is read-only enforced in the main process.
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { formatError } from '../output/formatter';
 
 const VALID_RANGES = ['day', 'week', 'month', 'quarter', 'year', 'all'] as const;
@@ -39,7 +39,7 @@ interface StatsQueryResponse {
 }
 
 /**
- * `maestro-cli stats` - aggregated Usage Dashboard metrics for a time range.
+ * `openwizardai-cli stats` - aggregated Usage Dashboard metrics for a time range.
  */
 export async function stats(options: StatsOptions): Promise<void> {
 	const range = (options.range || 'week') as StatsRange;
@@ -55,7 +55,7 @@ export async function stats(options: StatsOptions): Promise<void> {
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<AggregationResponse>(
 				{ type: 'get_stats_aggregation', range },
 				'stats_aggregation'
@@ -74,14 +74,14 @@ export async function stats(options: StatsOptions): Promise<void> {
 }
 
 /**
- * `maestro-cli stats-query` - run a single read-only SQL statement against the
+ * `openwizardai-cli stats-query` - run a single read-only SQL statement against the
  * stats database. Positional `?` placeholders bind to repeated `--param` values.
  */
 export async function statsQuery(sql: string, options: StatsQueryOptions): Promise<void> {
 	const params = options.param ?? [];
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<StatsQueryResponse>(
 				{ type: 'stats_query', sql, params },
 				'stats_query_result'

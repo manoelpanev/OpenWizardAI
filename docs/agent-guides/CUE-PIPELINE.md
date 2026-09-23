@@ -2,7 +2,7 @@
 
 # Cue Pipeline System
 
-Guide for `src/main/cue/` - Maestro's event-driven automation engine.
+Guide for `src/main/cue/` - OpenWizardAI's event-driven automation engine.
 
 > **Branch note:** Cue source lives on the `rc` branch (not yet merged to `main`). The compiled output exists at `dist/main/cue/`. This guide was significantly refactored on rc: trigger sources moved into `src/main/cue/triggers/`, config parsing/validation into `src/main/cue/config/`, and new service modules (completion, dispatch, query, recovery, session-runtime, session-registry, session-state) were extracted from the engine.
 
@@ -10,7 +10,7 @@ Guide for `src/main/cue/` - Maestro's event-driven automation engine.
 
 ## Overview
 
-Cue is an event-driven automation system that triggers AI agent prompts in response to events. It reads YAML configuration files (`maestro-cue.yaml` or `.maestro/cue.yaml`) from each agent's project root and manages the full lifecycle: detecting events, queuing executions, spawning agent processes, tracking completions, and propagating results through chains.
+Cue is an event-driven automation system that triggers AI agent prompts in response to events. It reads YAML configuration files (`openwizardai-cue.yaml` or `.openwizardai/cue.yaml`) from each agent's project root and manages the full lifecycle: detecting events, queuing executions, spawning agent processes, tracking completions, and propagating results through chains.
 
 ### Supported Trigger Types
 
@@ -264,27 +264,27 @@ SQLite persistence using `better-sqlite3` with WAL mode.
 
 Registered in `src/main/ipc/handlers/cue.ts` via `registerCueHandlers()`.
 
-| Channel                   | Description                                        |
-| ------------------------- | -------------------------------------------------- |
-| `cue:getSettings`         | Get merged Cue settings                            |
-| `cue:getStatus`           | Get status of all Cue-enabled sessions             |
-| `cue:getActiveRuns`       | Get currently running executions                   |
-| `cue:getActivityLog`      | Get recent completed/failed runs                   |
-| `cue:enable`              | Start the engine                                   |
-| `cue:disable`             | Stop the engine                                    |
-| `cue:stopRun`             | Stop a specific running execution                  |
-| `cue:stopAll`             | Stop all running executions                        |
-| `cue:triggerSubscription` | Manual "Run Now" by name                           |
-| `cue:getQueueStatus`      | Get queue depth per session                        |
-| `cue:refreshSession`      | Re-read YAML for a session                         |
-| `cue:removeSession`       | Remove a session from tracking                     |
-| `cue:getGraphData`        | Get sessions+subscriptions for graph visualization |
-| `cue:readYaml`            | Read raw YAML content                              |
-| `cue:writeYaml`           | Write YAML + optional prompt files to `.maestro/`  |
-| `cue:deleteYaml`          | Delete cue config file                             |
-| `cue:validateYaml`        | Validate YAML as Cue config                        |
-| `cue:savePipelineLayout`  | Save visual pipeline editor layout                 |
-| `cue:loadPipelineLayout`  | Load saved pipeline layout                         |
+| Channel                   | Description                                            |
+| ------------------------- | ------------------------------------------------------ |
+| `cue:getSettings`         | Get merged Cue settings                                |
+| `cue:getStatus`           | Get status of all Cue-enabled sessions                 |
+| `cue:getActiveRuns`       | Get currently running executions                       |
+| `cue:getActivityLog`      | Get recent completed/failed runs                       |
+| `cue:enable`              | Start the engine                                       |
+| `cue:disable`             | Stop the engine                                        |
+| `cue:stopRun`             | Stop a specific running execution                      |
+| `cue:stopAll`             | Stop all running executions                            |
+| `cue:triggerSubscription` | Manual "Run Now" by name                               |
+| `cue:getQueueStatus`      | Get queue depth per session                            |
+| `cue:refreshSession`      | Re-read YAML for a session                             |
+| `cue:removeSession`       | Remove a session from tracking                         |
+| `cue:getGraphData`        | Get sessions+subscriptions for graph visualization     |
+| `cue:readYaml`            | Read raw YAML content                                  |
+| `cue:writeYaml`           | Write YAML + optional prompt files to `.openwizardai/` |
+| `cue:deleteYaml`          | Delete cue config file                                 |
+| `cue:validateYaml`        | Validate YAML as Cue config                            |
+| `cue:savePipelineLayout`  | Save visual pipeline editor layout                     |
+| `cue:loadPipelineLayout`  | Load saved pipeline layout                             |
 
 ---
 
@@ -307,7 +307,7 @@ Dashboard modal for monitoring and controlling Cue.
 
 **Tabs.** `CueModalTab` in `CueModalHeader.tsx` is the tab union, and it must stay
 in sync with `CUE_MODAL_TABS` in `src/shared/uiSurfaces.ts` - that registry is what
-`maestro-cli open cue --tab <id>` validates against, and `CueModalHeader.test.tsx`
+`openwizardai-cli open cue --tab <id>` validates against, and `CueModalHeader.test.tsx`
 asserts the two render in the same order. Note the id/label mismatch on the graph
 tab: its id is `pipeline` while its label is "Pipeline Graph". The id predates the
 rename and is deliberately frozen, because saved deep links, the YAML editor's nav
@@ -512,13 +512,13 @@ renderer, a future CLI listing, and tests all describe a pipeline identically.
   The `idle` label is "No recent runs", never "never run" - the activity log is a
   bounded window and a stronger claim would be false.
 
-### `src/shared/maestro-paths.ts`
+### `src/shared/openwizardai-paths.ts`
 
 Path constants:
 
-- `CUE_CONFIG_PATH` = `".maestro/cue.yaml"`
-- `CUE_PROMPTS_DIR` = `".maestro/prompts"`
-- `LEGACY_CUE_CONFIG_PATH` = `"maestro-cue.yaml"` (via `LEGACY_CUE_YAML_FILENAME`)
+- `CUE_CONFIG_PATH` = `".openwizardai/cue.yaml"`
+- `CUE_PROMPTS_DIR` = `".openwizardai/prompts"`
+- `LEGACY_CUE_CONFIG_PATH` = `"openwizardai-cue.yaml"` (via `LEGACY_CUE_YAML_FILENAME`)
 
 ---
 
@@ -538,7 +538,7 @@ Path constants:
 
 ## Configuration Format
 
-Example `maestro-cue.yaml`:
+Example `openwizardai-cue.yaml`:
 
 ```yaml
 subscriptions:
@@ -551,7 +551,7 @@ subscriptions:
     event: time.scheduled
     schedule_times: ['09:00']
     schedule_days: [mon, tue, wed, thu, fri]
-    prompt_file: .maestro/prompts/standup.md
+    prompt_file: .openwizardai/prompts/standup.md
 
   - name: review-new-prs
     event: github.pull_request

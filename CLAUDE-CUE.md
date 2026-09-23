@@ -1,17 +1,17 @@
 # CLAUDE-CUE.md
 
-Architectural reference for **Maestro Cue** - the event-driven automation engine in `src/main/cue/`. For module-level reference (every file's purpose, IPC channels, renderer components, YAML examples), see [docs/agent-guides/CUE-PIPELINE.md](docs/agent-guides/CUE-PIPELINE.md). For per-event template variables and YAML schema in user-facing docs, see [src/prompts/\_maestro-cue.md](src/prompts/_maestro-cue.md). This doc is the **why** and the **gotchas** - read it before changing anything in `src/main/cue/`.
+Architectural reference for **OpenWizardAI Cue** - the event-driven automation engine in `src/main/cue/`. For module-level reference (every file's purpose, IPC channels, renderer components, YAML examples), see [docs/agent-guides/CUE-PIPELINE.md](docs/agent-guides/CUE-PIPELINE.md). For per-event template variables and YAML schema in user-facing docs, see [src/prompts/\_openwizardai-cue.md](src/prompts/_openwizardai-cue.md). This doc is the **why** and the **gotchas** - read it before changing anything in `src/main/cue/`.
 
 ## 30-second mental model
 
-Each agent has a project root. Cue looks for `.maestro/cue.yaml` (preferred) or `maestro-cue.yaml` (legacy) under that root and parses it into a list of **subscriptions**. A subscription is a `(event_type, filter, prompt, agent)` tuple - "when X happens, run Y on agent Z." Trigger sources (file watcher, GitHub poller, scheduled clock, heartbeat, task scanner) detect matching events and call the dispatch service, which spawns a background agent process via the same path Auto Run uses. Completions are recorded to SQLite and can chain into other subscriptions (`agent.completed` event). Fan-out runs the same prompt across multiple agents in parallel; fan-in waits for several upstream agents to finish before firing one downstream. Everything is gated by per-session concurrency (`max_concurrent`, default 1) and a persisted queue that survives crashes.
+Each agent has a project root. Cue looks for `.openwizardai/cue.yaml` (preferred) or `openwizardai-cue.yaml` (legacy) under that root and parses it into a list of **subscriptions**. A subscription is a `(event_type, filter, prompt, agent)` tuple - "when X happens, run Y on agent Z." Trigger sources (file watcher, GitHub poller, scheduled clock, heartbeat, task scanner) detect matching events and call the dispatch service, which spawns a background agent process via the same path Auto Run uses. Completions are recorded to SQLite and can chain into other subscriptions (`agent.completed` event). Fan-out runs the same prompt across multiple agents in parallel; fan-in waits for several upstream agents to finish before firing one downstream. Everything is gated by per-session concurrency (`max_concurrent`, default 1) and a persisted queue that survives crashes.
 
 ## Architecture
 
 ```
                        ┌─────────────────────────────────────────────────┐
   YAML config  ───►    │ CueSessionRuntimeService                        │
-  (.maestro/cue.yaml)  │  • initSession / refreshSession / removeSession │
+  (.openwizardai/cue.yaml)  │  • initSession / refreshSession / removeSession │
                        │  • per-agent-cwd config (no ancestor walk)       │
                        │  • ownership conflict resolution                │
                        │  • registers trigger sources per subscription   │
@@ -82,7 +82,7 @@ A `github.pull_request` event for a chained subscription, traced from trigger to
 
 `initSession` (`cue-session-runtime-service.ts:107-200`) is the choke point:
 
-- **YAML discovery.** Calls `loadCueConfigDetailed(projectRoot)` and uses ONLY the file at `<projectRoot>/.maestro/cue.yaml`. There is no parent-directory walk and no ancestor fallback - each session reads its own cue.yaml and nothing else. Cross-agent pipelines are stitched at runtime via `agent_id` references in `source_session_ids` / `fan_out_ids`, not via parent-directory inheritance. The matching writer side is `pipelinesToYamlByOwnerCwd` (`pipelineToYaml.ts`), which emits one yaml per participating agent's cwd.
+- **YAML discovery.** Calls `loadCueConfigDetailed(projectRoot)` and uses ONLY the file at `<projectRoot>/.openwizardai/cue.yaml`. There is no parent-directory walk and no ancestor fallback - each session reads its own cue.yaml and nothing else. Cross-agent pipelines are stitched at runtime via `agent_id` references in `source_session_ids` / `fan_out_ids`, not via parent-directory inheritance. The matching writer side is `pipelinesToYamlByOwnerCwd` (`pipelineToYaml.ts`), which emits one yaml per participating agent's cwd.
 - **Ownership.** When two sessions resolve to the same effective `cue.yaml` (shared `projectRoot`), `computeOwnershipWarning` (`cue-session-state.ts`) tags the non-owner. Subscriptions without an explicit `agent_id` are **suppressed** for the non-owner - both at trigger-source registration AND in `notifyAgentCompleted` (`cue-completion-service.ts:110, 143`). Without this gate, the same chain would dispatch twice. Tie-breaker is configurable via `settings.owner_agent_id` (UUID or display name) - falls back to first-by-session-list when unset. The Cue dashboard hides ownership-flagged sessions by default (toggle in the header reveals them) so cross-agent shared-cwd noise doesn't crowd the table.
 - **Teardown.** `removeSession` stops trigger sources and unregisters from the registry. Queued events are kept unless `clearQueue(sessionId)` is called explicitly. `refreshSession` is teardown + re-init (used on YAML save and on agent rename).
 
@@ -99,13 +99,13 @@ Two facts that aren't obvious:
 
 The three clock events - `time.once`, `time.scheduled`, `time.heartbeat` - are exposed to users as one concept, **Scheduled Tasks**. Two surfaces edit them and both go through `src/main/cue/cue-scheduled-tasks.ts`:
 
-- `maestro-cli cue schedule` (create / `--list` / `--reschedule` / `--pause` / `--resume` / `--cancel`), which works with the desktop app closed.
+- `openwizardai-cli cue schedule` (create / `--list` / `--reschedule` / `--pause` / `--resume` / `--cancel`), which works with the desktop app closed.
 - The Cue modal's **Scheduled Tasks** tab, over `cue:listScheduledTasks` / `createScheduledTask` / `updateScheduledTask` / `cancelScheduledTask`.
 
 Rules worth knowing before editing it:
 
 - **Wire shapes live in `src/shared/cue/scheduled-tasks.ts`** so the renderer can type against them without importing `main/`. Pure helpers (duration/time parsing, label truncation, schedule description) live there too and are shared with the CLI.
-- **Writes never trigger a reload.** They land in `.maestro/cue.yaml` atomically and the engine's YAML watcher picks them up. Forcing a refresh races the watcher.
+- **Writes never trigger a reload.** They land in `.openwizardai/cue.yaml` atomically and the engine's YAML watcher picks them up. Forcing a refresh races the watcher.
 - **`updateScheduledTask` refuses cross-kind timing patches.** Setting `fire_at` on a `time.scheduled` sub would leave both a `fire_at` and `schedule_times` in the file, which the validator rejects; changing HOW a task repeats means cancel + recreate, which is what the UI offers.
 - **Next-fire projection is one-way.** `time.once` reads `fire_at`; `time.scheduled` calls `calculateNextScheduledTime` (the same helper the trigger source uses); `time.heartbeat` returns `null`, because an interval's phase lives in engine run state, not YAML. Don't fake a projection for it.
 - **Agent lists come from the sessions store, not `getStatus()`.** Creating a task must work for an agent that has no `cue.yaml` yet, and `getStatus()` only knows agents that already have one.
@@ -216,7 +216,7 @@ Single SQLite database, WAL mode. Tables:
 - **`cue-process-lifecycle.ts`** owns the actual `spawn()` with `stdio: ['ignore', 'pipe', 'pipe']`, output capture, and shutdown. **SIGTERM → 5s grace → SIGKILL** (`SIGKILL_DELAY_MS`, both `cue-process-lifecycle.ts:20` and `cue-shell-executor.ts:22` and `cue-cli-executor.ts:95` - keep these in sync if you change the constant).
 - **`cue-env-sanitizer.ts`** drops env vars whose name doesn't match `[a-zA-Z_][a-zA-Z0-9_]*` OR whose uppercase form is in a blocklist (`PATH, HOME, USER, SHELL, LD_PRELOAD, LD_LIBRARY_PATH, DYLD_INSERT_LIBRARIES, NODE_OPTIONS`). Case-insensitive - Windows `Path` is the same as `PATH`.
 - **`cue-output-filter.ts`** truncates per-source chain output to `SOURCE_OUTPUT_MAX_CHARS` (5000) and applies the optional `include_output_from` / `forward_output_from` filters before injecting into downstream prompts.
-- **Shell executor** uses local `bash -c <cmd>` (or remote-shell wrapping under SSH); CLI executor invokes `maestro-cli send` with a 5000ms timeout cap.
+- **Shell executor** uses local `bash -c <cmd>` (or remote-shell wrapping under SSH); CLI executor invokes `openwizardai-cli send` with a 5000ms timeout cap.
 
 ## Auth expiry detection (`cue-auth-detector.ts`)
 
@@ -230,7 +230,7 @@ Because Cue spawns its own agents (above) instead of going through the ProcessMa
 
 ## Telemetry
 
-Telemetry submission to `runmaestro.ai/api/v1/cue/stats` is **gated on both Encore flags** (`encoreFeatures.maestroCue` AND `encoreFeatures.usageStats`) - same predicate as `cue-stats.ts:isCueStatsEnabled`. Older app versions don't have the code path, so back-compat is automatic.
+Telemetry submission to `github.com/manoelpanev/OpenWizardAI/api/v1/cue/stats` is **gated on both Encore flags** (`encoreFeatures.openwizardaiCue` AND `encoreFeatures.usageStats`) - same predicate as `cue-stats.ts:isCueStatsEnabled`. Older app versions don't have the code path, so back-compat is automatic.
 
 **Two events** cover all server-side rollups:
 
@@ -251,7 +251,7 @@ There is **no timer-based flush** - burning battery on idle installs is not the 
 
 **Kill-switches** (both honored):
 
-- `MAESTRO_DISABLE_CUE_TELEMETRY=1` env var → hard local disable.
+- `OPENWIZARDAI_DISABLE_CUE_TELEMETRY=1` env var → hard local disable.
 - `X-Cue-Telemetry-Backoff: <seconds>` response header → server-side throttle. Honored until the deadline expires; subsequent flushes return `{ ok: false, reason: 'backoff' }`.
 
 **Limits**: 500 events / 256 KB per request. Server returns `202` + `{dropped: N}` on overflow; client also pre-checks payload size and drops half the batch (oldest first) on local overflow rather than retrying forever.
@@ -287,7 +287,7 @@ Hot-path callers (`recordTriggerFired`, `recordRunCompleted`) MUST be non-throwi
 | Change a runtime constant     | All copies must be updated (e.g. `SIGKILL_DELAY_MS` is duplicated across executors). Grep before you change.                                                                                                                                                                                                                                     |
 | Add a new run-level field     | `CueRunResult` (`src/shared/cue/contracts.ts`), populate in all three executors (`cue-executor.ts`, `cue-shell-executor.ts`, `cue-cli-executor.ts`), thread through run-manager's result init at `cue-run-manager.ts:258`, surface in `recordCueHistoryEntry`/`buildCueRunSummary`. The recent `pipelineName` plumbing is the canonical example. |
 | Change history summary format | `src/shared/cue/cue-summary.ts` (shared with Cue Modal Activity Log).                                                                                                                                                                                                                                                                            |
-| Add a template variable       | `src/shared/templateVariables.ts` (renderer + main shared), `src/main/cue/cue-template-context-builder.ts` (per-event extraction), document in `src/prompts/_maestro-cue.md`.                                                                                                                                                                    |
+| Add a template variable       | `src/shared/templateVariables.ts` (renderer + main shared), `src/main/cue/cue-template-context-builder.ts` (per-event extraction), document in `src/prompts/_openwizardai-cue.md`.                                                                                                                                                               |
 | Add a new IPC handler         | `src/main/ipc/handlers/cue.ts`, expose in `src/main/preload.ts`, type in `src/renderer/global.d.ts`, hook in `src/renderer/hooks/useCue.ts`.                                                                                                                                                                                                     |
 
 ## Test landmarks

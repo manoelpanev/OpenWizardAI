@@ -2,7 +2,7 @@
  * @fileoverview Tests for AgentConfigPanel component
  * Tests: Built-in environment variables display, custom env vars, agent configuration
  *
- * Regression test for: MAESTRO_SESSION_RESUMED env var display in group chat moderator customization
+ * Regression test for: OPENWIZARDAI_SESSION_RESUMED env var display in group chat moderator customization
  */
 
 import { useState, useCallback } from 'react';
@@ -102,36 +102,36 @@ function createDefaultProps(overrides: Partial<Parameters<typeof AgentConfigPane
 // =============================================================================
 
 describe('AgentConfigPanel', () => {
-	describe('Built-in environment variables (MAESTRO_SESSION_RESUMED)', () => {
-		it('should NOT display MAESTRO_SESSION_RESUMED when showBuiltInEnvVars is false (default)', () => {
+	describe('Built-in environment variables (OPENWIZARDAI_SESSION_RESUMED)', () => {
+		it('should NOT display OPENWIZARDAI_SESSION_RESUMED when showBuiltInEnvVars is false (default)', () => {
 			render(<AgentConfigPanel {...createDefaultProps()} />);
 
-			// MAESTRO_SESSION_RESUMED should NOT be visible
-			expect(screen.queryByText('MAESTRO_SESSION_RESUMED')).not.toBeInTheDocument();
+			// OPENWIZARDAI_SESSION_RESUMED should NOT be visible
+			expect(screen.queryByText('OPENWIZARDAI_SESSION_RESUMED')).not.toBeInTheDocument();
 		});
 
-		it('should NOT display MAESTRO_SESSION_RESUMED when showBuiltInEnvVars is explicitly false', () => {
+		it('should NOT display OPENWIZARDAI_SESSION_RESUMED when showBuiltInEnvVars is explicitly false', () => {
 			render(<AgentConfigPanel {...createDefaultProps({ showBuiltInEnvVars: false })} />);
 
-			// MAESTRO_SESSION_RESUMED should NOT be visible
-			expect(screen.queryByText('MAESTRO_SESSION_RESUMED')).not.toBeInTheDocument();
+			// OPENWIZARDAI_SESSION_RESUMED should NOT be visible
+			expect(screen.queryByText('OPENWIZARDAI_SESSION_RESUMED')).not.toBeInTheDocument();
 		});
 
-		it('should display MAESTRO_SESSION_RESUMED when showBuiltInEnvVars is true', () => {
+		it('should display OPENWIZARDAI_SESSION_RESUMED when showBuiltInEnvVars is true', () => {
 			render(<AgentConfigPanel {...createDefaultProps({ showBuiltInEnvVars: true })} />);
 
-			// MAESTRO_SESSION_RESUMED should be visible
-			expect(screen.getByText('MAESTRO_SESSION_RESUMED')).toBeInTheDocument();
+			// OPENWIZARDAI_SESSION_RESUMED should be visible
+			expect(screen.getByText('OPENWIZARDAI_SESSION_RESUMED')).toBeInTheDocument();
 		});
 
-		it('should display the value hint for MAESTRO_SESSION_RESUMED', () => {
+		it('should display the value hint for OPENWIZARDAI_SESSION_RESUMED', () => {
 			render(<AgentConfigPanel {...createDefaultProps({ showBuiltInEnvVars: true })} />);
 
 			// Value hint should be displayed
 			expect(screen.getByText('1 (when resuming)')).toBeInTheDocument();
 		});
 
-		it('should display a help icon for MAESTRO_SESSION_RESUMED tooltip', () => {
+		it('should display a help icon for OPENWIZARDAI_SESSION_RESUMED tooltip', () => {
 			render(<AgentConfigPanel {...createDefaultProps({ showBuiltInEnvVars: true })} />);
 
 			// Help icon should be present
@@ -268,7 +268,7 @@ describe('AgentConfigPanel', () => {
 			);
 
 			// Built-in should be visible
-			expect(screen.getByText('MAESTRO_SESSION_RESUMED')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZARDAI_SESSION_RESUMED')).toBeInTheDocument();
 
 			// Custom var should also be in an input
 			const customKeyInput = screen
@@ -411,7 +411,9 @@ describe('AgentConfigPanel', () => {
 
 	describe('Claude Token Source selector', () => {
 		it('offers API / TUI / Dynamic for a local claude-code agent', () => {
-			render(<AgentConfigPanel {...createDefaultProps({ onEnableMaestroPChange: vi.fn() })} />);
+			render(
+				<AgentConfigPanel {...createDefaultProps({ onEnableOpenWizardAIPChange: vi.fn() })} />
+			);
 
 			expect(screen.getByText('Claude Token Source')).toBeInTheDocument();
 			expect(screen.getByText('claude -p')).toBeInTheDocument();
@@ -419,12 +421,12 @@ describe('AgentConfigPanel', () => {
 			expect(screen.getByText('Dynamic')).toBeInTheDocument();
 		});
 
-		it('defaults an unconfigured SSH agent to TUI (remote maestro-p), not API', () => {
-			// enableMaestroP left undefined (never configured) + SSH => TUI is the
+		it('defaults an unconfigured SSH agent to TUI (remote openwizardai-p), not API', () => {
+			// enableOpenWizardAIP left undefined (never configured) + SSH => TUI is the
 			// default selection, and the remote-host hint renders.
 			render(
 				<AgentConfigPanel
-					{...createDefaultProps({ onEnableMaestroPChange: vi.fn(), isSshEnabled: true })}
+					{...createDefaultProps({ onEnableOpenWizardAIPChange: vi.fn(), isSshEnabled: true })}
 				/>
 			);
 
@@ -432,16 +434,16 @@ describe('AgentConfigPanel', () => {
 			const apiButton = screen.getByText('claude -p').closest('button');
 			expect(tuiButton?.className).toContain('ring-2');
 			expect(apiButton?.className).not.toContain('ring-2');
-			expect(screen.getByText(/Runs maestro-p on the remote host/)).toBeInTheDocument();
+			expect(screen.getByText(/Runs openwizardai-p on the remote host/)).toBeInTheDocument();
 		});
 
 		it('honors an explicit API choice on an SSH agent (does not force TUI)', () => {
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
-						onEnableMaestroPChange: vi.fn(),
+						onEnableOpenWizardAIPChange: vi.fn(),
 						isSshEnabled: true,
-						enableMaestroP: false,
+						enableOpenWizardAIP: false,
 					})}
 				/>
 			);
@@ -452,104 +454,106 @@ describe('AgentConfigPanel', () => {
 			expect(tuiButton?.className).not.toContain('ring-2');
 		});
 
-		it('disables the TUI option and falls back to API when the remote has no maestro-p', async () => {
-			// The remote probe reports maestro-p is absent: TUI can't run there, so
+		it('disables the TUI option and falls back to API when the remote has no openwizardai-p', async () => {
+			// The remote probe reports openwizardai-p is absent: TUI can't run there, so
 			// the option is dropped and an unconfigured agent defaults to API.
 			(
 				window as unknown as {
-					maestro: { agents: { getRemoteMaestroPAvailable: ReturnType<typeof vi.fn> } };
+					openwizardai: { agents: { getRemoteOpenWizardAIPAvailable: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.agents.getRemoteMaestroPAvailable.mockResolvedValue(false);
+			).openwizardai.agents.getRemoteOpenWizardAIPAvailable.mockResolvedValue(false);
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
-						onEnableMaestroPChange: vi.fn(),
+						onEnableOpenWizardAIPChange: vi.fn(),
 						isSshEnabled: true,
-						sshRemoteId: 'remote-without-maestro-p',
+						sshRemoteId: 'remote-without-openwizardai-p',
 					})}
 				/>
 			);
 
 			// Once the async probe resolves, the warning appears and TUI is gone.
 			await waitFor(() =>
-				expect(screen.getByText(/maestro-p was not found on the remote/)).toBeInTheDocument()
+				expect(screen.getByText(/openwizardai-p was not found on the remote/)).toBeInTheDocument()
 			);
 			expect(screen.queryByText('TUI Wrapper')).not.toBeInTheDocument();
 			const apiButton = screen.getByText('claude -p').closest('button');
 			expect(apiButton?.className).toContain('ring-2');
 			(
 				window as unknown as {
-					maestro: { agents: { getRemoteMaestroPAvailable: ReturnType<typeof vi.fn> } };
+					openwizardai: { agents: { getRemoteOpenWizardAIPAvailable: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.agents.getRemoteMaestroPAvailable.mockResolvedValue(null);
+			).openwizardai.agents.getRemoteOpenWizardAIPAvailable.mockResolvedValue(null);
 		});
 
-		it('links to the maestro-p install page from the missing-remote warning', async () => {
+		it('links to the openwizardai-p install page from the missing-remote warning', async () => {
 			openUrlMock.mockClear();
 			(
 				window as unknown as {
-					maestro: { agents: { getRemoteMaestroPAvailable: ReturnType<typeof vi.fn> } };
+					openwizardai: { agents: { getRemoteOpenWizardAIPAvailable: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.agents.getRemoteMaestroPAvailable.mockResolvedValue(false);
+			).openwizardai.agents.getRemoteOpenWizardAIPAvailable.mockResolvedValue(false);
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
-						onEnableMaestroPChange: vi.fn(),
+						onEnableOpenWizardAIPChange: vi.fn(),
 						isSshEnabled: true,
-						sshRemoteId: 'remote-without-maestro-p',
+						sshRemoteId: 'remote-without-openwizardai-p',
 					})}
 				/>
 			);
 
-			const installLink = await screen.findByText('Install maestro-p');
+			const installLink = await screen.findByText('Install openwizardai-p');
 			fireEvent.click(installLink);
 			expect(openUrlMock).toHaveBeenCalledWith(
-				'https://runmaestro.ai/maestro-p/',
+				'https://github.com/manoelpanev/OpenWizardAI',
 				expect.objectContaining({ ctrlKey: false })
 			);
 
 			(
 				window as unknown as {
-					maestro: { agents: { getRemoteMaestroPAvailable: ReturnType<typeof vi.fn> } };
+					openwizardai: { agents: { getRemoteOpenWizardAIPAvailable: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.agents.getRemoteMaestroPAvailable.mockResolvedValue(null);
+			).openwizardai.agents.getRemoteOpenWizardAIPAvailable.mockResolvedValue(null);
 		});
 
 		it('re-probes the remote with force when the Re-check button is clicked', async () => {
 			const probeFn = (
 				window as unknown as {
-					maestro: { agents: { getRemoteMaestroPAvailable: ReturnType<typeof vi.fn> } };
+					openwizardai: { agents: { getRemoteOpenWizardAIPAvailable: ReturnType<typeof vi.fn> } };
 				}
-			).maestro.agents.getRemoteMaestroPAvailable;
-			// First probe (mount): maestro-p absent. After the user installs it on the
+			).openwizardai.agents.getRemoteOpenWizardAIPAvailable;
+			// First probe (mount): openwizardai-p absent. After the user installs it on the
 			// remote and clicks Re-check, the forced re-probe reports it present.
 			probeFn.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
-						onEnableMaestroPChange: vi.fn(),
+						onEnableOpenWizardAIPChange: vi.fn(),
 						isSshEnabled: true,
-						sshRemoteId: 'remote-just-got-maestro-p',
+						sshRemoteId: 'remote-just-got-openwizardai-p',
 					})}
 				/>
 			);
 
 			// Mount probe resolves to absent: TUI option missing, warning shown.
 			await waitFor(() =>
-				expect(screen.getByText(/maestro-p was not found on the remote/)).toBeInTheDocument()
+				expect(screen.getByText(/openwizardai-p was not found on the remote/)).toBeInTheDocument()
 			);
-			expect(probeFn).toHaveBeenLastCalledWith('remote-just-got-maestro-p', false);
+			expect(probeFn).toHaveBeenLastCalledWith('remote-just-got-openwizardai-p', false);
 
 			fireEvent.click(screen.getByText('Re-check'));
 
 			// The refresh forces a cache-bypassing re-probe...
 			await waitFor(() =>
-				expect(probeFn).toHaveBeenLastCalledWith('remote-just-got-maestro-p', true)
+				expect(probeFn).toHaveBeenLastCalledWith('remote-just-got-openwizardai-p', true)
 			);
-			// ...which now reports maestro-p present: the warning clears and TUI returns.
+			// ...which now reports openwizardai-p present: the warning clears and TUI returns.
 			await waitFor(() =>
-				expect(screen.queryByText(/maestro-p was not found on the remote/)).not.toBeInTheDocument()
+				expect(
+					screen.queryByText(/openwizardai-p was not found on the remote/)
+				).not.toBeInTheDocument()
 			);
 			expect(screen.getByText('TUI Wrapper')).toBeInTheDocument();
 
@@ -559,7 +563,7 @@ describe('AgentConfigPanel', () => {
 		it('renders the selector for SSH agents but drops the Dynamic option', () => {
 			render(
 				<AgentConfigPanel
-					{...createDefaultProps({ onEnableMaestroPChange: vi.fn(), isSshEnabled: true })}
+					{...createDefaultProps({ onEnableOpenWizardAIPChange: vi.fn(), isSshEnabled: true })}
 				/>
 			);
 
@@ -569,37 +573,37 @@ describe('AgentConfigPanel', () => {
 			expect(screen.queryByText('Dynamic')).not.toBeInTheDocument();
 		});
 
-		it('hides the local OpenWizzard-P Path override when SSH is enabled and TUI is selected', () => {
+		it('hides the local OpenWizardAI-P Path override when SSH is enabled and TUI is selected', () => {
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
-						onEnableMaestroPChange: vi.fn(),
-						onMaestroPModeChange: vi.fn(),
+						onEnableOpenWizardAIPChange: vi.fn(),
+						onOpenWizardAIPModeChange: vi.fn(),
 						isSshEnabled: true,
-						enableMaestroP: true,
-						maestroPMode: 'interactive',
+						enableOpenWizardAIP: true,
+						openwizardaiPMode: 'interactive',
 					})}
 				/>
 			);
 
 			// The remote TUI hint shows, but the local-script path input does not.
-			expect(screen.getByText(/Runs maestro-p on the remote host/)).toBeInTheDocument();
-			expect(screen.queryByText('OpenWizzard-P Path (optional)')).not.toBeInTheDocument();
+			expect(screen.getByText(/Runs openwizardai-p on the remote host/)).toBeInTheDocument();
+			expect(screen.queryByText('OpenWizardAI-P Path (optional)')).not.toBeInTheDocument();
 		});
 
-		it('still shows the local OpenWizzard-P Path override for a local TUI agent', () => {
+		it('still shows the local OpenWizardAI-P Path override for a local TUI agent', () => {
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
-						onEnableMaestroPChange: vi.fn(),
-						onMaestroPModeChange: vi.fn(),
-						enableMaestroP: true,
-						maestroPMode: 'interactive',
+						onEnableOpenWizardAIPChange: vi.fn(),
+						onOpenWizardAIPModeChange: vi.fn(),
+						enableOpenWizardAIP: true,
+						openwizardaiPMode: 'interactive',
 					})}
 				/>
 			);
 
-			expect(screen.getByText('OpenWizzard-P Path (optional)')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI-P Path (optional)')).toBeInTheDocument();
 		});
 	});
 });

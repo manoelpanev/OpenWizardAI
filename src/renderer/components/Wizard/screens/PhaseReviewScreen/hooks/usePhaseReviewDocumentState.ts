@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PLAYBOOKS_DIR } from '../../../../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../../../../shared/openwizardai-paths';
 import type { GeneratedDocument, WizardState } from '../../../WizardContext';
 
 export function usePhaseReviewDocumentState({
@@ -71,7 +71,7 @@ export function usePhaseReviewDocumentState({
 	const handleRemoveAttachment = useCallback(
 		async (filename: string) => {
 			setAttachments((prev) => prev.filter((attachment) => attachment.filename !== filename));
-			await window.maestro.autorun.deleteImage(folderPath, filename);
+			await window.openwizardai.autorun.deleteImage(folderPath, filename);
 
 			const escapedPath = filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 			const fname = filename.split('/').pop() || filename;

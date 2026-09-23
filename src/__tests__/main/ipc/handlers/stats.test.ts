@@ -338,7 +338,7 @@ describe('stats IPC handlers', () => {
 				expect(mockMainWindow.webContents.send).toHaveBeenCalledWith('stats:updated');
 			});
 
-			// MAESTRO-SP: a shortcut can fire before the stats DB finishes
+			// OPENWIZARDAI-SP: a shortcut can fire before the stats DB finishes
 			// initializing. The handler must skip silently rather than throw
 			// "Database not initialized" (which would otherwise propagate across
 			// the IPC bridge into the renderer and Sentry).

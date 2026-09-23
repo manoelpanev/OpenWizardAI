@@ -1,6 +1,6 @@
 // Cue list command - list all Cue subscriptions across agents
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 
 interface CueListOptions {
 	json?: boolean;
@@ -21,7 +21,7 @@ interface CueSubscription {
 
 export async function cueList(options: CueListOptions): Promise<void> {
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				subscriptions: CueSubscription[];

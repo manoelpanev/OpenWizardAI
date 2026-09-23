@@ -14,7 +14,7 @@
  *     `Bar-chain-2` would strand both. `pipeline_name` is authoritative for
  *     grouping precisely so a sub's own name can stay put - the editor's own
  *     save path preserves them the same way.
- *   - **Prompt files.** `.maestro/prompts/<agent>/<sub>.md` is keyed by
+ *   - **Prompt files.** `.openwizardai/prompts/<agent>/<sub>.md` is keyed by
  *     subscription name, which is unchanged, so the paths stay valid.
  *
  * The one piece of bookkeeping a rename DOES owe: the visual pipeline id is

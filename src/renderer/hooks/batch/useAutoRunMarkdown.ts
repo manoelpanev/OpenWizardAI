@@ -11,7 +11,7 @@ import {
 import remarkFrontmatter from 'remark-frontmatter';
 import { remarkFrontmatterTable } from '../../utils/remarkFrontmatterTable';
 import { remarkAlert } from '../../components/Markdown/remarkAlert';
-import { remarkMaestroMarkers } from '../../components/Markdown/remarkMaestroMarkers';
+import { remarkOpenWizardAIMarkers } from '../../components/Markdown/remarkOpenWizardAIMarkers';
 import { remarkStripHtmlComments } from '../../../shared/remarkStripHtmlComments';
 import {
 	remarkFileLinks,
@@ -219,9 +219,9 @@ export function useAutoRunMarkdown({
 			remarkFrontmatterTable,
 			// Marker pills matter most here: this is the panel with the Run button,
 			// so a gate or halt that will block the run has to be visible from it.
-			remarkMaestroMarkers,
+			remarkOpenWizardAIMarkers,
 			// This surface has no rehype-raw, so react-markdown would render every
-			// HTML comment as visible body text. Runs after remarkMaestroMarkers so
+			// HTML comment as visible body text. Runs after remarkOpenWizardAIMarkers so
 			// the markers above still become pills.
 			remarkStripHtmlComments,
 		];

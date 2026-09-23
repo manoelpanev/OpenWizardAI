@@ -24,7 +24,7 @@ const STICKY_RIGHT_WIDTH = 48;
 
 /**
  * TabBar component for displaying the unified tab strip.
- * Shows AI, file, browser, and terminal tabs within a Maestro session.
+ * Shows AI, file, browser, and terminal tabs within an OpenWizardAI session.
  */
 function TabBarInner({
 	tabs,

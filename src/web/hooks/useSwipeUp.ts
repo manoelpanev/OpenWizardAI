@@ -1,5 +1,5 @@
 /**
- * useSwipeUp hook for Maestro mobile web interface
+ * useSwipeUp hook for OpenWizardAI mobile web interface
  *
  * Detects upward swipe gestures for triggering actions like opening drawers.
  * Used primarily for the command history drawer swipe-up interaction.

@@ -84,8 +84,8 @@ export const GitLogViewer = memo(function GitLogViewer({
 			try {
 				// Fetch log entries and total count in parallel
 				const [logResult, countResult] = await Promise.all([
-					window.maestro.git.log(cwd, { limit: 200 }, sshRemoteId),
-					window.maestro.git.commitCount(cwd, sshRemoteId),
+					window.openwizardai.git.log(cwd, { limit: 200 }, sshRemoteId),
+					window.openwizardai.git.commitCount(cwd, sshRemoteId),
 				]);
 
 				if (logResult.error) {
@@ -111,7 +111,7 @@ export const GitLogViewer = memo(function GitLogViewer({
 		async (hash: string) => {
 			setLoadingDiff(true);
 			try {
-				const result = await window.maestro.git.show(cwd, hash, sshRemoteId);
+				const result = await window.openwizardai.git.show(cwd, hash, sshRemoteId);
 				setSelectedCommitDiff(result.stdout);
 			} catch {
 				setSelectedCommitDiff(null);

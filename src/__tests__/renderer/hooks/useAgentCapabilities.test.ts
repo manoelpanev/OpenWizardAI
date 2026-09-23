@@ -45,7 +45,7 @@ describe('useAgentCapabilities', () => {
 	});
 
 	it('loads capabilities and caches results', async () => {
-		vi.mocked(window.maestro.agents.getCapabilities).mockResolvedValueOnce(baseCapabilities);
+		vi.mocked(window.openwizardai.agents.getCapabilities).mockResolvedValueOnce(baseCapabilities);
 
 		const { result } = renderHook(() => useAgentCapabilities('claude-code'));
 
@@ -54,7 +54,7 @@ describe('useAgentCapabilities', () => {
 		});
 
 		expect(result.current.capabilities).toEqual(baseCapabilities);
-		expect(window.maestro.agents.getCapabilities).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.agents.getCapabilities).toHaveBeenCalledTimes(1);
 
 		const { result: result2 } = renderHook(() => useAgentCapabilities('claude-code'));
 
@@ -63,7 +63,7 @@ describe('useAgentCapabilities', () => {
 		});
 
 		expect(result2.current.capabilities).toEqual(baseCapabilities);
-		expect(window.maestro.agents.getCapabilities).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.agents.getCapabilities).toHaveBeenCalledTimes(1);
 	});
 
 	it('refreshes capabilities by bypassing cache', async () => {
@@ -72,7 +72,7 @@ describe('useAgentCapabilities', () => {
 			supportsImageInput: false,
 		};
 
-		vi.mocked(window.maestro.agents.getCapabilities)
+		vi.mocked(window.openwizardai.agents.getCapabilities)
 			.mockResolvedValueOnce(baseCapabilities)
 			.mockResolvedValueOnce(updatedCapabilities);
 
@@ -87,11 +87,11 @@ describe('useAgentCapabilities', () => {
 		});
 
 		expect(result.current.capabilities).toEqual(updatedCapabilities);
-		expect(window.maestro.agents.getCapabilities).toHaveBeenCalledTimes(2);
+		expect(window.openwizardai.agents.getCapabilities).toHaveBeenCalledTimes(2);
 	});
 
 	it('clears error state when agentId is unset', async () => {
-		vi.mocked(window.maestro.agents.getCapabilities).mockRejectedValue(new Error('boom'));
+		vi.mocked(window.openwizardai.agents.getCapabilities).mockRejectedValue(new Error('boom'));
 
 		const { result, rerender } = renderHook(
 			({ agentId }: { agentId?: string }) => useAgentCapabilities(agentId),

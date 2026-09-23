@@ -142,8 +142,8 @@ export function createChatMarkdownComponents(
 		),
 		img: ({ node: _node, src, alt, ...props }: JSX.IntrinsicElements['img'] & ExtraProps) => {
 			// Use LocalImage component to handle file:// URLs via IPC.
-			// Extract width from data-maestro-width attribute if present.
-			const widthStr = (props as Record<string, unknown>)['data-maestro-width'] as
+			// Extract width from data-openwizardai-width attribute if present.
+			const widthStr = (props as Record<string, unknown>)['data-openwizardai-width'] as
 				| string
 				| undefined;
 			const width = widthStr ? parseInt(widthStr, 10) : undefined;
@@ -202,7 +202,7 @@ export function createChatMarkdownComponents(
 		),
 		// Strip event handler attributes (e.g. onToggle) that rehype-raw may
 		// pass through as strings from AI-generated HTML, which React rejects.
-		// Fixes MAESTRO-8Q
+		// Fixes OPENWIZARDAI-8Q
 		details: ({
 			node: _node,
 			onToggle: _onToggle,

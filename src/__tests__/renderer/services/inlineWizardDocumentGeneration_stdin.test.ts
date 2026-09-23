@@ -14,8 +14,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Captured callbacks from process events
 let capturedExitCallback: ((sessionId: string, code: number) => void) | null = null;
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	platform: 'win32',
 	agents: {
 		get: vi.fn(),
@@ -42,7 +42,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import { generateInlineDocuments } from '../../../renderer/services/inlineWizardDocumentGeneration';
@@ -52,11 +52,11 @@ import { generateInlineDocuments } from '../../../renderer/services/inlineWizard
  * with the correct session ID so the internal guards pass.
  */
 function setupSpawnMock(mockOutput: string, exitDelay = 15) {
-	mockMaestro.process.spawn.mockImplementation(async (config: { sessionId: string }) => {
+	mockOpenWizardAI.process.spawn.mockImplementation(async (config: { sessionId: string }) => {
 		const sid = config.sessionId;
 
 		// Fire data callback with the real session ID
-		const dataCallback = mockMaestro.process.onData.mock.calls[0]?.[0];
+		const dataCallback = mockOpenWizardAI.process.onData.mock.calls[0]?.[0];
 		if (dataCallback && mockOutput) {
 			setTimeout(() => dataCallback(sid, mockOutput), 5);
 		}
@@ -74,11 +74,11 @@ describe('inlineWizardDocumentGeneration - Windows stdin transport flags', () =>
 	beforeEach(() => {
 		vi.clearAllMocks();
 		capturedExitCallback = null;
-		mockMaestro.platform = 'win32';
+		mockOpenWizardAI.platform = 'win32';
 	});
 
 	afterEach(() => {
-		mockMaestro.platform = 'darwin';
+		mockOpenWizardAI.platform = 'darwin';
 	});
 
 	it('should pass sendPromptViaStdinRaw when on Windows without SSH', async () => {
@@ -90,7 +90,7 @@ describe('inlineWizardDocumentGeneration - Windows stdin transport flags', () =>
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const mockOutput = `
 ---BEGIN DOCUMENT---
@@ -108,11 +108,11 @@ CONTENT:
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// On Windows without SSH, text-only prompts use raw stdin
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -128,7 +128,7 @@ CONTENT:
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const mockOutput = `
 ---BEGIN DOCUMENT---
@@ -146,15 +146,15 @@ CONTENT:
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/remote/project/.maestro/playbooks',
+			autoRunFolderPath: '/remote/project/.openwizardai/playbooks',
 			sessionSshRemoteConfig: {
 				enabled: true,
 				remoteId: 'test-remote-id',
 			},
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// SSH sessions must NOT use stdin flags
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
@@ -162,7 +162,7 @@ CONTENT:
 	}, 30000);
 
 	it('should NOT pass stdin flags on non-Windows platforms', async () => {
-		mockMaestro.platform = 'darwin';
+		mockOpenWizardAI.platform = 'darwin';
 
 		const mockAgent = {
 			id: 'claude-code',
@@ -172,7 +172,7 @@ CONTENT:
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const mockOutput = `
 ---BEGIN DOCUMENT---
@@ -190,11 +190,11 @@ CONTENT:
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(false);
@@ -211,7 +211,7 @@ CONTENT:
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const mockOutput = `
 ---BEGIN DOCUMENT---
@@ -229,11 +229,11 @@ CONTENT:
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
 		expect(spawnCall.args).not.toContain('--input-format');
@@ -248,7 +248,7 @@ CONTENT:
 			args: [],
 			capabilities: { supportsStreamJsonInput: false },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const mockOutput = `
 ---BEGIN DOCUMENT---
@@ -266,11 +266,11 @@ CONTENT:
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// Agents without stream-json support always use raw stdin on Windows
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -286,8 +286,8 @@ CONTENT:
 			args: [],
 			capabilities: { supportsStreamJsonInput: false },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
-		mockMaestro.process.spawn.mockResolvedValue(undefined);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 		const generationPromise = generateInlineDocuments({
 			agentType: 'opencode' as any,
@@ -295,17 +295,17 @@ CONTENT:
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 			sessionCustomPath: '/custom/path',
 			sessionCustomModel: 'test-model',
 		});
 
 		// Wait for spawn to be called rather than relying on a fixed timeout
 		await vi.waitFor(() => {
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
 		});
 
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// Stdin flags should be present
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -315,7 +315,7 @@ CONTENT:
 
 		// Clean up
 		const spawnSessionId = spawnCall.sessionId;
-		const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+		const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 		exitCallback(spawnSessionId, 0);
 
 		try {

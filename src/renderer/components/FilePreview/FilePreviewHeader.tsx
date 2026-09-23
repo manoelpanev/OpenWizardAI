@@ -64,7 +64,7 @@ interface FilePreviewHeaderProps {
 	canPublishGist?: boolean;
 	hasGist?: boolean;
 	onOpenInGraph?: () => void;
-	/** Open this file as a new tab in the embedded Maestro browser. */
+	/** Open this file as a new tab in the embedded OpenWizardAI browser. */
 	onOpenInBrowser?: () => void;
 	sshRemoteId?: string;
 	copyContentToClipboard: () => Promise<void>;
@@ -262,18 +262,18 @@ export const FilePreviewHeader = React.memo(function FilePreviewHeader({
 								</button>
 							</HoverTooltip>
 						)}
-						{/* Open in Maestro Browser - HTML files only, not over SSH
+						{/* Open in OpenWizardAI Browser - HTML files only, not over SSH
 						    (file:// can't reach the remote host). Mirrors the file-tree
 						    right-click action so JS-heavy local HTML renders in the full
 						    webview instead of the sandboxed preview iframe. Sits next to the
 						    HTML render toggle since both are "view this in a browser" actions. */}
 						{toolbarVisibility.openInBrowser && isHtml && !sshRemoteId && onOpenInBrowser && (
-							<HoverTooltip theme={theme} label="Open in OpenWizzard Browser">
+							<HoverTooltip theme={theme} label="Open in OpenWizardAI Browser">
 								<button
 									onClick={onOpenInBrowser}
 									className={headerBtnClass}
 									style={{ color: theme.colors.textDim }}
-									data-testid="open-in-maestro-browser"
+									data-testid="open-in-openwizardai-browser"
 								>
 									<AppWindow className={headerIconClass} />
 								</button>
@@ -379,7 +379,7 @@ export const FilePreviewHeader = React.memo(function FilePreviewHeader({
 						{toolbarVisibility.openInDefault && !sshRemoteId && (
 							<HoverTooltip theme={theme} label="Open in Default App">
 								<button
-									onClick={() => window.maestro?.shell?.openPath(file.path)}
+									onClick={() => window.openwizardai?.shell?.openPath(file.path)}
 									className={headerBtnClass}
 									style={{ color: theme.colors.textDim }}
 								>
@@ -389,9 +389,12 @@ export const FilePreviewHeader = React.memo(function FilePreviewHeader({
 						)}
 						{/* Reveal in Finder / Explorer / File Manager - local files only */}
 						{toolbarVisibility.revealInFolder && !sshRemoteId && (
-							<HoverTooltip theme={theme} label={getRevealLabel(window.maestro?.platform ?? '')}>
+							<HoverTooltip
+								theme={theme}
+								label={getRevealLabel(window.openwizardai?.platform ?? '')}
+							>
 								<button
-									onClick={() => window.maestro?.shell?.showItemInFolder(file.path)}
+									onClick={() => window.openwizardai?.shell?.showItemInFolder(file.path)}
 									className={headerBtnClass}
 									style={{ color: theme.colors.textDim }}
 									data-testid="reveal-in-folder-button"

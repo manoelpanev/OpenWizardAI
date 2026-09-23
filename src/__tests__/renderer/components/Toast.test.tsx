@@ -234,7 +234,7 @@ describe('Toast', () => {
 			expect(onSessionClick).not.toHaveBeenCalledWith('legacy-session', 'legacy-tab');
 		});
 
-		it('open-file: dispatches the maestro:openFileTab CustomEvent', () => {
+		it('open-file: dispatches the openwizardai:openFileTab CustomEvent', () => {
 			const dispatchSpy = vi.spyOn(window, 'dispatchEvent');
 			setStoreToasts([
 				createMockToast({
@@ -247,7 +247,7 @@ describe('Toast', () => {
 			fireEvent.click(clickableToast!);
 
 			const matched = dispatchSpy.mock.calls.find(
-				([e]) => e instanceof CustomEvent && e.type === 'maestro:openFileTab'
+				([e]) => e instanceof CustomEvent && e.type === 'openwizardai:openFileTab'
 			);
 			expect(matched).toBeTruthy();
 			const evt = matched![0] as CustomEvent;
@@ -266,7 +266,9 @@ describe('Toast', () => {
 			const clickableToast = document.body.querySelector('.cursor-pointer');
 			fireEvent.click(clickableToast!);
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith('https://example.com/logs');
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://example.com/logs'
+			);
 		});
 
 		it('makes a toast clickable even without a sessionId', () => {
@@ -349,7 +351,7 @@ describe('Toast', () => {
 
 			render(<ToastContainer theme={mockTheme} />);
 			fireEvent.click(screen.getByText('View PR'));
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
 				'https://github.com/org/repo/pull/1'
 			);
 		});
@@ -393,7 +395,7 @@ describe('Toast', () => {
 			setStoreToasts([
 				createMockToast({
 					group: 'Ops',
-					project: 'Maestro',
+					project: 'OpenWizardAI',
 					tabName: 'main',
 					title: 'Pipeline failing',
 					message: 'chat source broken',
@@ -407,7 +409,7 @@ describe('Toast', () => {
 			});
 
 			expect(writeText).toHaveBeenCalledWith(
-				'Ops · Maestro · main\nPipeline failing\nchat source broken\nhttps://example.com/run/1'
+				'Ops · OpenWizardAI · main\nPipeline failing\nchat source broken\nhttps://example.com/run/1'
 			);
 		});
 

@@ -1,12 +1,12 @@
 /**
  * Tests for XTerminal.tsx - mapThemeToXterm and evaluateCustomKeyEvent pure functions.
  *
- * mapThemeToXterm converts a Maestro Theme into an xterm.js ITheme,
+ * mapThemeToXterm converts an OpenWizardAI Theme into an xterm.js ITheme,
  * falling back to mode-appropriate ANSI palettes when the theme lacks
  * individual ANSI color fields.
  *
  * evaluateCustomKeyEvent determines whether xterm should handle a key
- * or pass it through to Maestro's shortcut handler.
+ * or pass it through to OpenWizardAI's shortcut handler.
  */
 
 import { describe, it, expect } from 'vitest';

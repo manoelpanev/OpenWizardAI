@@ -21,7 +21,7 @@ import {
 	type WizardStep,
 	type SerializableWizardState,
 } from '../../../../renderer/components/Wizard/WizardContext';
-import { MaestroWizard } from '../../../../renderer/components/Wizard/MaestroWizard';
+import { OpenWizardAIWizard } from '../../../../renderer/components/Wizard/OpenWizardAIWizard';
 import { WizardResumeModal } from '../../../../renderer/components/Wizard/WizardResumeModal';
 import { LayerStackProvider } from '../../../../renderer/contexts/LayerStackContext';
 import type { AgentConfig } from '../../../../renderer/types';
@@ -193,7 +193,7 @@ vi.mock('../../../../renderer/components/Wizard/services/phaseGenerator', () => 
 		}),
 		saveDocuments: vi.fn().mockResolvedValue({
 			success: true,
-			paths: ['/test/path/.maestro/playbooks/Phase-01-Initial-Setup.md'],
+			paths: ['/test/path/.openwizardai/playbooks/Phase-01-Initial-Setup.md'],
 		}),
 		isGenerationInProgress: vi.fn().mockReturnValue(false),
 		abort: vi.fn(),
@@ -224,12 +224,12 @@ const mockAgents: AgentConfig[] = [
 	},
 ];
 
-// Mock window.maestro API
-const mockMaestro = {
+// Mock window.openwizardai API
+const mockOpenWizardAI = {
 	agents: {
 		detect: vi.fn(),
 		get: vi.fn(),
-		getMaestroPDetectedPath: vi.fn().mockResolvedValue(null),
+		getOpenWizardAIPDetectedPath: vi.fn().mockResolvedValue(null),
 	},
 	git: {
 		isRepo: vi.fn(),
@@ -273,16 +273,16 @@ const renderWithProviders = (ui: React.ReactElement) => {
 
 describe('Wizard Integration Tests', () => {
 	beforeEach(() => {
-		// Setup window.maestro mock
-		(window as any).maestro = mockMaestro;
+		// Setup window.openwizardai mock
+		(window as any).openwizardai = mockOpenWizardAI;
 
 		// Setup default mock responses
-		mockMaestro.agents.detect.mockResolvedValue(mockAgents);
-		mockMaestro.agents.get.mockResolvedValue(mockAgents[0]);
-		mockMaestro.git.isRepo.mockResolvedValue(true);
-		mockMaestro.settings.get.mockResolvedValue(undefined);
-		mockMaestro.settings.set.mockResolvedValue(undefined);
-		mockMaestro.dialog.selectFolder.mockResolvedValue('/test/project/path');
+		mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgents[0]);
+		mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
+		mockOpenWizardAI.settings.get.mockResolvedValue(undefined);
+		mockOpenWizardAI.settings.set.mockResolvedValue(undefined);
+		mockOpenWizardAI.dialog.selectFolder.mockResolvedValue('/test/project/path');
 
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
@@ -303,13 +303,13 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 				expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
 			});
 		});
@@ -335,7 +335,7 @@ describe('Wizard Integration Tests', () => {
 						<button data-testid="manual-continue" onClick={handleContinue}>
 							Continue
 						</button>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 						<div data-testid="current-step">{state.currentStep}</div>
 					</>
 				);
@@ -344,7 +344,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Trigger manual continue
@@ -394,7 +394,7 @@ describe('Wizard Integration Tests', () => {
 						<button onClick={() => goToStep('phase-review')} data-testid="go-step-4">
 							Step 4
 						</button>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -443,7 +443,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, goToStep, setSelectedAgent]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -486,7 +486,7 @@ describe('Wizard Integration Tests', () => {
 							Close
 						</button>
 						<div data-testid="wizard-open">{state.isOpen ? 'open' : 'closed'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -497,7 +497,7 @@ describe('Wizard Integration Tests', () => {
 			fireEvent.click(screen.getByTestId('open-wizard'));
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Click close button in wizard modal
@@ -525,7 +525,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, goToStep, setSelectedAgent]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -560,7 +560,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, goToStep, setSelectedAgent]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -610,7 +610,9 @@ describe('Wizard Integration Tests', () => {
 							Open at Step 2
 						</button>
 						<div data-testid="wizard-open">{state.isOpen ? 'open' : 'closed'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} onWizardAbandon={onWizardAbandon} />}
+						{state.isOpen && (
+							<OpenWizardAIWizard theme={mockTheme} onWizardAbandon={onWizardAbandon} />
+						)}
 					</>
 				);
 			}
@@ -641,7 +643,7 @@ describe('Wizard Integration Tests', () => {
 			});
 
 			// Verify state was saved
-			expect(mockMaestro.settings.set).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.settings.set).toHaveBeenCalledWith(
 				'wizardResumeState',
 				expect.objectContaining({
 					currentStep: 'directory-selection',
@@ -671,7 +673,7 @@ describe('Wizard Integration Tests', () => {
 						<button onClick={() => nextStep()} data-testid="next-step">
 							Next
 						</button>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 						<div data-testid="current-step">{state.currentStep}</div>
 					</>
 				);
@@ -680,7 +682,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Navigate to step 2
@@ -692,7 +694,7 @@ describe('Wizard Integration Tests', () => {
 
 			// State should be auto-saved when past step 1
 			await waitFor(() => {
-				expect(mockMaestro.settings.set).toHaveBeenCalledWith(
+				expect(mockOpenWizardAI.settings.set).toHaveBeenCalledWith(
 					'wizardResumeState',
 					expect.objectContaining({
 						currentStep: 'directory-selection',
@@ -719,8 +721,8 @@ describe('Wizard Integration Tests', () => {
 				wantsTour: true,
 			};
 
-			mockMaestro.git.isRepo.mockResolvedValue(true);
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			const onResume = vi.fn();
 			const onStartFresh = vi.fn();
@@ -767,8 +769,8 @@ describe('Wizard Integration Tests', () => {
 				wantsTour: true,
 			};
 
-			mockMaestro.git.isRepo.mockResolvedValue(true);
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			const onResume = vi.fn();
 			const onStartFresh = vi.fn();
@@ -815,8 +817,8 @@ describe('Wizard Integration Tests', () => {
 				wantsTour: true,
 			};
 
-			mockMaestro.git.isRepo.mockResolvedValue(true);
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			const onResume = vi.fn();
 			const onStartFresh = vi.fn();
@@ -854,8 +856,8 @@ describe('Wizard Integration Tests', () => {
 			};
 
 			// Simulate directory not existing
-			mockMaestro.git.isRepo.mockRejectedValue(new Error('Directory not found'));
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.git.isRepo.mockRejectedValue(new Error('Directory not found'));
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			const onResume = vi.fn();
 			const onStartFresh = vi.fn();
@@ -897,8 +899,8 @@ describe('Wizard Integration Tests', () => {
 			};
 
 			// Only return agents that don't include the saved agent
-			mockMaestro.agents.detect.mockResolvedValue([mockAgents[0]]);
-			mockMaestro.git.isRepo.mockResolvedValue(true);
+			mockOpenWizardAI.agents.detect.mockResolvedValue([mockAgents[0]]);
+			mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
 
 			const onResume = vi.fn();
 			const onStartFresh = vi.fn();
@@ -939,14 +941,14 @@ describe('Wizard Integration Tests', () => {
 				}, [openWizard, state.isOpen]);
 
 				return state.isOpen ? (
-					<MaestroWizard theme={mockTheme} onWizardStart={onWizardStart} />
+					<OpenWizardAIWizard theme={mockTheme} onWizardStart={onWizardStart} />
 				) : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Analytics callback should be called for fresh start
@@ -969,7 +971,7 @@ describe('Wizard Integration Tests', () => {
 				}, [openWizard, state.isOpen, goToStep, setSelectedAgent]);
 
 				return state.isOpen ? (
-					<MaestroWizard theme={mockTheme} onWizardResume={onWizardResume} />
+					<OpenWizardAIWizard theme={mockTheme} onWizardResume={onWizardResume} />
 				) : null;
 			}
 
@@ -998,7 +1000,7 @@ describe('Wizard Integration Tests', () => {
 				}, [openWizard, state.isOpen, goToStep, setSelectedAgent]);
 
 				return state.isOpen ? (
-					<MaestroWizard theme={mockTheme} onWizardAbandon={onWizardAbandon} />
+					<OpenWizardAIWizard theme={mockTheme} onWizardAbandon={onWizardAbandon} />
 				) : null;
 			}
 
@@ -1042,7 +1044,7 @@ describe('Wizard Integration Tests', () => {
 				return (
 					<>
 						<div data-testid="current-step">{state.currentStep}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1080,7 +1082,7 @@ describe('Wizard Integration Tests', () => {
 							Back
 						</button>
 						<div data-testid="current-step">{state.currentStep}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1131,7 +1133,7 @@ describe('Wizard Integration Tests', () => {
 						<button onClick={() => nextStep()} data-testid="next">
 							Next
 						</button>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1139,7 +1141,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Content should have wizard-content class
@@ -1157,7 +1159,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -1191,7 +1193,7 @@ describe('Wizard Integration Tests', () => {
 							Next
 						</button>
 						<div data-testid="current-step">{state.currentStep}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1220,7 +1222,7 @@ describe('Wizard Integration Tests', () => {
 				return (
 					<>
 						<div data-testid="can-proceed">{canProceed ? 'yes' : 'no'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1274,7 +1276,7 @@ describe('Wizard Integration Tests', () => {
 				]);
 
 				return state.isOpen ? (
-					<MaestroWizard theme={mockTheme} onLaunchSession={onLaunchSession} />
+					<OpenWizardAIWizard theme={mockTheme} onLaunchSession={onLaunchSession} />
 				) : null;
 			}
 
@@ -1322,7 +1324,7 @@ describe('Wizard Integration Tests', () => {
 				return (
 					<>
 						<div data-testid="wants-tour">{state.wantsTour ? 'yes' : 'no'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1371,7 +1373,7 @@ describe('Wizard Integration Tests', () => {
 						<div data-testid="step">{state.currentStep}</div>
 						<div data-testid="agent">{state.selectedAgent || 'none'}</div>
 						<div data-testid="is-open">{state.isOpen ? 'yes' : 'no'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1400,7 +1402,7 @@ describe('Wizard Integration Tests', () => {
 
 	describe('Error Boundaries', () => {
 		it('should not crash when agents.detect fails', async () => {
-			mockMaestro.agents.detect.mockRejectedValue(new Error('Detection failed'));
+			mockOpenWizardAI.agents.detect.mockRejectedValue(new Error('Detection failed'));
 
 			function TestWrapper() {
 				const { openWizard, state } = useWizard();
@@ -1411,7 +1413,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			// Should not throw
@@ -1421,7 +1423,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wizard should still open
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 		});
 	});
@@ -1445,7 +1447,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, setSelectedAgent, setSessionSshRemoteConfig, goToStep]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -1465,13 +1467,16 @@ describe('Wizard Integration Tests', () => {
 
 			// Verify git.isRepo was called with sshRemoteId
 			await waitFor(() => {
-				expect(mockMaestro.git.isRepo).toHaveBeenCalledWith('/home/user/project', 'my-ssh-remote');
+				expect(mockOpenWizardAI.git.isRepo).toHaveBeenCalledWith(
+					'/home/user/project',
+					'my-ssh-remote'
+				);
 			});
 		});
 
 		it('should show SSH remote hint and hide browse button for remote sessions', async () => {
 			// Mock SSH remote config lookup
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [{ id: 'my-ssh-remote', name: 'Test Server', host: 'test.example.com' }],
 			});
@@ -1492,7 +1497,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, setSelectedAgent, setSessionSshRemoteConfig, goToStep]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -1518,13 +1523,13 @@ describe('Wizard Integration Tests', () => {
 
 		it('should show directory not found error when remote path does not exist', async () => {
 			// Mock SSH remote config lookup
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [{ id: 'my-ssh-remote', name: 'Test Server', host: 'test.example.com' }],
 			});
 
 			// Mock fs.readDir to throw an error (directory doesn't exist)
-			mockMaestro.fs.readDir.mockRejectedValue(new Error('No such file or directory'));
+			mockOpenWizardAI.fs.readDir.mockRejectedValue(new Error('No such file or directory'));
 
 			function TestWrapper() {
 				const { openWizard, state, setSelectedAgent, setSessionSshRemoteConfig, goToStep } =
@@ -1542,7 +1547,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, setSelectedAgent, setSessionSshRemoteConfig, goToStep]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -1571,7 +1576,7 @@ describe('Wizard Integration Tests', () => {
 			expect(screen.queryByText('Regular Directory')).not.toBeInTheDocument();
 
 			// Reset mock for subsequent tests
-			mockMaestro.fs.readDir.mockResolvedValue([]);
+			mockOpenWizardAI.fs.readDir.mockResolvedValue([]);
 		});
 
 		it('should pass sshRemoteId to autorun.listDocs when checking for existing docs', async () => {
@@ -1591,7 +1596,7 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, setSelectedAgent, setSessionSshRemoteConfig, goToStep]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -1611,8 +1616,8 @@ describe('Wizard Integration Tests', () => {
 
 			// Verify autorun.listDocs was called with sshRemoteId
 			await waitFor(() => {
-				expect(mockMaestro.autorun.listDocs).toHaveBeenCalledWith(
-					'/home/user/project/.maestro/playbooks',
+				expect(mockOpenWizardAI.autorun.listDocs).toHaveBeenCalledWith(
+					'/home/user/project/.openwizardai/playbooks',
 					'my-ssh-remote'
 				);
 			});
@@ -1620,8 +1625,8 @@ describe('Wizard Integration Tests', () => {
 
 		it('should pass sshRemoteId to agents.detect when SSH remote is configured', async () => {
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			function TestWrapper() {
 				const { openWizard, state, setSessionSshRemoteConfig } = useWizard();
@@ -1637,30 +1642,30 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen, setSessionSshRemoteConfig]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Wait for agent detection to complete
 			await waitFor(() => {
 				// Agent detection should be called with the SSH remote ID
-				expect(mockMaestro.agents.detect).toHaveBeenCalledWith('my-ssh-remote');
+				expect(mockOpenWizardAI.agents.detect).toHaveBeenCalledWith('my-ssh-remote');
 			});
 		});
 
 		it('should re-detect agents when SSH remote is selected from dropdown', async () => {
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			// Mock SSH remotes available for selection
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [
 					{ id: 'remote-1', name: 'Remote Server 1', host: 'server1.example.com' },
@@ -1677,19 +1682,19 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Initial detection should be called without SSH remote ID
 			await waitFor(() => {
-				expect(mockMaestro.agents.detect).toHaveBeenCalledWith(undefined);
+				expect(mockOpenWizardAI.agents.detect).toHaveBeenCalledWith(undefined);
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -1703,14 +1708,14 @@ describe('Wizard Integration Tests', () => {
 
 			// Detection should be called again with the SSH remote ID
 			await waitFor(() => {
-				expect(mockMaestro.agents.detect).toHaveBeenCalledWith('remote-1');
+				expect(mockOpenWizardAI.agents.detect).toHaveBeenCalledWith('remote-1');
 			});
 		});
 
 		it('should detect agents without sshRemoteId when SSH remote is not configured', async () => {
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			function TestWrapper() {
 				const { openWizard, state } = useWizard();
@@ -1722,29 +1727,29 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Wait for agent detection to complete
 			await waitFor(() => {
 				// Agent detection should be called without SSH remote ID (undefined)
-				expect(mockMaestro.agents.detect).toHaveBeenCalledWith(undefined);
+				expect(mockOpenWizardAI.agents.detect).toHaveBeenCalledWith(undefined);
 			});
 		});
 
 		it('should show connection error message when SSH remote is unreachable', async () => {
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockClear();
 
 			// Mock SSH remotes available for selection
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [
 					{ id: 'unreachable-remote', name: 'Unreachable Server', host: 'unreachable.example.com' },
@@ -1752,7 +1757,7 @@ describe('Wizard Integration Tests', () => {
 			});
 
 			// Mock agents.detect to return agents with connection errors
-			mockMaestro.agents.detect.mockImplementation((sshRemoteId?: string) => {
+			mockOpenWizardAI.agents.detect.mockImplementation((sshRemoteId?: string) => {
 				if (sshRemoteId === 'unreachable-remote') {
 					// Return all agents as unavailable with error
 					return Promise.resolve([
@@ -1784,14 +1789,14 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -1818,10 +1823,10 @@ describe('Wizard Integration Tests', () => {
 			vi.useRealTimers();
 
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockClear();
 
 			// Mock SSH remotes available for selection
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [
 					{ id: 'unreachable-remote', name: 'Unreachable Server', host: 'unreachable.example.com' },
@@ -1829,7 +1834,7 @@ describe('Wizard Integration Tests', () => {
 			});
 
 			// Mock agents.detect to return errors for remote, success for local
-			mockMaestro.agents.detect.mockImplementation((sshRemoteId?: string) => {
+			mockOpenWizardAI.agents.detect.mockImplementation((sshRemoteId?: string) => {
 				if (sshRemoteId === 'unreachable-remote') {
 					return Promise.resolve([
 						{
@@ -1869,7 +1874,7 @@ describe('Wizard Integration Tests', () => {
 						>
 							Switch to Local
 						</button>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1878,7 +1883,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -1902,7 +1907,7 @@ describe('Wizard Integration Tests', () => {
 			});
 
 			// Get the call count before switching back
-			const callCountBeforeSwitch = mockMaestro.agents.detect.mock.calls.length;
+			const callCountBeforeSwitch = mockOpenWizardAI.agents.detect.mock.calls.length;
 
 			// Use the programmatic button to switch back to local (bypasses JSDOM select limitations)
 			await act(async () => {
@@ -1917,7 +1922,7 @@ describe('Wizard Integration Tests', () => {
 			// Verify detect was called again (for local this time)
 			await waitFor(
 				() => {
-					expect(mockMaestro.agents.detect.mock.calls.length).toBeGreaterThan(
+					expect(mockOpenWizardAI.agents.detect.mock.calls.length).toBeGreaterThan(
 						callCountBeforeSwitch
 					);
 				},
@@ -1926,7 +1931,9 @@ describe('Wizard Integration Tests', () => {
 
 			// Verify the last call was with undefined (local)
 			const lastCall =
-				mockMaestro.agents.detect.mock.calls[mockMaestro.agents.detect.mock.calls.length - 1];
+				mockOpenWizardAI.agents.detect.mock.calls[
+					mockOpenWizardAI.agents.detect.mock.calls.length - 1
+				];
 			expect(lastCall[0]).toBeUndefined();
 
 			// The mock is set up to return successful agents for local execution (sshRemoteId === undefined)
@@ -1946,11 +1953,11 @@ describe('Wizard Integration Tests', () => {
 
 		it('should persist SSH remote selection when navigating between wizard steps', async () => {
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
-			mockMaestro.agents.detect.mockResolvedValue(mockAgents);
+			mockOpenWizardAI.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
 
 			// Mock SSH remotes available for selection
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [{ id: 'test-remote', name: 'Test Server', host: 'test.example.com' }],
 			});
@@ -1987,7 +1994,7 @@ describe('Wizard Integration Tests', () => {
 						<button onClick={() => previousStep()} data-testid="prev-step">
 							Previous Step
 						</button>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -1996,7 +2003,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -2052,7 +2059,7 @@ describe('Wizard Integration Tests', () => {
 
 		it('should NOT re-detect agents when selecting different provider tiles', async () => {
 			// Reset the mock to track calls
-			mockMaestro.agents.detect.mockClear();
+			mockOpenWizardAI.agents.detect.mockClear();
 
 			// Mock multiple available agents
 			const multipleAgents = [
@@ -2078,10 +2085,10 @@ describe('Wizard Integration Tests', () => {
 					capabilities: {},
 				},
 			];
-			mockMaestro.agents.detect.mockResolvedValue(multipleAgents);
+			mockOpenWizardAI.agents.detect.mockResolvedValue(multipleAgents);
 
 			// No SSH remotes for this test
-			mockMaestro.sshRemote.getConfigs.mockResolvedValue({
+			mockOpenWizardAI.sshRemote.getConfigs.mockResolvedValue({
 				success: true,
 				configs: [],
 			});
@@ -2095,19 +2102,19 @@ describe('Wizard Integration Tests', () => {
 					}
 				}, [openWizard, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Wait for initial agent detection to complete
 			await waitFor(() => {
-				expect(mockMaestro.agents.detect).toHaveBeenCalledTimes(1);
+				expect(mockOpenWizardAI.agents.detect).toHaveBeenCalledTimes(1);
 			});
 
 			// Wait for agent tiles to be visible
@@ -2117,7 +2124,7 @@ describe('Wizard Integration Tests', () => {
 			});
 
 			// Record the call count after initial detection
-			const initialCallCount = mockMaestro.agents.detect.mock.calls.length;
+			const initialCallCount = mockOpenWizardAI.agents.detect.mock.calls.length;
 
 			// Click on a different agent tile (Codex)
 			const codexTile = screen.getByRole('button', { name: /codex/i });
@@ -2137,7 +2144,7 @@ describe('Wizard Integration Tests', () => {
 			});
 
 			// Detection should NOT have been called again
-			expect(mockMaestro.agents.detect.mock.calls.length).toBe(initialCallCount);
+			expect(mockOpenWizardAI.agents.detect.mock.calls.length).toBe(initialCallCount);
 		});
 	});
 });

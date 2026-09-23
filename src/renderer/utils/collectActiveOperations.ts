@@ -1,9 +1,9 @@
 /**
  * collectActiveOperations.ts
  *
- * Single source of truth for "is Maestro busy right now?" across every kind of
+ * Single source of truth for "is OpenWizardAI busy right now?" across every kind of
  * in-flight work: thinking AI agents, Auto Run batches, running terminal tasks,
- * Maestro Cue runs, and active group chats.
+ * OpenWizardAI Cue runs, and active group chats.
  *
  * Used both by the quit-confirmation check (decide whether to warn) and by the
  * "Quit when idle" watcher (decide when everything has finally gone quiet).
@@ -22,7 +22,7 @@ export interface ActiveOperationsSnapshot {
 	activeBatchSessionIds: string[];
 	/** Human-readable running terminal tasks, e.g. "rc: npm test". */
 	activeTerminalTasks: string[];
-	/** Count of in-flight Maestro Cue runs (agent + shell + cli). */
+	/** Count of in-flight OpenWizardAI Cue runs (agent + shell + cli). */
 	activeCueRunCount: number;
 	/** Count of group chats that aren't idle (moderator thinking or agents working). */
 	activeGroupChatCount: number;
@@ -50,7 +50,7 @@ export async function collectActiveOperations(): Promise<ActiveOperationsSnapsho
 	// Running terminal child processes (long builds, test runs, etc.).
 	let activeTerminalTasks: string[] = [];
 	try {
-		const activeProcesses = await window.maestro.process.getActiveProcesses();
+		const activeProcesses = await window.openwizardai.process.getActiveProcesses();
 		activeTerminalTasks = activeProcesses
 			.filter((p) => p.isTerminal && p.childProcesses && p.childProcesses.length > 0)
 			.flatMap((p) => {
@@ -65,10 +65,10 @@ export async function collectActiveOperations(): Promise<ActiveOperationsSnapsho
 		// If we can't fetch processes, treat as no terminal tasks.
 	}
 
-	// In-flight Maestro Cue runs across all executors.
+	// In-flight OpenWizardAI Cue runs across all executors.
 	let activeCueRunCount = 0;
 	try {
-		const runs = await window.maestro.cue.getActiveRuns();
+		const runs = await window.openwizardai.cue.getActiveRuns();
 		activeCueRunCount = runs.length;
 	} catch {
 		// Cue may be disabled or the engine not started; treat as none.

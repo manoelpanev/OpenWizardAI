@@ -19,7 +19,7 @@ export interface AITabProps {
 	tabId: string;
 	isActive: boolean;
 	theme: Theme;
-	/** The Maestro session/agent ID that owns these tabs */
+	/** The OpenWizardAI session/agent ID that owns these tabs */
 	sessionId?: string;
 	/** Session-level agentSessionId fallback for tab title display */
 	sessionAgentSessionId?: string | null;

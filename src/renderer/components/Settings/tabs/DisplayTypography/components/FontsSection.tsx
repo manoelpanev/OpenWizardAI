@@ -29,7 +29,7 @@ interface FontsSectionProps {
  * Width below which the dependent surfaces stack into one column.
  *
  * Two columns need roughly 280px each: the font dropdown carries long option
- * labels ("Bundled with Maestro (always available)") and the size stepper is a
+ * labels ("Bundled with OpenWizardAI (always available)") and the size stepper is a
  * fixed row of controls that cannot shrink. The Settings content pane is 684px
  * at the modal's default width but only 424px at its minimum, so the grid has
  * to collapse rather than assume the space is there.

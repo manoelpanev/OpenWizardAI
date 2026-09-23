@@ -16,7 +16,6 @@ import {
 	getLevelForPercentage,
 } from '../constants/keyboardMastery';
 import { openUrl } from '../utils/openUrl';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 
 interface ShortcutsHelpModalProps {
 	theme: Theme;
@@ -236,7 +235,7 @@ export function ShortcutsHelpModal({
 				>
 					<Trophy className="w-4 h-4" style={{ color: '#FFD700' }} />
 					<span className="text-xs font-medium" style={{ color: theme.colors.accent }}>
-						Keyboard OpenWizzard - Complete Mastery!
+						Keyboard Wizard - Complete Mastery!
 					</span>
 					<Trophy className="w-4 h-4" style={{ color: '#FFD700' }} />
 				</div>
@@ -339,12 +338,14 @@ export function ShortcutsHelpModal({
 					<ExternalLink className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
 					<button
 						onClick={() =>
-							openUrl(buildMaestroUrl('https://docs.runmaestro.ai/keyboard-shortcuts'))
+							openUrl(
+								'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/keyboard-shortcuts.md'
+							)
 						}
 						className="text-xs hover:opacity-80 transition-colors"
 						style={{ color: theme.colors.accent }}
 					>
-						Read more at docs.runmaestro.ai/keyboard-shortcuts
+						Read more at github.com/manoelpanev/OpenWizardAI/tree/main/docs/keyboard-shortcuts
 					</button>
 				</div>
 			</div>

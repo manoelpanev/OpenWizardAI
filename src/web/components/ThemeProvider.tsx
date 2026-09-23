@@ -1,5 +1,5 @@
 /**
- * ThemeProvider component for Maestro web interface
+ * ThemeProvider component for OpenWizardAI web interface
  *
  * Provides theme context to web components. Accepts theme via props
  * (typically received from WebSocket connection to desktop app).

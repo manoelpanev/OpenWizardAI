@@ -9,8 +9,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 vi.mock('../../../cli/utils/owning-agent', () => ({
@@ -18,12 +18,12 @@ vi.mock('../../../cli/utils/owning-agent', () => ({
 }));
 
 import { nudgeFileTreeForPaths, refreshFileTreeFor } from '../../../cli/services/file-tree-refresh';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveOwningAgent } from '../../../cli/utils/owning-agent';
 
-/** Stand-in for the connected client `withMaestroClient` hands its action. */
+/** Stand-in for the connected client `withOpenWizardAIClient` hands its action. */
 function withClient(sendCommand: ReturnType<typeof vi.fn>) {
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({ sendCommand } as never)
 	);
 }
@@ -64,13 +64,13 @@ describe('file-tree-refresh service', () => {
 			vi.mocked(resolveOwningAgent).mockReturnValue(null);
 
 			expect(await nudgeFileTreeForPaths(['/tmp/x.png'])).toEqual([]);
-			expect(withMaestroClient).not.toHaveBeenCalled();
+			expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		});
 
 		it('swallows a closed desktop rather than failing the caller', async () => {
 			vi.mocked(resolveOwningAgent).mockReturnValue(ownedBy('agent-1'));
-			vi.mocked(withMaestroClient).mockRejectedValue(
-				new Error('Maestro desktop app is not running')
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(
+				new Error('OpenWizardAI desktop app is not running')
 			);
 
 			await expect(nudgeFileTreeForPaths(['/p/a.png'])).resolves.toEqual([]);
@@ -101,7 +101,7 @@ describe('file-tree-refresh service', () => {
 		});
 
 		it('propagates a transport failure instead of swallowing it', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('ECONNREFUSED'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('ECONNREFUSED'));
 
 			await expect(refreshFileTreeFor('agent-1')).rejects.toThrow('ECONNREFUSED');
 		});

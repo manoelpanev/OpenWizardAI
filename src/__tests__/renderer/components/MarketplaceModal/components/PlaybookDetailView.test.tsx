@@ -64,37 +64,39 @@ describe('PlaybookDetailView', () => {
 		const playbook = makePlaybook({
 			source: 'local',
 			beta: true,
-			minMaestroVersion: '99.0.0',
+			minOpenWizardAIVersion: '99.0.0',
 		});
 		const { getAllByText, getByText } = render(<PlaybookDetailView {...baseProps({ playbook })} />);
 
 		expect(getAllByText('Local')).toHaveLength(2);
 		expect(getByText('BETA')).toBeTruthy();
-		expect(getByText('Requires OpenWizzard 99.0.0+')).toBeTruthy();
+		expect(getByText('Requires OpenWizardAI 99.0.0+')).toBeTruthy();
 		expect(
 			getByText((_content, element) =>
 				Boolean(
 					element?.tagName === 'DIV' &&
 					element.textContent ===
-						"This playbook requires OpenWizzard 99.0.0 or newer. You're running 1.0.0."
+						"This playbook requires OpenWizardAI 99.0.0 or newer. You're running 1.0.0."
 				)
 			)
 		).toBeTruthy();
 		expect(
 			getByText('This playbook is in beta. Expect rough edges and possible breaking changes.')
 		).toBeTruthy();
-		expect(getByText('Update OpenWizzard to install').closest('button')).toBeDisabled();
+		expect(getByText('Update OpenWizardAI to install').closest('button')).toBeDisabled();
 	});
 
 	it('opens author and update URLs', () => {
-		const playbook = makePlaybook({ minMaestroVersion: '99.0.0' });
+		const playbook = makePlaybook({ minOpenWizardAIVersion: '99.0.0' });
 		const { getByText } = render(<PlaybookDetailView {...baseProps({ playbook })} />);
 
-		fireEvent.click(getByText('Maestro Team'));
+		fireEvent.click(getByText('OpenWizardAI Team'));
 		expect(openUrlMock).toHaveBeenCalledWith('https://example.com/author');
 
-		fireEvent.click(getByText('Update OpenWizzard'));
-		expect(openUrlMock).toHaveBeenCalledWith('https://github.com/RunMaestro/Maestro/releases');
+		fireEvent.click(getByText('Update OpenWizardAI'));
+		expect(openUrlMock).toHaveBeenCalledWith(
+			'https://github.com/manoelpanev/OpenWizardAI/releases'
+		);
 	});
 
 	it('selects documents from sidebar and dropdown and can return to README', () => {

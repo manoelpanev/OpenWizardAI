@@ -1,7 +1,7 @@
 /**
  * Fixed-pitch font resolution, shared by every surface that renders shell text.
  *
- * Maestro has a single `fontFamily` setting shared with the app chrome, so a
+ * OpenWizardAI has a single `fontFamily` setting shared with the app chrome, so a
  * user who picks a proportional UI font would otherwise get proportional
  * terminals, command-mode composers and shell-output cards. Shell text is a
  * grid: columns line up, box drawing joins, and a `ls -l` reads as a table only

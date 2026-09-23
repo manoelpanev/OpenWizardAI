@@ -48,7 +48,7 @@ function createMarketplaceState(overrides: Partial<typeof mocks.marketplaceState
 	const incompatible = makePlaybook({
 		id: 'future',
 		title: 'Future Playbook',
-		minMaestroVersion: '99.0.0',
+		minOpenWizardAIVersion: '99.0.0',
 	});
 	const manifest: MarketplaceManifest = makeManifest([compatible, incompatible]);
 
@@ -107,7 +107,7 @@ describe('MarketplaceModal', () => {
 		vi.clearAllMocks();
 		mocks.escapeHandler = null;
 		vi.stubGlobal('__APP_VERSION__', '1.0.0');
-		vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/picked/folder');
+		vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/picked/folder');
 	});
 
 	it('does not render content when closed but registers the disabled layer', () => {
@@ -140,7 +140,7 @@ describe('MarketplaceModal', () => {
 		expect(screen.getByText('Cached 1m ago')).toBeTruthy();
 		expect(screen.getByText('Alpha Playbook')).toBeTruthy();
 		expect(screen.getByText('Future Playbook')).toBeTruthy();
-		expect(screen.getByText('Requires a newer OpenWizzard')).toBeTruthy();
+		expect(screen.getByText('Requires a newer OpenWizardAI')).toBeTruthy();
 		expect(mocks.useModalLayer).toHaveBeenCalledWith(
 			expect.any(Number),
 			'Playbook Exchange',

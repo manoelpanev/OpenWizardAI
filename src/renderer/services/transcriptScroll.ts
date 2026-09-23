@@ -20,7 +20,7 @@
  */
 
 /** Event name the mounted `TerminalOutput` listens for. */
-export const TRANSCRIPT_SCROLL_TO_BOTTOM_EVENT = 'maestro:scrollTranscriptToBottom';
+export const TRANSCRIPT_SCROLL_TO_BOTTOM_EVENT = 'openwizardai:scrollTranscriptToBottom';
 
 export interface TranscriptScrollToBottomDetail {
 	/** Agent whose transcript should scroll. */

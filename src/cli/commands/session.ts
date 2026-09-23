@@ -1,17 +1,17 @@
 // Session inspection commands - read-only access to desktop conversation state
-// for external pollers (Maestro-Discord, Cue follow-ups, etc.).
+// for external pollers (OpenWizardAI-Discord, Cue follow-ups, etc.).
 //
-// `session list` enumerates every open AI tab across every Maestro agent.
+// `session list` enumerates every open AI tab across every OpenWizardAI agent.
 // `session show <tabId>` returns that tab's conversation history, with optional
 // `--since` (poll cursor) and `--tail` (cap) filters applied desktop-side so the
 // wire payload stays small even on long conversations.
 //
 // Both verbs talk to the running desktop via the same WebSocket the `dispatch`
 // command uses; there is no on-disk fallback. If the desktop is not running the
-// CLI fails loudly with `MAESTRO_NOT_RUNNING` so callers can react rather than
+// CLI fails loudly with `OPENWIZARDAI_NOT_RUNNING` so callers can react rather than
 // silently get back stale data.
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { formatRelativeTime } from '../../shared/formatters';
 import type { DesktopTabEntry as DesktopSessionEntry } from '../../shared/desktopTabs';
 
@@ -48,11 +48,11 @@ function emitErrorJson(error: string, code: string): void {
 
 /**
  * Translate transport-layer errors into CLI error codes consistent with
- * `dispatch`. MaestroClient throws three distinct strings before any WebSocket
- * activity ("Maestro desktop app is not running", "Maestro discovery file is
- * stale (app may have crashed)", "Not connected to Maestro"); without these
+ * `dispatch`. OpenWizardAIClient throws three distinct strings before any WebSocket
+ * activity ("OpenWizardAI desktop app is not running", "OpenWizardAI discovery file is
+ * stale (app may have crashed)", "Not connected to OpenWizardAI"); without these
  * mappings, those errors fall through to a generic CLI error and break the
- * error-code contract downstream consumers (Maestro-Discord) rely on to
+ * error-code contract downstream consumers (OpenWizardAI-Discord) rely on to
  * distinguish "app down" from "command rejected".
  */
 function mapTransportError(error: unknown): { error: string; code: string } | null {
@@ -64,13 +64,13 @@ function mapTransportError(error: unknown): { error: string; code: string } | nu
 		lowerMsg.includes('websocket') ||
 		lowerMsg.includes('enotfound') ||
 		lowerMsg.includes('etimedout') ||
-		lowerMsg.includes('maestro desktop app is not running') ||
+		lowerMsg.includes('openwizardai desktop app is not running') ||
 		lowerMsg.includes('discovery file is stale') ||
-		lowerMsg.includes('not connected to maestro')
+		lowerMsg.includes('not connected to openwizardai')
 	) {
 		return {
-			error: 'OpenWizzard desktop is not running or not reachable',
-			code: 'MAESTRO_NOT_RUNNING',
+			error: 'OpenWizardAI desktop is not running or not reachable',
+			code: 'OPENWIZARDAI_NOT_RUNNING',
 		};
 	}
 	return null;
@@ -104,7 +104,7 @@ function parseSinceToMs(since: string): number | null {
 
 export async function sessionList(options: SessionListOptions): Promise<void> {
 	try {
-		const sessions = await withMaestroClient(async (client) => {
+		const sessions = await withOpenWizardAIClient(async (client) => {
 			const result = await client.sendCommand<{ sessions?: DesktopSessionEntry[] }>(
 				{ type: 'list_desktop_sessions' },
 				'desktop_sessions_list'
@@ -185,7 +185,7 @@ export async function sessionShow(tabId: string, options: SessionShowOptions): P
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				success?: boolean;
 				error?: string;

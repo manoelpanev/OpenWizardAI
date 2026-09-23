@@ -350,7 +350,7 @@ export function CustomThemeBuilder({
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = 'maestro-custom-theme.json';
+		a.download = 'openwizardai-custom-theme.json';
 		a.click();
 		URL.revokeObjectURL(url);
 	}, [customThemeColors, customThemeBaseId]);

@@ -31,9 +31,9 @@ export async function loadBatchUtilsPrompts(force = false): Promise<void> {
 	if (batchUtilsPromptsLoaded && !force) return;
 
 	const [defaultResult, perTaskResult, perDocResult] = await Promise.all([
-		window.maestro.prompts.get('autorun-default'),
-		window.maestro.prompts.get('autorun-per-task'),
-		window.maestro.prompts.get('autorun-per-document'),
+		window.openwizardai.prompts.get('autorun-default'),
+		window.openwizardai.prompts.get('autorun-per-task'),
+		window.openwizardai.prompts.get('autorun-per-document'),
 	]);
 	if (!defaultResult.success) {
 		throw new Error(`Failed to load autorun-default prompt: ${defaultResult.error}`);
@@ -172,7 +172,7 @@ export interface HumanOnlyTask {
  * Find unchecked checkbox tasks that read as human-only steps.
  *
  * Auto Run has two correct ways to express a human step, and neither is a
- * checkbox: a `<!-- MAESTRO:HITL reason="..." -->` marker (pauses the run
+ * checkbox: a `<!-- OPENWIZARDAI:HITL reason="..." -->` marker (pauses the run
  * deliberately and surfaces the reason), or plain `-` bullets at the end of
  * the document (a post-run checklist the engine never sees). See
  * `src/prompts/_autorun-playbooks.md`.

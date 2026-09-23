@@ -12,7 +12,7 @@ The local manifest feature allows you to extend the Playbook Exchange with custo
 
 - **File Location:** `<userData>/local-manifest.json` (same directory as `marketplace-cache.json`)
 - **Format:** Same structure as the official `manifest.json` from GitHub
-- **Optional:** If the file doesn't exist, Maestro works normally with official playbooks only
+- **Optional:** If the file doesn't exist, OpenWizardAI works normally with official playbooks only
 - **Hot Reload:** Changes to `local-manifest.json` automatically refresh the Playbook Exchange
 
 ## Use Cases
@@ -28,7 +28,7 @@ Create organization-specific playbooks that aren't suitable for public sharing:
 
 ### 2. Playbook Development
 
-Iterate on new playbooks locally before submitting them to the [Maestro-Playbooks repository](https://github.com/RunMaestro/Maestro-Playbooks):
+Iterate on new playbooks locally before submitting them to the [OpenWizardAI-Playbooks repository](https://github.com/manoelpanev/OpenWizardAI-Playbooks):
 
 - Test playbook structure and documents
 - Refine prompts and loop behavior
@@ -58,8 +58,8 @@ Merged result:      [A, B_custom, C, D]
 
 Local playbooks support local filesystem paths:
 
-- **Absolute paths:** `/Users/me/.maestro/custom-playbooks/security`
-- **Tilde paths:** `~/maestro-playbooks/security`
+- **Absolute paths:** `/Users/me/.openwizardai/custom-playbooks/security`
+- **Tilde paths:** `~/openwizardai-playbooks/security`
 - **Import behavior:** Files are copied from the local path instead of fetched from GitHub
 
 ## Schema
@@ -79,7 +79,7 @@ Each playbook entry must include:
 - `path` - **Local filesystem path** or GitHub path
 - `documents` - Array of document entries with `filename` and `resetOnCompletion`
 - `loopEnabled` - Whether to loop through documents
-- `prompt` - Custom prompt or `null` for Maestro default
+- `prompt` - Custom prompt or `null` for OpenWizardAI default
 
 ### Optional Fields
 
@@ -110,7 +110,7 @@ Organize your playbook in a local directory:
 
 Location: `<userData>/local-manifest.json`
 
-On macOS: `~/Library/Application Support/Maestro/local-manifest.json`
+On macOS: `~/Library/Application Support/OpenWizardAI/local-manifest.json`
 
 ```json
 {
@@ -152,7 +152,7 @@ Changes to `local-manifest.json` trigger an automatic refresh:
 1. Edit your local manifest
 2. Save the file
 3. The Playbook Exchange automatically reloads (500ms debounce)
-4. No need to restart Maestro
+4. No need to restart OpenWizardAI
 
 This enables rapid iteration during playbook development.
 
@@ -160,7 +160,7 @@ This enables rapid iteration during playbook development.
 
 ### Invalid JSON
 
-**Behavior:** Warning logged, empty array used, Maestro continues with official playbooks only
+**Behavior:** Warning logged, empty array used, OpenWizardAI continues with official playbooks only
 
 **Fix:** Validate JSON syntax using a JSON validator
 
@@ -180,7 +180,7 @@ This enables rapid iteration during playbook development.
 
 **Behavior:** Warning logged, hot reload disabled, normal operation continues
 
-**Effect:** You'll need to restart Maestro to see manifest changes
+**Effect:** You'll need to restart OpenWizardAI to see manifest changes
 
 ## UI Indicators
 
@@ -199,9 +199,9 @@ Local playbooks are visually distinguished in the Playbook Exchange with a blue 
 
 1. Create your playbook files locally
 2. Add to `local-manifest.json`
-3. Test import and execution in Maestro
+3. Test import and execution in OpenWizardAI
 4. Refine documents and prompts
-5. When ready, submit a PR to [Maestro-Playbooks](https://github.com/RunMaestro/Maestro-Playbooks)
+5. When ready, submit a PR to [OpenWizardAI-Playbooks](https://github.com/manoelpanev/OpenWizardAI-Playbooks)
 6. Remove from local manifest once published
 
 ### Overriding Official Playbooks
@@ -244,7 +244,7 @@ This allows you to:
 
 1. Check console for file watcher errors
 2. Verify `local-manifest.json` path is correct
-3. Try restarting Maestro
+3. Try restarting OpenWizardAI
 4. Check file system permissions
 
 ## Related Files

@@ -8,7 +8,7 @@
  * - autorun:listImages - list images for a document
  * - autorun:saveImage - save image with timestamp naming
  * - autorun:deleteImage - delete image file
- * - autorun:deleteFolder - delete .maestro/playbooks folder
+ * - autorun:deleteFolder - delete .openwizardai/playbooks folder
  * - autorun:createBackup - create backup copy of document for reset-on-completion
  * - autorun:restoreBackup - restore document from backup and delete backup file
  * - autorun:deleteBackups - delete all backup files in folder recursively
@@ -961,12 +961,12 @@ describe('Auto Run IPC Handlers', () => {
 
 	describe('autorun:deleteFolder', () => {
 		describe('successful operations', () => {
-			it('should delete .maestro/playbooks folder recursively', async () => {
+			it('should delete .openwizardai/playbooks folder recursively', async () => {
 				mockStat.mockResolvedValue({ isDirectory: () => true });
 				mockRm.mockResolvedValue(undefined);
 
 				const projectPath = '/test/project';
-				const autoRunFolder = path.join(projectPath, '.maestro/playbooks');
+				const autoRunFolder = path.join(projectPath, '.openwizardai/playbooks');
 
 				await mockStat(autoRunFolder);
 				await mockRm(autoRunFolder, { recursive: true, force: true });
@@ -990,7 +990,7 @@ describe('Auto Run IPC Handlers', () => {
 					return ALLOWED_FOLDER_NAMES.has(path.basename(folderPath));
 				};
 
-				expect(validateFolderName('/project/.maestro/playbooks')).toBe(true);
+				expect(validateFolderName('/project/.openwizardai/playbooks')).toBe(true);
 				expect(validateFolderName('/project/Documents')).toBe(false);
 				expect(validateFolderName('/project/node_modules')).toBe(false);
 			});
@@ -1012,8 +1012,8 @@ describe('Auto Run IPC Handlers', () => {
 			it('should return error for non-directory path', async () => {
 				mockStat.mockResolvedValue({ isDirectory: () => false });
 
-				const result = { success: false, error: '.maestro/playbooks path is not a directory' };
-				expect(result.error).toBe('.maestro/playbooks path is not a directory');
+				const result = { success: false, error: '.openwizardai/playbooks path is not a directory' };
+				expect(result.error).toBe('.openwizardai/playbooks path is not a directory');
 			});
 
 			it('should return error for rm failure', async () => {
@@ -1021,7 +1021,7 @@ describe('Auto Run IPC Handlers', () => {
 				mockRm.mockRejectedValue(new Error('EACCES: permission denied'));
 
 				await expect(
-					mockRm('/protected/.maestro/playbooks', { recursive: true, force: true })
+					mockRm('/protected/.openwizardai/playbooks', { recursive: true, force: true })
 				).rejects.toThrow('EACCES');
 			});
 

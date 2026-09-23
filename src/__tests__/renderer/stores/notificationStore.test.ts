@@ -46,9 +46,9 @@ beforeEach(() => {
 		},
 	});
 
-	// Mock window.maestro
+	// Mock window.openwizardai
 	(globalThis as any).window = {
-		maestro: {
+		openwizardai: {
 			logger: { toast: mockLoggerToast },
 			notification: { speak: mockSpeak, show: mockShow },
 		},
@@ -218,10 +218,10 @@ describe('notificationStore', () => {
 
 	describe('setIdleNotification', () => {
 		it('enables idle notification with command', () => {
-			useNotificationStore.getState().setIdleNotification(true, 'say Maestro is idle');
+			useNotificationStore.getState().setIdleNotification(true, 'say OpenWizardAI is idle');
 			const { config } = useNotificationStore.getState();
 			expect(config.idleNotificationEnabled).toBe(true);
-			expect(config.idleNotificationCommand).toBe('say Maestro is idle');
+			expect(config.idleNotificationCommand).toBe('say OpenWizardAI is idle');
 		});
 
 		it('disables idle notification', () => {
@@ -319,7 +319,7 @@ describe('notificationStore', () => {
 		});
 
 		describe('logging', () => {
-			it('logs toast via window.maestro.logger.toast', () => {
+			it('logs toast via window.openwizardai.logger.toast', () => {
 				notifyToast({
 					type: 'success',
 					title: 'Done',
@@ -384,7 +384,7 @@ describe('notificationStore', () => {
 		});
 
 		describe('audio feedback', () => {
-			it('calls speak when enabled with command, content, and Maestro context vars', () => {
+			it('calls speak when enabled with command, content, and OpenWizardAI context vars', () => {
 				useNotificationStore.getState().setAudioFeedback(true, 'say');
 				notifyToast({
 					type: 'success',
@@ -395,7 +395,7 @@ describe('notificationStore', () => {
 					group: 'Backend',
 				});
 				// The agent/tab/group/task context rides along so custom commands can
-				// reference it via MAESTRO_NOTIFY_* env vars.
+				// reference it via OPENWIZARDAI_NOTIFY_* env vars.
 				expect(mockSpeak).toHaveBeenCalledWith('Hello world', 'say', {
 					agent: 'refactor-auth',
 					tab: 'main',
@@ -708,23 +708,23 @@ describe('notificationStore', () => {
 	// ==========================================================================
 
 	describe('error resilience', () => {
-		it('notifyToast works when window.maestro is undefined', () => {
+		it('notifyToast works when window.openwizardai is undefined', () => {
 			(globalThis as any).window = {};
 			const id = notifyToast({ type: 'info', title: 'Test', message: 'msg' });
 			expect(id).toBeDefined();
 			expect(useNotificationStore.getState().toasts).toHaveLength(1);
 		});
 
-		it('notifyToast works when window.maestro.logger is undefined', () => {
-			(globalThis as any).window = { maestro: {} };
+		it('notifyToast works when window.openwizardai.logger is undefined', () => {
+			(globalThis as any).window = { openwizardai: {} };
 			const id = notifyToast({ type: 'info', title: 'Test', message: 'msg' });
 			expect(id).toBeDefined();
 			expect(useNotificationStore.getState().toasts).toHaveLength(1);
 		});
 
-		it('notifyToast works when window.maestro.notification is undefined', () => {
+		it('notifyToast works when window.openwizardai.notification is undefined', () => {
 			(globalThis as any).window = {
-				maestro: { logger: { toast: mockLoggerToast } },
+				openwizardai: { logger: { toast: mockLoggerToast } },
 			};
 			useNotificationStore.getState().setAudioFeedback(true, 'say');
 			const id = notifyToast({ type: 'info', title: 'Test', message: 'Speak me' });

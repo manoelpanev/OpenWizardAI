@@ -12,7 +12,7 @@ interface UsePlannerModelParams {
 interface PlannerModelState {
 	/** The model this run will actually use, or null when it is unknowable. */
 	effectiveModel: string | null;
-	/** Top tier for this provider, or null where Maestro has no opinion. */
+	/** Top tier for this provider, or null where OpenWizardAI has no opinion. */
 	topTierModel: string | null;
 	isOverridden: boolean;
 	useTopTier: () => void;
@@ -55,7 +55,7 @@ export function usePlannerModel({
 
 		// Display-only, so a host without this API (or a failing read) costs the
 		// model name and nothing else.
-		const getConfig = window.maestro?.agents?.getConfig;
+		const getConfig = window.openwizardai?.agents?.getConfig;
 		if (!getConfig) {
 			setConfiguredModel(null);
 			return;

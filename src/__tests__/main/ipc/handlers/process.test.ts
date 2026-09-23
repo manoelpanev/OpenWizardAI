@@ -714,7 +714,7 @@ describe('process IPC handlers', () => {
 			);
 		});
 
-		// Batch Mode default-off: when `enableMaestroP` isn't set on the spawn
+		// Batch Mode default-off: when `enableOpenWizardAIP` isn't set on the spawn
 		// config, the resolver is skipped entirely and API-mode args pass through.
 		// (Tests for the toggle-on path live in claude-mode-selector.test.ts and the
 		// integration story for the binary swap is exercised via manual QA - the
@@ -727,7 +727,7 @@ describe('process IPC handlers', () => {
 				command: 'claude',
 				args: ['--print', '--verbose', '--output-format', 'stream-json'],
 				apiCommand: 'claude',
-				interactiveCommand: 'maestro-p',
+				interactiveCommand: 'openwizardai-p',
 				interactiveModeArgs: ['--dangerously-skip-permissions'],
 				requiresPty: true,
 			};
@@ -753,7 +753,7 @@ describe('process IPC handlers', () => {
 				expect(spawnCall.args).toContain('stream-json');
 			});
 
-			it('emits interactive resolution when Path is wired directly at maestro-p', async () => {
+			it('emits interactive resolution when Path is wired directly at openwizardai-p', async () => {
 				mockAgentDetector.getAgent.mockResolvedValue(claudeCodeAgent);
 				mockProcessManager.spawn.mockReturnValue({ pid: 4245, success: true });
 				const sendSpy = vi.fn();
@@ -781,7 +781,7 @@ describe('process IPC handlers', () => {
 					cwd: '/test',
 					command: 'claude',
 					args: claudeCodeAgent.args,
-					sessionCustomPath: '/Users/x/dist/cli/maestro-p.js',
+					sessionCustomPath: '/Users/x/dist/cli/openwizardai-p.js',
 					prompt: 'hi',
 				});
 
@@ -795,7 +795,7 @@ describe('process IPC handlers', () => {
 				expect(payload.reason).toBe('auto');
 			});
 
-			it('clears stale claudeInteractive=interactive when neither toggle nor maestro-p Path is active', async () => {
+			it('clears stale claudeInteractive=interactive when neither toggle nor openwizardai-p Path is active', async () => {
 				mockAgentDetector.getAgent.mockResolvedValue(claudeCodeAgent);
 				mockProcessManager.spawn.mockReturnValue({ pid: 4246, success: true });
 
@@ -2154,7 +2154,7 @@ describe('process IPC handlers', () => {
 
 		it('should use agent binaryName for SSH remote instead of local path (fixes Codex/Claude remote path issue)', async () => {
 			// This test verifies the fix for GitHub issue #161
-			// The bug: When executing agents on remote hosts, Maestro was using the locally-detected
+			// The bug: When executing agents on remote hosts, OpenWizardAI was using the locally-detected
 			// full path (e.g., /opt/homebrew/bin/codex on macOS) instead of the agent's binary name.
 			// This caused "zsh:1: no such file or directory: /opt/homebrew/bin/codex" on remote hosts.
 			// The fix: Use agent.binaryName (e.g., 'codex') for remote execution, letting the
@@ -2208,7 +2208,7 @@ describe('process IPC handlers', () => {
 		it('should inject the detected agent parent dir as extraPathDirs for local (non-SSH) spawns', async () => {
 			// Regression for #1016: when codex (or any node-script agent) was
 			// installed alongside a non-standard `node` (e.g. /Users/me/opt/node/bin),
-			// Maestro detected it via shell PATH but spawned with a narrower PATH
+			// OpenWizardAI detected it via shell PATH but spawned with a narrower PATH
 			// that didn't include that bin dir - the `#!/usr/bin/env node` shebang
 			// then failed with exit 127. Fix: prepend dirname(agent.path) so the
 			// co-located runtime is reachable.
@@ -2707,7 +2707,7 @@ describe('process IPC handlers', () => {
 				command: 'claude',
 				args: ['--print'],
 				prompt: 'Hello world',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 			});
 
 			const spawnCall = mockProcessManager.spawn.mock.calls[0][0];
@@ -2715,16 +2715,16 @@ describe('process IPC handlers', () => {
 				// Windows: uses --append-system-prompt-file with temp file
 				const idx = spawnCall.args.indexOf('--append-system-prompt-file');
 				expect(idx).toBeGreaterThan(-1);
-				expect(spawnCall.args[idx + 1]).toContain('maestro-sysprompt-session-1');
+				expect(spawnCall.args[idx + 1]).toContain('openwizardai-sysprompt-session-1');
 			} else {
 				// Non-Windows: passes inline
 				const idx = spawnCall.args.indexOf('--append-system-prompt');
 				expect(idx).toBeGreaterThan(-1);
-				expect(spawnCall.args[idx + 1]).toBe('You are Maestro system prompt content');
+				expect(spawnCall.args[idx + 1]).toBe('You are OpenWizardAI system prompt content');
 			}
 			// User prompt should remain clean (not embedded)
 			expect(spawnCall.prompt).toBe('Hello world');
-			expect(spawnCall.prompt).not.toContain('Maestro system prompt');
+			expect(spawnCall.prompt).not.toContain('OpenWizardAI system prompt');
 		});
 
 		it('should embed system prompt in user message for unsupported agents (local)', async () => {
@@ -2749,14 +2749,14 @@ describe('process IPC handlers', () => {
 				command: 'codex',
 				args: [],
 				prompt: 'Fix the bug',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 			});
 
 			const spawnCall = mockProcessManager.spawn.mock.calls[0][0];
 			// --append-system-prompt should NOT be in args
 			expect(spawnCall.args).not.toContain('--append-system-prompt');
 			// System prompt should be embedded in the user prompt
-			expect(spawnCall.prompt).toContain('You are Maestro system prompt content');
+			expect(spawnCall.prompt).toContain('You are OpenWizardAI system prompt content');
 			expect(spawnCall.prompt).toContain('Fix the bug');
 			expect(spawnCall.prompt).toContain('# User Request');
 		});
@@ -2782,12 +2782,12 @@ describe('process IPC handlers', () => {
 				command: 'codex',
 				args: [],
 				prompt: '', // Empty prompt
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 			});
 
 			const spawnCall = mockProcessManager.spawn.mock.calls[0][0];
 			// System prompt should become the sole prompt
-			expect(spawnCall.prompt).toBe('You are Maestro system prompt content');
+			expect(spawnCall.prompt).toBe('You are OpenWizardAI system prompt content');
 		});
 
 		it('should include --append-system-prompt in SSH remote args via finalArgs', async () => {
@@ -2817,7 +2817,7 @@ describe('process IPC handlers', () => {
 				command: 'claude',
 				args: ['--print'],
 				prompt: 'Hello via SSH',
-				appendSystemPrompt: 'Maestro SSH system prompt',
+				appendSystemPrompt: 'OpenWizardAI SSH system prompt',
 				sessionSshRemoteConfig: {
 					enabled: true,
 					remoteId: 'remote-1',
@@ -2829,7 +2829,7 @@ describe('process IPC handlers', () => {
 			expect(spawnCall.command).toBe('ssh');
 			// The stdin script should contain --append-system-prompt in the exec command
 			expect(spawnCall.sshStdinScript).toContain('--append-system-prompt');
-			expect(spawnCall.sshStdinScript).toContain('Maestro SSH system prompt');
+			expect(spawnCall.sshStdinScript).toContain('OpenWizardAI SSH system prompt');
 			// The user prompt should be passed via stdin passthrough (after the script)
 			expect(spawnCall.sshStdinScript).toContain('Hello via SSH');
 		});
@@ -2860,7 +2860,7 @@ describe('process IPC handlers', () => {
 				command: 'opencode',
 				args: [],
 				prompt: 'Fix the bug remotely',
-				appendSystemPrompt: 'Maestro SSH system prompt',
+				appendSystemPrompt: 'OpenWizardAI SSH system prompt',
 				sessionSshRemoteConfig: {
 					enabled: true,
 					remoteId: 'remote-1',
@@ -2872,7 +2872,7 @@ describe('process IPC handlers', () => {
 			// --append-system-prompt should NOT be in the SSH script args
 			expect(spawnCall.sshStdinScript).not.toContain('--append-system-prompt');
 			// System prompt should be embedded in the stdin input (as part of effectivePrompt)
-			expect(spawnCall.sshStdinScript).toContain('Maestro SSH system prompt');
+			expect(spawnCall.sshStdinScript).toContain('OpenWizardAI SSH system prompt');
 			expect(spawnCall.sshStdinScript).toContain('Fix the bug remotely');
 			expect(spawnCall.sshStdinScript).toContain('# User Request');
 		});
@@ -2901,7 +2901,7 @@ describe('process IPC handlers', () => {
 				command: 'copilot',
 				args: [],
 				prompt: 'Follow-up question',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 				agentSessionId: 'prior-session-uuid', // Resume signal
 			});
 
@@ -2911,7 +2911,7 @@ describe('process IPC handlers', () => {
 			// System prompt should NOT be embedded in the user prompt on resume.
 			// The Copilot preamble is independent and rides on every batch turn -
 			// strip it before comparing the appendSystemPrompt behavior.
-			expect(spawnCall.prompt).not.toContain('Maestro system prompt');
+			expect(spawnCall.prompt).not.toContain('OpenWizardAI system prompt');
 			expect(spawnCall.prompt).not.toContain('# User Request');
 			expect(spawnCall.prompt!.replace(/^COPILOT_PREAMBLE_TEXT\n\n/, '')).toBe(
 				'Follow-up question'
@@ -2941,13 +2941,13 @@ describe('process IPC handlers', () => {
 				command: 'copilot',
 				args: [],
 				prompt: 'First message',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 				// No agentSessionId - this is a fresh session
 			});
 
 			const spawnCall = mockProcessManager.spawn.mock.calls[0][0];
 			// First turn: should embed in the user prompt
-			expect(spawnCall.prompt).toContain('You are Maestro system prompt content');
+			expect(spawnCall.prompt).toContain('You are OpenWizardAI system prompt content');
 			expect(spawnCall.prompt).toContain('First message');
 			expect(spawnCall.prompt).toContain('# User Request');
 		});
@@ -2977,7 +2977,7 @@ describe('process IPC handlers', () => {
 				command: 'claude',
 				args: ['--print'],
 				prompt: 'Follow-up question',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 				agentSessionId: 'prior-session-uuid', // Resume signal
 			});
 
@@ -2986,7 +2986,7 @@ describe('process IPC handlers', () => {
 				// Non-Windows: flag is still passed every turn (not persisted in transcript)
 				const idx = spawnCall.args.indexOf('--append-system-prompt');
 				expect(idx).toBeGreaterThan(-1);
-				expect(spawnCall.args[idx + 1]).toBe('You are Maestro system prompt content');
+				expect(spawnCall.args[idx + 1]).toBe('You are OpenWizardAI system prompt content');
 			}
 			// User prompt stays clean regardless
 			expect(spawnCall.prompt).toBe('Follow-up question');
@@ -3045,7 +3045,7 @@ describe('process IPC handlers', () => {
 				command: 'claude',
 				args: ['--print'],
 				prompt: 'Hello world',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 			});
 
 			const mockAgent = {
@@ -3069,8 +3069,8 @@ describe('process IPC handlers', () => {
 
 				expect(fsp.writeFile).toHaveBeenCalledTimes(1);
 				const [tempPath, content, encoding] = vi.mocked(fsp.writeFile).mock.calls[0];
-				expect(tempPath).toMatch(/maestro-sysprompt-session-1-\d+\.txt/);
-				expect(content).toBe('You are Maestro system prompt content');
+				expect(tempPath).toMatch(/openwizardai-sysprompt-session-1-\d+\.txt/);
+				expect(content).toBe('You are OpenWizardAI system prompt content');
 				expect(encoding).toBe('utf-8');
 			});
 
@@ -3090,7 +3090,7 @@ describe('process IPC handlers', () => {
 
 				expect(fsp.unlink).toHaveBeenCalledTimes(1);
 				const [unlinkPath] = vi.mocked(fsp.unlink).mock.calls[0];
-				expect(unlinkPath).toMatch(/maestro-sysprompt-session-1-\d+\.txt/);
+				expect(unlinkPath).toMatch(/openwizardai-sysprompt-session-1-\d+\.txt/);
 			});
 
 			it('silences ENOENT cleanup errors (file already gone)', async () => {
@@ -3143,7 +3143,7 @@ describe('process IPC handlers', () => {
 				expect(ctxArg).toEqual(
 					expect.objectContaining({
 						context: 'systemPromptTempFile cleanup (safety)',
-						file: expect.stringMatching(/maestro-sysprompt-session-1-\d+\.txt/),
+						file: expect.stringMatching(/openwizardai-sysprompt-session-1-\d+\.txt/),
 					})
 				);
 			});
@@ -3264,7 +3264,7 @@ describe('process IPC handlers', () => {
 				command: 'copilot',
 				args: [],
 				prompt: 'Do work.',
-				appendSystemPrompt: 'You are Maestro system prompt content',
+				appendSystemPrompt: 'You are OpenWizardAI system prompt content',
 				// No agentSessionId - first-turn path embeds appendSystemPrompt.
 			});
 
@@ -3272,7 +3272,7 @@ describe('process IPC handlers', () => {
 			// Order: appendSystemPrompt block (which already embeds the user prompt),
 			// then preamble prepended in front.
 			expect(spawnCall.prompt).toContain('COPILOT_PREAMBLE_TEXT');
-			expect(spawnCall.prompt).toContain('You are Maestro system prompt content');
+			expect(spawnCall.prompt).toContain('You are OpenWizardAI system prompt content');
 			expect(spawnCall.prompt).toContain('Do work.');
 		});
 	});

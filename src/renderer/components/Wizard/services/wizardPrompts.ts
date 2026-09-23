@@ -10,7 +10,7 @@ import {
 	substituteTemplateVariables,
 	type TemplateContext,
 } from '../../../utils/templateVariables';
-import { PLAYBOOKS_DIR } from '../../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../../shared/openwizardai-paths';
 
 let cachedWizardSystemPrompt: string | null = null;
 let cachedWizardSystemContinuationPrompt: string | null = null;
@@ -20,8 +20,8 @@ export async function loadWizardPrompts(force = false): Promise<void> {
 	if (wizardPromptsLoaded && !force) return;
 
 	const [systemResult, continuationResult] = await Promise.all([
-		window.maestro.prompts.get('wizard-system'),
-		window.maestro.prompts.get('wizard-system-continuation'),
+		window.openwizardai.prompts.get('wizard-system'),
+		window.openwizardai.prompts.get('wizard-system-continuation'),
 	]);
 
 	if (!systemResult.success) {

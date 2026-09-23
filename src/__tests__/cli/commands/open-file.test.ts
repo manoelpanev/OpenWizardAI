@@ -6,7 +6,7 @@
  * - Opening a valid file with explicit agent
  * - Opening a valid file with default agent resolution
  * - Error handling for non-existent files
- * - Error handling when Maestro app is not running
+ * - Error handling when OpenWizardAI app is not running
  */
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
@@ -17,9 +17,9 @@ vi.mock('fs', () => ({
 	existsSync: vi.fn(),
 }));
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 // Mock storage (used for resolving the owning agent and target's cwd)
@@ -37,7 +37,7 @@ vi.mock('../../../cli/services/storage', () => ({
 }));
 
 import { openFile } from '../../../cli/commands/open-file';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { existsSync } from 'fs';
 
 describe('open-file command', () => {
@@ -55,7 +55,7 @@ describe('open-file command', () => {
 	it('should open a valid file with explicit agent', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		let captured: { sessionId?: string; background?: boolean; switchToAgent?: boolean } = {};
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					captured = msg;
@@ -73,7 +73,7 @@ describe('open-file command', () => {
 		expect(captured.background).toBe(false);
 		expect(captured.switchToAgent).toBe(true);
 		expect(consoleSpy).toHaveBeenCalledWith(
-			expect.stringContaining('Opened file.ts in OpenWizzard')
+			expect.stringContaining('Opened file.ts in OpenWizardAI')
 		);
 		expect(processExitSpy).not.toHaveBeenCalled();
 	});
@@ -82,7 +82,7 @@ describe('open-file command', () => {
 		function captureMessage() {
 			vi.mocked(existsSync).mockReturnValue(true);
 			const captured: Record<string, unknown> = {};
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockImplementation((msg) => {
 						Object.assign(captured, msg);
@@ -136,7 +136,7 @@ describe('open-file command', () => {
 		// Relative paths are resolved against process.cwd(); pin it inside the
 		// mock session's cwd so the ownership check passes.
 		vi.spyOn(process, 'cwd').mockReturnValue('/home/user/project');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					// Verify absolute path was sent
@@ -150,7 +150,7 @@ describe('open-file command', () => {
 		await openFile('relative/file.ts', { agent: 'session-123' });
 
 		expect(consoleSpy).toHaveBeenCalledWith(
-			expect.stringContaining('Opened file.ts in OpenWizzard')
+			expect.stringContaining('Opened file.ts in OpenWizardAI')
 		);
 	});
 
@@ -163,23 +163,23 @@ describe('open-file command', () => {
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
-	it('should error gracefully when OpenWizzard app is not running', async () => {
+	it('should error gracefully when OpenWizardAI app is not running', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(withMaestroClient).mockRejectedValue(
-			new Error('OpenWizzard desktop app is not running')
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(
+			new Error('OpenWizardAI desktop app is not running')
 		);
 
 		await openFile('/home/user/project/file.ts', { agent: 'session-123' });
 
 		expect(consoleErrorSpy).toHaveBeenCalledWith(
-			expect.stringContaining('OpenWizzard desktop app is not running')
+			expect.stringContaining('OpenWizardAI desktop app is not running')
 		);
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
 	it('should error when server returns failure', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({
 					type: 'open_file_tab_result',

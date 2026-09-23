@@ -84,7 +84,7 @@ export function useFilePreviewHandlers({
 
 			// Untitled file - prompt for save location
 			if (!path) {
-				const chosen = await window.maestro.dialog.saveFile({
+				const chosen = await window.openwizardai.dialog.saveFile({
 					title: 'Save File',
 					defaultPath: activeSession?.fullPath ? `${activeSession.fullPath}/Untitled` : undefined,
 				});
@@ -99,13 +99,13 @@ export function useFilePreviewHandlers({
 				try {
 					// stat returns null for a missing path (ENOENT) and throws only on
 					// genuine errors; treat both as "gone" so we never resurrect a ghost.
-					const st = await window.maestro.fs.stat(path, filePreviewSshRemoteId);
+					const st = await window.openwizardai.fs.stat(path, filePreviewSshRemoteId);
 					if (!st) stillExists = false;
 				} catch {
 					stillExists = false;
 				}
 				if (!stillExists) {
-					const chosen = await window.maestro.dialog.saveFile({
+					const chosen = await window.openwizardai.dialog.saveFile({
 						title: 'File moved or deleted on disk - choose where to save',
 						defaultPath: path,
 					});
@@ -114,7 +114,7 @@ export function useFilePreviewHandlers({
 				}
 			}
 
-			await window.maestro.fs.writeFile(savePath, content, filePreviewSshRemoteId);
+			await window.openwizardai.fs.writeFile(savePath, content, filePreviewSshRemoteId);
 
 			// Stamp the tab with the mtime our own write just produced. The tab's
 			// lastModified is what the change poller compares the disk against, so a
@@ -122,7 +122,7 @@ export function useFilePreviewHandlers({
 			// for a change it made itself - every time FilePreview remounts.
 			let savedMtime = Date.now();
 			try {
-				const st = await window.maestro.fs.stat(savePath, filePreviewSshRemoteId);
+				const st = await window.openwizardai.fs.stat(savePath, filePreviewSshRemoteId);
 				if (st?.modifiedAt) savedMtime = new Date(st.modifiedAt).getTime();
 			} catch {
 				// Non-critical: the wall clock is never earlier than the write, so the

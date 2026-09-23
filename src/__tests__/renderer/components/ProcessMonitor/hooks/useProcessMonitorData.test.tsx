@@ -30,7 +30,7 @@ describe('useProcessMonitorData', () => {
 		mockCaptureException.mockClear();
 		setHidden(false);
 		getActive = vi.fn().mockResolvedValue([]);
-		(window as unknown as { maestro: unknown }).maestro = {
+		(window as unknown as { openwizardai: unknown }).openwizardai = {
 			process: { getActiveProcesses: getActive },
 		};
 	});

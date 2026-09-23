@@ -1,7 +1,7 @@
 /**
  * Preload API for git operations
  *
- * Provides the window.maestro.git namespace for:
+ * Provides the window.openwizardai.git namespace for:
  * - Git status, diff, branch operations
  * - Git log and commit viewing
  * - Git worktree operations for Auto Run parallelization
@@ -104,7 +104,7 @@ export interface GitWorktreeSetupResult {
 }
 
 /**
- * Context passed to the post-create setup script, surfaced to it as MAESTRO_*
+ * Context passed to the post-create setup script, surfaced to it as OPENWIZARDAI_*
  * environment variables.
  */
 export interface WorktreeSetupScriptContext {

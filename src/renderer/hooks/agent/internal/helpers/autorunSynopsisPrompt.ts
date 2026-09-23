@@ -13,7 +13,7 @@ let agentListenersPromptsLoaded = false;
 export async function loadAgentListenersPrompts(force = false): Promise<void> {
 	if (agentListenersPromptsLoaded && !force) return;
 
-	const result = await window.maestro.prompts.get('autorun-synopsis');
+	const result = await window.openwizardai.prompts.get('autorun-synopsis');
 	if (!result.success) {
 		throw new Error(`Failed to load autorun-synopsis prompt: ${result.error}`);
 	}

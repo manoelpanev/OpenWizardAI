@@ -13,7 +13,7 @@
  */
 
 /** Event name the app-level listener in `useAppRemoteEventListeners` binds. */
-export const FILE_TREE_REFRESH_EVENT = 'maestro:refreshFileTree';
+export const FILE_TREE_REFRESH_EVENT = 'openwizardai:refreshFileTree';
 
 /**
  * Refresh the Files panel for `sessionId`. A missing id is a no-op rather than

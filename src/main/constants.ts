@@ -89,15 +89,15 @@ export function debugLog(prefix: string, message: string, ...args: unknown[]): v
 
 /**
  * Demo mode flag - enables isolated data directory for fresh demos
- * Activated via --demo CLI flag or MAESTRO_DEMO_DIR environment variable
+ * Activated via --demo CLI flag or OPENWIZARDAI_DEMO_DIR environment variable
  */
-export const DEMO_MODE = process.argv.includes('--demo') || !!process.env.MAESTRO_DEMO_DIR;
+export const DEMO_MODE = process.argv.includes('--demo') || !!process.env.OPENWIZARDAI_DEMO_DIR;
 
 /**
  * Demo data directory path (only meaningful when DEMO_MODE is true)
  */
 export const DEMO_DATA_PATH =
-	process.env.MAESTRO_DEMO_DIR || path.join(os.tmpdir(), 'maestro-demo');
+	process.env.OPENWIZARDAI_DEMO_DIR || path.join(os.tmpdir(), 'openwizardai-demo');
 
 /**
  * Token divisor for converting to millions (used in cost calculations)

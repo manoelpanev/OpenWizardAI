@@ -20,7 +20,7 @@ const { mockOpenUrl } = vi.hoisted(() => ({ mockOpenUrl: vi.fn() }));
 vi.mock('../../../renderer/utils/openUrl', () => ({
 	openUrl: mockOpenUrl,
 	openInSystemBrowser: vi.fn(),
-	openInMaestroBrowser: vi.fn(),
+	openInOpenWizardAIBrowser: vi.fn(),
 }));
 
 import ReactMarkdown from 'react-markdown';
@@ -737,7 +737,7 @@ describe('shared markdown presets', () => {
 });
 
 // ---------------------------------------------------------------------------
-// createMarkdownComponents - link handling (Fixes MAESTRO-F4, MAESTRO-E5, etc.)
+// createMarkdownComponents - link handling (Fixes OPENWIZARDAI-F4, OPENWIZARDAI-E5, etc.)
 // ---------------------------------------------------------------------------
 
 describe('createMarkdownComponents link handling', () => {

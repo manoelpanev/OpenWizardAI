@@ -105,7 +105,7 @@ export function WizardExitConfirmModal({
 					</p>
 					<p className="text-sm mt-3 leading-relaxed" style={{ color: theme.colors.textDim }}>
 						Your progress can be saved, and you can resume where you left off the next time you open
-						OpenWizzard.
+						OpenWizardAI.
 					</p>
 
 					{/* Progress indicator */}

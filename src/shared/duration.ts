@@ -1,6 +1,6 @@
 /**
  * Humanized durations - the one ladder every "how long was that?" string in
- * Maestro renders from.
+ * OpenWizardAI renders from.
  *
  * Before this module there were roughly a dozen hand-rolled copies of the same
  * loop (divide by 86400000, then 3600000, then 60000, then 1000; pick the top

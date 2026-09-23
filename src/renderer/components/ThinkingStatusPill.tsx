@@ -109,7 +109,7 @@ function getItemDisplayName(
 		return agentSessionId.substring(0, 8).toUpperCase();
 	}
 
-	// Fall back to Maestro session name
+	// Fall back to OpenWizardAI session name
 	return session.name;
 }
 
@@ -130,7 +130,7 @@ const ThinkingItemRow = memo(
 	}) => {
 		const { session, tab } = item;
 		const tabDisplayName = getItemDisplayName(session, tab, namedSessions);
-		const maestroName = session.name; // The name from the left sidebar
+		const openwizardaiName = session.name; // The name from the left sidebar
 		const tokens = session.currentCycleTokens || 0;
 		const thinkingStartTime = tab?.thinkingStartTime || session.thinkingStartTime;
 
@@ -146,9 +146,9 @@ const ThinkingItemRow = memo(
 						className="w-2 h-2 rounded-full shrink-0 animate-pulse"
 						style={{ backgroundColor: theme.colors.warning }}
 					/>
-					{/* Maestro session name (from left bar) + Tab name */}
+					{/* OpenWizardAI session name (from left bar) + Tab name */}
 					<span className="text-xs truncate">
-						<span className="font-medium">{maestroName}</span>
+						<span className="font-medium">{openwizardaiName}</span>
 						<span style={{ color: theme.colors.textDim }}> / </span>
 						<span className="font-mono" style={{ color: theme.colors.textDim }}>
 							{tabDisplayName}
@@ -701,7 +701,7 @@ function ThinkingStatusPillInner({
 	const primaryTokens = primarySession.currentCycleTokens || 0;
 
 	// Get display components
-	const maestroSessionName = primarySession.name;
+	const openwizardaiSessionName = primarySession.name;
 
 	// Use tab's agentSessionId if available, fallback to session's (legacy)
 	const agentSessionId = primaryTab?.agentSessionId || primarySession.agentSessionId;
@@ -716,7 +716,7 @@ function ThinkingStatusPillInner({
 		customName || tabName || (agentSessionId ? agentSessionId.substring(0, 8).toUpperCase() : null);
 
 	// For tooltip, show all available info
-	const tooltipParts = [maestroSessionName];
+	const tooltipParts = [openwizardaiSessionName];
 	if (agentSessionId) tooltipParts.push(`Claude: ${agentSessionId}`);
 	if (tabName) tooltipParts.push(`Tab: ${tabName}`);
 	if (customName) tooltipParts.push(`Named: ${customName}`);
@@ -741,13 +741,13 @@ function ThinkingStatusPillInner({
 					style={{ backgroundColor: theme.colors.warning }}
 				/>
 
-				{/* Maestro session name - always visible, not clickable */}
+				{/* OpenWizardAI session name - always visible, not clickable */}
 				<span
 					className="text-xs font-medium shrink-0"
 					style={{ color: theme.colors.textMain }}
 					title={fullTooltip}
 				>
-					{maestroSessionName}
+					{openwizardaiSessionName}
 				</span>
 
 				{/* Divider */}

@@ -26,7 +26,7 @@ vi.mock('../../../../renderer/stores/settingsStore', () => ({
 }));
 
 vi.mock('../../../../renderer/utils/spawnHelpers', () => ({
-	prepareMaestroSystemPrompt: vi.fn(async () => undefined),
+	prepareOpenWizardAISystemPrompt: vi.fn(async () => undefined),
 	getStdinFlags: () => ({ sendPromptViaStdin: false, sendPromptViaStdinRaw: false }),
 }));
 
@@ -50,17 +50,17 @@ let emitExit: ((sessionId: string, code: number) => void) | null = null;
 let spawnedSessionId = '';
 
 /**
- * The mock replaces `window.maestro` wholesale rather than patching it, so the
+ * The mock replaces `window.openwizardai` wholesale rather than patching it, so the
  * original has to be put back or every later suite in the same worker inherits
  * this stub.
  */
-let originalMaestro: unknown;
+let originalOpenWizardAI: unknown;
 
-function installMaestroMock() {
+function installOpenWizardAIMock() {
 	emitExit = null;
 	spawnedSessionId = '';
-	originalMaestro = (window as unknown as { maestro: unknown }).maestro;
-	(window as unknown as { maestro: unknown }).maestro = {
+	originalOpenWizardAI = (window as unknown as { openwizardai: unknown }).openwizardai;
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		agents: { get: vi.fn(async () => ({ command: 'claude', args: [], capabilities: {} })) },
 		process: {
 			spawn: vi.fn(async (config: { sessionId: string }) => {
@@ -135,11 +135,11 @@ const queuedMessage = (tabId: string): QueuedItem =>
 describe('useAgentExecution - Auto Run exit vs. parallel tab busy state', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		installMaestroMock();
+		installOpenWizardAIMock();
 	});
 
 	afterEach(() => {
-		(window as unknown as { maestro: unknown }).maestro = originalMaestro;
+		(window as unknown as { openwizardai: unknown }).openwizardai = originalOpenWizardAI;
 	});
 
 	it('leaves still-running parallel tabs busy when the batch task exits', async () => {

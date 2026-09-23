@@ -13,9 +13,9 @@
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 import type { SessionInfo } from '../../../shared/types';
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 // Mock agent-spawner
@@ -26,7 +26,7 @@ vi.mock('../../../cli/services/agent-spawner', () => ({
 
 // Mock system-prompt so we can assert it gets called (or skipped on --no-system-prompt)
 vi.mock('../../../cli/services/system-prompt', () => ({
-	prepareMaestroSystemPromptCli: vi.fn(),
+	prepareOpenWizardAISystemPromptCli: vi.fn(),
 }));
 
 // Mock storage
@@ -54,11 +54,11 @@ vi.mock('../../../main/agents/definitions', () => ({
 }));
 
 import { send } from '../../../cli/commands/send';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { spawnAgent, detectAgent } from '../../../cli/services/agent-spawner';
 import { resolveAgentId, getSessionById } from '../../../cli/services/storage';
 import { estimateContextUsage } from '../../../main/parsers/usage-aggregator';
-import { prepareMaestroSystemPromptCli } from '../../../cli/services/system-prompt';
+import { prepareOpenWizardAISystemPromptCli } from '../../../cli/services/system-prompt';
 
 describe('send command', () => {
 	let consoleSpy: MockInstance;
@@ -80,7 +80,7 @@ describe('send command', () => {
 		// Default: system-prompt builder returns undefined so existing assertions
 		// that don't include `appendSystemPrompt` keep passing (vitest treats
 		// undefined-valued object keys as absent in `toHaveBeenCalledWith`).
-		vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue(undefined);
+		vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue(undefined);
 	});
 
 	it('should query an agent and return JSON response for new session', async () => {
@@ -168,7 +168,7 @@ describe('send command', () => {
 		expect(output.usage.contextUsagePercent).toBe(4);
 	});
 
-	it('should use the agent cwd from Maestro session', async () => {
+	it('should use the agent cwd from OpenWizardAI session', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-abc-123');
 		vi.mocked(getSessionById).mockReturnValue(mockAgent({ cwd: '/custom/project/path' }));
 		vi.mocked(detectAgent).mockResolvedValue({ available: true, path: '/usr/bin/claude' });
@@ -301,12 +301,12 @@ describe('send command', () => {
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
-	it('builds and passes the Maestro system prompt by default', async () => {
+	it('builds and passes the OpenWizardAI system prompt by default', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-abc-123');
 		const agent = mockAgent();
 		vi.mocked(getSessionById).mockReturnValue(agent);
 		vi.mocked(detectAgent).mockResolvedValue({ available: true, path: '/usr/bin/claude' });
-		vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue('the maestro context');
+		vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue('the openwizardai context');
 		vi.mocked(spawnAgent).mockResolvedValue({
 			success: true,
 			response: 'ok',
@@ -315,17 +315,17 @@ describe('send command', () => {
 
 		await send('agent-abc', 'hello', {});
 
-		expect(prepareMaestroSystemPromptCli).toHaveBeenCalledWith(agent);
+		expect(prepareOpenWizardAISystemPromptCli).toHaveBeenCalledWith(agent);
 		expect(spawnAgent).toHaveBeenCalledWith(
 			'claude-code',
 			'/path/to/project',
 			'hello',
 			undefined,
-			expect.objectContaining({ appendSystemPrompt: 'the maestro context' })
+			expect.objectContaining({ appendSystemPrompt: 'the openwizardai context' })
 		);
 	});
 
-	it('skips building the Maestro system prompt when --no-system-prompt is set', async () => {
+	it('skips building the OpenWizardAI system prompt when --no-system-prompt is set', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-abc-123');
 		vi.mocked(getSessionById).mockReturnValue(mockAgent());
 		vi.mocked(detectAgent).mockResolvedValue({ available: true, path: '/usr/bin/claude' });
@@ -338,7 +338,7 @@ describe('send command', () => {
 		// Commander negates `--no-system-prompt` to `systemPrompt: false`
 		await send('agent-abc', 'hello', { systemPrompt: false });
 
-		expect(prepareMaestroSystemPromptCli).not.toHaveBeenCalled();
+		expect(prepareOpenWizardAISystemPromptCli).not.toHaveBeenCalled();
 		expect(spawnAgent).toHaveBeenCalledWith(
 			'claude-code',
 			'/path/to/project',
@@ -352,7 +352,7 @@ describe('send command', () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-abc-123');
 		vi.mocked(getSessionById).mockReturnValue(mockAgent());
 		vi.mocked(detectAgent).mockResolvedValue({ available: true, path: '/usr/bin/claude' });
-		vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue('still here on resume');
+		vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue('still here on resume');
 		vi.mocked(spawnAgent).mockResolvedValue({
 			success: true,
 			response: 'ok',
@@ -361,7 +361,7 @@ describe('send command', () => {
 
 		await send('agent-abc', 'follow-up', { session: 'session-xyz' });
 
-		expect(prepareMaestroSystemPromptCli).toHaveBeenCalled();
+		expect(prepareOpenWizardAISystemPromptCli).toHaveBeenCalled();
 		expect(spawnAgent).toHaveBeenCalledWith(
 			'claude-code',
 			'/path/to/project',
@@ -371,11 +371,11 @@ describe('send command', () => {
 		);
 	});
 
-	it('continues without the system prompt when prepareMaestroSystemPromptCli returns undefined (non-fatal)', async () => {
+	it('continues without the system prompt when prepareOpenWizardAISystemPromptCli returns undefined (non-fatal)', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-abc-123');
 		vi.mocked(getSessionById).mockReturnValue(mockAgent());
 		vi.mocked(detectAgent).mockResolvedValue({ available: true, path: '/usr/bin/claude' });
-		vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue(undefined);
+		vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue(undefined);
 		vi.mocked(spawnAgent).mockResolvedValue({
 			success: true,
 			response: 'ok',
@@ -384,7 +384,7 @@ describe('send command', () => {
 
 		await send('agent-abc', 'hello', {});
 
-		expect(prepareMaestroSystemPromptCli).toHaveBeenCalled();
+		expect(prepareOpenWizardAISystemPromptCli).toHaveBeenCalled();
 		expect(spawnAgent).toHaveBeenCalled();
 		const callArgs = vi.mocked(spawnAgent).mock.calls[0];
 		expect(callArgs[4]?.appendSystemPrompt).toBeUndefined();

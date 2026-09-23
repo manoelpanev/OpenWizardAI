@@ -8,7 +8,7 @@
  * - Search sessions
  * - Get project and global stats
  * - Session timestamps for activity graphs
- * - Session origins tracking (Maestro vs CLI)
+ * - Session origins tracking (OpenWizardAI vs CLI)
  * - Get available slash commands
  */
 

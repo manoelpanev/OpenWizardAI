@@ -159,7 +159,7 @@ describe.skipIf(!canLoadNodeSqlite())('getCueHistoryEntries (real SQLite)', () =
 		const [entry] = getCueHistoryEntries({
 			sessionId: AGENT_ID,
 			sessionName: 'rc',
-			projectPath: '/Users/pedram/Projects/Maestro',
+			projectPath: '/Users/pedram/Projects/OpenWizardAI',
 		});
 
 		expect(entry).toMatchObject({
@@ -168,7 +168,7 @@ describe.skipIf(!canLoadNodeSqlite())('getCueHistoryEntries (real SQLite)', () =
 			timestamp: BASE_MS,
 			summary: 'Triaged PR #891.',
 			fullResponse: 'Triaged PR #891.\nNo action needed.',
-			projectPath: '/Users/pedram/Projects/Maestro',
+			projectPath: '/Users/pedram/Projects/OpenWizardAI',
 			sessionId: AGENT_ID,
 			sessionName: 'rc',
 			success: true,

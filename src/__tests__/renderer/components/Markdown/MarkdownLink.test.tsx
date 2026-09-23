@@ -4,15 +4,15 @@ import { createMarkdownLink } from '../../../../renderer/components/Markdown/com
 // Mock the URL openers so we can assert routing without touching the shell.
 vi.mock('../../../../renderer/utils/openUrl', () => ({
 	openUrl: vi.fn(),
-	openInMaestroBrowser: vi.fn(),
+	openInOpenWizardAIBrowser: vi.fn(),
 	openInSystemBrowser: vi.fn(),
 }));
-vi.mock('../../../../renderer/utils/openMaestroLink', () => ({
-	openMaestroLink: vi.fn(),
+vi.mock('../../../../renderer/utils/openOpenWizardAILink', () => ({
+	openOpenWizardAILink: vi.fn(),
 }));
 
 import { openUrl } from '../../../../renderer/utils/openUrl';
-import { openMaestroLink } from '../../../../renderer/utils/openMaestroLink';
+import { openOpenWizardAILink } from '../../../../renderer/utils/openOpenWizardAILink';
 
 const theme = { colors: { accent: '#3366ff', accentText: '#88aaff' } } as any;
 
@@ -39,35 +39,35 @@ function renderLink(
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
-		...(window as any).maestro,
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		shell: { openPath: vi.fn(), openExternal: vi.fn() },
 	};
 });
 
 describe('createMarkdownLink - shared targets', () => {
-	it('routes maestro:// through openMaestroLink', () => {
-		const el = renderLink({ theme }, { href: 'maestro://settings', children: 'x' });
+	it('routes openwizardai:// through openOpenWizardAILink', () => {
+		const el = renderLink({ theme }, { href: 'openwizardai://settings', children: 'x' });
 		el.props.onClick(makeEvent());
-		expect(openMaestroLink).toHaveBeenCalledWith('maestro://settings');
+		expect(openOpenWizardAILink).toHaveBeenCalledWith('openwizardai://settings');
 	});
 
-	it('opens a maestro-file:// link via onFileClick', () => {
+	it('opens a openwizardai-file:// link via onFileClick', () => {
 		const onFileClick = vi.fn();
 		const el = renderLink(
 			{ theme, onFileClick },
-			{ href: 'maestro-file://src/app.ts', children: 'x' }
+			{ href: 'openwizardai-file://src/app.ts', children: 'x' }
 		);
 		el.props.onClick(makeEvent());
 		expect(onFileClick).toHaveBeenCalled();
 		expect(onFileClick.mock.calls[0][0]).toBe('src/app.ts');
 	});
 
-	it('detects file links via the data-maestro-file attribute fallback', () => {
+	it('detects file links via the data-openwizardai-file attribute fallback', () => {
 		const onFileClick = vi.fn();
 		const el = renderLink(
 			{ theme, onFileClick },
-			{ href: '#', 'data-maestro-file': 'report.csv', children: 'report.csv' }
+			{ href: '#', 'data-openwizardai-file': 'report.csv', children: 'report.csv' }
 		);
 		el.props.onClick(makeEvent());
 		expect(onFileClick.mock.calls[0][0]).toBe('report.csv');
@@ -90,7 +90,7 @@ describe('createMarkdownLink - chat behavior (directExternal, accentText, contex
 	it('calls onFileClick WITHOUT options (preserves historical chat call shape)', () => {
 		const onFileClick = vi.fn();
 		const el = renderLink(chat({ onFileClick }), {
-			href: 'maestro-file://a.ts',
+			href: 'openwizardai-file://a.ts',
 			children: 'x',
 		});
 		el.props.onClick(makeEvent({ metaKey: true }));
@@ -113,13 +113,13 @@ describe('createMarkdownLink - chat behavior (directExternal, accentText, contex
 	it('opens file:// links via the shell', () => {
 		const el = renderLink(chat(), { href: 'file:///tmp/x.txt', children: 'x' });
 		el.props.onClick(makeEvent());
-		expect((window as any).maestro.shell.openPath).toHaveBeenCalledWith('/tmp/x.txt');
+		expect((window as any).openwizardai.shell.openPath).toHaveBeenCalledWith('/tmp/x.txt');
 	});
 
-	it('plays a file:// media link in Maestro rather than the OS default app', () => {
+	it('plays a file:// media link in OpenWizardAI rather than the OS default app', () => {
 		// Files outside the project root are linked as file://, which used to send
 		// an MP3 straight to the system player - a second app over the workspace to
-		// do what Maestro's own player already does.
+		// do what OpenWizardAI's own player already does.
 		const onFileClick = vi.fn();
 		const el = renderLink(chat({ onFileClick }), {
 			href: 'file:///Users/me/Scratch/ndr-identity.mp3',
@@ -128,7 +128,7 @@ describe('createMarkdownLink - chat behavior (directExternal, accentText, contex
 		el.props.onClick(makeEvent());
 
 		expect(onFileClick).toHaveBeenCalledWith('/Users/me/Scratch/ndr-identity.mp3');
-		expect((window as any).maestro.shell.openPath).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.shell.openPath).not.toHaveBeenCalled();
 	});
 
 	it('sends a file:// video link to the player too', () => {
@@ -147,14 +147,14 @@ describe('createMarkdownLink - chat behavior (directExternal, accentText, contex
 		const el = renderLink(chat({ onFileClick }), { href: 'file:///tmp/movie.mkv', children: 'x' });
 		el.props.onClick(makeEvent());
 
-		expect((window as any).maestro.shell.openPath).toHaveBeenCalledWith('/tmp/movie.mkv');
+		expect((window as any).openwizardai.shell.openPath).toHaveBeenCalledWith('/tmp/movie.mkv');
 		expect(onFileClick).not.toHaveBeenCalled();
 	});
 
 	it('falls back to the OS when the surface has no file-click handler', () => {
 		const el = renderLink(chat(), { href: 'file:///tmp/song.mp3', children: 'x' });
 		el.props.onClick(makeEvent());
-		expect((window as any).maestro.shell.openPath).toHaveBeenCalledWith('/tmp/song.mp3');
+		expect((window as any).openwizardai.shell.openPath).toHaveBeenCalledWith('/tmp/song.mp3');
 	});
 
 	it('converts git@ URLs to https and opens them', () => {
@@ -174,7 +174,7 @@ describe('createMarkdownLink - chat behavior (directExternal, accentText, contex
 		const onFileContextMenu = vi.fn();
 		const el = renderLink(chat({ projectRoot: '/Users/me/proj', onFileContextMenu }), {
 			href: '#',
-			'data-maestro-file': 'docs/readme.md',
+			'data-openwizardai-file': 'docs/readme.md',
 			children: 'x',
 		});
 		el.props.onContextMenu(makeEvent());
@@ -231,9 +231,12 @@ describe('createMarkdownLink - document behavior (anchors, relativeAsFile, callb
 		expect(el.props.onContextMenu).toBeUndefined();
 	});
 
-	it('calls onFileClick WITH openInNewTab for maestro-file links', () => {
+	it('calls onFileClick WITH openInNewTab for openwizardai-file links', () => {
 		const onFileClick = vi.fn();
-		const el = renderLink(doc({ onFileClick }), { href: 'maestro-file://a.ts', children: 'x' });
+		const el = renderLink(doc({ onFileClick }), {
+			href: 'openwizardai-file://a.ts',
+			children: 'x',
+		});
 		el.props.onClick(makeEvent({ metaKey: true }));
 		expect(onFileClick).toHaveBeenCalledWith('a.ts', { openInNewTab: true });
 	});

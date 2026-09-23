@@ -66,12 +66,12 @@ function tail(output: string): string {
  */
 export function buildSetupScriptEnv(context: WorktreeSetupContext): Record<string, string> {
 	const env: Record<string, string> = {
-		MAESTRO_WORKTREE_PATH: context.worktreePath,
-		MAESTRO_WORKTREE_BRANCH: context.branchName,
-		MAESTRO_MAIN_REPO_PATH: context.mainRepoPath,
+		OPENWIZARDAI_WORKTREE_PATH: context.worktreePath,
+		OPENWIZARDAI_WORKTREE_BRANCH: context.branchName,
+		OPENWIZARDAI_MAIN_REPO_PATH: context.mainRepoPath,
 	};
 	if (context.baseBranch) {
-		env.MAESTRO_BASE_BRANCH = context.baseBranch;
+		env.OPENWIZARDAI_BASE_BRANCH = context.baseBranch;
 	}
 	return env;
 }
@@ -97,7 +97,7 @@ export function resolveSetupShell(): { command: string; args: (script: string) =
  * Run the configured post-create setup script in a worktree.
  *
  * @param script Shell command to run; blank/whitespace means "not configured"
- * @param context Worktree paths and branch names, exposed as MAESTRO_* env vars
+ * @param context Worktree paths and branch names, exposed as OPENWIZARDAI_* env vars
  * @param sshRemote When set, the worktree lives on a remote host and the script
  *                  runs there over SSH instead of locally
  */

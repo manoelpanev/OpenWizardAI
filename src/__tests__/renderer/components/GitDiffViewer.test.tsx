@@ -1494,7 +1494,7 @@ describe('GitDiffViewer', () => {
 	});
 
 	describe('View type persistence', () => {
-		const STORAGE_KEY = 'maestro.gitDiffViewer.viewType';
+		const STORAGE_KEY = 'openwizardai.gitDiffViewer.viewType';
 
 		it('uses initialViewType when nothing is persisted', () => {
 			mockParseGitDiff.mockReturnValue([createMockParsedFile()]);
@@ -1571,7 +1571,7 @@ describe('GitDiffViewer', () => {
 	});
 
 	describe('Enter key toggle', () => {
-		const STORAGE_KEY = 'maestro.gitDiffViewer.viewType';
+		const STORAGE_KEY = 'openwizardai.gitDiffViewer.viewType';
 
 		it('toggles view type when Enter is pressed and focus is not on a form control', () => {
 			mockParseGitDiff.mockReturnValue([createMockParsedFile()]);

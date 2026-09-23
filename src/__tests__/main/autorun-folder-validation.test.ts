@@ -256,8 +256,8 @@ describe('Auto Run Folder Validation', () => {
 			});
 
 			it('should handle paths with spaces', () => {
-				const folderPath = '/test/.maestro/playbooks';
-				const filePath = '/test/.maestro/playbooks/My Document.md';
+				const folderPath = '/test/.openwizardai/playbooks';
+				const filePath = '/test/.openwizardai/playbooks/My Document.md';
 
 				expect(validatePathWithinFolder(filePath, folderPath)).toBe(true);
 			});

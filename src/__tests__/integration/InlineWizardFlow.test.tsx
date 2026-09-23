@@ -28,8 +28,8 @@ import { parseWizardIntent } from '../../renderer/services/wizardIntentParser';
 
 import { createMockTheme } from '../helpers/mockTheme';
 
-// Mock the maestro API
-const mockMaestro = {
+// Mock the openwizardai API
+const mockOpenWizardAI = {
 	autorun: {
 		listDocs: vi.fn(),
 		readDoc: vi.fn(),
@@ -46,9 +46,9 @@ const mockMaestro = {
 	},
 };
 
-// Setup window.maestro mock before each test
+// Setup window.openwizardai mock before each test
 beforeEach(() => {
-	(window as any).maestro = mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
 	vi.clearAllMocks();
 });
 
@@ -134,7 +134,7 @@ describe('Inline Wizard Integration Flow', () => {
 	describe('useInlineWizard Hook - Start Flow', () => {
 		beforeEach(() => {
 			// Mock no existing docs by default
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 		});
 
 		it('initializes in inactive state', () => {
@@ -165,7 +165,7 @@ describe('Inline Wizard Integration Flow', () => {
 
 		it('sets mode to "ask" when docs exist and no input provided', async () => {
 			// Mock existing docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({
 				success: true,
 				files: ['Phase-01-Setup'],
 			});
@@ -187,11 +187,11 @@ describe('Inline Wizard Integration Flow', () => {
 
 		it('sets mode to "iterate" with goal when iterate input provided', async () => {
 			// Mock existing docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({
 				success: true,
 				files: ['Phase-01-Setup'],
 			});
-			mockMaestro.autorun.readDoc.mockResolvedValue({
+			mockOpenWizardAI.autorun.readDoc.mockResolvedValue({
 				success: true,
 				content: '# Phase 1\n- [ ] Task 1',
 			});
@@ -275,7 +275,7 @@ describe('Inline Wizard Integration Flow', () => {
 			const { result } = renderHook(() => useInlineWizard());
 
 			// Start the wizard
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 			await act(async () => {
 				await result.current.startWizard(
 					undefined,
@@ -541,7 +541,7 @@ describe('Inline Wizard Integration Flow', () => {
 			const previousUIState = { readOnlyMode: true, saveToHistory: false, showThinking: 'on' };
 
 			// Mock no docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 
 			// Start wizard with previous state
 			await act(async () => {
@@ -570,7 +570,7 @@ describe('Inline Wizard Integration Flow', () => {
 			const { result } = renderHook(() => useInlineWizard());
 
 			// Mock no docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 
 			// Start wizard
 			await act(async () => {
@@ -610,7 +610,7 @@ describe('Inline Wizard Integration Flow', () => {
 			const { result } = renderHook(() => useInlineWizard());
 
 			// Mock no docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 
 			// Start wizard and add state
 			await act(async () => {
@@ -769,7 +769,7 @@ describe('Inline Wizard Integration Flow', () => {
 			const { result } = renderHook(() => useInlineWizard());
 
 			// Mock no docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 
 			// Start wizard
 			await act(async () => {
@@ -823,11 +823,11 @@ describe('Inline Wizard Integration Flow', () => {
 
 		it('loads existing documents in iterate mode', async () => {
 			// Mock existing docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({
 				success: true,
 				files: ['Phase-01-Setup', 'Phase-02-Development'],
 			});
-			mockMaestro.autorun.readDoc.mockResolvedValue({
+			mockOpenWizardAI.autorun.readDoc.mockResolvedValue({
 				success: true,
 				content: '# Phase 1\n- [ ] Task 1',
 			});
@@ -873,7 +873,7 @@ describe('Inline Wizard Integration Flow', () => {
 	describe('Full Integration Scenarios', () => {
 		it('simulates complete new wizard flow from start to document generation ready', async () => {
 			// Mock no existing docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({ success: true, files: [] });
 
 			const { result } = renderHook(() => useInlineWizard());
 			const previousUIState = { readOnlyMode: true, saveToHistory: false, showThinking: 'on' };
@@ -926,11 +926,11 @@ describe('Inline Wizard Integration Flow', () => {
 
 		it('simulates iterate flow with existing documents', async () => {
 			// Mock existing docs
-			mockMaestro.autorun.listDocs.mockResolvedValue({
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({
 				success: true,
 				files: ['Phase-01-Setup'],
 			});
-			mockMaestro.autorun.readDoc.mockResolvedValue({
+			mockOpenWizardAI.autorun.readDoc.mockResolvedValue({
 				success: true,
 				content: '# Phase 1\n- [x] Task 1\n- [x] Task 2',
 			});

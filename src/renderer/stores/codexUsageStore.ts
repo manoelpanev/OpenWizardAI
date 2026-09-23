@@ -64,7 +64,7 @@ export const useCodexUsageStore = create<CodexUsageState>((set, get) => ({
 		if (get().refreshing) return;
 		set({ refreshing: true });
 		try {
-			const next = await window.maestro.agents.getCodexUsageSnapshots();
+			const next = await window.openwizardai.agents.getCodexUsageSnapshots();
 			set({ snapshots: next ?? {}, loaded: true });
 		} catch {
 			set({ loaded: true });

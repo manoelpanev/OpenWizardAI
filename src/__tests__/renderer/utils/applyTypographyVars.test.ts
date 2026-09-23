@@ -34,8 +34,8 @@ describe('computeTypographyVars', () => {
 
 	it('resolves an unset surface to the interface font', () => {
 		const vars = computeTypographyVars(input());
-		expect(vars['--maestro-font-chat']).toContain('Inter');
-		expect(vars['--maestro-font-file-preview']).toContain('Inter');
+		expect(vars['--openwizardai-font-chat']).toContain('Inter');
+		expect(vars['--openwizardai-font-file-preview']).toContain('Inter');
 	});
 
 	it('prefers a surface font over the interface font', () => {
@@ -50,8 +50,8 @@ describe('computeTypographyVars', () => {
 				},
 			})
 		);
-		expect(vars['--maestro-font-terminal']).toContain('JetBrains Mono');
-		expect(vars['--maestro-font-terminal']).not.toContain('Inter');
+		expect(vars['--openwizardai-font-terminal']).toContain('JetBrains Mono');
+		expect(vars['--openwizardai-font-terminal']).not.toContain('Inter');
 	});
 
 	it('always appends a generic family so nothing can fall through to serif', () => {
@@ -88,8 +88,8 @@ describe('computeTypographyVars', () => {
 					zoom: 1.5,
 				})
 			);
-			expect(vars['--maestro-size-interface']).toBe('24px');
-			expect(vars['--maestro-size-terminal']).toBe('18px');
+			expect(vars['--openwizardai-size-interface']).toBe('24px');
+			expect(vars['--openwizardai-size-terminal']).toBe('18px');
 		});
 
 		it('drives --font-scale so fixed-width modals grow with the text', () => {
@@ -102,7 +102,7 @@ describe('computeTypographyVars', () => {
 			const vars = computeTypographyVars(
 				input({ sizes: { ...input().sizes, terminal: 13 }, zoom: 1 })
 			);
-			expect(vars['--maestro-size-terminal']).toBe('13px');
+			expect(vars['--openwizardai-size-terminal']).toBe('13px');
 		});
 	});
 
@@ -112,6 +112,6 @@ describe('computeTypographyVars', () => {
 		const vars = computeTypographyVars(
 			input({ baseSize: 18, sizes: { ...input().sizes, interface: 0 } })
 		);
-		expect(vars['--maestro-size-interface']).toBe('18px');
+		expect(vars['--openwizardai-size-interface']).toBe('18px');
 	});
 });

@@ -34,9 +34,9 @@ const baseUsage: UsageStats = {
 };
 
 describe('useAgentExecution', () => {
-	const originalMaestro = { ...window.maestro };
+	const originalOpenWizardAI = { ...window.openwizardai };
 	const mockProcess = {
-		...window.maestro.process,
+		...window.openwizardai.process,
 		spawn: vi.fn(),
 		onData: vi.fn(),
 		onSessionId: vi.fn(),
@@ -77,10 +77,10 @@ describe('useAgentExecution', () => {
 			return () => {};
 		});
 
-		window.maestro = {
-			...window.maestro,
+		window.openwizardai = {
+			...window.openwizardai,
 			agents: {
-				...window.maestro.agents,
+				...window.openwizardai.agents,
 				get: vi.fn().mockResolvedValue({
 					id: 'claude-code',
 					command: 'claude-code',
@@ -89,10 +89,10 @@ describe('useAgentExecution', () => {
 			},
 			process: mockProcess,
 			prompts: {
-				...window.maestro.prompts,
+				...window.openwizardai.prompts,
 				get: vi.fn().mockResolvedValue({
 					success: true,
-					content: 'Maestro System Context: {{AGENT_NAME}}',
+					content: 'OpenWizardAI System Context: {{AGENT_NAME}}',
 				}),
 			},
 		};
@@ -100,7 +100,7 @@ describe('useAgentExecution', () => {
 
 	afterEach(() => {
 		vi.useRealTimers();
-		Object.assign(window.maestro, originalMaestro);
+		Object.assign(window.openwizardai, originalOpenWizardAI);
 	});
 
 	it('spawns a batch agent and returns aggregated results', async () => {
@@ -175,10 +175,10 @@ describe('useAgentExecution', () => {
 	});
 
 	it('forwards the Auto Run turn overrides to the spawn, and the agent config otherwise', async () => {
-		// The document's MAESTRO:MODEL hint arrives here as modelOverride /
+		// The document's OPENWIZARDAI:MODEL hint arrives here as modelOverride /
 		// effortOverride. This is the last hop before the process, so a dropped
 		// value means the same playbook runs at a different setting in the app
-		// than it does under maestro-cli.
+		// than it does under openwizardai-cli.
 		const session = createMockSession({
 			state: 'busy',
 			customModel: 'sonnet',
@@ -288,7 +288,7 @@ describe('useAgentExecution', () => {
 		const spawnConfig = mockProcess.spawn.mock.calls[0][0];
 		expect(spawnConfig.appendSystemPrompt).toBeDefined();
 		expect(typeof spawnConfig.appendSystemPrompt).toBe('string');
-		expect(window.maestro.prompts.get).toHaveBeenCalledWith('maestro-system-prompt');
+		expect(window.openwizardai.prompts.get).toHaveBeenCalledWith('openwizardai-system-prompt');
 
 		// Clean up
 		const targetSessionId = spawnConfig.sessionId as string;
@@ -299,14 +299,14 @@ describe('useAgentExecution', () => {
 	});
 
 	it('uses raw stdin prompt delivery for local Windows batch runs when stream-json input is unsupported', async () => {
-		const originalPlatform = (window as any).maestro?.platform;
-		(window as any).maestro = { ...((window as any).maestro || {}), platform: 'win32' };
+		const originalPlatform = (window as any).openwizardai?.platform;
+		(window as any).openwizardai = { ...((window as any).openwizardai || {}), platform: 'win32' };
 		const session = createMockSession({ toolType: 'codex' });
 		const sessionsRef = { current: [session] };
 		const setSessions = vi.fn();
 		const processQueuedItemRef = { current: null };
 
-		vi.mocked(window.maestro.agents.get).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.agents.get).mockResolvedValueOnce({
 			id: 'codex',
 			command: 'codex',
 			args: ['exec', '--json'],
@@ -339,7 +339,7 @@ describe('useAgentExecution', () => {
 			onExitHandler?.(targetSessionId);
 		});
 		await spawnPromise;
-		(window as any).maestro.platform = originalPlatform;
+		(window as any).openwizardai.platform = originalPlatform;
 	});
 
 	it('does not enable local stdin flags for SSH batch runs', async () => {
@@ -352,7 +352,7 @@ describe('useAgentExecution', () => {
 		const setSessions = vi.fn();
 		const processQueuedItemRef = { current: null };
 
-		vi.mocked(window.maestro.agents.get).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.agents.get).mockResolvedValueOnce({
 			id: 'codex',
 			command: 'codex',
 			args: ['exec', '--json'],
@@ -546,7 +546,7 @@ describe('useAgentExecution', () => {
 
 	it('cancels pending synopsis sessions when cancelPendingSynopsis is called', async () => {
 		const mockKill = vi.fn().mockResolvedValue(true);
-		window.maestro.process.kill = mockKill;
+		window.openwizardai.process.kill = mockKill;
 
 		const session = createMockSession();
 		const sessionsRef = { current: [session] };
@@ -597,7 +597,7 @@ describe('useAgentExecution', () => {
 
 	it('does nothing when cancelPendingSynopsis is called with no pending synopses', async () => {
 		const mockKill = vi.fn().mockResolvedValue(true);
-		window.maestro.process.kill = mockKill;
+		window.openwizardai.process.kill = mockKill;
 
 		const session = createMockSession();
 		const sessionsRef = { current: [session] };

@@ -121,8 +121,8 @@ describe('groupChatStore', () => {
 	// ==========================================================================
 
 	describe('per-chat view preferences', () => {
-		const VIEW_PREFS_KEY = 'maestro.groupChat.viewPrefs';
-		const LEGACY_KEY = 'maestro.groupChat.moderatorOnlyView';
+		const VIEW_PREFS_KEY = 'openwizardai.groupChat.viewPrefs';
+		const LEGACY_KEY = 'openwizardai.groupChat.moderatorOnlyView';
 
 		beforeEach(() => {
 			installLocalStorageMock();

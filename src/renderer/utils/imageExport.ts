@@ -6,7 +6,7 @@
  *  - Inline `<svg>` (agent-authored SVG, mermaid diagrams), exported as a raster
  *    PNG for the clipboard and as either `.svg` or `.png` on disk.
  *  - Raster `<img>` (markdown image embeds, pasted transcript attachments),
- *    whose source may be a data URL, a `maestro-image://` store reference, or a
+ *    whose source may be a data URL, a `openwizardai-image://` store reference, or a
  *    remote URL.
  *
  * Used by ImageContextMenu (right-click on any chat image). Kept as a shared
@@ -14,7 +14,7 @@
  */
 
 import { safeClipboardWrite, safeClipboardWriteImage } from './clipboard';
-import { DIAGRAMS_DIR } from '../../shared/maestro-paths';
+import { DIAGRAMS_DIR } from '../../shared/openwizardai-paths';
 import { joinPath, isAbsolutePath, fileTimestampSlug } from '../../shared/formatters';
 import { requestFileTreeRefresh } from './fileTreeRefresh';
 import { isSessionImageRef } from '../../shared/sessionImageRefs';
@@ -124,7 +124,7 @@ export function imgToPngDataUrl(img: HTMLImageElement): string {
  * Resolve an `<img>` to a data URL holding its bytes.
  *
  * The three sources that reach chat need three different routes: data URLs pass
- * through, `maestro-image://` store references go back through IPC for their
+ * through, `openwizardai-image://` store references go back through IPC for their
  * bytes, and anything else (http(s), custom protocols) is re-read via fetch,
  * with a canvas rasterization as the last resort. Returns null when the bytes
  * cannot be recovered.
@@ -138,7 +138,7 @@ export async function imgToDataUrl(img: HTMLImageElement): Promise<string | null
 	// downscaled rendition). `images.resolve` ignores the query and hands back the
 	// ORIGINAL bytes, which is what an export or a clipboard copy must contain.
 	if (isSessionImageRef(src)) {
-		const resolved = await window.maestro?.images?.resolve(src);
+		const resolved = await window.openwizardai?.images?.resolve(src);
 		if (resolved) return resolved;
 	}
 
@@ -228,7 +228,7 @@ function downloadDataUrl(dataUrl: string, filename: string): void {
 }
 
 /** Trigger a browser download of an SVG element as a standalone .svg file. */
-export function downloadSvg(svg: SVGSVGElement, filename = 'maestro-diagram.svg'): void {
+export function downloadSvg(svg: SVGSVGElement, filename = 'openwizardai-diagram.svg'): void {
 	const source = serializeSvg(svg);
 	const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
 	const url = URL.createObjectURL(blob);
@@ -251,7 +251,7 @@ export interface ImageSaveTarget {
 	projectRoot: string;
 	/** Set when the project lives on an SSH remote. */
 	sshRemoteId?: string;
-	/** Project-relative folder to write into. Defaults to `.maestro/diagrams`. */
+	/** Project-relative folder to write into. Defaults to `.openwizardai/diagrams`. */
 	relativeDir?: string;
 	/** File name including extension. Defaults to a timestamped suggestion. */
 	fileName?: string;
@@ -266,7 +266,7 @@ export interface ImageSaveTarget {
 export interface ImageSaveToProjectResult {
 	/** Absolute path the file was written to. */
 	path: string;
-	/** Project-relative path, for display (e.g. `.maestro/diagrams/diagram-…svg`). */
+	/** Project-relative path, for display (e.g. `.openwizardai/diagrams/diagram-…svg`). */
 	relativePath: string;
 }
 
@@ -352,11 +352,11 @@ function forceExtension(name: string, ext: string): string {
 
 /**
  * Save an image into the project it was rendered in, under
- * `.maestro/diagrams/` by default.
+ * `.openwizardai/diagrams/` by default.
  *
  * This is the single in-project destination for every "Save Image" surface: a
  * diagram or screenshot an agent produced belongs with that agent's project
- * (and shows up in the File Explorer, which always keeps `.maestro` visible),
+ * (and shows up in the File Explorer, which always keeps `.openwizardai` visible),
  * not in a global downloads folder under a colliding generic name. Works over
  * SSH because the write goes through the same `fs` IPC the rest of the app uses.
  *
@@ -384,7 +384,7 @@ export async function saveImageToProject(
 	assertSafeFileName(requested);
 
 	const dir = joinPath(target.projectRoot, relativeDir);
-	await window.maestro.fs.mkdir(dir, target.sshRemoteId);
+	await window.openwizardai.fs.mkdir(dir, target.sshRemoteId);
 
 	const withExt = forceExtension(requested, ext);
 	const base = withExt.slice(0, withExt.length - ext.length - 1);
@@ -394,7 +394,7 @@ export async function saveImageToProject(
 	let filename = '';
 	for (let n = 1; n <= 100; n++) {
 		const candidate = n === 1 ? withExt : `${base}-${n}.${ext}`;
-		if (!(await window.maestro.fs.stat(joinPath(dir, candidate), target.sshRemoteId))) {
+		if (!(await window.openwizardai.fs.stat(joinPath(dir, candidate), target.sshRemoteId))) {
 			filename = candidate;
 			break;
 		}
@@ -408,8 +408,8 @@ export async function saveImageToProject(
 	// writeImageFile, which decodes the data URL on the main side.
 	const result =
 		'markup' in encoded
-			? await window.maestro.fs.writeFile(path, encoded.markup, target.sshRemoteId)
-			: await window.maestro.fs.writeImageFile(path, encoded.dataUrl, target.sshRemoteId);
+			? await window.openwizardai.fs.writeFile(path, encoded.markup, target.sshRemoteId)
+			: await window.openwizardai.fs.writeImageFile(path, encoded.dataUrl, target.sshRemoteId);
 	if (!result?.success) throw new Error(`Failed to write ${path}`);
 
 	// A file just appeared in the project. The Files panel would not show it
@@ -450,9 +450,9 @@ export async function saveImageElementToDisk(el: ExportableImage): Promise<SaveI
 	}
 
 	const sourceExt = svg ? 'svg' : dataUrlExtension(sourceDataUrl!);
-	const defaultName = svg ? 'maestro-diagram.svg' : `maestro-image.${sourceExt}`;
+	const defaultName = svg ? 'openwizardai-diagram.svg' : `openwizardai-image.${sourceExt}`;
 
-	const saveFile = window.maestro?.dialog?.saveFile;
+	const saveFile = window.openwizardai?.dialog?.saveFile;
 	if (!saveFile) {
 		// No native dialog (web renderer): fall back to a plain browser download.
 		if (svg) downloadSvg(svg, defaultName);
@@ -477,12 +477,12 @@ export async function saveImageElementToDisk(el: ExportableImage): Promise<SaveI
 
 	try {
 		if (svg && !wantsPng) {
-			await window.maestro.fs.writeFile(filePath, serializeSvg(svg));
+			await window.openwizardai.fs.writeFile(filePath, serializeSvg(svg));
 		} else if (svg) {
-			await window.maestro.fs.writeImageFile(filePath, await svgToPngDataUrl(svg));
+			await window.openwizardai.fs.writeImageFile(filePath, await svgToPngDataUrl(svg));
 		} else {
 			const bytes = wantsPng && sourceExt !== 'png' ? imgToPngDataUrl(img!) : sourceDataUrl!;
-			await window.maestro.fs.writeImageFile(filePath, bytes);
+			await window.openwizardai.fs.writeImageFile(filePath, bytes);
 		}
 	} catch (err) {
 		return { saved: false, error: err instanceof Error ? err.message : 'Failed to write the file' };
@@ -505,9 +505,9 @@ export async function saveImageDataUrlToDisk(
 	defaultName?: string
 ): Promise<SaveImageResult> {
 	const ext = dataUrlExtension(dataUrl);
-	const name = defaultName?.trim() || `maestro-image.${ext}`;
+	const name = defaultName?.trim() || `openwizardai-image.${ext}`;
 
-	const saveFile = window.maestro?.dialog?.saveFile;
+	const saveFile = window.openwizardai?.dialog?.saveFile;
 	if (!saveFile) {
 		downloadDataUrl(dataUrl, name);
 		return { saved: true };
@@ -523,7 +523,7 @@ export async function saveImageDataUrlToDisk(
 	try {
 		// Raster bytes go through writeImageFile - fs.writeFile is UTF-8 and
 		// would corrupt them.
-		const result = await window.maestro.fs.writeImageFile(filePath, dataUrl);
+		const result = await window.openwizardai.fs.writeImageFile(filePath, dataUrl);
 		if (!result?.success) return { saved: false, error: `Failed to write ${filePath}` };
 	} catch (err) {
 		return { saved: false, error: err instanceof Error ? err.message : 'Failed to write the file' };

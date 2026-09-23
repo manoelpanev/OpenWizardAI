@@ -185,7 +185,7 @@ export function themeShow(options: ShowOptions): void {
 		if (value === undefined) continue;
 		console.log(`  ${key}${' '.repeat(Math.max(1, 20 - key.length))}${value}`);
 	}
-	console.log('\nActivate with: maestro-cli set-theme custom');
+	console.log('\nActivate with: openwizardai-cli set-theme custom');
 }
 
 /** `theme export` - dump the custom theme as portable JSON (stdout or --file). */
@@ -272,7 +272,7 @@ export async function themeSet(assignments: string[], options: SetOptions): Prom
 	if (options.base !== undefined) {
 		if (!isValidThemeId(options.base) || options.base === 'custom' || !THEMES[options.base]) {
 			return failCommand(
-				`Unknown base theme "${options.base}". Run "maestro-cli set-theme --list" to see the options.`,
+				`Unknown base theme "${options.base}". Run "openwizardai-cli set-theme --list" to see the options.`,
 				options.json
 			);
 		}
@@ -329,7 +329,7 @@ export async function themeSet(assignments: string[], options: SetOptions): Prom
 		const summary = [basePart, setPart].filter(Boolean).join(', ') || 'updated';
 		console.log(formatSuccess(`Custom theme ${summary}.`));
 		if (!activate) {
-			console.log('  Activate with: maestro-cli set-theme custom (or pass --activate).');
+			console.log('  Activate with: openwizardai-cli set-theme custom (or pass --activate).');
 		}
 	}
 }

@@ -91,7 +91,13 @@ describe('isSecretEnvKey', () => {
 	});
 
 	it('leaves configuration keys visible', () => {
-		for (const key of ['ANTHROPIC_BASE_URL', 'NODE_ENV', 'PATH', 'MAESTRO_PROFILE', 'HTTP_PROXY']) {
+		for (const key of [
+			'ANTHROPIC_BASE_URL',
+			'NODE_ENV',
+			'PATH',
+			'OPENWIZARDAI_PROFILE',
+			'HTTP_PROXY',
+		]) {
 			expect(isSecretEnvKey(key), key).toBe(false);
 		}
 	});

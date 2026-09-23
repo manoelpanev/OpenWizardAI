@@ -20,7 +20,7 @@ import { formatElapsedTime } from '../../shared/formatters';
 import { PROMPT_IDS } from '../../shared/promptDefinitions';
 import { getCliPrompt, getCliTaskSelectionBlock } from './prompt-loader';
 import { getGitBranch, isGitRepo } from './git-utils';
-import { prepareMaestroSystemPromptCli } from './system-prompt';
+import { prepareOpenWizardAISystemPromptCli } from './system-prompt';
 import { findActiveModelHint, countTasksUnderActiveHint } from '../../shared/autorunModelHints';
 import { resolveTurnSettings, describeTurnSettings } from '../../shared/autorunTurnSettings';
 import { cheapTurnSettings } from '../../shared/modelTiers';
@@ -173,7 +173,7 @@ export async function* runPlaybook(
 					preExistingHalt.line + 1
 				}${
 					preExistingHalt.reason ? `: ${preExistingHalt.reason}` : ''
-				}. Remove the <!-- maestro:halt --> marker before re-running. If the playbook only means to DESCRIBE when a run should stop, wrap the marker in backticks or a code fence so it reads as an example.`,
+				}. Remove the <!-- openwizardai:halt --> marker before re-running. If the playbook only means to DESCRIBE when a run should stop, wrap the marker in backticks or a code fence so it reads as an example.`,
 				code: 'HALT_MARKER_PRESENT',
 			};
 			return;
@@ -233,14 +233,14 @@ export async function* runPlaybook(
 			return;
 		}
 
-		// Build the Maestro system prompt once per playbook run. It's identical
+		// Build the OpenWizardAI system prompt once per playbook run. It's identical
 		// for every task in the loop (session/branch/conductor don't change
 		// between tasks), so caching avoids repeating the prompt-load + git
 		// branch probe per task. Mirrors the desktop Auto Run path which calls
-		// `prepareMaestroSystemPrompt` per spawn but reads from a hot in-memory
+		// `prepareOpenWizardAISystemPrompt` per spawn but reads from a hot in-memory
 		// cache (`useAgentExecution.ts:226`). Failure is non-fatal: tasks run
 		// without the system prompt rather than aborting the playbook.
-		const playbookSystemPrompt = await prepareMaestroSystemPromptCli(session);
+		const playbookSystemPrompt = await prepareOpenWizardAISystemPromptCli(session);
 
 		// Track totals
 		let totalCompletedTasks = 0;
@@ -522,10 +522,10 @@ export async function* runPlaybook(
 						};
 					}
 
-					// Spawn agent with combined prompt + document. The Maestro
+					// Spawn agent with combined prompt + document. The OpenWizardAI
 					// system prompt is delivered as an out-of-band flag (or
 					// embedded in turn 1 for agents lacking native support) so
-					// the agent sees the same Maestro context as a desktop Auto
+					// the agent sees the same OpenWizardAI context as a desktop Auto
 					// Run task. Synopsis spawn below intentionally omits this
 					// - it's a resume into the same agent that already has the
 					// prompt and re-sending would waste tokens.
@@ -567,9 +567,9 @@ export async function* runPlaybook(
 						// reporting downstream of the spawn does not count it as hands-on work.
 						querySource: 'auto',
 						// Honor the agent's Claude token source for Auto Run task turns.
-						enableMaestroP: session.enableMaestroP,
-						maestroPMode: session.maestroPMode,
-						maestroPPath: session.maestroPPath,
+						enableOpenWizardAIP: session.enableOpenWizardAIP,
+						openwizardaiPMode: session.openwizardaiPMode,
+						openwizardaiPPath: session.openwizardaiPPath,
 					});
 
 					const elapsedMs = Date.now() - taskStartTime;
@@ -643,9 +643,9 @@ export async function* runPlaybook(
 								sshRemoteConfig: session.sessionSshRemoteConfig,
 								querySource: 'auto',
 								// Honor the token source for the Auto Run synopsis turn too.
-								enableMaestroP: session.enableMaestroP,
-								maestroPMode: session.maestroPMode,
-								maestroPPath: session.maestroPPath,
+								enableOpenWizardAIP: session.enableOpenWizardAIP,
+								openwizardaiPMode: session.openwizardaiPMode,
+								openwizardaiPPath: session.openwizardaiPPath,
 							}
 						);
 

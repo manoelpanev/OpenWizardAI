@@ -416,7 +416,7 @@ export function registerFilesystemHandlers(): void {
 					if (!result.success) {
 						// Missing remote files mirror the local ENOENT path below: return
 						// null instead of throwing so callers can handle absence cleanly
-						// without surfacing an unhandled IPC rejection. (MAESTRO-MG/MF)
+						// without surfacing an unhandled IPC rejection. (OPENWIZARDAI-MG/MF)
 						if (result.error?.startsWith('File not found:')) {
 							return null;
 						}
@@ -440,7 +440,7 @@ export function registerFilesystemHandlers(): void {
 					// recording would blow up the IPC payload and pin the whole file
 					// in the renderer heap for as long as the tab is open. Hand back a
 					// stream URL instead; the <audio>/<video> element range-requests
-					// the bytes over the maestro-media:// protocol. Remote files fall
+					// the bytes over the openwizardai-media:// protocol. Remote files fall
 					// through to the text read below and keep the existing binary
 					// download path - there is no SSH-backed range server.
 					//
@@ -466,7 +466,7 @@ export function registerFilesystemHandlers(): void {
 				// EISDIR happens when a caller passes a directory path (e.g., user
 				// clicks an entry that resolved to a folder). Treat like ENOENT -
 				// return null so the renderer can handle the absence cleanly instead
-				// of surfacing an unhandled IPC rejection. Fixes MAESTRO-JP.
+				// of surfacing an unhandled IPC rejection. Fixes OPENWIZARDAI-JP.
 				if (error?.code === 'EISDIR') {
 					return null;
 				}
@@ -534,7 +534,7 @@ export function registerFilesystemHandlers(): void {
 
 			let destPath = localDestPath;
 			if (!destPath) {
-				const tempDir = path.join(os.tmpdir(), 'maestro-remote-downloads');
+				const tempDir = path.join(os.tmpdir(), 'openwizardai-remote-downloads');
 				await fs.mkdir(tempDir, { recursive: true });
 				destPath = path.join(tempDir, path.basename(remotePath));
 			}
@@ -557,7 +557,7 @@ export function registerFilesystemHandlers(): void {
 				if (!result.success) {
 					// Missing remote paths return null instead of throwing (mirrors the
 					// local ENOENT handling below and fs:readFile) so callers can handle
-					// absence without an unhandled IPC rejection. (MAESTRO-MH/ME)
+					// absence without an unhandled IPC rejection. (OPENWIZARDAI-MH/ME)
 					if (result.error?.startsWith('Path not found:')) {
 						return null;
 					}
@@ -591,7 +591,7 @@ export function registerFilesystemHandlers(): void {
 			// and a missing target is an expected, benign condition - not an error.
 			// ENOTDIR covers links that treat a file as a directory (e.g. `[[file.md/sub]]`).
 			// Mirrors fs:readFile so callers avoid an unhandled IPC rejection reaching
-			// Sentry. (MAESTRO-MH/ME)
+			// Sentry. (OPENWIZARDAI-MH/ME)
 			if (error?.code === 'ENOENT' || error?.code === 'ENOTDIR') {
 				return null;
 			}

@@ -39,7 +39,7 @@ describe('CueModalHeader', () => {
 	});
 
 	// The graph tab kept its 'pipeline' id when its label became "Pipeline
-	// Graph", so existing deep links (`maestro-cli open cue --tab pipeline`,
+	// Graph", so existing deep links (`openwizardai-cli open cue --tab pipeline`,
 	// the YAML editor's nav button) still land on the canvas.
 	it('clicking Pipeline Graph tab calls setActiveTab("pipeline")', () => {
 		const props = makeProps();
@@ -62,7 +62,7 @@ describe('CueModalHeader', () => {
 		expect(props.setActiveTab).toHaveBeenCalledWith('scheduled');
 	});
 
-	// `maestro-cli open cue --tab <id>` validates against the shared registry,
+	// `openwizardai-cli open cue --tab <id>` validates against the shared registry,
 	// so a tab added here without a registry entry would be un-deep-linkable
 	// (and a stale registry entry would resolve to a tab that no longer exists).
 	it('renders exactly the tabs listed in the shared surface registry, in order', () => {
@@ -110,7 +110,7 @@ describe('CueModalHeader', () => {
 	it('help button fires onOpenHelp', () => {
 		const props = makeProps();
 		render(<CueModalHeader {...props} />);
-		const help = screen.getByTitle('About OpenWizzard Cue');
+		const help = screen.getByTitle('About OpenWizardAI Cue');
 		fireEvent.click(help);
 		expect(props.onOpenHelp).toHaveBeenCalled();
 	});

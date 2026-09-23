@@ -4,7 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import * as Sentry from '@sentry/electron/renderer';
 import { shouldDropSentryEvent } from '../shared/sentryFilters';
-import MaestroConsole from './App';
+import OpenWizardAIConsole from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LayerStackProvider } from './contexts/LayerStackContext';
 // ToastProvider removed - notification state now managed by notificationStore (Zustand)
@@ -23,7 +23,7 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const initSentry = async () => {
 	try {
 		const crashReportingEnabled =
-			(await window.maestro?.settings?.get('crashReportingEnabled')) ?? true;
+			(await window.openwizardai?.settings?.get('crashReportingEnabled')) ?? true;
 		// __CRASH_REPORTING_BUILD__ is false in any build from source. The main process
 		// holds the DSN and the renderer reports through it over Classic IPC, so an
 		// un-provisioned build already has nowhere to send events - this check just makes
@@ -111,7 +111,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
 		<ErrorBoundary>
 			<LayerStackProvider>
 				<WizardProvider>
-					<MaestroConsole />
+					<OpenWizardAIConsole />
 				</WizardProvider>
 			</LayerStackProvider>
 		</ErrorBoundary>

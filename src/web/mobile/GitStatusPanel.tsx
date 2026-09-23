@@ -1,5 +1,5 @@
 /**
- * GitStatusPanel component for Maestro mobile web interface
+ * GitStatusPanel component for OpenWizardAI mobile web interface
  *
  * Displays git status for the active session including branch info,
  * ahead/behind counts, and categorized file lists (staged, modified, untracked).

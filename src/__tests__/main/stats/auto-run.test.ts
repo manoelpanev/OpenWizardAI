@@ -50,7 +50,7 @@ vi.mock('better-sqlite3', () => {
 });
 
 // Mock electron's app module with trackable userData path
-const mockUserDataPath = path.join(os.tmpdir(), 'maestro-test-stats-db');
+const mockUserDataPath = path.join(os.tmpdir(), 'openwizardai-test-stats-db');
 vi.mock('electron', () => ({
 	app: {
 		getPath: vi.fn((name: string) => {
@@ -294,9 +294,9 @@ describe('Auto Run sessions and tasks recorded correctly', () => {
 
 			const startTime = Date.now();
 			const sessionId = db.insertAutoRunSession({
-				sessionId: 'maestro-session-123',
+				sessionId: 'openwizardai-session-123',
 				agentType: 'claude-code',
-				documentPath: '.maestro/playbooks/PHASE-1.md',
+				documentPath: '.openwizardai/playbooks/PHASE-1.md',
 				startTime,
 				duration: 0, // Duration is 0 at start
 				tasksTotal: 10,
@@ -312,9 +312,9 @@ describe('Auto Run sessions and tasks recorded correctly', () => {
 			const lastCall = runCalls[runCalls.length - 1];
 
 			// INSERT parameters: id, session_id, agent_type, document_path, start_time, duration, tasks_total, tasks_completed, project_path
-			expect(lastCall[1]).toBe('maestro-session-123'); // session_id
+			expect(lastCall[1]).toBe('openwizardai-session-123'); // session_id
 			expect(lastCall[2]).toBe('claude-code'); // agent_type
-			expect(lastCall[3]).toBe('.maestro/playbooks/PHASE-1.md'); // document_path
+			expect(lastCall[3]).toBe('.openwizardai/playbooks/PHASE-1.md'); // document_path
 			expect(lastCall[4]).toBe(startTime); // start_time
 			expect(lastCall[5]).toBe(0); // duration (0 at start)
 			expect(lastCall[6]).toBe(10); // tasks_total
@@ -434,7 +434,7 @@ describe('Auto Run sessions and tasks recorded correctly', () => {
 			const taskStartTime = Date.now() - 5000;
 			const taskId = db.insertAutoRunTask({
 				autoRunSessionId: 'auto-run-session-1',
-				sessionId: 'maestro-session-1',
+				sessionId: 'openwizardai-session-1',
 				agentType: 'claude-code',
 				taskIndex: 0,
 				taskContent: 'Implement user authentication module',
@@ -450,7 +450,7 @@ describe('Auto Run sessions and tasks recorded correctly', () => {
 
 			// INSERT parameters: id, auto_run_session_id, session_id, agent_type, task_index, task_content, start_time, duration, success
 			expect(lastCall[1]).toBe('auto-run-session-1'); // auto_run_session_id
-			expect(lastCall[2]).toBe('maestro-session-1'); // session_id
+			expect(lastCall[2]).toBe('openwizardai-session-1'); // session_id
 			expect(lastCall[3]).toBe('claude-code'); // agent_type
 			expect(lastCall[4]).toBe(0); // task_index
 			expect(lastCall[5]).toBe('Implement user authentication module'); // task_content
@@ -1090,7 +1090,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 			const autoRunSessionId = 'parent-session-abc-123';
 			db.insertAutoRunTask({
 				autoRunSessionId,
-				sessionId: 'maestro-session-1',
+				sessionId: 'openwizardai-session-1',
 				agentType: 'claude-code',
 				taskIndex: 0,
 				taskContent: 'Test task',
@@ -1224,7 +1224,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 			for (let i = 0; i < 5; i++) {
 				db.insertAutoRunTask({
 					autoRunSessionId: parentSessionId,
-					sessionId: 'maestro-session',
+					sessionId: 'openwizardai-session',
 					agentType: 'claude-code',
 					taskIndex: i,
 					taskContent: `Task ${i + 1}`,
@@ -1254,7 +1254,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 			// Insert tasks for session A
 			db.insertAutoRunTask({
 				autoRunSessionId: 'session-A',
-				sessionId: 'maestro-1',
+				sessionId: 'openwizardai-1',
 				agentType: 'claude-code',
 				taskIndex: 0,
 				taskContent: 'Task A1',
@@ -1266,7 +1266,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 			// Insert tasks for session B
 			db.insertAutoRunTask({
 				autoRunSessionId: 'session-B',
-				sessionId: 'maestro-2',
+				sessionId: 'openwizardai-2',
 				agentType: 'opencode',
 				taskIndex: 0,
 				taskContent: 'Task B1',
@@ -1278,7 +1278,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 			// Insert another task for session A
 			db.insertAutoRunTask({
 				autoRunSessionId: 'session-A',
-				sessionId: 'maestro-1',
+				sessionId: 'openwizardai-1',
 				agentType: 'claude-code',
 				taskIndex: 1,
 				taskContent: 'Task A2',
@@ -1306,7 +1306,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 
 			// Insert a session and capture the generated ID
 			const generatedSessionId = db.insertAutoRunSession({
-				sessionId: 'maestro-session',
+				sessionId: 'openwizardai-session',
 				agentType: 'claude-code',
 				documentPath: 'DOC.md',
 				startTime: Date.now(),
@@ -1322,7 +1322,7 @@ describe('Foreign key relationship between tasks and sessions', () => {
 			// Use this generated ID as the foreign key for tasks
 			db.insertAutoRunTask({
 				autoRunSessionId: generatedSessionId,
-				sessionId: 'maestro-session',
+				sessionId: 'openwizardai-session',
 				agentType: 'claude-code',
 				taskIndex: 0,
 				taskContent: 'First task',

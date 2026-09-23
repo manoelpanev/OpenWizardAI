@@ -77,7 +77,7 @@ vi.mock('lucide-react', () => {
 });
 
 // Global mock for shortcutFormatter to ensure platform-independent test output.
-// Without this, shortcutFormatter detects the platform via window.maestro.platform, producing
+// Without this, shortcutFormatter detects the platform via window.openwizardai.platform, producing
 // different output on macOS vs Linux CI. This mock always uses the non-Mac format (Ctrl+, Shift+, etc.)
 // so tests are deterministic regardless of where they run. Individual test files can override
 // this with their own vi.mock() if they need custom behavior.
@@ -206,8 +206,8 @@ if (typeof window !== 'undefined') {
 	Element.prototype.scrollIntoView = vi.fn();
 }
 
-// Mock window.maestro API (Electron IPC bridge)
-const mockMaestro = {
+// Mock window.openwizardai API (Electron IPC bridge)
+const mockOpenWizardAI = {
 	settings: {
 		get: vi.fn().mockResolvedValue(undefined),
 		set: vi.fn().mockResolvedValue(undefined),
@@ -244,7 +244,7 @@ const mockMaestro = {
 		composePrompt: vi.fn().mockResolvedValue({ prompt: 'composed feedback prompt' }),
 		getConversationPrompt: vi.fn().mockResolvedValue({
 			prompt: 'system prompt',
-			environment: '- Maestro version: test',
+			environment: '- OpenWizardAI version: test',
 			cwd: '/home/test',
 		}),
 		submitConversation: vi.fn().mockResolvedValue({ success: true }),
@@ -345,8 +345,8 @@ const mockMaestro = {
 			supportsContextMerge: false,
 			supportsContextExport: false,
 		}),
-		getMaestroPDetectedPath: vi.fn().mockResolvedValue(null),
-		getRemoteMaestroPAvailable: vi.fn().mockResolvedValue(null),
+		getOpenWizardAIPDetectedPath: vi.fn().mockResolvedValue(null),
+		getRemoteOpenWizardAIPAvailable: vi.fn().mockResolvedValue(null),
 		getClaudeUsageSnapshots: vi.fn().mockResolvedValue({}),
 		getClaudeUsageAccountKeys: vi.fn().mockResolvedValue([]),
 		getCodexUsageSnapshots: vi.fn().mockResolvedValue({}),
@@ -645,10 +645,10 @@ const mockMaestro = {
 	platform: 'darwin',
 };
 
-// Only mock window.maestro if window exists (jsdom environment)
+// Only mock window.openwizardai if window exists (jsdom environment)
 if (typeof window !== 'undefined') {
-	Object.defineProperty(window, 'maestro', {
+	Object.defineProperty(window, 'openwizardai', {
 		writable: true,
-		value: mockMaestro,
+		value: mockOpenWizardAI,
 	});
 }

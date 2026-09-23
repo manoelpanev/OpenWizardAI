@@ -76,9 +76,9 @@ export interface SessionLifecycleReturn {
 			syncHistory?: boolean;
 			shareHistoryToProjectDir?: boolean;
 		},
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic',
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic',
 		retryOnAvailabilityErrors?: boolean,
 		retryOnTokenExhaustion?: boolean,
 		customEnvVarsDisabled?: Record<string, string>,
@@ -150,9 +150,9 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 				syncHistory?: boolean;
 				shareHistoryToProjectDir?: boolean;
 			},
-			enableMaestroP?: boolean,
-			maestroPPath?: string,
-			maestroPMode?: 'interactive' | 'dynamic',
+			enableOpenWizardAIP?: boolean,
+			openwizardaiPPath?: string,
+			openwizardaiPMode?: 'interactive' | 'dynamic',
 			retryOnAvailabilityErrors?: boolean,
 			retryOnTokenExhaustion?: boolean,
 			customEnvVarsDisabled?: Record<string, string>,
@@ -189,11 +189,11 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 						customModel,
 						customContextWindow,
 						sessionSshRemoteConfig,
-						enableMaestroP,
-						maestroPPath,
-						maestroPMode,
+						enableOpenWizardAIP,
+						openwizardaiPPath,
+						openwizardaiPMode,
 						// Agent Resilience: resilience is provider-agnostic, so it is NOT
-						// cleared on a provider switch below (unlike maestroP fields).
+						// cleared on a provider switch below (unlike openwizardaiP fields).
 						retryOnAvailabilityErrors,
 						retryOnTokenExhaustion,
 					};
@@ -216,9 +216,9 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 							customEnvVarsDisabled: undefined,
 							customModel: undefined,
 							customContextWindow: undefined,
-							enableMaestroP: undefined,
-							maestroPPath: undefined,
-							maestroPMode: undefined,
+							enableOpenWizardAIP: undefined,
+							openwizardaiPPath: undefined,
+							openwizardaiPMode: undefined,
 						});
 
 						// Any turn already in flight keeps running under the provider it was
@@ -279,7 +279,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 					const tab = s.aiTabs.find((t) => t.id === renameTabId);
 					const oldName = tab?.name;
 
-					window.maestro.logger.log(
+					window.openwizardai.logger.log(
 						'info',
 						`Tab renamed: "${oldName || '(auto)'}" → "${newName || '(cleared)'}"`,
 						'TabNaming',
@@ -297,7 +297,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 						// Use projectRoot (not cwd) for consistent session storage access
 						const agentId = s.toolType || 'claude-code';
 						if (agentId === 'claude-code') {
-							window.maestro.claude
+							window.openwizardai.claude
 								.updateSessionName(s.projectRoot, tab.agentSessionId, newName || '')
 								.catch((err) => {
 									captureException(err, {
@@ -309,7 +309,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 									});
 								});
 						} else {
-							window.maestro.agentSessions
+							window.openwizardai.agentSessions
 								.setSessionName(agentId, s.projectRoot, tab.agentSessionId, newName || null)
 								.catch((err) => {
 									captureException(err, {
@@ -323,7 +323,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 								});
 						}
 						// Also update past history entries with this agentSessionId
-						window.maestro.history
+						window.openwizardai.history
 							.updateSessionName(tab.agentSessionId, newName || '')
 							.catch((err) => {
 								captureException(err, {
@@ -334,7 +334,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 								});
 							});
 					} else {
-						window.maestro.logger.log(
+						window.openwizardai.logger.log(
 							'info',
 							'Tab renamed (no agentSessionId, skipping persistence)',
 							'TabNaming',
@@ -387,11 +387,11 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 			const id = session.id;
 
 			// Record session closure for Usage Dashboard (before cleanup)
-			window.maestro.stats.recordSessionClosed(id, Date.now());
+			window.openwizardai.stats.recordSessionClosed(id, Date.now());
 
 			// Kill all processes for this session (AI + legacy terminal + terminal tabs)
 			try {
-				await window.maestro.process.kill(`${id}-ai`);
+				await window.openwizardai.process.kill(`${id}-ai`);
 			} catch (error) {
 				captureException(error, {
 					extra: { sessionId: id, operation: 'kill-ai' },
@@ -399,7 +399,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 			}
 
 			try {
-				await window.maestro.process.kill(`${id}-terminal`);
+				await window.openwizardai.process.kill(`${id}-terminal`);
 			} catch (error) {
 				captureException(error, {
 					extra: { sessionId: id, operation: 'kill-terminal' },
@@ -409,7 +409,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 			// Kill terminal tab PTYs - each tab has its own PTY with ID {sessionId}-terminal-{tabId}
 			for (const tab of session.terminalTabs || []) {
 				try {
-					await window.maestro.process.kill(getTerminalSessionId(id, tab.id));
+					await window.openwizardai.process.kill(getTerminalSessionId(id, tab.id));
 				} catch (error) {
 					captureException(error, {
 						extra: { sessionId: id, tabId: tab.id, operation: 'kill-terminal-tab' },
@@ -419,7 +419,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 
 			// Delete associated playbooks
 			try {
-				await window.maestro.playbooks.deleteAll(id);
+				await window.openwizardai.playbooks.deleteAll(id);
 			} catch (error) {
 				captureException(error, {
 					extra: { sessionId: id, operation: 'delete-playbooks' },
@@ -434,7 +434,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 			// Optionally erase the working directory (move to trash)
 			if (eraseWorkingDirectory && session.cwd) {
 				try {
-					await window.maestro.shell.trashItem(session.cwd);
+					await window.openwizardai.shell.trashItem(session.cwd);
 				} catch (error) {
 					captureException(error, {
 						extra: { sessionId: id, cwd: session.cwd, operation: 'trash-working-directory' },
@@ -528,7 +528,7 @@ export function useSessionLifecycle(deps: SessionLifecycleDeps): SessionLifecycl
 	// back, so a registry we never read is never persisted.
 	useEffect(() => {
 		if (initialLoadComplete && groupsLoaded) {
-			window.maestro.groups.setAll(groups);
+			window.openwizardai.groups.setAll(groups);
 		}
 	}, [groups, initialLoadComplete, groupsLoaded]);
 

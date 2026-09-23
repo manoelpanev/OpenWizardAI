@@ -1,6 +1,6 @@
-// Refresh auto-run command - refresh Auto Run documents in the Maestro desktop app
+// Refresh auto-run command - refresh Auto Run documents in the OpenWizardAI desktop app
 
-import { withMaestroClient, resolveTargetSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveTargetSessionId } from '../services/openwizardai-client';
 import { resolveBackgroundFlag } from '../../shared/focusPlacement';
 
 interface RefreshAutoRunOptions {
@@ -18,7 +18,7 @@ export async function refreshAutoRun(options: RefreshAutoRunOptions): Promise<vo
 	const background = resolveBackgroundFlag(options, 'refresh-auto-run');
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{ type: 'refresh_auto_run_docs', sessionId, background },
 				'refresh_auto_run_docs_result'

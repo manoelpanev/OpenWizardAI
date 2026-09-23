@@ -30,7 +30,7 @@ export interface AppConfirmModalsProps {
 	activeBatchSessionIds?: string[];
 	/** Active terminal tasks (e.g., "rc: npm test") for quit warning */
 	activeTerminalTasks?: string[];
-	/** Number of in-flight Maestro Cue runs */
+	/** Number of in-flight OpenWizardAI Cue runs */
 	activeCueRunCount?: number;
 	/** Number of active (non-idle) group chats */
 	activeGroupChatCount?: number;

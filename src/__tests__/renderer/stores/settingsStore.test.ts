@@ -7,7 +7,7 @@ import {
 } from '../../../renderer/stores/settingsStore';
 import type { SettingsStoreState } from '../../../renderer/stores/settingsStore';
 import { SETTINGS_METADATA } from '../../../shared/settingsMetadata';
-import { MAESTRO_FONT_STACK } from '../../../shared/fontStack';
+import { OPENWIZARDAI_FONT_STACK } from '../../../shared/fontStack';
 import { DEFAULT_CUE_HISTORY_RETENTION_DAYS } from '../../../shared/cue/retention';
 import { useUIStore } from '../../../renderer/stores/uiStore';
 import { useNotificationStore } from '../../../renderer/stores/notificationStore';
@@ -89,7 +89,7 @@ function resetStore() {
 		shellArgs: '',
 		shellEnvVars: {},
 		ghPath: '',
-		fontFamily: MAESTRO_FONT_STACK,
+		fontFamily: OPENWIZARDAI_FONT_STACK,
 		fontSize: 14,
 		activeThemeId: 'dracula',
 		customThemeColors: DEFAULT_CUSTOM_THEME_COLORS,
@@ -113,7 +113,7 @@ function resetStore() {
 		audioFeedbackCommand: 'say',
 		toastDuration: 20,
 		idleNotificationEnabled: false,
-		idleNotificationCommand: 'say Maestro is idle',
+		idleNotificationCommand: 'say OpenWizardAI is idle',
 		checkForUpdatesOnStartup: true,
 		enableBetaUpdates: false,
 		crashReportingEnabled: true,
@@ -165,8 +165,8 @@ describe('settingsStore', () => {
 		resetStore();
 
 		// Add power mock (not in global setup)
-		if (!window.maestro.power) {
-			(window.maestro as any).power = {
+		if (!window.openwizardai.power) {
+			(window.openwizardai as any).power = {
 				setEnabled: vi.fn().mockResolvedValue(undefined),
 				setKeepDisplayAwake: vi.fn().mockResolvedValue(undefined),
 			};
@@ -174,7 +174,7 @@ describe('settingsStore', () => {
 
 		// Cue stats mock (not in global setup). loadAllSettings calls this for the
 		// one-time cueTimeMs backfill; default to "no retained history".
-		(window.maestro as any).cueStats = {
+		(window.openwizardai as any).cueStats = {
 			getHistoricalConductorCredit: vi.fn().mockResolvedValue(0),
 		};
 
@@ -201,7 +201,7 @@ describe('settingsStore', () => {
 			expect(state.shellEnvVars).toEqual({});
 			expect(state.shellEnvVarsDisabled).toEqual({});
 			expect(state.ghPath).toBe('');
-			expect(state.fontFamily).toBe(MAESTRO_FONT_STACK);
+			expect(state.fontFamily).toBe(OPENWIZARDAI_FONT_STACK);
 			expect(state.fontSize).toBe(14);
 			expect(state.activeThemeId).toBe('dracula');
 			expect(state.customThemeColors).toEqual(DEFAULT_CUSTOM_THEME_COLORS);
@@ -281,13 +281,13 @@ describe('settingsStore', () => {
 			it('setDefaultShell updates state and persists', () => {
 				useSettingsStore.getState().setDefaultShell('bash');
 				expect(useSettingsStore.getState().defaultShell).toBe('bash');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('defaultShell', 'bash');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('defaultShell', 'bash');
 			});
 
 			it('setCustomShellPath updates state and persists', () => {
 				useSettingsStore.getState().setCustomShellPath('/usr/local/bin/fish');
 				expect(useSettingsStore.getState().customShellPath).toBe('/usr/local/bin/fish');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'customShellPath',
 					'/usr/local/bin/fish'
 				);
@@ -296,21 +296,24 @@ describe('settingsStore', () => {
 			it('setShellArgs updates state and persists', () => {
 				useSettingsStore.getState().setShellArgs('--login');
 				expect(useSettingsStore.getState().shellArgs).toBe('--login');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('shellArgs', '--login');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('shellArgs', '--login');
 			});
 
 			it('setShellEnvVars updates state and persists', () => {
 				const envVars = { NODE_ENV: 'development', PORT: '3000' };
 				useSettingsStore.getState().setShellEnvVars(envVars);
 				expect(useSettingsStore.getState().shellEnvVars).toEqual(envVars);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('shellEnvVars', envVars);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('shellEnvVars', envVars);
 			});
 
 			it('setShellEnvVarsDisabled updates state and persists', () => {
 				const parked = { HTTP_PROXY: 'http://proxy:8080' };
 				useSettingsStore.getState().setShellEnvVarsDisabled(parked);
 				expect(useSettingsStore.getState().shellEnvVarsDisabled).toEqual(parked);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('shellEnvVarsDisabled', parked);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'shellEnvVarsDisabled',
+					parked
+				);
 			});
 
 			it('keeps parked variables out of the effective shell env', () => {
@@ -324,7 +327,10 @@ describe('settingsStore', () => {
 			it('setGhPath updates state and persists', () => {
 				useSettingsStore.getState().setGhPath('/usr/local/bin/gh');
 				expect(useSettingsStore.getState().ghPath).toBe('/usr/local/bin/gh');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('ghPath', '/usr/local/bin/gh');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'ghPath',
+					'/usr/local/bin/gh'
+				);
 			});
 		});
 
@@ -332,32 +338,32 @@ describe('settingsStore', () => {
 			it('setFontFamily updates state and persists', () => {
 				useSettingsStore.getState().setFontFamily('Fira Code');
 				expect(useSettingsStore.getState().fontFamily).toBe('Fira Code');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('fontFamily', 'Fira Code');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontFamily', 'Fira Code');
 			});
 
 			it('setFontSize updates state and persists', () => {
 				useSettingsStore.getState().setFontSize(18);
 				expect(useSettingsStore.getState().fontSize).toBe(18);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('fontSize', 18);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontSize', 18);
 			});
 
 			it('setActiveThemeId updates state and persists', () => {
 				useSettingsStore.getState().setActiveThemeId('monokai' as any);
 				expect(useSettingsStore.getState().activeThemeId).toBe('monokai');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('activeThemeId', 'monokai');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('activeThemeId', 'monokai');
 			});
 
 			it('setCustomThemeColors updates state and persists', () => {
 				const colors = { ...DEFAULT_CUSTOM_THEME_COLORS, background: '#111111' };
 				useSettingsStore.getState().setCustomThemeColors(colors);
 				expect(useSettingsStore.getState().customThemeColors).toEqual(colors);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('customThemeColors', colors);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('customThemeColors', colors);
 			});
 
 			it('setCustomThemeBaseId updates state and persists', () => {
 				useSettingsStore.getState().setCustomThemeBaseId('one-dark-pro' as any);
 				expect(useSettingsStore.getState().customThemeBaseId).toBe('one-dark-pro');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'customThemeBaseId',
 					'one-dark-pro'
 				);
@@ -368,19 +374,22 @@ describe('settingsStore', () => {
 			it('setEnterToSendAI updates state and persists', () => {
 				useSettingsStore.getState().setEnterToSendAI(true);
 				expect(useSettingsStore.getState().enterToSendAI).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('enterToSendAI', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('enterToSendAI', true);
 			});
 
 			it('setDefaultSaveToHistory updates state and persists', () => {
 				useSettingsStore.getState().setDefaultSaveToHistory(false);
 				expect(useSettingsStore.getState().defaultSaveToHistory).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('defaultSaveToHistory', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'defaultSaveToHistory',
+					false
+				);
 			});
 
 			it('setDefaultShowThinking updates state and persists', () => {
 				useSettingsStore.getState().setDefaultShowThinking('on');
 				expect(useSettingsStore.getState().defaultShowThinking).toBe('on');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('defaultShowThinking', 'on');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('defaultShowThinking', 'on');
 			});
 		});
 
@@ -388,7 +397,7 @@ describe('settingsStore', () => {
 			it('setRightPanelWidth updates state and persists', () => {
 				useSettingsStore.getState().setRightPanelWidth(500);
 				expect(useSettingsStore.getState().rightPanelWidth).toBe(500);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('rightPanelWidth', 500);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('rightPanelWidth', 500);
 			});
 		});
 
@@ -396,25 +405,28 @@ describe('settingsStore', () => {
 			it('setMarkdownEditMode updates state and persists', () => {
 				useSettingsStore.getState().setMarkdownEditMode(true);
 				expect(useSettingsStore.getState().markdownEditMode).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('markdownEditMode', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('markdownEditMode', true);
 			});
 
 			it('setChatRawTextMode updates state and persists', () => {
 				useSettingsStore.getState().setChatRawTextMode(true);
 				expect(useSettingsStore.getState().chatRawTextMode).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('chatRawTextMode', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('chatRawTextMode', true);
 			});
 
 			it('setShowHiddenFiles updates state and persists', () => {
 				useSettingsStore.getState().setShowHiddenFiles(false);
 				expect(useSettingsStore.getState().showHiddenFiles).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('showHiddenFiles', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('showHiddenFiles', false);
 			});
 
 			it('setFileExplorerIconTheme updates state and persists', () => {
 				useSettingsStore.getState().setFileExplorerIconTheme('rich');
 				expect(useSettingsStore.getState().fileExplorerIconTheme).toBe('rich');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('fileExplorerIconTheme', 'rich');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'fileExplorerIconTheme',
+					'rich'
+				);
 			});
 
 			describe('setToastWidth', () => {
@@ -425,7 +437,7 @@ describe('settingsStore', () => {
 				it('updates state and persists', () => {
 					useSettingsStore.getState().setToastWidth('large');
 					expect(useSettingsStore.getState().toastWidth).toBe('large');
-					expect(window.maestro.settings.set).toHaveBeenCalledWith('toastWidth', 'large');
+					expect(window.openwizardai.settings.set).toHaveBeenCalledWith('toastWidth', 'large');
 				});
 
 				it('fires a preview toast naming the size that was picked', () => {
@@ -467,7 +479,7 @@ describe('settingsStore', () => {
 			it('setMaxOutputLines updates state and persists', () => {
 				useSettingsStore.getState().setMaxOutputLines(50);
 				expect(useSettingsStore.getState().maxOutputLines).toBe(50);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('maxOutputLines', 50);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('maxOutputLines', 50);
 			});
 		});
 
@@ -475,25 +487,31 @@ describe('settingsStore', () => {
 			it('setOsNotificationsEnabled updates state and persists', () => {
 				useSettingsStore.getState().setOsNotificationsEnabled(false);
 				expect(useSettingsStore.getState().osNotificationsEnabled).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('osNotificationsEnabled', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'osNotificationsEnabled',
+					false
+				);
 			});
 
 			it('setAudioFeedbackEnabled updates state and persists', () => {
 				useSettingsStore.getState().setAudioFeedbackEnabled(true);
 				expect(useSettingsStore.getState().audioFeedbackEnabled).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('audioFeedbackEnabled', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('audioFeedbackEnabled', true);
 			});
 
 			it('setAudioFeedbackCommand updates state and persists', () => {
 				useSettingsStore.getState().setAudioFeedbackCommand('afplay');
 				expect(useSettingsStore.getState().audioFeedbackCommand).toBe('afplay');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('audioFeedbackCommand', 'afplay');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'audioFeedbackCommand',
+					'afplay'
+				);
 			});
 
 			it('setToastDuration updates state and persists', () => {
 				useSettingsStore.getState().setToastDuration(10);
 				expect(useSettingsStore.getState().toastDuration).toBe(10);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('toastDuration', 10);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('toastDuration', 10);
 			});
 		});
 
@@ -501,19 +519,25 @@ describe('settingsStore', () => {
 			it('setCheckForUpdatesOnStartup updates state and persists', () => {
 				useSettingsStore.getState().setCheckForUpdatesOnStartup(false);
 				expect(useSettingsStore.getState().checkForUpdatesOnStartup).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('checkForUpdatesOnStartup', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'checkForUpdatesOnStartup',
+					false
+				);
 			});
 
 			it('setEnableBetaUpdates updates state and persists', () => {
 				useSettingsStore.getState().setEnableBetaUpdates(true);
 				expect(useSettingsStore.getState().enableBetaUpdates).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('enableBetaUpdates', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('enableBetaUpdates', true);
 			});
 
 			it('setCrashReportingEnabled updates state and persists', () => {
 				useSettingsStore.getState().setCrashReportingEnabled(false);
 				expect(useSettingsStore.getState().crashReportingEnabled).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('crashReportingEnabled', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'crashReportingEnabled',
+					false
+				);
 			});
 		});
 
@@ -522,7 +546,10 @@ describe('settingsStore', () => {
 				const levels = ['error', 'warn'];
 				useSettingsStore.getState().setLogViewerSelectedLevels(levels);
 				expect(useSettingsStore.getState().logViewerSelectedLevels).toEqual(levels);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('logViewerSelectedLevels', levels);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'logViewerSelectedLevels',
+					levels
+				);
 			});
 		});
 
@@ -534,7 +561,7 @@ describe('settingsStore', () => {
 				};
 				useSettingsStore.getState().setShortcuts(newShortcuts);
 				expect(useSettingsStore.getState().shortcuts).toEqual(newShortcuts);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('shortcuts', newShortcuts);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('shortcuts', newShortcuts);
 			});
 
 			it('setTabShortcuts updates state and persists', () => {
@@ -544,7 +571,10 @@ describe('settingsStore', () => {
 				};
 				useSettingsStore.getState().setTabShortcuts(newTabShortcuts);
 				expect(useSettingsStore.getState().tabShortcuts).toEqual(newTabShortcuts);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('tabShortcuts', newTabShortcuts);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'tabShortcuts',
+					newTabShortcuts
+				);
 			});
 
 			it('setCustomAICommands updates state and persists', () => {
@@ -560,7 +590,7 @@ describe('settingsStore', () => {
 				];
 				useSettingsStore.getState().setCustomAICommands(commands);
 				expect(useSettingsStore.getState().customAICommands).toEqual(commands);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('customAICommands', commands);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('customAICommands', commands);
 			});
 		});
 
@@ -568,37 +598,46 @@ describe('settingsStore', () => {
 			it('setUngroupedCollapsed updates state and persists', () => {
 				useSettingsStore.getState().setUngroupedCollapsed(true);
 				expect(useSettingsStore.getState().ungroupedCollapsed).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('ungroupedCollapsed', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('ungroupedCollapsed', true);
 			});
 
 			it('setGroupChatsExpanded updates state and persists', () => {
 				useSettingsStore.getState().setGroupChatsExpanded(false);
 				expect(useSettingsStore.getState().groupChatsExpanded).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('groupChatsExpanded', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('groupChatsExpanded', false);
 			});
 
 			it('setGroupChatSortAlphabetical updates state and persists', () => {
 				useSettingsStore.getState().setGroupChatSortAlphabetical(true);
 				expect(useSettingsStore.getState().groupChatSortAlphabetical).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('groupChatSortAlphabetical', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'groupChatSortAlphabetical',
+					true
+				);
 			});
 
 			it('setStarredSessionsCollapsed updates state and persists', () => {
 				useSettingsStore.getState().setStarredSessionsCollapsed(true);
 				expect(useSettingsStore.getState().starredSessionsCollapsed).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('starredSessionsCollapsed', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'starredSessionsCollapsed',
+					true
+				);
 			});
 
 			it('setTourCompleted updates state and persists', () => {
 				useSettingsStore.getState().setTourCompleted(true);
 				expect(useSettingsStore.getState().tourCompleted).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('tourCompleted', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('tourCompleted', true);
 			});
 
 			it('setFirstAutoRunCompleted updates state and persists', () => {
 				useSettingsStore.getState().setFirstAutoRunCompleted(true);
 				expect(useSettingsStore.getState().firstAutoRunCompleted).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('firstAutoRunCompleted', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'firstAutoRunCompleted',
+					true
+				);
 			});
 		});
 
@@ -606,7 +645,10 @@ describe('settingsStore', () => {
 			it('setWebInterfaceUseCustomPort updates state and persists', () => {
 				useSettingsStore.getState().setWebInterfaceUseCustomPort(true);
 				expect(useSettingsStore.getState().webInterfaceUseCustomPort).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('webInterfaceUseCustomPort', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'webInterfaceUseCustomPort',
+					true
+				);
 			});
 		});
 
@@ -614,7 +656,7 @@ describe('settingsStore', () => {
 			it('setColorBlindMode updates state and persists', () => {
 				useSettingsStore.getState().setColorBlindMode(true);
 				expect(useSettingsStore.getState().colorBlindMode).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('colorBlindMode', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('colorBlindMode', true);
 			});
 		});
 
@@ -622,7 +664,7 @@ describe('settingsStore', () => {
 			it('setDocumentGraphShowExternalLinks updates state and persists', () => {
 				useSettingsStore.getState().setDocumentGraphShowExternalLinks(true);
 				expect(useSettingsStore.getState().documentGraphShowExternalLinks).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'documentGraphShowExternalLinks',
 					true
 				);
@@ -631,7 +673,7 @@ describe('settingsStore', () => {
 			it('setDocumentGraphLayoutType updates state and persists', () => {
 				useSettingsStore.getState().setDocumentGraphLayoutType('radial');
 				expect(useSettingsStore.getState().documentGraphLayoutType).toBe('radial');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'documentGraphLayoutType',
 					'radial'
 				);
@@ -640,7 +682,7 @@ describe('settingsStore', () => {
 			it('setDocumentGraphLayoutType rejects invalid values and persists fallback', () => {
 				useSettingsStore.getState().setDocumentGraphLayoutType('invalid' as any);
 				expect(useSettingsStore.getState().documentGraphLayoutType).toBe('hierarchical');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'documentGraphLayoutType',
 					'hierarchical'
 				);
@@ -657,7 +699,10 @@ describe('settingsStore', () => {
 			it('setCueHistoryRetentionDays updates state and persists', () => {
 				useSettingsStore.getState().setCueHistoryRetentionDays(30);
 				expect(useSettingsStore.getState().cueHistoryRetentionDays).toBe(30);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('cueHistoryRetentionDays', 30);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'cueHistoryRetentionDays',
+					30
+				);
 			});
 		});
 
@@ -672,7 +717,7 @@ describe('settingsStore', () => {
 			it('setGroupCueEntries updates state and persists', () => {
 				useSettingsStore.getState().setGroupCueEntries(false);
 				expect(useSettingsStore.getState().groupCueEntries).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('groupCueEntries', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('groupCueEntries', false);
 			});
 		});
 
@@ -680,13 +725,19 @@ describe('settingsStore', () => {
 			it('setStatsCollectionEnabled updates state and persists', () => {
 				useSettingsStore.getState().setStatsCollectionEnabled(false);
 				expect(useSettingsStore.getState().statsCollectionEnabled).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('statsCollectionEnabled', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'statsCollectionEnabled',
+					false
+				);
 			});
 
 			it('setDefaultStatsTimeRange updates state and persists', () => {
 				useSettingsStore.getState().setDefaultStatsTimeRange('month');
 				expect(useSettingsStore.getState().defaultStatsTimeRange).toBe('month');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('defaultStatsTimeRange', 'month');
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'defaultStatsTimeRange',
+					'month'
+				);
 			});
 		});
 
@@ -694,13 +745,16 @@ describe('settingsStore', () => {
 			it('setDisableGpuAcceleration updates state and persists', () => {
 				useSettingsStore.getState().setDisableGpuAcceleration(true);
 				expect(useSettingsStore.getState().disableGpuAcceleration).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('disableGpuAcceleration', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'disableGpuAcceleration',
+					true
+				);
 			});
 
 			it('setDisableConfetti updates state and persists', () => {
 				useSettingsStore.getState().setDisableConfetti(true);
 				expect(useSettingsStore.getState().disableConfetti).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('disableConfetti', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('disableConfetti', true);
 			});
 		});
 
@@ -709,7 +763,7 @@ describe('settingsStore', () => {
 				const patterns = ['.git', 'node_modules'];
 				useSettingsStore.getState().setSshRemoteIgnorePatterns(patterns);
 				expect(useSettingsStore.getState().sshRemoteIgnorePatterns).toEqual(patterns);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'sshRemoteIgnorePatterns',
 					patterns
 				);
@@ -718,7 +772,10 @@ describe('settingsStore', () => {
 			it('setSshRemoteHonorGitignore updates state and persists', () => {
 				useSettingsStore.getState().setSshRemoteHonorGitignore(false);
 				expect(useSettingsStore.getState().sshRemoteHonorGitignore).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('sshRemoteHonorGitignore', false);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'sshRemoteHonorGitignore',
+					false
+				);
 			});
 		});
 
@@ -726,7 +783,7 @@ describe('settingsStore', () => {
 			it('setAutomaticTabNamingEnabled updates state and persists', () => {
 				useSettingsStore.getState().setAutomaticTabNamingEnabled(false);
 				expect(useSettingsStore.getState().automaticTabNamingEnabled).toBe(false);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'automaticTabNamingEnabled',
 					false
 				);
@@ -735,26 +792,35 @@ describe('settingsStore', () => {
 			it('setFileTabAutoRefreshEnabled updates state and persists', () => {
 				useSettingsStore.getState().setFileTabAutoRefreshEnabled(true);
 				expect(useSettingsStore.getState().fileTabAutoRefreshEnabled).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('fileTabAutoRefreshEnabled', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'fileTabAutoRefreshEnabled',
+					true
+				);
 			});
 
 			it('setSuppressWindowsWarning updates state and persists', () => {
 				useSettingsStore.getState().setSuppressWindowsWarning(true);
 				expect(useSettingsStore.getState().suppressWindowsWarning).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('suppressWindowsWarning', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'suppressWindowsWarning',
+					true
+				);
 			});
 
 			it('setDirectorNotesSettings updates state and persists', () => {
 				const settings = { provider: 'codex' as const, defaultLookbackDays: 14 };
 				useSettingsStore.getState().setDirectorNotesSettings(settings);
 				expect(useSettingsStore.getState().directorNotesSettings).toEqual(settings);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('directorNotesSettings', settings);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'directorNotesSettings',
+					settings
+				);
 			});
 
 			it('setWakatimeApiKey updates state and persists', () => {
 				useSettingsStore.getState().setWakatimeApiKey('waka_test_key_123');
 				expect(useSettingsStore.getState().wakatimeApiKey).toBe('waka_test_key_123');
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'wakatimeApiKey',
 					'waka_test_key_123'
 				);
@@ -763,7 +829,7 @@ describe('settingsStore', () => {
 			it('setWakatimeEnabled updates state and persists', () => {
 				useSettingsStore.getState().setWakatimeEnabled(true);
 				expect(useSettingsStore.getState().wakatimeEnabled).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('wakatimeEnabled', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('wakatimeEnabled', true);
 			});
 		});
 
@@ -771,13 +837,16 @@ describe('settingsStore', () => {
 			it('setForcedParallelExecution updates state and persists', () => {
 				useSettingsStore.getState().setForcedParallelExecution(true);
 				expect(useSettingsStore.getState().forcedParallelExecution).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('forcedParallelExecution', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'forcedParallelExecution',
+					true
+				);
 			});
 
 			it('setForcedParallelAcknowledged updates state and persists', () => {
 				useSettingsStore.getState().setForcedParallelAcknowledged(true);
 				expect(useSettingsStore.getState().forcedParallelAcknowledged).toBe(true);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'forcedParallelAcknowledged',
 					true
 				);
@@ -802,7 +871,7 @@ describe('settingsStore', () => {
 			const longProfile = 'a'.repeat(6000);
 			useSettingsStore.getState().setConductorProfile(longProfile);
 			expect(useSettingsStore.getState().conductorProfile).toBe('a'.repeat(5000));
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'conductorProfile',
 				'a'.repeat(5000)
 			);
@@ -812,42 +881,42 @@ describe('settingsStore', () => {
 			// Below minimum
 			useSettingsStore.getState().setLeftSidebarWidth(100);
 			expect(useSettingsStore.getState().leftSidebarWidth).toBe(256);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 256);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 256);
 
 			vi.clearAllMocks();
 
 			// Above maximum
 			useSettingsStore.getState().setLeftSidebarWidth(800);
 			expect(useSettingsStore.getState().leftSidebarWidth).toBe(600);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 600);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 600);
 
 			vi.clearAllMocks();
 
 			// Within range
 			useSettingsStore.getState().setLeftSidebarWidth(400);
 			expect(useSettingsStore.getState().leftSidebarWidth).toBe(400);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 400);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 400);
 		});
 
 		it('setWebInterfaceCustomPort persists only valid 1024-65535', () => {
 			// Valid port
 			useSettingsStore.getState().setWebInterfaceCustomPort(3000);
 			expect(useSettingsStore.getState().webInterfaceCustomPort).toBe(3000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('webInterfaceCustomPort', 3000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('webInterfaceCustomPort', 3000);
 
 			vi.clearAllMocks();
 
 			// Invalid port (below range) - state updates but no persist
 			useSettingsStore.getState().setWebInterfaceCustomPort(80);
 			expect(useSettingsStore.getState().webInterfaceCustomPort).toBe(80);
-			expect(window.maestro.settings.set).not.toHaveBeenCalled();
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 
 			vi.clearAllMocks();
 
 			// Invalid port (above range) - state updates but no persist
 			useSettingsStore.getState().setWebInterfaceCustomPort(70000);
 			expect(useSettingsStore.getState().webInterfaceCustomPort).toBe(70000);
-			expect(window.maestro.settings.set).not.toHaveBeenCalled();
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 		});
 
 		it('setDocumentGraphMaxNodes clamps to 50-1000', () => {
@@ -887,31 +956,36 @@ describe('settingsStore', () => {
 		it('setLogLevel updates state and calls logger.setLogLevel', async () => {
 			await useSettingsStore.getState().setLogLevel('debug');
 			expect(useSettingsStore.getState().logLevel).toBe('debug');
-			expect(window.maestro.logger.setLogLevel).toHaveBeenCalledWith('debug');
+			expect(window.openwizardai.logger.setLogLevel).toHaveBeenCalledWith('debug');
 		});
 
 		it('setMaxLogBuffer updates state and calls logger.setMaxLogBuffer', async () => {
 			await useSettingsStore.getState().setMaxLogBuffer(10000);
 			expect(useSettingsStore.getState().maxLogBuffer).toBe(10000);
-			expect(window.maestro.logger.setMaxLogBuffer).toHaveBeenCalledWith(10000);
+			expect(window.openwizardai.logger.setMaxLogBuffer).toHaveBeenCalledWith(10000);
 		});
 
 		it('setPreventSleepEnabled updates state, persists, and calls power.setEnabled', async () => {
 			await useSettingsStore.getState().setPreventSleepEnabled(true);
 			expect(useSettingsStore.getState().preventSleepEnabled).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('preventSleepEnabled', true);
-			expect(window.maestro.power.setEnabled).toHaveBeenCalledWith(true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('preventSleepEnabled', true);
+			expect(window.openwizardai.power.setEnabled).toHaveBeenCalledWith(true);
 		});
 
 		it('setPreventDisplaySleepEnabled updates state, persists, and calls power.setKeepDisplayAwake', async () => {
 			await useSettingsStore.getState().setPreventDisplaySleepEnabled(true);
 			expect(useSettingsStore.getState().preventDisplaySleepEnabled).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('preventDisplaySleepEnabled', true);
-			expect(window.maestro.power.setKeepDisplayAwake).toHaveBeenCalledWith(true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'preventDisplaySleepEnabled',
+				true
+			);
+			expect(window.openwizardai.power.setKeepDisplayAwake).toHaveBeenCalledWith(true);
 		});
 
 		it('setPreventDisplaySleepEnabled rolls back when the power call fails', async () => {
-			(window.maestro.power.setKeepDisplayAwake as any).mockRejectedValueOnce(new Error('boom'));
+			(window.openwizardai.power.setKeepDisplayAwake as any).mockRejectedValueOnce(
+				new Error('boom')
+			);
 
 			await expect(useSettingsStore.getState().setPreventDisplaySleepEnabled(true)).rejects.toThrow(
 				'boom'
@@ -928,7 +1002,7 @@ describe('settingsStore', () => {
 		it('setTotalActiveTimeMs replaces the value and persists', () => {
 			useSettingsStore.getState().setTotalActiveTimeMs(120000);
 			expect(useSettingsStore.getState().totalActiveTimeMs).toBe(120000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 120000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 120000);
 		});
 
 		it('addTotalActiveTimeMs increments the value and persists', () => {
@@ -937,7 +1011,7 @@ describe('settingsStore', () => {
 
 			useSettingsStore.getState().addTotalActiveTimeMs(10000);
 			expect(useSettingsStore.getState().totalActiveTimeMs).toBe(60000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 60000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 60000);
 		});
 
 		it('addTotalActiveTimeMs accumulates across multiple calls', () => {
@@ -956,7 +1030,7 @@ describe('settingsStore', () => {
 
 			useSettingsStore.getState().setTotalActiveTimeMs(0);
 			expect(useSettingsStore.getState().totalActiveTimeMs).toBe(0);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 0);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 0);
 		});
 	});
 
@@ -1007,7 +1081,7 @@ describe('settingsStore', () => {
 
 			// Pass higher value - should persist
 			useSettingsStore.getState().updateUsageStats({ maxAgents: 10 });
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'usageStats',
 				expect.objectContaining({ maxAgents: 10 })
 			);
@@ -1028,7 +1102,7 @@ describe('settingsStore', () => {
 
 			// Pass lower values - should NOT persist
 			useSettingsStore.getState().updateUsageStats({ maxAgents: 2, maxQueueDepth: 0 });
-			expect(window.maestro.settings.set).not.toHaveBeenCalled();
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 
 			// State still updates (keeps existing maxes)
 			expect(useSettingsStore.getState().usageStats.maxAgents).toBe(5);
@@ -1099,7 +1173,7 @@ describe('settingsStore', () => {
 				maxQueueDepth: 1,
 			});
 
-			expect(window.maestro.settings.set).not.toHaveBeenCalled();
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 			expect(useSettingsStore.getState().usageStats.maxAgents).toBe(0);
 		});
 	});
@@ -1117,7 +1191,7 @@ describe('settingsStore', () => {
 			};
 			useSettingsStore.getState().setAutoRunStats(newStats);
 			expect(useSettingsStore.getState().autoRunStats).toEqual(newStats);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('autoRunStats', newStats);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('autoRunStats', newStats);
 		});
 
 		it('recordAutoRunComplete increments totalRuns', () => {
@@ -1603,7 +1677,7 @@ describe('settingsStore', () => {
 			};
 			useSettingsStore.getState().setContextManagementSettings(newSettings);
 			expect(useSettingsStore.getState().contextManagementSettings).toEqual(newSettings);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'contextManagementSettings',
 				newSettings
 			);
@@ -1630,7 +1704,7 @@ describe('settingsStore', () => {
 
 	describe('loadAllSettings', () => {
 		it('loads all settings from getAll() on success', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fontFamily: 'JetBrains Mono',
 				fontSize: 16,
 				activeThemeId: 'nord',
@@ -1651,7 +1725,7 @@ describe('settingsStore', () => {
 		// disk. App.tsx does a bare THEMES[activeThemeId] lookup, so letting the
 		// dead id through renders the whole app unstyled.
 		it('maps a retired theme id to its replacement on load', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				activeThemeId: 'inquest',
 				customThemeBaseId: 'inquest',
 			});
@@ -1664,7 +1738,7 @@ describe('settingsStore', () => {
 		});
 
 		it('falls back rather than storing a theme id that does not exist', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				activeThemeId: 'one-dark-pro',
 			});
 
@@ -1676,7 +1750,7 @@ describe('settingsStore', () => {
 		// Opting out has to survive a restart: a user who turned grouping off
 		// did so because they need to see every run.
 		it('loads a persisted Cue grouping opt-out', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				groupCueEntries: false,
 			});
 
@@ -1686,7 +1760,7 @@ describe('settingsStore', () => {
 		});
 
 		it('keeps Cue grouping on when nothing is stored', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
 
 			await loadAllSettings();
 
@@ -1694,7 +1768,7 @@ describe('settingsStore', () => {
 		});
 
 		it('loads a persisted Cue retention window', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				cueHistoryRetentionDays: 30,
 			});
 
@@ -1707,7 +1781,7 @@ describe('settingsStore', () => {
 		// text. The shared resolver parses it rather than discarding what the
 		// user asked for, so the store agrees with the engine's prune window.
 		it('parses a numeric string stored by a hand edit', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				cueHistoryRetentionDays: '30',
 			});
 
@@ -1726,7 +1800,7 @@ describe('settingsStore', () => {
 			['NaN', Number.NaN],
 			['null', null],
 		])('falls back to the default when the stored value is %s', async (_label, stored) => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				cueHistoryRetentionDays: stored,
 			});
 
@@ -1740,7 +1814,7 @@ describe('settingsStore', () => {
 		it('restores both halves of the environment editor', async () => {
 			// A parked variable that did not survive a restart would come back
 			// live, which is the opposite of what switching it off asked for.
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shellEnvVars: { KEEP: 'yes' },
 				shellEnvVarsDisabled: { PARKED: 'later' },
 			});
@@ -1753,7 +1827,7 @@ describe('settingsStore', () => {
 		});
 
 		it('loads fileExplorerIconTheme when the persisted value is valid', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fileExplorerIconTheme: 'rich' satisfies FileExplorerIconTheme,
 			});
 
@@ -1764,7 +1838,7 @@ describe('settingsStore', () => {
 
 		it('migrates the pre-rename "default" icon theme id to flat', async () => {
 			useSettingsStore.setState({ fileExplorerIconTheme: 'rich' });
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fileExplorerIconTheme: 'default' as unknown as FileExplorerIconTheme,
 			});
 
@@ -1775,7 +1849,7 @@ describe('settingsStore', () => {
 
 		it('falls back to rich for invalid fileExplorerIconTheme values', async () => {
 			useSettingsStore.setState({ fileExplorerIconTheme: 'flat' });
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fileExplorerIconTheme: 'neon' as any,
 			});
 
@@ -1790,7 +1864,7 @@ describe('settingsStore', () => {
 			// the older on-disk snapshot - that loses characters and, because the
 			// textarea is controlled, snaps the caret to the end of the field.
 			useSettingsStore.setState({ settingsLoaded: true, conductorProfile: 'abc' });
-			vi.mocked(window.maestro.settings.getAll).mockImplementation(async () => {
+			vi.mocked(window.openwizardai.settings.getAll).mockImplementation(async () => {
 				useSettingsStore.getState().setConductorProfile('abcdef');
 				return { conductorProfile: 'abc', fontSize: 16 };
 			});
@@ -1805,7 +1879,7 @@ describe('settingsStore', () => {
 
 		it('applies the disk value on the initial load even for touched keys', async () => {
 			useSettingsStore.setState({ settingsLoaded: false, conductorProfile: '' });
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				conductorProfile: 'from disk',
 			});
 
@@ -1816,7 +1890,7 @@ describe('settingsStore', () => {
 
 		describe('media player geometry', () => {
 			it('restores the position and each kind width', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					mediaPlayerFloatRect: { top: 80, left: 90, widths: { audio: 420, video: 900 } },
 				});
 
@@ -1831,7 +1905,7 @@ describe('settingsStore', () => {
 				// Height is derived from the media now, and that width was saved
 				// without recording which kind it belonged to.
 				useMediaPlaybackStore.setState({ floatPosition: null, floatWidths: {} });
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					mediaPlayerFloatRect: { top: 10, left: 20, width: 480, height: 336 },
 				});
 
@@ -1861,7 +1935,7 @@ describe('settingsStore', () => {
 			};
 
 			it('restores the queue, the loaded item, and its position', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					mediaPlayerQueue: stored,
 				});
 
@@ -1878,7 +1952,7 @@ describe('settingsStore', () => {
 			});
 
 			it('comes back hidden and silent, so nothing plays at launch', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					mediaPlayerQueue: stored,
 				});
 
@@ -1900,7 +1974,7 @@ describe('settingsStore', () => {
 
 			it('ignores a stored queue with nothing usable left in it', async () => {
 				useMediaPlaybackStore.setState({ items: [], activeItemId: null });
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					mediaPlayerQueue: { items: [], activeItemId: 'gone', resumeTimes: {} },
 				});
 
@@ -1911,13 +1985,13 @@ describe('settingsStore', () => {
 		});
 
 		it('uses defaults when settings are empty/undefined', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
 
 			await loadAllSettings();
 
 			const state = useSettingsStore.getState();
 			expect(state.settingsLoaded).toBe(true);
-			expect(state.fontFamily).toBe(MAESTRO_FONT_STACK);
+			expect(state.fontFamily).toBe(OPENWIZARDAI_FONT_STACK);
 			expect(state.fontSize).toBe(14);
 		});
 
@@ -1928,11 +2002,13 @@ describe('settingsStore', () => {
 			const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 			it('re-attributes historical Cue credit into cueTimeMs', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					concurrentAutoRunTimeMigrationApplied: true,
 					autoRunStats: { ...DEFAULT_AUTO_RUN_STATS, cumulativeTimeMs: 100 * HOUR },
 				});
-				(window.maestro as any).cueStats.getHistoricalConductorCredit.mockResolvedValue(25 * HOUR);
+				(window.openwizardai as any).cueStats.getHistoricalConductorCredit.mockResolvedValue(
+					25 * HOUR
+				);
 
 				await loadAllSettings();
 				await flush();
@@ -1941,15 +2017,20 @@ describe('settingsStore', () => {
 				expect(stats.cueTimeMs).toBe(25 * HOUR);
 				// Re-attribution only - the total must not grow.
 				expect(stats.cumulativeTimeMs).toBe(100 * HOUR);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('cueTimeBackfillApplied', true);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+					'cueTimeBackfillApplied',
+					true
+				);
 			});
 
 			it('never lets the Cue subtotal exceed the cumulative total', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					concurrentAutoRunTimeMigrationApplied: true,
 					autoRunStats: { ...DEFAULT_AUTO_RUN_STATS, cumulativeTimeMs: 10 * HOUR },
 				});
-				(window.maestro as any).cueStats.getHistoricalConductorCredit.mockResolvedValue(50 * HOUR);
+				(window.openwizardai as any).cueStats.getHistoricalConductorCredit.mockResolvedValue(
+					50 * HOUR
+				);
 
 				await loadAllSettings();
 				await flush();
@@ -1958,14 +2039,16 @@ describe('settingsStore', () => {
 			});
 
 			it('keeps live-accrued credit when it already exceeds the historical total', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						...DEFAULT_AUTO_RUN_STATS,
 						cumulativeTimeMs: 100 * HOUR,
 						cueTimeMs: 30 * HOUR,
 					},
 				});
-				(window.maestro as any).cueStats.getHistoricalConductorCredit.mockResolvedValue(25 * HOUR);
+				(window.openwizardai as any).cueStats.getHistoricalConductorCredit.mockResolvedValue(
+					25 * HOUR
+				);
 
 				await loadAllSettings();
 				await flush();
@@ -1974,7 +2057,7 @@ describe('settingsStore', () => {
 			});
 
 			it('does not run once the backfill flag is set', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					cueTimeBackfillApplied: true,
 					autoRunStats: { ...DEFAULT_AUTO_RUN_STATS, cumulativeTimeMs: 100 * HOUR },
 				});
@@ -1983,24 +2066,24 @@ describe('settingsStore', () => {
 				await flush();
 
 				expect(
-					(window.maestro as any).cueStats.getHistoricalConductorCredit
+					(window.openwizardai as any).cueStats.getHistoricalConductorCredit
 				).not.toHaveBeenCalled();
 				expect(useSettingsStore.getState().autoRunStats.cueTimeMs).toBe(0);
 			});
 
 			it('leaves the flag unset when the Cue database read fails, so it retries', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					concurrentAutoRunTimeMigrationApplied: true,
 					autoRunStats: { ...DEFAULT_AUTO_RUN_STATS, cumulativeTimeMs: 100 * HOUR },
 				});
-				(window.maestro as any).cueStats.getHistoricalConductorCredit.mockRejectedValue(
+				(window.openwizardai as any).cueStats.getHistoricalConductorCredit.mockRejectedValue(
 					new Error('cue.db unavailable')
 				);
 
 				await loadAllSettings();
 				await flush();
 
-				expect(window.maestro.settings.set).not.toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).not.toHaveBeenCalledWith(
 					'cueTimeBackfillApplied',
 					true
 				);
@@ -2009,7 +2092,7 @@ describe('settingsStore', () => {
 		});
 
 		it('loads persisted starredSessionsCollapsed into the settings store', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				starredSessionsCollapsed: true,
 			});
 
@@ -2020,7 +2103,7 @@ describe('settingsStore', () => {
 
 		it('hydrates persisted bookmarksCollapsed into the uiStore', async () => {
 			useUIStore.setState({ bookmarksCollapsed: false });
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				bookmarksCollapsed: true,
 			});
 
@@ -2030,7 +2113,7 @@ describe('settingsStore', () => {
 		});
 
 		it('sets settingsLoaded = true on failure', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockRejectedValue(new Error('IPC failure'));
+			vi.mocked(window.openwizardai.settings.getAll).mockRejectedValue(new Error('IPC failure'));
 
 			await loadAllSettings();
 
@@ -2038,7 +2121,7 @@ describe('settingsStore', () => {
 		});
 
 		it('migrates ThinkingMode boolean true to "on"', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				defaultShowThinking: true,
 			});
 
@@ -2048,7 +2131,7 @@ describe('settingsStore', () => {
 		});
 
 		it('migrates ThinkingMode boolean false to "off"', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				defaultShowThinking: false,
 			});
 
@@ -2058,7 +2141,7 @@ describe('settingsStore', () => {
 		});
 
 		it('clamps leftSidebarWidth on load', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				leftSidebarWidth: 100,
 			});
 
@@ -2068,7 +2151,7 @@ describe('settingsStore', () => {
 		});
 
 		it('converts maxOutputLines null to Infinity', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				maxOutputLines: null,
 			});
 
@@ -2082,7 +2165,7 @@ describe('settingsStore', () => {
 		// 'none' as a truthy string and silently forced every Usage Dashboard
 		// chart onto the colorblind palette. These guard the coercion.
 		it('coerces legacy colorBlindMode string "none" to false', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				colorBlindMode: 'none' as unknown as boolean,
 			});
 
@@ -2092,7 +2175,7 @@ describe('settingsStore', () => {
 		});
 
 		it('coerces legacy colorBlindMode string "enabled" to true', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				colorBlindMode: 'enabled' as unknown as boolean,
 			});
 
@@ -2102,7 +2185,7 @@ describe('settingsStore', () => {
 		});
 
 		it('coerces mobile colorBlindMode string "deuteranopia" to true', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				colorBlindMode: 'deuteranopia' as unknown as boolean,
 			});
 
@@ -2112,7 +2195,7 @@ describe('settingsStore', () => {
 		});
 
 		it('coerces legacy colorBlindMode string "false" to false', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				colorBlindMode: 'false' as unknown as boolean,
 			});
 
@@ -2122,7 +2205,7 @@ describe('settingsStore', () => {
 		});
 
 		it('passes boolean colorBlindMode through unchanged', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				colorBlindMode: true,
 			});
 
@@ -2132,7 +2215,7 @@ describe('settingsStore', () => {
 		});
 
 		it('migrates shortcut Alt-key macOS special characters', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					toggleSidebar: {
 						id: 'toggleSidebar',
@@ -2148,7 +2231,7 @@ describe('settingsStore', () => {
 			const shortcuts = useSettingsStore.getState().shortcuts;
 			expect(shortcuts.toggleSidebar.keys).not.toContain('¬');
 			// The migration should persist the corrected raw data
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'shortcuts',
 				expect.objectContaining({
 					toggleSidebar: expect.objectContaining({
@@ -2172,7 +2255,7 @@ describe('settingsStore', () => {
 					keys: ['Meta', 'Shift', 'm'],
 				},
 			};
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: savedWithOldMoveToGroup,
 			});
 
@@ -2182,7 +2265,7 @@ describe('settingsStore', () => {
 			expect(shortcuts.moveToGroup.keys).toEqual(['Alt', 'Meta', 'm']);
 			// The persisted raw value must contain the NEW keys, otherwise the next
 			// load re-detects migration and we re-enter the loop.
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'shortcuts',
 				expect.objectContaining({
 					moveToGroup: expect.objectContaining({
@@ -2195,23 +2278,23 @@ describe('settingsStore', () => {
 			// Feed back the value that was just persisted and confirm migration
 			// does not fire a second write.
 			const persistedCall = vi
-				.mocked(window.maestro.settings.set)
+				.mocked(window.openwizardai.settings.set)
 				.mock.calls.find(([k]) => k === 'shortcuts');
 			const persistedShortcuts = persistedCall?.[1] as Record<string, unknown>;
-			vi.mocked(window.maestro.settings.set).mockClear();
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.set).mockClear();
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: persistedShortcuts,
 			});
 
 			await loadAllSettings();
 
 			expect(
-				vi.mocked(window.maestro.settings.set).mock.calls.some(([k]) => k === 'shortcuts')
+				vi.mocked(window.openwizardai.settings.set).mock.calls.some(([k]) => k === 'shortcuts')
 			).toBe(false);
 		});
 
 		it('moves focusActiveTab off Opt+Cmd+F so cross-tab search can claim it', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					focusActiveTab: {
 						id: 'focusActiveTab',
@@ -2230,7 +2313,7 @@ describe('settingsStore', () => {
 		});
 
 		it('strips a persisted Cmd+Shift+Down binding and restores the bundled default', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					nextUnreadTab: {
 						id: 'nextUnreadTab',
@@ -2242,7 +2325,7 @@ describe('settingsStore', () => {
 
 			await loadAllSettings();
 
-			// Cmd+Shift+Down is select-to-end in every text field; Maestro must not
+			// Cmd+Shift+Down is select-to-end in every text field; OpenWizardAI must not
 			// shadow it, so the action falls back to its own default instead.
 			expect(useSettingsStore.getState().shortcuts.nextUnreadTab.keys).toEqual([
 				'Alt',
@@ -2250,13 +2333,13 @@ describe('settingsStore', () => {
 				'ArrowDown',
 			]);
 			const persisted = vi
-				.mocked(window.maestro.settings.set)
+				.mocked(window.openwizardai.settings.set)
 				.mock.calls.find(([k]) => k === 'shortcuts')?.[1] as Record<string, { keys: string[] }>;
 			expect(persisted.nextUnreadTab.keys).toEqual(['Alt', 'Meta', 'ArrowDown']);
 		});
 
 		it('strips the Windows Ctrl+Shift+Down spelling of the same reserved chord', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					nextUnreadTab: {
 						id: 'nextUnreadTab',
@@ -2279,7 +2362,7 @@ describe('settingsStore', () => {
 			// tabShortcuts runs the same migration through a second call site with
 			// its own defaults table and its own settings key. A guard applied to
 			// only one of the two leaves half the bindings able to shadow the OS.
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				tabShortcuts: {
 					closeAllTabs: {
 						id: 'closeAllTabs',
@@ -2297,13 +2380,13 @@ describe('settingsStore', () => {
 				'w',
 			]);
 			const persisted = vi
-				.mocked(window.maestro.settings.set)
+				.mocked(window.openwizardai.settings.set)
 				.mock.calls.find(([k]) => k === 'tabShortcuts')?.[1] as Record<string, { keys: string[] }>;
 			expect(persisted.closeAllTabs.keys).toEqual(['Meta', 'Shift', 'w']);
 		});
 
 		it('leaves a user-customized focusActiveTab binding alone', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					focusActiveTab: {
 						id: 'focusActiveTab',
@@ -2326,7 +2409,7 @@ describe('settingsStore', () => {
 			['the original Cmd+Shift+2 default', ['Meta', 'Shift', '2']],
 			['the interim Cmd+Shift+E default', ['Meta', 'Shift', 'e']],
 		])('moves toggleAutoRunExpanded off %s onto Cmd+Shift+3', async (_label, fromKeys) => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					toggleAutoRunExpanded: {
 						id: 'toggleAutoRunExpanded',
@@ -2345,7 +2428,7 @@ describe('settingsStore', () => {
 		});
 
 		it('leaves a user-customized toggleAutoRunExpanded binding alone', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					toggleAutoRunExpanded: {
 						id: 'toggleAutoRunExpanded',
@@ -2365,7 +2448,7 @@ describe('settingsStore', () => {
 		});
 
 		it('merges shortcuts: preserves user keys but updates labels from defaults', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: {
 					toggleSidebar: {
 						id: 'toggleSidebar',
@@ -2387,7 +2470,7 @@ describe('settingsStore', () => {
 		});
 
 		it('merges custom AI commands: preserves user commands, skips /synopsis', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				customAICommands: [
 					{
 						id: 'synopsis',
@@ -2426,13 +2509,13 @@ describe('settingsStore', () => {
 			expect(commitCmd!.isBuiltIn).toBe(true);
 		});
 
-		// MAESTRO-YP/YQ/YR: settings.json is user/sync/legacy editable, so the
+		// OPENWIZARDAI-YP/YQ/YR: settings.json is user/sync/legacy editable, so the
 		// persisted array is not guaranteed to be CustomAICommand[]. An entry with
 		// no id cannot be edited, saved, reset or deleted (all keyed by id) and was
 		// stored under the Map key `undefined`, then rendered anyway - which crashed
 		// the Settings modal. Drop it during hydration instead.
 		it('skips malformed customAICommands entries that have no id', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				customAICommands: [
 					{
 						command: '/legacy',
@@ -2466,9 +2549,9 @@ describe('settingsStore', () => {
 
 		// An id alone is not enough. The panel calls command.startsWith('/') and
 		// prompt.substring(...) directly, so an entry carrying an id but missing
-		// either one still crashes the Settings modal (MAESTRO-YP/YQ/YR).
+		// either one still crashes the Settings modal (OPENWIZARDAI-YP/YQ/YR).
 		it('skips customAICommands entries whose command or prompt is unusable', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				customAICommands: [
 					{ id: 'no-command', description: 'Lost its command', prompt: 'x' },
 					{ id: 'no-prompt', command: '/nope', description: 'Lost its prompt' },
@@ -2500,7 +2583,7 @@ describe('settingsStore', () => {
 			// settings must not invent time: any local growth that does not also
 			// submit a leaderboard delta pushes the local total above the server's,
 			// which the server can never reconcile.
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				autoRunStats: {
 					...DEFAULT_AUTO_RUN_STATS,
 					cumulativeTimeMs: 100000,
@@ -2512,14 +2595,14 @@ describe('settingsStore', () => {
 
 			const stats = useSettingsStore.getState().autoRunStats;
 			expect(stats.cumulativeTimeMs).toBe(100000);
-			expect(window.maestro.settings.set).not.toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalledWith(
 				'concurrentAutoRunTimeMigrationApplied',
 				true
 			);
 		});
 
 		it('totalActiveTimeMs migration: copies from legacy globalStats when standalone field absent', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				globalStats: {
 					totalActiveTimeMs: 60000,
 				},
@@ -2529,11 +2612,11 @@ describe('settingsStore', () => {
 			await loadAllSettings();
 
 			expect(useSettingsStore.getState().totalActiveTimeMs).toBe(60000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 60000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 60000);
 		});
 
 		it('totalActiveTimeMs migration: standalone field takes precedence over legacy globalStats', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				totalActiveTimeMs: 99000,
 				globalStats: {
 					totalActiveTimeMs: 60000,
@@ -2546,7 +2629,7 @@ describe('settingsStore', () => {
 		});
 
 		it('totalActiveTimeMs migration: defaults to 0 when neither source exists', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
 
 			await loadAllSettings();
 
@@ -2554,7 +2637,7 @@ describe('settingsStore', () => {
 		});
 
 		it('validates documentGraphMaxNodes on load (rejects out-of-range)', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				documentGraphMaxNodes: 10, // below 50
 			});
 
@@ -2565,7 +2648,7 @@ describe('settingsStore', () => {
 		});
 
 		it('validates defaultStatsTimeRange on load', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				defaultStatsTimeRange: 'invalid-range',
 			});
 
@@ -2576,7 +2659,7 @@ describe('settingsStore', () => {
 		});
 
 		it('accepts quarter as valid defaultStatsTimeRange', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				defaultStatsTimeRange: 'quarter',
 			});
 
@@ -2586,7 +2669,7 @@ describe('settingsStore', () => {
 		});
 
 		it('validates documentGraphPreviewCharLimit on load (rejects out-of-range)', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				documentGraphPreviewCharLimit: 5000, // above 500
 			});
 
@@ -2600,7 +2683,7 @@ describe('settingsStore', () => {
 			// The "previews off" choice round-trips through settings on every
 			// launch. A floor of 50 in the load validator would discard it
 			// silently and the graph would come back as full cards each time.
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				documentGraphPreviewCharLimit: 0,
 			});
 
@@ -2610,7 +2693,7 @@ describe('settingsStore', () => {
 		});
 
 		it('validates documentGraphLayoutType on load (rejects invalid)', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				documentGraphLayoutType: 'invalid-layout',
 			});
 
@@ -2621,7 +2704,7 @@ describe('settingsStore', () => {
 		});
 
 		it('loads valid documentGraphLayoutType from settings', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				documentGraphLayoutType: 'force',
 			});
 
@@ -2649,11 +2732,11 @@ describe('settingsStore', () => {
 			await setPersistentWebLink(true);
 
 			expect(useSettingsStore.getState().persistentWebLink).toBe(true);
-			expect(window.maestro.live.persistCurrentToken).toHaveBeenCalledOnce();
+			expect(window.openwizardai.live.persistCurrentToken).toHaveBeenCalledOnce();
 		});
 
 		it('should rollback to false on soft IPC failure (result.success === false)', async () => {
-			vi.mocked(window.maestro.live.persistCurrentToken).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.live.persistCurrentToken).mockResolvedValueOnce({
 				success: false,
 				message: 'Web server is not running.',
 			});
@@ -2665,7 +2748,7 @@ describe('settingsStore', () => {
 		});
 
 		it('should rollback to false on hard IPC failure (thrown exception)', async () => {
-			vi.mocked(window.maestro.live.persistCurrentToken).mockRejectedValueOnce(
+			vi.mocked(window.openwizardai.live.persistCurrentToken).mockRejectedValueOnce(
 				new Error('IPC timeout')
 			);
 
@@ -2682,12 +2765,12 @@ describe('settingsStore', () => {
 			await setPersistentWebLink(false);
 
 			expect(useSettingsStore.getState().persistentWebLink).toBe(false);
-			expect(window.maestro.live.clearPersistentToken).toHaveBeenCalledOnce();
+			expect(window.openwizardai.live.clearPersistentToken).toHaveBeenCalledOnce();
 		});
 
 		it('should rollback to true on clearPersistentToken hard failure (thrown exception)', async () => {
 			useSettingsStore.setState({ persistentWebLink: true });
-			vi.mocked(window.maestro.live.clearPersistentToken).mockRejectedValueOnce(
+			vi.mocked(window.openwizardai.live.clearPersistentToken).mockRejectedValueOnce(
 				new Error('IPC timeout')
 			);
 
@@ -2699,7 +2782,7 @@ describe('settingsStore', () => {
 
 		it('should rollback to true on clearPersistentToken soft failure (result.success === false)', async () => {
 			useSettingsStore.setState({ persistentWebLink: true });
-			vi.mocked(window.maestro.live.clearPersistentToken).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.live.clearPersistentToken).mockResolvedValueOnce({
 				success: false,
 				message: 'Settings write failed.',
 			} as any);
@@ -2716,7 +2799,9 @@ describe('settingsStore', () => {
 			const slowEnable = new Promise((resolve) => {
 				resolveEnable = resolve;
 			});
-			vi.mocked(window.maestro.live.persistCurrentToken).mockReturnValueOnce(slowEnable as any);
+			vi.mocked(window.openwizardai.live.persistCurrentToken).mockReturnValueOnce(
+				slowEnable as any
+			);
 
 			const { setPersistentWebLink } = useSettingsStore.getState();
 
@@ -2733,7 +2818,7 @@ describe('settingsStore', () => {
 
 			// Final state should reflect the last user intent: disabled
 			expect(useSettingsStore.getState().persistentWebLink).toBe(false);
-			expect(window.maestro.live.clearPersistentToken).toHaveBeenCalled();
+			expect(window.openwizardai.live.clearPersistentToken).toHaveBeenCalled();
 		});
 
 		it('should handle rapid reverse toggle (disable then enable) correctly', async () => {
@@ -2745,7 +2830,9 @@ describe('settingsStore', () => {
 			const slowClear = new Promise((resolve) => {
 				resolveClear = resolve;
 			});
-			vi.mocked(window.maestro.live.clearPersistentToken).mockReturnValueOnce(slowClear as any);
+			vi.mocked(window.openwizardai.live.clearPersistentToken).mockReturnValueOnce(
+				slowClear as any
+			);
 
 			const { setPersistentWebLink } = useSettingsStore.getState();
 
@@ -2762,7 +2849,7 @@ describe('settingsStore', () => {
 
 			// Final state should reflect the last user intent: enabled
 			expect(useSettingsStore.getState().persistentWebLink).toBe(true);
-			expect(window.maestro.live.persistCurrentToken).toHaveBeenCalled();
+			expect(window.openwizardai.live.persistCurrentToken).toHaveBeenCalled();
 		});
 	});
 
@@ -2782,7 +2869,7 @@ describe('settingsStore', () => {
 
 			useSettingsStore.getState().setFontSize(22);
 			expect(useSettingsStore.getState().fontSize).toBe(22);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('fontSize', 22);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontSize', 22);
 		});
 	});
 
@@ -2793,7 +2880,7 @@ describe('settingsStore', () => {
 	// The SETTINGS_METADATA default is a plain object literal, so TypeScript
 	// can't catch a key that drifts out of sync with the canonical key list the
 	// way it does for the Record<FilePreviewToolbarButton, ...> maps. `editImage`
-	// went missing here once already; `maestro-cli settings reset` writes this
+	// went missing here once already; `openwizardai-cli settings reset` writes this
 	// literal verbatim, so a gap ships an incomplete map to disk.
 	describe('filePreviewToolbarVisibility metadata parity', () => {
 		it('metadata default covers exactly the canonical toolbar button keys', () => {
@@ -2828,7 +2915,7 @@ describe('settingsStore', () => {
 
 	// The shipped default lives in three places: the store's initial state, the
 	// invalid-value fallback in loadAllSettings, and SETTINGS_METADATA (which is
-	// what `maestro-cli settings` reports and what a reset writes to disk). The
+	// what `openwizardai-cli settings` reports and what a reset writes to disk). The
 	// metadata description had already drifted far enough to advertise two theme
 	// values that never existed.
 	describe('fileExplorerIconTheme metadata parity', () => {
@@ -2840,7 +2927,7 @@ describe('settingsStore', () => {
 
 		it('metadata default matches the value an invalid setting falls back to', async () => {
 			useSettingsStore.setState({ fileExplorerIconTheme: 'flat' });
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fileExplorerIconTheme: 'neon' as unknown as FileExplorerIconTheme,
 			});
 

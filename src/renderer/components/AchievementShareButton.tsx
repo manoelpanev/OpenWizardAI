@@ -1,7 +1,7 @@
 /**
  * AchievementShareButton
  *
- * Self-contained share button for the user's Maestro achievement card. Renders
+ * Self-contained share button for the user's OpenWizardAI achievement card. Renders
  * a Share2 icon button that opens a Copy-to-Clipboard / Save-as-Image popover
  * and generates the shareable PNG via canvas.
  *
@@ -16,10 +16,10 @@
 
 import { useState, useRef, useCallback } from 'react';
 import { Share2, Copy, Download, Check } from 'lucide-react';
-import type { Theme, AutoRunStats, MaestroUsageStats } from '../types';
+import type { Theme, AutoRunStats, OpenWizardAIUsageStats } from '../types';
 import { getBadgeForTime, formatCumulativeTime } from '../constants/conductorBadges';
 import { formatTokensCompact } from '../utils/formatters';
-import maestroWandIcon from '../assets/icon-wand.png';
+import openwizardaiWandIcon from '../assets/icon-wand.png';
 import { safeClipboardWriteBlob } from '../utils/clipboard';
 import { logger } from '../utils/logger';
 import { captureException } from '../utils/sentry';
@@ -46,7 +46,7 @@ export interface AchievementShareButtonProps {
 	theme: Theme;
 	autoRunStats: AutoRunStats;
 	globalStats?: AchievementShareGlobalStats | null;
-	usageStats?: MaestroUsageStats | null;
+	usageStats?: OpenWizardAIUsageStats | null;
 	handsOnTimeMs?: number;
 	/**
 	 * Visual variant. `default` matches the inline-card placement (small
@@ -90,7 +90,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
  */
 async function loadImage(url: string): Promise<HTMLImageElement | null> {
 	try {
-		const base64DataUrl = await window.maestro.fs.fetchImageAsBase64(url);
+		const base64DataUrl = await window.openwizardai.fs.fetchImageAsBase64(url);
 		if (!base64DataUrl) return null;
 		return new Promise((resolve) => {
 			const img = new Image();
@@ -180,7 +180,7 @@ export function AchievementShareButton({
 			const img = new Image();
 			img.onload = () => resolve(img);
 			img.onerror = () => resolve(null);
-			img.src = maestroWandIcon;
+			img.src = openwizardaiWandIcon;
 		});
 
 		const bgGradient = ctx.createRadialGradient(
@@ -297,7 +297,7 @@ export function AchievementShareButton({
 		if (hasPersonalization && displayName) {
 			ctx.fillText(displayName.toUpperCase(), width / 2, titleY);
 		} else {
-			ctx.fillText('OPENWIZZARD ACHIEVEMENTS', width / 2, titleY);
+			ctx.fillText('OPENWIZARDAI ACHIEVEMENTS', width / 2, titleY);
 		}
 
 		const levelY = titleY + 28;
@@ -551,7 +551,7 @@ export function AchievementShareButton({
 		ctx.font = '500 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 		ctx.fillStyle = 'rgba(139, 92, 246, 0.8)';
 		ctx.textAlign = 'center';
-		ctx.fillText('RunMaestro.ai • Agent Orchestration Command Center', width / 2, footerY);
+		ctx.fillText('manoelpanev.ai • Agent Orchestration Command Center', width / 2, footerY);
 
 		return canvas;
 	}, [
@@ -586,7 +586,7 @@ export function AchievementShareButton({
 		try {
 			const canvas = await generateShareImage();
 			const link = document.createElement('a');
-			link.download = `maestro-achievement-level-${currentLevel}.png`;
+			link.download = `openwizardai-achievement-level-${currentLevel}.png`;
 			link.href = canvas.toDataURL('image/png');
 			link.click();
 		} catch (error) {

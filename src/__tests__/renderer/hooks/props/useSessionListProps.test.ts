@@ -42,7 +42,7 @@ function createDeps(overrides: Partial<UseSessionListPropsDeps> = {}): UseSessio
 		handleDeleteWorktreeSession: vi.fn(),
 		handleToggleWorktreeExpanded: vi.fn(),
 		handleConfigureCue: vi.fn(),
-		maestroCueEnabled: false,
+		openwizardaiCueEnabled: false,
 		handleJumpToStarredSession: vi.fn().mockResolvedValue(false),
 		openWizardModal: vi.fn(),
 		handleOpenFeedbackModal: vi.fn(),
@@ -59,21 +59,21 @@ function createDeps(overrides: Partial<UseSessionListPropsDeps> = {}): UseSessio
 }
 
 describe('useSessionListProps', () => {
-	it('hides the Maestro Cue configure action when the Encore Feature is disabled', () => {
+	it('hides the OpenWizardAI Cue configure action when the Encore Feature is disabled', () => {
 		const handleConfigureCue = vi.fn();
 
 		const { result } = renderHook(() =>
-			useSessionListProps(createDeps({ handleConfigureCue, maestroCueEnabled: false }))
+			useSessionListProps(createDeps({ handleConfigureCue, openwizardaiCueEnabled: false }))
 		);
 
 		expect(result.current.onConfigureCue).toBeUndefined();
 	});
 
-	it('passes the Maestro Cue configure action when the Encore Feature is enabled', () => {
+	it('passes the OpenWizardAI Cue configure action when the Encore Feature is enabled', () => {
 		const handleConfigureCue = vi.fn();
 
 		const { result } = renderHook(() =>
-			useSessionListProps(createDeps({ handleConfigureCue, maestroCueEnabled: true }))
+			useSessionListProps(createDeps({ handleConfigureCue, openwizardaiCueEnabled: true }))
 		);
 
 		expect(result.current.onConfigureCue).toBe(handleConfigureCue);

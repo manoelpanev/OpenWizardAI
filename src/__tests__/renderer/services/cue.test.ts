@@ -46,7 +46,7 @@ const mockLogger = {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = { cue: mockCue, logger: mockLogger };
+	(window as any).openwizardai = { cue: mockCue, logger: mockLogger };
 });
 
 // ─── Read methods ─────────────────────────────────────────────────────────────
@@ -294,7 +294,7 @@ describe('cueService - write methods', () => {
 		const result = {
 			renamed: true,
 			subscriptionsUpdated: 3,
-			filesWritten: ['/a/.maestro/cue.yaml', '/b/.maestro/cue.yaml'],
+			filesWritten: ['/a/.openwizardai/cue.yaml', '/b/.openwizardai/cue.yaml'],
 			warnings: [],
 		};
 		mockCue.renamePipeline.mockResolvedValue(result);
@@ -313,7 +313,7 @@ describe('cueService - write methods', () => {
 // ─── Event passthrough ────────────────────────────────────────────────────────
 
 describe('cueService - onActivityUpdate', () => {
-	it('is a direct passthrough to window.maestro.cue.onActivityUpdate', () => {
+	it('is a direct passthrough to window.openwizardai.cue.onActivityUpdate', () => {
 		const unsubscribe = vi.fn();
 		mockCue.onActivityUpdate.mockReturnValue(unsubscribe);
 		const callback = vi.fn();

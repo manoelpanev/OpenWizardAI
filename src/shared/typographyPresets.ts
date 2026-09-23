@@ -1,7 +1,7 @@
 /**
- * Typography presets - the two answers to "how should Maestro read?".
+ * Typography presets - the two answers to "how should OpenWizardAI read?".
  *
- * Maestro was monospace everywhere until per-surface fonts existed, which is a
+ * OpenWizardAI was monospace everywhere until per-surface fonts existed, which is a
  * deliberate look rather than an oversight: it reads like a terminal. Now that
  * the interface, the terminal, the chat transcript, the file preview, the
  * document graph, and the file editor can each carry their own face, "which
@@ -22,7 +22,7 @@
 import { SANS_FALLBACK_STACK } from './fontStack';
 import { BASE_FONT_SIZE_DEFAULT } from './typography';
 
-/** The interface font that produces Maestro's original all-monospace look. */
+/** The interface font that produces OpenWizardAI's original all-monospace look. */
 export const MONO_INTERFACE_FONT = 'Roboto Mono, Menlo, "Courier New", monospace';
 
 /**
@@ -138,7 +138,7 @@ export const TYPOGRAPHY_PRESETS: Record<TypographyPresetId, TypographyPreset> = 
 	hacker: {
 		id: 'hacker',
 		label: 'Hacker',
-		tagline: 'Monospace everywhere. The original OpenWizzard.',
+		tagline: 'Monospace everywhere. The original OpenWizardAI.',
 		surfaces: [
 			{ label: 'Interface', kind: 'mono' },
 			{ label: 'AI chat', kind: 'mono' },
@@ -176,7 +176,7 @@ export const TYPOGRAPHY_PRESET_IDS: TypographyPresetId[] = ['default', 'hacker']
  * has taken the pickers apart into something that is neither.
  *
  * Used to preselect a card, never to decide whether to ASK: a returning user's
- * settings match `hacker` exactly (that was the only look Maestro had), so
+ * settings match `hacker` exactly (that was the only look OpenWizardAI had), so
  * gating the prompt on this would mean never prompting anyone.
  */
 export function matchTypographyPreset(

@@ -9,8 +9,8 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 vi.mock('../../../cli/services/storage', () => ({
@@ -18,7 +18,7 @@ vi.mock('../../../cli/services/storage', () => ({
 }));
 
 import { gistCreate } from '../../../cli/commands/gist';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 
 describe('gist create command', () => {
 	let consoleSpy: MockInstance;
@@ -27,7 +27,7 @@ describe('gist create command', () => {
 	/** Capture the message sent to the desktop and reply with a successful gist. */
 	function captureMessage(): Record<string, unknown> {
 		const captured: Record<string, unknown> = {};
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					Object.assign(captured, msg);
@@ -88,7 +88,7 @@ describe('gist create command', () => {
 	});
 
 	it('reports the desktop failure rather than claiming success', async () => {
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi
 					.fn()

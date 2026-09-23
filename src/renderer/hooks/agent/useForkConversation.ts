@@ -3,7 +3,7 @@ import type { Session, LogEntry } from '../../types';
 import { createTabAtPosition, getTabDisplayName, getActiveTab } from '../../utils/tabHelpers';
 import { notifyToast } from '../../stores/notificationStore';
 import { captureException } from '../../utils/sentry';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from '../../utils/spawnHelpers';
 
 export function useForkConversation(
 	sessions: Session[],
@@ -181,7 +181,7 @@ You are continuing this conversation from the fork point above. Briefly acknowle
 			// 7. Spawn agent async (follows Send-to-Agent pattern)
 			(async () => {
 				try {
-					const agent = await window.maestro.agents.get(session.toolType);
+					const agent = await window.openwizardai.agents.get(session.toolType);
 					if (!agent) throw new Error(`${session.toolType} agent not found`);
 
 					const baseArgs = agent.args ?? [];
@@ -199,13 +199,13 @@ You are continuing this conversation from the fork point above. Briefly acknowle
 
 					const effectivePrompt = contextMessage;
 
-					const appendSystemPrompt = await prepareMaestroSystemPrompt({
+					const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 						session,
 						activeTabId: newTabId,
 					});
 
 					const spawnSessionId = `${session.id}-ai-${newTabId}`;
-					await window.maestro.process.spawn({
+					await window.openwizardai.process.spawn({
 						sessionId: spawnSessionId,
 						toolType: session.toolType,
 						cwd: session.cwd,

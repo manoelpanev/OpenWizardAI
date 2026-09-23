@@ -4,7 +4,7 @@ import { getExpandableIdsByDepth } from '../processTree';
 
 // Persistence for the System Processes expand/collapse stepper.
 // Stores the depth tier last shown so it survives app restarts.
-const PROCESS_MONITOR_LEVEL_KEY = 'maestro.processMonitor.expandedLevel';
+const PROCESS_MONITOR_LEVEL_KEY = 'openwizardai.processMonitor.expandedLevel';
 
 function readStoredExpandedLevel(): number | null {
 	if (typeof window === 'undefined') return null;

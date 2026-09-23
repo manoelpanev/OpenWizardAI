@@ -1,10 +1,10 @@
-// List terminals command - enumerate open terminal tabs in the Maestro desktop app.
+// List terminals command - enumerate open terminal tabs in the OpenWizardAI desktop app.
 //
 // Terminal tabs live only in the desktop's renderer state, so unlike the other
 // `list` subcommands this one has to ask the running app rather than read from
 // disk. It exists so a caller can find the tab id to hand to `send-terminal`.
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 
 interface ListTerminalsOptions {
@@ -39,7 +39,7 @@ export async function listTerminals(options: ListTerminalsOptions): Promise<void
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

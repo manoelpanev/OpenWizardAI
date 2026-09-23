@@ -30,7 +30,7 @@ body {
 	   only as the fallback for the first paint, before the renderer publishes
 	   the variable. */
 	font-family: var(
-		--maestro-font-interface,
+		--openwizardai-font-interface,
 		'JetBrains Mono',
 		'Fira Code',
 		'Courier New',
@@ -186,7 +186,7 @@ textarea::placeholder {
 	display: none !important;
 }
 
-/* xterm.js viewport scrollbar — match Maestro's thin scrollbar style */
+/* xterm.js viewport scrollbar — match OpenWizardAI's thin scrollbar style */
 .xterm-viewport::-webkit-scrollbar {
 	width: 6px;
 	height: 6px;
@@ -1583,7 +1583,7 @@ html[data-gloss='max'] .chrome-raised-active {
 /* ============================================================================
    VIBE MODE
 
-   The four vibe themes (Pedurple, Dre Synth, Winamp, Maestro's
+   The four vibe themes (Pedurple, Dre Synth, Winamp, OpenWizardAI's
    Choice) declare `mode: 'vibe'` in `src/shared/themes.ts`, which
    `useThemeStyles` publishes as `<html data-theme-mode='vibe'>`. Until now the
    only mode-keyed CSS was the light-theme opt-out below, so a vibe theme
@@ -1599,7 +1599,7 @@ html[data-gloss='max'] .chrome-raised-active {
    TWO CHOICES HERE ARE DELIBERATE.
 
    1. EVERY RULE IS SCOPED TO A GLOSS LEVEL. `off` promises flat surfaces,
-      "exactly as Maestro has always rendered" (`GLOSS_LEVEL_META` in
+      "exactly as OpenWizardAI has always rendered" (`GLOSS_LEVEL_META` in
       `src/shared/themeGloss.ts`), and a theme mode is not a licence to break
       that: a user who turned gloss off asked for no highlights, not for no
       highlights unless they happen to like purple. Vibe amplifies gloss, it

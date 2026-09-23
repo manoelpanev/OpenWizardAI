@@ -2,7 +2,7 @@
 // an existing parent agent, without requiring an Auto Run playbook.
 //
 // Mirrors the desktop "create worktree" flow: the parent agent must already
-// exist in the running Maestro app; the desktop creates the worktree on disk,
+// exist in the running OpenWizardAI app; the desktop creates the worktree on disk,
 // builds a child session linked to the parent, and returns the new agent ID.
 //
 // An optional --message is then delivered to the new agent as a plain prompt
@@ -14,7 +14,7 @@
 // disk resolution would race and intermittently fail with "Agent not found".
 // The desktop resolves send_command against live state, so it always sees it.
 
-import { withMaestroClient, resolveTargetSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveTargetSessionId } from '../services/openwizardai-client';
 import { resolveBackgroundFlag } from '../../shared/focusPlacement';
 
 interface CreateWorktreeOptions {
@@ -50,7 +50,7 @@ export async function createWorktree(options: CreateWorktreeOptions): Promise<vo
 	const background = resolveBackgroundFlag(options, 'create-worktree');
 
 	try {
-		const { created, dispatched } = await withMaestroClient(async (client) => {
+		const { created, dispatched } = await withOpenWizardAIClient(async (client) => {
 			const createdResult = await client.sendCommand<{
 				type: string;
 				success: boolean;

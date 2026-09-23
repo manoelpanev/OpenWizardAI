@@ -2,7 +2,7 @@
  * Tests for src/main/utils/worktree-setup-script.ts
  *
  * Covers the post-create worktree setup script runner: the no-op path when
- * nothing is configured, MAESTRO_* env exposure, local vs SSH dispatch, and
+ * nothing is configured, OPENWIZARDAI_* env exposure, local vs SSH dispatch, and
  * failure/timeout reporting.
  */
 
@@ -71,16 +71,16 @@ beforeEach(() => {
 describe('buildSetupScriptEnv', () => {
 	it('exposes worktree, branch, and repo paths', () => {
 		expect(buildSetupScriptEnv(CONTEXT)).toEqual({
-			MAESTRO_WORKTREE_PATH: '/repos/worktrees/feature-x',
-			MAESTRO_WORKTREE_BRANCH: 'feature-x',
-			MAESTRO_MAIN_REPO_PATH: '/repos/app',
-			MAESTRO_BASE_BRANCH: 'main',
+			OPENWIZARDAI_WORKTREE_PATH: '/repos/worktrees/feature-x',
+			OPENWIZARDAI_WORKTREE_BRANCH: 'feature-x',
+			OPENWIZARDAI_MAIN_REPO_PATH: '/repos/app',
+			OPENWIZARDAI_BASE_BRANCH: 'main',
 		});
 	});
 
 	it('omits the base branch when the caller did not specify one', () => {
 		const env = buildSetupScriptEnv({ ...CONTEXT, baseBranch: undefined });
-		expect(env).not.toHaveProperty('MAESTRO_BASE_BRANCH');
+		expect(env).not.toHaveProperty('OPENWIZARDAI_BASE_BRANCH');
 	});
 });
 
@@ -112,7 +112,7 @@ describe('runWorktreeSetupScript', () => {
 		expect(mockExecFile).not.toHaveBeenCalled();
 	});
 
-	it('runs the script in the worktree with MAESTRO_* env and a timeout', async () => {
+	it('runs the script in the worktree with OPENWIZARDAI_* env and a timeout', async () => {
 		const result = await runWorktreeSetupScript('./setup.sh', CONTEXT);
 
 		expect(result).toMatchObject({ success: true, ran: true, exitCode: 0 });
@@ -123,9 +123,9 @@ describe('runWorktreeSetupScript', () => {
 		expect(options).toMatchObject({
 			timeout: WORKTREE_SETUP_TIMEOUT_MS,
 			env: expect.objectContaining({
-				MAESTRO_WORKTREE_PATH: '/repos/worktrees/feature-x',
-				MAESTRO_WORKTREE_BRANCH: 'feature-x',
-				MAESTRO_MAIN_REPO_PATH: '/repos/app',
+				OPENWIZARDAI_WORKTREE_PATH: '/repos/worktrees/feature-x',
+				OPENWIZARDAI_WORKTREE_BRANCH: 'feature-x',
+				OPENWIZARDAI_MAIN_REPO_PATH: '/repos/app',
 				PATH: '/usr/local/bin:/usr/bin',
 			}),
 		});
@@ -139,7 +139,7 @@ describe('runWorktreeSetupScript', () => {
 		expect(mockExecFile).not.toHaveBeenCalled();
 		expect(mockExecShellRemote).toHaveBeenCalledWith('./setup.sh', SSH_REMOTE, {
 			cwd: '/repos/worktrees/feature-x',
-			env: expect.objectContaining({ MAESTRO_WORKTREE_BRANCH: 'feature-x' }),
+			env: expect.objectContaining({ OPENWIZARDAI_WORKTREE_BRANCH: 'feature-x' }),
 			timeoutMs: WORKTREE_SETUP_TIMEOUT_MS,
 		});
 	});

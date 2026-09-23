@@ -7,7 +7,7 @@
  * reinstall, or the provider's own cleanup can delete it out from under us. When
  * that happens the conversation is gone forever.
  *
- * This module gives Maestro its OWN copy for sessions the user has signalled
+ * This module gives OpenWizardAI its OWN copy for sessions the user has signalled
  * they want kept. It mirrors the transcript into `userData/starred-transcripts/`
  * and refreshes that mirror at the moments a session's context could be lost:
  *

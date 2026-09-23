@@ -8,9 +8,9 @@
  *
  * Because the chat preset defaults `allowRawHtml` on, this schema also runs over
  * ALL chat markdown - not just raw HTML - so it must be a superset of what
- * Maestro's own transforms emit: the `data-maestro-*` attributes that drive file
+ * OpenWizardAI's own transforms emit: the `data-openwizardai-*` attributes that drive file
  * links / previews (remarkFileLinks), the `markdown-alert-*` classes (remarkAlert),
- * and Maestro's internal URL schemes (`maestro:`, `maestro-file:`, `file:`, `tel:`).
+ * and OpenWizardAI's internal URL schemes (`openwizardai:`, `openwizardai-file:`, `file:`, `tel:`).
  * The GitHub default strips all of these, which silently breaks file links,
  * images, and callouts - so they are re-allowed below.
  *
@@ -22,7 +22,7 @@
  *
  * SVG/data attribute names use their hast (camelCased) forms because rehype-raw
  * parses markup through property-information's schema (e.g. `viewBox`,
- * `strokeWidth`, `stopColor`, `dataMaestroFile`). Adding the lowercase/dashed
+ * `strokeWidth`, `stopColor`, `dataOpenwizardaiFile`). Adding the lowercase/dashed
  * HTML spellings would be a no-op.
  */
 
@@ -70,16 +70,16 @@ const SVG_TAG_NAMES = [
 ];
 
 /**
- * `data-maestro-*` attributes (hast camelCase form) that Maestro's own remark
+ * `data-openwizardai-*` attributes (hast camelCase form) that OpenWizardAI's own remark
  * transforms emit to drive behavior: file links / previews, image loading, and
  * inline-width hints. The GitHub default schema strips all data attributes, so
  * without these, clickable file links and local images silently break in chat.
  */
-const MAESTRO_DATA_ATTRIBUTES = [
-	'dataMaestroFile',
-	'dataMaestroFromTree',
-	'dataMaestroImage',
-	'dataMaestroWidth',
+const OPENWIZARDAI_DATA_ATTRIBUTES = [
+	'dataOpenwizardaiFile',
+	'dataOpenwizardaiFromTree',
+	'dataOpenwizardaiImage',
+	'dataOpenwizardaiWidth',
 ];
 
 /**
@@ -176,7 +176,7 @@ export const svgSanitizeSchema: Schema = {
 		'*': [
 			...(defaultSchema.attributes?.['*'] ?? []),
 			...SVG_ATTRIBUTES,
-			...MAESTRO_DATA_ATTRIBUTES,
+			...OPENWIZARDAI_DATA_ATTRIBUTES,
 		],
 	},
 	// Do not clobber (prefix) `id`. The GitHub default rewrites `id="g"` to
@@ -187,14 +187,21 @@ export const svgSanitizeSchema: Schema = {
 	// that trusts user-content element ids, so the DOM-clobbering risk is moot.
 	clobber: (defaultSchema.clobber ?? []).filter((name) => name !== 'id'),
 	// Restrict SVG `<a>`/`<use>` linkable attributes to safe protocols (no
-	// `javascript:`), while re-allowing Maestro's internal URL schemes on `href`/
-	// `src` so `maestro:`, `maestro-file:`, `file:`, and `tel:` links + local
-	// images survive (matching urlTransformAllowingMaestro). `#` keeps
+	// `javascript:`), while re-allowing OpenWizardAI's internal URL schemes on `href`/
+	// `src` so `openwizardai:`, `openwizardai-file:`, `file:`, and `tel:` links + local
+	// images survive (matching urlTransformAllowingOpenWizardAI). `#` keeps
 	// `fill="url(#grad)"` targets and same-document anchors working.
 	protocols: {
 		...defaultSchema.protocols,
-		href: [...(defaultSchema.protocols?.href ?? []), 'maestro', 'maestro-file', 'file', 'tel', '#'],
-		src: [...(defaultSchema.protocols?.src ?? []), 'maestro', 'maestro-file', 'file'],
+		href: [
+			...(defaultSchema.protocols?.href ?? []),
+			'openwizardai',
+			'openwizardai-file',
+			'file',
+			'tel',
+			'#',
+		],
+		src: [...(defaultSchema.protocols?.src ?? []), 'openwizardai', 'openwizardai-file', 'file'],
 		xlinkHref: ['http', 'https', '#'],
 	},
 };

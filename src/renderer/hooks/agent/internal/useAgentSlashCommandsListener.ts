@@ -1,5 +1,5 @@
 /**
- * useAgentSlashCommandsListener - registers `window.maestro.process.onSlashCommands`
+ * useAgentSlashCommandsListener - registers `window.openwizardai.process.onSlashCommands`
  *
  * Routes the discovered slash commands to the matching session via
  * `parseSessionId` then writes them on `session.agentCommands` with
@@ -19,7 +19,7 @@ export function useAgentSlashCommandsListener(): void {
 		const setSessions = useSessionStore.getState().setSessions;
 		const getSessions = () => useSessionStore.getState().sessions;
 
-		const unsubscribe = window.maestro.process.onSlashCommands(
+		const unsubscribe = window.openwizardai.process.onSlashCommands(
 			(sessionId: string, slashCommands: string[]) => {
 				const actualSessionId = parseSessionId(sessionId).baseSessionId;
 

@@ -24,5 +24,5 @@ export function trackShortcutUsage(shortcutId: string): void {
 	if (result.newLevel !== null) {
 		getModalActions().setPendingKeyboardMasteryLevel(result.newLevel);
 	}
-	void window.maestro?.stats?.recordShortcutUsage?.(Date.now());
+	void window.openwizardai?.stats?.recordShortcutUsage?.(Date.now());
 }

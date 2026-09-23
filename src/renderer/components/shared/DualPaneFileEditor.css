@@ -214,7 +214,7 @@
  * renderEditorBody. Lives here so the shared editor chrome owns its own look
  * rather than depending on an unrelated stylesheet being loaded.
  *
- * Both current consumers (Memory Viewer, Maestro Prompts) edit through the
+ * Both current consumers (Memory Viewer, OpenWizardAI Prompts) edit through the
  * CodeMirror `MarkdownEditor` instead - reach for that first, and use these
  * only for a surface where syntax colouring would be noise. The highlight
  * backdrop below is still live: `TextareaHighlightOverlay` paints into it. */
@@ -224,8 +224,8 @@
 	padding: 12px;
 	border: 1px solid;
 	border-radius: 4px;
-	font-family: var(--maestro-font-file-editor, Monaco, Menlo, Consolas, monospace);
-	font-size: var(--maestro-size-file-editor, 12px);
+	font-family: var(--openwizardai-font-file-editor, Monaco, Menlo, Consolas, monospace);
+	font-size: var(--openwizardai-size-file-editor, 12px);
 	line-height: 1.5;
 	resize: none;
 	min-height: 0;

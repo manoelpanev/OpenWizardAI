@@ -1,7 +1,7 @@
 /**
  * Spec Kit prompts module
  *
- * Bundled prompts from GitHub's spec-kit project with our custom Maestro implementation.
+ * Bundled prompts from GitHub's spec-kit project with our custom OpenWizardAI implementation.
  * These prompts are imported at build time using Vite's ?raw suffix.
  *
  * Source: https://github.com/github/spec-kit
@@ -18,7 +18,7 @@ import analyzePrompt from './speckit.analyze.md?raw';
 import checklistPrompt from './speckit.checklist.md?raw';
 import tasksToIssuesPrompt from './speckit.taskstoissues.md?raw';
 
-// Custom Maestro prompts
+// Custom OpenWizardAI prompts
 import helpPrompt from './speckit.help.md?raw';
 import implementPrompt from './speckit.implement.md?raw';
 
@@ -47,7 +47,7 @@ export const speckitCommands: SpecKitCommandDefinition[] = [
 	{
 		id: 'help',
 		command: '/speckit.help',
-		description: 'Learn how to use spec-kit with OpenWizzard',
+		description: 'Learn how to use spec-kit with OpenWizardAI',
 		prompt: helpPrompt,
 		isCustom: true,
 	},
@@ -110,7 +110,7 @@ export const speckitCommands: SpecKitCommandDefinition[] = [
 	{
 		id: 'implement',
 		command: '/speckit.implement',
-		description: 'Execute tasks using OpenWizzard Auto Run with worktree support',
+		description: 'Execute tasks using OpenWizardAI Auto Run with worktree support',
 		prompt: implementPrompt,
 		isCustom: true,
 	},

@@ -40,7 +40,7 @@ function lastFlush(): WizardRun {
 beforeEach(() => {
 	recordWizardRun.mockClear();
 	resetWizardRunsForTest();
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		stats: { recordWizardRun },
 	};
 });

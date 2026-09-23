@@ -59,7 +59,7 @@ const defaultProps = {
 	onCopyFileName: vi.fn(),
 	onDownloadFile: vi.fn(),
 	onOpenInDefaultApp: vi.fn(),
-	onOpenInMaestroBrowser: vi.fn(),
+	onOpenInOpenWizardAIBrowser: vi.fn(),
 	onOpenInExplorer: vi.fn(),
 	onOpenNewFile: vi.fn(),
 	onOpenNewFolder: vi.fn(),
@@ -76,16 +76,16 @@ const defaultProps = {
 	onOpenDelete: vi.fn(),
 };
 
-const origMaestro = (window as any).maestro;
+const origOpenWizardAI = (window as any).openwizardai;
 
 describe('FileTreeContextMenu', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(window as any).maestro = { platform: 'darwin' };
+		(window as any).openwizardai = { platform: 'darwin' };
 	});
 
 	afterEach(() => {
-		(window as any).maestro = origMaestro;
+		(window as any).openwizardai = origOpenWizardAI;
 	});
 
 	it('shows Preview + Open in Default App + Copy Path + Reveal + Rename + Delete for a file', () => {
@@ -169,12 +169,12 @@ describe('FileTreeContextMenu', () => {
 		expect(screen.queryByText(/Preview All .* in Folder/)).toBeNull();
 	});
 
-	it('shows "Open in OpenWizzard Browser" for HTML files (local only)', () => {
+	it('shows "Open in OpenWizardAI Browser" for HTML files (local only)', () => {
 		render(<FileTreeContextMenu {...defaultProps} contextMenu={makeContextMenu(htmlNode)} />);
-		expect(screen.getByText('Open in OpenWizzard Browser')).toBeTruthy();
+		expect(screen.getByText('Open in OpenWizardAI Browser')).toBeTruthy();
 	});
 
-	it('hides "Open in OpenWizzard Browser" when sshRemoteId is set', () => {
+	it('hides "Open in OpenWizardAI Browser" when sshRemoteId is set', () => {
 		render(
 			<FileTreeContextMenu
 				{...defaultProps}
@@ -182,7 +182,7 @@ describe('FileTreeContextMenu', () => {
 				sshRemoteId="remote-1"
 			/>
 		);
-		expect(screen.queryByText('Open in OpenWizzard Browser')).toBeNull();
+		expect(screen.queryByText('Open in OpenWizardAI Browser')).toBeNull();
 	});
 
 	it('shows "Document Graph" for markdown files when callback is provided', () => {
@@ -332,7 +332,7 @@ describe('FileTreeContextMenu', () => {
 	});
 
 	it('renders reveal action when the preload bridge is missing', () => {
-		(window as any).maestro = undefined;
+		(window as any).openwizardai = undefined;
 		render(<FileTreeContextMenu {...defaultProps} contextMenu={makeContextMenu(fileNode)} />);
 		expect(screen.getByText('Reveal in Finder')).toBeTruthy();
 	});

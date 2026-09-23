@@ -5,9 +5,9 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 // Mock formatter
@@ -17,7 +17,7 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { createGroup } from '../../../cli/commands/create-group';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { formatError, formatSuccess } from '../../../cli/output/formatter';
 
 describe('create-group command', () => {
@@ -34,7 +34,7 @@ describe('create-group command', () => {
 	describe('successful creation', () => {
 		it('should create a group with just a name', async () => {
 			let sentPayload: Record<string, unknown> = {};
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockImplementation((payload) => {
 						sentPayload = payload;
@@ -60,7 +60,7 @@ describe('create-group command', () => {
 
 		it('should send emoji when provided', async () => {
 			let sentPayload: Record<string, unknown> = {};
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockImplementation((payload) => {
 						sentPayload = payload;
@@ -80,7 +80,7 @@ describe('create-group command', () => {
 		});
 
 		it('should output JSON when --json flag is set', async () => {
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockResolvedValue({
 						type: 'create_group_result',
@@ -121,7 +121,7 @@ describe('create-group command', () => {
 
 	describe('error handling', () => {
 		it('should handle server returning failure', async () => {
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockResolvedValue({
 						type: 'create_group_result',
@@ -139,7 +139,7 @@ describe('create-group command', () => {
 		});
 
 		it('should handle connection error', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('App not running'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('App not running'));
 
 			await createGroup('No App', {});
 
@@ -148,7 +148,7 @@ describe('create-group command', () => {
 		});
 
 		it('should handle connection error in JSON mode', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('Connection refused'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('Connection refused'));
 
 			await createGroup('No App', { json: true });
 

@@ -127,7 +127,7 @@ export interface CopilotShutdownUsage {
  * to stdout - it only writes it to disk, and it can continue writing AFTER
  * the parent process we spawned has already exited (subagent delegation runs
  * work in additional processes that share the same session-state directory).
- * Without this wait, Maestro flips the tab to `idle` while Copilot is still
+ * Without this wait, OpenWizardAI flips the tab to `idle` while Copilot is still
  * working.
  *
  * When `options.sshRemote` is set the events file lives on the remote host,
@@ -323,7 +323,7 @@ async function waitForCopilotShutdownRemote(
  * Copilot CLI in autopilot mode (which batch mode auto-enters) commonly ends
  * a turn by calling the `task_complete` tool with an empty assistant.message
  * and the full conclusion in `task_complete.arguments.summary` (mirrored to
- * `session.task_complete.data.summary`). Without #2, Maestro would fall back
+ * `session.task_complete.data.summary`). Without #2, OpenWizardAI would fall back
  * to a stale assistant.message from an earlier turn and show the user
  * unrelated text.
  *

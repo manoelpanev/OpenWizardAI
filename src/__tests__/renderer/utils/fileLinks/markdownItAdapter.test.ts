@@ -46,14 +46,14 @@ describe('applyFileLinks - standard markdown link rewriting', () => {
 	it('rewrites a relative href that resolves in the tree', () => {
 		const indices = indicesFor(['docs/Notes.md']);
 		const html = render('[click](docs/Notes.md)', { indices });
-		expect(html).toContain('href="maestro-file://docs/Notes.md"');
-		expect(html).toContain('data-maestro-file="docs/Notes.md"');
+		expect(html).toContain('href="openwizardai-file://docs/Notes.md"');
+		expect(html).toContain('data-openwizardai-file="docs/Notes.md"');
 	});
 
 	it('leaves external https links untouched', () => {
 		const html = render('[ext](https://example.com)');
 		expect(html).toContain('href="https://example.com"');
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 
 	it('leaves mailto / tel URIs untouched', () => {
@@ -66,25 +66,25 @@ describe('applyFileLinks - standard markdown link rewriting', () => {
 	it('leaves bare anchor links untouched', () => {
 		const html = render('[anchor](#section)');
 		expect(html).toContain('href="#section"');
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 
 	it('does not rewrite a relative href that does not resolve', () => {
 		const indices = indicesFor(['docs/Notes.md']);
 		const html = render('[broken](does/not/exist.md)', { indices });
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 		expect(html).toContain('href="does/not/exist.md"');
 	});
 
 	it('decodes URL-encoded paths before resolving', () => {
 		const indices = indicesFor(['docs/My Note.md']);
 		const html = render('[doc](docs/My%20Note.md)', { indices });
-		expect(html).toContain('maestro-file://docs/My Note.md');
+		expect(html).toContain('openwizardai-file://docs/My Note.md');
 	});
 
-	it('does not rewrite already-rewritten maestro-file:// hrefs', () => {
-		const html = render('[doc](maestro-file://docs/Notes.md)');
-		expect(html).toContain('href="maestro-file://docs/Notes.md"');
+	it('does not rewrite already-rewritten openwizardai-file:// hrefs', () => {
+		const html = render('[doc](openwizardai-file://docs/Notes.md)');
+		expect(html).toContain('href="openwizardai-file://docs/Notes.md"');
 	});
 });
 
@@ -92,14 +92,14 @@ describe('applyFileLinks - wiki-style [[references]]', () => {
 	it('resolves [[Note]] to its full path when unique', () => {
 		const indices = indicesFor(['notes/Hello.md']);
 		const html = render('See [[Hello]] for context.', { indices });
-		expect(html).toContain('href="maestro-file://notes/Hello.md"');
+		expect(html).toContain('href="openwizardai-file://notes/Hello.md"');
 		expect(html).toContain('>Hello</a>');
 	});
 
 	it('honors the |alias suffix for display text', () => {
 		const indices = indicesFor(['notes/Hello World.md']);
 		const html = render('See [[Hello World|the intro]] for context.', { indices });
-		expect(html).toContain('maestro-file://notes/Hello World.md');
+		expect(html).toContain('openwizardai-file://notes/Hello World.md');
 		expect(html).toContain('>the intro</a>');
 	});
 
@@ -107,20 +107,20 @@ describe('applyFileLinks - wiki-style [[references]]', () => {
 		const indices = indicesFor(['notes/Hello.md']);
 		const html = render('[[Missing]] should not link.', { indices });
 		expect(html).toContain('[[Missing]]');
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 
 	it('disambiguates duplicate basenames using cwd proximity', () => {
 		const indices = indicesFor(['a/README.md', 'b/README.md']);
 		const html = render('Read [[README]].', { indices, cwd: 'b' });
-		expect(html).toContain('maestro-file://b/README.md');
-		expect(html).not.toContain('maestro-file://a/README.md');
+		expect(html).toContain('openwizardai-file://b/README.md');
+		expect(html).not.toContain('openwizardai-file://a/README.md');
 	});
 
 	it('does not double-process when the same wiki link appears in two paragraphs', () => {
 		const indices = indicesFor(['notes/Hello.md']);
 		const html = render('[[Hello]] in para 1.\n\n[[Hello]] in para 2.', { indices });
-		const matches = html.match(/maestro-file:\/\/notes\/Hello\.md/g) || [];
+		const matches = html.match(/openwizardai-file:\/\/notes\/Hello\.md/g) || [];
 		expect(matches.length).toBe(2);
 	});
 });
@@ -129,20 +129,20 @@ describe('applyFileLinks - ![[image]] embeds', () => {
 	it('rewrites image embeds to <img> tokens pointing at the resolved path', () => {
 		const indices = indicesFor(['assets/diagram.png']);
 		const html = render('See ![[diagram.png]] below.', { indices });
-		expect(html).toContain('src="maestro-file://assets/diagram.png"');
+		expect(html).toContain('src="openwizardai-file://assets/diagram.png"');
 	});
 
 	it('preserves the width suffix when present', () => {
 		const indices = indicesFor(['assets/wide.png']);
 		const html = render('![[wide.png|420]]', { indices });
-		expect(html).toContain('src="maestro-file://assets/wide.png"');
+		expect(html).toContain('src="openwizardai-file://assets/wide.png"');
 		expect(html).toContain('width="420"');
 	});
 
 	it('falls back to _attachments/<file> when the image is not in the tree', () => {
 		const indices = indicesFor([]);
 		const html = render('![[orphan.png]]', { indices });
-		expect(html).toContain('src="maestro-file://_attachments/orphan.png"');
+		expect(html).toContain('src="openwizardai-file://_attachments/orphan.png"');
 	});
 
 	it('uses the bare filename as the alt text', () => {
@@ -164,34 +164,34 @@ describe('applyFileLinks - plain path references in running text', () => {
 	it('rewrites a path-style reference when the path exists', () => {
 		const indices = indicesFor(['src/utils/helpers.ts']);
 		const html = render('See src/utils/helpers.ts.', { indices });
-		expect(html).toContain('maestro-file://src/utils/helpers.ts');
+		expect(html).toContain('openwizardai-file://src/utils/helpers.ts');
 	});
 
 	it('does not rewrite a path-style reference that does not exist', () => {
 		const indices = indicesFor(['src/utils/helpers.ts']);
 		const html = render('See src/nope/missing.ts.', { indices });
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 
 	it('does not rewrite single-word identifiers', () => {
 		const indices = indicesFor(['x.md']);
 		const html = render('Just word here.', { indices });
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 });
 
-describe('applyFileLinks - bare maestro:// deep links', () => {
-	it('auto-linkifies a bare maestro:// URL in running text', () => {
-		const html = render('See maestro://session/abc/tab/xyz now.');
-		expect(html).toContain('href="maestro://session/abc/tab/xyz"');
-		expect(html).toContain('>maestro://session/abc/tab/xyz</a>');
+describe('applyFileLinks - bare openwizardai:// deep links', () => {
+	it('auto-linkifies a bare openwizardai:// URL in running text', () => {
+		const html = render('See openwizardai://session/abc/tab/xyz now.');
+		expect(html).toContain('href="openwizardai://session/abc/tab/xyz"');
+		expect(html).toContain('>openwizardai://session/abc/tab/xyz</a>');
 	});
 
-	it('does not rewrite an existing markdown link with a maestro:// href', () => {
-		const html = render('[label](maestro://group/grp1)');
-		// Should leave the href unchanged (not turned into maestro-file://)
-		expect(html).toContain('href="maestro://group/grp1"');
-		expect(html).not.toContain('maestro-file://');
+	it('does not rewrite an existing markdown link with a openwizardai:// href', () => {
+		const html = render('[label](openwizardai://group/grp1)');
+		// Should leave the href unchanged (not turned into openwizardai-file://)
+		expect(html).toContain('href="openwizardai://group/grp1"');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 });
 
@@ -204,7 +204,7 @@ describe('applyFileLinks - edge cases', () => {
 
 	it('is a no-op when indices are empty', () => {
 		const html = render('[a](docs/x.md) and [[y]]', { indices: indicesFor([]) });
-		expect(html).not.toContain('maestro-file://');
+		expect(html).not.toContain('openwizardai-file://');
 	});
 
 	it('does not mutate the token stream when no patterns match', () => {

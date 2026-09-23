@@ -1,15 +1,15 @@
 ---
 title: Remote Control
-description: Control Maestro from your phone via the built-in web server and Cloudflare tunnels.
+description: Control OpenWizardAI from your phone via the built-in web server and Cloudflare tunnels.
 icon: tower-broadcast
 ---
 
-Maestro includes a built-in web server for mobile remote control:
+OpenWizardAI includes a built-in web server for mobile remote control:
 
 1. **Automatic Security** - Web server runs on a random port with an auto-generated security token (UUID) embedded in the URL
 2. **QR Code Access** - Scan a QR code to connect instantly from your phone
 3. **Live Sessions** - Sessions marked as "live" become accessible through the web interface (protected by the security token)
-4. **Remote Tunneling** - Access Maestro from anywhere via Cloudflare tunnel (requires `cloudflared` CLI)
+4. **Remote Tunneling** - Access OpenWizardAI from anywhere via Cloudflare tunnel (requires `cloudflared` CLI)
 
 ## Mobile Web Interface
 
@@ -47,14 +47,14 @@ The web interface uses your local IP address (e.g., `192.168.x.x`) for LAN acces
 
 ## Remote Control (Outside Your Network)
 
-To access Maestro from outside your local network (e.g., on mobile data or from another location):
+To access OpenWizardAI from outside your local network (e.g., on mobile data or from another location):
 
 1. Install cloudflared: `brew install cloudflared` (macOS) or [download for other platforms](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
 2. Enable the web interface (**OFFLINE** → **LIVE**)
 3. Toggle **Remote Control** in the Live overlay panel
 4. A secure Cloudflare tunnel URL (e.g., `https://abc123.trycloudflare.com`) will be generated within ~30 seconds
 5. Use the **Local/Remote** pill selector to switch between QR codes
-6. The tunnel stays active as long as Maestro is running - no time limits, no Cloudflare account required
+6. The tunnel stays active as long as OpenWizardAI is running - no time limits, no Cloudflare account required
 
 <Tip>
 The Remote tab automatically activates when the tunnel connects successfully.
@@ -62,7 +62,7 @@ The Remote tab automatically activates when the tunnel connects successfully.
 
 ## Custom Port Configuration
 
-By default, Maestro assigns a **random port** each time the web server starts. This is a security-by-obscurity measure - attackers can't easily guess which port to target.
+By default, OpenWizardAI assigns a **random port** each time the web server starts. This is a security-by-obscurity measure - attackers can't easily guess which port to target.
 
 However, if you need a **fixed port** (e.g., for firewall rules, reverse proxies, or persistent tunnel configurations), you can enable custom port mode:
 
@@ -120,4 +120,4 @@ The mobile interface includes robust connection management:
 ## Related
 
 - [Configuration](/configuration) - General settings including web interface options
-- [SSH Remote Execution](/ssh-remote-execution) - Running Maestro on remote servers
+- [SSH Remote Execution](/ssh-remote-execution) - Running OpenWizardAI on remote servers

@@ -35,7 +35,7 @@ vi.mock('../../../web/utils/logger', () => ({
 
 import { webLogger } from '../../../web/utils/logger';
 
-const STORAGE_KEY = 'maestro-offline-queue';
+const STORAGE_KEY = 'openwizardai-offline-queue';
 const MAX_QUEUE_SIZE = 50;
 
 // Mock localStorage with proper implementation

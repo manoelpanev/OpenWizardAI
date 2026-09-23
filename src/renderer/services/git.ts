@@ -47,7 +47,7 @@ export const gitService = {
 	 */
 	async isRepo(cwd: string, sshRemoteId?: string): Promise<boolean> {
 		return createIpcMethod({
-			call: () => window.maestro.git.isRepo(cwd, sshRemoteId),
+			call: () => window.openwizardai.git.isRepo(cwd, sshRemoteId),
 			errorContext: 'Git isRepo',
 			defaultValue: false,
 		});
@@ -60,7 +60,7 @@ export const gitService = {
 	 */
 	async init(cwd: string, sshRemoteId?: string): Promise<{ success: boolean; error?: string }> {
 		return createIpcMethod({
-			call: () => window.maestro.git.init(cwd, sshRemoteId),
+			call: () => window.openwizardai.git.init(cwd, sshRemoteId),
 			errorContext: 'Git init',
 			defaultValue: { success: false, error: 'git init failed' },
 		});
@@ -75,8 +75,8 @@ export const gitService = {
 		return createIpcMethod({
 			call: async () => {
 				const [statusResult, branchResult] = await Promise.all([
-					window.maestro.git.status(cwd, sshRemoteId),
-					window.maestro.git.branch(cwd, sshRemoteId),
+					window.openwizardai.git.status(cwd, sshRemoteId),
+					window.openwizardai.git.branch(cwd, sshRemoteId),
 				]);
 
 				const files = parseGitStatusPorcelain(statusResult.stdout || '');
@@ -100,12 +100,12 @@ export const gitService = {
 			call: async () => {
 				// If no files specified, get full diff
 				if (!files || files.length === 0) {
-					const result = await window.maestro.git.diff(cwd, undefined, sshRemoteId);
+					const result = await window.openwizardai.git.diff(cwd, undefined, sshRemoteId);
 					return { diff: result.stdout };
 				}
 				// Otherwise get diff for specific files
 				const results = await Promise.all(
-					files.map((file) => window.maestro.git.diff(cwd, file, sshRemoteId))
+					files.map((file) => window.openwizardai.git.diff(cwd, file, sshRemoteId))
 				);
 				return { diff: results.map((result) => result.stdout).join('\n') };
 			},
@@ -122,7 +122,7 @@ export const gitService = {
 	async getNumstat(cwd: string, sshRemoteId?: string): Promise<GitNumstat> {
 		return createIpcMethod({
 			call: async () => {
-				const result = await window.maestro.git.numstat(cwd, sshRemoteId);
+				const result = await window.openwizardai.git.numstat(cwd, sshRemoteId);
 				const files = parseGitNumstat(result.stdout || '');
 				return { files };
 			},
@@ -140,7 +140,7 @@ export const gitService = {
 	async getRemoteBrowserUrl(cwd: string, sshRemoteId?: string): Promise<string | null> {
 		return createIpcMethod({
 			call: async () => {
-				const result = await window.maestro.git.remote(cwd, sshRemoteId);
+				const result = await window.openwizardai.git.remote(cwd, sshRemoteId);
 				return result.stdout ? remoteUrlToBrowserUrl(result.stdout) : null;
 			},
 			errorContext: 'Git remote',
@@ -156,7 +156,7 @@ export const gitService = {
 	async getBranches(cwd: string, sshRemoteId?: string): Promise<string[]> {
 		return createIpcMethod({
 			call: async () => {
-				const result = await window.maestro.git.branches(cwd, sshRemoteId);
+				const result = await window.openwizardai.git.branches(cwd, sshRemoteId);
 				return result.branches || [];
 			},
 			errorContext: 'Git branches',
@@ -179,7 +179,7 @@ export const gitService = {
 		setUpstream?: boolean;
 	}): Promise<GitRunCommandResult> {
 		return createIpcMethod({
-			call: () => window.maestro.git.runCommand(options),
+			call: () => window.openwizardai.git.runCommand(options),
 			errorContext: `Git ${options.operation}`,
 			defaultValue: {
 				success: false,
@@ -194,7 +194,7 @@ export const gitService = {
 	 * Subscribe to output streamed by `runCommand`. Returns an unsubscribe.
 	 */
 	onCommandOutput(callback: (data: GitCommandOutputChunk) => void): () => void {
-		return window.maestro.git.onCommandOutput(callback);
+		return window.openwizardai.git.onCommandOutput(callback);
 	},
 
 	/**
@@ -202,7 +202,7 @@ export const gitService = {
 	 */
 	async cancelCommand(runId: string): Promise<void> {
 		await createIpcMethod({
-			call: () => window.maestro.git.cancelCommand(runId),
+			call: () => window.openwizardai.git.cancelCommand(runId),
 			errorContext: 'Git cancelCommand',
 			defaultValue: { success: false },
 		});
@@ -219,7 +219,7 @@ export const gitService = {
 		sshRemoteId?: string
 	): Promise<{ success: boolean; output?: string; error?: string }> {
 		return createIpcMethod({
-			call: () => window.maestro.git.checkoutBranch(cwd, branch, createTracking, sshRemoteId),
+			call: () => window.openwizardai.git.checkoutBranch(cwd, branch, createTracking, sshRemoteId),
 			errorContext: 'Git checkoutBranch',
 			defaultValue: { success: false, error: 'git checkout failed' },
 		});
@@ -233,7 +233,7 @@ export const gitService = {
 	async getTags(cwd: string, sshRemoteId?: string): Promise<string[]> {
 		return createIpcMethod({
 			call: async () => {
-				const result = await window.maestro.git.tags(cwd, sshRemoteId);
+				const result = await window.openwizardai.git.tags(cwd, sshRemoteId);
 				return result.tags || [];
 			},
 			errorContext: 'Git tags',

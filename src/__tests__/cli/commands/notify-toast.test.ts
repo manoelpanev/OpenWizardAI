@@ -2,7 +2,7 @@
  * @file notify-toast.test.ts
  * @description Tests for the notify-toast CLI command's click-action flags.
  *
- * `maestro-cli notify toast` is the only producer of a toast that cannot pass a
+ * `openwizardai-cli notify toast` is the only producer of a toast that cannot pass a
  * callback, so the `--open-*` flags are the whole click contract. They are
  * mutually exclusive and all but `--open-url` need an agent, and getting either
  * rule wrong ships a toast whose click silently does nothing. These tests pin
@@ -11,8 +11,8 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 vi.mock('../../../cli/services/storage', () => ({
@@ -20,7 +20,7 @@ vi.mock('../../../cli/services/storage', () => ({
 }));
 
 import { notifyToast } from '../../../cli/commands/notify-toast';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import type { ToastClickAction } from '../../../shared/toastClickAction';
 
 interface CapturedToast {
@@ -43,7 +43,7 @@ describe('notify-toast command click actions', () => {
 		// Mocked so an error path keeps running and we can assert on BOTH the
 		// message and the non-zero exit, the way the other CLI tests do.
 		processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					captured = msg;

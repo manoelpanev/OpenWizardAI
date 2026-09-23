@@ -1,5 +1,5 @@
 /**
- * AutoRunDocumentViewer component for Maestro mobile web interface
+ * AutoRunDocumentViewer component for OpenWizardAI mobile web interface
  *
  * Full-screen document viewer/editor for Auto Run markdown files.
  * Supports preview mode (rendered markdown) and edit mode (textarea),

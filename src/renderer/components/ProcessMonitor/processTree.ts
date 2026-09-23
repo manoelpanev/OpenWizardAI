@@ -229,7 +229,7 @@ export function buildProcessTree(input: BuildProcessTreeInput): ProcessNode[] {
 				sshRemote,
 				tabName,
 				childProcesses: proc.childProcesses,
-				maestroEnvVars: proc.maestroEnvVars,
+				openwizardaiEnvVars: proc.openwizardaiEnvVars,
 				sshRemoteCommand: proc.sshRemoteCommand,
 				children: childNodes.length > 0 ? childNodes : undefined,
 			};
@@ -339,7 +339,7 @@ export function buildProcessTree(input: BuildProcessTreeInput): ProcessNode[] {
 						participantName,
 						command: proc.command,
 						args: proc.args,
-						maestroEnvVars: proc.maestroEnvVars,
+						openwizardaiEnvVars: proc.openwizardaiEnvVars,
 						sshRemoteCommand: proc.sshRemoteCommand,
 					};
 				});
@@ -394,7 +394,7 @@ export function buildProcessTree(input: BuildProcessTreeInput): ProcessNode[] {
 				startTime: proc.startTime,
 				command: proc.command,
 				args: proc.args,
-				maestroEnvVars: proc.maestroEnvVars,
+				openwizardaiEnvVars: proc.openwizardaiEnvVars,
 				sshRemoteCommand: proc.sshRemoteCommand,
 			};
 		});
@@ -430,7 +430,7 @@ export function buildProcessTree(input: BuildProcessTreeInput): ProcessNode[] {
 			cueSubscriptionName: proc.cueSubscriptionName,
 			cueEventType: proc.cueEventType,
 			cueSessionName: proc.cueSessionName,
-			maestroEnvVars: proc.maestroEnvVars,
+			openwizardaiEnvVars: proc.openwizardaiEnvVars,
 			sshRemoteCommand: proc.sshRemoteCommand,
 		}));
 

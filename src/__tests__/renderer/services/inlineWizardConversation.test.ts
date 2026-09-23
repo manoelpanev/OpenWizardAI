@@ -7,8 +7,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	agents: {
 		get: vi.fn(),
 	},
@@ -21,7 +21,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import {
@@ -43,8 +43,8 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: ['--print', '--verbose', '--dangerously-skip-permissions'],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			// Start a conversation first
 			const session = await startInlineWizardConversation({
@@ -66,8 +66,8 @@ describe('inlineWizardConversation', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify spawn was called with correct args
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// Critical: Verify --output-format stream-json is present
 			// This is required for thinking-chunk events to work
@@ -82,7 +82,7 @@ describe('inlineWizardConversation', () => {
 			expect(spawnCall.args).toContain('--allowedTools');
 
 			// Clean up - simulate exit
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -95,8 +95,8 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -112,17 +112,17 @@ describe('inlineWizardConversation', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onThinkingChunk listener was set up
-			expect(mockMaestro.process.onThinkingChunk).toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onThinkingChunk).toHaveBeenCalled();
 
 			// Simulate receiving a thinking chunk
-			const thinkingCallback = mockMaestro.process.onThinkingChunk.mock.calls[0][0];
+			const thinkingCallback = mockOpenWizardAI.process.onThinkingChunk.mock.calls[0][0];
 			thinkingCallback(session.sessionId, 'Thinking about the project...');
 
 			// Verify callback was invoked
 			expect(onThinkingChunk).toHaveBeenCalledWith('Thinking about the project...');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -135,8 +135,8 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -152,14 +152,14 @@ describe('inlineWizardConversation', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Simulate receiving a thinking chunk from a different session
-			const thinkingCallback = mockMaestro.process.onThinkingChunk.mock.calls[0][0];
+			const thinkingCallback = mockOpenWizardAI.process.onThinkingChunk.mock.calls[0][0];
 			thinkingCallback('different-session-id', 'This should be ignored');
 
 			// Verify callback was NOT invoked
 			expect(onThinkingChunk).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -172,8 +172,8 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -189,18 +189,18 @@ describe('inlineWizardConversation', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onToolExecution listener was set up
-			expect(mockMaestro.process.onToolExecution).toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onToolExecution).toHaveBeenCalled();
 
 			// Simulate receiving a tool execution event
 			const toolEvent = { toolName: 'Read', state: { status: 'running' }, timestamp: Date.now() };
-			const toolCallback = mockMaestro.process.onToolExecution.mock.calls[0][0];
+			const toolCallback = mockOpenWizardAI.process.onToolExecution.mock.calls[0][0];
 			toolCallback(session.sessionId, toolEvent);
 
 			// Verify callback was invoked with the tool event
 			expect(onToolExecution).toHaveBeenCalledWith(toolEvent);
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -213,8 +213,8 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -231,14 +231,14 @@ describe('inlineWizardConversation', () => {
 
 			// Simulate receiving a tool execution from a different session
 			const toolEvent = { toolName: 'Read', state: { status: 'running' }, timestamp: Date.now() };
-			const toolCallback = mockMaestro.process.onToolExecution.mock.calls[0][0];
+			const toolCallback = mockOpenWizardAI.process.onToolExecution.mock.calls[0][0];
 			toolCallback('different-session-id', toolEvent);
 
 			// Verify callback was NOT invoked
 			expect(onToolExecution).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -251,8 +251,8 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -272,10 +272,10 @@ describe('inlineWizardConversation', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onToolExecution listener was NOT set up
-			expect(mockMaestro.process.onToolExecution).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onToolExecution).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -293,8 +293,8 @@ describe('inlineWizardConversation', () => {
 					'--no-ask-user',
 				],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'copilot-cli',
@@ -306,7 +306,7 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, 'Hello', []);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 			expect(spawnCall.args).toEqual(
 				expect.arrayContaining([
 					'--allow-tool=read,url',
@@ -315,7 +315,7 @@ describe('inlineWizardConversation', () => {
 				])
 			);
 
-			const dataCallback = mockMaestro.process.onData.mock.calls[0][0];
+			const dataCallback = mockOpenWizardAI.process.onData.mock.calls[0][0];
 			dataCallback(
 				session.sessionId,
 				'{"type":"assistant.message","data":{"phase":"final_answer","content":"{\\"confidence\\":91,\\"ready\\":true,\\"message\\":\\"Ready to proceed\\"}"}}\n'
@@ -325,7 +325,7 @@ describe('inlineWizardConversation', () => {
 				'{"type":"result","sessionId":"copilot-session-123","exitCode":0,"usage":{"sessionDurationMs":1200}}\n'
 			);
 
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await expect(messagePromise).resolves.toEqual(
@@ -356,10 +356,10 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 			const mockKill = vi.fn().mockResolvedValue(undefined);
-			mockMaestro.process.kill = mockKill;
+			mockOpenWizardAI.process.kill = mockKill;
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -371,7 +371,7 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, 'Analyze this codebase', []);
 			await vi.advanceTimersByTimeAsync(10);
 
-			const dataCallback = mockMaestro.process.onData.mock.calls[0][0];
+			const dataCallback = mockOpenWizardAI.process.onData.mock.calls[0][0];
 
 			// Simulate data arriving at 15 minutes (before the 20-min timeout)
 			await vi.advanceTimersByTimeAsync(900000); // 15 minutes
@@ -401,10 +401,10 @@ describe('inlineWizardConversation', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 			const mockKill = vi.fn().mockResolvedValue(undefined);
-			mockMaestro.process.kill = mockKill;
+			mockOpenWizardAI.process.kill = mockKill;
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -416,7 +416,7 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, 'Complex analysis', []);
 			await vi.advanceTimersByTimeAsync(10);
 
-			const dataCallback = mockMaestro.process.onData.mock.calls[0][0];
+			const dataCallback = mockOpenWizardAI.process.onData.mock.calls[0][0];
 
 			// Send data every 10 minutes for 70 minutes - well past the 20-min timeout
 			for (let i = 0; i < 7; i++) {
@@ -428,7 +428,7 @@ describe('inlineWizardConversation', () => {
 			expect(mockKill).not.toHaveBeenCalled();
 
 			// Complete normally
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await vi.advanceTimersByTimeAsync(0); // flush microtasks
@@ -444,18 +444,18 @@ describe('inlineWizardConversation', () => {
 
 	describe('Windows stdin handling', () => {
 		// Save original platform
-		const originalMaestroPlatform = (window as any).maestro?.platform;
+		const originalOpenWizardAIPlatform = (window as any).openwizardai?.platform;
 
 		afterEach(() => {
 			// Restore original platform
-			if ((window as any).maestro) {
-				(window as any).maestro.platform = originalMaestroPlatform;
+			if ((window as any).openwizardai) {
+				(window as any).openwizardai.platform = originalOpenWizardAIPlatform;
 			}
 		});
 
 		it('should use sendPromptViaStdinRaw for claude-code on Windows (text-only, no images)', async () => {
 			// Mock Windows platform
-			(window as any).maestro = { ...((window as any).maestro || {}), platform: 'win32' };
+			(window as any).openwizardai = { ...((window as any).openwizardai || {}), platform: 'win32' };
 
 			const mockAgent = {
 				id: 'claude-code',
@@ -466,8 +466,8 @@ describe('inlineWizardConversation', () => {
 					supportsStreamJsonInput: true,
 				},
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -479,21 +479,21 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, 'Hello', []);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// Inline wizard never sends images, so text-only uses raw stdin (not stream-json)
 			expect(spawnCall.sendPromptViaStdin).toBe(false);
 			expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 			await messagePromise;
 		});
 
 		it('should use sendPromptViaStdinRaw for opencode on Windows', async () => {
 			// Mock Windows platform
-			(window as any).maestro = { ...((window as any).maestro || {}), platform: 'win32' };
+			(window as any).openwizardai = { ...((window as any).openwizardai || {}), platform: 'win32' };
 
 			const mockAgent = {
 				id: 'opencode',
@@ -504,8 +504,8 @@ describe('inlineWizardConversation', () => {
 					supportsStreamJsonInput: false,
 				},
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'opencode',
@@ -517,21 +517,24 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, '- test with dash', []);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// OpenCode doesn't support stream-json, so should use sendPromptViaStdinRaw
 			expect(spawnCall.sendPromptViaStdin).toBe(false);
 			expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 			await messagePromise;
 		});
 
 		it('should not use stdin flags on non-Windows platforms', async () => {
 			// Mock macOS platform
-			(window as any).maestro = { ...((window as any).maestro || {}), platform: 'darwin' };
+			(window as any).openwizardai = {
+				...((window as any).openwizardai || {}),
+				platform: 'darwin',
+			};
 
 			const mockAgent = {
 				id: 'opencode',
@@ -542,8 +545,8 @@ describe('inlineWizardConversation', () => {
 					supportsStreamJsonInput: false,
 				},
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'opencode',
@@ -555,21 +558,21 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, '- test with dash', []);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// On non-Windows, both flags should be false
 			expect(spawnCall.sendPromptViaStdin).toBe(false);
 			expect(spawnCall.sendPromptViaStdinRaw).toBe(false);
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 			await messagePromise;
 		});
 
 		it('should NOT add --input-format stream-json for claude-code on Windows (text-only)', async () => {
 			// Mock Windows platform
-			(window as any).maestro = { ...((window as any).maestro || {}), platform: 'win32' };
+			(window as any).openwizardai = { ...((window as any).openwizardai || {}), platform: 'win32' };
 
 			const mockAgent = {
 				id: 'claude-code',
@@ -580,8 +583,8 @@ describe('inlineWizardConversation', () => {
 					supportsStreamJsonInput: true,
 				},
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'claude-code',
@@ -593,13 +596,13 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, 'Hello', []);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// Text-only messages should NOT have --input-format stream-json (only needed for images)
 			expect(spawnCall.args).not.toContain('--input-format');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 			await messagePromise;
 		});
@@ -620,8 +623,8 @@ describe('inlineWizardConversation', () => {
 					supportsStreamJsonInput: false,
 				},
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const session = await startInlineWizardConversation({
 				agentType: 'opencode',
@@ -633,13 +636,13 @@ describe('inlineWizardConversation', () => {
 			const messagePromise = sendWizardMessage(session, 'Hello', []);
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// Should NOT have --input-format in args (OpenCode doesn't support it)
 			expect(spawnCall.args).not.toContain('--input-format');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 			await messagePromise;
 		});

@@ -57,7 +57,7 @@ beforeEach(() => {
 	useModalStore.getState().closeAll();
 	useAuthOutageStore.setState({ outages: {} });
 	useRetryStore.setState({ retries: {}, outages: {} });
-	(window as any).maestro = { ...((window as any).maestro || {}), process: mockProcess };
+	(window as any).openwizardai = { ...((window as any).openwizardai || {}), process: mockProcess };
 });
 
 const overloadError = {

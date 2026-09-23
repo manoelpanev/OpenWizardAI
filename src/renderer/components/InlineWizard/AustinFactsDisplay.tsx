@@ -111,7 +111,7 @@ function FactContent({
 							onClick={(e) => {
 								e.preventDefault();
 								// Open in system browser
-								if (!window.maestro?.shell?.openExternal?.(segment.url)) {
+								if (!window.openwizardai?.shell?.openExternal?.(segment.url)) {
 									window.open(segment.url, '_blank');
 								}
 							}}

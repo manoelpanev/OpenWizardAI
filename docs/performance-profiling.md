@@ -1,16 +1,16 @@
 ---
 title: Performance Profiling
-description: Capture a performance trace in Maestro and share it with us to help diagnose UI slowness.
+description: Capture a performance trace in OpenWizardAI and share it with us to help diagnose UI slowness.
 icon: gauge-high
 ---
 
-If Maestro's UI feels laggy or sluggish - typing that can't keep up, slow agent or tab switching, a panel that stutters when it opens - you can capture a performance trace and send it to us. A trace tells us exactly where the app is spending its time, which is far more actionable than a description of "it feels slow."
+If OpenWizardAI's UI feels laggy or sluggish - typing that can't keep up, slow agent or tab switching, a panel that stutters when it opens - you can capture a performance trace and send it to us. A trace tells us exactly where the app is spending its time, which is far more actionable than a description of "it feels slow."
 
 The fastest way is built right into the app and needs no setup. There's also an advanced React profile for when we ask for component-level render data.
 
 ## Capture a trace from the app (recommended)
 
-The built-in profiler records what Maestro is doing while you reproduce the slowness, then saves it as a single compressed file you can send us. It works on any installed build - no developer tools, no source checkout.
+The built-in profiler records what OpenWizardAI is doing while you reproduce the slowness, then saves it as a single compressed file you can send us. It works on any installed build - no developer tools, no source checkout.
 
 ### Step 1: Start profiling
 
@@ -36,14 +36,14 @@ With recording on, do the things that feel slow:
 
 Open the command palette again (`Cmd+K`) and choose **Debug: End Performance Profiling**. This option only appears while a recording is active.
 
-Maestro opens a Save dialog with a default name like `maestro-profile-2026-06-28T14-30-00.zip` on your Desktop. Pick a location and save. A progress window then shows the capture being stopped and compressed - a large trace can take tens of seconds to zip, so the bar keeps you posted until the file is written.
+OpenWizardAI opens a Save dialog with a default name like `openwizardai-profile-2026-06-28T14-30-00.zip` on your Desktop. Pick a location and save. A progress window then shows the capture being stopped and compressed - a large trace can take tens of seconds to zip, so the bar keeps you posted until the file is written.
 
 ### Step 4: Send us the trace
 
 Attach the `.zip` to one of:
 
-- A [GitHub Issue](https://github.com/RunMaestro/Maestro/issues) describing what felt slow
-- A message in our [Discord](https://runmaestro.ai/discord)
+- A [GitHub Issue](https://github.com/manoelpanev/OpenWizardAI/issues) describing what felt slow
+- A message in our [Discord](https://github.com/manoelpanev/OpenWizardAI/discussions)
 
 Include a quick note about what you were doing when it lagged (for example, "typing in the prompt with 30+ agents in the Left Bar"). That context helps us line the trace up with the moment of slowness.
 
@@ -54,12 +54,12 @@ The `.zip` contains two files:
 | File            | Contents                                                                          |
 | --------------- | --------------------------------------------------------------------------------- |
 | `trace.json`    | The raw timeline of rendering, layout, and JavaScript activity during the capture |
-| `metadata.json` | Your Maestro version, OS, CPU, memory, and how long the recording ran             |
+| `metadata.json` | Your OpenWizardAI version, OS, CPU, memory, and how long the recording ran        |
 
 The trace records **performance timing, not your data**. It does not include conversation content, API keys, or tokens.
 
 <Warning>
-A trace can contain file paths and script URLs from your machine. Give the file a quick look before posting it in a public GitHub issue, or send it to us privately on [Discord](https://runmaestro.ai/discord) if you'd rather not share those openly.
+A trace can contain file paths and script URLs from your machine. Give the file a quick look before posting it in a public GitHub issue, or send it to us privately on [Discord](https://github.com/manoelpanev/OpenWizardAI/discussions) if you'd rather not share those openly.
 </Warning>
 
 <Tip>
@@ -68,39 +68,39 @@ The most useful trace is a focused 5-10 second capture of the one action that fe
 
 ## Advanced: React component profile
 
-When we're chasing a specific re-render problem we may ask for a React profile instead. It captures component-level render timing and requires running Maestro from source. This process takes about 5 minutes and captures only React rendering metrics.
+When we're chasing a specific re-render problem we may ask for a React profile instead. It captures component-level render timing and requires running OpenWizardAI from source. This process takes about 5 minutes and captures only React rendering metrics.
 
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) and npm installed
-- Maestro cloned from source (`git clone https://github.com/RunMaestro/Maestro.git`) with dependencies installed (`npm install`)
-- **Close the production Maestro app** before starting - dev mode with production data shares the same data directory
+- OpenWizardAI cloned from source (`git clone https://github.com/manoelpanev/OpenWizardAI.git`) with dependencies installed (`npm install`)
+- **Close the production OpenWizardAI app** before starting - dev mode with production data shares the same data directory
 
 ### Step 1: Launch React Developer Tools
 
-Maestro is an Electron app, so the browser extension won't work. Install the standalone React DevTools instead:
+OpenWizardAI is an Electron app, so the browser extension won't work. Install the standalone React DevTools instead:
 
 ```bash
 npx react-devtools
 ```
 
-This opens React DevTools in its own window. **Leave it running** - Maestro connects to it automatically in dev mode.
+This opens React DevTools in its own window. **Leave it running** - OpenWizardAI connects to it automatically in dev mode.
 
-### Step 2: Start Maestro with your production data
+### Step 2: Start OpenWizardAI with your production data
 
-In a separate terminal, from the Maestro repo:
+In a separate terminal, from the OpenWizardAI repo:
 
 ```bash
 npm run dev:prod-data
 ```
 
-This launches Maestro in development mode but uses your real data directory - same agents, sessions, groups, and configuration you use day-to-day. You should see all your existing agents populate in the Left Bar.
+This launches OpenWizardAI in development mode but uses your real data directory - same agents, sessions, groups, and configuration you use day-to-day. You should see all your existing agents populate in the Left Bar.
 
 <Warning>
-Make sure the production Maestro app is fully closed first. Running both simultaneously against the same data directory can cause conflicts.
+Make sure the production OpenWizardAI app is fully closed first. Running both simultaneously against the same data directory can cause conflicts.
 </Warning>
 
-Once Maestro opens, the React DevTools window should display the component tree. If it still says "Waiting for React to connect…", restart DevTools (`npx react-devtools`) and then restart Maestro (`Ctrl+C` and re-run `npm run dev:prod-data`).
+Once OpenWizardAI opens, the React DevTools window should display the component tree. If it still says "Waiting for React to connect…", restart DevTools (`npx react-devtools`) and then restart OpenWizardAI (`Ctrl+C` and re-run `npm run dev:prod-data`).
 
 ### Step 3: Start profiling
 
@@ -124,7 +124,7 @@ Click the **Record** button again (it turns from red back to blue) to stop recor
 
 1. In the Profiler tab, click the **export** button (the down-arrow icon in the top-left area of the profiler panel)
 2. Save the `.json` file somewhere accessible (e.g., your Desktop)
-3. Attach it to a [GitHub Issue](https://github.com/RunMaestro/Maestro/issues) or a [Discord](https://runmaestro.ai/discord) message
+3. Attach it to a [GitHub Issue](https://github.com/manoelpanev/OpenWizardAI/issues) or a [Discord](https://github.com/manoelpanev/OpenWizardAI/discussions) message
 
 The exported React profile contains **only React rendering metrics**:
 

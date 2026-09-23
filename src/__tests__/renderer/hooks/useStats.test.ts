@@ -26,7 +26,7 @@ describe('useStats', () => {
 				byDay: [{ date: '2024-01-01', count: 10, duration: 360000 }],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			const { result } = renderHook(() => useStats('week'));
 
@@ -36,11 +36,13 @@ describe('useStats', () => {
 
 			expect(result.current.data).toEqual(mockData);
 			expect(result.current.error).toBe(null);
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledWith('week');
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledWith('week');
 		});
 
 		it('should set error state when fetch fails', async () => {
-			vi.mocked(window.maestro.stats.getAggregation).mockRejectedValue(new Error('Network error'));
+			vi.mocked(window.openwizardai.stats.getAggregation).mockRejectedValue(
+				new Error('Network error')
+			);
 
 			const { result } = renderHook(() => useStats('week'));
 
@@ -71,7 +73,7 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation)
+			vi.mocked(window.openwizardai.stats.getAggregation)
 				.mockResolvedValueOnce(weekData)
 				.mockResolvedValueOnce(monthData);
 
@@ -90,8 +92,8 @@ describe('useStats', () => {
 				expect(result.current.data?.totalQueries).toBe(500);
 			});
 
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledTimes(2);
-			expect(window.maestro.stats.getAggregation).toHaveBeenLastCalledWith('month');
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledTimes(2);
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenLastCalledWith('month');
 		});
 	});
 
@@ -104,7 +106,7 @@ describe('useStats', () => {
 				await new Promise((resolve) => setTimeout(resolve, 50));
 			});
 
-			expect(window.maestro.stats.getAggregation).not.toHaveBeenCalled();
+			expect(window.openwizardai.stats.getAggregation).not.toHaveBeenCalled();
 			expect(result.current.loading).toBe(true);
 			expect(result.current.data).toBe(null);
 		});
@@ -119,13 +121,13 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			const { result, rerender } = renderHook(({ enabled }) => useStats('week', enabled), {
 				initialProps: { enabled: false },
 			});
 
-			expect(window.maestro.stats.getAggregation).not.toHaveBeenCalled();
+			expect(window.openwizardai.stats.getAggregation).not.toHaveBeenCalled();
 
 			// Enable fetching
 			rerender({ enabled: true });
@@ -134,7 +136,7 @@ describe('useStats', () => {
 				expect(result.current.data?.totalQueries).toBe(50);
 			});
 
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledWith('week');
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledWith('week');
 		});
 	});
 
@@ -149,18 +151,18 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			renderHook(() => useStats('week'));
 
 			await waitFor(() => {
-				expect(window.maestro.stats.onStatsUpdate).toHaveBeenCalled();
+				expect(window.openwizardai.stats.onStatsUpdate).toHaveBeenCalled();
 			});
 		});
 
 		it('should unsubscribe from stats updates on unmount', async () => {
 			const unsubscribe = vi.fn();
-			vi.mocked(window.maestro.stats.onStatsUpdate).mockReturnValue(unsubscribe);
+			vi.mocked(window.openwizardai.stats.onStatsUpdate).mockReturnValue(unsubscribe);
 
 			const mockData: StatsAggregation = {
 				totalQueries: 10,
@@ -171,12 +173,12 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			const { unmount } = renderHook(() => useStats('week'));
 
 			await waitFor(() => {
-				expect(window.maestro.stats.onStatsUpdate).toHaveBeenCalled();
+				expect(window.openwizardai.stats.onStatsUpdate).toHaveBeenCalled();
 			});
 
 			unmount();
@@ -196,7 +198,7 @@ describe('useStats', () => {
 
 		it('should debounce real-time updates by 1 second', async () => {
 			let updateCallback: (() => void) | null = null;
-			vi.mocked(window.maestro.stats.onStatsUpdate).mockImplementation((callback) => {
+			vi.mocked(window.openwizardai.stats.onStatsUpdate).mockImplementation((callback) => {
 				updateCallback = callback;
 				return () => {};
 			});
@@ -210,7 +212,7 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			await act(async () => {
 				renderHook(() => useStats('week'));
@@ -222,7 +224,7 @@ describe('useStats', () => {
 			expect(updateCallback).not.toBe(null);
 
 			// Initial fetch
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledTimes(1);
 
 			// Trigger multiple updates in quick succession
 			act(() => {
@@ -238,7 +240,7 @@ describe('useStats', () => {
 			});
 
 			// Still only the initial fetch
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledTimes(1);
 
 			// Advance time to complete the 1 second debounce
 			await act(async () => {
@@ -248,7 +250,7 @@ describe('useStats', () => {
 			});
 
 			// Now should have fetched again
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledTimes(2);
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledTimes(2);
 		});
 	});
 
@@ -263,7 +265,7 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			const { result } = renderHook(() => useStats('week'));
 
@@ -271,14 +273,14 @@ describe('useStats', () => {
 				expect(result.current.loading).toBe(false);
 			});
 
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledTimes(1);
 
 			// Trigger manual refresh
 			await act(async () => {
 				await result.current.refresh();
 			});
 
-			expect(window.maestro.stats.getAggregation).toHaveBeenCalledTimes(2);
+			expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledTimes(2);
 		});
 
 		it('should provide a refresh function', async () => {
@@ -291,7 +293,7 @@ describe('useStats', () => {
 				byDay: [],
 			};
 
-			vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+			vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 			const { result } = renderHook(() => useStats('week'));
 
@@ -316,7 +318,7 @@ describe('useStats', () => {
 					byDay: [],
 				};
 
-				vi.mocked(window.maestro.stats.getAggregation).mockResolvedValue(mockData);
+				vi.mocked(window.openwizardai.stats.getAggregation).mockResolvedValue(mockData);
 
 				const { result } = renderHook(() => useStats(range));
 
@@ -324,7 +326,7 @@ describe('useStats', () => {
 					expect(result.current.loading).toBe(false);
 				});
 
-				expect(window.maestro.stats.getAggregation).toHaveBeenCalledWith(range);
+				expect(window.openwizardai.stats.getAggregation).toHaveBeenCalledWith(range);
 			}
 		);
 	});

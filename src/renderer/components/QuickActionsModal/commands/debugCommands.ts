@@ -245,7 +245,7 @@ export function buildDebugCommands({
 		const simulate = (fromPipeline: boolean) => async () => {
 			setQuickActionOpen(false);
 			try {
-				await window.maestro.debug.simulateAuthExpiry({
+				await window.openwizardai.debug.simulateAuthExpiry({
 					processSessionId: fromPipeline
 						? activeSession.id
 						: `${activeSession.id}-ai-${activeTabId}`,

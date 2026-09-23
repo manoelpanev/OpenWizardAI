@@ -169,8 +169,8 @@ export interface AppUtilityModalsProps {
 	// Director's Notes
 	onOpenDirectorNotes?: () => void;
 
-	// Maestro Cue
-	onOpenMaestroCue?: () => void;
+	// OpenWizardAI Cue
+	onOpenOpenWizardAICue?: () => void;
 	onConfigureCue?: (session: Session) => void;
 
 	// LightboxModal
@@ -414,8 +414,8 @@ export const AppUtilityModals = memo(function AppUtilityModals({
 	onOpenCurrentFileInGraph,
 	// Director's Notes
 	onOpenDirectorNotes,
-	// Maestro Cue
-	onOpenMaestroCue,
+	// OpenWizardAI Cue
+	onOpenOpenWizardAICue,
 	onConfigureCue,
 	// LightboxModal
 	lightboxImage,
@@ -642,7 +642,7 @@ export const AppUtilityModals = memo(function AppUtilityModals({
 					currentGraphFile={currentGraphFile}
 					onOpenCurrentFileInGraph={onOpenCurrentFileInGraph}
 					onOpenDirectorNotes={onOpenDirectorNotes}
-					onOpenMaestroCue={onOpenMaestroCue}
+					onOpenOpenWizardAICue={onOpenOpenWizardAICue}
 					onConfigureCue={onConfigureCue}
 					onOpenQueueBrowser={onOpenQueueBrowser}
 					onNewTab={onQuickActionsNewTab}

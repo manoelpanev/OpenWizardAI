@@ -19,7 +19,7 @@ describe('findActiveModelHint', () => {
 	});
 
 	it('applies the marker above the next unfinished task', () => {
-		const doc = `<!-- MAESTRO:MODEL tier="high" effort="high" -->\n\n- [ ] plan the migration`;
+		const doc = `<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->\n\n- [ ] plan the migration`;
 		expect(findActiveModelHint(doc)).toMatchObject({ tier: 'high', effort: 'high' });
 	});
 
@@ -27,8 +27,8 @@ describe('findActiveModelHint', () => {
 		// Unlike a HITL gate (where the earliest unacknowledged one wins because it
 		// is a thing to stop at), the most recent assignment wins.
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" -->',
-			'<!-- MAESTRO:MODEL tier="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'- [ ] task',
 		].join('\n');
 		expect(findActiveModelHint(doc)?.tier).toBe('high');
@@ -39,7 +39,7 @@ describe('findActiveModelHint', () => {
 		// still needs - this is what makes one marker per section work.
 		const doc = [
 			'## Design',
-			'<!-- MAESTRO:MODEL tier="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'- [x] sketch the approach',
 			'- [ ] write the plan',
 		].join('\n');
@@ -48,9 +48,9 @@ describe('findActiveModelHint', () => {
 
 	it('switches settings at a later section boundary', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'- [x] design done',
-			'<!-- MAESTRO:MODEL tier="low" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" -->',
 			'- [ ] mechanical rename',
 		].join('\n');
 		expect(findActiveModelHint(doc)?.tier).toBe('low');
@@ -60,7 +60,7 @@ describe('findActiveModelHint', () => {
 		const doc = [
 			'Explaining the feature:',
 			'```markdown',
-			'<!-- MAESTRO:MODEL tier="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'```',
 			'- [ ] task',
 		].join('\n');
@@ -70,12 +70,12 @@ describe('findActiveModelHint', () => {
 	it('reports no hint when every task is done', () => {
 		// A trailing marker governs nothing - there is no task left for it to apply
 		// to, so it must not be reported as active.
-		const doc = ['- [x] done', '<!-- MAESTRO:MODEL tier="high" -->'].join('\n');
+		const doc = ['- [x] done', '<!-- OPENWIZARDAI:MODEL tier="high" -->'].join('\n');
 		expect(findActiveModelHint(doc)).toBeNull();
 	});
 
 	it('treats each axis independently', () => {
-		const doc = `<!-- MAESTRO:MODEL effort="low" -->\n- [ ] task`;
+		const doc = `<!-- OPENWIZARDAI:MODEL effort="low" -->\n- [ ] task`;
 		const hint = findActiveModelHint(doc);
 		expect(hint?.effort).toBe('low');
 		expect(hint?.tier).toBeUndefined();
@@ -84,7 +84,7 @@ describe('findActiveModelHint', () => {
 	it('keeps "default" as an explicit directive rather than collapsing it', () => {
 		// It must survive parsing so a task-scoped `default` can override a
 		// document-scoped level. Resolution treats it as "use the agent's value".
-		const doc = `<!-- MAESTRO:MODEL tier="default" effort="default" -->\n- [ ] task`;
+		const doc = `<!-- OPENWIZARDAI:MODEL tier="default" effort="default" -->\n- [ ] task`;
 		const hint = findActiveModelHint(doc);
 		expect(hint?.tier).toBe('default');
 		expect(hint?.effort).toBe('default');
@@ -94,7 +94,7 @@ describe('findActiveModelHint', () => {
 	it('records a misspelled value instead of silently ignoring it', () => {
 		// A typo that resolved to "no hint" would run the task on the wrong model
 		// with no signal, which is the exact failure this feature exists to avoid.
-		const doc = `<!-- MAESTRO:MODEL tier="hgih" -->\n- [ ] task`;
+		const doc = `<!-- OPENWIZARDAI:MODEL tier="hgih" -->\n- [ ] task`;
 		const hint = findActiveModelHint(doc);
 		expect(hint?.tier).toBeUndefined();
 		expect(hint?.invalid).toEqual([{ attribute: 'tier', value: 'hgih' }]);
@@ -104,7 +104,7 @@ describe('findActiveModelHint', () => {
 describe('hint scopes', () => {
 	it('carries a document-scoped marker to every task below it', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" effort="low" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" effort="low" -->',
 			'- [x] first',
 			'- [ ] second',
 			'- [ ] third',
@@ -113,7 +113,7 @@ describe('hint scopes', () => {
 	});
 
 	it('applies an inline marker to that task only', () => {
-		const doc = ['- [ ] design the migration <!-- MAESTRO:MODEL tier="high" -->'].join('\n');
+		const doc = ['- [ ] design the migration <!-- OPENWIZARDAI:MODEL tier="high" -->'].join('\n');
 		const hint = findActiveModelHint(doc);
 		expect(hint?.tier).toBe('high');
 		expect(hint?.scopes?.tier).toBe('task');
@@ -122,8 +122,8 @@ describe('hint scopes', () => {
 	it('reverts to the document scope once the inline task is checked off', () => {
 		// The whole point of task scope: the NEXT task must not inherit it.
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" effort="low" -->',
-			'- [x] design the migration <!-- MAESTRO:MODEL tier="high" effort="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" effort="low" -->',
+			'- [x] design the migration <!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->',
 			'- [ ] apply the renames',
 		].join('\n');
 		expect(findActiveModelHint(doc)).toMatchObject({ tier: 'low', effort: 'low' });
@@ -131,7 +131,7 @@ describe('hint scopes', () => {
 
 	it('reverts to no hint at all when there was no document scope', () => {
 		const doc = [
-			'- [x] design the migration <!-- MAESTRO:MODEL tier="high" -->',
+			'- [x] design the migration <!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'- [ ] apply the renames',
 		].join('\n');
 		expect(findActiveModelHint(doc)).toBeNull();
@@ -141,8 +141,8 @@ describe('hint scopes', () => {
 		// A task raising only the tier must keep the document's effort - otherwise
 		// tier="high" would silently LOWER the effort inside a high-effort section.
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" effort="high" -->',
-			'- [ ] design <!-- MAESTRO:MODEL tier="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" effort="high" -->',
+			'- [ ] design <!-- OPENWIZARDAI:MODEL tier="high" -->',
 		].join('\n');
 		const hint = findActiveModelHint(doc);
 		expect(hint?.tier).toBe('high');
@@ -152,8 +152,8 @@ describe('hint scopes', () => {
 
 	it('lets one task opt out of a document-wide hint with "default"', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="high" effort="high" -->',
-			'- [ ] trivial rename <!-- MAESTRO:MODEL tier="default" effort="default" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->',
+			'- [ ] trivial rename <!-- OPENWIZARDAI:MODEL tier="default" effort="default" -->',
 		].join('\n');
 		const hint = findActiveModelHint(doc);
 		expect(hint?.tier).toBe('default');
@@ -161,7 +161,7 @@ describe('hint scopes', () => {
 	});
 
 	it('does not let an inline marker on a checked task become a section marker', () => {
-		const doc = ['- [x] design <!-- MAESTRO:MODEL tier="high" -->', '- [ ] a', '- [ ] b'].join(
+		const doc = ['- [x] design <!-- OPENWIZARDAI:MODEL tier="high" -->', '- [ ] a', '- [ ] b'].join(
 			'\n'
 		);
 		expect(findActiveModelHint(doc)).toBeNull();
@@ -172,7 +172,7 @@ describe('hint scopes', () => {
 		// documents the inline syntax silently changes its own model.
 		const doc = [
 			'```markdown',
-			'- [ ] example <!-- MAESTRO:MODEL tier="high" -->',
+			'- [ ] example <!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'```',
 			'- [ ] the real task',
 		].join('\n');
@@ -184,8 +184,8 @@ describe('hint scopes', () => {
 		// task's, or a misspelled marker warns only until someone adds an inline
 		// one below it.
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="hgih" -->',
-			'- [ ] design <!-- MAESTRO:MODEL effort="hihg" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="hgih" -->',
+			'- [ ] design <!-- OPENWIZARDAI:MODEL effort="hihg" -->',
 		].join('\n');
 		expect(findActiveModelHint(doc)?.invalid).toEqual([
 			{ attribute: 'tier', value: 'hgih' },
@@ -197,7 +197,7 @@ describe('hint scopes', () => {
 describe('reason attribute', () => {
 	it('parses the justification alongside the levels', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="high" effort="high" reason="Lock ordering across three services. A wrong ordering corrupts data." -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" effort="high" reason="Lock ordering across three services. A wrong ordering corrupts data." -->',
 			'- [ ] Design',
 		].join('\n');
 		expect(findActiveModelHint(doc)).toMatchObject({
@@ -211,9 +211,9 @@ describe('reason attribute', () => {
 		// The whole safety argument for the attribute: it is documentation, so it
 		// must not reach model resolution even when it is the only thing present.
 		const withReason = findActiveModelHint(
-			'<!-- MAESTRO:MODEL tier="low" reason="Mechanical work." -->\n- [ ] x'
+			'<!-- OPENWIZARDAI:MODEL tier="low" reason="Mechanical work." -->\n- [ ] x'
 		);
-		const without = findActiveModelHint('<!-- MAESTRO:MODEL tier="low" -->\n- [ ] x');
+		const without = findActiveModelHint('<!-- OPENWIZARDAI:MODEL tier="low" -->\n- [ ] x');
 		expect(resolveTurnSettings('claude-code', withReason)).toEqual(
 			resolveTurnSettings('claude-code', without)
 		);
@@ -223,8 +223,8 @@ describe('reason attribute', () => {
 		// Segmenting compares resolved model/effort. If prose reached that
 		// comparison, editing a comment would cost an extra dispatch.
 		const doc = [
-			'- [ ] a <!-- MAESTRO:MODEL tier="low" reason="Because of one thing." -->',
-			'- [ ] b <!-- MAESTRO:MODEL tier="low" reason="Because of something else." -->',
+			'- [ ] a <!-- OPENWIZARDAI:MODEL tier="low" reason="Because of one thing." -->',
+			'- [ ] b <!-- OPENWIZARDAI:MODEL tier="low" reason="Because of something else." -->',
 		].join('\n');
 		expect(countTasksUnderActiveHint(doc, 'claude-code')).toEqual({ count: 2, total: 2 });
 	});
@@ -233,21 +233,21 @@ describe('reason attribute', () => {
 		// Degrading to a short sentence is fine; degrading to the wrong model is
 		// not. tier and effort are matched independently of the prose.
 		const hint = findActiveModelHint(
-			'<!-- MAESTRO:MODEL tier="high" effort="high" reason="Uses the "fast" path." -->\n- [ ] x'
+			'<!-- OPENWIZARDAI:MODEL tier="high" effort="high" reason="Uses the "fast" path." -->\n- [ ] x'
 		);
 		expect(hint).toMatchObject({ tier: 'high', effort: 'high', reason: 'Uses the' });
 	});
 
 	it('collapses newlines so a wrapped marker reads as one sentence', () => {
 		const hint = findActiveModelHint(
-			'<!-- MAESTRO:MODEL tier="low" reason="First line.   Second line." -->\n- [ ] x'
+			'<!-- OPENWIZARDAI:MODEL tier="low" reason="First line.   Second line." -->\n- [ ] x'
 		);
 		expect(hint?.reason).toBe('First line. Second line.');
 	});
 
 	it('truncates a reason too long to peek at', () => {
 		const hint = findActiveModelHint(
-			`<!-- MAESTRO:MODEL tier="low" reason="${'x'.repeat(600)}" -->\n- [ ] x`
+			`<!-- OPENWIZARDAI:MODEL tier="low" reason="${'x'.repeat(600)}" -->\n- [ ] x`
 		);
 		expect(hint?.reason).toHaveLength(400);
 		expect(hint?.reason?.endsWith('…')).toBe(true);
@@ -255,17 +255,17 @@ describe('reason attribute', () => {
 
 	it('omits the field entirely when the attribute is absent or empty', () => {
 		expect(
-			findActiveModelHint('<!-- MAESTRO:MODEL tier="low" -->\n- [ ] x')?.reason
+			findActiveModelHint('<!-- OPENWIZARDAI:MODEL tier="low" -->\n- [ ] x')?.reason
 		).toBeUndefined();
 		expect(
-			findActiveModelHint('<!-- MAESTRO:MODEL tier="low" reason="  " -->\n- [ ] x')?.reason
+			findActiveModelHint('<!-- OPENWIZARDAI:MODEL tier="low" reason="  " -->\n- [ ] x')?.reason
 		).toBeUndefined();
 	});
 
 	it('lets the narrower scope explain itself when the two merge', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" reason="Mostly mechanical phase." -->',
-			'- [ ] Design <!-- MAESTRO:MODEL tier="high" reason="This one needs judgment." -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" reason="Mostly mechanical phase." -->',
+			'- [ ] Design <!-- OPENWIZARDAI:MODEL tier="high" reason="This one needs judgment." -->',
 		].join('\n');
 		expect(findActiveModelHint(doc)).toMatchObject({
 			tier: 'high',
@@ -275,8 +275,8 @@ describe('reason attribute', () => {
 
 	it('inherits the document reason when the task marker gives none', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" reason="Mostly mechanical phase." -->',
-			'- [ ] Design <!-- MAESTRO:MODEL effort="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" reason="Mostly mechanical phase." -->',
+			'- [ ] Design <!-- OPENWIZARDAI:MODEL effort="high" -->',
 		].join('\n');
 		expect(findActiveModelHint(doc)?.reason).toBe('Mostly mechanical phase.');
 	});
@@ -285,9 +285,9 @@ describe('reason attribute', () => {
 describe('findAllModelHints', () => {
 	it('collects every marker for authoring-time validation', () => {
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" -->',
 			'- [ ] a',
-			'<!-- MAESTRO:MODEL tier="bogus" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="bogus" -->',
 			'- [ ] b',
 		].join('\n');
 		const all = findAllModelHints(doc);
@@ -300,9 +300,9 @@ describe('findAllModelHints', () => {
 		// author meant as document-wide but wrote onto a task line has to be
 		// distinguishable from one that really is standalone.
 		const doc = [
-			'<!-- MAESTRO:MODEL tier="low" -->',
-			'- [ ] a <!-- MAESTRO:MODEL tier="high" -->',
-			'- [x] b <!-- MAESTRO:MODEL effort="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" -->',
+			'- [ ] a <!-- OPENWIZARDAI:MODEL tier="high" -->',
+			'- [x] b <!-- OPENWIZARDAI:MODEL effort="high" -->',
 		].join('\n');
 		expect(findAllModelHints(doc).map((hint) => hint.scopes)).toEqual([
 			{ tier: 'document' },
@@ -321,7 +321,9 @@ describe('resolveTurnSettings', () => {
 	});
 
 	it('overrides the agent config when the provider can honor the hint', () => {
-		const hint = findActiveModelHint(`<!-- MAESTRO:MODEL tier="high" effort="high" -->\n- [ ] x`);
+		const hint = findActiveModelHint(
+			`<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->\n- [ ] x`
+		);
 		const resolved = resolveTurnSettings('claude-code', hint, 'sonnet', 'medium');
 		expect(resolved.model).toBe('opus');
 		expect(resolved.effort).toBe('max');
@@ -331,7 +333,9 @@ describe('resolveTurnSettings', () => {
 	it('falls back to the agent config AND warns when the provider cannot honor it', () => {
 		// Running the task anyway is right, since the work still needs doing.
 		// Doing it silently is how someone concludes the feature is broken.
-		const hint = findActiveModelHint(`<!-- MAESTRO:MODEL tier="high" effort="high" -->\n- [ ] x`);
+		const hint = findActiveModelHint(
+			`<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->\n- [ ] x`
+		);
 		const resolved = resolveTurnSettings('opencode', hint, 'ollama/qwen3:8b', undefined);
 		expect(resolved.model).toBe('ollama/qwen3:8b');
 		expect(resolved.effort).toBeUndefined();
@@ -342,7 +346,9 @@ describe('resolveTurnSettings', () => {
 	it('honors the axis it can and warns about the one it cannot', () => {
 		// Codex has an effort ladder but no tier map, so a marker setting both
 		// must not be all-or-nothing.
-		const hint = findActiveModelHint(`<!-- MAESTRO:MODEL tier="high" effort="high" -->\n- [ ] x`);
+		const hint = findActiveModelHint(
+			`<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->\n- [ ] x`
+		);
 		const resolved = resolveTurnSettings('codex', hint, 'gpt-5.3-codex', undefined);
 		expect(resolved.effort).toBe('xhigh');
 		expect(resolved.model).toBe('gpt-5.3-codex');
@@ -352,8 +358,8 @@ describe('resolveTurnSettings', () => {
 	it('resolves an explicit "default" back to the agent\'s own values', () => {
 		const hint = findActiveModelHint(
 			[
-				'<!-- MAESTRO:MODEL tier="high" effort="high" -->',
-				'- [ ] trivial <!-- MAESTRO:MODEL tier="default" effort="default" -->',
+				'<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->',
+				'- [ ] trivial <!-- OPENWIZARDAI:MODEL tier="default" effort="default" -->',
 			].join('\n')
 		);
 		const resolved = resolveTurnSettings('claude-code', hint, 'sonnet', 'medium');
@@ -365,8 +371,8 @@ describe('resolveTurnSettings', () => {
 	it('reports which scope supplied each axis', () => {
 		const hint = findActiveModelHint(
 			[
-				'<!-- MAESTRO:MODEL effort="high" -->',
-				'- [ ] design <!-- MAESTRO:MODEL tier="high" -->',
+				'<!-- OPENWIZARDAI:MODEL effort="high" -->',
+				'- [ ] design <!-- OPENWIZARDAI:MODEL tier="high" -->',
 			].join('\n')
 		);
 		const resolved = resolveTurnSettings('claude-code', hint, undefined, undefined);
@@ -375,7 +381,7 @@ describe('resolveTurnSettings', () => {
 	});
 
 	it('surfaces a misspelled value as a warning', () => {
-		const hint = findActiveModelHint(`<!-- MAESTRO:MODEL effort="hihg" -->\n- [ ] x`);
+		const hint = findActiveModelHint(`<!-- OPENWIZARDAI:MODEL effort="hihg" -->\n- [ ] x`);
 		const resolved = resolveTurnSettings('claude-code', hint, undefined, undefined);
 		expect(resolved.warnings.join(' ')).toContain('hihg');
 		expect(resolved.effort).toBeUndefined();
@@ -396,10 +402,10 @@ describe('countTasksUnderActiveHint', () => {
 
 	it('stops at the task that asks for a different tier', () => {
 		const content = [
-			'<!-- MAESTRO:MODEL tier="low" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" -->',
 			'- [ ] one',
 			'- [ ] two',
-			'- [ ] three <!-- MAESTRO:MODEL tier="high" -->',
+			'- [ ] three <!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'- [ ] four',
 		].join('\n');
 		expect(countTasksUnderActiveHint(content, 'claude-code', 'sonnet', 'medium')).toEqual({
@@ -411,7 +417,7 @@ describe('countTasksUnderActiveHint', () => {
 	it('stops when a standalone marker changes the settings partway down', () => {
 		const content = [
 			'- [ ] one',
-			'<!-- MAESTRO:MODEL tier="high" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="high" -->',
 			'- [ ] two',
 			'- [ ] three',
 		].join('\n');
@@ -427,9 +433,9 @@ describe('countTasksUnderActiveHint', () => {
 	// same configuration.
 	it('does not split on tier words that resolve to identical settings', () => {
 		const content = [
-			'<!-- MAESTRO:MODEL tier="low" -->',
+			'<!-- OPENWIZARDAI:MODEL tier="low" -->',
 			'- [ ] one',
-			'- [ ] two <!-- MAESTRO:MODEL tier="high" -->',
+			'- [ ] two <!-- OPENWIZARDAI:MODEL tier="high" -->',
 		].join('\n');
 		expect(countTasksUnderActiveHint(content, 'codex', 'gpt-5', 'medium')).toEqual({
 			count: 2,
@@ -438,7 +444,9 @@ describe('countTasksUnderActiveHint', () => {
 	});
 
 	it('treats tier="default" as the agent baseline rather than a change', () => {
-		const content = ['- [ ] one', '- [ ] two <!-- MAESTRO:MODEL tier="default" -->'].join('\n');
+		const content = ['- [ ] one', '- [ ] two <!-- OPENWIZARDAI:MODEL tier="default" -->'].join(
+			'\n'
+		);
 		expect(countTasksUnderActiveHint(content, 'claude-code', 'sonnet', 'medium')).toEqual({
 			count: 2,
 			total: 2,
@@ -498,10 +506,10 @@ describe('document-mode dispatch boundary', () => {
 	it('splits a mixed-tier document into two dispatches at different models', () => {
 		const first = dispatch(
 			[
-				'<!-- MAESTRO:MODEL tier="low" -->',
+				'<!-- OPENWIZARDAI:MODEL tier="low" -->',
 				'- [ ] one',
 				'- [ ] two',
-				'- [ ] three <!-- MAESTRO:MODEL tier="high" -->',
+				'- [ ] three <!-- OPENWIZARDAI:MODEL tier="high" -->',
 			].join('\n')
 		);
 		expect(first.segment).toEqual({ count: 2, total: 3 });
@@ -509,10 +517,10 @@ describe('document-mode dispatch boundary', () => {
 		// The runner checks off what it completed and comes back around.
 		const second = dispatch(
 			[
-				'<!-- MAESTRO:MODEL tier="low" -->',
+				'<!-- OPENWIZARDAI:MODEL tier="low" -->',
 				'- [x] one',
 				'- [x] two',
-				'- [ ] three <!-- MAESTRO:MODEL tier="high" -->',
+				'- [ ] three <!-- OPENWIZARDAI:MODEL tier="high" -->',
 			].join('\n')
 		);
 		expect(second.segment).toEqual({ count: 1, total: 1 });

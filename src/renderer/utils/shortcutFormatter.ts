@@ -9,7 +9,7 @@
 import { isMacOSPlatform } from './platformUtils';
 import { formatKeyFor, formatShortcutKeysFor } from '../../shared/shortcutKeys';
 
-// Detect if running on macOS - uses window.maestro.platform (Electron preload bridge)
+// Detect if running on macOS - uses window.openwizardai.platform (Electron preload bridge)
 function isMac(): boolean {
 	return isMacOSPlatform();
 }

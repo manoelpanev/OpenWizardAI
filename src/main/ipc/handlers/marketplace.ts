@@ -18,7 +18,7 @@ import { logger } from '../../utils/logger';
 import { createIpcHandler, CreateHandlerOptions } from '../../utils/ipcHandler';
 import { isWebContentsAvailable } from '../../utils/safe-send';
 import { SshRemoteConfig } from '../../../shared/types';
-import type { MaestroSettings } from './persistence';
+import type { OpenWizardAISettings } from './persistence';
 import {
 	getMarketplaceManifest,
 	refreshMarketplaceManifest,
@@ -33,10 +33,10 @@ const LOG_CONTEXT = '[Marketplace]';
 export interface MarketplaceHandlerDependencies {
 	app: App;
 	/** Settings store for SSH remote configuration lookup */
-	settingsStore?: Store<MaestroSettings>;
+	settingsStore?: Store<OpenWizardAISettings>;
 }
 
-let marketplaceSettingsStore: Store<MaestroSettings> | undefined;
+let marketplaceSettingsStore: Store<OpenWizardAISettings> | undefined;
 let manifestWatcher: { stop: () => void } | undefined;
 
 /**

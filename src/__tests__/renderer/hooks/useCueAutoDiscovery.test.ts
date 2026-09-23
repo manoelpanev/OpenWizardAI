@@ -1,7 +1,7 @@
 /**
  * Tests for useCueAutoDiscovery hook
  *
- * This hook auto-discovers .maestro/cue.yaml files when sessions are loaded,
+ * This hook auto-discovers .openwizardai/cue.yaml files when sessions are loaded,
  * created, or removed. Session discovery always runs so the Cue indicator
  * shows in the Left Bar. The encore feature flag only gates engine start/stop.
  */
@@ -26,10 +26,10 @@ beforeEach(() => {
 	mockEnable.mockResolvedValue(undefined);
 	mockDisable.mockResolvedValue(undefined);
 
-	(window as any).maestro = {
-		...(window as any).maestro,
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		cue: {
-			...(window as any).maestro?.cue,
+			...(window as any).openwizardai?.cue,
 			refreshSession: mockRefreshSession,
 			removeSession: mockRemoveSession,
 			enable: mockEnable,
@@ -50,8 +50,8 @@ function makeSession(id: string, projectRoot: string): Session {
 	} as unknown as Session;
 }
 
-function makeEncoreFeatures(maestroCue: boolean): EncoreFeatureFlags {
-	return { maestroCue } as EncoreFeatureFlags;
+function makeEncoreFeatures(openwizardaiCue: boolean): EncoreFeatureFlags {
+	return { openwizardaiCue } as EncoreFeatureFlags;
 }
 
 describe('useCueAutoDiscovery', () => {
@@ -81,7 +81,7 @@ describe('useCueAutoDiscovery', () => {
 			expect(mockRefreshSession).toHaveBeenCalledWith('s2', '/project/b');
 		});
 
-		it('should scan sessions even if maestroCue is disabled (indicator always shows)', () => {
+		it('should scan sessions even if openwizardaiCue is disabled (indicator always shows)', () => {
 			const sessions = [makeSession('s1', '/project/a')];
 			const encoreFeatures = makeEncoreFeatures(false);
 
@@ -196,7 +196,7 @@ describe('useCueAutoDiscovery', () => {
 	});
 
 	describe('encore feature toggle', () => {
-		it('should enable Cue and scan all sessions when maestroCue is toggled ON', async () => {
+		it('should enable Cue and scan all sessions when openwizardaiCue is toggled ON', async () => {
 			const sessions = [makeSession('s1', '/project/a'), makeSession('s2', '/project/b')];
 
 			useSessionStore.setState({ sessionsLoaded: true });
@@ -208,7 +208,7 @@ describe('useCueAutoDiscovery', () => {
 			mockRefreshSession.mockClear();
 			mockEnable.mockClear();
 
-			// Toggle maestroCue ON
+			// Toggle openwizardaiCue ON
 			rerender({ sessions, encore: makeEncoreFeatures(true) });
 			await act(async () => {});
 
@@ -218,7 +218,7 @@ describe('useCueAutoDiscovery', () => {
 			expect(mockRefreshSession).toHaveBeenCalledWith('s2', '/project/b');
 		});
 
-		it('should call disable when maestroCue is toggled OFF', async () => {
+		it('should call disable when openwizardaiCue is toggled OFF', async () => {
 			const sessions = [makeSession('s1', '/project/a')];
 
 			useSessionStore.setState({ sessionsLoaded: true });
@@ -227,7 +227,7 @@ describe('useCueAutoDiscovery', () => {
 				initialProps: { sessions, encore: makeEncoreFeatures(true) },
 			});
 
-			// Toggle maestroCue OFF
+			// Toggle openwizardaiCue OFF
 			rerender({ sessions, encore: makeEncoreFeatures(false) });
 			// Toggle calls are now serialized on a Promise chain, so the
 			// disable fires on the next microtask rather than synchronously.
@@ -257,7 +257,7 @@ describe('useCueAutoDiscovery', () => {
 	});
 
 	describe('discovery always runs', () => {
-		it('should refresh new sessions even when maestroCue is disabled', () => {
+		it('should refresh new sessions even when openwizardaiCue is disabled', () => {
 			const initialSessions = [makeSession('s1', '/project/a')];
 			const encoreFeatures = makeEncoreFeatures(false);
 

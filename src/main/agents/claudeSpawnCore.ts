@@ -3,14 +3,14 @@
  *
  * The pure, dependency-injected heart of the Claude token-source decision:
  * given a token mode and the injected collaborators, decide whether a Claude
- * Code spawn runs the maestro-p TUI (Max-plan quota) or `claude --print` (API
+ * Code spawn runs the openwizardai-p TUI (Max-plan quota) or `claude --print` (API
  * credit), and produce the command/args/env transform that realizes it.
  *
  * This module has NO native/Electron imports (no electron-store, no SQLite, no
  * desktop logger) so it can be bundled into BOTH surfaces:
  *   - the desktop app, via `resolveClaudeSpawnMode.ts`, which supplies the real
  *     native-backed default deps; and
- *   - the standalone `maestro-cli` (Auto Run playbooks, batch, `send`), which
+ *   - the standalone `openwizardai-cli` (Auto Run playbooks, batch, `send`), which
  *     supplies lightweight CLI deps.
  *
  * Keeping ONE decision function shared by every surface is what makes the
@@ -18,10 +18,10 @@
  * naming, history synopsis, group chat, Cue - with no second implementation to
  * drift out of sync.
  *
- * maestro-p is a Node script that allocates its OWN PTY internally (node-pty)
+ * openwizardai-p is a Node script that allocates its OWN PTY internally (node-pty)
  * to drive the claude TUI, so it runs fine over plain pipe stdio - callers do
  * not need to allocate a PTY. They only invoke it via `process.execPath`, set
- * `MAESTRO_CLAUDE_BIN`, and deliver the prompt the same way they would to
+ * `OPENWIZARDAI_CLAUDE_BIN`, and deliver the prompt the same way they would to
  * `claude` (stdin / CLI arg per agent capability).
  */
 
@@ -52,24 +52,24 @@ export interface CoreLogger {
 }
 
 /**
- * Return true when `binaryPath` looks like a maestro-p binary (by basename).
+ * Return true when `binaryPath` looks like a openwizardai-p binary (by basename).
  *
  * Canonical implementation shared by every surface. Recognises the bundled
- * `maestro-p.js` script, a packaged `maestro-p` executable, and the Windows
+ * `openwizardai-p.js` script, a packaged `openwizardai-p` executable, and the Windows
  * `.exe` variant. Used to detect power-user setups where the `Path` field
- * points directly at maestro-p (bypassing the token-source toggle) so the
+ * points directly at openwizardai-p (bypassing the token-source toggle) so the
  * resolved mode still surfaces as `interactive`, and to avoid pointing
- * `MAESTRO_CLAUDE_BIN` at maestro-p itself (which would make it drive itself
+ * `OPENWIZARDAI_CLAUDE_BIN` at openwizardai-p itself (which would make it drive itself
  * instead of the claude TUI).
  */
-export function isMaestroPBinaryPath(binaryPath: string | undefined | null): boolean {
+export function isOpenWizardAIPBinaryPath(binaryPath: string | undefined | null): boolean {
 	if (!binaryPath) return false;
 	// Split on both `/` and `\` so a Windows-style path resolves correctly when
 	// this code runs on POSIX (path.basename on POSIX doesn't treat `\` as a
 	// separator, which would otherwise leave the whole `C:\…` string as the
 	// "basename" and miss the match).
 	const base = (binaryPath.split(/[\\/]/).pop() ?? '').toLowerCase();
-	return base === 'maestro-p' || base === 'maestro-p.js' || base === 'maestro-p.exe';
+	return base === 'openwizardai-p' || base === 'openwizardai-p.js' || base === 'openwizardai-p.exe';
 }
 
 /**
@@ -84,10 +84,10 @@ export function resolveConfigDirKeyFromEnv(env: NodeJS.ProcessEnv): string {
 
 /** Injectable collaborators. Every surface supplies these; none are defaulted here. */
 export interface ClaudeSpawnCoreDeps {
-	/** Resolve the bundled/installed maestro-p script path, or null if none found. */
-	getMaestroPBinPath: () => string | null;
-	/** Basename check for a maestro-p binary (defaults available as the exported fn). */
-	isMaestroPBinaryPath: (p: string | null | undefined) => boolean;
+	/** Resolve the bundled/installed openwizardai-p script path, or null if none found. */
+	getOpenWizardAIPBinPath: () => string | null;
+	/** Basename check for a openwizardai-p binary (defaults available as the exported fn). */
+	isOpenWizardAIPBinaryPath: (p: string | null | undefined) => boolean;
 	/** Canonical CLAUDE_CONFIG_DIR key from an env. */
 	resolveConfigDirKey: (env: NodeJS.ProcessEnv) => string;
 	/** Latest usage snapshot for the config-dir key, or null when unavailable. */
@@ -95,11 +95,11 @@ export interface ClaudeSpawnCoreDeps {
 	/** Filesystem existence check (injectable for tests / alternate runtimes). */
 	fileExists: (p: string) => boolean;
 	/**
-	 * Cached result of probing an SSH remote for `maestro-p` on its PATH.
+	 * Cached result of probing an SSH remote for `openwizardai-p` on its PATH.
 	 * `false` = known-absent (fall the remote TUI spawn back to API), `true` =
 	 * present, `undefined` = never probed (stay optimistic).
 	 */
-	getRemoteMaestroPAvailable: (remoteId?: string | null) => boolean | undefined;
+	getRemoteOpenWizardAIPAvailable: (remoteId?: string | null) => boolean | undefined;
 	/** Pure dynamic-mode selector (defaults to the shared claude-mode-selector). */
 	selectMode: (input: SelectModeInput) => SelectModeResult;
 	/** Optional diagnostics sink. */
@@ -112,12 +112,12 @@ export interface ResolveClaudeSpawnModeCoreInput {
 	/** Canonical token mode for this spawn (see getClaudeTokenMode). */
 	tokenMode: ClaudeTokenMode;
 	/**
-	 * SSH-enabled spawn. Interactive (TUI) mode runs maestro-p on the remote
-	 * host; it falls back to API when the remote probe says maestro-p is absent.
+	 * SSH-enabled spawn. Interactive (TUI) mode runs openwizardai-p on the remote
+	 * host; it falls back to API when the remote probe says openwizardai-p is absent.
 	 */
 	sshEnabled: boolean;
 	/**
-	 * SSH remote id, used to look up the cached remote maestro-p availability so
+	 * SSH remote id, used to look up the cached remote openwizardai-p availability so
 	 * a remote TUI spawn can fall back to API when the remote can't run it.
 	 */
 	sshRemoteId?: string;
@@ -127,8 +127,8 @@ export interface ResolveClaudeSpawnModeCoreInput {
 	sessionCustomPath?: string;
 	/** Per-session custom env vars (feed the CLAUDE_CONFIG_DIR key resolution). */
 	sessionCustomEnvVars?: Record<string, string>;
-	/** Per-session maestro-p script override. Empty falls back to the bundled script. */
-	maestroPPath?: string;
+	/** Per-session openwizardai-p script override. Empty falls back to the bundled script. */
+	openwizardaiPPath?: string;
 	/** Previously-persisted claudeInteractive state, for sticky-limit + stale clear. */
 	persisted?: { mode?: 'interactive' | 'api'; modeReason?: 'auto' | 'limit' };
 	/** Injected wall clock (selectMode needs it). */
@@ -139,24 +139,24 @@ export interface ClaudeSpawnDecision {
 	mode: 'interactive' | 'api';
 	reason: 'auto' | 'limit';
 	/**
-	 * Resolved maestro-p script to invoke via `process.execPath`. Non-null only
+	 * Resolved openwizardai-p script to invoke via `process.execPath`. Non-null only
 	 * for the toggle-driven interactive path (api and direct-binary leave the
 	 * spawn command untouched).
 	 */
-	maestroPBinPath: string | null;
-	/** The real claude binary maestro-p should drive (becomes MAESTRO_CLAUDE_BIN). */
+	openwizardaiPBinPath: string | null;
+	/** The real claude binary openwizardai-p should drive (becomes OPENWIZARDAI_CLAUDE_BIN). */
 	claudeRealBinPath?: string;
 	/** Canonical CLAUDE_CONFIG_DIR key, when computed (drives persistence + sampling). */
 	configDirKey?: string;
 	/**
 	 * Interactive resolved because the session Path points directly at a
-	 * maestro-p binary. The spawn is left untouched (no execPath wrap); this only
+	 * openwizardai-p binary. The spawn is left untouched (no execPath wrap); this only
 	 * affects how the mode is reported/persisted.
 	 */
 	directBinary?: boolean;
 	/**
-	 * Interactive resolved for an SSH REMOTE spawn. maestro-p runs on the remote
-	 * host (not a local script via process.execPath), so `maestroPBinPath` is
+	 * Interactive resolved for an SSH REMOTE spawn. openwizardai-p runs on the remote
+	 * host (not a local script via process.execPath), so `openwizardaiPBinPath` is
 	 * null. SSH-wrapping callers realize this with {@link buildRemoteInteractiveSpawn}.
 	 */
 	remote?: boolean;
@@ -180,9 +180,9 @@ export function resolveClaudeSpawnModeCore(
 	const isClaudeCode =
 		agent?.id === 'claude-code' && !!agent?.interactiveCommand && !!agent?.interactiveModeArgs;
 
-	// Non-Claude agents never route through maestro-p.
+	// Non-Claude agents never route through openwizardai-p.
 	if (!isClaudeCode) {
-		return { mode: 'api', reason: 'auto', maestroPBinPath: null };
+		return { mode: 'api', reason: 'auto', openwizardaiPBinPath: null };
 	}
 
 	const envForKey: NodeJS.ProcessEnv = {
@@ -193,16 +193,16 @@ export function resolveClaudeSpawnModeCore(
 
 	// ── API mode ────────────────────────────────────────────────────────────
 	if (tokenMode === 'api') {
-		// Power-user setup: the Path field itself points at a maestro-p binary.
-		// The command already launches maestro-p, so we leave the spawn alone and
+		// Power-user setup: the Path field itself points at a openwizardai-p binary.
+		// The command already launches openwizardai-p, so we leave the spawn alone and
 		// only reflect that it's really interactive (for the TUI/API pill + the
 		// renderStyle tagger that reads claudeInteractive.mode). Local-only: a
 		// remote custom path can't be probed against the local filesystem.
-		if (!sshEnabled && d.isMaestroPBinaryPath(sessionCustomPath)) {
+		if (!sshEnabled && d.isOpenWizardAIPBinaryPath(sessionCustomPath)) {
 			return {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: null,
+				openwizardaiPBinPath: null,
 				directBinary: true,
 				configDirKey: d.resolveConfigDirKey(envForKey),
 			};
@@ -211,17 +211,17 @@ export function resolveClaudeSpawnModeCore(
 		// config-dir key so the caller can write 'api' back over it.
 		const configDirKey =
 			input.persisted?.mode === 'interactive' ? d.resolveConfigDirKey(envForKey) : undefined;
-		return { mode: 'api', reason: 'auto', maestroPBinPath: null, configDirKey };
+		return { mode: 'api', reason: 'auto', openwizardaiPBinPath: null, configDirKey };
 	}
 
-	// ── SSH remote: maestro-p runs on the REMOTE host ─────────────────────────
+	// ── SSH remote: openwizardai-p runs on the REMOTE host ─────────────────────────
 	// The interactive wrapper used to be local-only because it needs the claude
-	// TUI binary. Over SSH that binary lives on the remote, and maestro-p (which
+	// TUI binary. Over SSH that binary lives on the remote, and openwizardai-p (which
 	// the user must have installed on the remote PATH) drives it there. There is
 	// no local script to resolve, so the SSH-wrapping caller realizes the spawn
 	// via buildRemoteInteractiveSpawn.
 	//
-	// Only the explicit `interactive` (TUI) choice routes through maestro-p on
+	// Only the explicit `interactive` (TUI) choice routes through openwizardai-p on
 	// remote. `dynamic` is NOT offered for SSH agents because the auto-switch
 	// reads a LOCAL usage snapshot that says nothing about the remote account's
 	// quota - there's no honest signal to switch on. A `dynamic` value that
@@ -229,36 +229,36 @@ export function resolveClaudeSpawnModeCore(
 	// Max-plan quota the user never explicitly opted into.
 	if (sshEnabled) {
 		if (tokenMode === 'interactive') {
-			// The remote must have maestro-p on its PATH to drive the TUI. If a
+			// The remote must have openwizardai-p on its PATH to drive the TUI. If a
 			// probe has already determined it is absent, fall back to API rather
-			// than spawning `maestro-p` on the remote and exiting 127 on every turn.
+			// than spawning `openwizardai-p` on the remote and exiting 127 on every turn.
 			// Unknown (never probed) stays optimistic.
-			if (d.getRemoteMaestroPAvailable(input.sshRemoteId) === false) {
+			if (d.getRemoteOpenWizardAIPAvailable(input.sshRemoteId) === false) {
 				log?.warn(
-					'maestro-p (TUI) selected for an SSH remote that has no maestro-p on its PATH - falling back to API mode',
+					'openwizardai-p (TUI) selected for an SSH remote that has no openwizardai-p on its PATH - falling back to API mode',
 					LOG_CONTEXT,
 					{ sshRemoteId: input.sshRemoteId }
 				);
 				return {
 					mode: 'api',
 					reason: 'auto',
-					maestroPBinPath: null,
+					openwizardaiPBinPath: null,
 					configDirKey: d.resolveConfigDirKey(envForKey),
 				};
 			}
 			return {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: null,
+				openwizardaiPBinPath: null,
 				remote: true,
-				// A custom remote claude path, when set, becomes MAESTRO_CLAUDE_BIN on
-				// the remote; otherwise maestro-p defaults to `claude` on the remote
-				// PATH. Never forward a maestro-p path here: when the agent's binary
-				// IS maestro-p, using it as MAESTRO_CLAUDE_BIN makes the remote
-				// maestro-p drive ITSELF in the PTY instead of claude - the child
+				// A custom remote claude path, when set, becomes OPENWIZARDAI_CLAUDE_BIN on
+				// the remote; otherwise openwizardai-p defaults to `claude` on the remote
+				// PATH. Never forward a openwizardai-p path here: when the agent's binary
+				// IS openwizardai-p, using it as OPENWIZARDAI_CLAUDE_BIN makes the remote
+				// openwizardai-p drive ITSELF in the PTY instead of claude - the child
 				// exits instantly and every turn dies as `tui_exited`.
 				claudeRealBinPath:
-					sessionCustomPath && !d.isMaestroPBinaryPath(sessionCustomPath)
+					sessionCustomPath && !d.isOpenWizardAIPBinaryPath(sessionCustomPath)
 						? sessionCustomPath
 						: undefined,
 				configDirKey: d.resolveConfigDirKey(envForKey),
@@ -268,37 +268,38 @@ export function resolveClaudeSpawnModeCore(
 		return {
 			mode: 'api',
 			reason: 'auto',
-			maestroPBinPath: null,
+			openwizardaiPBinPath: null,
 			configDirKey: d.resolveConfigDirKey(envForKey),
 		};
 	}
 
 	// ── interactive / dynamic ─────────────────────────────────────────────────
-	const candidate = (input.maestroPPath && input.maestroPPath.trim()) || d.getMaestroPBinPath();
+	const candidate =
+		(input.openwizardaiPPath && input.openwizardaiPPath.trim()) || d.getOpenWizardAIPBinPath();
 	if (!candidate || !d.fileExists(candidate)) {
 		log?.warn(
-			'maestro-p selected but no maestro-p binary found - falling back to API mode',
+			'openwizardai-p selected but no openwizardai-p binary found - falling back to API mode',
 			LOG_CONTEXT,
-			{ tokenMode, override: input.maestroPPath }
+			{ tokenMode, override: input.openwizardaiPPath }
 		);
-		return { mode: 'api', reason: 'auto', maestroPBinPath: null };
+		return { mode: 'api', reason: 'auto', openwizardaiPBinPath: null };
 	}
 
 	const configDirKey = d.resolveConfigDirKey(envForKey);
 	// Same self-reference guard as the remote branch: neither the custom path nor
-	// the resolved command may become MAESTRO_CLAUDE_BIN if it points at maestro-p
-	// itself, or maestro-p would spawn itself instead of the claude TUI. Fall back
-	// to `claude` on PATH (undefined) when both are maestro-p.
+	// the resolved command may become OPENWIZARDAI_CLAUDE_BIN if it points at openwizardai-p
+	// itself, or openwizardai-p would spawn itself instead of the claude TUI. Fall back
+	// to `claude` on PATH (undefined) when both are openwizardai-p.
 	const claudeRealBinPath =
-		(sessionCustomPath && !d.isMaestroPBinaryPath(sessionCustomPath)
+		(sessionCustomPath && !d.isOpenWizardAIPBinaryPath(sessionCustomPath)
 			? sessionCustomPath
-			: undefined) ?? (command && !d.isMaestroPBinaryPath(command) ? command : undefined);
+			: undefined) ?? (command && !d.isOpenWizardAIPBinaryPath(command) ? command : undefined);
 
 	if (tokenMode === 'interactive') {
 		return {
 			mode: 'interactive',
 			reason: 'auto',
-			maestroPBinPath: candidate,
+			openwizardaiPBinPath: candidate,
 			claudeRealBinPath,
 			configDirKey,
 		};
@@ -315,12 +316,12 @@ export function resolveClaudeSpawnModeCore(
 		return {
 			mode: 'interactive',
 			reason: decision.reason,
-			maestroPBinPath: candidate,
+			openwizardaiPBinPath: candidate,
 			claudeRealBinPath,
 			configDirKey,
 		};
 	}
-	return { mode: 'api', reason: decision.reason, maestroPBinPath: null, configDirKey };
+	return { mode: 'api', reason: decision.reason, openwizardaiPBinPath: null, configDirKey };
 }
 
 /** Convenience: the built-in selectMode, re-exported so surfaces share one impl. */
@@ -328,13 +329,13 @@ export const defaultSelectMode = builtinSelectMode;
 
 export interface ApplyClaudeSpawnInput {
 	decision: ClaudeSpawnDecision;
-	/** agent.interactiveModeArgs - the maestro-p flag list (e.g. --dangerously-skip-permissions). */
+	/** agent.interactiveModeArgs - the openwizardai-p flag list (e.g. --dangerously-skip-permissions). */
 	interactiveModeArgs?: string[];
 	command: string;
 	/**
 	 * The fully-built batch arg list, INCLUDING the prompt as a trailing
 	 * positional (e.g. `--print --verbose --output-format stream-json
-	 * --dangerously-skip-permissions -- <prompt>`). maestro-p's arg parser strips
+	 * --dangerously-skip-permissions -- <prompt>`). openwizardai-p's arg parser strips
 	 * the headless-only flags, forwards the rest to the claude TUI, and reads the
 	 * prompt from after `--`, so the list is forwarded verbatim.
 	 */
@@ -343,9 +344,9 @@ export interface ApplyClaudeSpawnInput {
 	/** Defaults to process.execPath; injectable for tests. */
 	execPath?: string;
 	/**
-	 * Overall idle budget for the maestro-p run, in seconds. Forwarded as
+	 * Overall idle budget for the openwizardai-p run, in seconds. Forwarded as
 	 * `--max-wait`. Background callers (Cue, Auto Run) SHOULD pass this so the run
-	 * honors their configured timeout instead of maestro-p's built-in default.
+	 * honors their configured timeout instead of openwizardai-p's built-in default.
 	 */
 	maxWaitSeconds?: number;
 }
@@ -360,30 +361,30 @@ export interface ApplyClaudeSpawnResult {
  * Realize a {@link ClaudeSpawnDecision} as concrete spawn inputs for a BATCH
  * spawn surface (Auto Run, group chat, Cue, tab naming) whose arg list already
  * carries the prompt as a positional. For the toggle-driven interactive path it
- * runs maestro-p via `process.execPath`, prepending the maestro-p script and its
- * interactive flags to the existing args (maestro-p strips the headless flags
- * and reads the prompt itself), and injects `MAESTRO_CLAUDE_BIN`. Every other
+ * runs openwizardai-p via `process.execPath`, prepending the openwizardai-p script and its
+ * interactive flags to the existing args (openwizardai-p strips the headless flags
+ * and reads the prompt itself), and injects `OPENWIZARDAI_CLAUDE_BIN`. Every other
  * case (API, or direct-binary interactive) passes through unchanged.
  */
 export function applyClaudeSpawnDecision(input: ApplyClaudeSpawnInput): ApplyClaudeSpawnResult {
 	const { decision, interactiveModeArgs, command, args, customEnvVars } = input;
 
-	if (decision.mode === 'interactive' && decision.maestroPBinPath) {
+	if (decision.mode === 'interactive' && decision.openwizardaiPBinPath) {
 		const realBin = decision.claudeRealBinPath ?? command;
 		const env: Record<string, string> = {
 			...(customEnvVars ?? {}),
-			MAESTRO_CLAUDE_BIN: realBin,
+			OPENWIZARDAI_CLAUDE_BIN: realBin,
 			// `process.execPath` under Electron is the app binary. Running it against
-			// a `.js` script (maestro-p) without this flag does NOT execute the
-			// script as Node in a PACKAGED app - it launches a second Maestro GUI, so
-			// maestro-p never runs and the caller gets a null result. Under the plain
+			// a `.js` script (openwizardai-p) without this flag does NOT execute the
+			// script as Node in a PACKAGED app - it launches a second OpenWizardAI GUI, so
+			// openwizardai-p never runs and the caller gets a null result. Under the plain
 			// `node` binary (the standalone CLI) the flag is harmless. Setting it
 			// unconditionally keeps both surfaces correct.
 			ELECTRON_RUN_AS_NODE: '1',
 		};
-		// Under ELECTRON_RUN_AS_NODE, maestro-p runs as pure Node and does
+		// Under ELECTRON_RUN_AS_NODE, openwizardai-p runs as pure Node and does
 		// `require('node-pty')`, which esbuild left external. In a packaged app
-		// maestro-p.js sits at the resources root, OUTSIDE the asar, so Node can't
+		// openwizardai-p.js sits at the resources root, OUTSIDE the asar, so Node can't
 		// find node-pty without help. Point NODE_PATH at the IN-ASAR node_modules
 		// (`<resources>/app.asar/node_modules`). node-pty computes its `spawn-helper`
 		// path by rewriting `app.asar` → `app.asar.unpacked`, so we must feed it the
@@ -397,14 +398,19 @@ export function applyClaudeSpawnDecision(input: ApplyClaudeSpawnInput): ApplyCla
 		}
 		// `--max-wait` must precede the batch args because those end with the
 		// `-- <prompt>` end-of-options marker; anything after `--` is read by
-		// maestro-p's parser as the prompt positional, not a flag.
+		// openwizardai-p's parser as the prompt positional, not a flag.
 		const maxWaitArgs =
 			typeof input.maxWaitSeconds === 'number' && input.maxWaitSeconds > 0
 				? ['--max-wait', String(Math.ceil(input.maxWaitSeconds))]
 				: [];
 		return {
 			command: input.execPath ?? process.execPath,
-			args: [decision.maestroPBinPath, ...maxWaitArgs, ...(interactiveModeArgs ?? []), ...args],
+			args: [
+				decision.openwizardaiPBinPath,
+				...maxWaitArgs,
+				...(interactiveModeArgs ?? []),
+				...args,
+			],
 			customEnvVars: env,
 		};
 	}
@@ -413,16 +419,16 @@ export function applyClaudeSpawnDecision(input: ApplyClaudeSpawnInput): ApplyCla
 }
 
 /**
- * Command name used to invoke maestro-p on a remote SSH host. The user must have
- * maestro-p installed and on PATH there. Unlike the local path it is a bare
+ * Command name used to invoke openwizardai-p on a remote SSH host. The user must have
+ * openwizardai-p installed and on PATH there. Unlike the local path it is a bare
  * command: the SSH stdin script's login-shell PATH resolves it the same way it
  * resolves `claude` for the API path.
  */
-export const REMOTE_MAESTRO_P_COMMAND = 'maestro-p';
+export const REMOTE_OPENWIZARDAI_P_COMMAND = 'openwizardai-p';
 
 /** Substitutions an SSH-wrapping caller applies for a remote interactive spawn. */
 export interface RemoteInteractiveSpawn {
-	/** Remote command to exec instead of `claude` (i.e. `maestro-p`). */
+	/** Remote command to exec instead of `claude` (i.e. `openwizardai-p`). */
 	command: string;
 	/** Flags to prepend ahead of the existing (headless) arg list + prompt. */
 	prependArgs: string[];
@@ -433,11 +439,11 @@ export interface RemoteInteractiveSpawn {
 /**
  * Realize an interactive {@link ClaudeSpawnDecision} for an SSH REMOTE spawn.
  *
- * Where {@link applyClaudeSpawnDecision} wraps a LOCAL maestro-p script via
+ * Where {@link applyClaudeSpawnDecision} wraps a LOCAL openwizardai-p script via
  * `process.execPath`, this returns the substitutions an SSH-wrapping caller
- * folds into its remote command: run `maestro-p` on the remote host, prepend
+ * folds into its remote command: run `openwizardai-p` on the remote host, prepend
  * the interactive flags (and an optional `--max-wait` idle budget), and point
- * MAESTRO_CLAUDE_BIN at the remote claude binary when a custom remote path is
+ * OPENWIZARDAI_CLAUDE_BIN at the remote claude binary when a custom remote path is
  * configured. Returns null when the decision is not remote-interactive.
  */
 export function buildRemoteInteractiveSpawn(input: {
@@ -456,10 +462,10 @@ export function buildRemoteInteractiveSpawn(input: {
 			: [];
 	const env: Record<string, string> = {};
 	if (remoteClaudeBin && remoteClaudeBin.length > 0) {
-		env.MAESTRO_CLAUDE_BIN = remoteClaudeBin;
+		env.OPENWIZARDAI_CLAUDE_BIN = remoteClaudeBin;
 	}
 	return {
-		command: REMOTE_MAESTRO_P_COMMAND,
+		command: REMOTE_OPENWIZARDAI_P_COMMAND,
 		prependArgs: [...maxWaitArgs, ...(interactiveModeArgs ?? [])],
 		env,
 	};

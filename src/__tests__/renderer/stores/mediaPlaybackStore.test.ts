@@ -52,7 +52,7 @@ function reset() {
 describe('mediaPlaybackStore', () => {
 	beforeEach(() => {
 		reset();
-		(window as unknown as { maestro?: unknown }).maestro = { settings: { set: vi.fn() } };
+		(window as unknown as { openwizardai?: unknown }).openwizardai = { settings: { set: vi.fn() } };
 	});
 
 	describe('openMedia', () => {
@@ -363,7 +363,7 @@ describe('mediaPlaybackStore', () => {
 	describe('float geometry', () => {
 		it('persists the position and the width, filed under the kind', () => {
 			const set = vi.fn();
-			(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+			(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 			initial.setFloatGeometry('video', FLOAT);
 
 			const state = useMediaPlaybackStore.getState();
@@ -388,13 +388,13 @@ describe('mediaPlaybackStore', () => {
 
 		it('never stores a height, because the media decides it', () => {
 			const set = vi.fn();
-			(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+			(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 			initial.setFloatGeometry('audio', FLOAT);
 			expect(set.mock.calls[0][1]).not.toHaveProperty('height');
 		});
 
 		it('survives a missing settings bridge', () => {
-			(window as unknown as { maestro?: unknown }).maestro = undefined;
+			(window as unknown as { openwizardai?: unknown }).openwizardai = undefined;
 			expect(() => initial.setFloatGeometry('audio', FLOAT)).not.toThrow();
 			expect(useMediaPlaybackStore.getState().floatPosition).toEqual({ top: 40, left: 50 });
 		});
@@ -667,7 +667,7 @@ describe('mediaPlaybackStore', () => {
 
 		it('writes the queue, the loaded item, and remembered positions', () => {
 			const set = vi.fn();
-			(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+			(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 
 			const r = request();
 			initial.openMedia(r);
@@ -690,7 +690,7 @@ describe('mediaPlaybackStore', () => {
 
 		it('prunes stored lengths to the queue, so disk does not grow forever', () => {
 			const set = vi.fn();
-			(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+			(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 
 			const r = request();
 			initial.openMedia(r);
@@ -706,7 +706,7 @@ describe('mediaPlaybackStore', () => {
 
 		it('collapses a burst of position updates into one write', () => {
 			const set = vi.fn();
-			(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+			(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 
 			initial.openMedia(request());
 			for (let i = 1; i <= 10; i++) initial.rememberTime(idOf(request()), i);
@@ -717,7 +717,7 @@ describe('mediaPlaybackStore', () => {
 
 		it('flushes on demand, so a closing window does not lose the queue', () => {
 			const set = vi.fn();
-			(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+			(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 
 			initial.openMedia(request());
 			flushMediaQueuePersist();

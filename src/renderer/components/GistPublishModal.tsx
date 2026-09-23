@@ -67,7 +67,7 @@ export function GistPublishModal({
 			setError(null);
 
 			try {
-				const result = await window.maestro.git.createGist(
+				const result = await window.openwizardai.git.createGist(
 					filename,
 					effectiveContent,
 					'', // No description - file name serves as context

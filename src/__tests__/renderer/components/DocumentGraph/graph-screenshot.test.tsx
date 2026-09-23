@@ -101,9 +101,9 @@ describe('graph screenshot', () => {
 		safeClipboardWriteImage.mockResolvedValue(true);
 		saveImageDataUrlToDisk.mockResolvedValue({ saved: true, path: '/tmp/graph.png' });
 		capturePage = vi.fn().mockResolvedValue(CAPTURED);
-		(window as any).maestro.shell.capturePage = capturePage;
+		(window as any).openwizardai.shell.capturePage = capturePage;
 		// Not in the shared setup mock, and the view starts a watcher on mount.
-		(window as any).maestro.documentGraph = {
+		(window as any).openwizardai.documentGraph = {
 			watchFolder: vi.fn().mockResolvedValue(undefined),
 			unwatchFolder: vi.fn().mockResolvedValue(undefined),
 			onFilesChanged: vi.fn().mockReturnValue(() => {}),
@@ -125,11 +125,11 @@ describe('graph screenshot', () => {
 
 	afterEach(() => {
 		vi.restoreAllMocks();
-		delete (window as any).maestro.shell.capturePage;
+		delete (window as any).openwizardai.shell.capturePage;
 	});
 
 	it('hides the camera when the bridge cannot capture the page', async () => {
-		delete (window as any).maestro.shell.capturePage;
+		delete (window as any).openwizardai.shell.capturePage;
 		renderGraph();
 		// The camera lives in the footer, so wait for a sibling control to prove
 		// the footer rendered before concluding the camera is absent.

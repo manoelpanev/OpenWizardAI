@@ -11,8 +11,8 @@ const META_DOWN: ClickModifiers = { metaKey: true, ctrlKey: false, button: 0 };
 const CTRL_DOWN: ClickModifiers = { metaKey: false, ctrlKey: true, button: 0 };
 const MIDDLE_CLICK: ClickModifiers = { metaKey: false, ctrlKey: false, button: 1 };
 
-function link(href: string, dataMaestroFile: string | null = null): LinkDescriptor {
-	return { href, dataMaestroFile };
+function link(href: string, dataOpenwizardaiFile: string | null = null): LinkDescriptor {
+	return { href, dataOpenwizardaiFile };
 }
 
 describe('resolveLinkAction', () => {
@@ -21,82 +21,82 @@ describe('resolveLinkAction', () => {
 		expect(action.kind).toBe('none');
 	});
 
-	describe('maestro-file routing', () => {
-		it('routes via data-maestro-file attribute when present', () => {
+	describe('openwizardai-file routing', () => {
+		it('routes via data-openwizardai-file attribute when present', () => {
 			const action = resolveLinkAction(link('#ignored', 'docs/file.md'), NO_MODIFIERS);
 			expect(action).toEqual({
-				kind: 'maestro-file',
+				kind: 'openwizardai-file',
 				path: 'docs/file.md',
 				openInNewTab: false,
 			});
 		});
 
-		it('prefers data-maestro-file over href even when both are present', () => {
+		it('prefers data-openwizardai-file over href even when both are present', () => {
 			const action = resolveLinkAction(
 				link('https://example.com', 'docs/file.md'),
 				NO_MODIFIERS
-			) as Extract<LinkAction, { kind: 'maestro-file' }>;
-			expect(action.kind).toBe('maestro-file');
+			) as Extract<LinkAction, { kind: 'openwizardai-file' }>;
+			expect(action.kind).toBe('openwizardai-file');
 			expect(action.path).toBe('docs/file.md');
 		});
 
-		it('routes maestro-file:// URLs in the href', () => {
+		it('routes openwizardai-file:// URLs in the href', () => {
 			const action = resolveLinkAction(
-				link('maestro-file://docs/readme.md'),
+				link('openwizardai-file://docs/readme.md'),
 				NO_MODIFIERS
-			) as Extract<LinkAction, { kind: 'maestro-file' }>;
-			expect(action.kind).toBe('maestro-file');
+			) as Extract<LinkAction, { kind: 'openwizardai-file' }>;
+			expect(action.kind).toBe('openwizardai-file');
 			expect(action.path).toBe('docs/readme.md');
 		});
 
 		it('marks openInNewTab when meta key is held', () => {
-			const action = resolveLinkAction(link('maestro-file://x.md'), META_DOWN) as Extract<
+			const action = resolveLinkAction(link('openwizardai-file://x.md'), META_DOWN) as Extract<
 				LinkAction,
-				{ kind: 'maestro-file' }
+				{ kind: 'openwizardai-file' }
 			>;
 			expect(action.openInNewTab).toBe(true);
 		});
 
 		it('marks openInNewTab when ctrl key is held', () => {
-			const action = resolveLinkAction(link('maestro-file://x.md'), CTRL_DOWN) as Extract<
+			const action = resolveLinkAction(link('openwizardai-file://x.md'), CTRL_DOWN) as Extract<
 				LinkAction,
-				{ kind: 'maestro-file' }
+				{ kind: 'openwizardai-file' }
 			>;
 			expect(action.openInNewTab).toBe(true);
 		});
 
 		it('marks openInNewTab on middle-click', () => {
-			const action = resolveLinkAction(link('maestro-file://x.md'), MIDDLE_CLICK) as Extract<
+			const action = resolveLinkAction(link('openwizardai-file://x.md'), MIDDLE_CLICK) as Extract<
 				LinkAction,
-				{ kind: 'maestro-file' }
+				{ kind: 'openwizardai-file' }
 			>;
 			expect(action.openInNewTab).toBe(true);
 		});
 
-		it('handles maestro-file paths containing slashes and special chars', () => {
+		it('handles openwizardai-file paths containing slashes and special chars', () => {
 			const action = resolveLinkAction(
-				link('maestro-file://docs/sub folder/My File.md'),
+				link('openwizardai-file://docs/sub folder/My File.md'),
 				NO_MODIFIERS
-			) as Extract<LinkAction, { kind: 'maestro-file' }>;
+			) as Extract<LinkAction, { kind: 'openwizardai-file' }>;
 			expect(action.path).toBe('docs/sub folder/My File.md');
 		});
 	});
 
-	describe('maestro deep-link routing', () => {
-		it('routes maestro:// URLs to the deep-link kind', () => {
+	describe('openwizardai deep-link routing', () => {
+		it('routes openwizardai:// URLs to the deep-link kind', () => {
 			const action = resolveLinkAction(
-				link('maestro://session/abc/tab/xyz'),
+				link('openwizardai://session/abc/tab/xyz'),
 				NO_MODIFIERS
-			) as Extract<LinkAction, { kind: 'maestro-deep-link' }>;
+			) as Extract<LinkAction, { kind: 'openwizardai-deep-link' }>;
 			expect(action).toEqual({
-				kind: 'maestro-deep-link',
-				href: 'maestro://session/abc/tab/xyz',
+				kind: 'openwizardai-deep-link',
+				href: 'openwizardai://session/abc/tab/xyz',
 			});
 		});
 
 		it('routes group deep links', () => {
-			const action = resolveLinkAction(link('maestro://group/grp1'), NO_MODIFIERS);
-			expect(action.kind).toBe('maestro-deep-link');
+			const action = resolveLinkAction(link('openwizardai://group/grp1'), NO_MODIFIERS);
+			expect(action.kind).toBe('openwizardai-deep-link');
 		});
 	});
 
@@ -173,12 +173,12 @@ describe('resolveLinkAction', () => {
 			expect(action.openInNewTab).toBe(false);
 		});
 
-		it('treats data-maestro-file as the source of truth even if href is empty', () => {
+		it('treats data-openwizardai-file as the source of truth even if href is empty', () => {
 			const action = resolveLinkAction(link('', 'path/to.md'), NO_MODIFIERS);
-			expect(action.kind).toBe('maestro-file');
+			expect(action.kind).toBe('openwizardai-file');
 		});
 
-		it('falls back to href when dataMaestroFile is the empty string', () => {
+		it('falls back to href when dataOpenwizardaiFile is the empty string', () => {
 			// An empty data attribute is falsy and should not short-circuit the
 			// router. The href branch should still execute.
 			const action = resolveLinkAction(link('https://example.com', ''), NO_MODIFIERS);

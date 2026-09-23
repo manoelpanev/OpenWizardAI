@@ -1,5 +1,5 @@
 /**
- * useIsMobile hook for Maestro web interface
+ * useIsMobile hook for OpenWizardAI web interface
  *
  * Detects whether the viewport is at or below a mobile breakpoint (768px).
  * Uses a debounced resize listener to avoid excessive re-renders during

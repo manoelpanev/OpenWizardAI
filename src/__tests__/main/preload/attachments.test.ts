@@ -116,14 +116,14 @@ describe('Attachments Preload API', () => {
 		it('should invoke attachments:getPath with sessionId', async () => {
 			mockInvoke.mockResolvedValue({
 				success: true,
-				path: '/home/user/.maestro/attachments/session-123',
+				path: '/home/user/.openwizardai/attachments/session-123',
 			});
 
 			const result = await api.getPath('session-123');
 
 			expect(mockInvoke).toHaveBeenCalledWith('attachments:getPath', 'session-123');
 			expect(result.success).toBe(true);
-			expect(result.path).toBe('/home/user/.maestro/attachments/session-123');
+			expect(result.path).toBe('/home/user/.openwizardai/attachments/session-123');
 		});
 	});
 });

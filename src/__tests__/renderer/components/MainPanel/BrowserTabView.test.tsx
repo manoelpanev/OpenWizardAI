@@ -15,7 +15,7 @@ const mockTab: BrowserTab = {
 	url: 'https://example.com',
 	title: 'Example',
 	createdAt: Date.now(),
-	partition: 'persist:maestro-browser-session-session-1',
+	partition: 'persist:openwizardai-browser-session-session-1',
 	canGoBack: false,
 	canGoForward: false,
 	isLoading: false,
@@ -333,13 +333,13 @@ describe('BrowserTabView', () => {
 		render(<BrowserTabView tab={mockTab} theme={mockTheme} onUpdateTab={onUpdateTab} />);
 
 		const input = screen.getByLabelText('Browser URL');
-		fireEvent.change(input, { target: { value: 'maestro browser tabs' } });
+		fireEvent.change(input, { target: { value: 'openwizardai browser tabs' } });
 		fireEvent.submit(input.closest('form')!);
 
 		expect(onUpdateTab).toHaveBeenCalledWith(
 			'browser-1',
 			expect.objectContaining({
-				url: 'https://www.google.com/search?q=maestro%20browser%20tabs',
+				url: 'https://www.google.com/search?q=openwizardai%20browser%20tabs',
 				title: 'www.google.com',
 				isLoading: true,
 			})
@@ -379,7 +379,7 @@ describe('BrowserTabView', () => {
 			);
 		});
 
-		expect(window.maestro.shell.openExternal).not.toHaveBeenCalled();
+		expect(window.openwizardai.shell.openExternal).not.toHaveBeenCalled();
 		expect(preventDefault).not.toHaveBeenCalled();
 		expect(onUpdateTab).not.toHaveBeenCalled();
 	});
@@ -407,7 +407,7 @@ describe('BrowserTabView', () => {
 			});
 
 			expect(webview.executeJavaScript).toHaveBeenCalledWith(
-				expect.stringContaining('__maestroScrollListenerInstalled')
+				expect.stringContaining('__openwizardaiScrollListenerInstalled')
 			);
 		});
 
@@ -425,7 +425,7 @@ describe('BrowserTabView', () => {
 			// Simulate scroll-down message from guest
 			await act(async () => {
 				webview.dispatchEvent(
-					Object.assign(new Event('console-message'), { message: '__MAESTRO_SCROLL__1' })
+					Object.assign(new Event('console-message'), { message: '__OPENWIZARDAI_SCROLL__1' })
 				);
 			});
 
@@ -445,7 +445,7 @@ describe('BrowserTabView', () => {
 			// Hide first
 			await act(async () => {
 				webview.dispatchEvent(
-					Object.assign(new Event('console-message'), { message: '__MAESTRO_SCROLL__1' })
+					Object.assign(new Event('console-message'), { message: '__OPENWIZARDAI_SCROLL__1' })
 				);
 			});
 			expect(addressBar).toHaveStyle({ maxHeight: '0' });
@@ -453,7 +453,7 @@ describe('BrowserTabView', () => {
 			// Scroll up - reveal
 			await act(async () => {
 				webview.dispatchEvent(
-					Object.assign(new Event('console-message'), { message: '__MAESTRO_SCROLL__0' })
+					Object.assign(new Event('console-message'), { message: '__OPENWIZARDAI_SCROLL__0' })
 				);
 			});
 			expect(addressBar).toHaveStyle({ maxHeight: '200px' });
@@ -472,7 +472,7 @@ describe('BrowserTabView', () => {
 			// Hide via scroll
 			await act(async () => {
 				webview.dispatchEvent(
-					Object.assign(new Event('console-message'), { message: '__MAESTRO_SCROLL__1' })
+					Object.assign(new Event('console-message'), { message: '__OPENWIZARDAI_SCROLL__1' })
 				);
 			});
 			expect(addressBar).toHaveStyle({ maxHeight: '0' });
@@ -544,7 +544,7 @@ describe('BrowserTabView', () => {
 
 			script = webview.executeJavaScript.mock.calls
 				.map((call) => String(call[0]))
-				.find((src) => src.includes('__maestroScrollListenerInstalled')) as string;
+				.find((src) => src.includes('__openwizardaiScrollListenerInstalled')) as string;
 			expect(script).toBeTruthy();
 		});
 
@@ -557,7 +557,7 @@ describe('BrowserTabView', () => {
 
 			guest.scrollTo(400);
 
-			expect(guest.logs).toEqual(['__MAESTRO_SCROLL__1']);
+			expect(guest.logs).toEqual(['__OPENWIZARDAI_SCROLL__1']);
 		});
 
 		it('ignores the clamp scroll caused by its own collapse at page bottom', () => {
@@ -565,14 +565,14 @@ describe('BrowserTabView', () => {
 
 			// User scrolls to the bottom: the bar collapses.
 			guest.scrollTo(400);
-			expect(guest.logs).toEqual(['__MAESTRO_SCROLL__1']);
+			expect(guest.logs).toEqual(['__OPENWIZARDAI_SCROLL__1']);
 
 			// Collapsing grows the viewport, so Chromium clamps scrollY down. That
 			// looks like a scroll up and used to re-reveal the bar, which shrank the
 			// viewport again and flickered for as long as the page sat at the bottom.
 			guest.scrollTo(356, 844);
 
-			expect(guest.logs).toEqual(['__MAESTRO_SCROLL__1']);
+			expect(guest.logs).toEqual(['__OPENWIZARDAI_SCROLL__1']);
 		});
 
 		it('still reveals on a genuine scroll up once the resize has settled', () => {
@@ -580,13 +580,13 @@ describe('BrowserTabView', () => {
 
 			guest.scrollTo(400);
 			guest.scrollTo(356, 844);
-			expect(guest.logs).toEqual(['__MAESTRO_SCROLL__1']);
+			expect(guest.logs).toEqual(['__OPENWIZARDAI_SCROLL__1']);
 
 			// Past the settle window, a real scroll up reveals the bar again.
 			vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 1000);
 			guest.scrollTo(100);
 
-			expect(guest.logs).toEqual(['__MAESTRO_SCROLL__1', '__MAESTRO_SCROLL__0']);
+			expect(guest.logs).toEqual(['__OPENWIZARDAI_SCROLL__1', '__OPENWIZARDAI_SCROLL__0']);
 		});
 	});
 
@@ -610,7 +610,7 @@ describe('BrowserTabView', () => {
 
 		const input = screen.getByLabelText('Browser URL');
 		fireEvent.focus(input);
-		fireEvent.change(input, { target: { value: 'docs.runmaestro.ai' } });
+		fireEvent.change(input, { target: { value: 'docs.example.com' } });
 
 		await act(async () => {
 			webview.dispatchEvent(
@@ -620,15 +620,15 @@ describe('BrowserTabView', () => {
 			);
 		});
 
-		expect(input).toHaveValue('docs.runmaestro.ai');
+		expect(input).toHaveValue('docs.example.com');
 
 		fireEvent.submit(input.closest('form')!);
 
 		expect(onUpdateTab).toHaveBeenCalledWith(
 			'browser-1',
 			expect.objectContaining({
-				url: 'https://docs.runmaestro.ai/',
-				title: 'docs.runmaestro.ai',
+				url: 'https://docs.example.com/',
+				title: 'docs.example.com',
 				isLoading: true,
 			})
 		);
@@ -945,7 +945,7 @@ describe('BrowserTabView', () => {
 		// tab.url, and for ERR_INVALID_URL that is the malformed target itself.
 		// Electron resolves the src attribute with `new URL()` while attaching the
 		// element, so handing it that value throws "Invalid URL" mid-commit and
-		// takes the renderer down (MAESTRO-QX/QY/QZ).
+		// takes the renderer down (OPENWIZARDAI-QX/QY/QZ).
 		it.each(['http://', 'https://[bad', 'https://x y'])(
 			'falls back to about:blank rather than mounting the unparseable URL %s',
 			(url) => {

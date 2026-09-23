@@ -27,7 +27,7 @@ interface WorktreeConfigModalProps {
 async function validateDirectory(path: string, sshRemoteId?: string): Promise<boolean> {
 	if (!path.trim()) return false;
 	try {
-		await window.maestro.fs.readDir(path, sshRemoteId);
+		await window.openwizardai.fs.readDir(path, sshRemoteId);
 		return true;
 	} catch {
 		return false;
@@ -105,7 +105,7 @@ export function WorktreeConfigModal({
 
 	const checkGhCli = async () => {
 		try {
-			const status = await window.maestro.git.checkGhCli();
+			const status = await window.openwizardai.git.checkGhCli();
 			setGhCliStatus(status);
 		} catch {
 			setGhCliStatus({ installed: false, authenticated: false });
@@ -115,7 +115,7 @@ export function WorktreeConfigModal({
 	const handleBrowse = async () => {
 		// Browse is only available for local sessions
 		if (isRemoteSession) return;
-		const result = await window.maestro.dialog.selectFolder();
+		const result = await window.openwizardai.dialog.selectFolder();
 		if (result) {
 			setBasePath(result);
 		}
@@ -335,7 +335,7 @@ export function WorktreeConfigModal({
 								Watch for new worktrees
 							</div>
 							<p className="text-2xs" style={{ color: theme.colors.textDim }}>
-								Auto-detect worktrees created outside OpenWizzard
+								Auto-detect worktrees created outside OpenWizardAI
 							</p>
 						</div>
 						<button
@@ -367,7 +367,7 @@ export function WorktreeConfigModal({
 							onChange={(e) => setSetupScript(e.target.value)}
 							rows={3}
 							spellCheck={false}
-							placeholder={'cp "$MAESTRO_MAIN_REPO_PATH/.env.local" . && ./setup.sh'}
+							placeholder={'cp "$OPENWIZARDAI_MAIN_REPO_PATH/.env.local" . && ./setup.sh'}
 							className="w-full px-3 py-2 rounded border bg-transparent outline-none text-xs font-mono resize-y"
 							style={{
 								borderColor: theme.colors.border,
@@ -376,9 +376,9 @@ export function WorktreeConfigModal({
 						/>
 						<p className="text-2xs mt-1" style={{ color: theme.colors.textDim }}>
 							Runs in each newly created worktree{isRemoteSession ? ' on the remote host' : ''}.
-							Available variables: <code>$MAESTRO_WORKTREE_PATH</code>,{' '}
-							<code>$MAESTRO_WORKTREE_BRANCH</code>, <code>$MAESTRO_MAIN_REPO_PATH</code>,{' '}
-							<code>$MAESTRO_BASE_BRANCH</code>. Leave blank to disable.
+							Available variables: <code>$OPENWIZARDAI_WORKTREE_PATH</code>,{' '}
+							<code>$OPENWIZARDAI_WORKTREE_BRANCH</code>, <code>$OPENWIZARDAI_MAIN_REPO_PATH</code>,{' '}
+							<code>$OPENWIZARDAI_BASE_BRANCH</code>. Leave blank to disable.
 						</p>
 					</div>
 

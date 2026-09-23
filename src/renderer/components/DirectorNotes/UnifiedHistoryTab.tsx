@@ -76,14 +76,14 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 		},
 		ref
 	) {
-		const maestroCueEnabled = useSettingsStore((s) => s.encoreFeatures.maestroCue);
+		const openwizardaiCueEnabled = useSettingsStore((s) => s.encoreFeatures.openwizardaiCue);
 		const visibleTypes = useMemo<HistoryEntryType[]>(
-			() => (maestroCueEnabled ? ['USER', 'AUTO', 'CUE'] : ['USER', 'AUTO']),
-			[maestroCueEnabled]
+			() => (openwizardaiCueEnabled ? ['USER', 'AUTO', 'CUE'] : ['USER', 'AUTO']),
+			[openwizardaiCueEnabled]
 		);
 
 		const [activeFilters, setActiveFilters] = useState<Set<HistoryEntryType>>(() =>
-			resolveInitialHistoryFilters(UNIFIED_HISTORY_FILTERS_KEY, maestroCueEnabled)
+			resolveInitialHistoryFilters(UNIFIED_HISTORY_FILTERS_KEY, openwizardaiCueEnabled)
 		);
 
 		// Stable, ordered array of the active types. Pushed to the server so
@@ -127,7 +127,7 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 		// response so we don't fan out to a second call.
 		const loadPage = useCallback(
 			async (offset: number, limit: number): Promise<PaginatedPage<UnifiedHistoryEntry>> => {
-				const result = await window.maestro.directorNotes.getUnifiedHistory({
+				const result = await window.openwizardai.directorNotes.getUnifiedHistory({
 					lookbackDays: lookbackHoursToDays(lookbackHours),
 					filter: activeFilterArray,
 					limit,
@@ -254,7 +254,7 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 				}
 			};
 
-			const cleanup = window.maestro.directorNotes.onHistoryEntryAdded(
+			const cleanup = window.openwizardai.directorNotes.onHistoryEntryAdded(
 				(rawEntry, sourceSessionId) => {
 					// Check if entry is within lookback window
 					if (lookbackHours !== null) {
@@ -309,7 +309,7 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 		// graph refreshes independently of pagination.
 		const refreshGraphData = useCallback(async () => {
 			try {
-				const data = await window.maestro.directorNotes.getGraphData(
+				const data = await window.openwizardai.directorNotes.getGraphData(
 					bucketCountForLookback(lookbackHours),
 					lookbackHours
 				);
@@ -366,22 +366,22 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 		// genuine off->on transition auto-enables the CUE filter (new feature
 		// just became available). We must NOT force CUE on at mount, otherwise
 		// a persisted "CUE deselected" choice would be clobbered on every open.
-		const prevCueEnabledRef = useRef(maestroCueEnabled);
+		const prevCueEnabledRef = useRef(openwizardaiCueEnabled);
 		useEffect(() => {
 			const wasEnabled = prevCueEnabledRef.current;
-			prevCueEnabledRef.current = maestroCueEnabled;
+			prevCueEnabledRef.current = openwizardaiCueEnabled;
 			setActiveFilters((prev) => {
-				if (!maestroCueEnabled && prev.has('CUE')) {
+				if (!openwizardaiCueEnabled && prev.has('CUE')) {
 					const next = new Set(prev);
 					next.delete('CUE');
 					return next;
 				}
-				if (maestroCueEnabled && !wasEnabled && !prev.has('CUE')) {
+				if (openwizardaiCueEnabled && !wasEnabled && !prev.has('CUE')) {
 					return new Set([...prev, 'CUE']);
 				}
 				return prev;
 			});
-		}, [maestroCueEnabled]);
+		}, [openwizardaiCueEnabled]);
 
 		// Persist the selection so it survives modal close and app restart.
 		useEffect(() => {
@@ -540,7 +540,7 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 				}
 
 				try {
-					const targetOffset = await window.maestro.directorNotes.getOffsetForTimestamp(
+					const targetOffset = await window.openwizardai.directorNotes.getOffsetForTimestamp(
 						bucketEnd - 1,
 						{ lookbackDays: lookbackHoursToDays(lookbackHours), filter: activeFilterArray }
 					);
@@ -641,7 +641,7 @@ export const UnifiedHistoryTab = forwardRef<TabFocusHandle, UnifiedHistoryTabPro
 				// Find the entry to get its sourceSessionId for the per-session lookup
 				const target = entries.find((e) => e.id === entryId);
 				if (!target) return false;
-				const success = await window.maestro.history.update(
+				const success = await window.openwizardai.history.update(
 					entryId,
 					updates,
 					target.sourceSessionId

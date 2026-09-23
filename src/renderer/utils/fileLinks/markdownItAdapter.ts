@@ -7,7 +7,7 @@ import {
 } from './matcher';
 import {
 	IMAGE_EMBED_PATTERN,
-	MAESTRO_DEEP_LINK_PATTERN,
+	OPENWIZARDAI_DEEP_LINK_PATTERN,
 	PATH_PATTERN,
 	WIKI_LINK_PATTERN,
 } from './patterns';
@@ -32,8 +32,8 @@ export interface MarkdownItFileLinksOptions {
  * Apply file-link resolution to a markdown-it token stream in place.
  *
  * Two passes:
- *   1. `link_open` href rewriter - converts `[label](path)` to `maestro-file://`
- *      when `path` resolves in the file tree. Adds `data-maestro-file` for
+ *   1. `link_open` href rewriter - converts `[label](path)` to `openwizardai-file://`
+ *      when `path` resolves in the file tree. Adds `data-openwizardai-file` for
  *      DOMPurify-safe carriage of the resolved path.
  *   2. `inline` text rewriter - splits text children on `![[…]]` / `[[…]]`
  *      patterns and replaces them with synthetic `image`/`link_open` tokens.
@@ -79,8 +79,8 @@ function rewriteStandardLinks(
 
 		// Skip already-rewritten and out-of-scope hrefs.
 		if (
-			hrefAttr.startsWith('maestro-file://') ||
-			hrefAttr.startsWith('maestro://') ||
+			hrefAttr.startsWith('openwizardai-file://') ||
+			hrefAttr.startsWith('openwizardai://') ||
 			hrefAttr.startsWith('http://') ||
 			hrefAttr.startsWith('https://') ||
 			hrefAttr.startsWith('mailto:') ||
@@ -114,8 +114,8 @@ function rewriteStandardLinks(
 		}
 		if (!resolved) continue;
 
-		token.attrSet('href', `maestro-file://${resolved}`);
-		token.attrSet('data-maestro-file', resolved);
+		token.attrSet('href', `openwizardai-file://${resolved}`);
+		token.attrSet('data-openwizardai-file', resolved);
 	}
 }
 
@@ -137,7 +137,7 @@ function safeDecode(s: string): string {
 // array contains a mix of text/em/strong/link tokens. We scan each text-typed
 // child for wiki and image-embed patterns and replace it with a synthetic
 // sequence of (text, link_open, text, link_close, ...) tokens that point at
-// `maestro-file://` and carry the same `data-maestro-file` attribute the click
+// `openwizardai-file://` and carry the same `data-openwizardai-file` attribute the click
 // router prefers.
 
 function rewriteInlineWikiAndImageEmbeds(
@@ -187,7 +187,7 @@ interface InlineMatch {
 	start: number;
 	end: number;
 	kind: 'wiki' | 'image' | 'deep-link';
-	/** For wiki/image: relative path resolved against the file tree. For deep-link: the full `maestro://` URL. */
+	/** For wiki/image: relative path resolved against the file tree. For deep-link: the full `openwizardai://` URL. */
 	resolvedPath: string;
 	display: string;
 	imageWidth?: number;
@@ -243,8 +243,8 @@ function expandTextToken(
 
 		if (match.kind === 'image') {
 			const img = newToken('image', 'img', 0);
-			img.attrSet('src', `maestro-file://${match.resolvedPath}`);
-			img.attrSet('data-maestro-image', match.resolvedPath);
+			img.attrSet('src', `openwizardai-file://${match.resolvedPath}`);
+			img.attrSet('data-openwizardai-image', match.resolvedPath);
 			if (match.imageWidth) {
 				img.attrSet('width', String(match.imageWidth));
 			}
@@ -259,8 +259,8 @@ function expandTextToken(
 			out.push(img);
 		} else {
 			const open = newToken('link_open', 'a', 1);
-			open.attrSet('href', `maestro-file://${match.resolvedPath}`);
-			open.attrSet('data-maestro-file', match.resolvedPath);
+			open.attrSet('href', `openwizardai-file://${match.resolvedPath}`);
+			open.attrSet('data-openwizardai-file', match.resolvedPath);
 			const label = newToken('text', '', 0);
 			label.content = match.display;
 			const close = newToken('link_close', 'a', -1);
@@ -282,8 +282,8 @@ function expandTextToken(
 function collectInlineMatches(text: string, indices: FileTreeIndices, cwd: string): InlineMatch[] {
 	const matches: InlineMatch[] = [];
 
-	// Bare `maestro://` deep link URLs - auto-linkify so they are clickable.
-	for (const deepLinkMatch of text.matchAll(MAESTRO_DEEP_LINK_PATTERN)) {
+	// Bare `openwizardai://` deep link URLs - auto-linkify so they are clickable.
+	for (const deepLinkMatch of text.matchAll(OPENWIZARDAI_DEEP_LINK_PATTERN)) {
 		const url = deepLinkMatch[0];
 		const start = deepLinkMatch.index ?? 0;
 		matches.push({

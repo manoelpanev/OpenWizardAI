@@ -1,9 +1,9 @@
 /**
  * Tests for shortcutFormatter.ts
  *
- * Platform detection now uses window.maestro.platform (Electron preload bridge)
+ * Platform detection now uses window.openwizardai.platform (Electron preload bridge)
  * instead of navigator.userAgent. Since isMac() is a function call (not a
- * module-level constant), we can simply set window.maestro.platform before
+ * module-level constant), we can simply set window.openwizardai.platform before
  * each test - no dynamic imports needed.
  */
 
@@ -30,7 +30,7 @@ describe('shortcutFormatter', () => {
 
 	describe('macOS Platform', () => {
 		beforeEach(() => {
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 		});
 
 		describe('isMacOS()', () => {
@@ -217,7 +217,7 @@ describe('shortcutFormatter', () => {
 
 	describe('Windows/Linux Platform', () => {
 		beforeEach(() => {
-			(window as any).maestro = { platform: 'win32' };
+			(window as any).openwizardai = { platform: 'win32' };
 		});
 
 		describe('isMacOS()', () => {
@@ -403,25 +403,25 @@ describe('shortcutFormatter', () => {
 	});
 
 	describe('Edge Cases', () => {
-		it('handles missing window.maestro gracefully', () => {
-			(window as any).maestro = undefined;
-			// When maestro is undefined, isMac() returns false (non-Mac fallback)
+		it('handles missing window.openwizardai gracefully', () => {
+			(window as any).openwizardai = undefined;
+			// When openwizardai is undefined, isMac() returns false (non-Mac fallback)
 			expect(isMacOS()).toBe(false);
 		});
 
 		it('handles Linux platform', () => {
-			(window as any).maestro = { platform: 'linux' };
+			(window as any).openwizardai = { platform: 'linux' };
 			expect(isMacOS()).toBe(false);
 			expect(formatKey('Meta')).toBe('Ctrl');
 		});
 
 		it('handles empty platform', () => {
-			(window as any).maestro = { platform: '' };
+			(window as any).openwizardai = { platform: '' };
 			expect(isMacOS()).toBe(false);
 		});
 
 		it('handles special characters in key names', () => {
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 			// Key names with special characters should be returned as-is
 			expect(formatKey('+')).toBe('+');
 			expect(formatKey('-')).toBe('-');
@@ -429,7 +429,7 @@ describe('shortcutFormatter', () => {
 		});
 
 		it('handles unicode characters', () => {
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 			// Unicode characters should be uppercased if single char
 			expect(formatKey('a')).toBe('A');
 			// Multi-char unicode should be returned as-is
@@ -440,7 +440,7 @@ describe('shortcutFormatter', () => {
 	describe('All Key Mappings Coverage', () => {
 		describe('macOS - complete key map coverage', () => {
 			beforeEach(() => {
-				(window as any).maestro = { platform: 'darwin' };
+				(window as any).openwizardai = { platform: 'darwin' };
 			});
 
 			it('covers all 16 macOS key mappings', () => {
@@ -471,7 +471,7 @@ describe('shortcutFormatter', () => {
 
 		describe('Windows/Linux - complete key map coverage', () => {
 			beforeEach(() => {
-				(window as any).maestro = { platform: 'win32' };
+				(window as any).openwizardai = { platform: 'win32' };
 			});
 
 			it('covers all 16 Windows/Linux key mappings', () => {

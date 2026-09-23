@@ -247,7 +247,7 @@ describe('AppConfirmModals', () => {
 				<AppConfirmModals {...defaultProps} sessions={sessions} quitConfirmModalOpen={false} />
 			);
 
-			expect(screen.queryByText('Quit Maestro?')).not.toBeInTheDocument();
+			expect(screen.queryByText('Quit OpenWizardAI?')).not.toBeInTheDocument();
 		});
 	});
 });

@@ -157,7 +157,7 @@ describe('NarrativeSections', () => {
 		});
 	});
 
-	// Bullets bucket by the agent's group when Maestro knows one and by the agent
+	// Bullets bucket by the agent's group when OpenWizardAI knows one and by the agent
 	// otherwise, so a long section stops making the reader re-derive ownership on
 	// every line.
 	describe('bucketing', () => {
@@ -168,7 +168,7 @@ describe('NarrativeSections', () => {
 					kind: 'accomplishments',
 					title: 'Accomplishments',
 					items: [
-						{ text: 'Shipped the dashboard', agent: 'Maestro' },
+						{ text: 'Shipped the dashboard', agent: 'OpenWizardAI' },
 						{ text: 'Merged the rc branch', agent: 'rc' },
 						{ text: 'Trained the voice model', agent: 'acappella' },
 					],
@@ -177,8 +177,8 @@ describe('NarrativeSections', () => {
 		};
 
 		const lookup = buildNarrativeGroupLookup([
-			{ agent: 'Maestro', group: 'Maestro Core', emoji: '\u{1F3AC}' },
-			{ agent: 'rc', group: 'Maestro Core', emoji: '\u{1F3AC}' },
+			{ agent: 'OpenWizardAI', group: 'OpenWizardAI Core', emoji: '\u{1F3AC}' },
+			{ agent: 'rc', group: 'OpenWizardAI Core', emoji: '\u{1F3AC}' },
 		]);
 
 		it('draws one header per group and keeps the member pill inside it', () => {
@@ -186,10 +186,10 @@ describe('NarrativeSections', () => {
 
 			// Two grouped agents collapse under the group; the ungrouped one keeps
 			// its own header.
-			expect(screen.getByText(/Maestro Core/)).toBeInTheDocument();
+			expect(screen.getByText(/OpenWizardAI Core/)).toBeInTheDocument();
 			expect(screen.getByText('acappella')).toBeInTheDocument();
 			// Inside a group the pill still names which member did it.
-			expect(screen.getByText('Maestro')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI')).toBeInTheDocument();
 			expect(screen.getByText('rc')).toBeInTheDocument();
 		});
 
@@ -198,7 +198,7 @@ describe('NarrativeSections', () => {
 
 			// One header per agent, and the pill under it would only repeat it, so
 			// each name appears exactly once.
-			expect(screen.getAllByText('Maestro')).toHaveLength(1);
+			expect(screen.getAllByText('OpenWizardAI')).toHaveLength(1);
 			expect(screen.getAllByText('rc')).toHaveLength(1);
 			expect(screen.getAllByText('acappella')).toHaveLength(1);
 		});
@@ -214,8 +214,8 @@ describe('NarrativeSections', () => {
 								kind: 'accomplishments',
 								title: 'Accomplishments',
 								items: [
-									{ text: 'Shipped the dashboard', agent: 'Maestro' },
-									{ text: 'Merged the rc branch', agent: 'Maestro' },
+									{ text: 'Shipped the dashboard', agent: 'OpenWizardAI' },
+									{ text: 'Merged the rc branch', agent: 'OpenWizardAI' },
 								],
 							},
 						],
@@ -225,7 +225,7 @@ describe('NarrativeSections', () => {
 
 			// A lone header repeats the section title, so the pill carries the
 			// attribution instead - once per bullet.
-			expect(screen.getAllByText('Maestro')).toHaveLength(2);
+			expect(screen.getAllByText('OpenWizardAI')).toHaveLength(2);
 		});
 	});
 

@@ -11,7 +11,7 @@ interface CueIndicatorProps {
 const ZAP_STYLE = { color: '#2dd4bf' } as const;
 
 /**
- * Maestro Cue indicator pill rendered next to the session name.
+ * OpenWizardAI Cue indicator pill rendered next to the session name.
  *
  * Memo'd because SessionItem renders one of these per row in the Left Bar
  * and the props are all primitive - React's default shallow compare lets
@@ -26,7 +26,7 @@ export const CueIndicator = memo(function CueIndicator({
 }: CueIndicatorProps) {
 	if (subscriptionCount <= 0) return null;
 
-	const tooltip = `OpenWizzard Cue ${activeRun ? 'running' : 'active'} (${subscriptionCount} subscription${
+	const tooltip = `OpenWizardAI Cue ${activeRun ? 'running' : 'active'} (${subscriptionCount} subscription${
 		subscriptionCount === 1 ? '' : 's'
 	})`;
 

@@ -163,8 +163,8 @@ describe('BatchRunnerModal', () => {
 		// Mock crypto.randomUUID
 		vi.spyOn(crypto, 'randomUUID').mockReturnValue('uuid-123');
 
-		// Add missing mocks to window.maestro
-		(window.maestro as Record<string, unknown>).playbooks = {
+		// Add missing mocks to window.openwizardai
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: [] }),
 			create: vi.fn().mockResolvedValue({ success: true, playbook: createMockPlaybook() }),
 			update: vi.fn().mockResolvedValue({ success: true, playbook: createMockPlaybook() }),
@@ -173,21 +173,21 @@ describe('BatchRunnerModal', () => {
 			import: vi.fn().mockResolvedValue({ success: true, playbook: createMockPlaybook() }),
 		};
 
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main', 'develop'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi.fn(() => ({
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi.fn(() => ({
 			then: (cb: (value: { installed: boolean; authenticated: boolean }) => void) => {
 				cb({ installed: true, authenticated: true });
 				return Promise.resolve({ installed: true, authenticated: true });
 			},
 		}));
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi.fn().mockResolvedValue({
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi.fn().mockResolvedValue({
 			success: true,
 			exists: false,
 			isWorktree: false,
 		});
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi.fn().mockResolvedValue({
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi.fn().mockResolvedValue({
 			success: true,
 			root: '/path/to/project',
 		});
@@ -204,13 +204,13 @@ describe('BatchRunnerModal', () => {
 			const dialog = screen.getByRole('dialog');
 			expect(dialog).toBeInTheDocument();
 			expect(dialog).toHaveAttribute('aria-modal', 'true');
-			expect(dialog).toHaveAttribute('aria-label', 'OpenWizzard Auto Run');
+			expect(dialog).toHaveAttribute('aria-label', 'OpenWizardAI Auto Run');
 		});
 
 		it('displays header with title and close button', async () => {
 			render(<BatchRunnerModal {...createDefaultProps()} />);
 
-			expect(screen.getByText('OpenWizzard Auto Run')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Auto Run')).toBeInTheDocument();
 			// X button is present
 			const closeButtons = screen.getAllByRole('button');
 			expect(closeButtons.some((btn) => btn.querySelector('svg'))).toBe(true);
@@ -231,7 +231,7 @@ describe('BatchRunnerModal', () => {
 			await waitFor(() => {
 				expect(screen.queryByText('Auto Run Guide')).not.toBeInTheDocument();
 			});
-			expect(screen.getByText('OpenWizzard Auto Run')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Auto Run')).toBeInTheDocument();
 		});
 
 		it('displays task count badge in header', async () => {
@@ -684,7 +684,7 @@ describe('BatchRunnerModal', () => {
 	describe('Playbook Management', () => {
 		it('shows Load Playbook button when playbooks exist', async () => {
 			const mockPlaybooks: Playbook[] = [createMockPlaybook()];
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -702,7 +702,7 @@ describe('BatchRunnerModal', () => {
 
 		it('opens playbook dropdown when Load Playbook is clicked', async () => {
 			const mockPlaybooks: Playbook[] = [createMockPlaybook()];
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -727,7 +727,7 @@ describe('BatchRunnerModal', () => {
 		it('loads playbook when clicked in dropdown', async () => {
 			const mockPlaybook = createMockPlaybook();
 			const mockPlaybooks: Playbook[] = [mockPlaybook];
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -782,8 +782,8 @@ describe('BatchRunnerModal', () => {
 			const mockCreate = vi
 				.fn()
 				.mockResolvedValue({ success: true, playbook: createMockPlaybook() });
-			(window.maestro as Record<string, unknown>).playbooks = {
-				...window.maestro.playbooks,
+			(window.openwizardai as Record<string, unknown>).playbooks = {
+				...window.openwizardai.playbooks,
 				create: mockCreate,
 			};
 
@@ -808,7 +808,7 @@ describe('BatchRunnerModal', () => {
 		it('shows Save Update button when playbook is modified', async () => {
 			const mockPlaybook = createMockPlaybook();
 			const mockPlaybooks: Playbook[] = [mockPlaybook];
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn().mockResolvedValue({ success: true, playbook: mockPlaybook }),
@@ -838,7 +838,7 @@ describe('BatchRunnerModal', () => {
 			const mockPlaybook = createMockPlaybook();
 			const mockPlaybooks: Playbook[] = [mockPlaybook];
 			const mockDelete = vi.fn().mockResolvedValue({ success: true });
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -870,7 +870,7 @@ describe('BatchRunnerModal', () => {
 			const mockPlaybook = createMockPlaybook();
 			const mockPlaybooks: Playbook[] = [mockPlaybook];
 			const mockExport = vi.fn().mockResolvedValue({ success: true });
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -895,7 +895,7 @@ describe('BatchRunnerModal', () => {
 		it('imports playbook when Import Playbook is clicked', async () => {
 			const mockPlaybook = createMockPlaybook({ id: 'imported-1', name: 'Imported Playbook' });
 			const mockImport = vi.fn().mockResolvedValue({ success: true, playbook: mockPlaybook });
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: [createMockPlaybook()] }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -920,11 +920,11 @@ describe('BatchRunnerModal', () => {
 		// the Load Playbook dropdown - which only renders when
 		// `playbooks.length > 0 || loadedPlaybook`. First-time users (fresh
 		// worktree, never created a playbook) had no entry point to import a
-		// .maestro-playbook.zip and the button appeared to do nothing because
+		// .openwizardai-playbook.zip and the button appeared to do nothing because
 		// it wasn't rendered. Import must always be reachable.
 		it('renders Import Playbook button with zero existing playbooks', async () => {
 			const mockImport = vi.fn().mockResolvedValue({ success: false, error: 'Import cancelled' });
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: [] }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -937,7 +937,7 @@ describe('BatchRunnerModal', () => {
 
 			// Wait for the initial playbooks list fetch to settle (loading -> empty).
 			await waitFor(() => {
-				expect(window.maestro.playbooks.list).toHaveBeenCalled();
+				expect(window.openwizardai.playbooks.list).toHaveBeenCalled();
 			});
 
 			// The Load Playbook dropdown should NOT render (no playbooks exist),
@@ -962,7 +962,7 @@ describe('BatchRunnerModal', () => {
 				],
 			});
 			const mockPlaybooks: Playbook[] = [mockPlaybook];
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -1118,7 +1118,7 @@ describe('BatchRunnerModal', () => {
 		});
 
 		it('handles playbook list error gracefully', async () => {
-			(window.maestro as Record<string, unknown>).playbooks = {
+			(window.openwizardai as Record<string, unknown>).playbooks = {
 				list: vi.fn().mockRejectedValue(new Error('Failed to load playbooks')),
 				create: vi.fn(),
 				update: vi.fn(),
@@ -1136,7 +1136,7 @@ describe('BatchRunnerModal', () => {
 		});
 
 		it('handles git repo check error gracefully', async () => {
-			(window.maestro.git.isRepo as ReturnType<typeof vi.fn>).mockRejectedValue(
+			(window.openwizardai.git.isRepo as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Failed')
 			);
 
@@ -1489,17 +1489,17 @@ describe('Loop Mode Additional Controls', () => {
 // NOTE: Worktree UI has moved to WorktreeConfigModal - these tests no longer apply to BatchRunnerModal
 describe.skip('Playbook with Worktree Settings', () => {
 	beforeEach(() => {
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main', 'develop'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi
 			.fn()
 			.mockResolvedValue({ success: true, exists: false, isWorktree: false });
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi
 			.fn()
 			.mockResolvedValue({ success: true, root: '/path/to/project' });
 	});
@@ -1513,7 +1513,7 @@ describe.skip('Playbook with Worktree Settings', () => {
 			},
 		});
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1538,7 +1538,7 @@ describe.skip('Playbook with Worktree Settings', () => {
 	it('clears worktree settings when loading playbook without them', async () => {
 		const mockPlaybook = createMockPlaybook(); // No worktreeSettings
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1579,7 +1579,7 @@ describe('Playbook Update Functionality', () => {
 			success: true,
 			playbook: { ...mockPlaybook, prompt: 'Updated prompt' },
 		});
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: mockUpdate,
@@ -1624,7 +1624,7 @@ describe('Playbook Update Functionality', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockUpdate = vi.fn().mockRejectedValue(new Error('Network error'));
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: mockUpdate,
@@ -1662,7 +1662,7 @@ describe('Discard Changes Functionality', () => {
 	it('discards changes and reloads original playbook', async () => {
 		const mockPlaybook = createMockPlaybook({ prompt: 'Original prompt' });
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1704,7 +1704,7 @@ describe('Delete Playbook Edge Cases', () => {
 		const mockPlaybook = createMockPlaybook();
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const mockDelete = vi.fn().mockResolvedValue({ success: true });
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1748,7 +1748,7 @@ describe('Delete Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockDelete = vi.fn().mockRejectedValue(new Error('Delete failed'));
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1780,7 +1780,7 @@ describe('Delete Playbook Edge Cases', () => {
 	it('closes delete modal when Cancel is clicked', async () => {
 		const mockPlaybook = createMockPlaybook();
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1817,7 +1817,7 @@ describe('Export Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockExport = vi.fn().mockResolvedValue({ success: false, error: 'Export failed' });
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1850,7 +1850,7 @@ describe('Export Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockExport = vi.fn().mockResolvedValue({ success: false, error: 'Export cancelled' });
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1882,7 +1882,7 @@ describe('Export Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockExport = vi.fn().mockRejectedValue(new Error('Network error'));
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1917,7 +1917,7 @@ describe('Import Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockImport = vi.fn().mockResolvedValue({ success: false, error: 'Invalid format' });
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1947,7 +1947,7 @@ describe('Import Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockImport = vi.fn().mockResolvedValue({ success: false, error: 'Import cancelled' });
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -1976,7 +1976,7 @@ describe('Import Playbook Edge Cases', () => {
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 		const mockImport = vi.fn().mockRejectedValue(new Error('Network error'));
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -2006,7 +2006,7 @@ describe('Click Outside Dropdown Handlers', () => {
 	it('closes playbook dropdown when clicking outside', async () => {
 		const mockPlaybook = createMockPlaybook();
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -2036,17 +2036,17 @@ describe('Click Outside Dropdown Handlers', () => {
 
 	// NOTE: Worktree UI has moved to WorktreeConfigModal - this test no longer applies to BatchRunnerModal
 	it.skip('closes branch dropdown when clicking outside', async () => {
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main', 'develop', 'feature'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi
 			.fn()
 			.mockResolvedValue({ success: true, exists: false, isWorktree: false });
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi
 			.fn()
 			.mockResolvedValue({ success: true, root: '/path/to/project' });
 
@@ -2090,7 +2090,7 @@ describe('Save as New Playbook', () => {
 	it('shows Save as New button when playbook is modified', async () => {
 		const mockPlaybook = createMockPlaybook();
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn().mockResolvedValue({
 				success: true,
@@ -2122,7 +2122,7 @@ describe('Save as New Playbook', () => {
 	it('opens save playbook modal when Save as New is clicked', async () => {
 		const mockPlaybook = createMockPlaybook();
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -2151,20 +2151,20 @@ describe('Save as New Playbook', () => {
 // NOTE: Worktree UI has moved to WorktreeConfigModal - these tests no longer apply to BatchRunnerModal
 describe.skip('Worktree Browse Button', () => {
 	it('opens folder dialog and sets worktree path', async () => {
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi
 			.fn()
 			.mockResolvedValue({ success: true, exists: false, isWorktree: false });
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi
 			.fn()
 			.mockResolvedValue({ success: true, root: '/path/to/project' });
-		(window.maestro.dialog.selectFolder as ReturnType<typeof vi.fn>).mockResolvedValue(
+		(window.openwizardai.dialog.selectFolder as ReturnType<typeof vi.fn>).mockResolvedValue(
 			'/selected/path'
 		);
 
@@ -2178,26 +2178,26 @@ describe.skip('Worktree Browse Button', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Browse' }));
 
 		await waitFor(() => {
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 			expect(screen.getByPlaceholderText('/path/to/worktrees')).toHaveValue('/selected/path');
 		});
 	});
 
 	it('handles cancelled folder selection', async () => {
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi
 			.fn()
 			.mockResolvedValue({ success: true, exists: false, isWorktree: false });
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi
 			.fn()
 			.mockResolvedValue({ success: true, root: '/path/to/project' });
-		(window.maestro.dialog.selectFolder as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+		(window.openwizardai.dialog.selectFolder as ReturnType<typeof vi.fn>).mockResolvedValue(null);
 
 		render(<BatchRunnerModal {...createDefaultProps()} />);
 
@@ -2212,7 +2212,7 @@ describe.skip('Worktree Browse Button', () => {
 		fireEvent.click(screen.getByRole('button', { name: 'Browse' }));
 
 		await waitFor(() => {
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 		});
 
 		// Path should remain unchanged (null result doesn't update)
@@ -2223,25 +2223,25 @@ describe.skip('Worktree Browse Button', () => {
 // NOTE: Worktree UI has moved to WorktreeConfigModal - these tests no longer apply to BatchRunnerModal
 describe.skip('Worktree Validation Edge Cases', () => {
 	it('shows uncommitted changes warning when branch mismatch exists', async () => {
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi.fn().mockResolvedValue({
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi.fn().mockResolvedValue({
 			success: true,
 			exists: true,
 			isWorktree: true,
 			currentBranch: 'feature-branch',
 			repoRoot: '/path/to/project',
 		});
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi.fn().mockResolvedValue({
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi.fn().mockResolvedValue({
 			success: true,
 			root: '/path/to/project',
 		});
-		(window.maestro.git as Record<string, unknown>).status = vi.fn().mockResolvedValue({
+		(window.openwizardai.git as Record<string, unknown>).status = vi.fn().mockResolvedValue({
 			stdout: 'M modified-file.ts\n',
 		});
 
@@ -2269,17 +2269,17 @@ describe.skip('Worktree Validation Edge Cases', () => {
 
 	it('handles validation exception gracefully', async () => {
 		const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi
 			.fn()
 			.mockRejectedValue(new Error('Permission denied'));
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi.fn().mockResolvedValue({
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi.fn().mockResolvedValue({
 			success: true,
 			root: '/path/to/project',
 		});
@@ -2405,17 +2405,17 @@ describe('countUncheckedTasks helper', () => {
 // NOTE: GitHub CLI Link tests removed - worktree UI has moved to GitWorktreeSection and WorktreeConfigModal
 describe.skip('GitHub CLI Link', () => {
 	it('renders GitHub CLI link and prevents propagation on click', async () => {
-		(window.maestro.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
-		(window.maestro.git as Record<string, unknown>).branches = vi
+		(window.openwizardai.git as Record<string, unknown>).isRepo = vi.fn().mockResolvedValue(true);
+		(window.openwizardai.git as Record<string, unknown>).branches = vi
 			.fn()
 			.mockResolvedValue({ branches: ['main'] });
-		(window.maestro.git as Record<string, unknown>).checkGhCli = vi
+		(window.openwizardai.git as Record<string, unknown>).checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: false, authenticated: false });
-		(window.maestro.git as Record<string, unknown>).worktreeInfo = vi
+		(window.openwizardai.git as Record<string, unknown>).worktreeInfo = vi
 			.fn()
 			.mockResolvedValue({ success: true, exists: false, isWorktree: false });
-		(window.maestro.git as Record<string, unknown>).getRepoRoot = vi
+		(window.openwizardai.git as Record<string, unknown>).getRepoRoot = vi
 			.fn()
 			.mockResolvedValue({ success: true, root: '/path/to/project' });
 
@@ -2442,7 +2442,7 @@ describe('Escape Handler Priority', () => {
 	it('closes delete modal on escape before closing main modal', async () => {
 		const mockPlaybook = createMockPlaybook();
 		const mockPlaybooks: Playbook[] = [mockPlaybook];
-		(window.maestro as Record<string, unknown>).playbooks = {
+		(window.openwizardai as Record<string, unknown>).playbooks = {
 			list: vi.fn().mockResolvedValue({ success: true, playbooks: mockPlaybooks }),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -2476,7 +2476,7 @@ describe('Escape Handler Priority', () => {
 		});
 
 		// Main modal still open
-		expect(screen.getByText('OpenWizzard Auto Run')).toBeInTheDocument();
+		expect(screen.getByText('OpenWizardAI Auto Run')).toBeInTheDocument();
 	});
 
 	it('closes save playbook modal on escape', async () => {
@@ -2544,7 +2544,7 @@ describe('Worktree Loading State', () => {
 		});
 
 		// Mock scanWorktreeDirectory
-		(window.maestro.git as Record<string, unknown>).scanWorktreeDirectory = vi
+		(window.openwizardai.git as Record<string, unknown>).scanWorktreeDirectory = vi
 			.fn()
 			.mockResolvedValue({ gitSubdirs: [] });
 

@@ -3,7 +3,7 @@
  *
  * Pure, deterministic function for deciding whether a Claude Code spawn runs
  * via the API headless path (`claude --print`) or the interactive TUI driver
- * (`maestro-p`, which drives the real claude TUI to spend Max-plan quota).
+ * (`openwizardai-p`, which drives the real claude TUI to spend Max-plan quota).
  *
  * Only called when the per-agent Batch Mode toggle is on. With the toggle
  * gating the entire mechanism, the previous global pin / per-tab manual pin
@@ -19,7 +19,7 @@ export const LIMIT_THRESHOLD_PERCENT = 99;
 
 /**
  * A single usage snapshot for one canonical `CLAUDE_CONFIG_DIR` account.
- * Sourced from `maestro-p --status` and persisted in `claudeUsageStore`.
+ * Sourced from `openwizardai-p --status` and persisted in `claudeUsageStore`.
  *
  * `authState` distinguishes a real measurement from a "Not logged in" stub.
  * The field is optional purely for back-compat with snapshots persisted

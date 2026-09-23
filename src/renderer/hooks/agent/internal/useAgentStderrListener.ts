@@ -1,5 +1,5 @@
 /**
- * useAgentStderrListener - registers `window.maestro.process.onStderr`
+ * useAgentStderrListener - registers `window.openwizardai.process.onStderr`
  *
  * Routes stderr chunks to the matching session/tab via the batched updater
  * with the `isStderr` flag set so the renderer can style them differently
@@ -18,7 +18,7 @@ export interface UseAgentStderrListenerDeps {
 
 export function useAgentStderrListener(deps: UseAgentStderrListenerDeps): void {
 	useEffect(() => {
-		const unsubscribe = window.maestro.process.onStderr((sessionId: string, data: string) => {
+		const unsubscribe = window.openwizardai.process.onStderr((sessionId: string, data: string) => {
 			if (!data.trim()) return;
 
 			let actualSessionId: string;

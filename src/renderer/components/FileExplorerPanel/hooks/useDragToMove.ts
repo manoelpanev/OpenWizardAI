@@ -129,7 +129,7 @@ export function useDragToMove({
 							// `deleteDestFirst` encodes the user's overwrite decision. For a
 							// remote session the dest is on the remote host, so pass the
 							// sshRemoteId to upload the local source over SSH.
-							await window.maestro.fs.copyPath(m.sourceAbsolutePath, m.destAbsolutePath, {
+							await window.openwizardai.fs.copyPath(m.sourceAbsolutePath, m.destAbsolutePath, {
 								overwrite: !!m.deleteDestFirst,
 								sshRemoteId,
 							});
@@ -138,7 +138,7 @@ export function useDragToMove({
 								// May not exist if the user picked overwrite for a phantom conflict;
 								// swallow the error and let the rename surface the real failure.
 								try {
-									await window.maestro.fs.delete(m.destAbsolutePath, {
+									await window.openwizardai.fs.delete(m.destAbsolutePath, {
 										recursive: true,
 										sshRemoteId,
 									});
@@ -158,7 +158,11 @@ export function useDragToMove({
 									});
 								}
 							}
-							await window.maestro.fs.rename(m.sourceAbsolutePath, m.destAbsolutePath, sshRemoteId);
+							await window.openwizardai.fs.rename(
+								m.sourceAbsolutePath,
+								m.destAbsolutePath,
+								sshRemoteId
+							);
 						}
 						succeeded++;
 					} catch (err) {
@@ -394,10 +398,10 @@ export function useDragToMove({
 				e.dataTransfer.dropEffect = 'copy';
 				return;
 			}
-			const hasMaestroDrag =
+			const hasOpenWizardAIDrag =
 				e.dataTransfer.types.includes(FILE_TREE_SINGLE_MIME) ||
 				e.dataTransfer.types.includes(FILE_TREE_MULTI_MIME);
-			if (!hasMaestroDrag) return;
+			if (!hasOpenWizardAIDrag) return;
 			const sourceRelative = e.dataTransfer.getData(FILE_TREE_SINGLE_MIME);
 			const isMulti = e.dataTransfer.types.includes(FILE_TREE_MULTI_MIME);
 			if (!isMulti && sourceRelative && isSelfOrDescendant(sourceRelative, destFolderRelative)) {
@@ -423,10 +427,10 @@ export function useDragToMove({
 				setIsExternalDrag(true);
 				return;
 			}
-			const hasMaestroDrag =
+			const hasOpenWizardAIDrag =
 				e.dataTransfer.types.includes(FILE_TREE_SINGLE_MIME) ||
 				e.dataTransfer.types.includes(FILE_TREE_MULTI_MIME);
-			if (!hasMaestroDrag) return;
+			if (!hasOpenWizardAIDrag) return;
 			e.stopPropagation();
 			setDragOverFolder(destFolderRelative);
 			setIsExternalDrag(false);
@@ -435,11 +439,11 @@ export function useDragToMove({
 	);
 
 	const handleFolderDragLeave = useCallback((e: React.DragEvent) => {
-		const hasMaestroDrag =
+		const hasOpenWizardAIDrag =
 			e.dataTransfer.types.includes(FILE_TREE_SINGLE_MIME) ||
 			e.dataTransfer.types.includes(FILE_TREE_MULTI_MIME) ||
 			dragHasOsFiles(e.dataTransfer);
-		if (!hasMaestroDrag) return;
+		if (!hasOpenWizardAIDrag) return;
 		e.stopPropagation();
 		// Keep the highlight when moving into a descendant of the row.
 		const next = e.relatedTarget as Node | null;

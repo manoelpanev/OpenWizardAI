@@ -4,22 +4,22 @@ description: Structured specification workflow for AI-assisted development using
 icon: file-text
 ---
 
-Spec-Kit is a structured specification workflow from [GitHub's spec-kit project](https://github.com/github/spec-kit) that helps teams create clear, actionable specifications before implementation. Maestro bundles these commands and you can check for updates manually via Settings.
+Spec-Kit is a structured specification workflow from [GitHub's spec-kit project](https://github.com/github/spec-kit) that helps teams create clear, actionable specifications before implementation. OpenWizardAI bundles these commands and you can check for updates manually via Settings.
 
 ![Spec-Kit Commands in Settings](./screenshots/speckit-commands.png)
 
 ## Spec-Kit vs. Wizard
 
-Maestro offers two paths to structured development:
+OpenWizardAI offers two paths to structured development:
 
-| Feature              | Spec-Kit                                   | Onboarding Wizard                |
-| -------------------- | ------------------------------------------ | -------------------------------- |
-| **Approach**         | Manual, command-driven workflow            | Guided, conversational flow      |
-| **Best For**         | Experienced users, complex projects        | New users, quick setup           |
-| **Output**           | Constitution, specs, tasks → Auto Run docs | Phase 1 Auto Run document        |
-| **Control**          | Full control at each step                  | Streamlined, opinionated         |
-| **Learning Curve**   | Moderate                                   | Low                              |
-| **Storage Location** | `.specify/` directory in project root      | `.maestro/playbooks/Initiation/` |
+| Feature              | Spec-Kit                                   | Onboarding Wizard                     |
+| -------------------- | ------------------------------------------ | ------------------------------------- |
+| **Approach**         | Manual, command-driven workflow            | Guided, conversational flow           |
+| **Best For**         | Experienced users, complex projects        | New users, quick setup                |
+| **Output**           | Constitution, specs, tasks → Auto Run docs | Phase 1 Auto Run document             |
+| **Control**          | Full control at each step                  | Streamlined, opinionated              |
+| **Learning Curve**   | Moderate                                   | Low                                   |
+| **Storage Location** | `.specify/` directory in project root      | `.openwizardai/playbooks/Initiation/` |
 
 **Use Spec-Kit when:**
 
@@ -45,11 +45,11 @@ Access Spec-Kit commands via **Settings → AI Commands** tab. Here you can:
 - **Edit prompts** - Customize any command (modifications are preserved across updates)
 - **Reset to Default** - Restore a modified prompt to the bundled version
 
-Commands marked with a Maestro badge (`/speckit.help`, `/speckit.implement`) are Maestro-specific and not updated from upstream.
+Commands marked with an OpenWizardAI badge (`/speckit.help`, `/speckit.implement`) are OpenWizardAI-specific and not updated from upstream.
 
 ## Prerequisites
 
-Maestro does not automatically create the folder structure or scripts required to run Spec-Kit. You’ll need to set these up manually.
+OpenWizardAI does not automatically create the folder structure or scripts required to run Spec-Kit. You’ll need to set these up manually.
 
 Get started: Follow the instructions in the “Get Started” section of the [GitHub Spec-Kit repository](https://github.com/github/spec-kit?tab=readme-ov-file#1-install-specify-cli):
 
@@ -112,13 +112,13 @@ Each task has an ID (T001, T002...), optional `[P]` marker for parallelizable ta
 
 ### 6. `/speckit.implement` - Execute with Auto Run
 
-**Maestro-specific command.** Converts your tasks into Auto Run documents that Maestro can execute autonomously. This bridges spec-kit's structured approach with Maestro's multi-agent capabilities.
+**OpenWizardAI-specific command.** Converts your tasks into Auto Run documents that OpenWizardAI can execute autonomously. This bridges spec-kit's structured approach with OpenWizardAI's multi-agent capabilities.
 
-**Creates:** Markdown documents in `.maestro/playbooks/` with naming pattern:
+**Creates:** Markdown documents in `.openwizardai/playbooks/` with naming pattern:
 
 ```
-.maestro/playbooks/SpecKit-<feature-name>-Phase-01-[Description].md
-.maestro/playbooks/SpecKit-<feature-name>-Phase-02-[Description].md
+.openwizardai/playbooks/SpecKit-<feature-name>-Phase-01-[Description].md
+.openwizardai/playbooks/SpecKit-<feature-name>-Phase-02-[Description].md
 ```
 
 Each phase document is self-contained, includes Spec Kit context references, preserves task IDs (T001, T002...) and user story markers ([US1], [US2]) for traceability.
@@ -165,7 +165,7 @@ Convert your tasks directly into GitHub Issues.
 
 ## Getting Help
 
-Run `/speckit.help` to get an overview of the workflow and tips for best results. This Maestro-specific command provides:
+Run `/speckit.help` to get an overview of the workflow and tips for best results. This OpenWizardAI-specific command provides:
 
 - Command overview with recommended workflow order
 - Integration tips for Auto Run
@@ -182,7 +182,7 @@ Spec-Kit prompts can be updated from the [GitHub spec-kit repository](https://gi
 
 The version number (e.g., `v0.0.90`) and last refresh date are shown at the top of the Spec Kit Commands section.
 
-**Note:** Custom Maestro commands (`/speckit.help`, `/speckit.implement`) are bundled with Maestro and not updated from upstream.
+**Note:** Custom OpenWizardAI commands (`/speckit.help`, `/speckit.implement`) are bundled with OpenWizardAI and not updated from upstream.
 
 ## Tips for Best Results
 
@@ -191,4 +191,4 @@ The version number (e.g., `v0.0.90`) and last refresh date are shown at the top 
 - **Keep specs focused** - One feature per specification cycle works best; use numbered branches (`1-feature-name`, `2-other-feature`)
 - **Review before implementing** - Use `/speckit.analyze` after `/speckit.tasks` to catch issues before coding
 - **Validate requirements first** - Use `/speckit.checklist` to verify requirements are clear and complete before implementation
-- **Leverage parallelism** - With Maestro, run multiple spec-kit workflows simultaneously across different agents using worktrees
+- **Leverage parallelism** - With OpenWizardAI, run multiple spec-kit workflows simultaneously across different agents using worktrees

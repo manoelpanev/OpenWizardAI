@@ -1,9 +1,9 @@
-// Dispatch command - hand off a prompt to the Maestro desktop app and return
-// addressable tab/session IDs so callers (Maestro-Discord, Cue) can address
+// Dispatch command - hand off a prompt to the OpenWizardAI desktop app and return
+// addressable tab/session IDs so callers (OpenWizardAI-Discord, Cue) can address
 // the same tab on follow-up calls without owning a persistent channel.
 
 import { resolveAgentId, readSettingValue } from '../services/storage';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { getSettingDefault } from '../../shared/settingsMetadata';
 import { resolveBackgroundFlag } from '../../shared/focusPlacement';
 
@@ -39,7 +39,7 @@ function emitErrorJson(error: string, code: string): void {
 
 /**
  * Run the dispatch flow. Exported separately from the CLI action so
- * programmatic callers (e.g., Maestro-Discord, Cue) and tests can invoke
+ * programmatic callers (e.g., OpenWizardAI-Discord, Cue) and tests can invoke
  * dispatch logic without re-shelling out.
  */
 export async function runDispatch(
@@ -77,7 +77,7 @@ export async function runDispatch(
 			return {
 				success: false,
 				error:
-					'--force is disabled. Enable it with: maestro-cli settings set allowConcurrentSend true',
+					'--force is disabled. Enable it with: openwizardai-cli settings set allowConcurrentSend true',
 				code: 'FORCE_NOT_ALLOWED',
 			};
 		}
@@ -92,7 +92,7 @@ export async function runDispatch(
 	}
 
 	try {
-		const tabId = await withMaestroClient(async (client) => {
+		const tabId = await withOpenWizardAIClient(async (client) => {
 			if (options.newTab) {
 				const result = await client.sendCommand<{ tabId?: string }>(
 					{
@@ -108,7 +108,7 @@ export async function runDispatch(
 				// `--new-tab`'s sole purpose is to surface a fresh tab id for
 				// chaining (`dispatch --tab <tabId>`). If the desktop acked
 				// without one (older build / race), fail loudly with a dedicated
-				// code so consumers (Maestro-Discord, Cue) can distinguish this
+				// code so consumers (OpenWizardAI-Discord, Cue) can distinguish this
 				// from a generic command failure instead of silently returning
 				// `tabId: null` from a "successful" response.
 				if (!result.tabId) {
@@ -147,12 +147,12 @@ export async function runDispatch(
 	} catch (error) {
 		const msg = error instanceof Error ? error.message : String(error);
 		const lowerMsg = msg.toLowerCase();
-		// Map MaestroClient's own throw messages alongside socket-level ones.
-		// MaestroClient throws three distinct strings before any WebSocket
-		// activity ("Maestro desktop app is not running", "Maestro discovery
-		// file is stale (app may have crashed)", "Not connected to Maestro");
+		// Map OpenWizardAIClient's own throw messages alongside socket-level ones.
+		// OpenWizardAIClient throws three distinct strings before any WebSocket
+		// activity ("OpenWizardAI desktop app is not running", "OpenWizardAI discovery
+		// file is stale (app may have crashed)", "Not connected to OpenWizardAI");
 		// without these, those errors fall through to COMMAND_FAILED and break
-		// the error-code contract downstream consumers (Maestro-Discord, Cue)
+		// the error-code contract downstream consumers (OpenWizardAI-Discord, Cue)
 		// rely on to distinguish "app down" from "command rejected".
 		if (
 			lowerMsg.includes('econnrefused') ||
@@ -160,14 +160,14 @@ export async function runDispatch(
 			lowerMsg.includes('websocket') ||
 			lowerMsg.includes('enotfound') ||
 			lowerMsg.includes('etimedout') ||
-			lowerMsg.includes('maestro desktop app is not running') ||
+			lowerMsg.includes('openwizardai desktop app is not running') ||
 			lowerMsg.includes('discovery file is stale') ||
-			lowerMsg.includes('not connected to maestro')
+			lowerMsg.includes('not connected to openwizardai')
 		) {
 			return {
 				success: false,
-				error: 'OpenWizzard desktop is not running or not reachable',
-				code: 'MAESTRO_NOT_RUNNING',
+				error: 'OpenWizardAI desktop is not running or not reachable',
+				code: 'OPENWIZARDAI_NOT_RUNNING',
 			};
 		}
 		if (
@@ -185,7 +185,7 @@ export async function runDispatch(
 			return {
 				success: false,
 				error:
-					'OpenWizzard desktop acknowledged --new-tab without returning a tab id (cannot chain dispatch)',
+					'OpenWizardAI desktop acknowledged --new-tab without returning a tab id (cannot chain dispatch)',
 				code: 'NEW_TAB_NO_ID',
 			};
 		}

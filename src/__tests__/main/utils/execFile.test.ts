@@ -119,9 +119,9 @@ describe('execFile.ts', () => {
 
 			const result = await execFileNoThrow(
 				NODE,
-				['-e', 'process.stdout.write(process.env.MAESTRO_TEST_VAR || "MISSING")'],
+				['-e', 'process.stdout.write(process.env.OPENWIZARDAI_TEST_VAR || "MISSING")'],
 				undefined,
-				{ input: 'unused stdin content', env: { MAESTRO_TEST_VAR: 'present' } }
+				{ input: 'unused stdin content', env: { OPENWIZARDAI_TEST_VAR: 'present' } }
 			);
 
 			expect(result.stdout).toBe('present');

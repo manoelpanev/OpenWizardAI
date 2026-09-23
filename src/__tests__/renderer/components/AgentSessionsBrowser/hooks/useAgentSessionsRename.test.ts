@@ -15,7 +15,7 @@ beforeEach(() => {
 	vi.useFakeTimers();
 	mockUpdateSessionName.mockResolvedValue(undefined);
 	mockSetSessionName.mockResolvedValue(undefined);
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		claude: { updateSessionName: mockUpdateSessionName },
 		agentSessions: { setSessionName: mockSetSessionName },
 	};

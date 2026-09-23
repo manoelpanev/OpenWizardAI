@@ -57,7 +57,7 @@ export function useDirectoryValidation({
 			try {
 				const sshRemoteId = getSshRemoteId();
 				try {
-					await window.maestro.fs.readDir(path, sshRemoteId);
+					await window.openwizardai.fs.readDir(path, sshRemoteId);
 				} catch (dirError) {
 					if (!isCurrentRequest()) return;
 					logger.error('Directory does not exist:', undefined, dirError);
@@ -72,7 +72,7 @@ export function useDirectoryValidation({
 				}
 				if (!isCurrentRequest()) return;
 
-				const isRepo = await window.maestro.git.isRepo(path, sshRemoteId);
+				const isRepo = await window.openwizardai.git.isRepo(path, sshRemoteId);
 				if (!isCurrentRequest()) return;
 				setIsGitRepo(isRepo);
 				setDirectoryError(null);

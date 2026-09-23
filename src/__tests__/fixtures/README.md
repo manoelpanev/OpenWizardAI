@@ -1,7 +1,7 @@
 # Test fixtures
 
 Small, committed assets used by automated tests live alongside this file
-(currently just `maestro-test-image.png`).
+(currently just `openwizardai-test-image.png`).
 
 ## Large preview fixtures (not committed)
 
@@ -15,7 +15,7 @@ sibling layout is:
 ```
 
 The author of this README keeps them at the path above as a peer of the
-Maestro checkout, but any directory works. That directory ships with
+OpenWizardAI checkout, but any directory works. That directory ships with
 `_generate.mjs`, a Node script that regenerates every fixture
 (deterministic output, no network). If you don't yet have the directory,
 copy `_generate.mjs` from another developer's setup or recreate it from

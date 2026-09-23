@@ -60,7 +60,7 @@ const TOOLBAR_BUTTON_LABELS: Record<FilePreviewToolbarButton, string> = {
 	wordWrap: 'Word wrap',
 	remoteImages: 'Show remote images',
 	htmlRender: 'Render HTML',
-	openInBrowser: 'Open in OpenWizzard browser',
+	openInBrowser: 'Open in OpenWizardAI browser',
 	previewTier: 'Preview tier chip',
 	editToggle: 'Edit / preview toggle',
 	editImage: 'Edit image',
@@ -176,7 +176,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 		setSshReduceEntryCapFraction,
 	} = settings;
 
-	const maestroCueEnabled = useSettingsStore((s) => s.encoreFeatures.maestroCue);
+	const openwizardaiCueEnabled = useSettingsStore((s) => s.encoreFeatures.openwizardaiCue);
 	const fontConfiguration = useFontConfigurationState();
 	const settingsRecord = settings as unknown as Record<string, unknown>;
 
@@ -334,7 +334,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 				/>
 				<p className="text-xs opacity-50 mt-2">
 					Rich uses Material Icon Theme style file and folder SVGs in the Files pane. Flat uses
-					OpenWizzard&apos;s simpler monochrome icons.
+					OpenWizardAI&apos;s simpler monochrome icons.
 				</p>
 			</div>
 
@@ -355,8 +355,8 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 								Use native title bar
 							</p>
 							<p className="text-xs opacity-50 mt-0.5">
-								Use the OS native title bar instead of OpenWizzard&apos;s custom title bar. Requires
-								restart.
+								Use the OS native title bar instead of OpenWizardAI&apos;s custom title bar.
+								Requires restart.
 							</p>
 						</div>
 						<ToggleSwitch
@@ -590,7 +590,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 					</div>
 
 					{/* Show Cue indicator - hidden entirely when the Cue Encore Feature is off */}
-					{maestroCueEnabled && (
+					{openwizardaiCueEnabled && (
 						<div
 							className="flex items-center justify-between pt-3 border-t"
 							style={{ borderColor: theme.colors.border }}
@@ -600,7 +600,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 									Show Cue indicator
 								</p>
 								<p className="text-xs opacity-50 mt-0.5">
-									Display the lightning-bolt indicator next to agents with active OpenWizzard Cue
+									Display the lightning-bolt indicator next to agents with active OpenWizardAI Cue
 									subscriptions.
 								</p>
 							</div>
@@ -749,7 +749,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 							</p>
 							<p className="text-xs opacity-50 mt-0.5">
 								Render a line-number gutter on the left edge of the file editor. Right-clicking a
-								line copies a maestro:// deep link to that line.
+								line copies a openwizardai:// deep link to that line.
 							</p>
 						</div>
 						<ToggleSwitch
@@ -795,7 +795,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 							{FILE_PREVIEW_TOOLBAR_BUTTON_KEYS.map((key) => {
 								const label =
 									key === 'revealInFolder'
-										? getRevealLabel(window.maestro?.platform ?? '')
+										? getRevealLabel(window.openwizardai?.platform ?? '')
 										: TOOLBAR_BUTTON_LABELS[key];
 								const enabled = filePreviewToolbarVisibility[key];
 								return (
@@ -937,7 +937,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 								Treat {metaKeyName}+0 as the last tab
 							</p>
 							<p className="text-xs opacity-50 mt-0.5">
-								OpenWizzard-style: {metaKeyName}+1-9 jump to tabs 1-9, and {metaKeyName}+0 jumps to
+								OpenWizardAI-style: {metaKeyName}+1-9 jump to tabs 1-9, and {metaKeyName}+0 jumps to
 								the last tab. Disable to use browser-style: {metaKeyName}+1-8 jump to tabs 1-8, and{' '}
 								{metaKeyName}+9 jumps to the last tab.
 							</p>

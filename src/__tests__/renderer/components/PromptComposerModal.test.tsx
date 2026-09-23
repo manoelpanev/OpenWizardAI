@@ -281,7 +281,7 @@ describe('PromptComposerModal', () => {
 		});
 
 		it('should toggle to full screen and persist the preference', () => {
-			window.localStorage.removeItem('maestro.promptComposer.fullscreen');
+			window.localStorage.removeItem('openwizardai.promptComposer.fullscreen');
 			const { unmount } = renderWithProvider(
 				<PromptComposerModal
 					isOpen={true}
@@ -297,7 +297,7 @@ describe('PromptComposerModal', () => {
 
 			expect(screen.getByTitle('Collapse')).toBeInTheDocument();
 			expect(screen.getByTestId('minimize-icon')).toBeInTheDocument();
-			expect(window.localStorage.getItem('maestro.promptComposer.fullscreen')).toBe('true');
+			expect(window.localStorage.getItem('openwizardai.promptComposer.fullscreen')).toBe('true');
 
 			unmount();
 
@@ -314,7 +314,7 @@ describe('PromptComposerModal', () => {
 			);
 
 			expect(screen.getByTitle('Collapse')).toBeInTheDocument();
-			window.localStorage.removeItem('maestro.promptComposer.fullscreen');
+			window.localStorage.removeItem('openwizardai.promptComposer.fullscreen');
 		});
 
 		it('should render textarea with placeholder', () => {

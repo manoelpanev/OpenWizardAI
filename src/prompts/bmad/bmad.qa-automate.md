@@ -143,7 +143,7 @@ Save summary to: `{default_output_file}`
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ## src/bmm/workflows/bmad-qa-generate-e2e-tests/checklist.md
 

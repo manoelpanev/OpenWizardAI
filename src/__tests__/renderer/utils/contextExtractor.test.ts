@@ -21,10 +21,10 @@ import { createMockSession as baseCreateMockSession } from '../../helpers/mockSe
 const createMockSession = (overrides: Partial<Session> = {}): Session =>
 	baseCreateMockSession({ id: 'session-123', ...overrides });
 
-// Mock window.maestro for extractStoredSessionContext tests
+// Mock window.openwizardai for extractStoredSessionContext tests
 const mockAgentSessionsRead = vi.fn();
 vi.stubGlobal('window', {
-	maestro: {
+	openwizardai: {
 		agentSessions: {
 			read: mockAgentSessionsRead,
 		},

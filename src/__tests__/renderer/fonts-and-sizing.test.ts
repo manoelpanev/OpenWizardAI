@@ -37,7 +37,7 @@ const DEFAULT_ONBOARDING_STATS = JSON.parse(JSON.stringify(_INITIAL_STATE.onboar
 const DEFAULT_AI_COMMANDS = JSON.parse(JSON.stringify(_INITIAL_STATE.customAICommands));
 import { DEFAULT_SHORTCUTS, TAB_SHORTCUTS } from '../../renderer/constants/shortcuts';
 import { DEFAULT_CUSTOM_THEME_COLORS } from '../../renderer/constants/themes';
-import { MAESTRO_FONT_STACK, WORDMARK_FONT_STACK } from '../../shared/fontStack';
+import { OPENWIZARDAI_FONT_STACK, WORDMARK_FONT_STACK } from '../../shared/fontStack';
 
 // Mock the FontConfigurationPanel's common monospace fonts list
 const COMMON_MONOSPACE_FONTS = [
@@ -81,7 +81,7 @@ describe('Cross-platform Fonts and Sizing', () => {
 			shellArgs: '',
 			shellEnvVars: {},
 			ghPath: '',
-			fontFamily: MAESTRO_FONT_STACK,
+			fontFamily: OPENWIZARDAI_FONT_STACK,
 			fontSize: 14,
 			activeThemeId: 'dracula',
 			customThemeColors: DEFAULT_CUSTOM_THEME_COLORS,
@@ -144,10 +144,10 @@ describe('Cross-platform Fonts and Sizing', () => {
 
 		// Reset all mocks to return empty/default (default behavior)
 		// PERF: Implementation now uses batch loading via getAll() instead of individual get() calls
-		vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
-		vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.logger.getLogLevel).mockResolvedValue('info');
-		vi.mocked(window.maestro.logger.getMaxLogBuffer).mockResolvedValue(5000);
+		vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
+		vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.logger.getLogLevel).mockResolvedValue('info');
+		vi.mocked(window.openwizardai.logger.getMaxLogBuffer).mockResolvedValue(5000);
 	});
 
 	afterEach(() => {
@@ -215,10 +215,10 @@ describe('Cross-platform Fonts and Sizing', () => {
 				.filter(Boolean);
 
 		/**
-		 * Typography drives the app font through CSS variables (`--maestro-font-mono`,
-		 * `--maestro-font-interface`) so a surface can be re-themed at runtime.
+		 * Typography drives the app font through CSS variables (`--openwizardai-font-mono`,
+		 * `--openwizardai-font-interface`) so a surface can be re-themed at runtime.
 		 * The var's FALLBACK is the shared stack, and that fallback is what has to
-		 * agree with `MAESTRO_FONT_STACK` - it is what paints before the renderer
+		 * agree with `OPENWIZARDAI_FONT_STACK` - it is what paints before the renderer
 		 * publishes the variable, which is the first-paint case this whole
 		 * describe block exists to pin down.
 		 */
@@ -236,15 +236,15 @@ describe('Cross-platform Fonts and Sizing', () => {
 			const mono = /mono:\s*\[([^\]]+)\]/.exec(tailwind);
 			expect(mono).not.toBeNull();
 
-			expect(varFallback(mono![1])).toEqual(familyNames(MAESTRO_FONT_STACK));
+			expect(varFallback(mono![1])).toEqual(familyNames(OPENWIZARDAI_FONT_STACK));
 		});
 
 		it('should match the base body font stack in index.css', () => {
 			const css = readRepoFile('src/renderer/index.css');
-			const body = /font-family:\s*(var\(\s*--maestro-font-interface,[^;]*\));/.exec(css);
+			const body = /font-family:\s*(var\(\s*--openwizardai-font-interface,[^;]*\));/.exec(css);
 			expect(body).not.toBeNull();
 
-			expect(varFallback(body![1])).toEqual(familyNames(MAESTRO_FONT_STACK));
+			expect(varFallback(body![1])).toEqual(familyNames(OPENWIZARDAI_FONT_STACK));
 		});
 
 		it('should match the splash screen font stack in index.html', () => {
@@ -255,7 +255,7 @@ describe('Cross-platform Fonts and Sizing', () => {
 			expect(stacks.length).toBeGreaterThan(0);
 
 			for (const stack of stacks) {
-				expect(familyNames(stack)).toEqual(familyNames(MAESTRO_FONT_STACK));
+				expect(familyNames(stack)).toEqual(familyNames(OPENWIZARDAI_FONT_STACK));
 			}
 		});
 
@@ -388,11 +388,11 @@ describe('Cross-platform Fonts and Sizing', () => {
 				result.current.setFontSize(16);
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('fontSize', 16);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontSize', 16);
 		});
 
 		it('should load saved font size from settings', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fontSize: 20,
 			});
 
@@ -491,11 +491,11 @@ describe('Cross-platform Fonts and Sizing', () => {
 			});
 
 			expect(result.current.fontFamily).toBe('JetBrains Mono');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('fontFamily', 'JetBrains Mono');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontFamily', 'JetBrains Mono');
 		});
 
 		it('should load saved fontFamily from settings', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fontFamily: 'Monaco, monospace',
 			});
 
@@ -547,7 +547,7 @@ describe('Cross-platform Fonts and Sizing', () => {
 			expect(COMMON_MONOSPACE_FONTS).toContain('Courier New');
 
 			// It should be in the default font family as a fallback
-			const defaultFontFamily = MAESTRO_FONT_STACK;
+			const defaultFontFamily = OPENWIZARDAI_FONT_STACK;
 			expect(defaultFontFamily).toContain('Courier New');
 		});
 
@@ -555,7 +555,7 @@ describe('Cross-platform Fonts and Sizing', () => {
 			// The generic 'monospace' should always be available on any platform
 			// The browser will substitute an appropriate system font
 
-			const defaultFontFamily = MAESTRO_FONT_STACK;
+			const defaultFontFamily = OPENWIZARDAI_FONT_STACK;
 			expect(defaultFontFamily.endsWith('monospace')).toBe(true);
 		});
 	});

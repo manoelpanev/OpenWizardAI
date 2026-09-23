@@ -41,7 +41,7 @@ export function useBatchBroadcast({ dispatch }: UseBatchBroadcastDeps): UseBatch
 			state &&
 			(state.isRunning || state.completedTasks > 0 || state.completedTasksAcrossAllDocs > 0)
 		) {
-			window.maestro.web.broadcastAutoRunState(sessionId, {
+			window.openwizardai.web.broadcastAutoRunState(sessionId, {
 				isRunning: state.isRunning,
 				totalTasks: state.totalTasks,
 				completedTasks: state.completedTasks,
@@ -59,7 +59,7 @@ export function useBatchBroadcast({ dispatch }: UseBatchBroadcastDeps): UseBatch
 				errorTaskDescription: state.errorTaskDescription,
 			});
 		} else {
-			window.maestro.web.broadcastAutoRunState(sessionId, null);
+			window.openwizardai.web.broadcastAutoRunState(sessionId, null);
 		}
 	}, []);
 

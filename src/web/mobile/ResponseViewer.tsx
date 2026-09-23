@@ -1,5 +1,5 @@
 /**
- * ResponseViewer component for Maestro mobile web interface
+ * ResponseViewer component for OpenWizardAI mobile web interface
  *
  * Full-screen modal for viewing complete AI responses.
  * Features:

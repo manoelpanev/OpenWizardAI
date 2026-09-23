@@ -46,7 +46,7 @@ export function useAgentSessionsSearch({
 			}
 
 			try {
-				const results = await window.maestro.agentSessions.search(
+				const results = await window.openwizardai.agentSessions.search(
 					agentId,
 					projectPathForSessions,
 					search,

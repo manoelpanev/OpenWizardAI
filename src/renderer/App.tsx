@@ -19,7 +19,7 @@ import { initializeRendererPrompts } from './services/promptInit';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MainPanel, type MainPanelHandle } from './components/MainPanel';
 // AppOverlays, PlaygroundPanel, DebugPackageModal, WindowsWarningModal,
-// GistPublishModal, MaestroWizard, WizardResumeModal, TourOverlay are now rendered
+// GistPublishModal, OpenWizardAIWizard, WizardResumeModal, TourOverlay are now rendered
 // inside AppStandaloneModals
 import { useWizard, type SerializableWizardState, type WizardStep } from './components/Wizard';
 // CONDUCTOR_BADGES moved to useAutoRunAchievements hook
@@ -153,7 +153,7 @@ import { InputProvider, useInputContext } from './contexts/InputContext';
 import { useGroupChatStore } from './stores/groupChatStore';
 import { useBatchStore } from './stores/batchStore';
 import { registerBatchResumer, useActiveOutageSessionSignature } from './stores/retryStore';
-// All session state is read directly from useSessionStore in MaestroConsoleInner.
+// All session state is read directly from useSessionStore in OpenWizardAIConsoleInner.
 import {
 	useSessionStore,
 	selectActiveSession,
@@ -219,7 +219,7 @@ import { useSettingsStore } from './stores/settingsStore';
 import { useTabStore } from './stores/tabStore';
 import { useFileExplorerStore } from './stores/fileExplorerStore';
 
-function MaestroConsoleInner() {
+function OpenWizardAIConsoleInner() {
 	// --- LAYER STACK (for blocking shortcuts when modals are open) ---
 	const { hasOpenLayers, hasOpenModal } = useLayerStack();
 
@@ -351,9 +351,9 @@ function MaestroConsoleInner() {
 		// setTourFromWizard now used in useWizardHandlers via getModalActions()
 		// Director's Notes Modal - directorNotesOpen now self-sourced in AppStandaloneModals
 		setDirectorNotesOpen,
-		// Maestro Cue Modal - cueModalOpen now self-sourced in AppStandaloneModals
+		// OpenWizardAI Cue Modal - cueModalOpen now self-sourced in AppStandaloneModals
 		setCueModalOpen,
-		// Maestro Cue YAML Editor - open state, sessionId, projectRoot self-sourced in AppStandaloneModals
+		// OpenWizardAI Cue YAML Editor - open state, sessionId, projectRoot self-sourced in AppStandaloneModals
 		closeCueYamlEditor,
 	} = useModalActions();
 
@@ -378,7 +378,7 @@ function MaestroConsoleInner() {
 	// Wrapper for openWizard that checks for resume state
 	const openWizardModal = useCallback(async () => {
 		try {
-			const saved = await window.maestro.settings.get('wizardResumeState');
+			const saved = await window.openwizardai.settings.get('wizardResumeState');
 			// Validate saved state has a resumable step before casting
 			// These are the steps where we can resume the wizard (not agent-selection)
 			const resumableSteps: WizardStep[] = [
@@ -474,11 +474,11 @@ function MaestroConsoleInner() {
 	}, [encoreFeatures.usageStats, setUsageDashboardOpen]);
 
 	useEffect(() => {
-		if (!encoreFeatures.maestroCue) {
+		if (!encoreFeatures.openwizardaiCue) {
 			setCueModalOpen(false);
 			closeCueYamlEditor();
 		}
-	}, [encoreFeatures.maestroCue, setCueModalOpen, closeCueYamlEditor]);
+	}, [encoreFeatures.openwizardaiCue, setCueModalOpen, closeCueYamlEditor]);
 
 	// --- KEYBOARD SHORTCUT HELPERS ---
 	const { isShortcut, isTabShortcut } = useKeyboardShortcutHelpers({
@@ -738,7 +738,7 @@ function MaestroConsoleInner() {
 
 	// Expose debug helpers to window for console access
 	// No dependency array - always keep functions fresh
-	(window as any).__maestroDebug = {
+	(window as any).__openwizardaiDebug = {
 		openCommandK: () => setQuickActionOpen(true),
 		openWizard: () => openWizardModal(),
 		openSettings: () => setSettingsModalOpen(true),
@@ -785,7 +785,7 @@ function MaestroConsoleInner() {
 
 	// Expose notifyToast to window for debugging/testing
 	useEffect(() => {
-		(window as any).__maestroDebug = {
+		(window as any).__openwizardaiDebug = {
 			addToast: (
 				type: 'success' | 'info' | 'warning' | 'error',
 				title: string,
@@ -804,7 +804,7 @@ function MaestroConsoleInner() {
 			},
 		};
 		return () => {
-			delete (window as any).__maestroDebug;
+			delete (window as any).__openwizardaiDebug;
 		};
 	}, []);
 
@@ -881,7 +881,7 @@ function MaestroConsoleInner() {
 	} = useTabHandlers();
 
 	// Wakes snoozed tabs when their time arrives (and on launch, for wakes
-	// missed while Maestro was closed).
+	// missed while OpenWizardAI was closed).
 	useSnoozeScheduler();
 
 	// --- TERMINAL TAB HANDLERS ---
@@ -1440,7 +1440,7 @@ function MaestroConsoleInner() {
 	}, [resumeAutoRunAfterError]);
 
 	// --- AGENT IPC LISTENERS ---
-	// Extracted hook for all window.maestro.process.onXxx listeners
+	// Extracted hook for all window.openwizardai.process.onXxx listeners
 	// (onData, onExit, onSessionId, onSlashCommands, onStderr, onCommandExit,
 	// onUsage, onAgentError, onThinkingChunk, onSshRemote, onToolExecution)
 	useAgentListeners({
@@ -1674,7 +1674,7 @@ function MaestroConsoleInner() {
 	useActivityTracker(activeSessionId, setSessions);
 
 	// Initialize global hands-on time tracker (persists to settings)
-	// Tracks total time user spends actively using Maestro (5-minute idle timeout)
+	// Tracks total time user spends actively using OpenWizardAI (5-minute idle timeout)
 	useHandsOnTimeTracker(addTotalActiveTimeMs);
 
 	// Auto Run achievement tracking (progress intervals, peak usage stats)
@@ -2136,7 +2136,7 @@ function MaestroConsoleInner() {
 			});
 			// Add history entry with PR details
 			if (session) {
-				await window.maestro.history.add({
+				await window.openwizardai.history.add({
 					id: generateId(),
 					type: 'USER',
 					timestamp: Date.now(),
@@ -2687,7 +2687,7 @@ function MaestroConsoleInner() {
 		setLastGraphFocusFilePath: () => {}, // no-op: focusFileInGraph sets both atomically
 		setIsGraphViewOpen: useFileExplorerStore.getState().setIsGraphViewOpen,
 
-		// "Open in Maestro Browser" toolbar button on FilePreview routes through
+		// "Open in OpenWizardAI Browser" toolbar button on FilePreview routes through
 		// the same handler the file-tree context menu uses.
 		handleOpenBrowserTabAt,
 
@@ -2760,7 +2760,7 @@ function MaestroConsoleInner() {
 		handleDeleteWorktreeSession,
 		handleToggleWorktreeExpanded,
 		handleConfigureCue,
-		maestroCueEnabled: encoreFeatures.maestroCue,
+		openwizardaiCueEnabled: encoreFeatures.openwizardaiCue,
 		handleJumpToStarredSession,
 		openWizardModal,
 		handleStartTour,
@@ -2829,7 +2829,7 @@ function MaestroConsoleInner() {
 		// Document Graph handlers
 		handleFocusFileInGraph,
 
-		// Browser tab handler (used by file-tree "Open in Maestro Browser")
+		// Browser tab handler (used by file-tree "Open in OpenWizardAI Browser")
 		handleOpenBrowserTabAt,
 	});
 
@@ -2846,8 +2846,8 @@ function MaestroConsoleInner() {
 				style={{
 					backgroundColor: theme.colors.bgMain,
 					color: theme.colors.textMain,
-					fontFamily: 'var(--maestro-font-interface, ui-monospace, Menlo, monospace)',
-					fontSize: 'var(--maestro-size-interface, 14px)',
+					fontFamily: 'var(--openwizardai-font-interface, ui-monospace, Menlo, monospace)',
+					fontSize: 'var(--openwizardai-size-interface, 14px)',
 				}}
 			>
 				{/* External file drops are handled per-region, not globally: the main
@@ -2873,7 +2873,7 @@ function MaestroConsoleInner() {
 								className="text-xs select-none opacity-50"
 								style={{ color: theme.colors.textDim }}
 							>
-								OpenWizzard Group Chat:{' '}
+								OpenWizardAI Group Chat:{' '}
 								{groupChats.find((c) => c.id === activeGroupChatId)?.name || 'Unknown'}
 							</span>
 						) : (
@@ -3109,8 +3109,10 @@ function MaestroConsoleInner() {
 					onOpenDirectorNotes={
 						encoreFeatures.directorNotes ? () => setDirectorNotesOpen(true) : undefined
 					}
-					onOpenMaestroCue={encoreFeatures.maestroCue ? () => setCueModalOpen(true) : undefined}
-					onConfigureCue={encoreFeatures.maestroCue ? handleConfigureCue : undefined}
+					onOpenOpenWizardAICue={
+						encoreFeatures.openwizardaiCue ? () => setCueModalOpen(true) : undefined
+					}
+					onConfigureCue={encoreFeatures.openwizardaiCue ? handleConfigureCue : undefined}
 					onCloseTabSwitcher={handleCloseTabSwitcher}
 					onCloseCrossTabSearch={handleCloseCrossTabSearch}
 					onCrossTabSearchJump={handleCrossTabSearchJump}
@@ -3495,8 +3497,8 @@ function MaestroConsoleInner() {
 
 /**
  * GitStatusProviderFromStore - reads sessions/activeSessionId from the store
- * so GitStatusProvider can sit ABOVE MaestroConsoleInner. Required because
- * useModalHandlers (called inside MaestroConsoleInner) consumes useGitDetail,
+ * so GitStatusProvider can sit ABOVE OpenWizardAIConsoleInner. Required because
+ * useModalHandlers (called inside OpenWizardAIConsoleInner) consumes useGitDetail,
  * and a context provider must wrap its consumer.
  */
 function GitStatusProviderFromStore({ children }: { children: ReactNode }) {
@@ -3513,13 +3515,13 @@ function GitStatusProviderFromStore({ children }: { children: ReactNode }) {
 }
 
 /**
- * MaestroConsole - Main application component with context providers
+ * OpenWizardAIConsole - Main application component with context providers
  *
- * Wraps MaestroConsoleInner with context providers for centralized state management.
+ * Wraps OpenWizardAIConsoleInner with context providers for centralized state management.
  * InputProvider - centralized input state management
  * InlineWizardProvider - inline /wizard command state management
  */
-export default function MaestroConsole() {
+export default function OpenWizardAIConsole() {
 	const [promptsReady, setPromptsReady] = useState(false);
 
 	useEffect(() => {
@@ -3527,7 +3529,7 @@ export default function MaestroConsole() {
 			.then(() => setPromptsReady(true))
 			.catch((err) => {
 				captureException(err instanceof Error ? err : new Error(String(err)), {
-					extra: { context: 'MaestroConsole.initializeRendererPrompts' },
+					extra: { context: 'OpenWizardAIConsole.initializeRendererPrompts' },
 				});
 				setPromptsReady(true); // Allow app to render; features degrade gracefully
 			});
@@ -3541,7 +3543,7 @@ export default function MaestroConsole() {
 		<InlineWizardProvider>
 			<InputProvider>
 				<GitStatusProviderFromStore>
-					<MaestroConsoleInner />
+					<OpenWizardAIConsoleInner />
 				</GitStatusProviderFromStore>
 			</InputProvider>
 		</InlineWizardProvider>

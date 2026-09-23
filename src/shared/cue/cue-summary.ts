@@ -159,7 +159,7 @@ export function parseSubscriptionName(name: string): {
  * - `<trigger>` is `pipelineName` when set, else the base subscription name
  *   (with `-chain-N` / `-fanin` stripped). This mirrors the user-facing
  *   pipeline label they see in the Cue Modal so chains are identified by
- *   their pipeline, not their internal `Maestro-chain-2` plumbing name.
+ *   their pipeline, not their internal `OpenWizardAI-chain-2` plumbing name.
  * - `<agent>` is the running session name. Omitted when it duplicates the
  *   trigger (i.e. the agent IS the pipeline anchor).
  * - ` #N` is appended to the agent label when the subscription was a chain
@@ -171,7 +171,7 @@ export function parseSubscriptionName(name: string): {
  * Examples:
  *   `"PR Triage Main" · rc #2 - #891 Feature: Support arbitrary CLI agents…`
  *   `"Issue Triage" · rc - #909 fix(cli): register copilot-cli…`
- *   `"Maestro" · rc #2 - #891 Feature: …` (legacy YAML, no pipeline_name)
+ *   `"OpenWizardAI" · rc #2 - #891 Feature: …` (legacy YAML, no pipeline_name)
  *   `"Hourly Sync"` (no agent distinction, no payload)
  */
 export function buildCueRunSummary(

@@ -1,5 +1,5 @@
 /**
- * focusPlacement - who gets to move the Maestro view, and how that is asked for.
+ * focusPlacement - who gets to move the OpenWizardAI view, and how that is asked for.
  *
  * The rule this module encodes: **focus belongs to the human operator.** An
  * agent may create a surface; it may not decide the human should be looking at
@@ -64,22 +64,22 @@
  * them to change behaviour, which is the thing this table exists to prevent.
  */
 export const CLI_BACKGROUND_DEFAULTS = {
-	/** maestro-cli open-file - focuses today. */
+	/** openwizardai-cli open-file - focuses today. */
 	'open-file': false,
-	/** maestro-cli open-terminal - focuses today. */
+	/** openwizardai-cli open-terminal - focuses today. */
 	'open-terminal': false,
-	/** maestro-cli open-browser - focuses today; `--background` already existed. */
+	/** openwizardai-cli open-browser - focuses today; `--background` already existed. */
 	'open-browser': false,
-	/** maestro-cli tab new [--prompt] - focuses today. */
+	/** openwizardai-cli tab new [--prompt] - focuses today. */
 	'tab-new': false,
 	/**
-	 * maestro-cli dispatch --new-tab - the one verb that is ALREADY background by
+	 * openwizardai-cli dispatch --new-tab - the one verb that is ALREADY background by
 	 * default, with `--focus` to opt out. Leaving it alone is the same
 	 * no-default-changes rule as everything else here, not an exception to it.
 	 */
 	'dispatch-new-tab': true,
 	/**
-	 * maestro-cli dispatch (no --new-tab) - the `send_command` path, which selects
+	 * openwizardai-cli dispatch (no --new-tab) - the `send_command` path, which selects
 	 * the target agent today "for visual feedback".
 	 *
 	 * Keyed apart from `dispatch-new-tab` because the two disagree, which is the
@@ -87,10 +87,10 @@ export const CLI_BACKGROUND_DEFAULTS = {
 	 * background when it creates a tab and to foreground when it writes to one.
 	 */
 	dispatch: false,
-	/** maestro-cli create-agent - selects the new agent today. */
+	/** openwizardai-cli create-agent - selects the new agent today. */
 	'create-agent': false,
 	/**
-	 * maestro-cli create-worktree - selects the new agent today.
+	 * openwizardai-cli create-worktree - selects the new agent today.
 	 *
 	 * When a message is passed, the follow-on `send_command` carries this SAME
 	 * resolved bit rather than re-resolving as `dispatch`. Without that,
@@ -99,7 +99,7 @@ export const CLI_BACKGROUND_DEFAULTS = {
 	 */
 	'create-worktree': false,
 	/**
-	 * maestro-cli refresh-auto-run - background by default, `--focus` to opt out.
+	 * openwizardai-cli refresh-auto-run - background by default, `--focus` to opt out.
 	 *
 	 * The one deliberate exception to "no verb changes its default". An unflagged
 	 * refresh only moved the view when the target was NOT the agent on screen, so
@@ -111,7 +111,7 @@ export const CLI_BACKGROUND_DEFAULTS = {
 	 */
 	'refresh-auto-run': true,
 	/**
-	 * maestro-cli switch-mode - proceeds today.
+	 * openwizardai-cli switch-mode - proceeds today.
 	 *
 	 * The one verb here that CREATES nothing: changing the rendered surface of the
 	 * target agent IS its entire effect, so there is no background surface to

@@ -1,6 +1,6 @@
-// Create group command - create a new group in the Maestro desktop app
+// Create group command - create a new group in the OpenWizardAI desktop app
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { formatError, formatSuccess } from '../output/formatter';
 
 interface CreateGroupOptions {
@@ -27,7 +27,7 @@ export async function createGroup(name: string, options: CreateGroupOptions): Pr
 	if (options.emoji) payload.emoji = options.emoji;
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

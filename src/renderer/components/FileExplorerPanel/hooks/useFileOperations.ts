@@ -104,7 +104,7 @@ export function useFileOperations({
 				renameModal.absolutePath.lastIndexOf('/')
 			);
 			const newPath = `${parentDir}/${newName}`;
-			await window.maestro.fs.rename(renameModal.absolutePath, newPath, sshRemoteId);
+			await window.openwizardai.fs.rename(renameModal.absolutePath, newPath, sshRemoteId);
 
 			const oldPath = renameModal.path;
 			const pathParts = oldPath.split('/');
@@ -185,9 +185,9 @@ export function useFileOperations({
 		setIsCreatingFile(true);
 		try {
 			if (isFolder) {
-				await window.maestro.fs.mkdir(absolutePath, sshRemoteId);
+				await window.openwizardai.fs.mkdir(absolutePath, sshRemoteId);
 			} else {
-				await window.maestro.fs.writeFile(absolutePath, '', sshRemoteId);
+				await window.openwizardai.fs.writeFile(absolutePath, '', sshRemoteId);
 			}
 			await refreshFileTree(session.id);
 			expandFolder(newFileModal.parentFolderPath);
@@ -217,7 +217,7 @@ export function useFileOperations({
 
 			if (node.type === 'folder') {
 				try {
-					const count = await window.maestro.fs.countItems(absolutePath, sshRemoteId);
+					const count = await window.openwizardai.fs.countItems(absolutePath, sshRemoteId);
 					modalData.itemCount = count;
 				} catch (error) {
 					captureException(error, {
@@ -247,7 +247,7 @@ export function useFileOperations({
 
 		setIsDeleting(true);
 		try {
-			await window.maestro.fs.delete(deleteModal.absolutePath, { sshRemoteId });
+			await window.openwizardai.fs.delete(deleteModal.absolutePath, { sshRemoteId });
 
 			setSessions((prev) =>
 				prev.map((s) => {

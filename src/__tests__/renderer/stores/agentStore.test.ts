@@ -59,7 +59,7 @@ function createMockAgentConfig(overrides: Partial<AgentConfig> = {}): AgentConfi
 // Setup
 // ============================================================================
 
-// Mock window.maestro (add to existing window, don't replace it)
+// Mock window.openwizardai (add to existing window, don't replace it)
 const mockSpawn = vi.fn().mockResolvedValue({ pid: 123, success: true });
 const mockKill = vi.fn().mockResolvedValue(true);
 const mockInterrupt = vi.fn().mockResolvedValue(true);
@@ -67,7 +67,7 @@ const mockDetect = vi.fn().mockResolvedValue([]);
 const mockGetAgent = vi.fn().mockResolvedValue(null);
 const mockClearError = vi.fn().mockResolvedValue(undefined);
 
-(window as any).maestro = {
+(window as any).openwizardai = {
 	process: {
 		spawn: mockSpawn,
 		kill: mockKill,
@@ -83,7 +83,7 @@ const mockClearError = vi.fn().mockResolvedValue(undefined);
 	prompts: {
 		get: vi.fn((id: string) => {
 			const prompts: Record<string, string> = {
-				'maestro-system-prompt': 'Mock system prompt for {{CWD}}',
+				'openwizardai-system-prompt': 'Mock system prompt for {{CWD}}',
 				'autorun-synopsis': '',
 				'image-only-default': 'Describe this image',
 				'commit-command': '',
@@ -103,8 +103,8 @@ vi.mock('../../../renderer/services/git', () => ({
 	},
 }));
 
-// Prompt content is now loaded via window.maestro.prompts.get() and cached at module level.
-// The window.maestro.prompts mock is set up below in the window.maestro block.
+// Prompt content is now loaded via window.openwizardai.prompts.get() and cached at module level.
+// The window.openwizardai.prompts mock is set up below in the window.openwizardai block.
 
 // Mock substituteTemplateVariables - pass through the template as-is for simplicity
 vi.mock('../../../renderer/utils/templateVariables', () => ({
@@ -316,7 +316,7 @@ describe('agentStore', () => {
 			expect(updated.aiTabs[0].agentError).toBeUndefined();
 		});
 
-		it('calls window.maestro.agentError.clearError IPC', () => {
+		it('calls window.openwizardai.agentError.clearError IPC', () => {
 			const session = createMockSession({ id: 'session-1', state: 'error' });
 			useSessionStore.getState().setSessions([session]);
 

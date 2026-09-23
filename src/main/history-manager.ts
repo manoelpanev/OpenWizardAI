@@ -1,7 +1,7 @@
 /**
  * History Manager for per-session history storage
  *
- * Migrates from a single global `maestro-history.json` file to per-session
+ * Migrates from a single global `openwizardai-history.json` file to per-session
  * history files stored in a dedicated `history/` subdirectory.
  *
  * Benefits:
@@ -58,7 +58,7 @@ const ROTATION_CHECK_APPENDS = 500;
 const LOG_CONTEXT = '[HistoryManager]';
 
 /**
- * Error codes that mean "this machine cannot watch right now", not "Maestro is
+ * Error codes that mean "this machine cannot watch right now", not "OpenWizardAI is
  * broken". ENOENT/EPERM/UNKNOWN are the directory going away or turning
  * unreadable; EMFILE/ENFILE/ENOSPC are OS resource ceilings (fd limit, and on
  * Linux the inotify `max_user_watches` cap, which surfaces as ENOSPC rather
@@ -195,7 +195,7 @@ export class HistoryManager {
 	constructor() {
 		this.configDir = app.getPath('userData');
 		this.historyDir = path.join(this.configDir, 'history');
-		this.legacyFilePath = path.join(this.configDir, 'maestro-history.json');
+		this.legacyFilePath = path.join(this.configDir, 'openwizardai-history.json');
 		this.migrationMarkerPath = path.join(this.configDir, 'history-migrated.json');
 	}
 
@@ -501,7 +501,7 @@ export class HistoryManager {
 
 			try {
 				// O_APPEND: the kernel seeks to EOF as part of the write, so two
-				// processes (app + maestro-cli) appending at once cannot overwrite
+				// processes (app + openwizardai-cli) appending at once cannot overwrite
 				// each other's bytes. There is no read step here, which is what
 				// removes the cross-process lost-update race the old
 				// read-modify-write had.

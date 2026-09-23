@@ -543,12 +543,12 @@ describe('participantColors', () => {
 	});
 
 	describe('loadColorPreferences', () => {
-		let originalMaestro: typeof window.maestro;
+		let originalOpenWizardAI: typeof window.openwizardai;
 
 		beforeEach(() => {
-			originalMaestro = window.maestro;
-			// @ts-expect-error - mock partial maestro object
-			window.maestro = {
+			originalOpenWizardAI = window.openwizardai;
+			// @ts-expect-error - mock partial openwizardai object
+			window.openwizardai = {
 				settings: {
 					get: vi.fn(),
 					set: vi.fn(),
@@ -557,34 +557,36 @@ describe('participantColors', () => {
 		});
 
 		afterEach(() => {
-			window.maestro = originalMaestro;
+			window.openwizardai = originalOpenWizardAI;
 		});
 
 		it('should return stored preferences', async () => {
 			const storedPrefs = { '/path/alice': 3, '/path/bob': 5 };
-			vi.mocked(window.maestro.settings.get).mockResolvedValue(storedPrefs);
+			vi.mocked(window.openwizardai.settings.get).mockResolvedValue(storedPrefs);
 
 			const result = await loadColorPreferences();
 			expect(result).toEqual(storedPrefs);
-			expect(window.maestro.settings.get).toHaveBeenCalledWith('groupChatColorPreferences');
+			expect(window.openwizardai.settings.get).toHaveBeenCalledWith('groupChatColorPreferences');
 		});
 
 		it('should return empty object if no preferences stored', async () => {
-			vi.mocked(window.maestro.settings.get).mockResolvedValue(null);
+			vi.mocked(window.openwizardai.settings.get).mockResolvedValue(null);
 
 			const result = await loadColorPreferences();
 			expect(result).toEqual({});
 		});
 
 		it('should return empty object if undefined is returned', async () => {
-			vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
+			vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
 
 			const result = await loadColorPreferences();
 			expect(result).toEqual({});
 		});
 
 		it('should return empty object on error', async () => {
-			vi.mocked(window.maestro.settings.get).mockRejectedValue(new Error('Settings unavailable'));
+			vi.mocked(window.openwizardai.settings.get).mockRejectedValue(
+				new Error('Settings unavailable')
+			);
 
 			const result = await loadColorPreferences();
 			expect(result).toEqual({});
@@ -592,12 +594,12 @@ describe('participantColors', () => {
 	});
 
 	describe('saveColorPreferences', () => {
-		let originalMaestro: typeof window.maestro;
+		let originalOpenWizardAI: typeof window.openwizardai;
 
 		beforeEach(() => {
-			originalMaestro = window.maestro;
-			// @ts-expect-error - mock partial maestro object
-			window.maestro = {
+			originalOpenWizardAI = window.openwizardai;
+			// @ts-expect-error - mock partial openwizardai object
+			window.openwizardai = {
 				settings: {
 					get: vi.fn(),
 					set: vi.fn().mockResolvedValue(undefined),
@@ -606,38 +608,44 @@ describe('participantColors', () => {
 		});
 
 		afterEach(() => {
-			window.maestro = originalMaestro;
+			window.openwizardai = originalOpenWizardAI;
 		});
 
 		it('should call settings.set with the correct key and preferences', async () => {
 			const prefs = { '/path/alice': 3, '/path/bob': 5 };
 			await saveColorPreferences(prefs);
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('groupChatColorPreferences', prefs);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'groupChatColorPreferences',
+				prefs
+			);
 		});
 
 		it('should save empty preferences', async () => {
 			await saveColorPreferences({});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('groupChatColorPreferences', {});
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'groupChatColorPreferences',
+				{}
+			);
 		});
 
 		it('should propagate errors from settings.set', async () => {
-			vi.mocked(window.maestro.settings.set).mockRejectedValue(new Error('Write failed'));
+			vi.mocked(window.openwizardai.settings.set).mockRejectedValue(new Error('Write failed'));
 
 			await expect(saveColorPreferences({ '/path/alice': 1 })).rejects.toThrow('Write failed');
 		});
 	});
 
 	describe('integration: round-trip preferences', () => {
-		let originalMaestro: typeof window.maestro;
+		let originalOpenWizardAI: typeof window.openwizardai;
 		let mockStore: Record<string, unknown>;
 
 		beforeEach(() => {
-			originalMaestro = window.maestro;
+			originalOpenWizardAI = window.openwizardai;
 			mockStore = {};
-			// @ts-expect-error - mock partial maestro object
-			window.maestro = {
+			// @ts-expect-error - mock partial openwizardai object
+			window.openwizardai = {
 				settings: {
 					get: vi.fn((key: string) => Promise.resolve(mockStore[key] ?? null)),
 					set: vi.fn((key: string, value: unknown) => {
@@ -649,7 +657,7 @@ describe('participantColors', () => {
 		});
 
 		afterEach(() => {
-			window.maestro = originalMaestro;
+			window.openwizardai = originalOpenWizardAI;
 		});
 
 		it('should persist and retrieve preferences across calls', async () => {

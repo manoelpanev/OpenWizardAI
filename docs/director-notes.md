@@ -47,7 +47,7 @@ A centered aggregate stats bar displays key metrics across the current dataset:
 **Entry Details:**
 Each entry shows:
 
-- **Agent name** - which Maestro agent produced the entry
+- **Agent name** - which OpenWizardAI agent produced the entry
 - **Task name pill** - clickable link to the originating session
 - **Type badge** (AUTO or USER)
 - **Summary** of what was accomplished
@@ -66,7 +66,7 @@ Entries load progressively (100 at a time). Scroll to load more as needed.
 Every tab reads two sources, and so does the AI synopsis:
 
 - **This machine's agents**, including any whose process runs over SSH. A remote agent you drive from here is recorded here, so its runs are always covered.
-- **Peer Maestro instances** that worked on the same project from a different machine, via [Cross-Host Shared History](/history#cross-host-shared-history). Their entries carry the originating hostname, and their agents appear in the list named `Agent (hostname)`.
+- **Peer OpenWizardAI instances** that worked on the same project from a different machine, via [Cross-Host Shared History](/history#cross-host-shared-history). Their entries carry the originating hostname, and their agents appear in the list named `Agent (hostname)`.
 
 The second source needs the sharing toggles turned on: **Sync history to remote** on the SSH agent here, and **This agent is remote-controlled** on the agent over there. Without them, Director's Notes sees only what this machine did.
 
@@ -82,7 +82,7 @@ An AI-generated synopsis of recent activity across all agents. This tab uses a c
 - **Refresh** - Regenerate the synopsis with current settings
 - **Save** - Export the synopsis as a markdown file
 - **Copy** - Copy the raw markdown to clipboard
-- **Font zoom** - A circle in the top-right corner of the notes that expands to an **A- / A+** pill on hover or keyboard focus. It scales the reading text in both Rich Mode and Plain Mode, and Maestro remembers the size you picked. The stat cards and charts around the notes keep their own sizing: they are chrome, not reading text.
+- **Font zoom** - A circle in the top-right corner of the notes that expands to an **A- / A+** pill on hover or keyboard focus. It scales the reading text in both Rich Mode and Plain Mode, and OpenWizardAI remembers the size you picked. The stat cards and charts around the notes keep their own sizing: they are chrome, not reading text.
 
 **Stats Bar:**
 After generation, a stats bar shows:
@@ -103,7 +103,7 @@ The synopsis is rendered as rich markdown with full formatting support.
 **Grouping:**
 Inside each section the bullets are bucketed under a subheading so you are not re-deriving who did what on every line. An agent that belongs to a Left Bar group is filed under the group (emoji and all), and each bullet keeps a small pill naming which member did it. An agent with no group gets its own subheading, and the pill is dropped because it would only repeat the heading. A section whose bullets all share one owner stays a flat list.
 
-The grouping comes from Maestro's own session and group state, not from the AI, so it always matches what the Left Bar shows. It applies to Rich Mode, Plain Mode, Copy, and Save alike.
+The grouping comes from OpenWizardAI's own session and group state, not from the AI, so it always matches what the Left Bar shows. It applies to Rich Mode, Plain Mode, Copy, and Save alike.
 
 **Provider Configuration:**
 Configure which AI provider generates the synopsis in **Settings > Encore Features**. Any installed agent (Claude Code, Codex, OpenCode) can be used. The default lookback window is also configurable there.
@@ -118,7 +118,7 @@ Leave it empty and the synopsis is generated exactly as described above. Fill it
 - **Framing** - Accomplishments, Challenges, and Next Steps favor items that bear on the end state, so Next Steps reads as "what moves us toward the target" rather than a generic backlog.
 - **A fourth section** - **Progress Toward Ideal End State** is added after Next Steps, measuring how far the window moved you. It calls out what got closer, what saw no activity at all (flagged as a warning), what looks finished, and where current work appears to diverge from the target.
 
-The field accepts up to 4,000 characters and applies to the CLI synopsis (`maestro-cli notes --ai`) as well as the desktop AI Overview.
+The field accepts up to 4,000 characters and applies to the CLI synopsis (`openwizardai-cli notes --ai`) as well as the desktop AI Overview.
 
 <Note>
 The AI Overview tab becomes available once the synopsis has finished generating. A spinning indicator on the tab shows generation is in progress. Results are cached for the session - switching tabs won't trigger a regeneration.
@@ -180,23 +180,23 @@ Auto-selection resolves at generation time against the providers actually instal
 
 ## Pulling Notes from the CLI
 
-The same unified history and AI synopsis are available from [`maestro-cli`](./cli#directors-notes), so you can pipe Director's Notes into shell scripts, cron jobs, or your own reporting tools without opening the app.
+The same unified history and AI synopsis are available from [`openwizardai-cli`](./cli#directors-notes), so you can pipe Director's Notes into shell scripts, cron jobs, or your own reporting tools without opening the app.
 
 ```bash
 # Plain-text recap of the last 3 days
-maestro-cli director-notes history -d 3
+openwizardai-cli director-notes history -d 3
 
 # Markdown recap of the last day, ready to paste into a doc or PR
-maestro-cli director-notes history -f markdown -d 1
+openwizardai-cli director-notes history -f markdown -d 1
 
 # Only the work you initiated (skip AUTO entries from Auto Run)
-maestro-cli director-notes history --filter user -l 50
+openwizardai-cli director-notes history --filter user -l 50
 
 # JSON for piping into jq, a dashboard, or your own tooling
-maestro-cli director-notes history --json -d 7
+openwizardai-cli director-notes history --json -d 7
 
 # AI synopsis of the past day (requires the desktop app to be running)
-maestro-cli director-notes synopsis -d 1
+openwizardai-cli director-notes synopsis -d 1
 ```
 
 ### Generating a weekly report
@@ -205,12 +205,12 @@ Combine `synopsis` with a redirect (or your favorite scheduler) to produce a sel
 
 ```bash
 # Write this week's synopsis to a dated markdown file
-maestro-cli director-notes synopsis -d 7 -f markdown \
-  > ~/Documents/maestro-weekly-$(date +%Y-%m-%d).md
+openwizardai-cli director-notes synopsis -d 7 -f markdown \
+  > ~/Documents/openwizardai-weekly-$(date +%Y-%m-%d).md
 ```
 
-Schedule it with `cron`, `launchd`, or [Maestro Cue](./maestro-cue) on a weekly interval to wake up to a fresh status report every Monday. Pair it with `maestro-cli notify toast --open-file <path>` if you want a clickable in-app reminder when the report lands.
+Schedule it with `cron`, `launchd`, or [OpenWizardAI Cue](./openwizardai-cue) on a weekly interval to wake up to a fresh status report every Monday. Pair it with `openwizardai-cli notify toast --open-file <path>` if you want a clickable in-app reminder when the report lands.
 
 <Note>
-`history` reads directly from disk and works offline. `synopsis` needs the Maestro desktop app running because it dispatches the prompt through your configured AI provider.
+`history` reads directly from disk and works offline. `synopsis` needs the OpenWizardAI desktop app running because it dispatches the prompt through your configured AI provider.
 </Note>

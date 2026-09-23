@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/services/storage', () => ({
 	resolveAgentId: vi.fn((id: string) => id),
 }));
@@ -15,13 +15,13 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { removePlaybook } from '../../../cli/commands/remove-playbook';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveAgentId } from '../../../cli/services/storage';
 import { formatError } from '../../../cli/output/formatter';
 
 function mockSend(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				captured = payload;
@@ -57,7 +57,7 @@ describe('remove-playbook command', () => {
 	it('rejects an empty playbook id', async () => {
 		await expect(removePlaybook('agent-1', '   ', {})).rejects.toThrow('__exit__');
 		expect(formatError).toHaveBeenCalledWith('Playbook ID must not be empty');
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 

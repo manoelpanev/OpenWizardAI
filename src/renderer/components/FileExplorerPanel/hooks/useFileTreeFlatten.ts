@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import type { FileNode } from '../../../types/fileTree';
 import { logger } from '../../../utils/logger';
-import { MAESTRO_DIR } from '../../../../shared/maestro-paths';
+import { OPENWIZARDAI_DIR } from '../../../../shared/openwizardai-paths';
 import type { FlattenedNode } from '../types';
 
 interface UseFileTreeFlattenArgs {
@@ -23,8 +23,8 @@ export function useFileTreeFlatten({
 	showHiddenFiles,
 }: UseFileTreeFlattenArgs): UseFileTreeFlattenResult {
 	// Filter hidden files from the tree based on showHiddenFiles setting.
-	// Invariant: `.maestro` is ALWAYS visible regardless of the dotfiles toggle -
-	// it's the project's Maestro workspace (playbooks, cue config, etc.) and
+	// Invariant: `.openwizardai` is ALWAYS visible regardless of the dotfiles toggle -
+	// it's the project's OpenWizardAI workspace (playbooks, cue config, etc.) and
 	// hiding it strands users who don't realize their config is "hidden". This
 	// has regressed before; if you change the dotfile filter, keep the carve-out.
 	const filterHiddenFiles = useCallback(
@@ -32,7 +32,7 @@ export function useFileTreeFlatten({
 			if (!nodes) return [];
 			if (showHiddenFiles) return nodes;
 			return nodes
-				.filter((node) => !node.name.startsWith('.') || node.name === MAESTRO_DIR)
+				.filter((node) => !node.name.startsWith('.') || node.name === OPENWIZARDAI_DIR)
 				.map((node) => ({
 					...node,
 					children: node.children ? filterHiddenFiles(node.children) : undefined,

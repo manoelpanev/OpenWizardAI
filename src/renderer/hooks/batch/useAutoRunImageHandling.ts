@@ -163,7 +163,7 @@ export function useAutoRunImageHandling({
 			setAttachmentsList([]);
 			setAttachmentPreviews(new Map());
 
-			window.maestro.autorun
+			window.openwizardai.autorun
 				.listImages(folderPath, selectedFile, sshRemoteId)
 				.then(
 					(result: {
@@ -181,7 +181,7 @@ export function useAutoRunImageHandling({
 							// Load previews for existing images
 							result.images.forEach((img: { filename: string; relativePath: string }) => {
 								const absolutePath = `${folderPath}/${img.relativePath}`;
-								window.maestro.fs
+								window.openwizardai.fs
 									.readFile(absolutePath, sshRemoteId)
 									.then((dataUrl) => {
 										if (isStale) return;
@@ -284,7 +284,7 @@ export function useAutoRunImageHandling({
 				const extension = imageItem.type.split('/')[1] || 'png';
 
 				// Save to Auto Run folder using the new API
-				const result = await window.maestro.autorun.saveImage(
+				const result = await window.openwizardai.autorun.saveImage(
 					folderPath,
 					selectedFile,
 					base64Content,
@@ -370,7 +370,7 @@ export function useAutoRunImageHandling({
 				const extension = file.name.split('.').pop() || 'png';
 
 				// Save to Auto Run folder using the new API
-				const result = await window.maestro.autorun.saveImage(
+				const result = await window.openwizardai.autorun.saveImage(
 					folderPath,
 					selectedFile,
 					base64Content,
@@ -421,7 +421,7 @@ export function useAutoRunImageHandling({
 			if (!folderPath) return;
 
 			// Delete the image file
-			await window.maestro.autorun.deleteImage(folderPath, relativePath, sshRemoteId);
+			await window.openwizardai.autorun.deleteImage(folderPath, relativePath, sshRemoteId);
 			setAttachmentsList((prev) => prev.filter((f) => f !== relativePath));
 			setAttachmentPreviews((prev) => {
 				const newMap = new Map(prev);
@@ -462,7 +462,7 @@ export function useAutoRunImageHandling({
 
 			const base64Content = newDataUrl.replace(/^data:image\/\w+;base64,/, '');
 
-			const result = await window.maestro.autorun.replaceImage(
+			const result = await window.openwizardai.autorun.replaceImage(
 				folderPath,
 				relativePath,
 				base64Content,
@@ -511,7 +511,7 @@ export function useAutoRunImageHandling({
 			if (!folderPath) return;
 
 			// Delete the image file using autorun API
-			await window.maestro.autorun.deleteImage(folderPath, relativePath, sshRemoteId);
+			await window.openwizardai.autorun.deleteImage(folderPath, relativePath, sshRemoteId);
 			setAttachmentsList((prev) => prev.filter((f) => f !== relativePath));
 			setAttachmentPreviews((prev) => {
 				const newMap = new Map(prev);

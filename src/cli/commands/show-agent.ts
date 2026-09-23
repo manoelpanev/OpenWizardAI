@@ -59,7 +59,10 @@ export function showAgent(agentId: string, options: ShowAgentOptions): void {
 		// 'interactive' | dynamic) the Edit Agent modal shows. SSH enablement flips
 		// the default for an unconfigured agent, so pass it through.
 		const tokenSource = getClaudeTokenMode(
-			{ enableMaestroP: agent.enableMaestroP, maestroPMode: agent.maestroPMode },
+			{
+				enableOpenWizardAIP: agent.enableOpenWizardAIP,
+				openwizardaiPMode: agent.openwizardaiPMode,
+			},
 			{ sshEnabled: agent.sessionSshRemoteConfig?.enabled === true }
 		);
 
@@ -72,7 +75,7 @@ export function showAgent(agentId: string, options: ShowAgentOptions): void {
 			groupId: agent.groupId,
 			groupName: group?.name,
 			autoRunFolderPath: agent.autoRunFolderPath,
-			// Left Bar bookmark state (settable with `maestro-cli bookmark` /
+			// Left Bar bookmark state (settable with `openwizardai-cli bookmark` /
 			// `unbookmark`, or `update-agent --bookmark`).
 			bookmarked: !!agent.bookmarked,
 			// Editable per-agent settings (the Edit Agent modal fields) so callers
@@ -87,9 +90,9 @@ export function showAgent(agentId: string, options: ShowAgentOptions): void {
 			customContextWindow: agent.customContextWindow ?? null,
 			// Claude token source: friendly tri-state plus the raw stored pair.
 			tokenSource: agent.toolType === 'claude-code' ? tokenSource : null,
-			enableMaestroP: agent.enableMaestroP ?? null,
-			maestroPMode: agent.maestroPMode ?? null,
-			maestroPPath: agent.maestroPPath ?? null,
+			enableOpenWizardAIP: agent.enableOpenWizardAIP ?? null,
+			openwizardaiPMode: agent.openwizardaiPMode ?? null,
+			openwizardaiPPath: agent.openwizardaiPPath ?? null,
 			// Full SSH execution config so onboarding/verification can confirm the
 			// agent's remote, working-dir override, and history-sync state without
 			// reading raw store files.

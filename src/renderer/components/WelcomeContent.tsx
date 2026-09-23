@@ -2,14 +2,13 @@
  * WelcomeContent.tsx
  *
  * Shared welcome content displayed on both the first-launch empty state
- * and the tour introduction overlay. Contains the Maestro icon, welcome
+ * and the tour introduction overlay. Contains the OpenWizardAI icon, welcome
  * message, and explanation of core features.
  */
 
 import type { Theme } from '../types';
-import maestroWandIcon from '../assets/icon-wand.png';
+import openwizardaiWandIcon from '../assets/icon-wand.png';
 import { openUrl } from '../utils/openUrl';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 
 interface WelcomeContentProps {
 	theme: Theme;
@@ -20,7 +19,7 @@ interface WelcomeContentProps {
 /**
  * WelcomeContent - Shared welcome message component
  *
- * Displays the Maestro icon and introductory copy explaining:
+ * Displays the OpenWizardAI icon and introductory copy explaining:
  * - Parallel agent management
  * - Auto Run automation
  * - Non-interactive mode behavior
@@ -32,17 +31,17 @@ export function WelcomeContent({
 }: WelcomeContentProps): JSX.Element {
 	return (
 		<div className="flex flex-col items-center text-center max-w-xl">
-			{/* Maestro Icon */}
-			<img src={maestroWandIcon} alt="OpenWizzard" className="w-20 h-20 mb-6 opacity-90" />
+			{/* OpenWizardAI Icon */}
+			<img src={openwizardaiWandIcon} alt="OpenWizardAI" className="w-20 h-20 mb-6 opacity-90" />
 
 			{/* Heading */}
 			<h1 className="text-2xl font-bold mb-4" style={{ color: theme.colors.textMain }}>
-				Welcome to OpenWizzard
+				Welcome to OpenWizardAI
 			</h1>
 
 			{/* Primary goals */}
 			<p className="text-sm mb-4" style={{ color: theme.colors.textDim }}>
-				OpenWizzard is an orchestration tool designed to:
+				OpenWizardAI is an orchestration tool designed to:
 			</p>
 
 			<div className="text-left space-y-3 mb-6">
@@ -94,7 +93,7 @@ export function WelcomeContent({
 				}}
 			>
 				<p>
-					<strong style={{ color: theme.colors.textMain }}>How it works:</strong> OpenWizzard is a
+					<strong style={{ color: theme.colors.textMain }}>How it works:</strong> OpenWizardAI is a
 					pass-through to your AI provider. Your MCP tools, skills, and permissions work exactly as
 					they do when running the provider directly.
 				</p>
@@ -113,11 +112,13 @@ export function WelcomeContent({
 
 			{/* Read more link */}
 			<button
-				onClick={() => openUrl(buildMaestroUrl('https://docs.runmaestro.ai/getting-started'))}
+				onClick={() =>
+					openUrl('https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/getting-started.md')
+				}
 				className="text-xs mt-4 hover:opacity-80 transition-colors"
 				style={{ color: theme.colors.accent }}
 			>
-				Read more at docs.runmaestro.ai/getting-started
+				Read more at github.com/manoelpanev/OpenWizardAI/tree/main/docs/getting-started
 			</button>
 		</div>
 	);

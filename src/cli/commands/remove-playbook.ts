@@ -1,5 +1,5 @@
 // Remove playbook command - delete a saved playbook from an agent via the
-// delete_playbook WS message. Use "maestro-cli list playbooks -a <agent>" to
+// delete_playbook WS message. Use "openwizardai-cli list playbooks -a <agent>" to
 // find playbook IDs. Mirrors the Auto Run toolbar "Delete playbook" action.
 
 import { runAgentCommand, failCommand } from '../services/session-command';

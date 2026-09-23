@@ -1,5 +1,5 @@
 /**
- * useAgentToolExecutionListener - registers `window.maestro.process.onToolExecution`
+ * useAgentToolExecutionListener - registers `window.openwizardai.process.onToolExecution`
  *
  * Buffers tool events (running/completed/failed) and merges them into the
  * matching tab's logs. Identification rules (preserved verbatim):
@@ -26,7 +26,7 @@ export function useAgentToolExecutionListener(): void {
 		const setSessions = useSessionStore.getState().setSessions;
 		const getSessions = () => useSessionStore.getState().sessions;
 
-		const unsubscribe = window.maestro.process.onToolExecution?.(
+		const unsubscribe = window.openwizardai.process.onToolExecution?.(
 			(
 				sessionId: string,
 				toolEvent: {

@@ -498,12 +498,12 @@ async function materializeRemoteFile(
 		throw new Error(
 			`Remote parquet file is ${Math.round(remoteSize / (1024 * 1024))} MB, over the ` +
 				`${MAX_REMOTE_BYTES / (1024 * 1024)} MB limit for remote files. There is no ` +
-				`byte-range channel over SSH, so OpenWizzard has to copy the whole file across ` +
+				`byte-range channel over SSH, so OpenWizardAI has to copy the whole file across ` +
 				`before it can read any of it. Copy it locally and open it from there.`
 		);
 	}
 
-	const cacheDir = path.join(os.tmpdir(), 'maestro-parquet-cache');
+	const cacheDir = path.join(os.tmpdir(), 'openwizardai-parquet-cache');
 	await fs.mkdir(cacheDir, { recursive: true });
 	const key = createHash('sha256')
 		.update(`${sshRemoteId}:${remotePath}:${remoteSize}:${remoteStat.data?.mtime ?? ''}`)
@@ -658,7 +658,7 @@ async function verifyCodecsDecodable(
 		} catch (error) {
 			const detail = error instanceof Error ? error.message : String(error);
 			throw new Error(
-				`This parquet file uses ${codec} compression, which OpenWizzard cannot decode. ` +
+				`This parquet file uses ${codec} compression, which OpenWizardAI cannot decode. ` +
 					`Re-write it with SNAPPY, ZSTD, GZIP, or no compression to view it here. (${detail})`
 			);
 		}

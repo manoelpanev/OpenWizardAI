@@ -217,12 +217,12 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 		onSpawnAgent: (sessionId, prompt, cwdOverride, turnSettings) =>
 			spawnAgentForSession(sessionId, prompt, cwdOverride, {
 				isAutoRun: true,
-				// Per-task model/effort from the document's MAESTRO:MODEL hint. Must be
+				// Per-task model/effort from the document's OPENWIZARDAI:MODEL hint. Must be
 				// forwarded, not dropped: this is the last hop before the spawn.
 				...turnSettings,
 			}),
 		onAddHistoryEntry: async (entry) => {
-			await window.maestro.history.add({
+			await window.openwizardai.history.add({
 				...entry,
 				id: generateId(),
 			});
@@ -324,7 +324,7 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 				const summary = info.wasStopped
 					? `Auto Run stopped: completed ${info.completedTasks} of ${info.totalTasks} tasks across ${info.documentsProcessed} document(s).`
 					: `Auto Run complete: ${info.completedTasks}/${info.totalTasks} tasks finished across ${info.documentsProcessed} document(s).`;
-				window.maestro.groupChat
+				window.openwizardai.groupChat
 					.reportAutoRunComplete(gcAutoRun.groupChatId, gcAutoRun.participantName, summary)
 					.catch((err) => {
 						logger.error('[GroupChat] Failed to report auto run complete:', undefined, err);
@@ -610,21 +610,21 @@ export function useBatchHandlers(deps: UseBatchHandlersDeps): UseBatchHandlersRe
 
 	// Quit confirmation handler - shows modal when trying to quit with busy agents or active auto-runs
 	useEffect(() => {
-		if (!window.maestro?.app?.onQuitConfirmationRequest) {
+		if (!window.openwizardai?.app?.onQuitConfirmationRequest) {
 			return;
 		}
-		const unsubscribe = window.maestro.app.onQuitConfirmationRequest(async () => {
+		const unsubscribe = window.openwizardai.app.onQuitConfirmationRequest(async () => {
 			// Snapshot every active-operation source (busy agents, Auto Run, terminal
-			// tasks, Maestro Cue runs, group chats).
+			// tasks, OpenWizardAI Cue runs, group chats).
 			const ops = await collectActiveOperations();
 
 			if (!ops.hasActiveOperations) {
-				window.maestro.app.confirmQuit();
+				window.openwizardai.app.confirmQuit();
 			} else {
 				// Tell main the modal is up so it disarms the dead-renderer safety
 				// timeout - otherwise the app force-quits after a few seconds while
 				// the user is still deciding.
-				window.maestro.app.quitConfirmationPending?.();
+				window.openwizardai.app.quitConfirmationPending?.();
 				getModalActions().setQuitConfirmModalOpen(true, {
 					activeTerminalTasks: ops.activeTerminalTasks,
 					activeCueRunCount: ops.activeCueRunCount,

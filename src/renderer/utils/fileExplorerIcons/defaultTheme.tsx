@@ -38,9 +38,9 @@ import {
 } from './shared';
 
 const fileTypeColor = (type: FileChangeType | undefined, fallback: string): string => {
-	if (type === 'added') return 'var(--maestro-success-color)';
-	if (type === 'deleted') return 'var(--maestro-error-color)';
-	if (type === 'modified') return 'var(--maestro-warning-color)';
+	if (type === 'added') return 'var(--openwizardai-success-color)';
+	if (type === 'deleted') return 'var(--openwizardai-error-color)';
+	if (type === 'modified') return 'var(--openwizardai-warning-color)';
 	return fallback;
 };
 
@@ -53,11 +53,13 @@ const defaultFileIconProps = (
 ) => ({
 	className: 'w-3.5 h-3.5',
 	style: {
-		'--maestro-success-color': colorBlindMode
+		'--openwizardai-success-color': colorBlindMode
 			? COLORBLIND_STATUS_COLORS.success
 			: theme.colors.success,
-		'--maestro-error-color': colorBlindMode ? COLORBLIND_STATUS_COLORS.error : theme.colors.error,
-		'--maestro-warning-color': colorBlindMode
+		'--openwizardai-error-color': colorBlindMode
+			? COLORBLIND_STATUS_COLORS.error
+			: theme.colors.error,
+		'--openwizardai-warning-color': colorBlindMode
 			? COLORBLIND_STATUS_COLORS.warning
 			: theme.colors.warning,
 		color: fileTypeColor(type, fallbackColor),

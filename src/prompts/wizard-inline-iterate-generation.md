@@ -2,7 +2,7 @@ You are an expert project planner creating actionable task documents for "{{PROJ
 
 ## Your Task
 
-Based on the project discovery conversation below, create or update the **Playbook** (a collection of Auto Run documents - the terms are synonymous). The user has existing documents and wants to extend or modify their plans. OpenWizzard also has a **Playbook Exchange** where users can browse and import community-curated playbooks.
+Based on the project discovery conversation below, create or update the **Playbook** (a collection of Auto Run documents - the terms are synonymous). The user has existing documents and wants to extend or modify their plans. OpenWizardAI also has a **Playbook Exchange** where users can browse and import community-curated playbooks.
 
 ## File Access Restrictions
 
@@ -74,7 +74,7 @@ Before writing any `- [ ]`, ask: _can an AI agent with shell, file, and network 
 1. **The run must pause for a person** - emit a HITL gate marker on its own line above the dependent tasks. The engine pauses there, shows the reason in the Auto Run panel, and waits for the user to resume - a deliberate, visible pause instead of a silent stall:
 
    ```markdown
-   <!-- MAESTRO:HITL reason="Add STRIPE_SECRET_KEY to .env before the billing tasks run" artifact=".env" -->
+   <!-- OPENWIZARDAI:HITL reason="Add STRIPE_SECRET_KEY to .env before the billing tasks run" artifact=".env" -->
    ```
 
 2. **The work simply isn't the engine's job** - list it as plain `-` bullets under a trailing `## Manual Follow-Up (not executed by Auto Run)` section the engine never reads.
@@ -106,10 +106,10 @@ Each task should be:
 A marker sets the model tier and effort level for the work below it. The placement is the scope: on its own line it applies from there down (above the first task, that is the whole document); at the end of a task line it applies to that one task only.
 
 ```markdown
-<!-- MAESTRO:MODEL tier="low" effort="low" -->
+<!-- OPENWIZARDAI:MODEL tier="low" effort="low" -->
 
 - [ ] Catalogue every call site of the auth middleware
-- [ ] Design the migration <!-- MAESTRO:MODEL tier="high" effort="high" -->
+- [ ] Design the migration <!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->
 - [ ] Apply the mechanical renames
 ```
 
@@ -118,7 +118,7 @@ Both attributes take `low`, `medium`, or `high` - ladder positions, never provid
 Every marker must also carry a `reason` justifying both axes - at most three sentences, plain text, and no double quotes inside the value (an inner `"` truncates it):
 
 ```markdown
-- [ ] Design the migration <!-- MAESTRO:MODEL tier="high" effort="high" reason="The ordering of these schema changes decides whether a rollback is possible, and the constraint is easy to miss. Worth the strongest model at full effort." -->
+- [ ] Design the migration <!-- OPENWIZARDAI:MODEL tier="high" effort="high" reason="The ordering of these schema changes decides whether a rollback is possible, and the constraint is easy to miss. Worth the strongest model at full effort." -->
 ```
 
 Say what makes the work hard or mechanical, not what the levels are. The reason does not affect how the task runs; it is shown behind an ⓘ on the pill so the choice can be reviewed later.
@@ -183,7 +183,7 @@ Use sub-bullets to list multiple items within a compound task:
 
 ## Structured Output Artifacts
 
-When tasks produce documentation, research, notes, reports, or any knowledge artifacts, instruct the executing agent to create **structured Markdown files** that can be explored via OpenWizzard's DocGraph viewer or tools like Obsidian.
+When tasks produce documentation, research, notes, reports, or any knowledge artifacts, instruct the executing agent to create **structured Markdown files** that can be explored via OpenWizardAI's DocGraph viewer or tools like Obsidian.
 
 ### Default Output Format
 

@@ -41,7 +41,7 @@ export interface LastResponsePreview {
 }
 
 /**
- * AI Tab type for multi-tab support within a Maestro session.
+ * AI Tab type for multi-tab support within an OpenWizardAI session.
  */
 export interface AITabData {
 	id: string;
@@ -382,7 +382,7 @@ export type OpenModalParams = { surface: string; tab?: string };
 export type OpenModalCallback = (params: OpenModalParams) => Promise<boolean>;
 /**
  * Callback type for atomically creating a new AI tab and dispatching a prompt into it.
- * Returns the new tab id alongside success so callers (e.g. `maestro-cli dispatch
+ * Returns the new tab id alongside success so callers (e.g. `openwizardai-cli dispatch
  * --new-tab`) can address the same tab on later calls without owning a persistent
  * channel.
  */
@@ -653,13 +653,13 @@ export type GetBionifyReadingModeCallback = () => boolean;
 export type GetCustomCommandsCallback = () => CustomAICommand[];
 
 // =============================================================================
-// External Session Inspection (maestro-cli session list / session show)
+// External Session Inspection (openwizardai-cli session list / session show)
 // =============================================================================
 
 /**
- * Single open AI tab surfaced by `maestro-cli session list`.
+ * Single open AI tab surfaced by `openwizardai-cli session list`.
  *
- * `tabId` is the addressable identifier consumers (Maestro-Discord, Cue) pass
+ * `tabId` is the addressable identifier consumers (OpenWizardAI-Discord, Cue) pass
  * back to `dispatch --session <id>` and `session show <id>`. `sessionId` is
  * an alias kept for symmetry with `dispatch`'s response shape - the duplicate
  * field lets polling consumers use whichever name they prefer.
@@ -957,8 +957,8 @@ export type UpdateSessionSshCallback = (
  * Update an agent's editable per-session config from the CLI/web. `configPatch`
  * is a partial bag of the fields the Edit Agent modal exposes (nudge / new
  * session message, custom binary path / args / env vars, model, effort, context
- * window, and the Claude token-source tri-state `enableMaestroP` /
- * `maestroPMode` / `maestroPPath`). Only the provided keys are applied; a key
+ * window, and the Claude token-source tri-state `enableOpenWizardAIP` /
+ * `openwizardaiPMode` / `openwizardaiPPath`). Only the provided keys are applied; a key
  * present with value `null` clears that field to undefined. Typed as a plain
  * record because the payload crosses the IPC bridge to the renderer.
  */

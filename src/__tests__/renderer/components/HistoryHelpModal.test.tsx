@@ -93,8 +93,8 @@ describe('HistoryHelpModal', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockRegisterLayer.mockReturnValue('test-layer-id');
-		// Default: maestroCue disabled
-		useSettingsStore.setState({ encoreFeatures: { directorNotes: false, maestroCue: false } });
+		// Default: openwizardaiCue disabled
+		useSettingsStore.setState({ encoreFeatures: { directorNotes: false, openwizardaiCue: false } });
 	});
 
 	afterEach(() => {
@@ -304,8 +304,10 @@ describe('HistoryHelpModal', () => {
 			).toBeInTheDocument();
 		});
 
-		it('does not render CUE entry type when maestroCue is disabled', () => {
-			useSettingsStore.setState({ encoreFeatures: { directorNotes: false, maestroCue: false } });
+		it('does not render CUE entry type when openwizardaiCue is disabled', () => {
+			useSettingsStore.setState({
+				encoreFeatures: { directorNotes: false, openwizardaiCue: false },
+			});
 
 			const { container } = render(<HistoryHelpModal {...defaultProps} />);
 
@@ -314,8 +316,10 @@ describe('HistoryHelpModal', () => {
 			expect(cueBadge).toBeFalsy();
 		});
 
-		it('renders CUE entry type when maestroCue is enabled', () => {
-			useSettingsStore.setState({ encoreFeatures: { directorNotes: false, maestroCue: true } });
+		it('renders CUE entry type when openwizardaiCue is enabled', () => {
+			useSettingsStore.setState({
+				encoreFeatures: { directorNotes: false, openwizardaiCue: true },
+			});
 
 			const { container } = render(<HistoryHelpModal {...defaultProps} />);
 
@@ -324,18 +328,22 @@ describe('HistoryHelpModal', () => {
 			expect(cueBadge).toBeTruthy();
 		});
 
-		it('describes CUE entry triggers when maestroCue is enabled', () => {
-			useSettingsStore.setState({ encoreFeatures: { directorNotes: false, maestroCue: true } });
+		it('describes CUE entry triggers when openwizardaiCue is enabled', () => {
+			useSettingsStore.setState({
+				encoreFeatures: { directorNotes: false, openwizardaiCue: true },
+			});
 
 			render(<HistoryHelpModal {...defaultProps} />);
 
 			expect(
-				screen.getByText(/Entries created by OpenWizzard Cue automations/)
+				screen.getByText(/Entries created by OpenWizardAI Cue automations/)
 			).toBeInTheDocument();
 		});
 
-		it('renders Zap icon in CUE badge when maestroCue is enabled', () => {
-			useSettingsStore.setState({ encoreFeatures: { directorNotes: false, maestroCue: true } });
+		it('renders Zap icon in CUE badge when openwizardaiCue is enabled', () => {
+			useSettingsStore.setState({
+				encoreFeatures: { directorNotes: false, openwizardaiCue: true },
+			});
 
 			render(<HistoryHelpModal {...defaultProps} />);
 

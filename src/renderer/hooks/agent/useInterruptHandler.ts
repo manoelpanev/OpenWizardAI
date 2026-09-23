@@ -87,7 +87,7 @@ async function collectInterruptTargets(
 	// Forced-parallel spawns append `-fp-{timestamp}` to their tab's process id,
 	// so they have to be discovered from the live process list rather than derived.
 	try {
-		const activeProcesses = await window.maestro.process.getActiveProcesses();
+		const activeProcesses = await window.openwizardai.process.getActiveProcesses();
 		for (const base of [...targets]) {
 			const fpPrefix = `${base}-fp-`;
 			for (const proc of activeProcesses) {
@@ -150,7 +150,7 @@ export function useInterruptHandler(deps: UseInterruptHandlerDeps): UseInterrupt
 
 		try {
 			const results = await Promise.allSettled(
-				targetSessionIds.map((id) => window.maestro.process.interrupt(id))
+				targetSessionIds.map((id) => window.openwizardai.process.interrupt(id))
 			);
 			// If the primary interrupt failed, throw to trigger force-kill fallback.
 			// Secondary (other busy tabs, forced-parallel) failures are non-critical.
@@ -313,7 +313,7 @@ export function useInterruptHandler(deps: UseInterruptHandlerDeps): UseInterrupt
 				try {
 					// Kill the same set the interrupt targeted (primary first).
 					const killResults = await Promise.allSettled(
-						targetSessionIds.map((id) => window.maestro.process.kill(id))
+						targetSessionIds.map((id) => window.openwizardai.process.kill(id))
 					);
 					// If the primary kill failed, throw to trigger kill error handling.
 					// Secondary (other busy tabs, forced-parallel) failures are non-critical.

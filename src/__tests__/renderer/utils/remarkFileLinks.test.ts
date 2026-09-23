@@ -84,24 +84,24 @@ describe('remarkFileLinks', () => {
 				''
 			);
 			expect(result).toContain(
-				'[OPSWAT/Meetings/OP-0088](maestro-file://OPSWAT/Meetings/OP-0088.md)'
+				'[OPSWAT/Meetings/OP-0088](openwizardai-file://OPSWAT/Meetings/OP-0088.md)'
 			);
 		});
 
 		it('converts path with .md extension', async () => {
 			const result = await processMarkdown('Check OPSWAT/README.md for info.', sampleFileTree, '');
-			expect(result).toContain('[OPSWAT/README.md](maestro-file://OPSWAT/README.md)');
+			expect(result).toContain('[OPSWAT/README.md](openwizardai-file://OPSWAT/README.md)');
 		});
 
 		it('converts single file reference with extension', async () => {
 			const result = await processMarkdown('See README.md for details.', sampleFileTree, '');
-			expect(result).toContain('[README.md](maestro-file://README.md)');
+			expect(result).toContain('[README.md](openwizardai-file://README.md)');
 		});
 
 		it('converts file references with various extensions', async () => {
 			const result = await processMarkdown('Check config.json and index.ts', sampleFileTree, '');
-			expect(result).toContain('[config.json](maestro-file://config.json)');
-			expect(result).toContain('[index.ts](maestro-file://index.ts)');
+			expect(result).toContain('[config.json](openwizardai-file://config.json)');
+			expect(result).toContain('[index.ts](openwizardai-file://index.ts)');
 		});
 
 		it('does not convert non-existent paths', async () => {
@@ -110,7 +110,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 			expect(result).toContain('NonExistent/Path/File');
 		});
 
@@ -120,7 +120,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 		});
 
 		it('handles multiple path references in same text', async () => {
@@ -130,10 +130,10 @@ describe('remarkFileLinks', () => {
 				''
 			);
 			expect(result).toContain(
-				'[OPSWAT/Meetings/OP-0088](maestro-file://OPSWAT/Meetings/OP-0088.md)'
+				'[OPSWAT/Meetings/OP-0088](openwizardai-file://OPSWAT/Meetings/OP-0088.md)'
 			);
 			expect(result).toContain(
-				'[OPSWAT/Meetings/OP-0200](maestro-file://OPSWAT/Meetings/OP-0200.md)'
+				'[OPSWAT/Meetings/OP-0200](openwizardai-file://OPSWAT/Meetings/OP-0200.md)'
 			);
 		});
 	});
@@ -141,7 +141,7 @@ describe('remarkFileLinks', () => {
 	describe('wiki-style references', () => {
 		it('converts wiki link to matching file', async () => {
 			const result = await processMarkdown('See [[TODO]] for tasks.', sampleFileTree, '');
-			expect(result).toContain('[TODO](maestro-file://Notes/TODO.md)');
+			expect(result).toContain('[TODO](openwizardai-file://Notes/TODO.md)');
 		});
 
 		it('converts wiki link with full path', async () => {
@@ -151,13 +151,13 @@ describe('remarkFileLinks', () => {
 				''
 			);
 			expect(result).toContain(
-				'[OPSWAT/Meetings/OP-0088](maestro-file://OPSWAT/Meetings/OP-0088.md)'
+				'[OPSWAT/Meetings/OP-0088](openwizardai-file://OPSWAT/Meetings/OP-0088.md)'
 			);
 		});
 
 		it('converts wiki link with .md extension', async () => {
 			const result = await processMarkdown('See [[README.md]] for info.', sampleFileTree, '');
-			expect(result).toContain('[README.md](maestro-file://README.md)');
+			expect(result).toContain('[README.md](openwizardai-file://README.md)');
 		});
 
 		it('does not convert non-existent wiki links', async () => {
@@ -166,8 +166,8 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			// Should not create a maestro-file link for non-existent files
-			expect(result).not.toContain('maestro-file://');
+			// Should not create a openwizardai-file link for non-existent files
+			expect(result).not.toContain('openwizardai-file://');
 			// The brackets will be escaped by remark-stringify
 			expect(result).toContain('NonExistent File');
 		});
@@ -178,8 +178,8 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[TODO](maestro-file://Notes/TODO.md)');
-			expect(result).toContain('[README.md](maestro-file://README.md)');
+			expect(result).toContain('[TODO](openwizardai-file://Notes/TODO.md)');
+			expect(result).toContain('[README.md](openwizardai-file://README.md)');
 		});
 
 		it('converts wiki link with alias (pipe syntax)', async () => {
@@ -188,7 +188,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[my tasks](maestro-file://Notes/TODO.md)');
+			expect(result).toContain('[my tasks](openwizardai-file://Notes/TODO.md)');
 		});
 
 		it('converts wiki link with alias and spaces in display text', async () => {
@@ -197,7 +197,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[OPSWAT Documentation](maestro-file://OPSWAT/README.md)');
+			expect(result).toContain('[OPSWAT Documentation](openwizardai-file://OPSWAT/README.md)');
 		});
 
 		it('converts wiki link with alias preserving original display', async () => {
@@ -206,7 +206,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[configuration file](maestro-file://config.json)');
+			expect(result).toContain('[configuration file](openwizardai-file://config.json)');
 		});
 
 		it('handles alias with complex path', async () => {
@@ -215,7 +215,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[ELT Call Notes](maestro-file://OPSWAT/Meetings/OP-0088.md)');
+			expect(result).toContain('[ELT Call Notes](openwizardai-file://OPSWAT/Meetings/OP-0088.md)');
 		});
 	});
 
@@ -228,7 +228,7 @@ describe('remarkFileLinks', () => {
 				'Notes'
 			);
 			// remark-stringify wraps URLs with spaces in angle brackets
-			expect(result).toContain('[Meeting Notes](<maestro-file://Notes/Meeting Notes.md>)');
+			expect(result).toContain('[Meeting Notes](<openwizardai-file://Notes/Meeting Notes.md>)');
 		});
 
 		it('picks file in Archive when cwd is Archive', async () => {
@@ -238,7 +238,7 @@ describe('remarkFileLinks', () => {
 				'Archive'
 			);
 			// remark-stringify wraps URLs with spaces in angle brackets
-			expect(result).toContain('[Meeting Notes](<maestro-file://Archive/Meeting Notes.md>)');
+			expect(result).toContain('[Meeting Notes](<openwizardai-file://Archive/Meeting Notes.md>)');
 		});
 
 		it('disambiguates with partial path', async () => {
@@ -248,14 +248,16 @@ describe('remarkFileLinks', () => {
 				''
 			);
 			// remark-stringify wraps URLs with spaces in angle brackets
-			expect(result).toContain('[Notes/Meeting Notes](<maestro-file://Notes/Meeting Notes.md>)');
+			expect(result).toContain(
+				'[Notes/Meeting Notes](<openwizardai-file://Notes/Meeting Notes.md>)'
+			);
 		});
 	});
 
 	describe('edge cases', () => {
 		it('handles empty file tree', async () => {
 			const result = await processMarkdown('See OPSWAT/Meetings/OP-0088 for details.', [], '');
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 			expect(result).toContain('OPSWAT/Meetings/OP-0088');
 		});
 
@@ -265,7 +267,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 			expect(result).toContain('This is just regular text');
 		});
 
@@ -300,8 +302,8 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[OPSWAT/README.md](maestro-file://OPSWAT/README.md)');
-			expect(result).toContain('[TODO](maestro-file://Notes/TODO.md)');
+			expect(result).toContain('[OPSWAT/README.md](openwizardai-file://OPSWAT/README.md)');
+			expect(result).toContain('[TODO](openwizardai-file://Notes/TODO.md)');
 		});
 	});
 
@@ -329,7 +331,7 @@ describe('remarkFileLinks', () => {
 
 			// With cwd at 'a/b', the a/b/target.md should be closest
 			const result = await processMarkdown('See [[target]] for details.', deepTree, 'a/b');
-			expect(result).toContain('[target](maestro-file://a/b/target.md)');
+			expect(result).toContain('[target](openwizardai-file://a/b/target.md)');
 		});
 	});
 
@@ -342,7 +344,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			expect(result).toContain(
-				'[/Users/pedram/Project/OPSWAT/README.md](maestro-file://OPSWAT/README.md)'
+				'[/Users/pedram/Project/OPSWAT/README.md](openwizardai-file://OPSWAT/README.md)'
 			);
 		});
 
@@ -355,7 +357,7 @@ describe('remarkFileLinks', () => {
 			);
 			// Should not be converted since it's outside projectRoot
 			expect(result).toContain('/other/path/README.md');
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 		});
 
 		it('does not convert absolute paths when projectRoot is not provided', async () => {
@@ -366,7 +368,7 @@ describe('remarkFileLinks', () => {
 			);
 			// Should not be converted since projectRoot is not provided
 			expect(result).toContain('/Users/pedram/Project/OPSWAT/README.md');
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 		});
 
 		it('handles absolute paths with spaces in folder/file names', async () => {
@@ -378,7 +380,7 @@ describe('remarkFileLinks', () => {
 			);
 			// remark-stringify wraps URLs with spaces in angle brackets
 			expect(result).toContain(
-				'[/Users/pedram/Project/Notes/Meeting Notes.md](<maestro-file://Notes/Meeting Notes.md>)'
+				'[/Users/pedram/Project/Notes/Meeting Notes.md](<openwizardai-file://Notes/Meeting Notes.md>)'
 			);
 		});
 
@@ -390,7 +392,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			expect(result).toContain(
-				'[/Users/pedram/Project/OPSWAT/Meetings/OP-0088.md](maestro-file://OPSWAT/Meetings/OP-0088.md)'
+				'[/Users/pedram/Project/OPSWAT/Meetings/OP-0088.md](openwizardai-file://OPSWAT/Meetings/OP-0088.md)'
 			);
 		});
 
@@ -402,10 +404,10 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			expect(result).toContain(
-				'[/Users/pedram/Project/OPSWAT/Meetings/OP-0088.md](maestro-file://OPSWAT/Meetings/OP-0088.md)'
+				'[/Users/pedram/Project/OPSWAT/Meetings/OP-0088.md](openwizardai-file://OPSWAT/Meetings/OP-0088.md)'
 			);
 			expect(result).toContain(
-				'[/Users/pedram/Project/OPSWAT/Meetings/OP-0200.md](maestro-file://OPSWAT/Meetings/OP-0200.md)'
+				'[/Users/pedram/Project/OPSWAT/Meetings/OP-0200.md](openwizardai-file://OPSWAT/Meetings/OP-0200.md)'
 			);
 		});
 
@@ -420,13 +422,13 @@ describe('remarkFileLinks', () => {
 			);
 			// Should still create a link because path is within projectRoot
 			expect(result).toContain(
-				'[/Users/pedram/Project/SomeOther/NonExistent File.md](<maestro-file://SomeOther/NonExistent File.md>)'
+				'[/Users/pedram/Project/SomeOther/NonExistent File.md](<openwizardai-file://SomeOther/NonExistent File.md>)'
 			);
 		});
 	});
 
 	describe('markdown links with absolute path hrefs', () => {
-		it('converts markdown link with absolute path href to maestro-file link', async () => {
+		it('converts markdown link with absolute path href to openwizardai-file link', async () => {
 			// Agents like Codex emit [display](absolute-path) style links
 			const result = await processMarkdown(
 				'Modified [src/components/CameraModal.tsx](/Users/pedram/Project/src/components/CameraModal.tsx) to add callback.',
@@ -447,7 +449,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			expect(result).toContain(
-				'[src/components/CameraModal.tsx](maestro-file://src/components/CameraModal.tsx)'
+				'[src/components/CameraModal.tsx](openwizardai-file://src/components/CameraModal.tsx)'
 			);
 		});
 
@@ -459,7 +461,7 @@ describe('remarkFileLinks', () => {
 				'',
 				'/Users/pedram/Project'
 			);
-			expect(result).toContain('[App.tsx](maestro-file://src/App.tsx)');
+			expect(result).toContain('[App.tsx](openwizardai-file://src/App.tsx)');
 		});
 
 		it('does not convert markdown link with absolute path outside projectRoot', async () => {
@@ -470,10 +472,10 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			// Should remain unconverted
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 		});
 
-		it('converts markdown link with tilde path href to maestro-file link', async () => {
+		it('converts markdown link with tilde path href to openwizardai-file link', async () => {
 			const result = await processMarkdown(
 				'See [README.md](~/Project/OPSWAT/README.md) for details.',
 				sampleFileTree,
@@ -481,7 +483,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project',
 				'/Users/pedram'
 			);
-			expect(result).toContain('[README.md](maestro-file://OPSWAT/README.md)');
+			expect(result).toContain('[README.md](openwizardai-file://OPSWAT/README.md)');
 		});
 
 		it('converts markdown link with tilde path outside projectRoot to file:// URL', async () => {
@@ -505,7 +507,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			// Should convert to link showing just the filename
-			expect(result).toContain('[README.md](maestro-file://OPSWAT/README.md)');
+			expect(result).toContain('[README.md](openwizardai-file://OPSWAT/README.md)');
 			// Should NOT contain backticks around the path anymore
 			expect(result).not.toContain('`/Users/pedram/Project/OPSWAT/README.md`');
 		});
@@ -517,7 +519,7 @@ describe('remarkFileLinks', () => {
 				'',
 				'/Users/pedram/Project'
 			);
-			expect(result).toContain('[README.md](maestro-file://OPSWAT/README.md)');
+			expect(result).toContain('[README.md](openwizardai-file://OPSWAT/README.md)');
 		});
 
 		it('converts wiki link in backticks to link', async () => {
@@ -527,7 +529,7 @@ describe('remarkFileLinks', () => {
 				'',
 				'/Users/pedram/Project'
 			);
-			expect(result).toContain('[OPSWAT/README](maestro-file://OPSWAT/README.md)');
+			expect(result).toContain('[OPSWAT/README](openwizardai-file://OPSWAT/README.md)');
 		});
 
 		it('leaves non-path inline code unchanged', async () => {
@@ -548,7 +550,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			// remark-stringify adds angle brackets around URLs with spaces
-			expect(result).toContain('[Meeting Notes.md](<maestro-file://Notes/Meeting Notes.md>)');
+			expect(result).toContain('[Meeting Notes.md](<openwizardai-file://Notes/Meeting Notes.md>)');
 		});
 	});
 
@@ -616,7 +618,7 @@ describe('remarkFileLinks', () => {
 			// Image should be converted
 			expect(result).toContain('![screenshot.jpg]');
 			// Link should also be converted
-			expect(result).toContain('[README](maestro-file://README.md)');
+			expect(result).toContain('[README](openwizardai-file://README.md)');
 		});
 
 		it('handles image embed with width syntax', async () => {
@@ -701,7 +703,7 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[output/recording.wav](maestro-file://output/recording.wav)');
+			expect(result).toContain('[output/recording.wav](openwizardai-file://output/recording.wav)');
 		});
 
 		it('converts document file references (pdf, csv, etc.)', async () => {
@@ -710,8 +712,8 @@ describe('remarkFileLinks', () => {
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[output/report.pdf](maestro-file://output/report.pdf)');
-			expect(result).toContain('[output/data.csv](maestro-file://output/data.csv)');
+			expect(result).toContain('[output/report.pdf](openwizardai-file://output/report.pdf)');
+			expect(result).toContain('[output/data.csv](openwizardai-file://output/data.csv)');
 		});
 
 		it('converts absolute paths with media extensions', async () => {
@@ -722,13 +724,13 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			expect(result).toContain(
-				'[/Users/pedram/Project/output/recording.wav](maestro-file://output/recording.wav)'
+				'[/Users/pedram/Project/output/recording.wav](openwizardai-file://output/recording.wav)'
 			);
 		});
 	});
 
 	describe('tilde path references', () => {
-		it('converts tilde paths within projectRoot to maestro-file links', async () => {
+		it('converts tilde paths within projectRoot to openwizardai-file links', async () => {
 			const result = await processMarkdown(
 				'See ~/Project/output/recording.wav for the audio.',
 				sampleFileTree,
@@ -737,7 +739,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram'
 			);
 			expect(result).toContain(
-				'[~/Project/output/recording.wav](maestro-file://output/recording.wav)'
+				'[~/Project/output/recording.wav](openwizardai-file://output/recording.wav)'
 			);
 		});
 
@@ -762,7 +764,7 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project'
 			);
 			expect(result).not.toContain('file://');
-			expect(result).not.toContain('maestro-file://');
+			expect(result).not.toContain('openwizardai-file://');
 			expect(result).toContain('~/Downloads/audio/sample.wav');
 		});
 
@@ -798,30 +800,30 @@ describe('remarkFileLinks', () => {
 				'/Users/pedram/Project',
 				'/Users/pedram'
 			);
-			expect(result).toContain('[recording.wav](maestro-file://output/recording.wav)');
+			expect(result).toContain('[recording.wav](openwizardai-file://output/recording.wav)');
 		});
 	});
 
-	describe('bare maestro:// deep links', () => {
-		it('auto-linkifies a bare maestro:// URL in running text', async () => {
+	describe('bare openwizardai:// deep links', () => {
+		it('auto-linkifies a bare openwizardai:// URL in running text', async () => {
 			const result = await processMarkdown(
-				'Go to maestro://session/abc/tab/xyz now.',
+				'Go to openwizardai://session/abc/tab/xyz now.',
 				sampleFileTree,
 				''
 			);
 			// remark-stringify emits CommonMark autolinks as <url> when the link
 			// text equals the URL, which is what we get when we wrap a bare URL.
-			expect(result).toContain('<maestro://session/abc/tab/xyz>');
+			expect(result).toContain('<openwizardai://session/abc/tab/xyz>');
 		});
 
-		it('does not rewrite an explicit markdown link with a maestro:// href', async () => {
+		it('does not rewrite an explicit markdown link with a openwizardai:// href', async () => {
 			const result = await processMarkdown(
-				'See [the agent](maestro://group/grp1).',
+				'See [the agent](openwizardai://group/grp1).',
 				sampleFileTree,
 				''
 			);
-			expect(result).toContain('[the agent](maestro://group/grp1)');
-			expect(result).not.toContain('maestro-file://');
+			expect(result).toContain('[the agent](openwizardai://group/grp1)');
+			expect(result).not.toContain('openwizardai-file://');
 		});
 	});
 
@@ -835,7 +837,7 @@ describe('remarkFileLinks', () => {
 				.use(remarkStringify)
 				.process('See [[TODO]] for tasks.');
 
-			expect(String(result)).toContain('[TODO](maestro-file://Notes/TODO.md)');
+			expect(String(result)).toContain('[TODO](openwizardai-file://Notes/TODO.md)');
 		});
 
 		it('works with pre-built indices for path-style references', async () => {
@@ -848,7 +850,7 @@ describe('remarkFileLinks', () => {
 				.process('Check OPSWAT/Meetings/OP-0088.md for details.');
 
 			expect(String(result)).toContain(
-				'[OPSWAT/Meetings/OP-0088.md](maestro-file://OPSWAT/Meetings/OP-0088.md)'
+				'[OPSWAT/Meetings/OP-0088.md](openwizardai-file://OPSWAT/Meetings/OP-0088.md)'
 			);
 		});
 
@@ -863,7 +865,7 @@ describe('remarkFileLinks', () => {
 
 			// Should pick Archive/Meeting Notes.md based on cwd proximity
 			expect(String(result)).toContain(
-				'[Meeting Notes](<maestro-file://Archive/Meeting Notes.md>)'
+				'[Meeting Notes](<openwizardai-file://Archive/Meeting Notes.md>)'
 			);
 		});
 	});

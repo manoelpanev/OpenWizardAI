@@ -34,9 +34,9 @@ beforeEach(() => {
 	// Reset all mocks
 	vi.clearAllMocks();
 
-	// Reset window.maestro.settings mocks to default behavior
-	vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
-	vi.mocked(window.maestro.settings.set).mockResolvedValue(undefined);
+	// Reset window.openwizardai.settings mocks to default behavior
+	vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
+	vi.mocked(window.openwizardai.settings.set).mockResolvedValue(undefined);
 });
 
 afterEach(() => {
@@ -1135,12 +1135,12 @@ describe('WizardContext', () => {
 				await result.current.completeWizard('session-123');
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('wizardResumeState', null);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('wizardResumeState', null);
 		});
 
 		it('reports and rethrows resume clear failures when completing wizard', async () => {
 			const error = new Error('Storage error');
-			vi.mocked(window.maestro.settings.set).mockRejectedValueOnce(error);
+			vi.mocked(window.openwizardai.settings.set).mockRejectedValueOnce(error);
 
 			const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1229,7 +1229,7 @@ describe('WizardContext', () => {
 				});
 
 				// Clear previous calls so we can verify saveStateForResume specifically
-				vi.mocked(window.maestro.settings.set).mockClear();
+				vi.mocked(window.openwizardai.settings.set).mockClear();
 
 				// Then call saveStateForResume in a separate act block
 				// to ensure state is updated before serialization
@@ -1237,7 +1237,7 @@ describe('WizardContext', () => {
 					await result.current.saveStateForResume();
 				});
 
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'wizardResumeState',
 					expect.objectContaining({
 						selectedAgent: 'claude-code',
@@ -1262,7 +1262,7 @@ describe('WizardContext', () => {
 				});
 
 				await waitFor(() => {
-					expect(window.maestro.settings.set).toHaveBeenCalledWith(
+					expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 						'wizardResumeState',
 						expect.objectContaining({
 							currentStep: 'directory-selection',
@@ -1276,7 +1276,7 @@ describe('WizardContext', () => {
 
 			it('reports and rethrows settings write errors', async () => {
 				const error = new Error('Storage error');
-				vi.mocked(window.maestro.settings.set).mockRejectedValueOnce(error);
+				vi.mocked(window.openwizardai.settings.set).mockRejectedValueOnce(error);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1370,7 +1370,7 @@ describe('WizardContext', () => {
 
 		describe('hasResumeState', () => {
 			it('returns true when resume state exists', async () => {
-				vi.mocked(window.maestro.settings.get).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue({
 					currentStep: 'conversation',
 					selectedAgent: 'claude-code',
 				});
@@ -1383,11 +1383,11 @@ describe('WizardContext', () => {
 				});
 
 				expect(hasState!).toBe(true);
-				expect(window.maestro.settings.get).toHaveBeenCalledWith('wizardResumeState');
+				expect(window.openwizardai.settings.get).toHaveBeenCalledWith('wizardResumeState');
 			});
 
 			it('returns false when no resume state exists', async () => {
-				vi.mocked(window.maestro.settings.get).mockResolvedValue(null);
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue(null);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1400,7 +1400,7 @@ describe('WizardContext', () => {
 			});
 
 			it('returns false when resume state is undefined', async () => {
-				vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1413,7 +1413,7 @@ describe('WizardContext', () => {
 			});
 
 			it('returns false when resume state is not loadable', async () => {
-				vi.mocked(window.maestro.settings.get).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue({
 					currentStep: 'agent-selection',
 				});
 
@@ -1429,7 +1429,7 @@ describe('WizardContext', () => {
 
 			it('reports and rethrows settings read errors', async () => {
 				const error = new Error('Storage error');
-				vi.mocked(window.maestro.settings.get).mockRejectedValue(error);
+				vi.mocked(window.openwizardai.settings.get).mockRejectedValue(error);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1466,7 +1466,7 @@ describe('WizardContext', () => {
 					wantsTour: true,
 				};
 
-				vi.mocked(window.maestro.settings.get).mockResolvedValue(savedState);
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue(savedState);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1479,7 +1479,7 @@ describe('WizardContext', () => {
 			});
 
 			it('returns null when on first step', async () => {
-				vi.mocked(window.maestro.settings.get).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue({
 					currentStep: 'agent-selection',
 					selectedAgent: null,
 				});
@@ -1495,7 +1495,7 @@ describe('WizardContext', () => {
 			});
 
 			it('returns null when no saved state', async () => {
-				vi.mocked(window.maestro.settings.get).mockResolvedValue(null);
+				vi.mocked(window.openwizardai.settings.get).mockResolvedValue(null);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1509,7 +1509,7 @@ describe('WizardContext', () => {
 
 			it('reports and rethrows settings read errors', async () => {
 				const error = new Error('Storage error');
-				vi.mocked(window.maestro.settings.get).mockRejectedValue(error);
+				vi.mocked(window.openwizardai.settings.get).mockRejectedValue(error);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1537,12 +1537,12 @@ describe('WizardContext', () => {
 					await result.current.clearResumeState();
 				});
 
-				expect(window.maestro.settings.set).toHaveBeenCalledWith('wizardResumeState', null);
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith('wizardResumeState', null);
 			});
 
 			it('reports and rethrows settings write errors', async () => {
 				const error = new Error('Storage error');
-				vi.mocked(window.maestro.settings.set).mockRejectedValueOnce(error);
+				vi.mocked(window.openwizardai.settings.set).mockRejectedValueOnce(error);
 
 				const { result } = renderHook(() => useWizard(), { wrapper });
 
@@ -1657,7 +1657,7 @@ describe('WizardContext', () => {
 		it('handles unicode in agent name', () => {
 			const { result } = renderHook(() => useWizard(), { wrapper });
 
-			const unicodeName = '🎼 Maestro Project 日本語';
+			const unicodeName = '🎼 OpenWizardAI Project 日本語';
 
 			act(() => {
 				result.current.setAgentName(unicodeName);

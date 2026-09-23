@@ -21,7 +21,7 @@ import { MODAL_PRIORITIES } from '../../constants/modalPriorities';
 import { ResizeHandles } from '../ui/ResizeHandles';
 import { jumpToElement } from '../../utils/jumpHighlight';
 import { AICommandsPanel } from '../AICommandsPanel';
-import { MaestroPromptsTab } from './tabs/MaestroPromptsTab';
+import { OpenWizardAIPromptsTab } from './tabs/OpenWizardAIPromptsTab';
 import { SpecKitCommandsPanel } from '../SpecKitCommandsPanel';
 import { OpenSpecCommandsPanel } from '../OpenSpecCommandsPanel';
 import { BmadCommandsPanel } from '../BmadCommandsPanel';
@@ -65,7 +65,7 @@ const TAB_ITEMS: Array<{
 	{ id: 'encore', label: 'Encore Features', icon: FlaskConical },
 	{ id: 'environment', label: 'Environment', icon: Globe },
 	{ id: 'general', label: 'General', icon: Settings },
-	{ id: 'prompts', label: 'OpenWizzard Prompts', icon: Wand2 },
+	{ id: 'prompts', label: 'OpenWizardAI Prompts', icon: Wand2 },
 	{ id: 'notifications', label: 'Notifications', icon: Bell },
 	{ id: 'shortcuts', label: 'Shortcuts', icon: Keyboard },
 	{ id: 'ssh', label: 'SSH Hosts', icon: Server },
@@ -502,7 +502,7 @@ export const SettingsModal = memo(function SettingsModal(props: SettingsModalPro
 
 						{activeTab === 'prompts' && (
 							<div data-setting-id="prompts-editor" className="prompts-editor-wrapper">
-								<MaestroPromptsTab
+								<OpenWizardAIPromptsTab
 									theme={theme}
 									initialSelectedPromptId={initialSelectedPromptId}
 									onEscapeHandled={(handler) => {

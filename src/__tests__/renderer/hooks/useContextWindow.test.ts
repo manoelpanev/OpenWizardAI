@@ -7,7 +7,7 @@ const mockGetConfig = vi.fn();
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		agents: {
 			getConfig: mockGetConfig,
 		},

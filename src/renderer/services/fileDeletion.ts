@@ -6,7 +6,7 @@
  * confirmation copy, the destructive guard, the tab cleanup, and the Files
  * panel refresh can never drift apart between them.
  *
- * The delete itself goes through `window.maestro.fs.delete`, which is the same
+ * The delete itself goes through `window.openwizardai.fs.delete`, which is the same
  * IPC the Files panel context menu uses and which honors `sshRemoteId` for
  * agents running against a remote host.
  */
@@ -69,7 +69,7 @@ async function deleteFile({ path, sshRemoteId, sessionId }: ResolvedDeleteReques
 	const name = getBasename(path) || path;
 
 	try {
-		await window.maestro.fs.delete(path, { sshRemoteId });
+		await window.openwizardai.fs.delete(path, { sshRemoteId });
 	} catch (error) {
 		captureException(error, {
 			extra: { action: 'delete-previewed-file', path, sessionId, sshRemoteId },

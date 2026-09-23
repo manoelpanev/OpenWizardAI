@@ -28,7 +28,7 @@ export function requestEditLastQueuedMessage(): boolean {
 	// Commands are the only thing skipped - they carry no editable prompt
 	// text. Nothing else is filtered OUT: the queue the user sees is not
 	// filtered by tab membership, so a filter here could only reject an
-	// item Maestro is actively displaying.
+	// item OpenWizardAI is actively displaying.
 	const editable = queue.filter((item) => item.type !== 'command');
 	// An item whose tab is gone has no transcript to open the modal in, so
 	// prefer items we can actually show. This RANKS rather than filters:

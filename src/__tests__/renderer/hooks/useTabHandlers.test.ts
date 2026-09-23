@@ -23,7 +23,7 @@ import { createMockSession } from '../../helpers/mockSession';
 import { setLiveDraft, clearLiveDraft, getLiveDraft } from '../../../renderer/utils/liveDraftStore';
 
 // ============================================================================
-// window.maestro is mocked globally in src/__tests__/setup.ts
+// window.openwizardai is mocked globally in src/__tests__/setup.ts
 // We just override specific return values needed by our tests in beforeEach.
 // ============================================================================
 
@@ -153,16 +153,16 @@ describe('useTabHandlers', () => {
 		vi.clearAllMocks();
 
 		// Override return values needed by tab handler tests
-		vi.mocked(window.maestro.fs.readFile).mockResolvedValue('file content');
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.readFile).mockResolvedValue('file content');
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			size: 100,
 			createdAt: new Date().toISOString(),
 			modifiedAt: new Date().toISOString(),
 		} as any);
 
 		// Ensure setSessionStarred exists (may not be in global setup)
-		if (!(window.maestro.agentSessions as any).setSessionStarred) {
-			(window.maestro.agentSessions as any).setSessionStarred = vi
+		if (!(window.openwizardai.agentSessions as any).setSessionStarred) {
+			(window.openwizardai.agentSessions as any).setSessionStarred = vi
 				.fn()
 				.mockResolvedValue(undefined);
 		}
@@ -651,9 +651,9 @@ describe('useTabHandlers', () => {
 				result.current.handleCloseOtherTabs();
 			});
 
-			expect(window.maestro.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-1`);
-			expect(window.maestro.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-2`);
-			expect(window.maestro.process.kill).toHaveBeenCalledTimes(2);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-1`);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-2`);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(2);
 		});
 
 		it('handleCloseTabsLeft closes tabs left of active', () => {
@@ -693,8 +693,8 @@ describe('useTabHandlers', () => {
 				result.current.handleCloseTabsLeft();
 			});
 
-			expect(window.maestro.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-1`);
-			expect(window.maestro.process.kill).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-1`);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(1);
 		});
 
 		it('handleCloseTabsRight closes tabs right of active', () => {
@@ -734,8 +734,8 @@ describe('useTabHandlers', () => {
 				result.current.handleCloseTabsRight();
 			});
 
-			expect(window.maestro.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-1`);
-			expect(window.maestro.process.kill).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith(`${sessionId}-terminal-term-1`);
+			expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(1);
 		});
 
 		it('handleCloseCurrentTab returns file type for active file tab', () => {
@@ -942,7 +942,7 @@ describe('useTabHandlers', () => {
 				canGoForward: false,
 				isLoading: false,
 				favicon: null,
-				partition: 'persist:maestro-browser-session-test-session',
+				partition: 'persist:openwizardai-browser-session-test-session',
 			});
 			expect(session.activeBrowserTabId).toBe(session.browserTabs[0].id);
 			expect(session.activeFileTabId).toBeNull();
@@ -972,7 +972,7 @@ describe('useTabHandlers', () => {
 				title: 'dashboard.html',
 				isLoading: true,
 				favicon: null,
-				partition: 'persist:maestro-browser-session-test-session',
+				partition: 'persist:openwizardai-browser-session-test-session',
 			});
 			expect(session.activeBrowserTabId).toBe(session.browserTabs[0].id);
 			expect(session.activeFileTabId).toBeNull();
@@ -1552,8 +1552,8 @@ describe('useTabHandlers', () => {
 			});
 			setupSessionWithTabs([aiTab], [fileTab]);
 
-			vi.mocked(window.maestro.fs.readFile).mockResolvedValueOnce('new content from disk');
-			vi.mocked(window.maestro.fs.stat).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.fs.readFile).mockResolvedValueOnce('new content from disk');
+			vi.mocked(window.openwizardai.fs.stat).mockResolvedValueOnce({
 				size: 200,
 				createdAt: new Date().toISOString(),
 				modifiedAt: new Date(2000).toISOString(),
@@ -1579,7 +1579,7 @@ describe('useTabHandlers', () => {
 			});
 
 			// Should not throw
-			expect(window.maestro.fs.readFile).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.readFile).not.toHaveBeenCalled();
 		});
 
 		it('handles read errors gracefully', async () => {
@@ -1591,7 +1591,7 @@ describe('useTabHandlers', () => {
 			});
 			setupSessionWithTabs([aiTab], [fileTab]);
 
-			vi.mocked(window.maestro.fs.readFile).mockRejectedValueOnce(new Error('File not found'));
+			vi.mocked(window.openwizardai.fs.readFile).mockRejectedValueOnce(new Error('File not found'));
 
 			const { result } = renderHook(() => useTabHandlers());
 			await act(async () => {
@@ -1622,12 +1622,12 @@ describe('useTabHandlers', () => {
 			setupSessionWithTabs([aiTab], [fileTab]);
 			useSettingsStore.setState({ fileTabAutoRefreshEnabled: true } as any);
 
-			vi.mocked(window.maestro.fs.stat).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.fs.stat).mockResolvedValueOnce({
 				size: 100,
 				createdAt: new Date().toISOString(),
 				modifiedAt: new Date(newTime).toISOString(),
 			} as any);
-			vi.mocked(window.maestro.fs.readFile).mockResolvedValueOnce('refreshed content');
+			vi.mocked(window.openwizardai.fs.readFile).mockResolvedValueOnce('refreshed content');
 
 			const { result } = renderHook(() => useTabHandlers());
 			await act(async () => {
@@ -1656,7 +1656,7 @@ describe('useTabHandlers', () => {
 				await result.current.handleSelectFileTab('file-1');
 			});
 
-			expect(window.maestro.fs.stat).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.stat).not.toHaveBeenCalled();
 		});
 
 		it('does not auto-refresh when file has not changed', async () => {
@@ -1671,7 +1671,7 @@ describe('useTabHandlers', () => {
 			setupSessionWithTabs([aiTab], [fileTab]);
 			useSettingsStore.setState({ fileTabAutoRefreshEnabled: true } as any);
 
-			vi.mocked(window.maestro.fs.stat).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.fs.stat).mockResolvedValueOnce({
 				size: 100,
 				createdAt: new Date().toISOString(),
 				modifiedAt: new Date(fileTime - 1000).toISOString(),
@@ -2112,7 +2112,7 @@ describe('useTabHandlers', () => {
 			});
 
 			// Mock the IPC call
-			(window.maestro.claude as any).deleteMessagePair = vi
+			(window.openwizardai.claude as any).deleteMessagePair = vi
 				.fn()
 				.mockResolvedValue({ success: true });
 
@@ -2121,7 +2121,7 @@ describe('useTabHandlers', () => {
 				result.current.handleDeleteLog('log-1');
 			});
 
-			expect((window.maestro.claude as any).deleteMessagePair).toHaveBeenCalledWith(
+			expect((window.openwizardai.claude as any).deleteMessagePair).toHaveBeenCalledWith(
 				'/project',
 				'agent-1',
 				'log-1',
@@ -2614,9 +2614,9 @@ describe('useTerminalTabHandlers - handleCloseTerminalTab', () => {
 
 	it('closes the terminal tab immediately when the PTY is idle', async () => {
 		setupTerminalSession();
-		(window as any).maestro.process.isTerminalBusy = vi.fn().mockResolvedValue(false);
+		(window as any).openwizardai.process.isTerminalBusy = vi.fn().mockResolvedValue(false);
 		const killSpy = vi.fn().mockResolvedValue(undefined);
-		(window as any).maestro.process.kill = killSpy;
+		(window as any).openwizardai.process.kill = killSpy;
 
 		const { result } = renderHook(() => useTerminalTabHandlers());
 		await act(async () => {
@@ -2624,7 +2624,7 @@ describe('useTerminalTabHandlers - handleCloseTerminalTab', () => {
 			await Promise.resolve();
 		});
 
-		expect((window as any).maestro.process.isTerminalBusy).toHaveBeenCalledWith(
+		expect((window as any).openwizardai.process.isTerminalBusy).toHaveBeenCalledWith(
 			'test-session-terminal-term-1'
 		);
 		const session = useSessionStore
@@ -2636,7 +2636,7 @@ describe('useTerminalTabHandlers - handleCloseTerminalTab', () => {
 
 	it('opens a destructive confirm modal and only closes on confirm when the PTY is busy', async () => {
 		setupTerminalSession();
-		(window as any).maestro.process.isTerminalBusy = vi.fn().mockResolvedValue(true);
+		(window as any).openwizardai.process.isTerminalBusy = vi.fn().mockResolvedValue(true);
 		const openModal = vi.spyOn(useModalStore.getState(), 'openModal');
 
 		const { result } = renderHook(() => useTerminalTabHandlers());
@@ -2667,7 +2667,9 @@ describe('useTerminalTabHandlers - handleCloseTerminalTab', () => {
 
 	it('closes the tab if the busy IPC throws (defensive fallback)', async () => {
 		setupTerminalSession();
-		(window as any).maestro.process.isTerminalBusy = vi.fn().mockRejectedValue(new Error('boom'));
+		(window as any).openwizardai.process.isTerminalBusy = vi
+			.fn()
+			.mockRejectedValue(new Error('boom'));
 
 		const { result } = renderHook(() => useTerminalTabHandlers());
 		await act(async () => {

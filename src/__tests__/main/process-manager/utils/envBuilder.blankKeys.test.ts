@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import {
 	buildChildProcessEnv,
-	collectMaestroEnvVars,
+	collectOpenWizardAIEnvVars,
 } from '../../../../main/process-manager/utils/envBuilder';
 
 describe('envBuilder drops unnamed env-var rows', () => {
@@ -26,8 +26,11 @@ describe('envBuilder drops unnamed env-var rows', () => {
 		expect(env.REAL).toBe('kept');
 	});
 
-	it('collectMaestroEnvVars never reports a blank name', () => {
-		const vars = collectMaestroEnvVars({ '': 'global orphan' }, { '': 'session orphan', A: '1' });
+	it('collectOpenWizardAIEnvVars never reports a blank name', () => {
+		const vars = collectOpenWizardAIEnvVars(
+			{ '': 'global orphan' },
+			{ '': 'session orphan', A: '1' }
+		);
 
 		expect('' in vars).toBe(false);
 		expect(vars.A).toBe('1');

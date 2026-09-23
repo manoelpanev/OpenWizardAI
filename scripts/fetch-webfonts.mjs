@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Download Maestro's bundled webfonts and generate their @font-face CSS.
+ * Download OpenWizardAI's bundled webfonts and generate their @font-face CSS.
  *
  * Why bundle rather than link Google's CDN (which is what index.html did for
  * JetBrains Mono): a linked font is a network round trip on every launch, it
@@ -146,7 +146,7 @@ async function main() {
 				// `block`, never `swap`. `swap` tells Chromium to paint the
 				// fallback FIRST and restyle when the woff2 decodes, and on a
 				// cold start the splash paints before that happens - so the
-				// MAESTRO wordmark visibly went Courier New -> JetBrains Mono.
+				// OPENWIZARDAI wordmark visibly went Courier New -> JetBrains Mono.
 				// "Local files, so the swap window is effectively zero" was the
 				// reasoning that shipped that flash. `block` holds the text for
 				// at most ~3s and then falls back anyway, so a slow web-desktop

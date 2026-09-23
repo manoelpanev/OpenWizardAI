@@ -391,7 +391,7 @@ describe('subscriptionsToPipelines', () => {
 	it('trusts explicit agent_id even when subscription name matches a different session', () => {
 		// Per-project-root YAML partitioning guarantees agent_id is the source
 		// of truth. A coincidental pipeline-name/session-name overlap must NOT
-		// flip the resolved agent - doing so caused the "Maestro swap reverts"
+		// flip the resolved agent - doing so caused the "OpenWizardAI swap reverts"
 		// bug where replacing an agent would snap back on reload.
 		const subs: CueSubscription[] = [
 			{
@@ -401,13 +401,13 @@ describe('subscriptionsToPipelines', () => {
 				prompt: 'Do briefing',
 				schedule_times: ['08:30'],
 				schedule_days: ['mon', 'tue', 'wed', 'thu', 'fri'],
-				agent_id: 'maestro-uuid',
+				agent_id: 'openwizardai-uuid',
 			},
 		];
 		const sessions: SessionInfo[] = [
 			{
-				id: 'maestro-uuid',
-				name: 'Maestro',
+				id: 'openwizardai-uuid',
+				name: 'OpenWizardAI',
 				toolType: 'claude-code',
 				cwd: '/tmp',
 				projectRoot: '/tmp',
@@ -426,9 +426,9 @@ describe('subscriptionsToPipelines', () => {
 
 		const agents = pipelines[0].nodes.filter((n) => n.type === 'agent');
 		expect(agents).toHaveLength(1);
-		// agent_id wins - resolves to Maestro despite the name match on Pedsidian.
-		expect((agents[0].data as { sessionName: string }).sessionName).toBe('Maestro');
-		expect((agents[0].data as { sessionId: string }).sessionId).toBe('maestro-uuid');
+		// agent_id wins - resolves to OpenWizardAI despite the name match on Pedsidian.
+		expect((agents[0].data as { sessionName: string }).sessionName).toBe('OpenWizardAI');
+		expect((agents[0].data as { sessionId: string }).sessionId).toBe('openwizardai-uuid');
 	});
 
 	it('uses subscription name to find target when agent_id is absent', () => {
@@ -444,8 +444,8 @@ describe('subscriptionsToPipelines', () => {
 		];
 		const sessions = [
 			{
-				id: 'maestro-uuid',
-				name: 'Maestro',
+				id: 'openwizardai-uuid',
+				name: 'OpenWizardAI',
 				toolType: 'claude-code',
 				cwd: '/tmp',
 				projectRoot: '/tmp',
@@ -462,7 +462,7 @@ describe('subscriptionsToPipelines', () => {
 		const pipelines = subscriptionsToPipelines(subs, sessions);
 		const agents = pipelines[0].nodes.filter((n) => n.type === 'agent');
 		expect(agents).toHaveLength(1);
-		// Should pick Pedsidian by name, not fall back to sessions[0] (Maestro)
+		// Should pick Pedsidian by name, not fall back to sessions[0] (OpenWizardAI)
 		expect((agents[0].data as { sessionName: string }).sessionName).toBe('Pedsidian');
 	});
 
@@ -1115,7 +1115,7 @@ describe('graphSessionsToPipelines', () => {
 						event: 'github.issue',
 						enabled: true,
 						prompt: 'Triage this issue',
-						repo: 'RunMaestro/Maestro',
+						repo: 'manoelpanev/OpenWizardAI',
 					},
 				],
 			},
@@ -1130,7 +1130,7 @@ describe('graphSessionsToPipelines', () => {
 			},
 			{
 				id: 'other-uuid-456',
-				name: 'Maestro',
+				name: 'OpenWizardAI',
 				toolType: 'claude-code',
 				cwd: '/tmp',
 				projectRoot: '/tmp',

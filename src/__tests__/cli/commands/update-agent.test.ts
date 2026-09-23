@@ -5,8 +5,8 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 vi.mock('../../../cli/services/storage', () => ({
@@ -21,7 +21,7 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { updateAgent } from '../../../cli/commands/update-agent';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveAgentId, resolveGroupId, getSessionById } from '../../../cli/services/storage';
 import { formatError, formatSuccess } from '../../../cli/output/formatter';
 
@@ -52,7 +52,7 @@ describe('update-agent command', () => {
 			type: 'move_session_to_group_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -77,7 +77,7 @@ describe('update-agent command', () => {
 			type: 'move_session_to_group_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -96,7 +96,7 @@ describe('update-agent command', () => {
 			type: 'update_session_cwd_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -118,7 +118,7 @@ describe('update-agent command', () => {
 			type: 'update_session_ssh_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -140,7 +140,7 @@ describe('update-agent command', () => {
 			type: 'update_session_ssh_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -161,7 +161,7 @@ describe('update-agent command', () => {
 			type: 'update_session_ssh_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -182,7 +182,7 @@ describe('update-agent command', () => {
 			type: 'update_session_config_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -212,7 +212,7 @@ describe('update-agent command', () => {
 			type: 'update_session_config_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -227,13 +227,13 @@ describe('update-agent command', () => {
 		);
 	});
 
-	it('encodes --token-source tui as the enableMaestroP/maestroPMode pair', async () => {
+	it('encodes --token-source tui as the enableOpenWizardAIP/openwizardaiPMode pair', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
 		const sendCommand = vi.fn().mockResolvedValue({
 			type: 'update_session_config_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -242,7 +242,7 @@ describe('update-agent command', () => {
 		expect(sendCommand).toHaveBeenCalledWith(
 			expect.objectContaining({
 				type: 'update_session_config',
-				configPatch: { enableMaestroP: true, maestroPMode: 'interactive' },
+				configPatch: { enableOpenWizardAIP: true, openwizardaiPMode: 'interactive' },
 			}),
 			'update_session_config_result'
 		);
@@ -254,7 +254,7 @@ describe('update-agent command', () => {
 			type: 'update_session_config_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -275,7 +275,7 @@ describe('update-agent command', () => {
 			type: 'update_session_config_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -290,7 +290,7 @@ describe('update-agent command', () => {
 	it('rejects a non-boolean --bookmark value before contacting the app', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
 		const sendCommand = vi.fn();
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -303,7 +303,7 @@ describe('update-agent command', () => {
 	it('rejects an invalid --token-source value before contacting the app', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
 		const sendCommand = vi.fn();
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -321,7 +321,7 @@ describe('update-agent command', () => {
 			toolType: 'codex',
 		} as never);
 		const sendCommand = vi.fn();
-		vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 			action({ sendCommand } as never)
 		);
 
@@ -342,7 +342,7 @@ describe('update-agent command', () => {
 			toolType: 'claude-code',
 		} as never);
 		const sendCommand = vi.fn();
-		vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 			action({ sendCommand } as never)
 		);
 
@@ -362,7 +362,7 @@ describe('update-agent command', () => {
 			type: 'update_session_config_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 			action({ sendCommand } as never)
 		);
 
@@ -380,7 +380,7 @@ describe('update-agent command', () => {
 
 	it('rejects a non-boolean --sync-history-to-remote value', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand: vi.fn() } as never);
 		});
 
@@ -399,7 +399,7 @@ describe('update-agent command', () => {
 			.fn()
 			.mockResolvedValueOnce({ type: 'move_session_to_group_result', success: true })
 			.mockResolvedValueOnce({ type: 'update_session_cwd_result', success: true });
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -412,7 +412,7 @@ describe('update-agent command', () => {
 
 	it('surfaces the renderer error when cwd update is refused (agent running)', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const sendCommand = vi.fn().mockResolvedValue({
 				type: 'update_session_cwd_result',
 				success: false,
@@ -436,7 +436,7 @@ describe('update-agent command', () => {
 			.fn()
 			.mockResolvedValueOnce({ type: 'move_session_to_group_result', success: true })
 			.mockResolvedValueOnce({ type: 'update_session_cwd_result', success: true });
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			return action({ sendCommand } as never);
 		});
 
@@ -465,7 +465,7 @@ describe('update-agent command', () => {
 
 	it('errors when --json is set and command fails', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('Connection lost'));
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('Connection lost'));
 
 		await updateAgent('agent-1', { cwd: '/tmp/foo', json: true });
 

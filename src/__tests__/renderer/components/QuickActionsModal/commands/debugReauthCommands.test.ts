@@ -23,7 +23,10 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	simulateAuthExpiry.mockResolvedValue({ success: true });
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	(window as any).maestro = { ...((window as any).maestro ?? {}), debug: { simulateAuthExpiry } };
+	(window as any).openwizardai = {
+		...((window as any).openwizardai ?? {}),
+		debug: { simulateAuthExpiry },
+	};
 });
 
 function build(activeSession: Session | undefined) {

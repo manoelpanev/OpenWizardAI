@@ -1,6 +1,6 @@
 /**
  * Tests for shared/duration.ts - the single unit ladder every humanized
- * duration in Maestro renders from.
+ * duration in OpenWizardAI renders from.
  *
  * The preset cases below are not decoration: each one is the exact output some
  * surface shipped before those formatters were folded onto the shared engine.

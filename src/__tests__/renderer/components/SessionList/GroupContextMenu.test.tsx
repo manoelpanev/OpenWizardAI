@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { GroupContextMenu } from '../../../../renderer/components/SessionList/GroupContextMenu';
 import { mockTheme } from '../../../helpers/mockTheme';
 
-const group = { id: 'g1', name: 'Maestro', emoji: '🎹', collapsed: false } as any;
+const group = { id: 'g1', name: 'OpenWizardAI', emoji: '🎹', collapsed: false } as any;
 
 function setup(overrides: Record<string, unknown> = {}) {
 	const props = {

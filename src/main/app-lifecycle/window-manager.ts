@@ -10,9 +10,9 @@ import { logger } from '../utils/logger';
 import { initAutoUpdater } from '../auto-updater';
 import { UPDATES_ENABLED } from '../../shared/branding';
 
-const BROWSER_TAB_PARTITION_PREFIX = 'persist:maestro-browser-session-';
+const BROWSER_TAB_PARTITION_PREFIX = 'persist:openwizardai-browser-session-';
 // `file:` is allowed so users can open local HTML they just generated
-// (Plotly dashboards, etc.) inside Maestro instead of bouncing to the system
+// (Plotly dashboards, etc.) inside OpenWizardAI instead of bouncing to the system
 // browser. The webview is still hardened (sandbox, no node, webSecurity true)
 // and only renders content the user explicitly opens.
 const ALLOWED_BROWSER_TAB_EMBED_PROTOCOLS = new Set(['http:', 'https:', 'file:']);
@@ -400,8 +400,8 @@ export function createWindowManager(deps: WindowManagerDependencies): WindowMana
 				// can handle them.  We preventDefault+stopPropagation so the page
 				// never sees the event, then forward it to the app via console.log.
 				const shortcutInjection = `(function(){
-					if(window.__maestroShortcutListenerInstalled)return;
-					window.__maestroShortcutListenerInstalled=true;
+					if(window.__openwizardaiShortcutListenerInstalled)return;
+					window.__openwizardaiShortcutListenerInstalled=true;
 					document.addEventListener('keydown',function(e){
 						var hasMod=e.metaKey||e.ctrlKey;
 						var hasAlt=e.altKey;
@@ -412,7 +412,7 @@ export function createWindowManager(deps: WindowManagerDependencies): WindowMana
 						if(te||re)return;
 						e.preventDefault();
 						e.stopPropagation();
-						console.log('__MAESTRO_KEY__'+JSON.stringify({
+						console.log('__OPENWIZARDAI_KEY__'+JSON.stringify({
 							key:e.key,code:e.code,
 							meta:e.metaKey,control:e.ctrlKey,
 							alt:e.altKey,shift:e.shiftKey
@@ -427,7 +427,7 @@ export function createWindowManager(deps: WindowManagerDependencies): WindowMana
 				// console-message args: (event, level, message, line, sourceId)
 				guest.on('console-message', (...args: unknown[]) => {
 					const message = typeof args[2] === 'string' ? args[2] : String(args[2] ?? '');
-					const prefix = '__MAESTRO_KEY__';
+					const prefix = '__OPENWIZARDAI_KEY__';
 					if (!message.startsWith(prefix)) return;
 					try {
 						const input = JSON.parse(message.slice(prefix.length));
@@ -572,7 +572,7 @@ export function createWindowManager(deps: WindowManagerDependencies): WindowMana
 				// Reporting them as `fatal` Sentry events is pure noise; genuine
 				// out-of-memory kills surface separately as reason `oom`. Only the
 				// real crash reasons (`crashed`, `oom`, `abnormal-exit`, etc.) are
-				// worth a breadcrumb. Fixes MAESTRO-4X/4Y.
+				// worth a breadcrumb. Fixes OPENWIZARDAI-4X/4Y.
 				const intentionalTermination =
 					details.reason === 'killed' || details.reason === 'clean-exit';
 				if (!intentionalTermination) {

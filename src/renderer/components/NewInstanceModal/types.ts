@@ -52,9 +52,9 @@ export interface NewInstanceModalProps {
 		sessionSshRemoteConfig?: SessionSshRemoteConfig,
 		customEffort?: string,
 		groupId?: string,
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic',
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic',
 		retryOnAvailabilityErrors?: boolean,
 		retryOnTokenExhaustion?: boolean
 	) => void;
@@ -79,9 +79,9 @@ export interface EditAgentModalProps {
 		customModel?: string,
 		customContextWindow?: number,
 		sessionSshRemoteConfig?: SessionSshRemoteConfig,
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic',
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic',
 		retryOnAvailabilityErrors?: boolean,
 		retryOnTokenExhaustion?: boolean,
 		customEnvVarsDisabled?: Record<string, string>,
@@ -131,10 +131,10 @@ export interface AgentPickerGridProps {
 	customAgentPaths: Record<string, string>;
 	customAgentArgs: Record<string, string>;
 	customAgentEnvVars: Record<string, Record<string, string>>;
-	enableMaestroPByAgent?: Record<string, boolean>;
-	maestroPModeByAgent?: Record<string, 'interactive' | 'dynamic'>;
-	maestroPPathByAgent?: Record<string, string>;
-	detectedMaestroPPath?: string;
+	enableOpenWizardAIPByAgent?: Record<string, boolean>;
+	openwizardaiPModeByAgent?: Record<string, 'interactive' | 'dynamic'>;
+	openwizardaiPPathByAgent?: Record<string, string>;
+	detectedOpenWizardAIPPath?: string;
 	agentConfigs: Record<string, Record<string, any>>;
 	availableModels: Record<string, string[]>;
 	loadingModels: Record<string, boolean>;
@@ -144,9 +144,9 @@ export interface AgentPickerGridProps {
 	onDismissDebug: () => void;
 	onCustomPathChange: (agentId: string, value: string) => void;
 	onCustomArgsChange: (agentId: string, value: string) => void;
-	onEnableMaestroPChange?: (agentId: string, value: boolean) => void;
-	onMaestroPModeChange?: (agentId: string, value: 'interactive' | 'dynamic') => void;
-	onMaestroPPathChange?: (agentId: string, value: string) => void;
+	onEnableOpenWizardAIPChange?: (agentId: string, value: boolean) => void;
+	onOpenWizardAIPModeChange?: (agentId: string, value: 'interactive' | 'dynamic') => void;
+	onOpenWizardAIPPathChange?: (agentId: string, value: string) => void;
 	onEnvVarKeyChange: (agentId: string, oldKey: string, newKey: string, value: string) => void;
 	onEnvVarValueChange: (agentId: string, key: string, value: string) => void;
 	onEnvVarRemove: (agentId: string, key: string) => void;

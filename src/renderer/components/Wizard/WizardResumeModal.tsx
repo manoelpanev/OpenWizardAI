@@ -82,7 +82,7 @@ export function WizardResumeModal({
 
 					// Use git.isRepo which will fail if directory doesn't exist
 					// For SSH remotes, pass the path as remoteCwd so git can operate in the correct directory
-					await window.maestro.git.isRepo(
+					await window.openwizardai.git.isRepo(
 						resumeState.directoryPath,
 						sshRemoteId,
 						sshRemoteId ? resumeState.directoryPath : undefined
@@ -97,7 +97,7 @@ export function WizardResumeModal({
 			let agentAvailable = true;
 			if (resumeState.selectedAgent) {
 				try {
-					const agents = await window.maestro.agents.detect();
+					const agents = await window.openwizardai.agents.detect();
 					// Filter out hidden agents (like terminal)
 					const visibleAgents = agents.filter((a: AgentConfig) => !a.hidden);
 					// Check if the selected agent is available

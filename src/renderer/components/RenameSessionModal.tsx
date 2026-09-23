@@ -52,11 +52,11 @@ export function RenameSessionModal(props: RenameSessionModalProps) {
 			if (targetSession?.agentSessionId && targetSession?.projectRoot) {
 				const agentId = targetSession.toolType || 'claude-code';
 				if (agentId === 'claude-code') {
-					window.maestro.claude
+					window.openwizardai.claude
 						.updateSessionName(targetSession.projectRoot, targetSession.agentSessionId, trimmedName)
 						.catch((err) => logger.error('Failed to update agent session name:', undefined, err));
 				} else {
-					window.maestro.agentSessions
+					window.openwizardai.agentSessions
 						.setSessionName(
 							agentId,
 							targetSession.projectRoot,

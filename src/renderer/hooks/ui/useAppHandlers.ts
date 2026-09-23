@@ -229,7 +229,7 @@ export function useAppHandlers(deps: UseAppHandlersDeps): UseAppHandlersReturn {
 		// drags from the Files panel (which only carry the custom MIME type).
 		if (
 			e.dataTransfer.types.includes('Files') ||
-			e.dataTransfer.types.includes('application/x-maestro-file-path')
+			e.dataTransfer.types.includes('application/x-openwizardai-file-path')
 		) {
 			setIsDraggingFile(true);
 		}
@@ -385,7 +385,7 @@ export function useAppHandlers(deps: UseAppHandlersDeps): UseAppHandlersReturn {
 				useModalStore.getState().openModal('confirm', {
 					message: `Open "${node.name}" in external application?`,
 					onConfirm: async () => {
-						await window.maestro.shell.openPath(fullPath);
+						await window.openwizardai.shell.openPath(fullPath);
 					},
 				});
 				return;
@@ -421,8 +421,8 @@ export function useAppHandlers(deps: UseAppHandlersDeps): UseAppHandlersReturn {
 				// Pass SSH remote ID for remote sessions
 				// Fetch both content and stat for lastModified timestamp
 				const [content, stat] = await Promise.all([
-					window.maestro.fs.readFile(fullPath, sshRemoteId, loadRequestId),
-					window.maestro.fs.stat(fullPath, sshRemoteId),
+					window.openwizardai.fs.readFile(fullPath, sshRemoteId, loadRequestId),
+					window.openwizardai.fs.stat(fullPath, sshRemoteId),
 				]);
 
 				// content === null means either the file is missing or the SSH read
@@ -471,7 +471,7 @@ export function useAppHandlers(deps: UseAppHandlersDeps): UseAppHandlersReturn {
 	);
 
 	const updateSessionWorkingDirectory = useCallback(async () => {
-		const newPath = await window.maestro.dialog.selectFolder();
+		const newPath = await window.openwizardai.dialog.selectFolder();
 		if (!newPath) return;
 
 		setSessions((prev) =>

@@ -25,7 +25,7 @@ export function useTerminalTabHandlers(): TerminalTabHandlersReturn {
 				return;
 			}
 			const ptySessionId = getTerminalSessionId(session.id, tabId);
-			window.maestro.process
+			window.openwizardai.process
 				.isTerminalBusy(ptySessionId)
 				.then((busy) => {
 					if (busy) {

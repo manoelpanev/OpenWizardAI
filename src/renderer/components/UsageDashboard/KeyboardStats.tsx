@@ -8,7 +8,7 @@
  *    `settingsStore.keyboardMasteryStats`. This is the same data backing the
  *    "85 / 87 mastered" display in the keyboard shortcuts help modal.
  * 2. Daily firing counts - fetched from
- *    `window.maestro.stats.getShortcutUsageByDay`. Every shortcut firing
+ *    `window.openwizardai.stats.getShortcutUsageByDay`. Every shortcut firing
  *    increments the local-time day's bucket; the UI zero-fills missing days so
  *    the bar geometry matches calendar reality.
  *
@@ -287,8 +287,8 @@ export const KeyboardStats = memo(function KeyboardStats({ timeRange, theme }: K
 		let cancelled = false;
 		setLoading(true);
 		Promise.all([
-			window.maestro.stats.getShortcutUsageByDay(timeRange),
-			window.maestro.stats.getShortcutUsageTotal(timeRange),
+			window.openwizardai.stats.getShortcutUsageByDay(timeRange),
+			window.openwizardai.stats.getShortcutUsageTotal(timeRange),
 		])
 			.then(([byDay, totalCount]) => {
 				if (cancelled) return;
@@ -307,10 +307,10 @@ export const KeyboardStats = memo(function KeyboardStats({ timeRange, theme }: K
 
 		// Refresh on stats:updated so the chart reflects firings while the
 		// modal is open.
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			Promise.all([
-				window.maestro.stats.getShortcutUsageByDay(timeRange),
-				window.maestro.stats.getShortcutUsageTotal(timeRange),
+				window.openwizardai.stats.getShortcutUsageByDay(timeRange),
+				window.openwizardai.stats.getShortcutUsageTotal(timeRange),
 			])
 				.then(([byDay, totalCount]) => {
 					if (cancelled) return;

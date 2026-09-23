@@ -9,7 +9,7 @@ This guide has been split into focused sub-documents for progressive disclosure:
 | Document                                   | Description                                                                                                                                                              |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | [[CLAUDE-PATTERNS.md]]                     | Core implementation patterns (process management, settings, modals, themes, Auto Run, SSH, Encore Features)                                                              |
-| [[CLAUDE-IPC.md]]                          | IPC API surface (`window.maestro.*` namespaces)                                                                                                                          |
+| [[CLAUDE-IPC.md]]                          | IPC API surface (`window.openwizardai.*` namespaces)                                                                                                                     |
 | [[CLAUDE-PERFORMANCE.md]]                  | Performance best practices (React optimization, debouncing, batching)                                                                                                    |
 | [[CLAUDE-WIZARD.md]]                       | Onboarding Wizard, Inline Wizard, and Tour System                                                                                                                        |
 | [[CLAUDE-FEATURES.md]]                     | Usage Dashboard and Document Graph features                                                                                                                              |
@@ -68,10 +68,10 @@ Grep-verified 2026-09-04 (`npm run docs:verify` re-checks every path). This is t
 - **Referencing / thumbnailing a pasted transcript image:** `isSessionImageRef()`, `sessionImageThumbnailSrc()` in `src/shared/sessionImageRefs.ts`
 - **Loading an image for canvas compositing:** `loadImageElement(src)` in `src/renderer/utils/loadImage.ts`
 - **Saving generated image bytes to disk:** `saveImageDataUrlToDisk(dataUrl, defaultName?)` in `src/renderer/utils/imageExport.ts`
-- **Screenshotting a surface as it is painted:** `window.maestro.shell.capturePage(rect?)` in `src/main/preload/system.ts`
+- **Screenshotting a surface as it is painted:** `window.openwizardai.shell.capturePage(rect?)` in `src/main/preload/system.ts`
 - **Classifying a file by extension:** `getFileCategory()`, `isPreviewableFile()` in `src/shared/fileCategories.ts`
 - **Strip ANSI / collapse progress overwrites:** `stripAnsiCodes()`, `processCarriageReturns()` in `src/shared/stringUtils.ts`
-- **Reading what a TUI painted from a raw capture:** `replayTerminalScreen()`, `capturedAlternateScreen()` in `src/maestro-p/screen-replay.ts`
+- **Reading what a TUI painted from a raw capture:** `replayTerminalScreen()`, `capturedAlternateScreen()` in `src/openwizardai-p/screen-replay.ts`
 - **Shell escape:** `shellEscape()`, `shellEscapeArgs()` in `src/main/utils/shell-escape.ts`
 - **Platform detection:** `isWindows()`, `isMacOS()` in `src/shared/platformDetection.ts`
 - **Whether a working directory can be spawned into:** `unusableCwdReason()` in `src/main/process-manager/utils/spawnCwd.ts`. node-pty's Windows path throws ERROR_DIRECTORY from an async callback nothing can catch, so `ProcessManager.spawn()` refuses a missing cwd up front rather than falling back to home.
@@ -170,7 +170,7 @@ Grep-verified 2026-09-04 (`npm run docs:verify` re-checks every path). This is t
 - **Fixed-pitch font for shell text:** `resolveFixedPitchFontFamily()`, `resolveTerminalFontFamily()`, `isFixedPitchStack()` in `src/renderer/utils/fixedPitchFont.ts` (composes with `withMonoFallback`, do not reintroduce `ensureMonospaceFallback`)
 - **Saving the user's own font setup:** `captureTypographySnapshot()`, `typographySnapshotPatch()`, `typographySnapshotMatches()` in `src/shared/typographySnapshot.ts`; keys from `TYPOGRAPHY_SURFACE_LIST` in `src/shared/typography.ts`
 - **Rendering raw terminal output (ANSI):** `useAnsiConverter(theme)`, `getCachedAnsiHtml(text, theme.id, converter)` in `src/renderer/hooks/ui/useAnsiConverter.ts`
-- **Any CLI verb that can move the Maestro view:** `resolveBackgroundFlag()`, `readBackgroundField()` in `src/shared/focusPlacement.ts`
+- **Any CLI verb that can move the OpenWizardAI view:** `resolveBackgroundFlag()`, `readBackgroundField()` in `src/shared/focusPlacement.ts`
 - **Making a tab the visible one:** `aiTabFocusFields`, `fileTabFocusFields` in `src/renderer/utils/tabFocusFields.ts`
 - **Record view for one table row:** `RecordDetailModal` in `src/renderer/components/ui/RecordDetailModal.tsx`
 - **Previewing a parquet file:** `matchedRows`, `complete` in `src/renderer/components/ParquetViewer/`
@@ -200,7 +200,7 @@ Grep-verified 2026-09-04 (`npm run docs:verify` re-checks every path). This is t
 - **Ordering the Auto Run run list from the picker:** `applySelectionOrder()`, `selectFolderFiles()` in `src/renderer/utils/documentSelectionOrder.ts`
 - **Whether an Auto Run is parked waiting on the user:** `useAutoRunErrorPaused(sessionId)` in `src/renderer/hooks/batch/useAutoRunPause.ts` (never read `errorPaused` off the `batchRunState` prop; the chain drops it)
 - **What the Thinking pill lists:** `collectThinkingItems(sessions)` in `src/renderer/utils/tabHelpers.ts`; `useBackgroundAutoRuns(activeSessionId)` in `src/renderer/hooks/batch/useBackgroundAutoRuns.ts`
-- **Auto Run markers (HITL / halt / model hint):** `scanMaestroMarkers()`, `findPendingHitlGate()` in `src/shared/autorunMarkers.ts`
+- **Auto Run markers (HITL / halt / model hint):** `scanOpenWizardAIMarkers()`, `findPendingHitlGate()` in `src/shared/autorunMarkers.ts`
 - **Auto Run steering notes (mid-run course correction):** `formatSteeringNotesBlock()`, `MAX_PENDING_STEERING_NOTES` in `src/shared/autorunSteering.ts`; `submitSteeringNote()`, `takeSteeringNotesForDispatch()` in `src/renderer/services/autoRunSteering.ts`
 - **Fence-aware markdown scanning:** `forEachMarkdownLine()`, `UNCHECKED_TASK_REGEX` in `src/shared/markdownTaskScan.ts`
 - **Encore Feature flags and their defaults:** `DEFAULT_ENCORE_FEATURES`, `resolveEncoreFeatures()` in `src/shared/encoreFeatures.ts`
@@ -252,7 +252,7 @@ Use these terms consistently in code, comments, and documentation:
 
 ### Terminology: Agent vs Session
 
-In Maestro, the terms "agent" and "session" have distinct meanings:
+In OpenWizardAI, the terms "agent" and "session" have distinct meanings:
 
 - **Agent** - An entity in the Left Bar backed by a provider (Claude Code, Codex, etc.). This is what users see, create, and interact with. Each agent has its own workspace, tabs, and configuration.
 - **Session** (or **provider session**) - An individual conversation context within a provider (e.g., Claude's `session_id`). Each AI tab within an agent can have its own provider session. In code, the `Session` interface represents an agent (historical naming).
@@ -270,7 +270,7 @@ Use "agent" in user-facing language. Reserve "session" for provider-level conver
 
 ### Automation
 
-- **Cue** - Event-driven automation system (Maestro Cue), gated as an Encore Feature. Watches for file changes, time intervals, agent completions, GitHub PRs/issues, and pending markdown tasks to trigger automated prompts. Configured via `.maestro/cue.yaml` per project.
+- **Cue** - Event-driven automation system (OpenWizardAI Cue), gated as an Encore Feature. Watches for file changes, time intervals, agent completions, GitHub PRs/issues, and pending markdown tasks to trigger automated prompts. Configured via `.openwizardai/cue.yaml` per project.
 - **Cue Modal** - Dashboard for managing Cue subscriptions and viewing activity (`CueModal/CueModal.tsx`)
 
 ### Agent States (color-coded)
@@ -307,7 +307,7 @@ This is non-negotiable. If you catch an em-dash or en-dash in anything you produ
 
 ## Project Overview
 
-Maestro is an Electron desktop app for managing multiple AI coding assistants simultaneously with a keyboard-first interface.
+OpenWizardAI is an Electron desktop app for managing multiple AI coding assistants simultaneously with a keyboard-first interface.
 
 ### Supported Agents
 
@@ -350,7 +350,7 @@ src/
 │   ├── preload/            # Secure IPC bridge (one module per namespace)
 │   ├── process-manager.ts  # Process spawning (PTY + child_process)
 │   ├── agent-*.ts          # Agent detection, capabilities, session storage
-│   ├── cue/               # Maestro Cue event-driven automation engine
+│   ├── cue/               # OpenWizardAI Cue event-driven automation engine
 │   ├── parsers/            # Per-agent output parsers + error patterns
 │   ├── storage/            # Per-agent session storage implementations
 │   ├── ipc/handlers/       # IPC handler modules (stats, git, playbooks, cue, etc.)
@@ -376,7 +376,7 @@ src/
 │
 ├── shared/                 # Shared types and utilities
 │
-└── docs/                   # Mintlify documentation (docs.runmaestro.ai)
+└── docs/                   # Mintlify documentation (github.com/manoelpanev/OpenWizardAI/tree/main/docs)
 ```
 
 ---
@@ -394,8 +394,8 @@ src/
 | Add tab overlay menu          | See Tab Hover Overlay Menu pattern in [[CLAUDE-PATTERNS.md]]                                                                                                                                                                                                     |
 | Add setting                   | `src/shared/settingsMetadata.ts` (metadata), `src/renderer/stores/settingsStore.ts`, `src/main/stores/defaults.ts`, AND `src/renderer/components/Settings/searchableSettings.ts` + `data-setting-id` wrapper on rendered control (see [[CLAUDE-PATTERNS.md]] §3) |
 | Add template variable         | `src/shared/templateVariables.ts`, `src/renderer/utils/templateVariables.ts`                                                                                                                                                                                     |
-| Modify system prompts         | `src/prompts/*.md` (wizard, Auto Run, etc.) or edit via **Maestro Prompts** tab in Settings                                                                                                                                                                      |
-| Customize prompts             | Use **Maestro Prompts** tab in Settings, or edit `userData/core-prompts-customizations.json`                                                                                                                                                                     |
+| Modify system prompts         | `src/prompts/*.md` (wizard, Auto Run, etc.) or edit via **OpenWizardAI Prompts** tab in Settings                                                                                                                                                                 |
+| Customize prompts             | Use **OpenWizardAI Prompts** tab in Settings, or edit `userData/core-prompts-customizations.json`                                                                                                                                                                |
 | Add new prompt                | `src/prompts/*.md`, `src/shared/promptDefinitions.ts` (add to `CORE_PROMPTS` array and `PROMPT_IDS`)                                                                                                                                                             |
 | Add Spec-Kit command          | `src/prompts/speckit/`, `src/main/speckit-manager.ts`                                                                                                                                                                                                            |
 | Add OpenSpec command          | `src/prompts/openspec/`, `src/main/openspec-manager.ts`                                                                                                                                                                                                          |
@@ -413,7 +413,7 @@ src/
 | Modify file linking           | `src/renderer/utils/remarkFileLinks.ts` (remark plugin for `[[wiki]]` and path links)                                                                                                                                                                            |
 | Add documentation page        | `docs/*.md`, `docs/docs.json` (navigation)                                                                                                                                                                                                                       |
 | Add documentation screenshot  | `docs/screenshots/` (PNG, kebab-case naming)                                                                                                                                                                                                                     |
-| MCP server integration        | See [MCP Server docs](https://docs.runmaestro.ai/mcp-server)                                                                                                                                                                                                     |
+| MCP server integration        | See [MCP Server docs](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp-server.md)                                                                                                                                                                  |
 | Add stats/analytics feature   | `src/main/stats/stats-db.ts`, `src/main/ipc/handlers/stats.ts`                                                                                                                                                                                                   |
 | Add Usage Dashboard chart     | `src/renderer/components/UsageDashboard/`                                                                                                                                                                                                                        |
 | Add Document Graph feature    | `src/renderer/components/DocumentGraph/`, `src/main/ipc/handlers/documentGraph.ts`                                                                                                                                                                               |
@@ -445,7 +445,7 @@ If a modal's primary purpose is _clicking_ (buttons, tabs, list rows, cards, gra
 
 ### Error Handling & Sentry
 
-Maestro uses Sentry for error tracking. Field data from production crashes is invaluable for improving code quality.
+OpenWizardAI uses Sentry for error tracking. Field data from production crashes is invaluable for improving code quality.
 
 **DO let exceptions bubble up:**
 
@@ -576,7 +576,7 @@ When driving the running app over Chrome DevTools Protocol (e.g. one-off `script
 
 ### Settings Not Persisting
 
-1. Check wrapper function calls `window.maestro.settings.set()`
+1. Check wrapper function calls `window.openwizardai.settings.set()`
 2. Check loading code in `useSettings.ts` useEffect
 
 ### Modal Escape Not Working
@@ -588,24 +588,24 @@ When driving the running app over Chrome DevTools Protocol (e.g. one-off `script
 
 ## MCP Server
 
-Maestro provides a hosted MCP (Model Context Protocol) server for AI applications to search the documentation.
+OpenWizardAI provides a hosted MCP (Model Context Protocol) server for AI applications to search the documentation.
 
-**Server URL:** `https://docs.runmaestro.ai/mcp`
+**Server URL:** `https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp.md`
 
 **Available Tools:**
 
-- `SearchMaestro` - Search the Maestro knowledge base for documentation, code examples, API references, and guides
+- `SearchOpenWizardAI` - Search the OpenWizardAI knowledge base for documentation, code examples, API references, and guides
 
 **Connect from Claude Desktop/Code:**
 
 ```json
 {
 	"mcpServers": {
-		"maestro": {
-			"url": "https://docs.runmaestro.ai/mcp"
+		"openwizardai": {
+			"url": "https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp.md"
 		}
 	}
 }
 ```
 
-See [MCP Server documentation](https://docs.runmaestro.ai/mcp-server) for full details.
+See [MCP Server documentation](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp-server.md) for full details.

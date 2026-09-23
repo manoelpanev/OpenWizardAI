@@ -28,7 +28,7 @@ import { stripBlankEnvVars } from '../../shared/agentEnvironment';
  *
  * Blank values are dropped rather than exported. Nothing of the local env
  * crosses the SSH boundary, so a blank here can only ever produce `export FOO=''`
- * on the remote - never a meaningful override of a Maestro layer - and a
+ * on the remote - never a meaningful override of an OpenWizardAI layer - and a
  * set-but-empty variable is what crashes an agent that reads it as a path.
  */
 function withQuerySource(

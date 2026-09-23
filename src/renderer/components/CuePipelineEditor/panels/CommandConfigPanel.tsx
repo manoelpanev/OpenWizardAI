@@ -3,7 +3,7 @@
  *
  * Switches between two modes:
  *   - shell: arbitrary shell command (PATH-aware, runs in owning session's project root)
- *   - cli: structured maestro-cli call (currently only `send`)
+ *   - cli: structured openwizardai-cli call (currently only `send`)
  *
  * The owning session is either pre-bound (when dragged from a session row) or
  * chosen via a dropdown on the node itself (when dragged from the standalone
@@ -316,7 +316,7 @@ export function CommandConfigPanel({
 			{/* Mode toggle */}
 			<div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
 				<ModeButton mode="shell" label="Shell command" Icon={Terminal} />
-				<ModeButton mode="cli" label="maestro-cli" Icon={Send} />
+				<ModeButton mode="cli" label="openwizardai-cli" Icon={Send} />
 			</div>
 
 			{/* Name */}
@@ -380,7 +380,7 @@ export function CommandConfigPanel({
 					}}
 				>
 					<div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
-						<label style={themedLabelStyle}>maestro-cli sub-command</label>
+						<label style={themedLabelStyle}>openwizardai-cli sub-command</label>
 						<input
 							type="text"
 							value="send"

@@ -3,7 +3,7 @@
  *
  * A failed connection test normally has one line to say what went wrong, which
  * is enough for "wrong password" and useless for "your remote runs PowerShell,
- * so nothing Maestro sends it can ever execute". When the main process returns
+ * so nothing OpenWizardAI sends it can ever execute". When the main process returns
  * an {@link SshRemoteRemediation}, this renders the headline, the reason, the
  * exact command that fixes it (copyable), and the doc that explains the rest.
  *

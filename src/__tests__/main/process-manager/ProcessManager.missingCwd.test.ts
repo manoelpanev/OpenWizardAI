@@ -16,7 +16,7 @@ import { unusableCwdReason } from '../../../main/process-manager/utils/spawnCwd'
 const { mockPtySpawn, mockChildSpawn, mockGetBridgeSocketPath } = vi.hoisted(() => ({
 	mockPtySpawn: vi.fn(),
 	mockChildSpawn: vi.fn(),
-	mockGetBridgeSocketPath: vi.fn(() => '/tmp/maestro-test-coworking.sock'),
+	mockGetBridgeSocketPath: vi.fn(() => '/tmp/openwizardai-test-coworking.sock'),
 }));
 
 vi.mock('node-pty', () => ({
@@ -82,10 +82,10 @@ function makeFakePty() {
 }
 
 /** A path under the temp dir that is guaranteed not to exist. */
-const missingDir = path.join(os.tmpdir(), `maestro-missing-cwd-${process.pid}-${Date.now()}`);
+const missingDir = path.join(os.tmpdir(), `openwizardai-missing-cwd-${process.pid}-${Date.now()}`);
 
 /** A real file, to cover "exists but is not a directory". */
-const realFile = path.join(os.tmpdir(), `maestro-cwd-file-${process.pid}-${Date.now()}.txt`);
+const realFile = path.join(os.tmpdir(), `openwizardai-cwd-file-${process.pid}-${Date.now()}.txt`);
 
 fs.writeFileSync(realFile, 'not a directory', 'utf-8');
 

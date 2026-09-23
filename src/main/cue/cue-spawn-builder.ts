@@ -12,7 +12,7 @@ import { getAgentDefinition, getAgentCapabilities } from '../agents';
 import { buildAgentArgs, applyAgentConfigOverrides } from '../utils/agent-args';
 import { wrapSpawnWithSsh, type SshSpawnWrapConfig } from '../utils/ssh-spawn-wrapper';
 import { getSshRemoteConfig } from '../utils/ssh-remote-resolver';
-import { ensureRemoteMaestroPProbed } from '../agents/probeRemoteMaestroP';
+import { ensureRemoteOpenWizardAIPProbed } from '../agents/probeRemoteOpenWizardAIP';
 import { sanitizeCustomEnvVars } from './cue-env-sanitizer';
 import {
 	resolveClaudeSpawnMode,
@@ -151,29 +151,32 @@ export async function buildSpawnSpec(
 	// desktop `process:spawn` handler does, so a Cue run honors the triggering
 	// agent's selection. The decision is computed here (the command + sanitized
 	// env are now known) but APPLIED after the prompt is appended below, so
-	// maestro-p's "prompt is the trailing positional" contract stays intact.
+	// openwizardai-p's "prompt is the trailing positional" contract stays intact.
 	// SSH spawns resolve to `api` (the resolver short-circuits on sshEnabled),
-	// because maestro-p needs the local TUI and SSH runs `claude --print`.
-	// Over SSH, warm the remote maestro-p probe BEFORE resolving so a headless Cue
+	// because openwizardai-p needs the local TUI and SSH runs `claude --print`.
+	// Over SSH, warm the remote openwizardai-p probe BEFORE resolving so a headless Cue
 	// spawn falls a remote TUI selection back to API instead of exiting 127 when
-	// maestro-p isn't installed on the remote (no UI/readiness probe runs first).
-	let remoteMaestroPAvailable: boolean | undefined;
+	// openwizardai-p isn't installed on the remote (no UI/readiness probe runs first).
+	let remoteOpenWizardAIPAvailable: boolean | undefined;
 	if (sshRemoteConfig?.enabled && sshStore) {
 		const sshRemote = getSshRemoteConfig(sshStore, {
 			sessionSshConfig: sshRemoteConfig,
 		}).config;
 		if (sshRemote) {
-			remoteMaestroPAvailable = await ensureRemoteMaestroPProbed(sshRemote);
+			remoteOpenWizardAIPAvailable = await ensureRemoteOpenWizardAIPProbed(sshRemote);
 		}
 	}
 	const tokenMode = getClaudeTokenMode(
 		{
-			enableMaestroP: config.enableMaestroP,
-			maestroPMode: config.maestroPMode,
+			enableOpenWizardAIP: config.enableOpenWizardAIP,
+			openwizardaiPMode: config.openwizardaiPMode,
 		},
 		// Remote agents default to the TUI when the user hasn't chosen, unless the
-		// remote has no maestro-p to run it (then API).
-		{ sshEnabled: !!sshRemoteConfig?.enabled, sshMaestroPAvailable: remoteMaestroPAvailable }
+		// remote has no openwizardai-p to run it (then API).
+		{
+			sshEnabled: !!sshRemoteConfig?.enabled,
+			sshOpenWizardAIPAvailable: remoteOpenWizardAIPAvailable,
+		}
 	);
 	const claudeSpawnDecision = resolveClaudeSpawnMode({
 		agent: {
@@ -185,18 +188,18 @@ export async function buildSpawnSpec(
 		tokenMode,
 		sshEnabled: !!sshRemoteConfig?.enabled,
 		// Lets the resolver fall a remote TUI spawn back to API when the remote
-		// has no maestro-p on its PATH (avoids exit 127).
+		// has no openwizardai-p on its PATH (avoids exit 127).
 		sshRemoteId: sshRemoteConfig?.remoteId ?? undefined,
 		command,
 		sessionCustomPath: config.customPath,
 		sessionCustomEnvVars: effectiveEnvVars,
-		maestroPPath: config.maestroPPath,
+		openwizardaiPPath: config.openwizardaiPPath,
 		now: new Date(),
 	});
 
 	// 4. Apply SSH wrapping if configured
 	if (sshRemoteConfig?.enabled && sshStore) {
-		// Claude interactive/dynamic over SSH runs maestro-p on the remote host
+		// Claude interactive/dynamic over SSH runs openwizardai-p on the remote host
 		// (must be on its PATH) to drive the remote TUI on the Max subscription,
 		// honoring the Cue run's configured timeout as the idle budget. Returns
 		// null for the API path, leaving the SSH config on the plain claude binary.
@@ -247,16 +250,16 @@ export async function buildSpawnSpec(
 		}
 	}
 
-	// 6. Realize an interactive (maestro-p) decision for local spawns. Applied
-	// AFTER the prompt append so the maestro-p script + interactive flags come
-	// FIRST and the prompt stays LAST (maestro-p strips the headless-only flags,
+	// 6. Realize an interactive (openwizardai-p) decision for local spawns. Applied
+	// AFTER the prompt append so the openwizardai-p script + interactive flags come
+	// FIRST and the prompt stays LAST (openwizardai-p strips the headless-only flags,
 	// forwards the rest to the claude TUI, and reads the trailing positional as
-	// the prompt). The injected MAESTRO_CLAUDE_BIN flows into the spec env below
+	// the prompt). The injected OPENWIZARDAI_CLAUDE_BIN flows into the spec env below
 	// via spawnEnvVars. SSH was already handled above and resolves to `api`.
 	if (
 		!sshRemoteUsed &&
 		claudeSpawnDecision.mode === 'interactive' &&
-		claudeSpawnDecision.maestroPBinPath
+		claudeSpawnDecision.openwizardaiPBinPath
 	) {
 		const applied = applyClaudeSpawnDecision({
 			decision: claudeSpawnDecision,
@@ -264,9 +267,9 @@ export async function buildSpawnSpec(
 			command,
 			args: spawnArgs,
 			customEnvVars: spawnEnvVars,
-			// Honor the Cue run's configured timeout as maestro-p's idle budget
+			// Honor the Cue run's configured timeout as openwizardai-p's idle budget
 			// (`--max-wait`) instead of its 300s default. Without this a Cue
-			// prompt dispatch through maestro-p was capped at 300s regardless of
+			// prompt dispatch through openwizardai-p was capped at 300s regardless of
 			// `timeout_minutes`, killing every long-running background turn.
 			maxWaitSeconds: Math.ceil(config.timeoutMs / 1000),
 		});
@@ -283,7 +286,7 @@ export async function buildSpawnSpec(
 			cwd: spawnCwd,
 			env: {
 				...process.env,
-				// A Dock/Finder launch hands Maestro launchd's bare PATH
+				// A Dock/Finder launch hands OpenWizardAI launchd's bare PATH
 				// (/usr/bin:/bin:/usr/sbin:/sbin), so inheriting it verbatim leaves the
 				// agent and every tool it shells out to blind to Homebrew and other
 				// user installs. Same PATH the desktop agent spawn builds (#1573).

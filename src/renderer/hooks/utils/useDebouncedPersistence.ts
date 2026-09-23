@@ -362,7 +362,7 @@ export function useDebouncedPersistence(
 		const current = sessionsRef.current;
 		if (previouslyPersistedRef.current === null) {
 			const sessionsForPersistence = current.map(prepareSessionForPersistence);
-			const ok = await window.maestro.sessions.setAll(sessionsForPersistence);
+			const ok = await window.openwizardai.sessions.setAll(sessionsForPersistence);
 			if (ok === false) {
 				throw new Error('sessions:setAll returned false (recoverable disk error)');
 			}
@@ -377,7 +377,7 @@ export function useDebouncedPersistence(
 			return;
 		}
 		const dirtyForPersistence = dirty.map(prepareSessionForPersistence);
-		const ok = await window.maestro.sessions.setMany(dirtyForPersistence, tombstones);
+		const ok = await window.openwizardai.sessions.setMany(dirtyForPersistence, tombstones);
 		if (ok === false) {
 			throw new Error('sessions:setMany returned false (recoverable disk error)');
 		}
@@ -412,8 +412,8 @@ export function useDebouncedPersistence(
 			// process deliberately returned false from setAll/setMany (e.g. a
 			// transient ENOSPC) - it throws purely to preserve `isPending` for the
 			// retry below. That's an expected, user-environment condition, not a
-			// Maestro bug, so keep it out of Sentry. Genuine flush failures (real
-			// exceptions) still report. (MAESTRO-QF)
+			// OpenWizardAI bug, so keep it out of Sentry. Genuine flush failures (real
+			// exceptions) still report. (OPENWIZARDAI-QF)
 			const message = err instanceof Error ? err.message : String(err);
 			if (!message.includes('recoverable disk error')) {
 				captureException(err instanceof Error ? err : new Error(String(err)), {

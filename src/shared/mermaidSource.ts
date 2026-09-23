@@ -37,7 +37,7 @@
  * an edge label, so a label whose first whitespace-free run contains an `@`
  * gets lexed as an edge id and the whole diagram fails to parse:
  *
- *   C -->|@maestro from allowlisted user| E[send]
+ *   C -->|@openwizardai from allowlisted user| E[send]
  *        ^^^^^ lexed as LINK_ID ("-->|@"), then: Expecting ... got 'LINK_ID'
  *
  * The same rule breaks a node label when the `@` sits in the first run after
@@ -45,7 +45,7 @@
  * same text one space later (`A[ping a@b]`) parses fine - by then the lexer is
  * in its `text` state, where the edge-id rule is not active. That inconsistency
  * is invisible to whoever wrote the diagram, and `@handle` is everyday content
- * in Maestro's own chat output.
+ * in OpenWizardAI's own chat output.
  *
  * The repair: inside label text only, write `@` as the mermaid entity code
  * `#64;`, which mermaid decodes back to `@` when it renders the label. Text is
@@ -74,10 +74,10 @@
  * for the closing `.-`, and its opening token never switches the lexer into a
  * text state. A `.` inside the label therefore reads as syntax:
  *
- *   TAB -. persists in maestro-sessions.json .-> TAB
+ *   TAB -. persists in openwizardai-sessions.json .-> TAB
  *                                    ^ Lexical error: Unrecognized text
  *
- * The same label in the pipe form (`TAB -.->|persists in maestro-sessions.json|
+ * The same label in the pipe form (`TAB -.->|persists in openwizardai-sessions.json|
  * TAB`) parses fine, as does a filename in a node label (`A[a.json]`), so there
  * is nothing about the text to warn its author off. Filenames, versions, and
  * ordinary sentences all carry dots, which makes this the most common way a
@@ -521,7 +521,7 @@ const SUBGRAPH_BARE_SAFE = /^[\p{L}\p{N}_ \t.;:&#!%/+*?'\\-]+$/u;
  * A subgraph title needs its own repair in both of its forms, and neither is
  * reachable from the scanners above.
  *
- * `subgraph A @maestro team` carries its title bare on the line, with no
+ * `subgraph A @openwizardai team` carries its title bare on the line, with no
  * delimiter to key on - and the `#64;` escape is no help there either, because
  * the `;` reads as a statement separator. `subgraph S1 [My (Title)]` does have
  * a bracket, but it is separated from the id by a space, so it is not a node

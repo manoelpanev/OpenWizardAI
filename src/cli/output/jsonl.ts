@@ -71,7 +71,7 @@ export interface CompleteEvent extends JsonlEvent {
 	totalTasksCompleted: number;
 	totalElapsedMs: number;
 	totalCost?: number;
-	// Set when the run ended because an agent emitted a `<!-- maestro:halt -->`
+	// Set when the run ended because an agent emitted a `<!-- openwizardai:halt -->`
 	// marker. `success` is `false` in this case.
 	halted?: boolean;
 	haltReason?: string;
@@ -157,7 +157,7 @@ export interface PlaybookEvent extends JsonlEvent {
 
 /**
  * Emitted before a task spawns when the Auto Run document carried a
- * `<!-- MAESTRO:MODEL -->` hint. Deliberately NOT gated on --verbose: a hint
+ * `<!-- OPENWIZARDAI:MODEL -->` hint. Deliberately NOT gated on --verbose: a hint
  * the provider could not honor (`warnings` non-empty) is the case this whole
  * feature exists to make visible, and an operator who does not see it concludes
  * the tier hint is broken rather than unmapped.

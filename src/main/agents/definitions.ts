@@ -103,7 +103,7 @@ export interface AgentConfig extends BaseAgentConfig {
 	noPromptSeparator?: boolean; // If true, don't add '--' before the prompt in batch mode (OpenCode doesn't support it)
 	defaultEnvVars?: Record<string, string>; // Default environment variables for this agent (merged with user customEnvVars)
 	readOnlyEnvOverrides?: Record<string, string>; // Env var overrides applied in read-only mode (replaces keys from defaultEnvVars)
-	batchModeEnvVars?: Record<string, string>; // Env vars applied ONLY to CLI batch spawns (maestro-cli send). Not applied to desktop UI or --live path. Use for settings that only make sense in short-lived non-interactive sessions (e.g., disabling background tasks).
+	batchModeEnvVars?: Record<string, string>; // Env vars applied ONLY to CLI batch spawns (openwizardai-cli send). Not applied to desktop UI or --live path. Use for settings that only make sense in short-lived non-interactive sessions (e.g., disabling background tasks).
 
 	/**
 	 * Binary used when this agent is spawned in API/headless mode (e.g. `claude --print`).
@@ -121,7 +121,7 @@ export interface AgentConfig extends BaseAgentConfig {
 
 	/**
 	 * Binary used when this agent is spawned in interactive mode. For `claude-code`, this is
-	 * `maestro-p` - a wrapper that drives Claude's TUI to preserve the user's Max plan quota.
+	 * `openwizardai-p` - a wrapper that drives Claude's TUI to preserve the user's Max plan quota.
 	 * SSH-enabled tabs always skip this and use `apiCommand` instead, since interactive mode
 	 * requires the real claude TUI binary to be present locally.
 	 */
@@ -129,7 +129,7 @@ export interface AgentConfig extends BaseAgentConfig {
 
 	/**
 	 * Args used in interactive mode. Composed with custom args, model args, resume args, etc.
-	 * just like `args`/`apiModeArgs`. For `claude-code`, these are forwarded by `maestro-p`
+	 * just like `args`/`apiModeArgs`. For `claude-code`, these are forwarded by `openwizardai-p`
 	 * into the underlying claude TUI invocation.
 	 */
 	interactiveModeArgs?: string[];
@@ -166,7 +166,7 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
 		// desktop spawner (see `src/main/ipc/handlers/process.ts`) to pick a binary per turn
 		// based on per-tab Claude interactive mode state.
 		command: 'claude',
-		// YOLO mode (--dangerously-skip-permissions) is always enabled - Maestro requires it
+		// YOLO mode (--dangerously-skip-permissions) is always enabled - OpenWizardAI requires it
 		args: [
 			'--print',
 			'--verbose',
@@ -182,10 +182,10 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
 			'stream-json',
 			'--dangerously-skip-permissions',
 		],
-		interactiveCommand: 'maestro-p',
-		// maestro-p forwards these to the underlying claude TUI invocation.
+		interactiveCommand: 'openwizardai-p',
+		// openwizardai-p forwards these to the underlying claude TUI invocation.
 		interactiveModeArgs: ['--dangerously-skip-permissions'],
-		resumeArgs: (sessionId: string) => ['--resume', sessionId], // Resume with session ID; works for both api and interactive (forwarded by maestro-p)
+		resumeArgs: (sessionId: string) => ['--resume', sessionId], // Resume with session ID; works for both api and interactive (forwarded by openwizardai-p)
 		readOnlyArgs: ['--permission-mode', 'plan'], // Read-only/plan mode
 		readOnlyCliEnforced: true, // CLI enforces read-only via --permission-mode plan
 		noToolsArgs: ['--tools', ''], // `--tools ""` disables every built-in tool (used by tab naming)
@@ -242,7 +242,7 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
 		// `-C` is a root-level global flag and MUST appear before the `exec` subcommand
 		// or Codex silently ignores it (see #959). buildAgentArgs prepends workingDirArgs accordingly.
 		// Sandbox modes:
-		//   - Default (YOLO): --dangerously-bypass-approvals-and-sandbox (full system access, required by Maestro)
+		//   - Default (YOLO): --dangerously-bypass-approvals-and-sandbox (full system access, required by OpenWizardAI)
 		//   - Read-only: --sandbox read-only (can only read files, overrides YOLO permissions)
 		// NOTE: --dangerously-bypass-approvals-and-sandbox is needed for ALL non-interactive exec
 		// invocations (including read-only) to bypass the interactive approval UI. The --sandbox
@@ -428,7 +428,7 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
 		// Batch mode: droid exec [options] "prompt"
 		batchModePrefix: ['exec'],
 		// Always skip permissions in batch mode (like Claude Code's --dangerously-skip-permissions)
-		// Maestro requires full access to work properly
+		// OpenWizardAI requires full access to work properly
 		batchModeArgs: ['--skip-permissions-unsafe'],
 
 		// JSON output for parsing
@@ -458,7 +458,7 @@ export const AGENT_DEFINITIONS: AgentDefinition[] = [
 
 		// UI config options
 		// Model IDs from droid CLI (exact IDs required)
-		// NOTE: autonomyLevel is NOT configurable - Maestro always uses --skip-permissions-unsafe
+		// NOTE: autonomyLevel is NOT configurable - OpenWizardAI always uses --skip-permissions-unsafe
 		// which conflicts with --auto. This matches Claude Code's behavior.
 		configOptions: [
 			{

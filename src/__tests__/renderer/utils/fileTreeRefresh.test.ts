@@ -3,7 +3,7 @@
  *
  * The panel refreshes on a timer, so anything that writes or deletes outside
  * that cadence has to say so. This exists as a helper rather than a hand-rolled
- * `new CustomEvent('maestro:refreshFileTree', ...)` in each caller (there were
+ * `new CustomEvent('openwizardai:refreshFileTree', ...)` in each caller (there were
  * four copies), so the two things worth pinning are the event NAME the single
  * app-level listener binds, and that a missing session id is a no-op rather
  * than a throw - callers write files from surfaces that may have no agent.
@@ -27,7 +27,7 @@ describe('requestFileTreeRefresh', () => {
 	it('binds the event name the app-level listener listens for', () => {
 		// Hard-coded rather than read from the constant: this string is the
 		// contract with useAppRemoteEventListeners and the CLI/web bridges.
-		expect(FILE_TREE_REFRESH_EVENT).toBe('maestro:refreshFileTree');
+		expect(FILE_TREE_REFRESH_EVENT).toBe('openwizardai:refreshFileTree');
 	});
 
 	it('raises the event carrying the session to refresh', () => {

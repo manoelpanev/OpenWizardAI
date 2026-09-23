@@ -1,7 +1,7 @@
 /**
  * @file cue-schedule-recurring.test.ts
  * @description End-to-end tests for the repeating and editing modes of
- * `maestro-cli cue schedule`: `--daily-at` / `--every` creation, the `--kind`
+ * `openwizardai-cli cue schedule`: `--daily-at` / `--every` creation, the `--kind`
  * list filter, `--reschedule`, and `--pause` / `--resume`.
  *
  * Like the create test, only `readSessions` is mocked - every write runs
@@ -46,7 +46,7 @@ function session(projectRoot: string, overrides: Partial<Session> = {}): Session
 }
 
 function readSubs(projectRoot: string): Record<string, unknown>[] {
-	const filePath = path.join(projectRoot, '.maestro', 'cue.yaml');
+	const filePath = path.join(projectRoot, '.openwizardai', 'cue.yaml');
 	const parsed = yaml.load(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>;
 	return parsed.subscriptions as Record<string, unknown>[];
 }

@@ -63,7 +63,7 @@ vi.mock('../../../../../renderer/hooks/settings/useSettings', () => ({
 		// Conductor Profile
 		conductorProfile: '',
 		setConductorProfile: mockSetConductorProfile,
-		// Global show-Maestro hotkey
+		// Global show-OpenWizardAI hotkey
 		globalShowHotkey: [],
 		setGlobalShowHotkey: vi.fn(),
 		// Shell settings
@@ -123,13 +123,13 @@ describe('GeneralTab', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 
-		// Reset window.maestro mocks
-		vi.mocked(window.maestro.shells.detect).mockResolvedValue(mockShells);
-		vi.mocked(window.maestro.sync.getDefaultPath).mockResolvedValue('/default/path');
-		vi.mocked(window.maestro.sync.getSettings).mockResolvedValue({
+		// Reset window.openwizardai mocks
+		vi.mocked(window.openwizardai.shells.detect).mockResolvedValue(mockShells);
+		vi.mocked(window.openwizardai.sync.getDefaultPath).mockResolvedValue('/default/path');
+		vi.mocked(window.openwizardai.sync.getSettings).mockResolvedValue({
 			customSyncPath: undefined,
 		} as any);
-		vi.mocked(window.maestro.sync.getCurrentStoragePath).mockResolvedValue('/current/path');
+		vi.mocked(window.openwizardai.sync.getCurrentStoragePath).mockResolvedValue('/current/path');
 	});
 
 	afterEach(() => {
@@ -173,7 +173,7 @@ describe('GeneralTab', () => {
 
 			// The component still renders its JSX, but effects that fetch data won't fire
 			// Verify the sync load effects didn't run
-			expect(window.maestro.sync.getDefaultPath).not.toHaveBeenCalled();
+			expect(window.openwizardai.sync.getDefaultPath).not.toHaveBeenCalled();
 		});
 	});
 
@@ -278,7 +278,7 @@ describe('GeneralTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.shells.detect).toHaveBeenCalled();
+			expect(window.openwizardai.shells.detect).toHaveBeenCalled();
 		});
 
 		it('should load shells on mouseenter of shell button', async () => {
@@ -1321,7 +1321,7 @@ describe('GeneralTab', () => {
 	// =========================================================================
 	describe('Shell Detection Failure', () => {
 		it('should handle shell detection failure gracefully', async () => {
-			vi.mocked(window.maestro.shells.detect).mockRejectedValue(new Error('Detection failed'));
+			vi.mocked(window.openwizardai.shells.detect).mockRejectedValue(new Error('Detection failed'));
 
 			render(<GeneralTab theme={mockTheme} isOpen={true} />);
 
@@ -1345,7 +1345,7 @@ describe('GeneralTab', () => {
 
 		it('should show loading state during shell detection', async () => {
 			// Mock shells.detect to never resolve (stays loading)
-			vi.mocked(window.maestro.shells.detect).mockImplementation(() => new Promise(() => {}));
+			vi.mocked(window.openwizardai.shells.detect).mockImplementation(() => new Promise(() => {}));
 
 			render(<GeneralTab theme={mockTheme} isOpen={true} />);
 
@@ -1372,9 +1372,9 @@ describe('GeneralTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.sync.getDefaultPath).toHaveBeenCalled();
-			expect(window.maestro.sync.getSettings).toHaveBeenCalled();
-			expect(window.maestro.sync.getCurrentStoragePath).toHaveBeenCalled();
+			expect(window.openwizardai.sync.getDefaultPath).toHaveBeenCalled();
+			expect(window.openwizardai.sync.getSettings).toHaveBeenCalled();
+			expect(window.openwizardai.sync.getCurrentStoragePath).toHaveBeenCalled();
 		});
 
 		it('should display the default storage path', async () => {

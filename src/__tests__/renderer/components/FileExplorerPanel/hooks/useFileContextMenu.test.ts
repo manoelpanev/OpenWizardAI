@@ -108,7 +108,7 @@ const defaultArgs = {
 	sshRemoteId: undefined,
 };
 
-const mockMaestro = {
+const mockOpenWizardAI = {
 	shell: { openPath: vi.fn(), showItemInFolder: vi.fn() },
 	fs: {
 		delete: vi.fn().mockResolvedValue({ success: true }),
@@ -122,7 +122,7 @@ const mockMaestro = {
 	},
 	dialog: { saveFile: vi.fn().mockResolvedValue('/local/App.tsx') },
 };
-(window as any).maestro = mockMaestro;
+(window as any).openwizardai = mockOpenWizardAI;
 
 describe('useFileContextMenu', () => {
 	beforeEach(() => {
@@ -256,7 +256,7 @@ describe('useFileContextMenu', () => {
 		act(() => {
 			result.current.handleOpenInDefaultApp();
 		});
-		expect(mockMaestro.shell.openPath).toHaveBeenCalledWith('/project/App.tsx');
+		expect(mockOpenWizardAI.shell.openPath).toHaveBeenCalledWith('/project/App.tsx');
 	});
 
 	it('handleDownloadFile downloads the remote file to the chosen local path', async () => {
@@ -276,11 +276,11 @@ describe('useFileContextMenu', () => {
 		await act(async () => {
 			await result.current.handleDownloadFile();
 		});
-		expect(mockMaestro.dialog.saveFile).toHaveBeenCalledWith({
+		expect(mockOpenWizardAI.dialog.saveFile).toHaveBeenCalledWith({
 			defaultPath: 'App.tsx',
 			title: 'Download File',
 		});
-		expect(mockMaestro.fs.downloadRemoteFile).toHaveBeenCalledWith(
+		expect(mockOpenWizardAI.fs.downloadRemoteFile).toHaveBeenCalledWith(
 			'/project/src/App.tsx',
 			'remote-1',
 			'/local/App.tsx'
@@ -290,7 +290,7 @@ describe('useFileContextMenu', () => {
 	});
 
 	it('handleDownloadFile skips the download when the save dialog is cancelled', async () => {
-		mockMaestro.dialog.saveFile.mockResolvedValueOnce(null);
+		mockOpenWizardAI.dialog.saveFile.mockResolvedValueOnce(null);
 		const { result } = renderHook(() =>
 			useFileContextMenu({ ...defaultArgs, sshRemoteId: 'remote-1' })
 		);
@@ -306,7 +306,7 @@ describe('useFileContextMenu', () => {
 		await act(async () => {
 			await result.current.handleDownloadFile();
 		});
-		expect(mockMaestro.fs.downloadRemoteFile).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.downloadRemoteFile).not.toHaveBeenCalled();
 	});
 
 	it('handleDownloadFile is a no-op for local sessions (no sshRemoteId)', async () => {
@@ -323,8 +323,8 @@ describe('useFileContextMenu', () => {
 		await act(async () => {
 			await result.current.handleDownloadFile();
 		});
-		expect(mockMaestro.dialog.saveFile).not.toHaveBeenCalled();
-		expect(mockMaestro.fs.downloadRemoteFile).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.dialog.saveFile).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.downloadRemoteFile).not.toHaveBeenCalled();
 	});
 
 	it('handleOpenInExplorer calls shell.showItemInFolder', () => {
@@ -341,7 +341,7 @@ describe('useFileContextMenu', () => {
 		act(() => {
 			result.current.handleOpenInExplorer();
 		});
-		expect(mockMaestro.shell.showItemInFolder).toHaveBeenCalledWith('/project/src/App.tsx');
+		expect(mockOpenWizardAI.shell.showItemInFolder).toHaveBeenCalledWith('/project/src/App.tsx');
 	});
 
 	it('handlePreviewFile calls handleFileClick', async () => {
@@ -434,7 +434,7 @@ describe('useFileContextMenu', () => {
 		expect(openNewFolderModal).toHaveBeenCalledWith('docs', '/project/docs');
 	});
 
-	it('handleOpenInMaestroBrowser encodes the file:// URL', () => {
+	it('handleOpenInOpenWizardAIBrowser encodes the file:// URL', () => {
 		const onOpenBrowserTabAt = vi.fn();
 		const { result } = renderHook(() => useFileContextMenu({ ...defaultArgs, onOpenBrowserTabAt }));
 		const htmlNode: FileNode = { name: 'index.html', type: 'file' };
@@ -448,14 +448,14 @@ describe('useFileContextMenu', () => {
 			result.current.openContextMenu(e, htmlNode, 'public/index.html', 0);
 		});
 		act(() => {
-			result.current.handleOpenInMaestroBrowser();
+			result.current.handleOpenInOpenWizardAIBrowser();
 		});
 		expect(onOpenBrowserTabAt).toHaveBeenCalledWith('file:///project/public/index.html', {
 			title: 'index.html',
 		});
 	});
 
-	it('handleOpenInMaestroBrowser preserves Windows drive-letter file:// URLs', () => {
+	it('handleOpenInOpenWizardAIBrowser preserves Windows drive-letter file:// URLs', () => {
 		const onOpenBrowserTabAt = vi.fn();
 		const windowsSession = { ...session, fullPath: 'C:\\Users\\Test Project' } as any;
 		const { result } = renderHook(() =>
@@ -472,7 +472,7 @@ describe('useFileContextMenu', () => {
 			result.current.openContextMenu(e, htmlNode, 'public/index.html', 0);
 		});
 		act(() => {
-			result.current.handleOpenInMaestroBrowser();
+			result.current.handleOpenInOpenWizardAIBrowser();
 		});
 		expect(onOpenBrowserTabAt).toHaveBeenCalledWith(
 			'file:///C:/Users/Test%20Project/public/index.html',
@@ -678,12 +678,12 @@ describe('useFileContextMenu', () => {
 
 		// One batched call for the whole selection, not one call per file - the
 		// per-file loop put a round trip in front of every path (issue #1423).
-		expect(mockMaestro.fs.deleteMany).toHaveBeenCalledTimes(1);
-		expect(mockMaestro.fs.deleteMany).toHaveBeenCalledWith(
+		expect(mockOpenWizardAI.fs.deleteMany).toHaveBeenCalledTimes(1);
+		expect(mockOpenWizardAI.fs.deleteMany).toHaveBeenCalledWith(
 			['/project/README.md', '/project/docs/a.md'],
 			{ sshRemoteId: undefined }
 		);
-		expect(mockMaestro.fs.delete).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.delete).not.toHaveBeenCalled();
 		expect(refreshFileTree).toHaveBeenCalledWith('sess-1');
 		expect(setSelectedPaths).toHaveBeenCalledWith(expect.any(Set));
 		expect(result.current.multiDeleteModal).toBeNull();
@@ -696,7 +696,7 @@ describe('useFileContextMenu', () => {
 		// A bulk delete is partially successful all the time (one locked or
 		// permission-denied file among many), so the batch resolves with a
 		// per-path outcome rather than rejecting on the first failure.
-		mockMaestro.fs.deleteMany.mockResolvedValueOnce({
+		mockOpenWizardAI.fs.deleteMany.mockResolvedValueOnce({
 			results: [
 				{ path: '/project/README.md', success: true },
 				{ path: '/project/docs/a.md', success: false, error: 'Permission denied' },
@@ -729,7 +729,7 @@ describe('useFileContextMenu', () => {
 			await result.current.handleCompressFolder();
 		});
 
-		expect(mockMaestro.fs.compressFolder).toHaveBeenCalledWith('/project/docs', {
+		expect(mockOpenWizardAI.fs.compressFolder).toHaveBeenCalledWith('/project/docs', {
 			sshRemoteId: undefined,
 		});
 		// The main process owns the collision suffix, so the toast reports the name
@@ -742,7 +742,7 @@ describe('useFileContextMenu', () => {
 	});
 
 	it('handleCompressFolder toasts the failure instead of throwing', async () => {
-		mockMaestro.fs.compressFolder.mockRejectedValueOnce(new Error('disk full'));
+		mockOpenWizardAI.fs.compressFolder.mockRejectedValueOnce(new Error('disk full'));
 		const { result } = renderHook(() => useFileContextMenu(defaultArgs));
 
 		act(() => {
@@ -760,7 +760,7 @@ describe('useFileContextMenu', () => {
 	describe('Auto Run staging', () => {
 		const autoRunSession = {
 			...session,
-			autoRunFolderPath: '/project/.maestro/playbooks',
+			autoRunFolderPath: '/project/.openwizardai/playbooks',
 		} as any;
 		const playbookFolder: FileNode = { name: 'RET', type: 'folder', children: [] };
 
@@ -771,7 +771,12 @@ describe('useFileContextMenu', () => {
 			);
 
 			act(() => {
-				result.current.openContextMenu(makeEvent(), playbookFolder, '.maestro/playbooks/RET', 4);
+				result.current.openContextMenu(
+					makeEvent(),
+					playbookFolder,
+					'.openwizardai/playbooks/RET',
+					4
+				);
 			});
 			expect(result.current.autoRunStagedDocs).toEqual(['RET/RET-01', 'RET/nested/RET-02']);
 
@@ -792,7 +797,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'playbooks', type: 'folder', children: [] },
-					'.maestro/playbooks',
+					'.openwizardai/playbooks',
 					4
 				);
 			});
@@ -826,7 +831,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'RET-01.md', type: 'file' },
-					'.maestro/playbooks/RET/RET-01.md',
+					'.openwizardai/playbooks/RET/RET-01.md',
 					4
 				);
 			});
@@ -848,7 +853,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'bundle.txt', type: 'file' },
-					'.maestro/playbooks/RET/bundle.txt',
+					'.openwizardai/playbooks/RET/bundle.txt',
 					4
 				);
 			});
@@ -865,7 +870,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'RET-99.md', type: 'file' },
-					'.maestro/playbooks/RET/RET-99.md',
+					'.openwizardai/playbooks/RET/RET-99.md',
 					4
 				);
 			});
@@ -878,7 +883,7 @@ describe('useFileContextMenu', () => {
 				...autoRunSession,
 				fileTree: [
 					{
-						name: '.maestro',
+						name: '.openwizardai',
 						type: 'folder',
 						children: [
 							{
@@ -900,7 +905,10 @@ describe('useFileContextMenu', () => {
 				],
 			} as any;
 			const selectedPathsRef = {
-				current: new Set(['.maestro/playbooks/RET/RET-01.md', '.maestro/playbooks/RET/RET-03.md']),
+				current: new Set([
+					'.openwizardai/playbooks/RET/RET-01.md',
+					'.openwizardai/playbooks/RET/RET-03.md',
+				]),
 			};
 			const { result } = renderHook(() =>
 				useFileContextMenu({ ...defaultArgs, session: selectionSession, selectedPathsRef })
@@ -910,7 +918,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'RET-01.md', type: 'file' },
-					'.maestro/playbooks/RET/RET-01.md',
+					'.openwizardai/playbooks/RET/RET-01.md',
 					4
 				);
 			});
@@ -921,7 +929,10 @@ describe('useFileContextMenu', () => {
 		it('stages only the clicked row when right-clicking outside the selection', () => {
 			batchDocumentList.mockReturnValue(['RET/RET-01', 'RET/RET-02', 'RET/RET-03']);
 			const selectedPathsRef = {
-				current: new Set(['.maestro/playbooks/RET/RET-01.md', '.maestro/playbooks/RET/RET-03.md']),
+				current: new Set([
+					'.openwizardai/playbooks/RET/RET-01.md',
+					'.openwizardai/playbooks/RET/RET-03.md',
+				]),
 			};
 			const { result } = renderHook(() =>
 				useFileContextMenu({ ...defaultArgs, session: autoRunSession, selectedPathsRef })
@@ -931,7 +942,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'RET-02.md', type: 'file' },
-					'.maestro/playbooks/RET/RET-02.md',
+					'.openwizardai/playbooks/RET/RET-02.md',
 					5
 				);
 			});
@@ -944,7 +955,7 @@ describe('useFileContextMenu', () => {
 				...autoRunSession,
 				fileTree: [
 					{
-						name: '.maestro',
+						name: '.openwizardai',
 						type: 'folder',
 						children: [
 							{
@@ -966,9 +977,9 @@ describe('useFileContextMenu', () => {
 			} as any;
 			const selectedPathsRef = {
 				current: new Set([
-					'.maestro/playbooks/RET',
-					'.maestro/playbooks/RET/RET-01.md',
-					'.maestro/playbooks/SPEC.md',
+					'.openwizardai/playbooks/RET',
+					'.openwizardai/playbooks/RET/RET-01.md',
+					'.openwizardai/playbooks/SPEC.md',
 					'docs/README.md',
 				]),
 			};
@@ -980,7 +991,7 @@ describe('useFileContextMenu', () => {
 				result.current.openContextMenu(
 					makeEvent(),
 					{ name: 'RET-01.md', type: 'file' },
-					'.maestro/playbooks/RET/RET-01.md',
+					'.openwizardai/playbooks/RET/RET-01.md',
 					4
 				);
 			});
@@ -994,7 +1005,12 @@ describe('useFileContextMenu', () => {
 			const { result } = renderHook(() => useFileContextMenu(defaultArgs));
 
 			act(() => {
-				result.current.openContextMenu(makeEvent(), playbookFolder, '.maestro/playbooks/RET', 4);
+				result.current.openContextMenu(
+					makeEvent(),
+					playbookFolder,
+					'.openwizardai/playbooks/RET',
+					4
+				);
 			});
 			expect(result.current.autoRunStagedDocs).toEqual([]);
 		});
@@ -1010,6 +1026,6 @@ describe('useFileContextMenu', () => {
 			await result.current.handleCompressFolder();
 		});
 
-		expect(mockMaestro.fs.compressFolder).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.compressFolder).not.toHaveBeenCalled();
 	});
 });

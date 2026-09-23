@@ -34,14 +34,14 @@ describe('sanitizeBlock', () => {
 		);
 	});
 
-	it('preserves the maestro-file:// protocol', () => {
-		const out = sanitizeBlock('<a href="maestro-file://path/to/file.md">x</a>');
-		expect(out).toContain('href="maestro-file://path/to/file.md"');
+	it('preserves the openwizardai-file:// protocol', () => {
+		const out = sanitizeBlock('<a href="openwizardai-file://path/to/file.md">x</a>');
+		expect(out).toContain('href="openwizardai-file://path/to/file.md"');
 	});
 
-	it('preserves the maestro:// deep link protocol', () => {
-		const out = sanitizeBlock('<a href="maestro://session/abc/tab/xyz">x</a>');
-		expect(out).toContain('href="maestro://session/abc/tab/xyz"');
+	it('preserves the openwizardai:// deep link protocol', () => {
+		const out = sanitizeBlock('<a href="openwizardai://session/abc/tab/xyz">x</a>');
+		expect(out).toContain('href="openwizardai://session/abc/tab/xyz"');
 	});
 
 	it('preserves mailto: and tel: URIs', () => {
@@ -49,14 +49,14 @@ describe('sanitizeBlock', () => {
 		expect(sanitizeBlock('<a href="tel:+1234">x</a>')).toContain('tel:+1234');
 	});
 
-	it('preserves data-maestro-file data attributes', () => {
-		const out = sanitizeBlock('<a data-maestro-file="docs/readme.md">link</a>');
-		expect(out).toContain('data-maestro-file="docs/readme.md"');
+	it('preserves data-openwizardai-file data attributes', () => {
+		const out = sanitizeBlock('<a data-openwizardai-file="docs/readme.md">link</a>');
+		expect(out).toContain('data-openwizardai-file="docs/readme.md"');
 	});
 
-	it('preserves data-maestro-image data attributes', () => {
-		const out = sanitizeBlock('<img data-maestro-image="path.png" src="path.png" alt="x">');
-		expect(out).toContain('data-maestro-image="path.png"');
+	it('preserves data-openwizardai-image data attributes', () => {
+		const out = sanitizeBlock('<img data-openwizardai-image="path.png" src="path.png" alt="x">');
+		expect(out).toContain('data-openwizardai-image="path.png"');
 	});
 
 	it('preserves target attributes on anchors', () => {

@@ -54,7 +54,7 @@ vi.mock('../../../main/cue/config/cue-config-repository', () => ({
 	writeCuePromptFile: vi.fn(),
 	pruneOrphanedPromptFiles: vi.fn(() => []),
 	removeEmptyPromptsDir: vi.fn(() => false),
-	removeEmptyMaestroDir: vi.fn(() => false),
+	removeEmptyOpenWizardAIDir: vi.fn(() => false),
 }));
 
 vi.mock('../../../main/cue/pipeline-layout-store', () => ({
@@ -67,7 +67,7 @@ vi.mock('../../../main/cue/cue-pipeline-rename', () => ({
 }));
 
 vi.mock('../../../main/cue/cue-types', () => ({
-	CUE_YAML_FILENAME: 'maestro-cue.yaml', // legacy name kept in cue-types for compat
+	CUE_YAML_FILENAME: 'openwizardai-cue.yaml', // legacy name kept in cue-types for compat
 }));
 
 import { registerCueHandlers } from '../../../main/ipc/handlers/cue';
@@ -80,7 +80,7 @@ import {
 	writeCuePromptFile,
 	pruneOrphanedPromptFiles,
 	removeEmptyPromptsDir,
-	removeEmptyMaestroDir,
+	removeEmptyOpenWizardAIDir,
 } from '../../../main/cue/config/cue-config-repository';
 import { savePipelineLayout, loadPipelineLayout } from '../../../main/cue/pipeline-layout-store';
 import { renamePipelineOnDisk } from '../../../main/cue/cue-pipeline-rename';
@@ -299,7 +299,7 @@ describe('Cue IPC Handlers', () => {
 	describe('cue:readYaml', () => {
 		it('should return file content when file exists', async () => {
 			vi.mocked(readCueConfigFile).mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: 'subscriptions: []',
 			});
 
@@ -329,7 +329,7 @@ describe('Cue IPC Handlers', () => {
 
 		it('returns changed=true and writes when YAML differs from disk', async () => {
 			vi.mocked(readCueConfigFile).mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: 'subscriptions: []',
 			});
 			const content = 'subscriptions:\n  - name: new';
@@ -344,7 +344,7 @@ describe('Cue IPC Handlers', () => {
 		it('skips the write and returns changed=false when YAML is byte-identical (layout-only save)', async () => {
 			const content = 'subscriptions:\n  - name: same';
 			vi.mocked(readCueConfigFile).mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: content,
 			});
 
@@ -359,7 +359,7 @@ describe('Cue IPC Handlers', () => {
 
 		it('skips an identical prompt file but still reports changed when YAML differs', async () => {
 			vi.mocked(readCueConfigFile).mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: 'old yaml',
 			});
 			vi.mocked(readCuePromptFile).mockReturnValue('identical body');
@@ -368,7 +368,7 @@ describe('Cue IPC Handlers', () => {
 			const result = await handler(null, {
 				projectRoot: '/projects/test',
 				content: 'subscriptions: []',
-				promptFiles: { '.maestro/prompts/sub-1.md': 'identical body' },
+				promptFiles: { '.openwizardai/prompts/sub-1.md': 'identical body' },
 			});
 
 			expect(writeCuePromptFile).not.toHaveBeenCalled();
@@ -378,7 +378,7 @@ describe('Cue IPC Handlers', () => {
 		it('returns changed=true when only a prompt file changed (YAML identical)', async () => {
 			const content = 'subscriptions: []';
 			vi.mocked(readCueConfigFile).mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: content,
 			});
 			vi.mocked(readCuePromptFile).mockReturnValue('old body');
@@ -387,13 +387,13 @@ describe('Cue IPC Handlers', () => {
 			const result = await handler(null, {
 				projectRoot: '/projects/test',
 				content,
-				promptFiles: { '.maestro/prompts/sub-1.md': 'new body' },
+				promptFiles: { '.openwizardai/prompts/sub-1.md': 'new body' },
 			});
 
 			expect(writeCueConfigFile).not.toHaveBeenCalled();
 			expect(writeCuePromptFile).toHaveBeenCalledWith(
 				'/projects/test',
-				'.maestro/prompts/sub-1.md',
+				'.openwizardai/prompts/sub-1.md',
 				'new body'
 			);
 			expect(result).toEqual({ changed: true });
@@ -410,9 +410,9 @@ describe('Cue IPC Handlers', () => {
 						event: 'app.startup',
 						fan_out: ['A', 'B', 'C'],
 						fan_out_prompt_files: [
-							'.maestro/prompts/a-pipe.md',
-							'.maestro/prompts/b-pipe.md',
-							'.maestro/prompts/c-pipe.md',
+							'.openwizardai/prompts/a-pipe.md',
+							'.openwizardai/prompts/b-pipe.md',
+							'.openwizardai/prompts/c-pipe.md',
 						],
 					},
 				],
@@ -426,9 +426,9 @@ describe('Cue IPC Handlers', () => {
 			const kept = [...(keepSet as Iterable<string>)];
 			expect(kept).toEqual(
 				expect.arrayContaining([
-					'.maestro/prompts/a-pipe.md',
-					'.maestro/prompts/b-pipe.md',
-					'.maestro/prompts/c-pipe.md',
+					'.openwizardai/prompts/a-pipe.md',
+					'.openwizardai/prompts/b-pipe.md',
+					'.openwizardai/prompts/c-pipe.md',
 				])
 			);
 		});
@@ -436,8 +436,8 @@ describe('Cue IPC Handlers', () => {
 		it('should also write external prompt files when provided', async () => {
 			const content = 'subscriptions: []';
 			const promptFiles = {
-				'.maestro/prompts/sub-1.md': 'prompt body 1',
-				'.maestro/prompts/sub-2.md': 'prompt body 2',
+				'.openwizardai/prompts/sub-1.md': 'prompt body 1',
+				'.openwizardai/prompts/sub-2.md': 'prompt body 2',
 			};
 
 			const handler = registerAndGetHandler('cue:writeYaml');
@@ -446,18 +446,18 @@ describe('Cue IPC Handlers', () => {
 			expect(writeCueConfigFile).toHaveBeenCalledWith('/projects/test', content);
 			expect(writeCuePromptFile).toHaveBeenCalledWith(
 				'/projects/test',
-				'.maestro/prompts/sub-1.md',
+				'.openwizardai/prompts/sub-1.md',
 				'prompt body 1'
 			);
 			expect(writeCuePromptFile).toHaveBeenCalledWith(
 				'/projects/test',
-				'.maestro/prompts/sub-2.md',
+				'.openwizardai/prompts/sub-2.md',
 				'prompt body 2'
 			);
 		});
 
 		// Security-hardening tests: reject malformed prompt-file keys that
-		// could write outside the .maestro/prompts/ directory. The handler
+		// could write outside the .openwizardai/prompts/ directory. The handler
 		// validates and throws synchronously from inside the async callback -
 		// vi.mock's `withIpcErrorLogging` preserves the rejection.
 		//
@@ -511,14 +511,14 @@ describe('Cue IPC Handlers', () => {
 					handler(null, {
 						projectRoot: '/projects/test',
 						content: 'subscriptions: []',
-						promptFiles: { '.maestro/prompts/./sub.md': 'x' },
+						promptFiles: { '.openwizardai/prompts/./sub.md': 'x' },
 					})
 				).rejects.toThrow(/"\." or "\.\." segment/);
 				expect(writeCuePromptFile).not.toHaveBeenCalled();
 				expect(writeCueConfigFile).not.toHaveBeenCalled();
 			});
 
-			it('rejects paths that resolve outside .maestro/prompts/', async () => {
+			it('rejects paths that resolve outside .openwizardai/prompts/', async () => {
 				const handler = registerAndGetHandler('cue:writeYaml');
 				await expect(
 					handler(null, {
@@ -526,7 +526,7 @@ describe('Cue IPC Handlers', () => {
 						content: 'subscriptions: []',
 						promptFiles: { 'not-prompts/file.md': 'x' },
 					})
-				).rejects.toThrow(/resolves outside the .maestro\/prompts directory/);
+				).rejects.toThrow(/resolves outside the .openwizardai\/prompts directory/);
 				expect(writeCuePromptFile).not.toHaveBeenCalled();
 				expect(writeCueConfigFile).not.toHaveBeenCalled();
 			});
@@ -539,7 +539,7 @@ describe('Cue IPC Handlers', () => {
 					handler(null, {
 						projectRoot: '/projects/test',
 						content: 'subscriptions: []',
-						promptFiles: { '.maestro/prompts/../../escape.md': 'x' },
+						promptFiles: { '.openwizardai/prompts/../../escape.md': 'x' },
 					})
 				).rejects.toThrow(/"\." or "\.\." segment/);
 				expect(writeCuePromptFile).not.toHaveBeenCalled();
@@ -552,7 +552,7 @@ describe('Cue IPC Handlers', () => {
 					handler(null, {
 						projectRoot: '/projects/test',
 						content: 'subscriptions: []',
-						promptFiles: { '.maestro/prompts/payload.sh': 'x' },
+						promptFiles: { '.openwizardai/prompts/payload.sh': 'x' },
 					})
 				).rejects.toThrow(/must end with .md/);
 				expect(writeCuePromptFile).not.toHaveBeenCalled();
@@ -567,12 +567,12 @@ describe('Cue IPC Handlers', () => {
 				await handler(null, {
 					projectRoot: '/projects/test',
 					content: 'subscriptions: []',
-					promptFiles: { '.maestro\\prompts\\sub.md': 'body' },
+					promptFiles: { '.openwizardai\\prompts\\sub.md': 'body' },
 				});
 				// Normalized separator is stored as the written-file key.
 				expect(writeCuePromptFile).toHaveBeenCalledWith(
 					'/projects/test',
-					'.maestro/prompts/sub.md',
+					'.openwizardai/prompts/sub.md',
 					'body'
 				);
 			});
@@ -599,18 +599,18 @@ describe('Cue IPC Handlers', () => {
 
 		it('prunes all .md prompt files and removes the empty prompts dir', async () => {
 			// The "Remove Cue configuration" button must collapse the project's
-			// `.maestro` footprint - deleting the yaml alone used to leave
+			// `.openwizardai` footprint - deleting the yaml alone used to leave
 			// orphaned prompt files behind forever.
 			vi.mocked(deleteCueConfigFile).mockReturnValue(true);
 
 			const handler = registerAndGetHandler('cue:deleteYaml');
 			await handler(null, { projectRoot: '/projects/test' });
 
-			// Keep-set is empty - everything in .maestro/prompts/ is orphaned.
+			// Keep-set is empty - everything in .openwizardai/prompts/ is orphaned.
 			expect(pruneOrphanedPromptFiles).toHaveBeenCalledWith('/projects/test', []);
-			// Then collapse the now-empty prompts directory, then .maestro/ itself.
+			// Then collapse the now-empty prompts directory, then .openwizardai/ itself.
 			expect(removeEmptyPromptsDir).toHaveBeenCalledWith('/projects/test');
-			expect(removeEmptyMaestroDir).toHaveBeenCalledWith('/projects/test');
+			expect(removeEmptyOpenWizardAIDir).toHaveBeenCalledWith('/projects/test');
 		});
 
 		it('prunes prompts even when the yaml file was already absent', async () => {
@@ -623,7 +623,7 @@ describe('Cue IPC Handlers', () => {
 
 			expect(pruneOrphanedPromptFiles).toHaveBeenCalledWith('/projects/test', []);
 			expect(removeEmptyPromptsDir).toHaveBeenCalledWith('/projects/test');
-			expect(removeEmptyMaestroDir).toHaveBeenCalledWith('/projects/test');
+			expect(removeEmptyOpenWizardAIDir).toHaveBeenCalledWith('/projects/test');
 		});
 	});
 
@@ -748,7 +748,7 @@ describe('Cue IPC Handlers', () => {
 		const okResult = {
 			renamed: true,
 			subscriptionsUpdated: 2,
-			filesWritten: ['/a/.maestro/cue.yaml'],
+			filesWritten: ['/a/.openwizardai/cue.yaml'],
 			warnings: [],
 		};
 
@@ -796,7 +796,7 @@ describe('Cue IPC Handlers', () => {
 				subscriptionsUpdated: 0,
 				filesWritten: [],
 				reason: 'the name is unchanged',
-				warnings: ['could not read /b/.maestro/cue.yaml: EACCES'],
+				warnings: ['could not read /b/.openwizardai/cue.yaml: EACCES'],
 			};
 			mockEngine.getStatus.mockReturnValue([{ projectRoot: '/a' }]);
 			vi.mocked(renamePipelineOnDisk).mockReturnValue(refusal);

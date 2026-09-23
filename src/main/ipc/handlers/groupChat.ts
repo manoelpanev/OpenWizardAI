@@ -164,19 +164,19 @@ export type GroupChatState = 'idle' | 'moderator-thinking' | 'agent-working';
 
 /**
  * Grooming failures that are expected, user-environment conditions rather than
- * Maestro bugs. `resetContext` below always recovers from them by starting the
+ * OpenWizardAI bugs. `resetContext` below always recovers from them by starting the
  * participant on a fresh session, so reporting them to Sentry is pure noise.
  *
  * - "Session not found ..." - the participant's provider session was deleted
- *   mid-summary (MAESTRO-JB).
+ *   mid-summary (OPENWIZARDAI-JB).
  * - "Agent <id> is not available" - the participant's agent binary isn't
- *   installed or detected on this machine (MAESTRO-KA).
+ *   installed or detected on this machine (OPENWIZARDAI-KA).
  * - "Failed to spawn grooming process for <id>" - the binary cleared the
  *   availability probe but wouldn't launch: gone from PATH by the time we
  *   spawn, not executable, or an SSH remote that went away. Nothing we can fix
- *   from here (MAESTRO-JS).
+ *   from here (OPENWIZARDAI-JS).
  * - Revoked / unrefreshable provider credentials - the user has to sign back
- *   in; grooming just happened to be the call that surfaced it (MAESTRO-K7).
+ *   in; grooming just happened to be the call that surfaced it (OPENWIZARDAI-K7).
  *
  * Anything else still reports, so a genuine fault in the grooming path keeps
  * surfacing.
@@ -258,9 +258,9 @@ export function registerGroupChatHandlers(deps: GroupChatHandlerDependencies): v
 					customPath?: string;
 					customArgs?: string;
 					customEnvVars?: Record<string, string>;
-					enableMaestroP?: boolean;
-					maestroPMode?: 'interactive' | 'dynamic';
-					maestroPPath?: string;
+					enableOpenWizardAIP?: boolean;
+					openwizardaiPMode?: 'interactive' | 'dynamic';
+					openwizardaiPPath?: string;
 				},
 				requireIdleParticipants?: boolean
 			): Promise<GroupChat> => {
@@ -383,9 +383,9 @@ export function registerGroupChatHandlers(deps: GroupChatHandlerDependencies): v
 						customPath?: string;
 						customArgs?: string;
 						customEnvVars?: Record<string, string>;
-						enableMaestroP?: boolean;
-						maestroPMode?: 'interactive' | 'dynamic';
-						maestroPPath?: string;
+						enableOpenWizardAIP?: boolean;
+						openwizardaiPMode?: 'interactive' | 'dynamic';
+						openwizardaiPPath?: string;
 					};
 					requireIdleParticipants?: boolean;
 				}
@@ -657,7 +657,7 @@ export function registerGroupChatHandlers(deps: GroupChatHandlerDependencies): v
 
 				// Reset participant state to idle (mirrors what exit-listener does for regular participants).
 				// Without this the participant card stays "Working" because no process exit fires for
-				// autorun participants (the batch runs in a separate Maestro session, not a group-chat session).
+				// autorun participants (the batch runs in a separate OpenWizardAI session, not a group-chat session).
 				groupChatEmitters.emitParticipantState?.(groupChatId, participantName, 'idle');
 
 				// Signal the renderer to definitively complete the batch run for this participant.
@@ -669,7 +669,7 @@ export function registerGroupChatHandlers(deps: GroupChatHandlerDependencies): v
 				// Mark participant as done and trigger synthesis if all participants have responded.
 				// Unlike regular participants (whose process exit triggers this via exit-listener),
 				// autorun participants never exit a group-chat process - the batch runs as a separate
-				// Maestro session - so we must call markParticipantResponded here.
+				// OpenWizardAI session - so we must call markParticipantResponded here.
 				const agentDetector = getAgentDetector();
 				const isLast = markParticipantResponded(groupChatId, participantName);
 				if (isLast) {

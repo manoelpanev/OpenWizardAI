@@ -10,8 +10,8 @@ import DOMPurify from 'dompurify';
  *
  * Policy choices:
  * - `ALLOWED_URI_REGEXP` lets the standard web protocols through plus our
- *   internal `maestro-file:` protocol (resolved by the delegated click
- *   handler to the in-app file viewer) and `maestro:` deep links (routed
+ *   internal `openwizardai-file:` protocol (resolved by the delegated click
+ *   handler to the in-app file viewer) and `openwizardai:` deep links (routed
  *   through the in-app deep link handler).
  * - `ADD_ATTR` whitelists the two data attributes our link rewriter relies
  *   on; without these DOMPurify would strip them.
@@ -22,8 +22,8 @@ import DOMPurify from 'dompurify';
  */
 const PURIFY_CONFIG = {
 	ALLOWED_URI_REGEXP:
-		/^(?:(?:https?|ftp|mailto|tel|file|maestro-file|maestro):)|^[^a-z]|^[a-z+.\-]+(?:[^a-z+.\-:]|$)/i,
-	ADD_ATTR: ['target', 'data-maestro-file', 'data-maestro-image'] as string[],
+		/^(?:(?:https?|ftp|mailto|tel|file|openwizardai-file|openwizardai):)|^[^a-z]|^[a-z+.\-]+(?:[^a-z+.\-:]|$)/i,
+	ADD_ATTR: ['target', 'data-openwizardai-file', 'data-openwizardai-image'] as string[],
 	FORBID_TAGS: ['form', 'input', 'button', 'select', 'textarea', 'object', 'embed'] as string[],
 };
 

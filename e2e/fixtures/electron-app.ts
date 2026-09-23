@@ -36,7 +36,7 @@ function getMainPath(): string {
 function createTestDataDir(): string {
 	const testDir = path.join(
 		os.tmpdir(),
-		`maestro-e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`
+		`openwizardai-e2e-${Date.now()}-${Math.random().toString(36).slice(2)}`
 	);
 	fs.mkdirSync(testDir, { recursive: true });
 	return testDir;
@@ -92,13 +92,13 @@ export const test = base.extend<ElectronTestFixtures>({
 			env: {
 				...process.env,
 				// Use isolated data directory for tests
-				MAESTRO_DATA_DIR: testDataDir,
+				OPENWIZARDAI_DATA_DIR: testDataDir,
 				// Disable hardware acceleration for CI
 				ELECTRON_DISABLE_GPU: '1',
 				// Set NODE_ENV to test
 				NODE_ENV: 'test',
 				// Ensure we're in a testing context
-				MAESTRO_E2E_TEST: 'true',
+				OPENWIZARDAI_E2E_TEST: 'true',
 			},
 			// Increase timeout for slow CI environments
 			timeout: 30000,
@@ -137,7 +137,7 @@ export const helpers = {
 	async waitForWizard(window: Page): Promise<void> {
 		// The wizard modal should have a specific structure
 		// Looking for the wizard container or title
-		await window.waitForSelector('text=Create a Maestro Agent', { timeout: 10000 });
+		await window.waitForSelector('text=Create an OpenWizardAI Agent', { timeout: 10000 });
 	},
 
 	/**
@@ -211,7 +211,7 @@ export const helpers = {
 	 */
 	async waitForWizardClose(window: Page): Promise<void> {
 		// Wait for the wizard title to disappear
-		await window.waitForSelector('text=Create a Maestro Agent', {
+		await window.waitForSelector('text=Create an OpenWizardAI Agent', {
 			state: 'hidden',
 			timeout: 10000,
 		});
@@ -360,7 +360,7 @@ export const helpers = {
 	 * Create an Auto Run test folder with sample documents
 	 */
 	createAutoRunTestFolder(basePath: string): string {
-		const autoRunFolder = path.join(basePath, '.maestro/playbooks');
+		const autoRunFolder = path.join(basePath, '.openwizardai/playbooks');
 		fs.mkdirSync(autoRunFolder, { recursive: true });
 
 		// Create sample documents
@@ -496,7 +496,7 @@ More content for the second phase.
 	 * Create an Auto Run test folder with batch processing test documents
 	 */
 	createBatchTestFolder(basePath: string): string {
-		const autoRunFolder = path.join(basePath, '.maestro/playbooks');
+		const autoRunFolder = path.join(basePath, '.openwizardai/playbooks');
 		fs.mkdirSync(autoRunFolder, { recursive: true });
 
 		// Create documents with varying task counts
@@ -647,8 +647,8 @@ All tasks complete in this document.
 	 * Create test folders for multiple sessions with unique content
 	 */
 	createMultiSessionTestFolders(basePath: string): { session1: string; session2: string } {
-		const session1Path = path.join(basePath, 'session1', '.maestro/playbooks');
-		const session2Path = path.join(basePath, 'session2', '.maestro/playbooks');
+		const session1Path = path.join(basePath, 'session1', '.openwizardai/playbooks');
+		const session2Path = path.join(basePath, 'session2', '.openwizardai/playbooks');
 
 		fs.mkdirSync(session1Path, { recursive: true });
 		fs.mkdirSync(session2Path, { recursive: true });

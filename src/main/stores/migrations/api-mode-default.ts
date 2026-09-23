@@ -2,18 +2,18 @@
  * API Mode Default Migration
  *
  * One-shot reset that forces every existing Claude Code agent back onto the API
- * token source (`claude --print`, persisted as `enableMaestroP: false`).
+ * token source (`claude --print`, persisted as `enableOpenWizardAIP: false`).
  *
  * Background: an earlier migration (`migrateAdaptiveModeDefault`) flipped
- * unconfigured Claude Code agents onto Adaptive Mode (maestro-p), which legacy
- * storage reads as Dynamic. The maestro-p TUI path has since been a recurring
+ * unconfigured Claude Code agents onto Adaptive Mode (openwizardai-p), which legacy
+ * storage reads as Dynamic. The openwizardai-p TUI path has since been a recurring
  * source of trouble, so we are reverting that decision wholesale: this
- * migration sets `enableMaestroP: false` on ALL Claude Code agents - including
+ * migration sets `enableOpenWizardAIP: false` on ALL Claude Code agents - including
  * ones currently on TUI or Dynamic, whether chosen automatically or by hand.
  * After this runs, every Claude Code agent spends per-token API credit until
  * the user deliberately re-enables TUI/Dynamic on that agent.
  *
- * `maestroPMode` is left untouched: it is ignored while `enableMaestroP` is
+ * `openwizardaiPMode` is left untouched: it is ignored while `enableOpenWizardAIP` is
  * false, so leaving it in place simply remembers the user's prior sub-choice
  * if they later turn Adaptive Mode back on.
  *
@@ -26,7 +26,7 @@ import type Store from 'electron-store';
 
 import { logger } from '../../utils/logger';
 import { getSessionsStore } from '../getters';
-import type { MaestroSettings, StoredSession } from '../types';
+import type { OpenWizardAISettings, StoredSession } from '../types';
 
 /** Settings key marking the one-time API-mode reset as done. */
 export const API_MODE_DEFAULT_MIGRATION_MARKER = 'migration_apiModeDefaultV1';
@@ -36,7 +36,7 @@ export const API_MODE_DEFAULT_MIGRATION_MARKER = 'migration_apiModeDefaultV1';
  * Reads/writes the sessions store directly; guarded by a marker in the passed
  * settings store.
  */
-export function migrateApiModeDefault(store: Store<MaestroSettings>): void {
+export function migrateApiModeDefault(store: Store<OpenWizardAISettings>): void {
 	if (store.get(API_MODE_DEFAULT_MIGRATION_MARKER)) {
 		return;
 	}
@@ -49,9 +49,9 @@ export function migrateApiModeDefault(store: Store<MaestroSettings>): void {
 		// Reset EVERY Claude Code agent that isn't already pinned to API. Unlike
 		// the prior adaptive-mode backfill, this is a deliberate blanket reset:
 		// TUI/Dynamic agents (auto-flipped or hand-picked) all go back to API.
-		if (session.toolType === 'claude-code' && session.enableMaestroP !== false) {
+		if (session.toolType === 'claude-code' && session.enableOpenWizardAIP !== false) {
 			updated++;
-			return { ...session, enableMaestroP: false };
+			return { ...session, enableOpenWizardAIP: false };
 		}
 		return session;
 	});

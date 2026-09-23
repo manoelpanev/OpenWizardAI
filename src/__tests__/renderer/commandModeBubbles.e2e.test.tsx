@@ -44,7 +44,7 @@ import type { LogEntry, Session } from '../../renderer/types';
 const SESSION_ID = 'session-1';
 const TAB_ID = 'tab-1';
 
-// --- window.maestro.process double -------------------------------------------
+// --- window.openwizardai.process double -------------------------------------------
 
 type Listener = (sessionId: string, arg: never) => void;
 let dataListeners: Listener[] = [];
@@ -128,7 +128,7 @@ beforeEach(() => {
 	exitListeners = [];
 	runCommand.mockResolvedValue({ exitCode: 0 });
 
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		process: {
 			runCommand,
 			cancelCommand: vi.fn().mockResolvedValue(true),

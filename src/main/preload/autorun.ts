@@ -1,7 +1,7 @@
 /**
  * Preload API for Auto Run operations
  *
- * Provides the window.maestro.autorun, playbooks, and marketplace namespaces for:
+ * Provides the window.openwizardai.autorun, playbooks, and marketplace namespaces for:
  * - Auto Run document management
  * - Playbook CRUD operations
  * - Marketplace playbook browsing and importing

@@ -23,27 +23,27 @@ describe('main/stores/write-tracker', () => {
 	});
 
 	it('reports no recent write for an untouched file', () => {
-		expect(hadRecentInternalWrite('maestro-settings.json')).toBe(false);
+		expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(false);
 	});
 
 	it('reports a recent write inside the shadow window', () => {
-		markInternalWrite('maestro-settings.json');
+		markInternalWrite('openwizardai-settings.json');
 		vi.advanceTimersByTime(INTERNAL_WRITE_SHADOW_MS - 1);
 
-		expect(hadRecentInternalWrite('maestro-settings.json')).toBe(true);
+		expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(true);
 	});
 
 	it('expires once the shadow window has elapsed', () => {
-		markInternalWrite('maestro-settings.json');
+		markInternalWrite('openwizardai-settings.json');
 		vi.advanceTimersByTime(INTERNAL_WRITE_SHADOW_MS + 1);
 
-		expect(hadRecentInternalWrite('maestro-settings.json')).toBe(false);
+		expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(false);
 	});
 
 	it('keeps files independent', () => {
-		markInternalWrite('maestro-settings.json');
+		markInternalWrite('openwizardai-settings.json');
 
-		expect(hadRecentInternalWrite('maestro-agent-configs.json')).toBe(false);
+		expect(hadRecentInternalWrite('openwizardai-agent-configs.json')).toBe(false);
 	});
 
 	describe('trackStoreWrites', () => {
@@ -70,32 +70,32 @@ describe('main/stores/write-tracker', () => {
 		}
 
 		it('stamps a write and preserves the return value and behaviour', () => {
-			const store = trackStoreWrites(makeStore(), 'maestro-settings.json');
+			const store = trackStoreWrites(makeStore(), 'openwizardai-settings.json');
 
 			const result = store.set('conductorProfile', 'hello');
 
 			expect(result).toBe('set-result');
 			expect(store.get('conductorProfile')).toBe('hello');
-			expect(hadRecentInternalWrite('maestro-settings.json')).toBe(true);
+			expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(true);
 		});
 
 		it('stamps delete, clear, and reset too', () => {
 			for (const method of ['delete', 'clear', 'reset'] as const) {
 				resetInternalWriteTracking();
-				const store = trackStoreWrites(makeStore(), 'maestro-settings.json');
+				const store = trackStoreWrites(makeStore(), 'openwizardai-settings.json');
 
 				store[method]('conductorProfile');
 
-				expect(hadRecentInternalWrite('maestro-settings.json')).toBe(true);
+				expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(true);
 			}
 		});
 
 		it('does not stamp reads', () => {
-			const store = trackStoreWrites(makeStore(), 'maestro-settings.json');
+			const store = trackStoreWrites(makeStore(), 'openwizardai-settings.json');
 
 			store.get('conductorProfile');
 
-			expect(hadRecentInternalWrite('maestro-settings.json')).toBe(false);
+			expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(false);
 		});
 
 		it('stamps even when the underlying write throws', () => {
@@ -105,11 +105,11 @@ describe('main/stores/write-tracker', () => {
 						throw new Error('ENOSPC');
 					},
 				},
-				'maestro-settings.json'
+				'openwizardai-settings.json'
 			);
 
 			expect(() => store.set()).toThrow('ENOSPC');
-			expect(hadRecentInternalWrite('maestro-settings.json')).toBe(true);
+			expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(true);
 		});
 	});
 });

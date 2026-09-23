@@ -1,7 +1,7 @@
 /**
  * Tests for CueHelpContent component
  *
- * CueHelpContent displays comprehensive documentation about the Maestro Cue
+ * CueHelpContent displays comprehensive documentation about the OpenWizardAI Cue
  * event-driven automation feature. It renders inline within the CueModal.
  */
 
@@ -34,14 +34,14 @@ describe('CueHelpContent', () => {
 			render(<CueHelpContent theme={mockTheme} />);
 		});
 
-		it('should render What is OpenWizzard Cue section', () => {
-			expect(screen.getByText('What is OpenWizzard Cue?')).toBeInTheDocument();
+		it('should render What is OpenWizardAI Cue section', () => {
+			expect(screen.getByText('What is OpenWizardAI Cue?')).toBeInTheDocument();
 			expect(screen.getByText(/event-driven automation system/)).toBeInTheDocument();
 		});
 
 		it('should render Getting Started section', () => {
 			expect(screen.getByText('Getting Started')).toBeInTheDocument();
-			expect(screen.getByText(/\.maestro\/cue\.yaml/)).toBeInTheDocument();
+			expect(screen.getByText(/\.openwizardai\/cue\.yaml/)).toBeInTheDocument();
 		});
 
 		it('should render minimal YAML example', () => {
@@ -84,7 +84,7 @@ describe('CueHelpContent', () => {
 			expect(screen.getByText('{{CUE_SOURCE_TRIGGERED_BY}}')).toBeInTheDocument();
 		});
 
-		it('should mention standard OpenWizzard template variables', () => {
+		it('should mention standard OpenWizardAI template variables', () => {
 			expect(screen.getByText('{{AGENT_NAME}}')).toBeInTheDocument();
 			expect(screen.getByText('{{DATE}}')).toBeInTheDocument();
 		});

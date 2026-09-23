@@ -19,8 +19,8 @@
  * that opted out of HTML passthrough: showing `<div>` as text is honest, while
  * silently deleting it would hide content the author wrote.
  *
- * ORDERING: this must run AFTER `remarkMaestroMarkers`, which turns Auto Run
- * marker comments (`MAESTRO:HITL`, `maestro:halt`, `MAESTRO:MODEL`) into pill
+ * ORDERING: this must run AFTER `remarkOpenWizardAIMarkers`, which turns Auto Run
+ * marker comments (`OPENWIZARDAI:HITL`, `openwizardai:halt`, `OPENWIZARDAI:MODEL`) into pill
  * nodes. Run it first and the pills are stripped instead of rendered.
  */
 

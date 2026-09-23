@@ -4,7 +4,7 @@ import { useEffect } from 'react';
  * Window-level fallback that routes Cmd+Z / Cmd+Shift+Z (and Ctrl+Y on
  * Windows/Linux) to the focused text input via `document.execCommand`.
  *
- * Maestro's Edit menu intentionally omits `role: 'undo'` / `role: 'redo'`
+ * OpenWizardAI's Edit menu intentionally omits `role: 'undo'` / `role: 'redo'`
  * so the image annotator can claim Cmd+Z for stroke undo. On macOS that
  * also disables native textarea/input undo inside Electron - Chromium
  * relies on the Edit menu role to deliver Cmd+Z to the focused editable

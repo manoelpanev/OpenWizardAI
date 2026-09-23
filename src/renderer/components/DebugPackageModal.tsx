@@ -54,7 +54,7 @@ export function DebugPackageModal({ theme, isOpen, onClose }: DebugPackageModalP
 			setResultPath(null);
 			setErrorMessage(null);
 
-			window.maestro.debug
+			window.openwizardai.debug
 				.previewPackage()
 				.then((preview) => {
 					setCategories(preview.categories);
@@ -145,7 +145,7 @@ export function DebugPackageModal({ theme, isOpen, onClose }: DebugPackageModalP
 	const handleRevealInFinder = useCallback(() => {
 		if (resultPath) {
 			// Use shell to open the containing folder
-			window.maestro.process
+			window.openwizardai.process
 				.runCommand({
 					sessionId: 'debug-package',
 					command: `open -R "${resultPath}"`,
@@ -362,7 +362,7 @@ export function DebugPackageModal({ theme, isOpen, onClose }: DebugPackageModalP
 							<strong style={{ color: theme.colors.textMain }}>To submit:</strong>
 						</p>
 						<ol className="list-decimal list-inside space-y-1">
-							<li>Open a GitHub issue at github.com/RunMaestro/Maestro/issues</li>
+							<li>Open a GitHub issue at github.com/manoelpanev/OpenWizardAI/issues</li>
 							<li>Describe the problem you encountered</li>
 							<li>Attach the generated zip file</li>
 						</ol>

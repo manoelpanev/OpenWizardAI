@@ -9,7 +9,7 @@ import {
 	useImperativeHandle,
 } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { urlTransformAllowingMaestro } from '../../utils/markdownUrlTransform';
+import { urlTransformAllowingOpenWizardAI } from '../../utils/markdownUrlTransform';
 import rehypeSlug from 'rehype-slug';
 import { rehypeSourceLine } from '../Markdown/rehypeSourceLine';
 import { AutoRunnerHelpModal } from './AutoRunnerHelpModal';
@@ -34,7 +34,7 @@ const MemoizedMarkdownPreview = memo(function MemoizedMarkdownPreview(props: {
 		<ReactMarkdown
 			remarkPlugins={props.remarkPlugins}
 			rehypePlugins={REHYPE_PLUGINS}
-			urlTransform={urlTransformAllowingMaestro}
+			urlTransform={urlTransformAllowingOpenWizardAI}
 			components={props.components}
 		>
 			{props.content}
@@ -151,7 +151,7 @@ const AutoRunInner = forwardRef<AutoRunHandle, AutoRunProps>(function AutoRunInn
 			batchRunState?.lockedDocuments?.includes(selectedFile)) ||
 		false;
 	// Editing is blocked only while the run is actually DRIVING that document.
-	// A paused run hands it back: an agent error and a MAESTRO:HITL review gate
+	// A paused run hands it back: an agent error and a OPENWIZARDAI:HITL review gate
 	// both park the engine on `errorPaused` until the user clicks Resume, and in
 	// both cases editing is the point - the user is there to tick a box or fix
 	// the step that stalled. Locking them out makes the gate unanswerable here.
@@ -327,7 +327,7 @@ const AutoRunInner = forwardRef<AutoRunHandle, AutoRunProps>(function AutoRunInn
 
 		// Auto-save the reset content
 		try {
-			await window.maestro.autorun.writeDoc(
+			await window.openwizardai.autorun.writeDoc(
 				folderPath,
 				selectedFile + '.md',
 				resetContent,
@@ -379,7 +379,7 @@ const AutoRunInner = forwardRef<AutoRunHandle, AutoRunProps>(function AutoRunInn
 			lastUndoSnapshotRef.current = result.content;
 
 			try {
-				await window.maestro.autorun.writeDoc(
+				await window.openwizardai.autorun.writeDoc(
 					folderPath,
 					selectedFile + '.md',
 					result.content,

@@ -14,7 +14,7 @@
 import type Store from 'electron-store';
 
 import { logger } from '../../utils/logger';
-import type { MaestroSettings } from '../types';
+import type { OpenWizardAISettings } from '../types';
 import { migrateAdaptiveModeDefault } from './adaptive-mode-default';
 import { migrateApiModeDefault } from './api-mode-default';
 import { migratePlaybooksFolder } from './playbooks-folder';
@@ -26,7 +26,7 @@ import { migratePlaybooksFolder } from './playbooks-folder';
  * Any migration that throws is logged at error and swallowed so a buggy
  * migration cannot block startup.
  */
-export function runSettingsMigrations(store: Store<MaestroSettings>): void {
+export function runSettingsMigrations(store: Store<OpenWizardAISettings>): void {
 	try {
 		migrateAdaptiveModeDefault(store);
 	} catch (error) {
@@ -34,7 +34,7 @@ export function runSettingsMigrations(store: Store<MaestroSettings>): void {
 	}
 
 	// Runs AFTER the adaptive-mode backfill so it overrides it: Anthropic's
-	// billing change means we no longer default anyone onto maestro-p. This
+	// billing change means we no longer default anyone onto openwizardai-p. This
 	// resets all Claude Code agents back to the API token source.
 	try {
 		migrateApiModeDefault(store);

@@ -5,7 +5,7 @@
 // The verbs are explicit set operations rather than a toggle: a script that
 // re-runs must land on the same state, and an agent driving the desktop has no
 // reliable way to observe a toggle's outcome mid-flight. Read the current value
-// back with `maestro-cli show-agent <id> --json` (field: `bookmarked`).
+// back with `openwizardai-cli show-agent <id> --json` (field: `bookmarked`).
 //
 // The write routes through the same `update_session_config` message the Edit
 // Agent fields use, so it is validated against the renderer's allowlist and

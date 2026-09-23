@@ -36,7 +36,7 @@ interface RunWorktreeSetupScriptArgs {
  * The batch runner only knows the repo cwd, so this resolves the owning parent
  * agent from the store instead of threading the session through every layer.
  *
- * Several agents can sit on ONE repo - that is a normal Maestro setup - and
+ * Several agents can sit on ONE repo - that is a normal OpenWizardAI setup - and
  * taking the first match would run a different agent's setup script in this
  * worktree. Arbitrary shell commands are not a coin flip worth taking, so when
  * the candidates disagree on the script this returns undefined and setup is
@@ -92,7 +92,7 @@ export async function runWorktreeSetupScript({
 	if (!script) return false;
 
 	try {
-		const result = await window.maestro.git.worktreeRunSetup(
+		const result = await window.openwizardai.git.worktreeRunSetup(
 			script,
 			{ worktreePath, branchName, mainRepoPath, baseBranch },
 			sshRemoteId

@@ -1,5 +1,5 @@
 /**
- * Spawn-time PATH builder that merges Maestro's hardcoded expanded PATH with
+ * Spawn-time PATH builder that merges OpenWizardAI's hardcoded expanded PATH with
  * the user's cached login-shell PATH and any caller-supplied extra dirs.
  *
  * Why this exists:
@@ -11,7 +11,7 @@
  * version-manager and Homebrew paths but NOT the user's custom shell
  * additions.
  *
- * Result: Maestro could detect an agent it couldn't actually run - the
+ * Result: OpenWizardAI could detect an agent it couldn't actually run - the
  * script's shebang (e.g. `#!/usr/bin/env node`) couldn't find `node` in the
  * narrower spawn PATH. See issue #1016 for the codex-exit-127 repro.
  *
@@ -27,7 +27,7 @@ import { peekShellPath } from '../runtime/getShellPath';
 
 /**
  * Build a spawn PATH that merges the user's cached shell PATH and any extra
- * dirs into Maestro's expanded PATH. Synchronous - uses the cached shell
+ * dirs into OpenWizardAI's expanded PATH. Synchronous - uses the cached shell
  * PATH; returns the bare expanded PATH if no probe has completed.
  */
 export function buildSpawnPath(extraPaths?: string[]): string {

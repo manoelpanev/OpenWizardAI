@@ -43,7 +43,7 @@ vi.mock('../../../main/utils/sentry', () => ({
 }));
 
 vi.mock('../../../main/cue/cue-cli-executor', () => ({
-	runMaestroCliSend: vi.fn().mockResolvedValue({
+	runOpenWizardAICliSend: vi.fn().mockResolvedValue({
 		ok: true,
 		exitCode: 0,
 		stdout: '{}',

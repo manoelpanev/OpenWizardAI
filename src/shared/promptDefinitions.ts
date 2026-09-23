@@ -123,9 +123,9 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 	},
 	// System
 	{
-		id: 'maestro-system-prompt',
-		filename: 'maestro-system-prompt.md',
-		description: 'OpenWizzard system context prompt',
+		id: 'openwizardai-system-prompt',
+		filename: 'openwizardai-system-prompt.md',
+		description: 'OpenWizardAI system context prompt',
 		category: 'system',
 	},
 	// Group Chat
@@ -209,7 +209,7 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 	{
 		id: '_documentation-index',
 		filename: '_documentation-index.md',
-		description: 'Curated table of external OpenWizzard documentation URLs',
+		description: 'Curated table of external OpenWizardAI documentation URLs',
 		category: 'includes',
 	},
 	{
@@ -226,16 +226,17 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 		category: 'includes',
 	},
 	{
-		id: '_maestro-cli',
-		filename: '_maestro-cli.md',
-		description: 'Full `maestro-cli` reference covering settings, agents, playbooks, cue, and more',
+		id: '_openwizardai-cli',
+		filename: '_openwizardai-cli.md',
+		description:
+			'Full `openwizardai-cli` reference covering settings, agents, playbooks, cue, and more',
 		category: 'includes',
 	},
 	{
-		id: '_maestro-cue',
-		filename: '_maestro-cue.md',
+		id: '_openwizardai-cue',
+		filename: '_openwizardai-cue.md',
 		description:
-			'OpenWizzard Cue reference: event types, `maestro-cue.yaml` schema, pipeline topologies, and template variables',
+			'OpenWizardAI Cue reference: event types, `openwizardai-cue.yaml` schema, pipeline topologies, and template variables',
 		category: 'includes',
 	},
 	{
@@ -277,7 +278,7 @@ export const PROMPT_IDS = {
 	// Per-agent prompt preambles
 	COPILOT_PREAMBLE: 'copilot-preamble',
 	// System
-	MAESTRO_SYSTEM_PROMPT: 'maestro-system-prompt',
+	OPENWIZARDAI_SYSTEM_PROMPT: 'openwizardai-system-prompt',
 	// Group Chat
 	GROUP_CHAT_MODERATOR_SYSTEM: 'group-chat-moderator-system',
 	GROUP_CHAT_MODERATOR_SYNTHESIS: 'group-chat-moderator-synthesis',
@@ -300,7 +301,7 @@ export type PromptId = (typeof PROMPT_IDS)[keyof typeof PROMPT_IDS];
  * Edit this list to add or remove prompts from the command palette.
  */
 export const QUICK_ACTION_PROMPTS: { id: PromptId; label: string }[] = [
-	{ id: 'maestro-system-prompt', label: 'OpenWizzard System Prompt' },
+	{ id: 'openwizardai-system-prompt', label: 'OpenWizardAI System Prompt' },
 	{ id: 'autorun-default', label: 'Auto Run Default' },
 	{ id: 'commit-command', label: 'Commit Command' },
 	{ id: 'ai-command', label: 'AI Command Mode' },

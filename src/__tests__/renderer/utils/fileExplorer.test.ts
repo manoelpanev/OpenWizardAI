@@ -7,7 +7,7 @@ import {
 	flattenTree,
 	compareFileTrees,
 	buildTreeFromPaths,
-	spliceMaestroIntoTree,
+	spliceOpenWizardAIIntoTree,
 	loadFileTreeRemoteBatched,
 	findTreeNode,
 	isDepthCappedFolder,
@@ -97,17 +97,17 @@ describe('fileExplorer utils', () => {
 		});
 
 		describe('media files', () => {
-			// Maestro plays these itself, so returning true here would send the
+			// OpenWizardAI plays these itself, so returning true here would send the
 			// double-click into the "open externally?" modal and the built-in player
 			// would be unreachable.
-			it('returns false for video Maestro can play', () => {
+			it('returns false for video OpenWizardAI can play', () => {
 				expect(shouldOpenExternally('video.mp4')).toBe(false);
 				expect(shouldOpenExternally('video.mov')).toBe(false);
 				expect(shouldOpenExternally('video.webm')).toBe(false);
 				expect(shouldOpenExternally('video.m4v')).toBe(false);
 			});
 
-			it('returns false for audio Maestro can play', () => {
+			it('returns false for audio OpenWizardAI can play', () => {
 				expect(shouldOpenExternally('audio.mp3')).toBe(false);
 				expect(shouldOpenExternally('audio.wav')).toBe(false);
 				expect(shouldOpenExternally('audio.flac')).toBe(false);
@@ -230,7 +230,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('walks the tree in one round-trip instead of recursing with readDir', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockResolvedValueOnce(
+			vi.mocked(window.openwizardai.fs.readDirTree).mockResolvedValueOnce(
 				scanResult([
 					{ name: 'src', type: 'folder', children: [{ name: 'index.ts', type: 'file' }] },
 					{ name: 'README.md', type: 'file' },
@@ -239,14 +239,14 @@ describe('fileExplorer utils', () => {
 
 			const result = await loadFileTree('/project');
 
-			expect(window.maestro.fs.readDir).not.toHaveBeenCalled();
-			expect(window.maestro.fs.readDirTree).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.fs.readDir).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.readDirTree).toHaveBeenCalledTimes(1);
 			expect(result).toHaveLength(2);
 			expect(result[0].children![0].name).toBe('index.ts');
 		});
 
 		it('forwards depth, entry cap, and local ignore options', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockResolvedValueOnce(scanResult([]));
+			vi.mocked(window.openwizardai.fs.readDirTree).mockResolvedValueOnce(scanResult([]));
 
 			await loadFileTree(
 				'/project',
@@ -258,7 +258,7 @@ describe('fileExplorer utils', () => {
 				500
 			);
 
-			expect(window.maestro.fs.readDirTree).toHaveBeenCalledWith('/project', {
+			expect(window.openwizardai.fs.readDirTree).toHaveBeenCalledWith('/project', {
 				maxDepth: 7,
 				maxEntries: 500,
 				ignorePatterns: ['.git'],
@@ -267,29 +267,29 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('forwards the expanded folders so the walk reads them past the depth cap', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockResolvedValueOnce(scanResult([]));
+			vi.mocked(window.openwizardai.fs.readDirTree).mockResolvedValueOnce(scanResult([]));
 
 			await loadFileTree('/project', 5, 0, undefined, undefined, { expandedPaths: ['a/b'] });
 
-			expect(window.maestro.fs.readDirTree).toHaveBeenCalledWith(
+			expect(window.openwizardai.fs.readDirTree).toHaveBeenCalledWith(
 				'/project',
 				expect.objectContaining({ expandedPaths: ['a/b'] })
 			);
 		});
 
 		it('sends an unlimited cap as undefined rather than Infinity', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockResolvedValueOnce(scanResult([]));
+			vi.mocked(window.openwizardai.fs.readDirTree).mockResolvedValueOnce(scanResult([]));
 
 			await loadFileTree('/project');
 
-			expect(window.maestro.fs.readDirTree).toHaveBeenCalledWith(
+			expect(window.openwizardai.fs.readDirTree).toHaveBeenCalledWith(
 				'/project',
 				expect.objectContaining({ maxEntries: undefined })
 			);
 		});
 
 		it('passes the truncation flag and file count through', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.fs.readDirTree).mockResolvedValueOnce({
 				tree: [{ name: 'a.txt', type: 'file' }],
 				truncated: true,
 				filesFound: 1,
@@ -303,7 +303,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('reports scan totals to onProgress', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.fs.readDirTree).mockResolvedValueOnce({
 				tree: [],
 				truncated: false,
 				filesFound: 42,
@@ -327,12 +327,12 @@ describe('fileExplorer utils', () => {
 			await expect(
 				loadFileTree('/project', 5, 0, undefined, undefined, undefined, Infinity, controller.signal)
 			).rejects.toBeInstanceOf(FileTreeAbortError);
-			expect(window.maestro.fs.readDirTree).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.readDirTree).not.toHaveBeenCalled();
 		});
 
 		it('throws FileTreeAbortError when the load is cancelled mid-scan', async () => {
 			const controller = new AbortController();
-			vi.mocked(window.maestro.fs.readDirTree).mockImplementationOnce(async () => {
+			vi.mocked(window.openwizardai.fs.readDirTree).mockImplementationOnce(async () => {
 				controller.abort();
 				return scanResult([{ name: 'a.txt', type: 'file' }]);
 			});
@@ -343,7 +343,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('propagates a failure from the walker', async () => {
-			vi.mocked(window.maestro.fs.readDirTree).mockRejectedValueOnce(
+			vi.mocked(window.openwizardai.fs.readDirTree).mockRejectedValueOnce(
 				new Error('Permission denied')
 			);
 
@@ -365,11 +365,11 @@ describe('fileExplorer utils', () => {
 		it('returns empty array when maxDepth is reached', async () => {
 			const result = await loadFileTree('/some/path', 5, 5, SSH);
 			expect(result).toEqual([]);
-			expect(window.maestro.fs.readDir).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.readDir).not.toHaveBeenCalled();
 		});
 
 		it('loads files and folders from directory', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([
 					{ name: 'src', isFile: false, isDirectory: true },
 					{ name: 'README.md', isFile: true, isDirectory: false },
@@ -379,7 +379,7 @@ describe('fileExplorer utils', () => {
 
 			const result = await loadFileTree('/project', 5, 0, SSH);
 
-			expect(window.maestro.fs.readDir).toHaveBeenCalledWith('/project', 'remote-1');
+			expect(window.openwizardai.fs.readDir).toHaveBeenCalledWith('/project', 'remote-1');
 			expect(result).toHaveLength(3);
 			expect(result[0]).toEqual({ name: 'src', type: 'folder', children: [] });
 			expect(result[1]).toEqual({ name: 'package.json', type: 'file' });
@@ -387,7 +387,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('includes hidden files and directories (starting with .)', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([
 					{ name: '.git', isFile: false, isDirectory: true },
 					{ name: '.gitignore', isFile: true, isDirectory: false },
@@ -405,7 +405,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('applies the SSH ignore patterns', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([
 					{ name: 'node_modules', isFile: false, isDirectory: true },
 					{ name: 'src', isFile: false, isDirectory: true },
@@ -421,10 +421,10 @@ describe('fileExplorer utils', () => {
 			expect(result[0].name).toBe('src');
 		});
 
-		it('always shows .maestro even when it matches an ignore pattern', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+		it('always shows .openwizardai even when it matches an ignore pattern', async () => {
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([
-					{ name: '.maestro', isFile: false, isDirectory: true },
+					{ name: '.openwizardai', isFile: false, isDirectory: true },
 					{ name: '.env', isFile: true, isDirectory: false },
 					{ name: 'src', isFile: false, isDirectory: true },
 				])
@@ -435,13 +435,13 @@ describe('fileExplorer utils', () => {
 				ignorePatterns: ['.*'],
 			});
 
-			expect(result.find((n) => n.name === '.maestro')).toBeDefined();
+			expect(result.find((n) => n.name === '.openwizardai')).toBeDefined();
 			expect(result.find((n) => n.name === '.env')).toBeUndefined();
 			expect(result.find((n) => n.name === 'src')).toBeDefined();
 		});
 
 		it('does not apply localOptions to SSH contexts', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([
 					{ name: '.git', isFile: false, isDirectory: true },
 					{ name: 'src', isFile: false, isDirectory: true },
@@ -463,7 +463,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('sorts folders before files, then alphabetically', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([
 					{ name: 'zebra.txt', isFile: true, isDirectory: false },
 					{ name: 'alpha', isFile: false, isDirectory: true },
@@ -478,7 +478,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('recursively loads children of folders', async () => {
-			vi.mocked(window.maestro.fs.readDir)
+			vi.mocked(window.openwizardai.fs.readDir)
 				.mockResolvedValueOnce([{ name: 'src', isFile: false, isDirectory: true }])
 				.mockResolvedValueOnce([
 					{ name: 'index.ts', isFile: true, isDirectory: false },
@@ -488,13 +488,13 @@ describe('fileExplorer utils', () => {
 
 			const result = await loadFileTree('/project', 5, 0, SSH);
 
-			expect(window.maestro.fs.readDir).toHaveBeenCalledTimes(3);
+			expect(window.openwizardai.fs.readDir).toHaveBeenCalledTimes(3);
 			expect(result[0].children![0].name).toBe('components');
 			expect(result[0].children![0].children![0].name).toBe('App.tsx');
 		});
 
 		it('propagates errors from readDir', async () => {
-			vi.mocked(window.maestro.fs.readDir).mockRejectedValue(new Error('Permission denied'));
+			vi.mocked(window.openwizardai.fs.readDir).mockRejectedValue(new Error('Permission denied'));
 
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 			await expect(loadFileTree('/restricted', 5, 0, SSH)).rejects.toThrow('Permission denied');
@@ -502,17 +502,17 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('respects the maxDepth argument', async () => {
-			vi.mocked(window.maestro.fs.readDir).mockResolvedValue([
+			vi.mocked(window.openwizardai.fs.readDir).mockResolvedValue([
 				{ name: 'deep', isFile: false, isDirectory: true },
 			]);
 
 			await loadFileTree('/project', 5, 0, SSH);
 
-			expect(window.maestro.fs.readDir).toHaveBeenCalledTimes(5);
+			expect(window.openwizardai.fs.readDir).toHaveBeenCalledTimes(5);
 		});
 
 		it('handles entries that are neither file nor directory', async () => {
-			vi.mocked(window.maestro.fs.readDir).mockResolvedValueOnce([
+			vi.mocked(window.openwizardai.fs.readDir).mockResolvedValueOnce([
 				{ name: 'regular.txt', isFile: true, isDirectory: false },
 				{ name: 'broken-link', isFile: false, isDirectory: false },
 			]);
@@ -524,13 +524,13 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('deduplicates entries returned by readDir', async () => {
-			vi.mocked(window.maestro.fs.readDir).mockResolvedValueOnce([
+			vi.mocked(window.openwizardai.fs.readDir).mockResolvedValueOnce([
 				{ name: 'src', isFile: false, isDirectory: true },
 				{ name: 'README.md', isFile: true, isDirectory: false },
 				{ name: 'src', isFile: false, isDirectory: true },
 				{ name: 'README.md', isFile: true, isDirectory: false },
 			]);
-			vi.mocked(window.maestro.fs.readDir).mockResolvedValue([]);
+			vi.mocked(window.openwizardai.fs.readDir).mockResolvedValue([]);
 
 			const consoleSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
 			const result = await loadFileTree('/project', 5, 0, SSH);
@@ -544,7 +544,7 @@ describe('fileExplorer utils', () => {
 			const nfcName = 'café'.normalize('NFC');
 			const nfdName = 'café'.normalize('NFD');
 
-			vi.mocked(window.maestro.fs.readDir).mockResolvedValueOnce([
+			vi.mocked(window.openwizardai.fs.readDir).mockResolvedValueOnce([
 				{ name: nfcName, isFile: true, isDirectory: false },
 				{ name: nfdName, isFile: true, isDirectory: false },
 			]);
@@ -559,7 +559,7 @@ describe('fileExplorer utils', () => {
 
 		describe('maxEntries cap', () => {
 			it('reports truncated=false when scan stays under cap', async () => {
-				vi.mocked(window.maestro.fs.readDir).mockResolvedValueOnce([
+				vi.mocked(window.openwizardai.fs.readDir).mockResolvedValueOnce([
 					{ name: 'a.txt', isFile: true, isDirectory: false },
 					{ name: 'b.txt', isFile: true, isDirectory: false },
 				]);
@@ -570,7 +570,7 @@ describe('fileExplorer utils', () => {
 			});
 
 			it('stops adding files and sets truncated=true when cap is hit', async () => {
-				vi.mocked(window.maestro.fs.readDir).mockResolvedValueOnce([
+				vi.mocked(window.openwizardai.fs.readDir).mockResolvedValueOnce([
 					{ name: 'a.txt', isFile: true, isDirectory: false },
 					{ name: 'b.txt', isFile: true, isDirectory: false },
 					{ name: 'c.txt', isFile: true, isDirectory: false },
@@ -584,7 +584,7 @@ describe('fileExplorer utils', () => {
 			});
 
 			it('skips recursion into sibling folders once cap is reached', async () => {
-				vi.mocked(window.maestro.fs.readDir)
+				vi.mocked(window.openwizardai.fs.readDir)
 					.mockResolvedValueOnce([
 						{ name: 'full', isFile: false, isDirectory: true },
 						{ name: 'skipped', isFile: false, isDirectory: true },
@@ -597,31 +597,31 @@ describe('fileExplorer utils', () => {
 
 				const result = await loadFileTreeRaw('/project', 5, 0, SSH, undefined, undefined, 3);
 				expect(result.truncated).toBe(true);
-				expect(window.maestro.fs.readDir).toHaveBeenCalledTimes(2);
+				expect(window.openwizardai.fs.readDir).toHaveBeenCalledTimes(2);
 				expect(result.tree.find((n) => n.name === 'skipped')?.children).toEqual([]);
 			});
 		});
 
 		describe('always-visible directory prioritization', () => {
-			it('walks .maestro before sibling directories', async () => {
-				vi.mocked(window.maestro.fs.readDir)
+			it('walks .openwizardai before sibling directories', async () => {
+				vi.mocked(window.openwizardai.fs.readDir)
 					.mockResolvedValueOnce([
 						{ name: 'src', isFile: false, isDirectory: true },
-						{ name: '.maestro', isFile: false, isDirectory: true },
+						{ name: '.openwizardai', isFile: false, isDirectory: true },
 					])
 					.mockResolvedValue([]);
 
 				await loadFileTreeRaw('/project', 5, 0, SSH);
 
-				const calls = vi.mocked(window.maestro.fs.readDir).mock.calls;
-				expect(calls[1][0]).toBe('/project/.maestro');
+				const calls = vi.mocked(window.openwizardai.fs.readDir).mock.calls;
+				expect(calls[1][0]).toBe('/project/.openwizardai');
 				expect(calls[2][0]).toBe('/project/src');
 			});
 
-			it('fully loads .maestro contents even when entry cap is exceeded', async () => {
-				vi.mocked(window.maestro.fs.readDir)
+			it('fully loads .openwizardai contents even when entry cap is exceeded', async () => {
+				vi.mocked(window.openwizardai.fs.readDir)
 					.mockResolvedValueOnce([
-						{ name: '.maestro', isFile: false, isDirectory: true },
+						{ name: '.openwizardai', isFile: false, isDirectory: true },
 						{ name: 'a.txt', isFile: true, isDirectory: false },
 						{ name: 'b.txt', isFile: true, isDirectory: false },
 						{ name: 'c.txt', isFile: true, isDirectory: false },
@@ -635,15 +635,15 @@ describe('fileExplorer utils', () => {
 
 				const result = await loadFileTreeRaw('/project', 5, 0, SSH, undefined, undefined, 2);
 
-				expect(result.tree.find((n) => n.name === '.maestro')?.children).toHaveLength(4);
+				expect(result.tree.find((n) => n.name === '.openwizardai')?.children).toHaveLength(4);
 				expect(result.tree.filter((n) => n.type === 'file')).toHaveLength(2);
 				expect(result.truncated).toBe(true);
 			});
 
-			it('does not let .maestro contents starve sibling directory budget', async () => {
-				vi.mocked(window.maestro.fs.readDir)
+			it('does not let .openwizardai contents starve sibling directory budget', async () => {
+				vi.mocked(window.openwizardai.fs.readDir)
 					.mockResolvedValueOnce([
-						{ name: '.maestro', isFile: false, isDirectory: true },
+						{ name: '.openwizardai', isFile: false, isDirectory: true },
 						{ name: 'src', isFile: false, isDirectory: true },
 					])
 					.mockResolvedValueOnce([
@@ -660,14 +660,14 @@ describe('fileExplorer utils', () => {
 
 				const result = await loadFileTreeRaw('/project', 5, 0, SSH, undefined, undefined, 3);
 
-				expect(window.maestro.fs.readDir).toHaveBeenCalledWith('/project/src', 'remote-1');
+				expect(window.openwizardai.fs.readDir).toHaveBeenCalledWith('/project/src', 'remote-1');
 				expect(result.tree.find((n) => n.name === 'src')?.children).toHaveLength(2);
-				expect(result.tree.find((n) => n.name === '.maestro')?.children).toHaveLength(5);
+				expect(result.tree.find((n) => n.name === '.openwizardai')?.children).toHaveLength(5);
 			});
 
-			it('propagates unlimited budget through nested .maestro descendants', async () => {
-				vi.mocked(window.maestro.fs.readDir)
-					.mockResolvedValueOnce([{ name: '.maestro', isFile: false, isDirectory: true }])
+			it('propagates unlimited budget through nested .openwizardai descendants', async () => {
+				vi.mocked(window.openwizardai.fs.readDir)
+					.mockResolvedValueOnce([{ name: '.openwizardai', isFile: false, isDirectory: true }])
 					.mockResolvedValueOnce([{ name: 'playbooks', isFile: false, isDirectory: true }])
 					.mockResolvedValueOnce([
 						{ name: 'one.md', isFile: true, isDirectory: false },
@@ -677,8 +677,10 @@ describe('fileExplorer utils', () => {
 
 				const result = await loadFileTreeRaw('/project', 5, 0, SSH, undefined, undefined, 1);
 
-				const maestro = result.tree.find((n) => n.name === '.maestro');
-				expect(maestro?.children?.find((n) => n.name === 'playbooks')?.children).toHaveLength(3);
+				const openwizardai = result.tree.find((n) => n.name === '.openwizardai');
+				expect(openwizardai?.children?.find((n) => n.name === 'playbooks')?.children).toHaveLength(
+					3
+				);
 			});
 		});
 	});
@@ -735,44 +737,44 @@ describe('fileExplorer utils', () => {
 	});
 
 	// ============================================================================
-	// spliceMaestroIntoTree - merge .maestro subtree (loaded in its own phase)
+	// spliceOpenWizardAIIntoTree - merge .openwizardai subtree (loaded in its own phase)
 	// into the rest-of-tree result.
 	// ============================================================================
-	describe('spliceMaestroIntoTree', () => {
-		it('prepends .maestro folder when subtree is non-empty', () => {
+	describe('spliceOpenWizardAIIntoTree', () => {
+		it('prepends .openwizardai folder when subtree is non-empty', () => {
 			const restTree: FileTreeNode[] = [
 				{ name: 'src', type: 'folder', children: [] },
 				{ name: 'package.json', type: 'file' },
 			];
-			const maestro: FileTreeNode[] = [{ name: 'playbooks', type: 'folder', children: [] }];
+			const openwizardai: FileTreeNode[] = [{ name: 'playbooks', type: 'folder', children: [] }];
 
-			const merged = spliceMaestroIntoTree(restTree, maestro);
+			const merged = spliceOpenWizardAIIntoTree(restTree, openwizardai);
 
-			const maestroNode = merged.find((n) => n.name === '.maestro');
-			expect(maestroNode).toBeDefined();
-			expect(maestroNode?.children).toEqual(maestro);
+			const openwizardaiNode = merged.find((n) => n.name === '.openwizardai');
+			expect(openwizardaiNode).toBeDefined();
+			expect(openwizardaiNode?.children).toEqual(openwizardai);
 		});
 
-		it('omits .maestro entirely when the subtree is empty or undefined', () => {
+		it('omits .openwizardai entirely when the subtree is empty or undefined', () => {
 			const restTree: FileTreeNode[] = [{ name: 'src', type: 'folder', children: [] }];
-			expect(spliceMaestroIntoTree(restTree, undefined)).toEqual(restTree);
-			expect(spliceMaestroIntoTree(restTree, [])).toEqual(restTree);
+			expect(spliceOpenWizardAIIntoTree(restTree, undefined)).toEqual(restTree);
+			expect(spliceOpenWizardAIIntoTree(restTree, [])).toEqual(restTree);
 		});
 
-		it('replaces any pre-existing .maestro in the rest tree with the supplied subtree', () => {
-			// Defensive: the rest phase prunes .maestro server-side, but if it
+		it('replaces any pre-existing .openwizardai in the rest tree with the supplied subtree', () => {
+			// Defensive: the rest phase prunes .openwizardai server-side, but if it
 			// somehow leaked through, the splice still wins.
 			const restTree: FileTreeNode[] = [
-				{ name: '.maestro', type: 'folder', children: [{ name: 'stale.md', type: 'file' }] },
+				{ name: '.openwizardai', type: 'folder', children: [{ name: 'stale.md', type: 'file' }] },
 				{ name: 'src', type: 'folder', children: [] },
 			];
-			const maestro: FileTreeNode[] = [{ name: 'fresh.md', type: 'file' }];
+			const openwizardai: FileTreeNode[] = [{ name: 'fresh.md', type: 'file' }];
 
-			const merged = spliceMaestroIntoTree(restTree, maestro);
-			const maestroNode = merged.find((n) => n.name === '.maestro');
-			expect(maestroNode?.children).toEqual(maestro);
-			// No duplicate .maestro entries
-			expect(merged.filter((n) => n.name === '.maestro')).toHaveLength(1);
+			const merged = spliceOpenWizardAIIntoTree(restTree, openwizardai);
+			const openwizardaiNode = merged.find((n) => n.name === '.openwizardai');
+			expect(openwizardaiNode?.children).toEqual(openwizardai);
+			// No duplicate .openwizardai entries
+			expect(merged.filter((n) => n.name === '.openwizardai')).toHaveLength(1);
 		});
 	});
 
@@ -781,14 +783,14 @@ describe('fileExplorer utils', () => {
 	// ============================================================================
 	describe('loadFileTreeRemoteBatched', () => {
 		beforeEach(() => {
-			// The shared test setup mounts a real `window.maestro` mock; we just
+			// The shared test setup mounts a real `window.openwizardai` mock; we just
 			// need to attach a controllable `listTreeRemote` mock for these tests.
-			window.maestro.fs.listTreeRemote = vi.fn();
+			window.openwizardai.fs.listTreeRemote = vi.fn();
 		});
 
-		it('issues separate find calls for .maestro (unlimited) and the rest of the tree (capped)', async () => {
-			const listTreeMock = window.maestro.fs.listTreeRemote as ReturnType<typeof vi.fn>;
-			// First call: .maestro phase. Second call: rest phase.
+		it('issues separate find calls for .openwizardai (unlimited) and the rest of the tree (capped)', async () => {
+			const listTreeMock = window.openwizardai.fs.listTreeRemote as ReturnType<typeof vi.fn>;
+			// First call: .openwizardai phase. Second call: rest phase.
 			listTreeMock
 				.mockResolvedValueOnce({
 					directories: ['playbooks'],
@@ -811,34 +813,34 @@ describe('fileExplorer utils', () => {
 				onPhase,
 			});
 
-			// Phase 1: .maestro at the dedicated path, unlimited budget, no ignores.
-			expect(listTreeMock).toHaveBeenNthCalledWith(1, '/project/.maestro', 'remote-1', {
+			// Phase 1: .openwizardai at the dedicated path, unlimited budget, no ignores.
+			expect(listTreeMock).toHaveBeenNthCalledWith(1, '/project/.openwizardai', 'remote-1', {
 				maxDepth: 5,
 				ignorePatterns: [],
 				maxFiles: undefined,
 			});
-			// Phase 2: rest of tree, with file cap and .maestro pruned.
+			// Phase 2: rest of tree, with file cap and .openwizardai pruned.
 			expect(listTreeMock).toHaveBeenNthCalledWith(2, '/project', 'remote-1', {
 				maxDepth: 5,
 				ignorePatterns: ['node_modules'],
-				excludePaths: ['.maestro'],
+				excludePaths: ['.openwizardai'],
 				maxFiles: 1000,
 			});
 
-			// onPhase fires twice: once after .maestro lands, once after rest lands.
+			// onPhase fires twice: once after .openwizardai lands, once after rest lands.
 			expect(onPhase).toHaveBeenCalledTimes(2);
-			expect(onPhase.mock.calls[0][0]).toBe('maestro');
+			expect(onPhase.mock.calls[0][0]).toBe('openwizardai');
 			expect(onPhase.mock.calls[1][0]).toBe('rest');
 
-			// Final tree contains .maestro spliced in alongside the rest.
-			const maestroNode = result.tree.find((n) => n.name === '.maestro');
-			expect(maestroNode).toBeDefined();
+			// Final tree contains .openwizardai spliced in alongside the rest.
+			const openwizardaiNode = result.tree.find((n) => n.name === '.openwizardai');
+			expect(openwizardaiNode).toBeDefined();
 			expect(result.truncated).toBe(false);
 			expect(result.filesFound).toBe(3);
 		});
 
-		it('continues without .maestro when its phase fails (directory missing)', async () => {
-			const listTreeMock = window.maestro.fs.listTreeRemote as ReturnType<typeof vi.fn>;
+		it('continues without .openwizardai when its phase fails (directory missing)', async () => {
+			const listTreeMock = window.openwizardai.fs.listTreeRemote as ReturnType<typeof vi.fn>;
 			listTreeMock
 				.mockRejectedValueOnce(new Error('Directory not found or not accessible'))
 				.mockResolvedValueOnce({
@@ -855,12 +857,12 @@ describe('fileExplorer utils', () => {
 				sshRemoteId: 'remote-1',
 			});
 
-			expect(result.tree.find((n) => n.name === '.maestro')).toBeUndefined();
+			expect(result.tree.find((n) => n.name === '.openwizardai')).toBeUndefined();
 			expect(result.tree.find((n) => n.name === 'src')).toBeDefined();
 		});
 
 		it('propagates the truncated flag from the rest phase', async () => {
-			const listTreeMock = window.maestro.fs.listTreeRemote as ReturnType<typeof vi.fn>;
+			const listTreeMock = window.openwizardai.fs.listTreeRemote as ReturnType<typeof vi.fn>;
 			listTreeMock
 				.mockResolvedValueOnce({ directories: [], files: [], truncated: false })
 				.mockResolvedValueOnce({
@@ -881,7 +883,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('lists an expanded folder the depth cap cut off and grafts its contents in', async () => {
-			const listTreeMock = window.maestro.fs.listTreeRemote as ReturnType<typeof vi.fn>;
+			const listTreeMock = window.openwizardai.fs.listTreeRemote as ReturnType<typeof vi.fn>;
 			listTreeMock
 				.mockResolvedValueOnce({ directories: [], files: [], truncated: false })
 				.mockResolvedValueOnce({ directories: ['a', 'a/b'], files: [], truncated: false })
@@ -910,7 +912,7 @@ describe('fileExplorer utils', () => {
 		});
 
 		it('bounds how many capped folders a single remote load lists', async () => {
-			const listTreeMock = window.maestro.fs.listTreeRemote as ReturnType<typeof vi.fn>;
+			const listTreeMock = window.openwizardai.fs.listTreeRemote as ReturnType<typeof vi.fn>;
 			const folders = Array.from(
 				{ length: MAX_REMOTE_DEEP_FOLDER_LISTINGS + 5 },
 				(_, i) => `d${i}`

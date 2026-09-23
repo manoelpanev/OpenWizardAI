@@ -1,5 +1,5 @@
 /**
- * CuePanel component for Maestro mobile web interface
+ * CuePanel component for OpenWizardAI mobile web interface
  *
  * Displays a Cue automation dashboard with subscription management
  * and activity monitoring in a tab-based layout.
@@ -143,7 +143,7 @@ export function CuePanel({
 				}}
 			>
 				<h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: colors.textMain }}>
-					OpenWizzard Cue
+					OpenWizardAI Cue
 				</h2>
 				<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 					<button

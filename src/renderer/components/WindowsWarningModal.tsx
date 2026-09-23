@@ -98,7 +98,7 @@ export function WindowsWarningModal({
 					}}
 				>
 					<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
-						Windows support in OpenWizzard is actively being improved. You may encounter more bugs
+						Windows support in OpenWizardAI is actively being improved. You may encounter more bugs
 						compared to Mac and Linux versions. We're working on it!
 					</p>
 				</div>
@@ -158,7 +158,7 @@ export function WindowsWarningModal({
 					{/* Report issues */}
 					<button
 						type="button"
-						onClick={() => openUrl('https://github.com/RunMaestro/Maestro/issues')}
+						onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI/issues')}
 						className="w-full flex items-start gap-3 p-3 rounded-lg border hover:bg-white/5 transition-colors text-left"
 						style={{ borderColor: theme.colors.border }}
 					>
@@ -177,10 +177,10 @@ export function WindowsWarningModal({
 						/>
 					</button>
 
-					{/* Join Discord */}
+					{/* Community discussions */}
 					<button
 						type="button"
-						onClick={() => openUrl('https://discord.gg/FCAh4EWzfD')}
+						onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI/discussions')}
 						className="w-full flex items-start gap-3 p-3 rounded-lg border hover:bg-white/5 transition-colors text-left"
 						style={{ borderColor: theme.colors.border }}
 					>
@@ -190,10 +190,10 @@ export function WindowsWarningModal({
 						/>
 						<div className="flex-1 min-w-0">
 							<p className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-								Join Discord
+								Community Discussions
 							</p>
 							<p className="text-xs mt-0.5" style={{ color: theme.colors.textDim }}>
-								Connect with other users in our Windows-specific channel for tips and support.
+								Ask other users for Windows tips and support on GitHub.
 							</p>
 						</div>
 						<ExternalLink

@@ -104,7 +104,7 @@ describe('bionifyReadingMode', () => {
 			</>
 		);
 
-		expect(document.querySelectorAll('#maestro-bionify-reading-mode-styles')).toHaveLength(1);
+		expect(document.querySelectorAll('#openwizardai-bionify-reading-mode-styles')).toHaveLength(1);
 	});
 
 	it('exposes scoped reading-mode styles for prose containers', () => {

@@ -11,51 +11,51 @@ import {
 
 describe('platformUtils', () => {
 	afterEach(() => {
-		(window as any).maestro = { platform: 'darwin' };
+		(window as any).openwizardai = { platform: 'darwin' };
 	});
 
 	describe('isWindowsPlatform', () => {
 		it('returns true for win32', () => {
-			(window as any).maestro = { platform: 'win32' };
+			(window as any).openwizardai = { platform: 'win32' };
 			expect(isWindowsPlatform()).toBe(true);
 		});
 
 		it('returns false for darwin', () => {
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 			expect(isWindowsPlatform()).toBe(false);
 		});
 
-		it('returns false when maestro is undefined', () => {
-			(window as any).maestro = undefined;
+		it('returns false when openwizardai is undefined', () => {
+			(window as any).openwizardai = undefined;
 			expect(isWindowsPlatform()).toBe(false);
 		});
 	});
 
 	describe('isMacOSPlatform', () => {
 		it('returns true for darwin', () => {
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 			expect(isMacOSPlatform()).toBe(true);
 		});
 
 		it('returns false for win32', () => {
-			(window as any).maestro = { platform: 'win32' };
+			(window as any).openwizardai = { platform: 'win32' };
 			expect(isMacOSPlatform()).toBe(false);
 		});
 
 		it('returns false for linux', () => {
-			(window as any).maestro = { platform: 'linux' };
+			(window as any).openwizardai = { platform: 'linux' };
 			expect(isMacOSPlatform()).toBe(false);
 		});
 	});
 
 	describe('isLinuxPlatform', () => {
 		it('returns true for linux', () => {
-			(window as any).maestro = { platform: 'linux' };
+			(window as any).openwizardai = { platform: 'linux' };
 			expect(isLinuxPlatform()).toBe(true);
 		});
 
 		it('returns false for darwin', () => {
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 			expect(isLinuxPlatform()).toBe(false);
 		});
 	});
@@ -75,14 +75,14 @@ describe('platformUtils', () => {
 
 	describe('fileManagerName', () => {
 		it('resolves the platform from the preload bridge', () => {
-			(window as any).maestro = { platform: 'win32' };
+			(window as any).openwizardai = { platform: 'win32' };
 			expect(fileManagerName()).toBe('Explorer');
-			(window as any).maestro = { platform: 'darwin' };
+			(window as any).openwizardai = { platform: 'darwin' };
 			expect(fileManagerName()).toBe('Finder');
 		});
 
 		it('falls back to Finder when the bridge is missing', () => {
-			(window as any).maestro = undefined;
+			(window as any).openwizardai = undefined;
 			expect(fileManagerName()).toBe('Finder');
 		});
 	});

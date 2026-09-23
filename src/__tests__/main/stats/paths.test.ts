@@ -50,7 +50,7 @@ vi.mock('better-sqlite3', () => {
 });
 
 // Mock electron's app module with trackable userData path
-const mockUserDataPath = path.join(os.tmpdir(), 'maestro-test-stats-db');
+const mockUserDataPath = path.join(os.tmpdir(), 'openwizardai-test-stats-db');
 vi.mock('electron', () => ({
 	app: {
 		getPath: vi.fn((name: string) => {
@@ -119,9 +119,9 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 	});
 
 	describe('macOS path resolution', () => {
-		it('should use macOS-style userData path: ~/Library/Application Support/Maestro/', async () => {
+		it('should use macOS-style userData path: ~/Library/Application Support/OpenWizardAI/', async () => {
 			// Simulate macOS userData path
-			const macOsUserData = '/Users/testuser/Library/Application Support/Maestro';
+			const macOsUserData = '/Users/testuser/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(macOsUserData);
 
@@ -133,7 +133,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle macOS path with spaces in Application Support', async () => {
-			const macOsUserData = '/Users/testuser/Library/Application Support/Maestro';
+			const macOsUserData = '/Users/testuser/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(macOsUserData);
 
@@ -146,7 +146,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle macOS username with special characters', async () => {
-			const macOsUserData = '/Users/test.user-name/Library/Application Support/Maestro';
+			const macOsUserData = '/Users/test.user-name/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(macOsUserData);
 
@@ -158,7 +158,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should resolve to absolute path on macOS', async () => {
-			const macOsUserData = '/Users/testuser/Library/Application Support/Maestro';
+			const macOsUserData = '/Users/testuser/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(macOsUserData);
 
@@ -170,9 +170,9 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 	});
 
 	describe('Windows path resolution', () => {
-		it('should use Windows-style userData path: %APPDATA%\\Maestro\\', async () => {
+		it('should use Windows-style userData path: %APPDATA%\\OpenWizardAI\\', async () => {
 			// Simulate Windows userData path
-			const windowsUserData = 'C:\\Users\\TestUser\\AppData\\Roaming\\Maestro';
+			const windowsUserData = 'C:\\Users\\TestUser\\AppData\\Roaming\\OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(windowsUserData);
 
@@ -185,7 +185,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle Windows path with drive letter', async () => {
-			const windowsUserData = 'D:\\Users\\TestUser\\AppData\\Roaming\\Maestro';
+			const windowsUserData = 'D:\\Users\\TestUser\\AppData\\Roaming\\OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(windowsUserData);
 
@@ -199,7 +199,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle Windows username with spaces', async () => {
-			const windowsUserData = 'C:\\Users\\Test User\\AppData\\Roaming\\Maestro';
+			const windowsUserData = 'C:\\Users\\Test User\\AppData\\Roaming\\OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(windowsUserData);
 
@@ -211,7 +211,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle Windows UNC paths (network drives)', async () => {
-			const windowsUncPath = '\\\\NetworkDrive\\SharedFolder\\AppData\\Maestro';
+			const windowsUncPath = '\\\\NetworkDrive\\SharedFolder\\AppData\\OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(windowsUncPath);
 
@@ -224,7 +224,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should handle portable Windows installation path', async () => {
 			// Portable apps might use a different structure
-			const portablePath = 'E:\\PortableApps\\Maestro\\Data';
+			const portablePath = 'E:\\PortableApps\\OpenWizardAI\\Data';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(portablePath);
 
@@ -237,9 +237,9 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 	});
 
 	describe('Linux path resolution', () => {
-		it('should use Linux-style userData path: ~/.config/Maestro/', async () => {
+		it('should use Linux-style userData path: ~/.config/OpenWizardAI/', async () => {
 			// Simulate Linux userData path
-			const linuxUserData = '/home/testuser/.config/Maestro';
+			const linuxUserData = '/home/testuser/.config/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(linuxUserData);
 
@@ -252,7 +252,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should handle Linux XDG_CONFIG_HOME override', async () => {
 			// Custom XDG_CONFIG_HOME might result in different path
-			const customConfigHome = '/custom/config/path/Maestro';
+			const customConfigHome = '/custom/config/path/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(customConfigHome);
 
@@ -264,7 +264,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle Linux username with underscore', async () => {
-			const linuxUserData = '/home/test_user/.config/Maestro';
+			const linuxUserData = '/home/test_user/.config/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(linuxUserData);
 
@@ -276,7 +276,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should resolve to absolute path on Linux', async () => {
-			const linuxUserData = '/home/testuser/.config/Maestro';
+			const linuxUserData = '/home/testuser/.config/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(linuxUserData);
 
@@ -288,7 +288,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should handle Linux Snap/Flatpak sandboxed paths', async () => {
 			// Snap packages have a different path structure
-			const snapPath = '/home/testuser/snap/maestro/current/.config/Maestro';
+			const snapPath = '/home/testuser/snap/openwizardai/current/.config/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(snapPath);
 
@@ -354,7 +354,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 	describe('directory creation cross-platform', () => {
 		it('should create directory on macOS if it does not exist', async () => {
 			mockFsExistsSync.mockReturnValue(false);
-			const macOsUserData = '/Users/testuser/Library/Application Support/Maestro';
+			const macOsUserData = '/Users/testuser/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(macOsUserData);
 
@@ -369,7 +369,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should create directory on Windows if it does not exist', async () => {
 			mockFsExistsSync.mockReturnValue(false);
-			const windowsUserData = 'C:\\Users\\TestUser\\AppData\\Roaming\\Maestro';
+			const windowsUserData = 'C:\\Users\\TestUser\\AppData\\Roaming\\OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(windowsUserData);
 
@@ -382,7 +382,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should create directory on Linux if it does not exist', async () => {
 			mockFsExistsSync.mockReturnValue(false);
-			const linuxUserData = '/home/testuser/.config/Maestro';
+			const linuxUserData = '/home/testuser/.config/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(linuxUserData);
 
@@ -397,7 +397,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should use recursive option for deeply nested paths', async () => {
 			mockFsExistsSync.mockReturnValue(false);
-			const deepPath = '/very/deep/nested/path/structure/Maestro';
+			const deepPath = '/very/deep/nested/path/structure/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(deepPath);
 
@@ -411,7 +411,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 	describe('edge cases for path resolution', () => {
 		it('should handle unicode characters in path', async () => {
-			const unicodePath = '/Users/用户名/Library/Application Support/Maestro';
+			const unicodePath = '/Users/用户名/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(unicodePath);
 
@@ -423,7 +423,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle emoji in path (macOS supports this)', async () => {
-			const emojiPath = '/Users/test/Documents/🎵Music/Maestro';
+			const emojiPath = '/Users/test/Documents/🎵Music/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(emojiPath);
 
@@ -436,7 +436,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should handle very long paths (approaching Windows MAX_PATH)', async () => {
 			// Windows MAX_PATH is 260 characters by default
-			const longPath = '/very' + '/long'.repeat(50) + '/path/Maestro';
+			const longPath = '/very' + '/long'.repeat(50) + '/path/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(longPath);
 
@@ -448,7 +448,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle path with single quotes', async () => {
-			const quotedPath = "/Users/O'Brien/Library/Application Support/Maestro";
+			const quotedPath = "/Users/O'Brien/Library/Application Support/OpenWizardAI";
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(quotedPath);
 
@@ -461,7 +461,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should handle path with double quotes (Windows allows this)', async () => {
 			// Note: Double quotes aren't typically valid in Windows paths but path.join handles them
-			const quotedPath = 'C:\\Users\\Test"User\\AppData\\Roaming\\Maestro';
+			const quotedPath = 'C:\\Users\\Test"User\\AppData\\Roaming\\OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(quotedPath);
 
@@ -473,7 +473,7 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 		});
 
 		it('should handle path with ampersand', async () => {
-			const ampersandPath = '/Users/Smith & Jones/Library/Application Support/Maestro';
+			const ampersandPath = '/Users/Smith & Jones/Library/Application Support/OpenWizardAI';
 			const { app } = await import('electron');
 			vi.mocked(app.getPath).mockReturnValue(ampersandPath);
 
@@ -488,9 +488,9 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 	describe('consistency across platform simulations', () => {
 		it('should always produce a path ending with stats.db regardless of platform', async () => {
 			const platforms = [
-				'/Users/mac/Library/Application Support/Maestro',
-				'C:\\Users\\Windows\\AppData\\Roaming\\Maestro',
-				'/home/linux/.config/Maestro',
+				'/Users/mac/Library/Application Support/OpenWizardAI',
+				'C:\\Users\\Windows\\AppData\\Roaming\\OpenWizardAI',
+				'/home/linux/.config/OpenWizardAI',
 			];
 
 			for (const platformPath of platforms) {
@@ -507,9 +507,9 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should always initialize successfully regardless of platform path format', async () => {
 			const platforms = [
-				'/Users/mac/Library/Application Support/Maestro',
-				'C:\\Users\\Windows\\AppData\\Roaming\\Maestro',
-				'/home/linux/.config/Maestro',
+				'/Users/mac/Library/Application Support/OpenWizardAI',
+				'C:\\Users\\Windows\\AppData\\Roaming\\OpenWizardAI',
+				'/home/linux/.config/OpenWizardAI',
 			];
 
 			for (const platformPath of platforms) {
@@ -532,9 +532,9 @@ describe('Cross-platform database path resolution (macOS, Windows, Linux)', () =
 
 		it('should pass correct directory to mkdirSync on all platforms', async () => {
 			const platforms = [
-				'/Users/mac/Library/Application Support/Maestro',
-				'C:\\Users\\Windows\\AppData\\Roaming\\Maestro',
-				'/home/linux/.config/Maestro',
+				'/Users/mac/Library/Application Support/OpenWizardAI',
+				'C:\\Users\\Windows\\AppData\\Roaming\\OpenWizardAI',
+				'/home/linux/.config/OpenWizardAI',
 			];
 
 			for (const platformPath of platforms) {
@@ -993,13 +993,15 @@ describe('File path normalization in database (forward slashes consistently)', (
 
 		it('should handle Linux paths correctly', async () => {
 			const { normalizePath } = await import('../../../main/stats');
-			expect(normalizePath('/home/user/.config/maestro')).toBe('/home/user/.config/maestro');
+			expect(normalizePath('/home/user/.config/openwizardai')).toBe(
+				'/home/user/.config/openwizardai'
+			);
 		});
 
 		it('should handle macOS Application Support paths correctly', async () => {
 			const { normalizePath } = await import('../../../main/stats');
-			expect(normalizePath('/Users/test/Library/Application Support/Maestro')).toBe(
-				'/Users/test/Library/Application Support/Maestro'
+			expect(normalizePath('/Users/test/Library/Application Support/OpenWizardAI')).toBe(
+				'/Users/test/Library/Application Support/OpenWizardAI'
 			);
 		});
 	});

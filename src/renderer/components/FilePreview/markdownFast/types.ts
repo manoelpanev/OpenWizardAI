@@ -101,7 +101,7 @@ export interface ClickModifiers {
  */
 export interface LinkDescriptor {
 	href: string;
-	dataMaestroFile: string | null;
+	dataOpenwizardaiFile: string | null;
 }
 
 /**
@@ -109,8 +109,8 @@ export interface LinkDescriptor {
  * should happen; the caller wires the corresponding side effect.
  */
 export type LinkAction =
-	| { kind: 'maestro-file'; path: string; openInNewTab: boolean }
-	| { kind: 'maestro-deep-link'; href: string }
+	| { kind: 'openwizardai-file'; path: string; openInNewTab: boolean }
+	| { kind: 'openwizardai-deep-link'; href: string }
 	| { kind: 'external'; href: string; openInNewTab: boolean }
 	| { kind: 'anchor'; hash: string }
 	| { kind: 'none' };

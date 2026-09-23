@@ -13,7 +13,7 @@ import { renderHook, waitFor, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { useSessionPagination } from '../../../renderer/hooks';
 
-// Mock the window.maestro API
+// Mock the window.openwizardai API
 const mockListPaginated = vi.fn();
 const mockGetSessionOrigins = vi.fn();
 const mockGetProjectStats = vi.fn();
@@ -24,8 +24,8 @@ vi.mock('../../../renderer/types', () => ({}));
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	// Setup window.maestro mock
-	(window as unknown as { maestro: unknown }).maestro = {
+	// Setup window.openwizardai mock
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		agentSessions: {
 			listPaginated: mockListPaginated,
 			getOrigins: mockGetOrigins,

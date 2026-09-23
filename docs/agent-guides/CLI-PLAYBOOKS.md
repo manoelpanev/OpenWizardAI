@@ -2,7 +2,7 @@
 
 # CLI & Playbooks
 
-Command-line interface, playbook system, batch processing, and agent spawning for headless Maestro automation.
+Command-line interface, playbook system, batch processing, and agent spawning for headless OpenWizardAI automation.
 
 Before adding a command that mirrors something a user does by clicking, read
 [CLI-UI-PARITY.md](CLI-UI-PARITY.md): it records which UI actions are already
@@ -13,7 +13,7 @@ new per-agent and per-tab state should go through.
 
 ## Overview
 
-The Maestro CLI (`maestro-cli`) provides command-line access to agents, playbooks, and session data without requiring the desktop Electron app to be running. It reads Electron Store JSON files directly from disk and spawns agent CLIs (Claude Code, Codex, OpenCode, Factory Droid) as child processes.
+The OpenWizardAI CLI (`openwizardai-cli`) provides command-line access to agents, playbooks, and session data without requiring the desktop Electron app to be running. It reads Electron Store JSON files directly from disk and spawns agent CLIs (Claude Code, Codex, OpenCode, Factory Droid) as child processes.
 
 ### Architecture
 
@@ -53,7 +53,7 @@ src/cli/
 │   ├── agent-busy.ts        # Busy-state checks + --wait loop (shared by playbook/run-doc)
 │   ├── agent-spawner.ts     # Spawn agent CLIs
 │   ├── batch-processor.ts   # Playbook execution engine
-│   ├── maestro-client.ts    # IPC client to running Maestro desktop app
+│   ├── openwizardai-client.ts    # IPC client to running OpenWizardAI desktop app
 │   ├── session-command.ts   # Shared helpers for desktop-driving commands (see below)
 │   ├── playbooks.ts         # Playbook file management
 │   └── storage.ts           # Electron Store file reader + SSH remote helpers
@@ -64,7 +64,7 @@ src/cli/
     └── jsonl.ts             # Machine-parseable JSON Lines
 ```
 
-Note: `run-playbook.ts` is the file name, but the command is registered under the `playbook` verb (see entry point). Additional commands (`auto-run`, `open-file`, `refresh-*`, `settings-*`, `status`) are lightweight wrappers over `maestro-client.ts` for talking to a running desktop app.
+Note: `run-playbook.ts` is the file name, but the command is registered under the `playbook` verb (see entry point). Additional commands (`auto-run`, `open-file`, `refresh-*`, `settings-*`, `status`) are lightweight wrappers over `openwizardai-client.ts` for talking to a running desktop app.
 
 **Adding a desktop-driving command? Reuse `services/session-command.ts` first.** Most commands that mutate a running app follow one shape: resolve an agent, send a single `{ type, sessionId, ... }` WS message, expect a `{ success, error? }` reply, then report it (JSON or human-readable) and exit non-zero on failure. `session-command.ts` centralizes that:
 
@@ -74,7 +74,7 @@ Note: `run-playbook.ts` is the file name, but the command is registered under th
 - `resolveTabEntry(tabId, agentHint?)` - resolve one desktop tab via `list_desktop_sessions` and return its whole `DesktopTabEntry` (`src/shared/desktopTabs.ts`). Accepts an exact ID, a unique prefix, or the literal `active` - the tab that `agentHint`'s agent has selected, or the desktop's focused agent (`readActiveAgentId()`) when no hint is given. Use it rather than matching IDs yourself: a verb that has to read before it writes (`tab show`, `tab thinking cycle`) gets the current settings from the same call that resolved the tab, instead of a second round trip or a value the caller guessed.
 - `resolveTabOwner(tabId, agentHint?)` - thin wrapper over `resolveTabEntry` for the verbs that only need `{ agentId, tabId }`.
 
-Do NOT re-implement the withMaestroClient + sendCommand + JSON/text + `process.exit(1)` boilerplate in a new command file; extend `session-command.ts` if your case needs a new shape.
+Do NOT re-implement the withOpenWizardAIClient + sendCommand + JSON/text + `process.exit(1)` boilerplate in a new command file; extend `session-command.ts` if your case needs a new shape.
 
 **Parsing an argument? Use `utils/parse.ts`.** `parseCliBool(value, flag)` is the one boolean vocabulary (`true/false`, `1/0`, `yes/no`, `on/off`, case-insensitive) - three near-identical copies had already drifted on whether they accepted `on`/`off`. `isInheritValue(value)` recognizes the words that clear an override (`inherit`, `default`, `none`, `clear`, `unset`, empty) so a per-tab or per-agent value falls back to what it inherits. Clearing is not the same as `false`: `tab enter-to-send <id> false` pins the tab to Cmd+Enter, while `inherit` returns it to the global `enterToSendAI` setting.
 
@@ -99,7 +99,7 @@ File: `src/cli/index.ts`
 Built with [Commander.js](https://github.com/tj/commander.js). The CLI reads its version from `package.json` at runtime.
 
 ```bash
-maestro-cli [command] [options]
+openwizardai-cli [command] [options]
 ```
 
 ---
@@ -111,15 +111,15 @@ maestro-cli [command] [options]
 List all session groups.
 
 ```bash
-maestro-cli list groups [--json]
+openwizardai-cli list groups [--json]
 ```
 
 ### `list agents`
 
-List all agents (sessions in Maestro terminology).
+List all agents (sessions in OpenWizardAI terminology).
 
 ```bash
-maestro-cli list agents [-g, --group <id>] [--json]
+openwizardai-cli list agents [-g, --group <id>] [--json]
 ```
 
 Options:
@@ -132,7 +132,7 @@ Options:
 List playbooks, optionally filtered by agent.
 
 ```bash
-maestro-cli list playbooks [-a, --agent <id>] [--json]
+openwizardai-cli list playbooks [-a, --agent <id>] [--json]
 ```
 
 ### `list sessions <agent-id>`
@@ -140,7 +140,7 @@ maestro-cli list playbooks [-a, --agent <id>] [--json]
 List agent provider sessions (Claude Code sessions, etc.) with pagination and search.
 
 ```bash
-maestro-cli list sessions <agent-id> [-l, --limit <count>] [-k, --skip <count>] [-s, --search <keyword>] [--json]
+openwizardai-cli list sessions <agent-id> [-l, --limit <count>] [-k, --skip <count>] [-s, --search <keyword>] [--json]
 ```
 
 Options:
@@ -154,8 +154,8 @@ Options:
 Reach the images a user pasted into a chat. An agent sees a pasted screenshot as pixels in its context and has no path to it, so writing one into the repo used to be a right-click only the human could perform (`ImageContextMenu` -> Save to Project).
 
 ```bash
-maestro-cli image list [-a, --agent <id>] [-t, --tab <tab-id>] [--limit <n>] [--json]
-maestro-cli image save [target] [-a <id>] [-t <tab-id>] [-o, --output <path>] [--all] [--force] [--json]
+openwizardai-cli image list [-a, --agent <id>] [-t, --tab <tab-id>] [--limit <n>] [--json]
+openwizardai-cli image save [target] [-a <id>] [-t <tab-id>] [-o, --output <path>] [--all] [--force] [--json]
 ```
 
 `target` is a 1-based index from `image list`, a content handle (leading hex of the sha256), or `latest` (the default).
@@ -163,7 +163,7 @@ maestro-cli image save [target] [-a <id>] [-t <tab-id>] [-o, --output <path>] [-
 Implementation notes:
 
 - After writing, it calls `nudgeFileTreeForPaths()` so the Files panel picks the new file up instead of waiting for its next timed refresh. Best-effort by contract: the bytes are already on disk, so a closed desktop must not turn a good save into a failure. `--json` reports which agents were nudged as `refreshedAgents`.
-- Reads the sessions file directly (`readSessions()`), not the running app, so it works with the desktop closed. Pasted images are relocated into the content-addressed store on persistence, so the transcript holds `maestro-image://store/<sha>.<ext>` refs that `resolveToBytesSync()` turns back into bytes. The cost is the renderer's 2s persistence debounce: an image pasted this instant may not be on disk yet.
+- Reads the sessions file directly (`readSessions()`), not the running app, so it works with the desktop closed. Pasted images are relocated into the content-addressed store on persistence, so the transcript holds `openwizardai-image://store/<sha>.<ext>` refs that `resolveToBytesSync()` turns back into bytes. The cost is the renderer's 2s persistence debounce: an image pasted this instant may not be on disk yet.
 - The written extension is derived from the resolved media type, never from the requested filename - the same rule `saveImageToProject()` follows in the renderer.
 - `--all` always treats `--output` as a folder, so the same command cannot produce a directory on one conversation and a file on another.
 
@@ -179,7 +179,7 @@ Two things several verbs need, written once rather than per-command:
 Show detailed agent information including history and usage stats.
 
 ```bash
-maestro-cli show agent <id> [--json]
+openwizardai-cli show agent <id> [--json]
 ```
 
 ### `show playbook <id>`
@@ -187,7 +187,7 @@ maestro-cli show agent <id> [--json]
 Show detailed playbook information.
 
 ```bash
-maestro-cli show playbook <id> [--json]
+openwizardai-cli show playbook <id> [--json]
 ```
 
 ### `playbook <playbook-id>`
@@ -195,7 +195,7 @@ maestro-cli show playbook <id> [--json]
 Run a playbook (batch execution of Auto Run documents).
 
 ```bash
-maestro-cli playbook <playbook-id> [--dry-run] [--no-history] [--json] [--debug] [--verbose] [--wait]
+openwizardai-cli playbook <playbook-id> [--dry-run] [--no-history] [--json] [--debug] [--verbose] [--wait]
 ```
 
 Options:
@@ -211,10 +211,10 @@ This command is lazy-loaded to avoid eager resolution of prompt templates.
 
 ### `run-doc <docs...>`
 
-Run one or more raw Auto Run `.md` documents without a saved playbook. Mirrors `playbook` but builds an ephemeral `Playbook` on the fly (`src/cli/commands/run-doc.ts`), then drives it through the same `batch-processor` generator. Headless and self-contained - it does **not** route through the desktop renderer (unlike `auto-run --launch`), so it runs whether or not the Maestro window is open. This is the path group-chat participants use to execute a document they just wrote.
+Run one or more raw Auto Run `.md` documents without a saved playbook. Mirrors `playbook` but builds an ephemeral `Playbook` on the fly (`src/cli/commands/run-doc.ts`), then drives it through the same `batch-processor` generator. Headless and self-contained - it does **not** route through the desktop renderer (unlike `auto-run --launch`), so it runs whether or not the OpenWizardAI window is open. This is the path group-chat participants use to execute a document they just wrote.
 
 ```bash
-maestro-cli run-doc <docs...> --agent <id-or-name> [--prompt <text>] [--loop] [--max-loops <n>] [--reset-on-completion] [--dry-run] [--no-history] [--json] [--debug] [--verbose] [--no-synopsis] [--wait]
+openwizardai-cli run-doc <docs...> --agent <id-or-name> [--prompt <text>] [--loop] [--max-loops <n>] [--reset-on-completion] [--dry-run] [--no-history] [--json] [--debug] [--verbose] [--no-synopsis] [--wait]
 ```
 
 - `-a, --agent <id>` (required) - target agent by ID (full/partial) or display name
@@ -229,7 +229,7 @@ Note: `resolveAgentId()` in `src/cli/services/storage.ts` resolves `--agent` by 
 Send a message to an agent and receive a JSON response. Supports multi-turn conversations via session resumption.
 
 ```bash
-maestro-cli send <agent-id> <message> [-s, --session <id>]
+openwizardai-cli send <agent-id> <message> [-s, --session <id>]
 ```
 
 Options:
@@ -262,15 +262,15 @@ Response format:
 Remove orphaned playbooks for deleted sessions.
 
 ```bash
-maestro-cli clean playbooks [--dry-run] [--json]
+openwizardai-cli clean playbooks [--dry-run] [--json]
 ```
 
 ### `create-agent <name>`
 
-Create a new agent in the running Maestro desktop app via WebSocket (`withMaestroClient`). Sends a `create_session` message with optional config fields that flow through the full IPC pipeline (messageHandlers → CallbackRegistry → web-server-factory → preload → useRemoteIntegration → useAppRemoteEventListeners).
+Create a new agent in the running OpenWizardAI desktop app via WebSocket (`withOpenWizardAIClient`). Sends a `create_session` message with optional config fields that flow through the full IPC pipeline (messageHandlers → CallbackRegistry → web-server-factory → preload → useRemoteIntegration → useAppRemoteEventListeners).
 
 ```bash
-maestro-cli create-agent <name> -d <cwd> [-t <type>] [-g <group-id>] [--nudge <msg>] [--new-session-message <msg>] [--custom-path <path>] [--custom-args <args>] [--env KEY=VALUE]... [--model <model>] [--effort <level>] [--context-window <size>] [--provider-path <path>] [--ssh-remote <id>] [--ssh-cwd <path>] [--json]
+openwizardai-cli create-agent <name> -d <cwd> [-t <type>] [-g <group-id>] [--nudge <msg>] [--new-session-message <msg>] [--custom-path <path>] [--custom-args <args>] [--env KEY=VALUE]... [--model <model>] [--effort <level>] [--context-window <size>] [--provider-path <path>] [--ssh-remote <id>] [--ssh-cwd <path>] [--json]
 ```
 
 Options:
@@ -286,7 +286,7 @@ Options:
 Create a new agent in a git worktree branched off an existing parent agent, without an Auto Run playbook. Sends a `create_worktree_session` message; the desktop creates the worktree on disk, builds a child session linked to the parent (reusing `spawnWorktreeAgentAndDispatch`), and returns the new agent's session ID. The optional `--message` is then delivered as a plain prompt over the same connection via `send_command`, addressed by the returned ID - it deliberately does NOT route through `dispatch`, which re-resolves the agent against the CLI's persisted sessions file and would race the desktop's debounced persistence.
 
 ```bash
-maestro-cli create-worktree -a <parent-agent-id> -b <branch-name> [--base-branch <ref>] [-m <message>] [--json]
+openwizardai-cli create-worktree -a <parent-agent-id> -b <branch-name> [--base-branch <ref>] [-m <message>] [--json]
 ```
 
 - `-a, --agent <id>` - Parent agent ID, supports partial IDs via `resolveTargetSessionId()` (required)
@@ -296,18 +296,18 @@ maestro-cli create-worktree -a <parent-agent-id> -b <branch-name> [--base-branch
 
 ### `remove-agent <agent-id>`
 
-Remove an agent via WebSocket (`withMaestroClient`). Sends a `delete_session` message. Supports partial ID matching via `resolveAgentId()`.
+Remove an agent via WebSocket (`withOpenWizardAIClient`). Sends a `delete_session` message. Supports partial ID matching via `resolveAgentId()`.
 
 ```bash
-maestro-cli remove-agent <agent-id> [--json]
+openwizardai-cli remove-agent <agent-id> [--json]
 ```
 
 ### `update-agent <agent-id>`
 
-Mutate an existing agent in place via WebSocket (`withMaestroClient`). At least one of `--group` or `--cwd` is required; the command fans out one round-trip per flag.
+Mutate an existing agent in place via WebSocket (`withOpenWizardAIClient`). At least one of `--group` or `--cwd` is required; the command fans out one round-trip per flag.
 
 ```bash
-maestro-cli update-agent <agent-id> [-g <group-id|none>] [-d <new-cwd>] [--json]
+openwizardai-cli update-agent <agent-id> [-g <group-id|none>] [-d <new-cwd>] [--json]
 ```
 
 - `--group <id>` sends a `move_session_to_group` message (reuses the same write path as drag-and-drop in the Left Bar). Pass `none`, `null`, or `""` to ungroup. Supports partial group IDs via `resolveGroupId()`.
@@ -316,10 +316,10 @@ maestro-cli update-agent <agent-id> [-g <group-id|none>] [-d <new-cwd>] [--json]
 
 ### `list ssh-remotes`
 
-List all configured SSH remotes. Reads directly from `maestro-settings.json` via `readSshRemotes()` - no running app required.
+List all configured SSH remotes. Reads directly from `openwizardai-settings.json` via `readSshRemotes()` - no running app required.
 
 ```bash
-maestro-cli list ssh-remotes [--json]
+openwizardai-cli list ssh-remotes [--json]
 ```
 
 ### `create-ssh-remote <name>`
@@ -327,7 +327,7 @@ maestro-cli list ssh-remotes [--json]
 Create a new SSH remote configuration. Direct disk I/O via `readSshRemotes()`/`writeSshRemotes()`.
 
 ```bash
-maestro-cli create-ssh-remote <name> -H <host> [-p <port>] [-u <user>] [-k <key-path>] [--env KEY=VALUE]... [--ssh-config] [--disabled] [--set-default] [--json]
+openwizardai-cli create-ssh-remote <name> -H <host> [-p <port>] [-u <user>] [-k <key-path>] [--env KEY=VALUE]... [--ssh-config] [--disabled] [--set-default] [--json]
 ```
 
 Options:
@@ -345,7 +345,7 @@ Generates a UUID via `crypto.randomUUID()` for the remote ID.
 Remove an SSH remote configuration. Supports partial ID matching via `resolveSshRemoteId()`. Clears `defaultSshRemoteId` if the removed remote was the default.
 
 ```bash
-maestro-cli remove-ssh-remote <remote-id> [--json]
+openwizardai-cli remove-ssh-remote <remote-id> [--json]
 ```
 
 ---
@@ -361,10 +361,10 @@ All commands that take agent, group, playbook, or SSH remote IDs support **parti
 
 ```bash
 # Full ID
-maestro-cli show agent abc12345-def6-7890-abcd-ef1234567890
+openwizardai-cli show agent abc12345-def6-7890-abcd-ef1234567890
 
 # Partial ID (if unambiguous)
-maestro-cli show agent abc1
+openwizardai-cli show agent abc1
 ```
 
 ---
@@ -378,22 +378,22 @@ Reads Electron Store JSON files directly from disk. No Electron dependency.
 ### Config Directory Paths
 
 ```text
-macOS:   ~/Library/Application Support/Maestro/
-Windows: %APPDATA%/Maestro/
-Linux:   $XDG_CONFIG_HOME/Maestro/ (or ~/.config/Maestro/)
+macOS:   ~/Library/Application Support/OpenWizardAI/
+Windows: %APPDATA%/OpenWizardAI/
+Linux:   $XDG_CONFIG_HOME/OpenWizardAI/ (or ~/.config/OpenWizardAI/)
 ```
 
 ### Store Files
 
-| File                         | Content                          |
-| ---------------------------- | -------------------------------- |
-| `maestro-sessions.json`      | Agent sessions                   |
-| `maestro-groups.json`        | Session groups                   |
-| `maestro-settings.json`      | User settings                    |
-| `maestro-agent-configs.json` | Per-agent custom paths/args      |
-| `maestro-history.json`       | History entries (legacy format)  |
-| `history/*.json`             | Per-session history (new format) |
-| `playbooks/*.json`           | Per-session playbook definitions |
+| File                              | Content                          |
+| --------------------------------- | -------------------------------- |
+| `openwizardai-sessions.json`      | Agent sessions                   |
+| `openwizardai-groups.json`        | Session groups                   |
+| `openwizardai-settings.json`      | User settings                    |
+| `openwizardai-agent-configs.json` | Per-agent custom paths/args      |
+| `openwizardai-history.json`       | History entries (legacy format)  |
+| `history/*.json`                  | Per-session history (new format) |
+| `playbooks/*.json`                | Per-session playbook definitions |
 
 ### Key Functions
 
@@ -419,7 +419,7 @@ writeSshRemotes(remotes: SshRemoteConfig[]): void
 
 ### History Migration
 
-The CLI supports both legacy (single `maestro-history.json`) and new (per-session `history/*.json`) formats. It checks for a `history-migrated.json` marker file to determine which format to use.
+The CLI supports both legacy (single `openwizardai-history.json`) and new (per-session `history/*.json`) formats. It checks for a `history-migrated.json` marker file to determine which format to use.
 
 ---
 
@@ -443,7 +443,7 @@ Spawns agent CLIs as child processes and parses their output.
 `detectAgent(toolType)` resolves the agent binary path:
 
 1. Check cached path (resolved once per session)
-2. Check custom path from user settings (`maestro-agent-configs.json`)
+2. Check custom path from user settings (`openwizardai-agent-configs.json`)
 3. Fall back to `which`/`where` PATH detection (with expanded PATH including common install locations)
 
 ```typescript
@@ -552,7 +552,7 @@ const playbooks = readPlaybooks(sessionId);
 // Get a specific playbook (exact or prefix match)
 const playbook = getPlaybook(sessionId, 'abc123');
 
-// Resolve across all sessions (for `maestro-cli playbook <id>`)
+// Resolve across all sessions (for `openwizardai-cli playbook <id>`)
 const { playbook, sessionId } = findPlaybookAcrossAgents(playbookId);
 ```
 
@@ -599,21 +599,21 @@ Prompts support template variables substituted at runtime via `src/shared/templa
 
 The batch processor outputs machine-parseable JSON Lines events (defined in `src/cli/output/jsonl.ts`):
 
-| Event               | Fields                                                                     | Description                                          |
-| ------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------- |
-| `start`             | `playbook`, `session`                                                      | Batch run started                                    |
-| `document_start`    | `document`, `index`, `taskCount`                                           | Starting a document                                  |
-| `task_start`        | `document`, `taskIndex`                                                    | Starting a task                                      |
-| `task_complete`     | `document`, `taskIndex`, `success`, `summary`, `elapsedMs`, `usageStats`   | Task finished                                        |
-| `document_complete` | `document`, `tasksCompleted`                                               | All tasks in document done                           |
-| `loop_complete`     | `iteration`                                                                | One loop iteration finished                          |
-| `synopsis`          | `text`, `sessionId`                                                        | AI-generated summary                                 |
-| `history`           | `entry`                                                                    | History entry written                                |
-| `complete`          | `documentsProcessed`, `tasksCompleted`, `totalElapsedMs`, `totalCost`      | Batch run finished                                   |
-| `error`             | `message`, `document?`, `taskIndex?`                                       | Error occurred                                       |
-| `skipped`           | `reason`                                                                   | Task or document skipped                             |
-| `waiting`           | `reason`                                                                   | Waiting for agent                                    |
-| `model_resolution`  | `document`, `taskIndex`, `model`, `effort`, `notes`, `warnings`, `message` | A `MAESTRO:MODEL` hint was applied (or could not be) |
+| Event               | Fields                                                                     | Description                                               |
+| ------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `start`             | `playbook`, `session`                                                      | Batch run started                                         |
+| `document_start`    | `document`, `index`, `taskCount`                                           | Starting a document                                       |
+| `task_start`        | `document`, `taskIndex`                                                    | Starting a task                                           |
+| `task_complete`     | `document`, `taskIndex`, `success`, `summary`, `elapsedMs`, `usageStats`   | Task finished                                             |
+| `document_complete` | `document`, `tasksCompleted`                                               | All tasks in document done                                |
+| `loop_complete`     | `iteration`                                                                | One loop iteration finished                               |
+| `synopsis`          | `text`, `sessionId`                                                        | AI-generated summary                                      |
+| `history`           | `entry`                                                                    | History entry written                                     |
+| `complete`          | `documentsProcessed`, `tasksCompleted`, `totalElapsedMs`, `totalCost`      | Batch run finished                                        |
+| `error`             | `message`, `document?`, `taskIndex?`                                       | Error occurred                                            |
+| `skipped`           | `reason`                                                                   | Task or document skipped                                  |
+| `waiting`           | `reason`                                                                   | Waiting for agent                                         |
+| `model_resolution`  | `document`, `taskIndex`, `model`, `effort`, `notes`, `warnings`, `message` | A `OPENWIZARDAI:MODEL` hint was applied (or could not be) |
 
 `model_resolution` is deliberately NOT gated on `--verbose`. A hint the provider could not honor (non-empty `warnings`) is exactly the case the feature exists to make visible, and an operator who never sees it concludes tier hints are broken rather than unmapped. `model`/`effort` are `null` when the agent's own default was used.
 
@@ -706,7 +706,7 @@ Machine-parseable output format. Each line is a complete JSON object. Used when 
 | Batch processor     | `src/cli/services/batch-processor.ts`                                                  |
 | Playbook management | `src/cli/services/playbooks.ts`                                                        |
 | Agent sessions      | `src/cli/services/agent-sessions.ts`                                                   |
-| Desktop IPC client  | `src/cli/services/maestro-client.ts`                                                   |
+| Desktop IPC client  | `src/cli/services/openwizardai-client.ts`                                              |
 | Human output        | `src/cli/output/formatter.ts`                                                          |
 | JSONL output        | `src/cli/output/jsonl.ts`                                                              |
 | Send command        | `src/cli/commands/send.ts`                                                             |

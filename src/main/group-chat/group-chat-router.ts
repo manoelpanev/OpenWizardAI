@@ -68,7 +68,7 @@ function isModeratorInactiveAutoAddRace(error: unknown, groupChatId: string): bo
 }
 
 /**
- * Session info for matching @mentions to available Maestro sessions.
+ * Session info for matching @mentions to available OpenWizardAI sessions.
  */
 export interface GroupChatSessionInfo {
 	id: string;
@@ -79,11 +79,11 @@ export interface GroupChatSessionInfo {
 	customEnvVars?: Record<string, string>;
 	customModel?: string;
 	/** Claude token-source opt-in (Claude Code participants only). See getClaudeTokenMode. */
-	enableMaestroP?: boolean;
-	/** Refines enableMaestroP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
-	maestroPMode?: 'interactive' | 'dynamic';
-	/** Optional maestro-p script override. */
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	/** Refines enableOpenWizardAIP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	/** Optional openwizardai-p script override. */
+	openwizardaiPPath?: string;
 	/** SSH remote name for display in participant card */
 	sshRemoteName?: string;
 	/** Full SSH remote config for remote execution */
@@ -504,7 +504,7 @@ export function extractMentions(text: string, participants: GroupChatParticipant
 	// - Whitespace and @
 	// - Common punctuation that typically follows mentions: :,;!?()[]{}'"<>
 	// This supports names with emojis, Unicode characters, dots, hyphens, underscores, etc.
-	// Examples: @RunMaestro.ai, @my-agent, @✅-autorun-wizard, @日本語
+	// Examples: @manoelpanev.ai, @my-agent, @✅-autorun-wizard, @日本語
 	const mentionPattern = /@([^\s@:,;!?()\[\]{}'"<>]+)/g;
 	let match;
 
@@ -535,7 +535,7 @@ export function extractAllMentions(text: string): string[] {
 	// - Whitespace and @
 	// - Common punctuation that typically follows mentions: :,;!?()[]{}'"<>
 	// This supports names with emojis, Unicode characters, dots, hyphens, underscores, etc.
-	// Examples: @RunMaestro.ai, @my-agent, @✅-autorun-wizard, @日本語
+	// Examples: @manoelpanev.ai, @my-agent, @✅-autorun-wizard, @日本語
 	const mentionPattern = /@([^\s@:,;!?()\[\]{}'"<>]+)/g;
 	let match;
 
@@ -829,7 +829,7 @@ export async function routeUserMessage(
 				);
 				if (availableSessions.length > 0) {
 					// Use normalized names (spaces → hyphens) so moderator can @mention them properly
-					availableSessionsContext = `\n\n## Available OpenWizzard Sessions (can be added via @mention):\n${availableSessions.map((s) => `- @${normalizeMentionName(s.name)} (${s.toolType})`).join('\n')}`;
+					availableSessionsContext = `\n\n## Available OpenWizardAI Sessions (can be added via @mention):\n${availableSessions.map((s) => `- @${normalizeMentionName(s.name)} (${s.toolType})`).join('\n')}`;
 				}
 			}
 
@@ -942,13 +942,13 @@ ${readOnly ? 'READ-ONLY MODE is active. You and all participants can only inspec
 					tokenMode: getClaudeTokenMode(chat.moderatorConfig, {
 						sshEnabled: !!chat.moderatorConfig?.sshRemoteConfig?.enabled,
 					}),
-					maestroPPath: chat.moderatorConfig?.maestroPPath,
+					openwizardaiPPath: chat.moderatorConfig?.openwizardaiPPath,
 					sshStore,
 					processManager,
 					readOnlyMode: true,
 					debugLabel: 'moderator',
-					// Match maestro-p's idle budget to the moderator supervising timeout
-					// so a still-working moderator isn't killed at maestro-p's 300s default.
+					// Match openwizardai-p's idle budget to the moderator supervising timeout
+					// so a still-working moderator isn't killed at openwizardai-p's 300s default.
 					maxWaitSeconds: Math.ceil(MODERATOR_RESPONSE_TIMEOUT_MS / 1000),
 				});
 
@@ -988,7 +988,7 @@ ${readOnly ? 'READ-ONLY MODE is active. You and all participants can only inspec
  * writers in one repo. `requireIdleParticipants` (on by default) trades a
  * delayed turn for that collision; turning it off is the deliberate override.
  *
- * An agent with no matching Maestro agent can't be probed and is never blocked -
+ * An agent with no matching OpenWizardAI agent can't be probed and is never blocked -
  * "unknown" must not read as "busy", or a participant whose agent was renamed
  * would become permanently unreachable.
  */
@@ -1460,7 +1460,7 @@ export async function routeModeratorResponse(
 				groupChatEmitters.emitMessage?.(groupChatId, {
 					timestamp: new Date().toISOString(),
 					from: 'system',
-					content: `⚠️ No Auto Run folder configured for @${participant.name}. Open the agent in OpenWizzard, go to the Auto Run tab, and configure a folder first.`,
+					content: `⚠️ No Auto Run folder configured for @${participant.name}. Open the agent in OpenWizardAI, go to the Auto Run tab, and configure a folder first.`,
 				});
 				return false;
 			}
@@ -1683,13 +1683,13 @@ export async function routeModeratorResponse(
 					tokenMode: getClaudeTokenMode(matchingSession, {
 						sshEnabled: !!matchingSession?.sshRemoteConfig?.enabled,
 					}),
-					maestroPPath: matchingSession?.maestroPPath,
+					openwizardaiPPath: matchingSession?.openwizardaiPPath,
 					sshStore,
 					processManager: activeProcessManager,
 					readOnlyMode: readOnly ?? false, // Propagate read-only mode from caller
 					debugLabel: `participant: ${participantName}`,
-					// Match maestro-p's idle budget to the participant supervising timeout
-					// so a still-working participant isn't killed at maestro-p's 300s default.
+					// Match openwizardai-p's idle budget to the participant supervising timeout
+					// so a still-working participant isn't killed at openwizardai-p's 300s default.
 					maxWaitSeconds: Math.ceil(PARTICIPANT_RESPONSE_TIMEOUT_MS / 1000),
 				});
 
@@ -2136,13 +2136,13 @@ Review the agent responses above. Either:
 			tokenMode: getClaudeTokenMode(chat.moderatorConfig, {
 				sshEnabled: !!chat.moderatorConfig?.sshRemoteConfig?.enabled,
 			}),
-			maestroPPath: chat.moderatorConfig?.maestroPPath,
+			openwizardaiPPath: chat.moderatorConfig?.openwizardaiPPath,
 			sshStore,
 			processManager,
 			readOnlyMode: true,
 			debugLabel: 'synthesis moderator',
-			// Match maestro-p's idle budget to the moderator supervising timeout
-			// so a still-working synthesis turn isn't killed at maestro-p's 300s default.
+			// Match openwizardai-p's idle budget to the moderator supervising timeout
+			// so a still-working synthesis turn isn't killed at openwizardai-p's 300s default.
 			maxWaitSeconds: Math.ceil(MODERATOR_RESPONSE_TIMEOUT_MS / 1000),
 		});
 
@@ -2305,13 +2305,13 @@ export async function respawnParticipantWithRecovery(
 		tokenMode: getClaudeTokenMode(matchingSession, {
 			sshEnabled: !!matchingSession?.sshRemoteConfig?.enabled,
 		}),
-		maestroPPath: matchingSession?.maestroPPath,
+		openwizardaiPPath: matchingSession?.openwizardaiPPath,
 		sshStore,
 		processManager,
 		readOnlyMode: readOnly ?? false,
 		debugLabel: `recovery of ${participantName}`,
-		// Match maestro-p's idle budget to the participant supervising timeout
-		// so a still-working recovery turn isn't killed at maestro-p's 300s default.
+		// Match openwizardai-p's idle budget to the participant supervising timeout
+		// so a still-working recovery turn isn't killed at openwizardai-p's 300s default.
 		maxWaitSeconds: Math.ceil(PARTICIPANT_RESPONSE_TIMEOUT_MS / 1000),
 	});
 

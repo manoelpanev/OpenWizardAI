@@ -7,9 +7,9 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useSessionStore, selectSessionById } from '../../stores/sessionStore';
 import { buildSpawnConfigForAgent } from '../../utils/sessionHelpers';
-import { prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { prepareOpenWizardAISystemPrompt } from '../../utils/spawnHelpers';
 
-const AI_SYSTEM_PROMPT = `You are configuring maestro-cue.yaml for the user. Be terse. Plain text only — no markdown, no code fences, no bullet lists, no formatting.
+const AI_SYSTEM_PROMPT = `You are configuring openwizardai-cue.yaml for the user. Be terse. Plain text only — no markdown, no code fences, no bullet lists, no formatting.
 
 Event types: app.startup (fires once on application start, no extra fields), time.heartbeat (interval_minutes), time.scheduled (schedule_times array, optional schedule_days), file.changed (watch glob), agent.completed (source_session, optional fan_out), github.pull_request (poll_minutes, optional repo), github.issue (poll_minutes, optional repo), github.label (fires when a label is added to a PR or issue; optional gh_label_target: pr|issue|both, optional gh_labels array, poll_minutes, optional repo), task.pending (watch glob, poll_minutes).
 
@@ -99,7 +99,7 @@ export function useCueAiChat({
 		aiResponseRef.current = '';
 
 		const isFirstMessage = chatMessages.length === 0;
-		const yamlPath = `${projectRoot}/.maestro/cue.yaml`;
+		const yamlPath = `${projectRoot}/.openwizardai/cue.yaml`;
 
 		// First message gets system prompt + file path; follow-ups are just the user text
 		const prompt = isFirstMessage
@@ -107,7 +107,7 @@ export function useCueAiChat({
 			: text;
 
 		try {
-			const appendSystemPrompt = await prepareMaestroSystemPrompt({
+			const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 				session,
 			});
 
@@ -136,14 +136,14 @@ export function useCueAiChat({
 			}
 
 			// Register listeners before spawning
-			const cleanupData = window.maestro.process.onData((sid: string, data: string) => {
+			const cleanupData = window.openwizardai.process.onData((sid: string, data: string) => {
 				if (sid === spawnSessionIdRef.current) {
 					aiResponseRef.current += data;
 				}
 			});
 			aiCleanupRef.current.push(cleanupData);
 
-			const cleanupSessionId = window.maestro.process.onSessionId(
+			const cleanupSessionId = window.openwizardai.process.onSessionId(
 				(sid: string, capturedId: string) => {
 					if (sid === spawnSessionIdRef.current) {
 						agentSessionIdRef.current = capturedId;
@@ -159,7 +159,7 @@ export function useCueAiChat({
 				fns.forEach((fn) => fn());
 			};
 
-			const cleanupExit = window.maestro.process.onExit((sid: string) => {
+			const cleanupExit = window.openwizardai.process.onExit((sid: string) => {
 				if (sid === spawnSessionIdRef.current) {
 					runCleanup();
 
@@ -173,7 +173,7 @@ export function useCueAiChat({
 			});
 			aiCleanupRef.current.push(cleanupExit);
 
-			const cleanupError = window.maestro.process.onAgentError(
+			const cleanupError = window.openwizardai.process.onAgentError(
 				(sid: string, error: { message: string }) => {
 					if (sid === spawnSessionIdRef.current) {
 						const msg = error.message || 'Agent encountered an error.';
@@ -185,7 +185,7 @@ export function useCueAiChat({
 			);
 			aiCleanupRef.current.push(cleanupError);
 
-			await window.maestro.process.spawn(spawnConfig);
+			await window.openwizardai.process.spawn(spawnConfig);
 		} catch {
 			setChatMessages((prev) => [...prev, { role: 'assistant', text: 'Failed to start agent.' }]);
 			setChatBusy(false);

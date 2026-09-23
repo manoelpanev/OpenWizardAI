@@ -1,5 +1,5 @@
 /**
- * Input and TextArea components for Maestro web interface
+ * Input and TextArea components for OpenWizardAI web interface
  *
  * Reusable input components that support multiple variants, sizes, and states.
  * Uses theme colors via CSS custom properties for consistent styling.
@@ -91,7 +91,7 @@ const iconPadding: Record<InputSize, { left: string; right: string }> = {
 };
 
 /**
- * Input component for the Maestro web interface
+ * Input component for the OpenWizardAI web interface
  *
  * @example
  * ```tsx
@@ -259,7 +259,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
 });
 
 /**
- * TextArea component for the Maestro web interface
+ * TextArea component for the OpenWizardAI web interface
  *
  * @example
  * ```tsx

@@ -98,7 +98,7 @@ afterEach(() => {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		cue: {
 			getSettings: mockGetSettings,
 			writeYaml: mockWriteYaml,

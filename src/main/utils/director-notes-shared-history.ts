@@ -2,12 +2,12 @@
  * Cross-host history collection for Director's Notes.
  *
  * Director's Notes aggregates the LOCAL history store (`userData/history/`),
- * which holds one file per agent this Maestro instance drives - including
+ * which holds one file per agent this OpenWizardAI instance drives - including
  * agents whose process runs over SSH, because the run is still recorded here.
  *
- * What it never saw is the other half: work performed by a DIFFERENT Maestro
+ * What it never saw is the other half: work performed by a DIFFERENT OpenWizardAI
  * instance against the same project. That instance mirrors its entries into
- * `<project>/.maestro/history/history-<hostname>.jsonl` (see
+ * `<project>/.openwizardai/history/history-<hostname>.jsonl` (see
  * `shared-history-manager.ts`), and the per-agent History panel already merges
  * those files. Without this module, the same runs the History panel shows are
  * invisible to every Director's Notes surface: the unified list, the graph,
@@ -52,7 +52,7 @@ interface SharedHistoryScope {
 	key: string;
 	/** SSH remote id, or undefined for a local project directory. */
 	sshRemoteId?: string;
-	/** Project directory holding `.maestro/history/` (remote path when SSH). */
+	/** Project directory holding `.openwizardai/history/` (remote path when SSH). */
 	dir: string;
 }
 
@@ -71,7 +71,7 @@ const EMPTY_COLLECTION: SharedHistoryCollection = { entries: [], hosts: [], scop
 /**
  * Namespaced agent key for a foreign entry.
  *
- * The remote Maestro's session ids live in a different namespace than ours, so
+ * The remote OpenWizardAI's session ids live in a different namespace than ours, so
  * they are prefixed with the host. Without the prefix a foreign id could
  * collide with a local agent and silently fold two different agents' work into
  * one row.

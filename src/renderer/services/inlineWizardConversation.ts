@@ -27,8 +27,8 @@ export async function loadInlineWizardConversationPrompts(force = false): Promis
 	if (inlineWizardConversationPromptsLoaded && !force) return;
 
 	const [iterateResult, newResult] = await Promise.all([
-		window.maestro.prompts.get('wizard-inline-iterate'),
-		window.maestro.prompts.get('wizard-inline-new'),
+		window.openwizardai.prompts.get('wizard-inline-iterate'),
+		window.openwizardai.prompts.get('wizard-inline-new'),
 	]);
 
 	if (!iterateResult.success) {
@@ -617,7 +617,7 @@ export async function sendWizardMessage(
 
 	try {
 		// Get the agent configuration
-		const agent = await window.maestro.agents.get(session.agentType);
+		const agent = await window.openwizardai.agents.get(session.agentType);
 		// For SSH remote sessions, skip local availability checks since agent may be remote
 		const isRemoteSession = session.sessionSshRemoteConfig?.enabled;
 		if (!agent && !isRemoteSession) {
@@ -691,7 +691,7 @@ export async function sendWizardMessage(
 					});
 					cleanupListeners();
 					// Kill the orphaned agent process to prevent resource leaks
-					window.maestro.process.kill(session.sessionId).catch((err) => {
+					window.openwizardai.process.kill(session.sessionId).catch((err) => {
 						logger.warn(
 							'Failed to kill timed-out inline wizard process',
 							'[InlineWizardConversation]',
@@ -735,7 +735,7 @@ export async function sendWizardMessage(
 			}
 
 			// Set up data listener
-			dataListenerCleanup = window.maestro.process.onData(
+			dataListenerCleanup = window.openwizardai.process.onData(
 				(receivedSessionId: string, data: string) => {
 					if (receivedSessionId === session.sessionId) {
 						outputBuffer += data;
@@ -748,7 +748,7 @@ export async function sendWizardMessage(
 			// Set up thinking chunk listener - uses the dedicated event from process-manager
 			// This receives parsed thinking content (isPartial text) that's already extracted
 			if (callbacks?.onThinkingChunk) {
-				thinkingListenerCleanup = window.maestro.process.onThinkingChunk(
+				thinkingListenerCleanup = window.openwizardai.process.onThinkingChunk(
 					(receivedSessionId: string, content: string) => {
 						if (receivedSessionId === session.sessionId && content) {
 							resetTimeout();
@@ -769,7 +769,7 @@ export async function sendWizardMessage(
 			// This is important because in batch mode, we don't get streaming assistant messages,
 			// but we DO get tool execution events which show what the agent is doing
 			if (callbacks?.onToolExecution) {
-				toolExecutionListenerCleanup = window.maestro.process.onToolExecution?.(
+				toolExecutionListenerCleanup = window.openwizardai.process.onToolExecution?.(
 					(
 						receivedSessionId: string,
 						toolEvent: { toolName: string; state?: unknown; timestamp: number }
@@ -791,7 +791,7 @@ export async function sendWizardMessage(
 			}
 
 			// Set up exit listener
-			exitListenerCleanup = window.maestro.process.onExit(
+			exitListenerCleanup = window.openwizardai.process.onExit(
 				(receivedSessionId: string, code: number) => {
 					if (receivedSessionId === session.sessionId) {
 						clearTimeout(timeoutId);
@@ -854,7 +854,7 @@ export async function sendWizardMessage(
 				isRemote: isRemoteSession,
 			});
 
-			window.maestro.process
+			window.openwizardai.process
 				.spawn({
 					sessionId: session.sessionId,
 					toolType: session.agentType,
@@ -929,7 +929,7 @@ export async function endInlineWizardConversation(
 
 	// Try to kill any running process
 	try {
-		await window.maestro.process.kill(session.sessionId);
+		await window.openwizardai.process.kill(session.sessionId);
 	} catch {
 		// Process may already be dead
 	}

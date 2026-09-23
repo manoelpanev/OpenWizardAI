@@ -1,7 +1,7 @@
 /**
  * Preload API for automatic tab naming
  *
- * Provides the window.maestro.tabNaming namespace for:
+ * Provides the window.openwizardai.tabNaming namespace for:
  * - Generating descriptive tab names from user's first message
  */
 
@@ -26,9 +26,9 @@ export interface TabNamingConfig {
 	/** Session-level custom env vars, forwarded so naming inherits the same provider auth as the chat. */
 	sessionCustomEnvVars?: Record<string, string>;
 	/** Claude token-source selection, forwarded so tab naming honors TUI/Dynamic/API. */
-	enableMaestroP?: boolean;
-	maestroPMode?: 'interactive' | 'dynamic';
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	openwizardaiPPath?: string;
 }
 
 /**

@@ -128,7 +128,7 @@ describe('useUnifiedTabHandlers', () => {
 		});
 
 		expect(getSession().unifiedTabOrder).toEqual([{ type: 'ai', id: 'ai-active' }]);
-		expect(window.maestro.process.kill).toHaveBeenCalledWith('test-session-terminal-term-1');
+		expect(window.openwizardai.process.kill).toHaveBeenCalledWith('test-session-terminal-term-1');
 		await vi.waitFor(() => {
 			expect(inlineWizardMocks.endWizard).toHaveBeenCalledWith('wizard-1');
 		});

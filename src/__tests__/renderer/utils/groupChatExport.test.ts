@@ -105,7 +105,7 @@ describe('groupChatExport', () => {
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
-				expect(html).toContain('<title>My Custom Chat - OpenWizzard Group Chat Export</title>');
+				expect(html).toContain('<title>My Custom Chat - OpenWizardAI Group Chat Export</title>');
 			});
 
 			it('includes group chat name in header', () => {
@@ -131,25 +131,25 @@ describe('groupChatExport', () => {
 		});
 
 		describe('branding', () => {
-			it('includes OpenWizzard branding section', () => {
+			it('includes OpenWizardAI branding section', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
 				expect(html).toContain('class="branding"');
-				expect(html).toContain('OpenWizzard');
+				expect(html).toContain('OpenWizardAI');
 				expect(html).toContain('Multi-agent orchestration');
 			});
 
-			it('includes runmaestro.ai link', () => {
+			it('includes github.com/manoelpanev/OpenWizardAI link', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
-				expect(html).toContain('href="https://runmaestro.ai"');
-				expect(html).toContain('runmaestro.ai');
+				expect(html).toContain('href="https://github.com/manoelpanev/OpenWizardAI"');
+				expect(html).toContain('github.com/manoelpanev/OpenWizardAI');
 			});
 
 			it('includes GitHub link', () => {
@@ -158,11 +158,11 @@ describe('groupChatExport', () => {
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
-				expect(html).toContain('href="https://github.com/RunMaestro/Maestro"');
+				expect(html).toContain('href="https://github.com/manoelpanev/OpenWizardAI"');
 				expect(html).toContain('GitHub');
 			});
 
-			it('includes OpenWizzard logo SVG', () => {
+			it('includes OpenWizardAI logo SVG', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 
@@ -645,14 +645,14 @@ describe('groupChatExport', () => {
 		});
 
 		describe('footer', () => {
-			it('includes OpenWizzard attribution with runmaestro.ai', () => {
+			it('includes OpenWizardAI attribution with github.com/manoelpanev/OpenWizardAI', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
 				expect(html).toContain('Exported from');
-				expect(html).toContain('href="https://runmaestro.ai"');
+				expect(html).toContain('href="https://github.com/manoelpanev/OpenWizardAI"');
 			});
 		});
 

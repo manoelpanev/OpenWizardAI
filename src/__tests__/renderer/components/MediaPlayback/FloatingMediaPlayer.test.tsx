@@ -66,7 +66,7 @@ describe('FloatingMediaPlayer', () => {
 			floatWidths: {},
 			aspects: {},
 		});
-		(window as unknown as { maestro?: unknown }).maestro = { settings: { set: vi.fn() } };
+		(window as unknown as { openwizardai?: unknown }).openwizardai = { settings: { set: vi.fn() } };
 	});
 
 	it('shows the file name and owning agent', () => {
@@ -138,7 +138,7 @@ describe('FloatingMediaPlayer', () => {
 
 	it('moves on drag and persists only on release', () => {
 		const set = vi.fn();
-		(window as unknown as { maestro: unknown }).maestro = { settings: { set } };
+		(window as unknown as { openwizardai: unknown }).openwizardai = { settings: { set } };
 		useMediaPlaybackStore.setState({
 			floatPosition: { top: 200, left: 200 },
 			floatWidths: { audio: 400 },

@@ -1,6 +1,6 @@
 # Themes
 
-Maestro ships with a variety of themes that fall under three categories: Dark, Light, and "Vibes". Here are screenshots of the main window in each theme.
+OpenWizardAI ships with a variety of themes that fall under three categories: Dark, Light, and "Vibes". Here are screenshots of the main window in each theme.
 
 ## Dark
 
@@ -61,9 +61,9 @@ Maestro ships with a variety of themes that fall under three categories: Dark, L
 Pedram's signature `#9146FF` on a neutral slate base. Purple is the accent, not the wallpaper.
 <img width="3592" height="2302" alt="image" src="https://github.com/user-attachments/assets/15875d3e-37c1-4b6c-b967-551afd40b658" />
 
-### Maestro's Choice
+### OpenWizardAI's Choice
 
-We asked Maestro to make a theme for itself, this is what it came up with.
+We asked OpenWizardAI to make a theme for itself, this is what it came up with.
 <img width="3592" height="2302" alt="image" src="https://github.com/user-attachments/assets/2af219f3-220d-4587-b147-692580c2acf6" />
 
 ### Dre Synth

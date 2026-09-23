@@ -1,6 +1,6 @@
 /**
  * Mermaid's flowchart lexer reads `[^\s"]+@(?=[^{"])` as an edge id, and jison
- * takes the longest match - so `-->|@maestro ...|` lexes the arrow, the pipe,
+ * takes the longest match - so `-->|@openwizardai ...|` lexes the arrow, the pipe,
  * and the `@` as one edge-id token and the diagram fails to parse. Separately,
  * the dotted-link-with-text form (`A -. text .-> B`) scans ahead for its
  * closing `.-` without ever entering a text state, so a `.` in the label - a
@@ -21,8 +21,8 @@ import { normalizeMermaidSource } from '../../shared/mermaidSource';
 describe('normalizeMermaidSource', () => {
 	describe('escapes @ where the edge-id rule would swallow it', () => {
 		it('escapes an edge label that starts with @', () => {
-			expect(normalizeMermaidSource('flowchart LR\n  C -->|@maestro from user| E[send]')).toBe(
-				'flowchart LR\n  C -->|#64;maestro from user| E[send]'
+			expect(normalizeMermaidSource('flowchart LR\n  C -->|@openwizardai from user| E[send]')).toBe(
+				'flowchart LR\n  C -->|#64;openwizardai from user| E[send]'
 			);
 		});
 
@@ -50,8 +50,8 @@ describe('normalizeMermaidSource', () => {
 		it('quotes a bare subgraph title containing @', () => {
 			// `#64;` is no help here: the `;` reads as a statement separator, so
 			// quoting is the only repair the grammar accepts.
-			expect(normalizeMermaidSource('flowchart LR\n  subgraph @maestro team\n  end')).toBe(
-				'flowchart LR\n  subgraph "@maestro team"\n  end'
+			expect(normalizeMermaidSource('flowchart LR\n  subgraph @openwizardai team\n  end')).toBe(
+				'flowchart LR\n  subgraph "@openwizardai team"\n  end'
 			);
 		});
 
@@ -133,8 +133,8 @@ describe('normalizeMermaidSource', () => {
 		});
 
 		it('quotes rather than escapes a dotted label that also carries @', () => {
-			expect(normalizeMermaidSource('flowchart LR\n  A -. from @maestro v1.2 .-> B')).toBe(
-				'flowchart LR\n  A -. "from @maestro v1.2" .-> B'
+			expect(normalizeMermaidSource('flowchart LR\n  A -. from @openwizardai v1.2 .-> B')).toBe(
+				'flowchart LR\n  A -. "from @openwizardai v1.2" .-> B'
 			);
 		});
 
@@ -318,8 +318,8 @@ describe('normalizeMermaidSource', () => {
 			expect(normalizeMermaidSource('flowchart LR\n  subgraph My (Title)\n  end')).toBe(
 				'flowchart LR\n  subgraph "My (Title)"\n  end'
 			);
-			expect(normalizeMermaidSource('flowchart LR\n  subgraph @maestro team\n  end')).toBe(
-				'flowchart LR\n  subgraph "@maestro team"\n  end'
+			expect(normalizeMermaidSource('flowchart LR\n  subgraph @openwizardai team\n  end')).toBe(
+				'flowchart LR\n  subgraph "@openwizardai team"\n  end'
 			);
 		});
 
@@ -432,7 +432,7 @@ describe('normalizeMermaidSource', () => {
 	});
 
 	it('is idempotent - a second pass finds nothing left to escape', () => {
-		const source = 'flowchart LR\n  C -->|@maestro| E[a@b]\n  subgraph @team\n  end';
+		const source = 'flowchart LR\n  C -->|@openwizardai| E[a@b]\n  subgraph @team\n  end';
 		const once = normalizeMermaidSource(source);
 		expect(normalizeMermaidSource(once)).toBe(once);
 	});

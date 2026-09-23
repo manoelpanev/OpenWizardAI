@@ -1,5 +1,5 @@
 /**
- * CuePipelineEditor - React Flow-based visual pipeline editor for Maestro Cue.
+ * CuePipelineEditor - React Flow-based visual pipeline editor for OpenWizardAI Cue.
  *
  * Thin shell that composes domain hooks:
  *   - usePipelineSelection       → selection state (owns selected*Id + setters)

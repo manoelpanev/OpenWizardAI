@@ -140,7 +140,7 @@ beforeEach(() => {
 		},
 	});
 
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		directorNotes: {
 			generateSynopsis: mockGenerateSynopsis,
 			onSynopsisProgress: () => () => {},
@@ -846,7 +846,7 @@ describe('AIOverviewTab', () => {
 				{
 					kind: 'accomplishments' as const,
 					title: 'Accomplishments',
-					items: [{ text: 'Shipped Plain Mode', severity: 'info' as const, agent: 'Maestro' }],
+					items: [{ text: 'Shipped Plain Mode', severity: 'info' as const, agent: 'OpenWizardAI' }],
 				},
 				{
 					kind: 'challenges' as const,
@@ -878,7 +878,7 @@ describe('AIOverviewTab', () => {
 
 			const md = screen.getByTestId('markdown-renderer');
 			expect(md.textContent).toContain('## Accomplishments');
-			expect(md.textContent).toContain('- Shipped Plain Mode _(Maestro)_');
+			expect(md.textContent).toContain('- Shipped Plain Mode _(OpenWizardAI)_');
 			expect(md.textContent).toContain('- **Build broke** _(rc)_');
 			// Regression guard: Plain Mode must NOT dump the raw JSON object.
 			expect(md.textContent).not.toContain('"version"');

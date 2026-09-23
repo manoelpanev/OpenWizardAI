@@ -286,7 +286,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				await result.current.handleStartBatchRun(config);
 			});
 
-			expect(window.maestro.git.worktreeSetup).not.toHaveBeenCalled();
+			expect(window.openwizardai.git.worktreeSetup).not.toHaveBeenCalled();
 		});
 
 		it('falls back to active session with warning toast when target session is removed', async () => {
@@ -541,7 +541,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -564,7 +564,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				await result.current.handleStartBatchRun(config);
 			});
 
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/projects/my-repo',
 				'/projects/worktrees/auto-run-main-0222',
 				'auto-run-main-0222',
@@ -579,7 +579,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -602,7 +602,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				await result.current.handleStartBatchRun(config);
 			});
 
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/projects/my-repo',
 				'/projects/worktrees/Cue-Dashboard',
 				'Cue-Dashboard',
@@ -615,7 +615,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main', 'feature-x']);
@@ -651,7 +651,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -692,7 +692,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				activeSessionId: session.id,
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -725,7 +725,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 				created: false,
 				alreadyExisted: true,
@@ -786,7 +786,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				activeSessionId: session.id,
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 				created: false,
 				alreadyExisted: true,
@@ -841,7 +841,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				activeSessionId: session.id,
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 				created: false,
 				alreadyExisted: true,
@@ -901,7 +901,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				activeSessionId: session.id,
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 				created: false,
 				alreadyExisted: true,
@@ -954,7 +954,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				activeSessionId: session.id,
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 				created: false,
 				alreadyExisted: true,
@@ -999,7 +999,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -1035,7 +1035,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -1065,7 +1065,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -1101,7 +1101,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: false,
 				error: 'fatal: branch already exists',
 			});
@@ -1131,7 +1131,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: false,
 				error: 'disk full',
 			});
@@ -1166,7 +1166,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: false,
 				error: 'oops',
 			});
@@ -1196,7 +1196,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockRejectedValue(
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockRejectedValue(
 				new Error('IPC channel closed')
 			);
 
@@ -1257,7 +1257,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			});
 
 			// Should NOT call worktreeSetup - worktree already exists on disk
-			expect(window.maestro.git.worktreeSetup).not.toHaveBeenCalled();
+			expect(window.openwizardai.git.worktreeSetup).not.toHaveBeenCalled();
 
 			// Should have dispatched to a new session
 			expect(deps.startBatchRun).toHaveBeenCalledOnce();
@@ -1422,7 +1422,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			vi.mocked(markWorktreePathAsRecentlyCreated).mockImplementation(() => {
 				callOrder.push('mark');
 			});
-			vi.mocked(window.maestro.git.worktreeSetup).mockImplementation(async () => {
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockImplementation(async () => {
 				callOrder.push('worktreeSetup');
 				return { success: true };
 			});
@@ -1457,7 +1457,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			const session = createMockSession();
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: false,
 				error: 'branch conflict',
 			});
@@ -1522,7 +1522,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			});
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -1545,7 +1545,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				await result.current.handleStartBatchRun(config);
 			});
 
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/projects/my-repo',
 				'/projects/worktrees/remote-branch',
 				'remote-branch',
@@ -1566,7 +1566,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			});
 			const deps = createMockDeps();
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({
 				success: true,
 			});
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
@@ -1589,7 +1589,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				await result.current.handleStartBatchRun(config);
 			});
 
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/projects/my-repo',
 				'/projects/worktrees/fallback-branch',
 				'fallback-branch',
@@ -1625,7 +1625,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 				activeSessionId: child.id,
 			} as any);
 
-			vi.mocked(window.maestro.git.worktreeSetup).mockResolvedValue({ success: true });
+			vi.mocked(window.openwizardai.git.worktreeSetup).mockResolvedValue({ success: true });
 			vi.mocked(gitService.getBranches).mockResolvedValue(['main']);
 
 			const config: BatchRunConfig = {
@@ -1647,7 +1647,7 @@ describe('handleStartBatchRun — worktree dispatch integration', () => {
 			});
 
 			// basePath comes from parent's worktreeConfig, cwd comes from parent repo.
-			expect(window.maestro.git.worktreeSetup).toHaveBeenCalledWith(
+			expect(window.openwizardai.git.worktreeSetup).toHaveBeenCalledWith(
 				'/projects/my-repo',
 				'/projects/worktrees/from-child',
 				'from-child',

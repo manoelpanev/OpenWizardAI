@@ -74,14 +74,17 @@ function readOriginsStore(): OriginsStore {
 	let configDir: string;
 
 	if (platform === 'darwin') {
-		configDir = path.join(home, 'Library', 'Application Support', 'OpenWizzard');
+		configDir = path.join(home, 'Library', 'Application Support', 'OpenWizardAI');
 	} else if (platform === 'win32') {
 		configDir = path.join(
 			process.env.APPDATA || path.join(home, 'AppData', 'Roaming'),
-			'OpenWizzard'
+			'OpenWizardAI'
 		);
 	} else {
-		configDir = path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizzard');
+		configDir = path.join(
+			process.env.XDG_CONFIG_HOME || path.join(home, '.config'),
+			'OpenWizardAI'
+		);
 	}
 
 	const filePath = path.join(configDir, 'claude-session-origins.json');
@@ -233,7 +236,7 @@ function parseSessionContent(
  * Reads .jsonl files from ~/.claude/projects/<encoded-path>/ and returns
  * session metadata sorted by modified date (newest first).
  *
- * @param projectPath - Absolute project directory path (from Maestro session cwd)
+ * @param projectPath - Absolute project directory path (from OpenWizardAI session cwd)
  * @param options - Limit and search options
  * @returns List of sessions with metadata
  */

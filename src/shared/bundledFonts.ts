@@ -1,5 +1,5 @@
 /**
- * The fonts Maestro ships with itself.
+ * The fonts OpenWizardAI ships with itself.
  *
  * These are downloaded at build time by `scripts/fetch-webfonts.mjs` and served
  * from the app's own bundle, so they exist on every machine regardless of what
@@ -38,7 +38,7 @@ export interface BundledFont {
 
 export const BUNDLED_FONTS: BundledFont[] = [
 	// --- Monospace ---
-	{ name: 'JetBrains Mono', kind: 'mono', note: 'OpenWizzard default' },
+	{ name: 'JetBrains Mono', kind: 'mono', note: 'OpenWizardAI default' },
 	{ name: 'Fira Code', kind: 'mono' },
 	{ name: 'Roboto Mono', kind: 'mono' },
 	{ name: 'Source Code Pro', kind: 'mono' },

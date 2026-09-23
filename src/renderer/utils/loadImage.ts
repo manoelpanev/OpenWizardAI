@@ -7,7 +7,7 @@
  * resolves fails the same way everywhere instead of hanging one caller and
  * throwing in another.
  *
- * Accepts anything an `<img src>` accepts - a data URL, a `maestro-image://`
+ * Accepts anything an `<img src>` accepts - a data URL, a `openwizardai-image://`
  * store reference, a `file://` path, or a remote URL. The returned element is
  * decoded, so `naturalWidth` / `naturalHeight` are safe to read immediately.
  */

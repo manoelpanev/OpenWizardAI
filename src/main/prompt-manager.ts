@@ -19,8 +19,8 @@
  *   wrap the directive with whatever surrounding prose, list markers, or context they want.
  *   Use for heavy reference material the agent only needs in some sessions; the agent reads the
  *   file on demand. NOTE: the path serves the bundled file, not user customizations from
- *   Settings → Maestro Prompts. Agents that need customization-aware content should fetch via
- *   `maestro-cli prompts get <name>` instead.
+ *   Settings → OpenWizardAI Prompts. Agents that need customization-aware content should fetch via
+ *   `openwizardai-cli prompts get <name>` instead.
  */
 
 import { app } from 'electron';
@@ -330,7 +330,7 @@ export async function resetPrompt(id: string): Promise<string> {
 
 /**
  * Read the current bundled (un-customized) content for a prompt. Used by the
- * "View current default" affordance in the Maestro Prompts UI so users can see
+ * "View current default" affordance in the OpenWizardAI Prompts UI so users can see
  * what shipped after a drift indicator appears.
  */
 export async function getBundledDefault(id: string): Promise<string> {

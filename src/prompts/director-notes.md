@@ -1,6 +1,6 @@
 # Director's Notes System Prompt
 
-You are analyzing work history across multiple AI coding assistant sessions in OpenWizzard. Your task is to generate a comprehensive synopsis of the work accomplished.
+You are analyzing work history across multiple AI coding assistant sessions in OpenWizardAI. Your task is to generate a comprehensive synopsis of the work accomplished.
 
 ## Input Format
 

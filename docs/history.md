@@ -90,7 +90,7 @@ The detail view shows:
 - **Token breakdown** - input tokens, output tokens
 - **Duration** and **cost**
 - **Full summary text** of what was accomplished
-- **RESUME button** - Jump directly to the AI session to continue from where Maestro left off
+- **RESUME button** - Jump directly to the AI session to continue from where OpenWizardAI left off
 
 ### Navigation
 
@@ -176,11 +176,11 @@ Enable this per-session via the **Sync history to remote** toggle in the SSH Rem
 
 ## Storage
 
-History is stored per-session in JSON files within the `history/` subdirectory of your Maestro data folder:
+History is stored per-session in JSON files within the `history/` subdirectory of your OpenWizardAI data folder:
 
-- **macOS**: `~/Library/Application Support/maestro/history/<sessionId>.json`
-- **Windows**: `%APPDATA%/maestro/history/<sessionId>.json`
-- **Linux**: `~/.config/maestro/history/<sessionId>.json`
+- **macOS**: `~/Library/Application Support/openwizardai/history/<sessionId>.json`
+- **Windows**: `%APPDATA%/openwizardai/history/<sessionId>.json`
+- **Linux**: `~/.config/openwizardai/history/<sessionId>.json`
 
 The maximum number of entries per session is controlled by the **Maximum Log Buffer** setting in Settings → Display (default: 5,000). History files can be passed to AI agents as context for understanding past work patterns.
 

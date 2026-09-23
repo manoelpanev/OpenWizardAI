@@ -1,11 +1,11 @@
-// Build the Maestro system prompt for CLI-spawned agents.
+// Build the OpenWizardAI system prompt for CLI-spawned agents.
 //
-// Mirrors `src/renderer/utils/spawnHelpers.ts:prepareMaestroSystemPrompt` so a
-// bot driving Maestro through `maestro-cli send` or Auto Run sees the same
-// Maestro context - agent identity, git branch, history-file pointer,
+// Mirrors `src/renderer/utils/spawnHelpers.ts:prepareOpenWizardAISystemPrompt` so a
+// bot driving OpenWizardAI through `openwizardai-cli send` or Auto Run sees the same
+// OpenWizardAI context - agent identity, git branch, history-file pointer,
 // conductor profile, prompt customizations - that a desktop-spawned agent
 // receives. Without this, CLI-spawned agents are missing the entire "what is
-// Maestro and what can I do with it" preamble.
+// OpenWizardAI and what can I do with it" preamble.
 
 import path from 'path';
 import fs from 'fs';
@@ -39,30 +39,32 @@ function getHistoryFilePath(sessionId: string): string | undefined {
 }
 
 /**
- * Build the Maestro system prompt to pass via `appendSystemPrompt` when
+ * Build the OpenWizardAI system prompt to pass via `appendSystemPrompt` when
  * spawning a CLI agent. Returns undefined if the prompt template fails to
  * load (caller should treat that as "spawn without the system prompt" rather
  * than aborting the whole send).
  *
- * Loads via `getCliPrompt()` so user customizations from Settings → Maestro
+ * Loads via `getCliPrompt()` so user customizations from Settings → OpenWizardAI
  * Prompts win over the bundled default, and `{{REF:name}}` directives are
  * expanded to absolute on-disk paths the agent can read with its file tools.
  */
-export async function prepareMaestroSystemPromptCli(
+export async function prepareOpenWizardAISystemPromptCli(
 	session: SessionInfo
 ): Promise<string | undefined> {
 	let template: string;
 	try {
-		template = await getCliPrompt(PROMPT_IDS.MAESTRO_SYSTEM_PROMPT);
+		template = await getCliPrompt(PROMPT_IDS.OPENWIZARDAI_SYSTEM_PROMPT);
 	} catch (err) {
 		// `getCliPrompt` throws a known "Failed to load prompt …" Error when no
 		// candidate file is readable. That's the only failure mode we want to
 		// treat as non-fatal - anything else (TypeError, parse bug, etc.) is a
 		// real defect and should bubble up to the caller's error handler rather
 		// than masquerade as "prompt missing". Log the swallow so the user has
-		// a breadcrumb when their relay bot suddenly loses Maestro context.
+		// a breadcrumb when their relay bot suddenly loses OpenWizardAI context.
 		if (err instanceof Error && err.message.startsWith('Failed to load prompt')) {
-			console.error(`[maestro-cli] ${err.message}; spawning without OpenWizzard system prompt`);
+			console.error(
+				`[openwizardai-cli] ${err.message}; spawning without OpenWizardAI system prompt`
+			);
 			return undefined;
 		}
 		throw err;
@@ -72,7 +74,7 @@ export async function prepareMaestroSystemPromptCli(
 	const gitBranch = sessionIsGitRepo ? getGitBranch(session.cwd) : undefined;
 
 	// Skip the history-file pointer for SSH sessions - the path is local to the
-	// Maestro app's machine, not the remote where the agent will actually run.
+	// OpenWizardAI app's machine, not the remote where the agent will actually run.
 	const isSsh = !!session.sessionSshRemoteConfig?.enabled;
 	const historyFilePath = isSsh ? undefined : getHistoryFilePath(session.id);
 

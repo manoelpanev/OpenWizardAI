@@ -2,7 +2,7 @@
  * Extract the sign-in URL a provider's login flow prints to its terminal.
  *
  * Every OAuth-style CLI login ends with "open this URL in your browser". Inside
- * Maestro's re-authentication terminal that URL is often unusable by hand: it is
+ * OpenWizardAI's re-authentication terminal that URL is often unusable by hand: it is
  * hundreds of characters of query string, the TUI soft-wraps it across several
  * rows, and a TUI with mouse tracking on eats the drag so it cannot even be
  * selected. Pulling it out of the stream and offering one Copy button is the

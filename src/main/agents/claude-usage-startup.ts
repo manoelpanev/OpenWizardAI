@@ -1,7 +1,7 @@
 /**
  * Claude Usage Startup Sampler
  *
- * Fires a one-shot `maestro-p --status` per unique CLAUDE_CONFIG_DIR account
+ * Fires a one-shot `openwizardai-p --status` per unique CLAUDE_CONFIG_DIR account
  * referenced by any recent Claude Code session, and persists each result into
  * `claudeUsageStore`. Invoked from `src/main/index.ts` after settings/CLI
  * watchers come up, as fire-and-forget - the spawner can still fall through
@@ -10,7 +10,7 @@
  * lazily when an `auto`-mode tab actually needs the data.
  *
  * Why "per CLAUDE_CONFIG_DIR account":
- *   The Claude plan quota is bucketed per Anthropic account, and Maestro users
+ *   The Claude plan quota is bucketed per Anthropic account, and OpenWizardAI users
  *   commonly switch accounts via `CLAUDE_CONFIG_DIR=/Users/foo/.claude-gmail`
  *   vs `.claude-smash`. Each canonical path is its own snapshot key. We
  *   resolve the effective env per session (agent-level customEnvVars merged
@@ -30,8 +30,8 @@
  *
  * Binary path resolution mirrors the existing speckit-manager / cli pattern:
  *   - In dev, `dist/main/agents/claude-usage-startup.js` resolves
- *     `../cli/maestro-p.js` as a sibling under `dist/`.
- *   - In a packaged build, `process.resourcesPath/maestro-p.js` (added to
+ *     `../cli/openwizardai-p.js` as a sibling under `dist/`.
+ *   - In a packaged build, `process.resourcesPath/openwizardai-p.js` (added to
  *     `extraResources` in `package.json` for mac/win/linux).
  */
 
@@ -42,9 +42,9 @@ import Store from 'electron-store';
 
 import type { AgentDetector } from './detector';
 import type { AgentConfigsData, SessionsData } from '../stores/types';
-import type { MaestroSettings } from '../ipc/handlers/persistence';
+import type { OpenWizardAISettings } from '../ipc/handlers/persistence';
 import { logger } from '../utils/logger';
-import { isMaestroPBinaryPath } from './claudeSpawnCore';
+import { isOpenWizardAIPBinaryPath } from './claudeSpawnCore';
 import { sampleUsage } from './claude-usage-sampler';
 import { getAllSnapshots, resolveConfigDirKey, setSnapshot } from '../stores/claudeUsageStore';
 import { getRememberedQuotaAccountKeys, rememberQuotaAccounts } from '../stores/quotaAccountsStore';
@@ -72,19 +72,19 @@ export interface StartupUsageSamplingDeps {
 	// instance assign without an `as unknown as` cast at the call site.
 	sessionsStore: Pick<Store<SessionsData>, 'get'>;
 	agentConfigsStore: Store<AgentConfigsData>;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	agentDetector: AgentDetector;
 	/** Override for tests; defaults to `Date.now()`. */
 	now?: () => number;
 	/**
 	 * 'startup' (default): strict filter - only sample for sessions that will
-	 * spawn through maestro-p (Adaptive Mode toggle on, or maestro-p set as the
+	 * spawn through openwizardai-p (Adaptive Mode toggle on, or openwizardai-p set as the
 	 * session-level / agent-level Path) AND were created within the 7-day
-	 * window. Keeps boot snappy - non-maestro-p users don't pay a 30s
+	 * window. Keeps boot snappy - non-openwizardai-p users don't pay a 30s
 	 * `--status` spawn per account on every launch.
 	 *
 	 * 'manual': aggressive - sample every unique CLAUDE_CONFIG_DIR referenced
-	 * by ANY Claude Code session, ignoring the maestro-p filter and the 7-day
+	 * by ANY Claude Code session, ignoring the openwizardai-p filter and the 7-day
 	 * window. Falls back to the default ~/.claude account when no Claude Code
 	 * sessions exist. Used by the Usage Dashboard Refresh button: the user
 	 * just asked for fresh data, give it to them regardless of how their
@@ -160,52 +160,52 @@ async function isReadableDir(dir: string): Promise<boolean> {
 }
 
 /**
- * Locate the bundled `maestro-p.js` script. Returns null when no candidate
+ * Locate the bundled `openwizardai-p.js` script. Returns null when no candidate
  * exists - callers treat this the same as "claude agent missing" and skip
  * sampling cleanly.
  *
  * Candidate order matches the dev / packaged split:
- *   1. `process.resourcesPath/maestro-p.js` (packaged build extraResources).
- *   2. `dist/cli/maestro-p.js` as a sibling under the running JS path (dev
+ *   1. `process.resourcesPath/openwizardai-p.js` (packaged build extraResources).
+ *   2. `dist/cli/openwizardai-p.js` as a sibling under the running JS path (dev
  *      mode runs from `dist/main/agents/claude-usage-startup.js`).
- *   3. `<cwd>/dist/cli/maestro-p.js` as a last resort for unusual setups
+ *   3. `<cwd>/dist/cli/openwizardai-p.js` as a last resort for unusual setups
  *      (electron-forge dev shells, packaged tests).
  */
-export function getMaestroPBinPath(): string | null {
+export function getOpenWizardAIPBinPath(): string | null {
 	const candidates: string[] = [];
 
-	// Packaged build: extraResources lands maestro-p.js at the app resources root.
+	// Packaged build: extraResources lands openwizardai-p.js at the app resources root.
 	// `process.resourcesPath` is empty/undefined when run outside Electron (tests
 	// invoking this module directly), so guard before using it.
 	if (typeof process.resourcesPath === 'string' && process.resourcesPath.length > 0) {
-		candidates.push(path.join(process.resourcesPath, 'maestro-p.js'));
+		candidates.push(path.join(process.resourcesPath, 'openwizardai-p.js'));
 	}
 
-	// Dev: dist/main/agents/claude-usage-startup.js → ../cli/maestro-p.js
-	candidates.push(path.resolve(__dirname, '..', 'cli', 'maestro-p.js'));
+	// Dev: dist/main/agents/claude-usage-startup.js → ../cli/openwizardai-p.js
+	candidates.push(path.resolve(__dirname, '..', 'cli', 'openwizardai-p.js'));
 
 	// Fallback for unusual setups: cwd-relative.
-	candidates.push(path.resolve(process.cwd(), 'dist', 'cli', 'maestro-p.js'));
+	candidates.push(path.resolve(process.cwd(), 'dist', 'cli', 'openwizardai-p.js'));
 
 	for (const candidate of candidates) {
 		try {
 			fs.accessSync(candidate, fs.constants.R_OK);
-			logger.debug('Resolved bundled maestro-p.js', LOG_CONTEXT, { path: candidate });
+			logger.debug('Resolved bundled openwizardai-p.js', LOG_CONTEXT, { path: candidate });
 			return candidate;
 		} catch {
 			continue;
 		}
 	}
 
-	logger.warn('No bundled maestro-p.js candidate was readable', LOG_CONTEXT, { candidates });
+	logger.warn('No bundled openwizardai-p.js candidate was readable', LOG_CONTEXT, { candidates });
 	return null;
 }
 
-// Canonical `isMaestroPBinaryPath` now lives in the bundle-safe spawn core so
+// Canonical `isOpenWizardAIPBinaryPath` now lives in the bundle-safe spawn core so
 // the desktop and the CLI share one basename check. Re-exported here (it is
 // imported at the top) so this module's existing importers keep resolving it
 // from the same place.
-export { isMaestroPBinaryPath };
+export { isOpenWizardAIPBinaryPath };
 
 /**
  * Read the agent-level customEnvVars for `claude-code` from the agent configs
@@ -224,7 +224,7 @@ function getAgentLevelEnvVars(agentConfigsStore: Store<AgentConfigsData>): Recor
 /**
  * Read the agent-level customPath for `claude-code` (the agent's `Path` field).
  * Returns null when nothing's been configured. Used to detect the "static
- * maestro-p Path" case where the spawner runs through the TUI wrapper even
+ * openwizardai-p Path" case where the spawner runs through the TUI wrapper even
  * though Adaptive Mode is off.
  */
 function getAgentLevelCustomPath(agentConfigsStore: Store<AgentConfigsData>): string | null {
@@ -267,7 +267,7 @@ function buildTarget(
 	// SSH-remote agents run claude on the remote host, so their CLAUDE_CONFIG_DIR
 	// names a directory on THAT machine. Sampling it locally reads the wrong
 	// host's account, and if the local path happens to exist but has no Keychain
-	// token (a pristine ~/.claude-* dir), `maestro-p --status` pops an OAuth
+	// token (a pristine ~/.claude-* dir), `openwizardai-p --status` pops an OAuth
 	// browser the user never asked for. The remote agent's real turns authenticate
 	// remotely; there is nothing useful to sample locally. Skip.
 	const sshRemoteConfig = session.sessionSshRemoteConfig as { enabled?: boolean } | undefined;
@@ -299,14 +299,14 @@ function buildTarget(
 }
 
 /**
- * Sample `maestro-p --status` for every unique CLAUDE_CONFIG_DIR account
+ * Sample `openwizardai-p --status` for every unique CLAUDE_CONFIG_DIR account
  * referenced by an eligible Claude Code session, and write each result to
  * `claudeUsageStore`. Resolves when every parallel sample has settled.
  *
  * Eligibility depends on `deps.mode`:
- *   - 'startup' (default): only sessions that will spawn through maestro-p
+ *   - 'startup' (default): only sessions that will spawn through openwizardai-p
  *     AND were created within the 7-day window. Keeps boot fast.
- *   - 'manual': every Claude Code session, ignoring the maestro-p filter and
+ *   - 'manual': every Claude Code session, ignoring the openwizardai-p filter and
  *     7-day window. Still scoped to accounts a configured agent explicitly
  *     references (session- or agent-level CLAUDE_CONFIG_DIR) - we never
  *     discover unconfigured ~/.claude-* dirs on disk, since sampling a stale
@@ -331,29 +331,33 @@ export async function runStartupUsageSampling(deps: StartupUsageSamplingDeps): P
 
 	const storedSessions = deps.sessionsStore.get('sessions', []) as Array<Record<string, unknown>>;
 	const agentLevelCustomPath = getAgentLevelCustomPath(deps.agentConfigsStore);
-	const agentLevelIsMaestroP = isMaestroPBinaryPath(agentLevelCustomPath);
+	const agentLevelIsOpenWizardAIP = isOpenWizardAIPBinaryPath(agentLevelCustomPath);
 	const eligibleClaudeSessions = storedSessions.filter((s) => {
 		if (s?.toolType !== 'claude-code') return false;
 		if (mode === 'manual') return true;
-		// startup: sample only for sessions that will spawn through maestro-p
-		// (Adaptive Mode toggle, or maestro-p as the session/agent-level Path),
+		// startup: sample only for sessions that will spawn through openwizardai-p
+		// (Adaptive Mode toggle, or openwizardai-p as the session/agent-level Path),
 		// and only when fresh enough to be worth a 30s `--status` spawn on boot.
 		const sessionPath = typeof s?.customPath === 'string' ? s.customPath : null;
-		const usesMaestroP =
-			s?.enableMaestroP === true ||
-			isMaestroPBinaryPath(sessionPath) ||
-			(sessionPath === null && agentLevelIsMaestroP);
-		if (!usesMaestroP) return false;
+		const usesOpenWizardAIP =
+			s?.enableOpenWizardAIP === true ||
+			isOpenWizardAIPBinaryPath(sessionPath) ||
+			(sessionPath === null && agentLevelIsOpenWizardAIP);
+		if (!usesOpenWizardAIP) return false;
 		const createdAt = typeof s.createdAt === 'number' ? s.createdAt : null;
 		if (createdAt === null) return false;
 		return createdAt >= now - STARTUP_SESSION_WINDOW_MS;
 	});
 
-	const binPath = getMaestroPBinPath();
+	const binPath = getOpenWizardAIPBinPath();
 	if (!binPath) {
-		logger.warn('Skipping Claude usage sampling: bundled maestro-p.js not found', LOG_CONTEXT, {
-			mode,
-		});
+		logger.warn(
+			'Skipping Claude usage sampling: bundled openwizardai-p.js not found',
+			LOG_CONTEXT,
+			{
+				mode,
+			}
+		);
 		return;
 	}
 
@@ -378,7 +382,7 @@ export async function runStartupUsageSampling(deps: StartupUsageSamplingDeps): P
 	rememberQuotaAccounts('claude-code', targetsByKey.keys());
 
 	// NB: manual mode does NOT sweep the filesystem for ~/.claude-* account
-	// dirs. A blind sweep would spawn `maestro-p --status` against every
+	// dirs. A blind sweep would spawn `openwizardai-p --status` against every
 	// leftover/stale account on disk, and any whose Keychain tokens have
 	// expired launch the Claude TUI's OAuth browser flow on each refresh tick.
 	// We sample only what a configured agent explicitly references, exactly
@@ -386,7 +390,7 @@ export async function runStartupUsageSampling(deps: StartupUsageSamplingDeps): P
 	// guard. (discoverClaudeConfigDirs() still backs the account-key listing
 	// IPC handler, which lists keys without spawning anything.)
 	//
-	// The exception is a dir Maestro has already used: one that holds a cached
+	// The exception is a dir OpenWizardAI has already used: one that holds a cached
 	// snapshot, or one remembered in `quotaAccountsStore` because a sampler
 	// targeted it for a real agent. The dashboard keeps rendering those rows, and
 	// nothing else re-samples them once their agents move away (or all run over
@@ -444,7 +448,7 @@ export async function runStartupUsageSampling(deps: StartupUsageSamplingDeps): P
 	// The real claude binary path: prefer the detector's resolved `path`
 	// (matches the spawner's `agent.path || agent.command` convention), fall
 	// back to the bare binary name when the detector didn't resolve a path
-	// (in which case maestro-p will PATH-resolve internally).
+	// (in which case openwizardai-p will PATH-resolve internally).
 	const claudeRealBinPath = claudeAgent.path || claudeAgent.command;
 
 	const targets = Array.from(targetsByKey.values());
@@ -453,13 +457,13 @@ export async function runStartupUsageSampling(deps: StartupUsageSamplingDeps): P
 			// Compose the env passed to sampleUsage:
 			//   - Inherit the target's effective customEnvVars so callers (e.g.
 			//     `ANTHROPIC_API_KEY`) reach the claude TUI as configured.
-			//   - Override MAESTRO_CLAUDE_BIN with the resolved real-claude path
+			//   - Override OPENWIZARDAI_CLAUDE_BIN with the resolved real-claude path
 			//     when available, so the agent doesn't depend on PATH inside
 			//     the sampler's spawn (which inherits process.env via the
 			//     sampler's own composition).
 			const sampleEnv: Record<string, string> = { ...target.customEnvVars };
 			if (claudeRealBinPath) {
-				sampleEnv.MAESTRO_CLAUDE_BIN = claudeRealBinPath;
+				sampleEnv.OPENWIZARDAI_CLAUDE_BIN = claudeRealBinPath;
 			}
 
 			const snapshot = await sampleUsage({
@@ -469,7 +473,7 @@ export async function runStartupUsageSampling(deps: StartupUsageSamplingDeps): P
 			});
 
 			if (!snapshot) {
-				logger.warn('maestro-p --status sample failed; skipping account', LOG_CONTEXT, {
+				logger.warn('openwizardai-p --status sample failed; skipping account', LOG_CONTEXT, {
 					configDirKey: target.configDirKey,
 				});
 				return;

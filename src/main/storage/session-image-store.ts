@@ -4,7 +4,7 @@
  * Content-addressed storage for images pasted into AI conversations.
  *
  * Historically, pasted screenshots were persisted inline as full
- * `data:image/png;base64,...` data URLs inside `maestro-sessions.json`
+ * `data:image/png;base64,...` data URLs inside `openwizardai-sessions.json`
  * (under `session.aiTabs[].logs[].images`). A single Retina screenshot is
  * several megabytes; a field trace found 264MB of base64 image data in one
  * user's sessions file (98% of a 272MB file). electron-store serializes and
@@ -14,9 +14,9 @@
  *
  * This store relocates the bytes out of the JSON blob and into
  * content-addressed files on disk (`<syncPath>/session-images/<sha256>.<ext>`),
- * leaving a lightweight `maestro-image://store/<sha256>.<ext>` reference in the
+ * leaving a lightweight `openwizardai-image://store/<sha256>.<ext>` reference in the
  * log entry. The reference is directly loadable by `<img src>` via the
- * `maestro-image` protocol registered in `src/main/index.ts`, so render-only
+ * `openwizardai-image` protocol registered in `src/main/index.ts`, so render-only
  * consumers need no changes. Content addressing dedupes identical pastes
  * automatically (the same image referenced from two tabs stores once).
  *
@@ -90,7 +90,7 @@ export function getImageDir(): string {
 	return dir;
 }
 
-/** True if `value` is a `maestro-image://` reference produced by this store. */
+/** True if `value` is a `openwizardai-image://` reference produced by this store. */
 export function isImageRef(value: string): boolean {
 	return typeof value === 'string' && value.startsWith(IMAGE_REF_PREFIX);
 }
@@ -156,7 +156,7 @@ export function parseThumbnailRequest(ref: string): { maxWidth: number; maxHeigh
 
 /**
  * Store an inline image data URL as a content-addressed file and return its
- * `maestro-image://` reference. If `value` is already a reference (or not an
+ * `openwizardai-image://` reference. If `value` is already a reference (or not an
  * inline data URL at all), it is returned unchanged - so this is safe to call
  * repeatedly over a mixed array.
  */
@@ -184,7 +184,7 @@ export async function storeInlineImage(value: string): Promise<string> {
 /**
  * Resolve a reference (or passthrough data URL) to a data URL. Returns the
  * value unchanged if it is already a data URL; null if a ref's file is missing.
- * Used by surfaces that cannot use the `maestro-image` protocol: web/mobile
+ * Used by surfaces that cannot use the `openwizardai-image` protocol: web/mobile
  * clients, HTML export, clipboard copy.
  */
 export async function resolveToDataUrl(value: string): Promise<string | null> {
@@ -232,7 +232,7 @@ export function resolveToBytesSync(value: string): { buffer: Buffer; mediaType: 
  * Synchronously resolve a reference (or passthrough data URL) to a data URL.
  * Returns the value unchanged if already a data URL; null if a ref's file is
  * missing. Used by the web-server session-detail callback, which is synchronous
- * and serves images to browser clients that cannot use the maestro-image
+ * and serves images to browser clients that cannot use the openwizardai-image
  * protocol.
  */
 export function resolveToDataUrlSync(value: string): string | null {
@@ -244,7 +244,7 @@ export function resolveToDataUrlSync(value: string): string | null {
 
 /**
  * Replace every inline image data URL found under a session's image-bearing
- * fields with a `maestro-image://` reference, storing the bytes on disk. Only
+ * fields with a `openwizardai-image://` reference, storing the bytes on disk. Only
  * clones the parts of the tree that actually change (reference-stable
  * otherwise), so it is cheap to run on every persistence flush - a scan over
  * already-relocated sessions does no writes and allocates nothing new.

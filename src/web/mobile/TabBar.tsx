@@ -1,7 +1,7 @@
 /**
  * TabBar component for web interface
  *
- * Displays Claude Code session tabs within a Maestro session.
+ * Displays Claude Code session tabs within an OpenWizardAI session.
  * Styled like browser tabs (Safari/Chrome) where active tab connects to content.
  * Long-press on a tab shows a popover with rename, star, and move actions.
  */

@@ -54,7 +54,7 @@ describe('MediaPlaybackHost', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		seed(false);
-		(window as unknown as { maestro?: unknown }).maestro = { settings: { set: vi.fn() } };
+		(window as unknown as { openwizardai?: unknown }).openwizardai = { settings: { set: vi.fn() } };
 	});
 
 	it('keeps the same element mounted across minimize and restore', () => {

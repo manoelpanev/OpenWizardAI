@@ -17,7 +17,7 @@ const stat = vi.fn();
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		fs: { readFile, stat },
 		shell: { openPath: vi.fn() },
 	};

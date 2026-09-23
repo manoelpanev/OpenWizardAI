@@ -5,10 +5,10 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { createMaestroModeContextValue } from '../../web/App';
-import type { MaestroConfig } from '../../web/utils/config';
+import { createOpenWizardAIModeContextValue } from '../../web/App';
+import type { OpenWizardAIConfig } from '../../web/utils/config';
 
-describe('createMaestroModeContextValue', () => {
+describe('createOpenWizardAIModeContextValue', () => {
 	let originalLocation: Location;
 
 	beforeEach(() => {
@@ -33,14 +33,14 @@ describe('createMaestroModeContextValue', () => {
 	});
 
 	it('builds dashboard mode context from config', () => {
-		const config: MaestroConfig = {
+		const config: OpenWizardAIConfig = {
 			securityToken: 'token-123',
 			sessionId: null,
 			apiBase: '/token-123/api',
 			wsUrl: '/token-123/ws',
 		};
 
-		const context = createMaestroModeContextValue(config);
+		const context = createOpenWizardAIModeContextValue(config);
 
 		expect(context.isDashboard).toBe(true);
 		expect(context.isSession).toBe(false);
@@ -52,14 +52,14 @@ describe('createMaestroModeContextValue', () => {
 	});
 
 	it('builds session mode context from config', () => {
-		const config: MaestroConfig = {
+		const config: OpenWizardAIConfig = {
 			securityToken: 'token-456',
 			sessionId: 'session-abc',
 			apiBase: '/token-456/api',
 			wsUrl: '/token-456/ws',
 		};
 
-		const context = createMaestroModeContextValue(config);
+		const context = createOpenWizardAIModeContextValue(config);
 
 		expect(context.isDashboard).toBe(false);
 		expect(context.isSession).toBe(true);

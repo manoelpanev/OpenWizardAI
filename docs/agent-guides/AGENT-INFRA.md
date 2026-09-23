@@ -2,7 +2,7 @@
 
 # Agent Infrastructure Reference
 
-Complete reference for Maestro's agent registration system: agent IDs, definitions, capabilities, detection, output parsers, error patterns, session storage, and process management.
+Complete reference for OpenWizardAI's agent registration system: agent IDs, definitions, capabilities, detection, output parsers, error patterns, session storage, and process management.
 
 ---
 
@@ -53,7 +53,7 @@ formatAgentLoginCommand(login, syntax?)        // Render it as a shell line
 loginShellSyntaxFor(shellId, isWindows)        // 'posix' | 'powershell' | 'cmd'
 ```
 
-**Re-authentication commands** are keyed by `AgentId`, so adding an agent forces a decision about how it logs in. An entry carries `binary` + `args` (the line Maestro types into the re-authentication terminal) and an optional `followUp` for providers whose login only exists as a slash command inside their TUI (`gemini-cli`, `qwen3-coder`, `factory-droid`). `null` means the agent has no login flow of its own. `getAgentLoginCommand` returns `null` for unknown ids rather than guessing, because the result is executed in a shell. The consumer is `ReauthModal` (`src/renderer/components/ReauthModal.tsx`); do not hand-roll a second login-command table.
+**Re-authentication commands** are keyed by `AgentId`, so adding an agent forces a decision about how it logs in. An entry carries `binary` + `args` (the line OpenWizardAI types into the re-authentication terminal) and an optional `followUp` for providers whose login only exists as a slash command inside their TUI (`gemini-cli`, `qwen3-coder`, `factory-droid`). `null` means the agent has no login flow of its own. `getAgentLoginCommand` returns `null` for unknown ids rather than guessing, because the result is executed in a shell. The consumer is `ReauthModal` (`src/renderer/components/ReauthModal.tsx`); do not hand-roll a second login-command table.
 
 **Five things about the login shell `ReauthModal` spawns are not optional, and every one of them was a bug first.**
 
@@ -231,7 +231,7 @@ The `argBuilder` function converts the setting value to CLI arguments.
 
 ## 3. Capabilities (`src/main/agents/capabilities.ts`)
 
-Feature flags that control Maestro behavior per agent:
+Feature flags that control OpenWizardAI behavior per agent:
 
 ```typescript
 interface AgentCapabilities {
@@ -381,7 +381,7 @@ interface ParsedEvent {
 
 ### Thinking / Tool Log Contract (REQUIRED for new parsers)
 
-Maestro renders reasoning and tool-execution activity as ephemeral cells whose
+OpenWizardAI renders reasoning and tool-execution activity as ephemeral cells whose
 lifecycle is governed by the tab's `ThinkingMode` (`'off' | 'on' | 'sticky'`,
 defined in `src/shared/types.ts`). **Every parser that surfaces reasoning or
 tool activity MUST cooperate with this contract**, otherwise users will see
@@ -554,7 +554,7 @@ successful, and Agent Resilience never sees a failure to retry.
 `isClaudeLimitNotice(text)` is the gate for that branch in
 `ClaudeOutputParser.detectError()`. It is anchored at the start of the string and
 length-capped on purpose - a result body is normal assistant prose, and agents
-working on Maestro discuss rate limits constantly, so running the whole result
+working on OpenWizardAI discuss rate limits constantly, so running the whole result
 through the pattern bank would turn a normal answer into a phantom failure. Keep
 the CLI's own wording as the error message rather than the generic pattern text:
 it names which limit was hit and when it resets, which is exactly what
@@ -563,7 +563,7 @@ schedule the retry. That parser accepts a wall-clock reset only when the notice
 names its own IANA zone; a bare "resets at 3pm" stays unparseable and falls back
 to the hourly poll.
 
-`src/maestro-p/tui-driver.ts` matches the same banner from the TUI's painted
+`src/openwizardai-p/tui-driver.ts` matches the same banner from the TUI's painted
 output with `LIMIT_REGEX`, which is line-anchored for the same reason.
 
 ### Usage Functions
@@ -697,7 +697,7 @@ Agent processes are spawned and managed by `ProcessManager` (`src/main/process-m
 
 ### Spawn Flow
 
-1. Renderer calls `window.maestro.process.spawn(config)`
+1. Renderer calls `window.openwizardai.process.spawn(config)`
 2. Handler resolves agent config (custom path, custom args, custom env vars)
 3. If SSH enabled, wraps with `wrapSpawnWithSsh()`
 4. Builds final command line using agent's argument builders

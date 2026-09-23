@@ -58,11 +58,11 @@ export const TasksByHourChart = memo(function TasksByHourChart({
 
 		try {
 			// Get all Auto Run sessions for the time range
-			const sessions = await window.maestro.stats.getAutoRunSessions(timeRange);
+			const sessions = await window.openwizardai.stats.getAutoRunSessions(timeRange);
 
 			// Fetch tasks for all sessions
 			const taskPromises = sessions.map((session) =>
-				window.maestro.stats.getAutoRunTasks(session.id)
+				window.openwizardai.stats.getAutoRunTasks(session.id)
 			);
 			const taskResults = await Promise.all(taskPromises);
 			setTasks(taskResults.flat());
@@ -78,7 +78,7 @@ export const TasksByHourChart = memo(function TasksByHourChart({
 		fetchTasks();
 
 		// Subscribe to stats updates
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			fetchTasks();
 		});
 

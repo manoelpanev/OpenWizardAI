@@ -40,7 +40,7 @@ export const processService = {
 	 */
 	spawn: (config: ProcessConfig): Promise<ProcessSpawnResult> =>
 		createIpcMethod({
-			call: () => window.maestro.process.spawn(config),
+			call: () => window.openwizardai.process.spawn(config),
 			errorContext: 'Process spawn',
 			rethrow: true,
 		}),
@@ -50,7 +50,7 @@ export const processService = {
 	 */
 	write: (sessionId: string, data: string): Promise<boolean> =>
 		createIpcMethod({
-			call: () => window.maestro.process.write(sessionId, data),
+			call: () => window.openwizardai.process.write(sessionId, data),
 			errorContext: 'Process write',
 			rethrow: true,
 		}),
@@ -60,7 +60,7 @@ export const processService = {
 	 */
 	interrupt: (sessionId: string): Promise<boolean> =>
 		createIpcMethod({
-			call: () => window.maestro.process.interrupt(sessionId),
+			call: () => window.openwizardai.process.interrupt(sessionId),
 			errorContext: 'Process interrupt',
 			rethrow: true,
 		}),
@@ -70,7 +70,7 @@ export const processService = {
 	 */
 	kill: (sessionId: string): Promise<boolean> =>
 		createIpcMethod({
-			call: () => window.maestro.process.kill(sessionId),
+			call: () => window.openwizardai.process.kill(sessionId),
 			errorContext: 'Process kill',
 			rethrow: true,
 		}),
@@ -80,7 +80,7 @@ export const processService = {
 	 */
 	resize: (sessionId: string, cols: number, rows: number): Promise<boolean> =>
 		createIpcMethod({
-			call: () => window.maestro.process.resize(sessionId, cols, rows),
+			call: () => window.openwizardai.process.resize(sessionId, cols, rows),
 			errorContext: 'Process resize',
 			rethrow: true,
 		}),
@@ -89,21 +89,21 @@ export const processService = {
 	 * Register handler for process data events
 	 */
 	onData(handler: ProcessDataHandler): () => void {
-		return window.maestro.process.onData(handler);
+		return window.openwizardai.process.onData(handler);
 	},
 
 	/**
 	 * Register handler for process exit events
 	 */
 	onExit(handler: ProcessExitHandler): () => void {
-		return window.maestro.process.onExit(handler);
+		return window.openwizardai.process.onExit(handler);
 	},
 
 	/**
 	 * Register handler for session-id events (batch mode)
 	 */
 	onSessionId(handler: ProcessSessionIdHandler): () => void {
-		return window.maestro.process.onSessionId(handler);
+		return window.openwizardai.process.onSessionId(handler);
 	},
 
 	/**
@@ -115,6 +115,6 @@ export const processService = {
 			toolEvent: { toolName: string; state?: unknown; timestamp: number }
 		) => void
 	): () => void {
-		return window.maestro.process.onToolExecution(handler);
+		return window.openwizardai.process.onToolExecution(handler);
 	},
 };

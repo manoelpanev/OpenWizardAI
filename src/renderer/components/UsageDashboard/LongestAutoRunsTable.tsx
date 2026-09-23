@@ -88,7 +88,7 @@ export const LongestAutoRunsTable = memo(function LongestAutoRunsTable({
 	const fetchData = useCallback(async () => {
 		setLoading(true);
 		try {
-			const autoRunSessions = await window.maestro.stats.getAutoRunSessions(timeRange);
+			const autoRunSessions = await window.openwizardai.stats.getAutoRunSessions(timeRange);
 			setSessions(autoRunSessions);
 		} catch (err) {
 			captureException(err);
@@ -100,7 +100,7 @@ export const LongestAutoRunsTable = memo(function LongestAutoRunsTable({
 	useEffect(() => {
 		fetchData();
 
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			fetchData();
 		});
 

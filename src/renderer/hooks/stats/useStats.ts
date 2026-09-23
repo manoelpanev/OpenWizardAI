@@ -2,8 +2,8 @@
  * useStats Hook
  *
  * Custom hook for managing stats data for the Usage Dashboard.
- * Handles fetching aggregated stats via window.maestro.stats.getAggregation(),
- * real-time updates subscription via window.maestro.stats.onStatsUpdate(),
+ * Handles fetching aggregated stats via window.openwizardai.stats.getAggregation(),
+ * real-time updates subscription via window.openwizardai.stats.onStatsUpdate(),
  * and 1-second debounce on updates to prevent excessive re-renders.
  *
  * Features:
@@ -74,7 +74,7 @@ export function useStats(range: StatsTimeRange, enabled: boolean = true): UseSta
 			setError(null);
 
 			try {
-				const stats = await window.maestro.stats.getAggregation(range);
+				const stats = await window.openwizardai.stats.getAggregation(range);
 				if (mountedRef.current) {
 					setData(stats);
 				}
@@ -119,7 +119,7 @@ export function useStats(range: StatsTimeRange, enabled: boolean = true): UseSta
 			// Initial fetch
 			fetchStats();
 			// Subscribe to stats updates with stable debounced function
-			unsubscribe = window.maestro.stats.onStatsUpdate(debouncedUpdate);
+			unsubscribe = window.openwizardai.stats.onStatsUpdate(debouncedUpdate);
 		}
 
 		return () => {

@@ -29,7 +29,7 @@ export const MODAL_PRIORITIES = {
 
 	/**
 	 * First-run theme chooser, updates step, and the "your agents can drive
-	 * Maestro" step. They run in sequence after the typography chooser, one at a
+	 * OpenWizardAI" step. They run in sequence after the typography chooser, one at a
 	 * time, so they share its band - only one of the four is ever mounted.
 	 */
 	THEME_CHOICE: 1059,
@@ -269,16 +269,16 @@ export const MODAL_PRIORITIES = {
 	/** System log viewer overlay */
 	LOG_VIEWER: 500,
 
-	/** Maestro Cue backup diff viewer (above Cue modal + help) */
+	/** OpenWizardAI Cue backup diff viewer (above Cue modal + help) */
 	CUE_BACKUP_DIFF: 470,
 
-	/** Maestro Cue help modal (above Cue modal) */
+	/** OpenWizardAI Cue help modal (above Cue modal) */
 	CUE_HELP: 465,
 
-	/** Maestro Cue pattern preview modal (above YAML editor) */
+	/** OpenWizardAI Cue pattern preview modal (above YAML editor) */
 	CUE_PATTERN_PREVIEW: 464,
 
-	/** Maestro Cue YAML editor modal (above Cue modal, below help) */
+	/** OpenWizardAI Cue YAML editor modal (above Cue modal, below help) */
 	CUE_YAML_EDITOR: 463,
 
 	/** Inline pipeline-rename field in the Cue modal's Pipeline List tab.
@@ -293,7 +293,7 @@ export const MODAL_PRIORITIES = {
 	 *  the Cue modal. Sits just above CUE_MODAL and below every Cue sub-modal. */
 	CUE_SCHEDULED_TASK_FILTER: 461,
 
-	/** Maestro Cue dashboard modal */
+	/** OpenWizardAI Cue dashboard modal */
 	CUE_MODAL: 460,
 
 	/** SSH Remote configuration modal (above settings) */

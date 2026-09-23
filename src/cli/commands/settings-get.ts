@@ -27,7 +27,7 @@ export function settingsGet(key: string, options: SettingsGetOptions): void {
 
 		if (value === undefined && !meta) {
 			throw new Error(
-				`Unknown setting: "${key}". Use "maestro-cli settings list --keys-only" to see all available keys.`
+				`Unknown setting: "${key}". Use "openwizardai-cli settings list --keys-only" to see all available keys.`
 			);
 		}
 

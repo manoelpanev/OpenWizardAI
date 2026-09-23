@@ -57,7 +57,7 @@ import { getSessionsStore } from '../../../../main/stores/getters';
 
 const mockedGetSessionsStore = vi.mocked(getSessionsStore);
 
-const CANONICAL = path.join('.maestro', 'playbooks');
+const CANONICAL = path.join('.openwizardai', 'playbooks');
 const LEGACY = 'Auto Run Docs';
 
 /** Minimal in-memory electron-store double backed by a plain record. */

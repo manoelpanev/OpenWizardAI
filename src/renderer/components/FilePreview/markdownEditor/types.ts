@@ -12,7 +12,7 @@ import type { Theme } from '../../../constants/themes';
 export interface MarkdownEditorHandle {
 	focus(): void;
 	/**
-	 * Logical-line based jump used by `maestro://file/...#L<n>` deep links and
+	 * Logical-line based jump used by `openwizardai://file/...#L<n>` deep links and
 	 * the preview ⇄ edit toggle. By default the target line is also selected
 	 * (deep-link behavior); pass `{ select: false }` to scroll the line to the
 	 * top without disturbing the cursor (used when syncing from the preview).

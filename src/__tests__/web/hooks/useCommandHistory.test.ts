@@ -152,7 +152,7 @@ describe('useCommandHistory', () => {
 			});
 
 			expect(localStorage.setItem).toHaveBeenCalledWith(
-				'maestro_command_history',
+				'openwizardai_command_history',
 				expect.any(String)
 			);
 		});
@@ -185,7 +185,7 @@ describe('useCommandHistory', () => {
 				{ id: '1', command: 'existing1', timestamp: 1700000000000, mode: 'ai' },
 				{ id: '2', command: 'existing2', timestamp: 1699999999999, mode: 'terminal' },
 			];
-			localStorageMock['maestro_command_history'] = JSON.stringify(existingHistory);
+			localStorageMock['openwizardai_command_history'] = JSON.stringify(existingHistory);
 
 			const { result } = renderHook(() => useCommandHistory());
 
@@ -204,7 +204,7 @@ describe('useCommandHistory', () => {
 				null, // null entry
 				{ id: '4', command: 'valid2', timestamp: 1700000000001, mode: 'terminal' },
 			];
-			localStorageMock['maestro_command_history'] = JSON.stringify(invalidHistory);
+			localStorageMock['openwizardai_command_history'] = JSON.stringify(invalidHistory);
 
 			const { result } = renderHook(() => useCommandHistory());
 
@@ -223,7 +223,7 @@ describe('useCommandHistory', () => {
 					mode: 'ai',
 				});
 			}
-			localStorageMock['maestro_command_history'] = JSON.stringify(bigHistory);
+			localStorageMock['openwizardai_command_history'] = JSON.stringify(bigHistory);
 
 			const { result } = renderHook(() => useCommandHistory({ maxSize: 25 }));
 
@@ -231,7 +231,7 @@ describe('useCommandHistory', () => {
 		});
 
 		it('should handle JSON parse errors gracefully', () => {
-			localStorageMock['maestro_command_history'] = 'invalid json{{{';
+			localStorageMock['openwizardai_command_history'] = 'invalid json{{{';
 
 			const { result } = renderHook(() => useCommandHistory());
 
@@ -257,7 +257,7 @@ describe('useCommandHistory', () => {
 
 			// Check that setItem was called with the command
 			expect(localStorage.setItem).toHaveBeenCalledWith(
-				'maestro_command_history',
+				'openwizardai_command_history',
 				expect.stringContaining('new command')
 			);
 		});
@@ -291,7 +291,7 @@ describe('useCommandHistory', () => {
 			const existingHistory: CommandHistoryEntry[] = [
 				{ id: '1', command: 'existing', timestamp: 1700000000000, mode: 'ai' },
 			];
-			localStorageMock['maestro_command_history'] = JSON.stringify(existingHistory);
+			localStorageMock['openwizardai_command_history'] = JSON.stringify(existingHistory);
 
 			// Clear any previous calls
 			vi.mocked(localStorage.setItem).mockClear();

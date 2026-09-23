@@ -6,7 +6,7 @@
  *
  * IMPORTANT: These tests exist to catch regressions in document parsing logic.
  * The wizard dropdown should show ALL generated documents, not just one.
- * See: https://github.com/anthropics/maestro/issues/XXX
+ * See: https://github.com/anthropics/openwizardai/issues/XXX
  */
 
 import { describe, it, expect } from 'vitest';
@@ -145,7 +145,7 @@ Testing the application.
 2. Phase-02-Features.md - Implements core features
 3. Phase-03-Testing.md - Adds comprehensive testing
 
-All files have been saved to the .maestro/playbooks folder.`;
+All files have been saved to the .openwizardai/playbooks folder.`;
 
 			const docs = splitIntoPhases(statusOutput);
 

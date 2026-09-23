@@ -1,5 +1,5 @@
 // Tab helper functions for AI multi-tab support
-// These helpers manage AITab state within Maestro sessions
+// These helpers manage AITab state within OpenWizardAI sessions
 
 import {
 	Session,
@@ -199,7 +199,7 @@ export function getRepairedUnifiedTabOrder(session: Session): UnifiedTabRef[] {
  * two tabs, no active tab is present in the order, or the active tab already sits at
  * the target edge.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param edge - 'start' moves the active tab to the first slot, 'end' to the last
  * @returns New session with the reordered unifiedTabOrder, or the original if it's a no-op
  */
@@ -443,7 +443,7 @@ export function flattenWizardIntoTab(tab: AITab, options?: { summary?: LogEntry 
  * semantics, so each kind passes only when its opt-in setting is enabled OR when it's the
  * currently active tab of that kind (the active tab is never hidden).
  *
- * @param session - The Maestro session supplying activeTabId / inputMode / aiTabs
+ * @param session - The OpenWizardAI session supplying activeTabId / inputMode / aiTabs
  * @param order   - Unified tab order to filter (typically getRepairedUnifiedTabOrder(session))
  * @returns Filtered UnifiedTabRef[] in the same relative order
  */
@@ -489,7 +489,7 @@ export function filterUnifiedTabOrderForUnread(
  *
  * This helper consolidates the tab filtering logic used by navigation functions.
  *
- * @param session - The Maestro session containing tabs
+ * @param session - The OpenWizardAI session containing tabs
  * @param showUnreadOnly - If true, filter to only unread tabs and tabs with drafts
  * @returns Array of navigable AITabs (may be empty if session has no tabs or filter excludes all)
  *
@@ -522,7 +522,7 @@ export function getNavigableTabs(session: Session, showUnreadOnly = false): AITa
  * Returns the tab matching activeTabId, or the first tab if not found.
  * Returns undefined if the session has no tabs.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns The active AITab or undefined if no tabs exist
  */
 export function getActiveTab(session: Session): AITab | undefined {
@@ -708,7 +708,7 @@ export interface CreateTabResult {
  * Create a new AI tab for a session.
  * The new tab is appended to the session's aiTabs array and set as the active tab.
  *
- * @param session - The Maestro session to add the tab to
+ * @param session - The OpenWizardAI session to add the tab to
  * @param options - Optional tab configuration (agentSessionId, logs, name, starred)
  * @returns Object containing the new tab and updated session
  *
@@ -849,7 +849,7 @@ export interface CloseTabResult {
  * Closing the last AI tab creates a fresh replacement only when the agent has no
  * other tabs (terminal/file/browser) left, so an agent can sit at zero AI tabs.
  *
- * @param session - The Maestro session containing the tab
+ * @param session - The OpenWizardAI session containing the tab
  * @param tabId - The ID of the tab to close
  * @param showUnreadOnly - Override for the unread-filter state; omit to read the UI store
  * @param options - Optional close options (e.g., skipHistory for wizard tabs)
@@ -1155,7 +1155,7 @@ export interface ReopenTabResult {
  * The tab is restored at its original index position if possible, otherwise appended to the end.
  * The reopened tab becomes the active tab.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns Object containing the reopened tab and updated session, or null if no closed tabs exist
  *
  * @example
@@ -1266,7 +1266,7 @@ export interface CloseFileTabResult {
  * Close a file preview tab and add it to the unified closed tab history.
  * When the closed tab was active, selects the next tab in unifiedTabOrder.
  *
- * @param session - The Maestro session containing the file tab
+ * @param session - The OpenWizardAI session containing the file tab
  * @param tabId - The ID of the file tab to close
  * @returns Object containing the closed tab entry and updated session, or null if tab not found
  *
@@ -1495,7 +1495,7 @@ export function closeBrowserTab(session: Session, tabId: string): CloseBrowserTa
  * Note: This only adds to the unified history - the existing closeTab function already
  * handles the legacy closedTabHistory for backwards compatibility.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param aiTab - The AI tab being closed
  * @param unifiedIndex - The tab's position in unifiedTabOrder
  * @returns Updated session with the tab added to unified history
@@ -1542,7 +1542,7 @@ export interface ReopenUnifiedClosedTabResult {
  * The tab is restored at its original unified index position if possible.
  * The reopened tab becomes the active tab.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns Object containing the reopened tab info and updated session, or null if no closed tabs exist
  *
  * @example
@@ -1825,7 +1825,7 @@ export interface SetActiveTabResult {
  * Set the active AI tab for a session.
  * Changes which tab is currently displayed and receives input.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the tab to make active
  * @returns Object containing the active tab and updated session, or null if tab not found
  *
@@ -1877,10 +1877,10 @@ export function setActiveTab(session: Session, tabId: string): SetActiveTabResul
 
 /**
  * Get the tab that is currently in write mode (busy state) for a session.
- * In write-mode locking, only one tab can be busy at a time per Maestro session
+ * In write-mode locking, only one tab can be busy at a time per OpenWizardAI session
  * to prevent file clobbering when multiple Claude sessions write to the same project.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns The busy AITab or undefined if no tab is in write mode
  *
  * @example
@@ -1912,7 +1912,7 @@ export function getWriteModeTab(session: Session): AITab | undefined {
  * them as live writers - excluding them lets a new write spawn concurrently with
  * an orphan, violating single-writer-per-agent.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param options.includeOrphans - Also include busy orphaned (closed) tabs
  * @returns Array of busy AITabs (empty if none are busy)
  *
@@ -1976,7 +1976,7 @@ export function collectThinkingItems(sessions: Session[]): ThinkingItem[] {
  * Wraps around to the first tab if currently on the last tab.
  * When showUnreadOnly is true, only cycles through unread tabs and tabs with drafts.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param showUnreadOnly - If true, only navigate through unread tabs and tabs with drafts
  * @returns Object containing the new active tab and updated session, or null if less than 2 tabs
  *
@@ -2038,7 +2038,7 @@ export function navigateToNextTab(
  * Wraps around to the last tab if currently on the first tab.
  * When showUnreadOnly is true, only cycles through unread tabs and tabs with drafts.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param showUnreadOnly - If true, only navigate through unread tabs and tabs with drafts
  * @returns Object containing the new active tab and updated session, or null if less than 2 tabs
  *
@@ -2100,7 +2100,7 @@ export function navigateToPrevTab(
  * Used for Cmd+1 through Cmd+8 shortcuts.
  * When showUnreadOnly is true, navigates within the filtered list (unread + drafts).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param index - The 0-based index of the tab to navigate to
  * @param showUnreadOnly - If true, navigate within unread tabs and tabs with drafts
  * @returns Object containing the new active tab and updated session, or null if index out of bounds
@@ -2152,7 +2152,7 @@ export function navigateToTabByIndex(
  * Used for Cmd+0 shortcut.
  * When showUnreadOnly is true, navigates to the last tab in the filtered list (unread + drafts).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param showUnreadOnly - If true, navigate to last unread/draft tab
  * @returns Object containing the new active tab and updated session, or null if no tabs
  *
@@ -2190,7 +2190,7 @@ export interface NavigateToUnifiedTabResult {
  * Used for Cmd+1 through Cmd+9 shortcuts to jump to tabs by position.
  * Works with both AI tabs and file preview tabs in the unified tab system.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param index - The 0-based index in unifiedTabOrder
  * @returns Object with the tab type, id, and updated session, or null if index out of bounds
  *
@@ -2379,7 +2379,7 @@ export function navigateToUnifiedTabByIndex(
  * Used by breadcrumb navigation (back/forward) to restore a previously-visited
  * tab of any kind (ai, file, browser, terminal).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabKind - The kind of tab to activate
  * @param tabId - The id of the tab to activate
  */
@@ -2401,7 +2401,7 @@ export function navigateToUnifiedTabById(
  * Navigate to the last tab in the unified tab order.
  * Used for Cmd+0 shortcut.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns Object with the tab type, id, and updated session, or null if no tabs
  */
 export function navigateToLastUnifiedTab(
@@ -2431,7 +2431,7 @@ export function navigateToLastUnifiedTab(
  * Get the current index in the unified tab order.
  * Returns the index of the currently active tab (file tab if active, otherwise AI tab).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns The index in unifiedTabOrder, or -1 if not found
  */
 function getCurrentUnifiedTabIndex(session: Session, effectiveOrder?: UnifiedTabRef[]): number {
@@ -2446,7 +2446,7 @@ function getCurrentUnifiedTabIndex(session: Session, effectiveOrder?: UnifiedTab
  * When showUnreadOnly is true, walks within the same filtered list TabBar renders
  * (via filterUnifiedTabOrderForUnread) so keyboard navigation and display never diverge.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param showUnreadOnly - If true, cycle only through tabs visible under the unread filter
  * @returns Object with the tab type, id, and updated session, or null if no navigation possible
  */
@@ -2492,7 +2492,7 @@ export function navigateToNextUnifiedTab(
  * When showUnreadOnly is true, walks within the same filtered list TabBar renders
  * (via filterUnifiedTabOrderForUnread) so keyboard navigation and display never diverge.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param showUnreadOnly - If true, cycle only through tabs visible under the unread filter
  * @returns Object with the tab type, id, and updated session, or null if no navigation possible
  */
@@ -2536,7 +2536,7 @@ export function navigateToPrevUnifiedTab(
  * Searches outward from the current position, alternating right then left.
  * If no current tab is found, returns the first terminal tab.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @returns Object with the tab type, id, and updated session, or null if no terminal tabs exist
  */
 export function navigateToClosestTerminalTab(session: Session): NavigateToUnifiedTabResult | null {
@@ -2593,7 +2593,7 @@ export interface CreateTabAtPositionOptions extends CreateTabOptions {
  * Create a new AI tab at a specific position in the session's tab list.
  * The new tab is inserted immediately after the specified tab.
  *
- * @param session - The Maestro session to add the tab to
+ * @param session - The OpenWizardAI session to add the tab to
  * @param options - Tab configuration including position (afterTabId)
  * @returns Object containing the new tab and updated session, or null on error
  *
@@ -2665,7 +2665,7 @@ export interface CreateMergedSessionResult {
 }
 
 /**
- * Create a new Maestro session pre-populated with merged context logs.
+ * Create a new OpenWizardAI session pre-populated with merged context logs.
  * This is used when merging multiple sessions/tabs into a unified context
  * or when transferring context to a different agent type.
  *

@@ -1,7 +1,7 @@
 /**
  * Preload API for Cue operations
  *
- * Provides the window.maestro.cue namespace for:
+ * Provides the window.openwizardai.cue namespace for:
  * - Engine status and activity log queries
  * - Runtime engine controls (enable/disable)
  * - Run management (stop individual or all)
@@ -124,7 +124,7 @@ export function createCueApi() {
 			ipcRenderer.invoke('cue:removeSession', { sessionId }),
 
 		// ── Scheduled Tasks (time.once / time.scheduled / time.heartbeat) ──
-		// Same on-disk representation as `maestro-cli cue schedule`.
+		// Same on-disk representation as `openwizardai-cli cue schedule`.
 		listScheduledTasks: (): Promise<{ tasks: ScheduledTask[]; warnings: string[] }> =>
 			ipcRenderer.invoke('cue:listScheduledTasks'),
 
@@ -144,11 +144,11 @@ export function createCueApi() {
 		): Promise<{ removed: boolean; reason?: string }> =>
 			ipcRenderer.invoke('cue:cancelScheduledTask', { projectRoot, name }),
 
-		// Read raw YAML content from a session's maestro-cue.yaml
+		// Read raw YAML content from a session's openwizardai-cue.yaml
 		readYaml: (projectRoot: string): Promise<string | null> =>
 			ipcRenderer.invoke('cue:readYaml', { projectRoot }),
 
-		// Write YAML content to a session's maestro-cue.yaml (with optional external prompt files)
+		// Write YAML content to a session's openwizardai-cue.yaml (with optional external prompt files)
 		writeYaml: (
 			projectRoot: string,
 			content: string,

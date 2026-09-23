@@ -168,7 +168,7 @@ export interface ProcessListenerDependencies {
 	};
 	/** Function to get the Cue engine (for agent completion chain notifications) */
 	getCueEngine?: () => CueEngine | null;
-	/** Function to check if the Maestro Cue Encore Feature is enabled */
+	/** Function to check if the OpenWizardAI Cue Encore Feature is enabled */
 	isCueEnabled?: () => boolean;
 	/**
 	 * Resolve an SSH remote configuration by display name.

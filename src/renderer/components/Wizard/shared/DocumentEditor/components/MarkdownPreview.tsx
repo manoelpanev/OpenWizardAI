@@ -5,7 +5,7 @@ import type { PluggableList } from 'unified';
 import type { Theme } from '../../../../../types';
 import { REMARK_GFM_PLUGINS } from '../../../../../utils/markdownConfig';
 import { remarkAlert } from '../../../../Markdown/remarkAlert';
-import { remarkMaestroMarkers } from '../../../../Markdown/remarkMaestroMarkers';
+import { remarkOpenWizardAIMarkers } from '../../../../Markdown/remarkOpenWizardAIMarkers';
 import { remarkStripHtmlComments } from '../../../../../../shared/remarkStripHtmlComments';
 import { REHYPE_PLUGINS } from '../constants';
 
@@ -20,7 +20,7 @@ import { REHYPE_PLUGINS } from '../constants';
 const REMARK_PLUGINS: PluggableList = [
 	...REMARK_GFM_PLUGINS,
 	remarkAlert,
-	remarkMaestroMarkers,
+	remarkOpenWizardAIMarkers,
 	remarkStripHtmlComments,
 ];
 

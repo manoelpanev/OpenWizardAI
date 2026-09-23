@@ -69,7 +69,7 @@ export function savePersistedHistoryFilters(key: string, filters: Set<HistoryEnt
  */
 export function resolveInitialHistoryFilters(
 	key: string,
-	maestroCueEnabled: boolean,
+	openwizardaiCueEnabled: boolean,
 	fallbackKey?: string
 ): Set<HistoryEntryType> {
 	const stored =
@@ -77,7 +77,7 @@ export function resolveInitialHistoryFilters(
 		(fallbackKey ? loadPersistedHistoryFilters(fallbackKey) : null);
 	const base =
 		stored ??
-		new Set<HistoryEntryType>(maestroCueEnabled ? ['USER', 'AUTO', 'CUE'] : ['USER', 'AUTO']);
-	if (!maestroCueEnabled) base.delete('CUE');
+		new Set<HistoryEntryType>(openwizardaiCueEnabled ? ['USER', 'AUTO', 'CUE'] : ['USER', 'AUTO']);
+	if (!openwizardaiCueEnabled) base.delete('CUE');
 	return base;
 }

@@ -1,6 +1,6 @@
-// Notify-flash command - show a center-screen flash in the Maestro desktop app.
+// Notify-flash command - show a center-screen flash in the OpenWizardAI desktop app.
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 
 interface NotifyFlashOptions {
 	color?: string;
@@ -50,7 +50,7 @@ export async function notifyFlash(message: string, options: NotifyFlashOptions):
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{
 					type: 'notify_center_flash',

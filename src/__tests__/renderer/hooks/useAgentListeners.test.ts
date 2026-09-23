@@ -194,9 +194,9 @@ beforeEach(() => {
 	});
 	useModalStore.getState().closeAll();
 
-	// Mock window.maestro
-	(window as any).maestro = {
-		...((window as any).maestro || {}),
+	// Mock window.openwizardai
+	(window as any).openwizardai = {
+		...((window as any).openwizardai || {}),
 		process: mockProcess,
 		agentError: {
 			clearError: vi.fn().mockResolvedValue(undefined),
@@ -441,7 +441,7 @@ describe('useAgentListeners', () => {
 			expect(updated?.state).toBe('busy');
 			expect(updated?.aiTabs[0]?.agentError).toBeUndefined();
 			expect(updated?.aiTabs[0]?.logs).toEqual([]);
-			expect(window.maestro.agentError.clearError).toHaveBeenCalledWith('sess-1');
+			expect(window.openwizardai.agentError.clearError).toHaveBeenCalledWith('sess-1');
 		});
 	});
 
@@ -615,7 +615,7 @@ describe('useAgentListeners', () => {
 
 			onSessionIdHandler?.('sess-1-ai-tab-1', 'agent-session-abc');
 
-			expect(window.maestro.agentSessions.registerSessionOrigin).toHaveBeenCalledWith(
+			expect(window.openwizardai.agentSessions.registerSessionOrigin).toHaveBeenCalledWith(
 				'/test/project',
 				'agent-session-abc',
 				'user'
@@ -628,7 +628,7 @@ describe('useAgentListeners', () => {
 
 			onSessionIdHandler?.('sess-1-batch-0-ai', 'agent-session-abc');
 
-			expect(window.maestro.agentSessions.registerSessionOrigin).not.toHaveBeenCalled();
+			expect(window.openwizardai.agentSessions.registerSessionOrigin).not.toHaveBeenCalled();
 		});
 
 		it('detects resume failure when non-claude-code agent returns a different session ID', () => {
@@ -2269,10 +2269,10 @@ describe('useAgentListeners', () => {
 			expect(source).not.toContain('notification.speak');
 		});
 
-		it('does not call window.maestro.notification.speak on process exit', async () => {
+		it('does not call window.openwizardai.notification.speak on process exit', async () => {
 			const speakMock = vi.fn().mockResolvedValue(undefined);
-			(window as any).maestro.notification = {
-				...((window as any).maestro.notification || {}),
+			(window as any).openwizardai.notification = {
+				...((window as any).openwizardai.notification || {}),
 				speak: speakMock,
 			};
 

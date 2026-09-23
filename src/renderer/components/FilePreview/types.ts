@@ -53,7 +53,7 @@ export interface FilePreviewProps {
 	/** Callback to open Document Graph focused on this file */
 	onOpenInGraph?: () => void;
 	/**
-	 * Callback to open the current file in a new Maestro browser tab. Wired only
+	 * Callback to open the current file in a new OpenWizardAI browser tab. Wired only
 	 * for HTML files - the sandboxed preview iframe can't run JS-heavy local
 	 * dashboards, but the full webview can.
 	 */
@@ -96,7 +96,7 @@ export interface FilePreviewProps {
 	/** Setter for the HTML render toggle. Persisted per-tab via the tab store. */
 	onHtmlRenderModeChange?: (value: boolean) => void;
 	/** 1-based line that the editor should jump to on next render. Set by
-	 *  maestro://file/...#L<n> deep links and consumed exactly once. */
+	 *  openwizardai://file/...#L<n> deep links and consumed exactly once. */
 	pendingScrollToLine?: number;
 	/** Called after FilePreview has scrolled to pendingScrollToLine so the
 	 *  caller can clear it (otherwise we'd re-jump every render). */

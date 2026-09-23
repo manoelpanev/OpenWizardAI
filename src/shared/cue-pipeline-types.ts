@@ -79,7 +79,7 @@ export interface TriggerNodeData {
 		max_notifications?: number;
 		/** `time.once` only: ISO-8601 instant the one-shot fires at. See
 		 *  `CueSubscription.fire_at`. The editor does not offer a date picker
-		 *  yet, but this MUST round-trip: `maestro-cli cue schedule --at` and
+		 *  yet, but this MUST round-trip: `openwizardai-cli cue schedule --at` and
 		 *  the Scheduled Tasks tab both write one-shots into cue.yaml, and a
 		 *  save that dropped `fire_at` would turn a dated reminder into a
 		 *  subscription the engine can never fire. */
@@ -127,7 +127,7 @@ export interface AgentNodeData {
 /**
  * A command node represents a `action: command` subscription. It runs either
  * an arbitrary shell command (`mode: 'shell'`) in the owning session's project
- * root, or a structured maestro-cli call (`mode: 'cli'`) such as `send`.
+ * root, or a structured openwizardai-cli call (`mode: 'cli'`) such as `send`.
  */
 export interface CommandNodeData {
 	/** Subscription name (unique within the project's cue.yaml). */
@@ -136,9 +136,9 @@ export interface CommandNodeData {
 	mode: CueCommandMode;
 	/** Shell command (used when `mode === 'shell'`). */
 	shell?: string;
-	/** maestro-cli sub-command name. Only `'send'` is supported today. */
+	/** openwizardai-cli sub-command name. Only `'send'` is supported today. */
 	cliCommand?: 'send';
-	/** maestro-cli send target session ID (used when `mode === 'cli'`). */
+	/** openwizardai-cli send target session ID (used when `mode === 'cli'`). */
 	cliTarget?: string;
 	/** Optional message override for `mode === 'cli'`. Defaults to {{CUE_SOURCE_OUTPUT}} when blank. */
 	cliMessage?: string;
@@ -231,7 +231,7 @@ export interface PipelineEdge {
 	 *  (`cue-config-validator.ts`). Carrying the config on the EDGE (not the
 	 *  agent node) is what lets one trigger feed the same agent with both a
 	 *  prompt edge and a notify edge - exactly the pair that
-	 *  `maestro-cli cue schedule --prompt --notify` writes. */
+	 *  `openwizardai-cli cue schedule --prompt --notify` writes. */
 	notify?: CueNotifyConfig;
 	/** YAML subscription name this edge serializes to. Preserved across saves
 	 *  for the same reason `TriggerNodeData.subscriptionName` is: sub names are

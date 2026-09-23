@@ -1,4 +1,4 @@
-// Set theme command - switch the active Maestro theme in the running desktop
+// Set theme command - switch the active OpenWizardAI theme in the running desktop
 // app. Routes through the set_setting WS message (activeThemeId), so the change
 // applies live. Accepts a theme ID or display name (case-insensitive). Use
 // `--list` to see the available themes.
@@ -26,7 +26,7 @@ export async function setTheme(
 				console.log(`  ${t.id}${' '.repeat(Math.max(1, 22 - t.id.length))}${t.name}`);
 			}
 			if (!nameOrId) {
-				console.log('\nUsage: maestro-cli set-theme <id|name>');
+				console.log('\nUsage: openwizardai-cli set-theme <id|name>');
 			}
 		}
 		return;
@@ -38,7 +38,7 @@ export async function setTheme(
 	);
 	if (!match) {
 		failCommand(
-			`Unknown theme "${nameOrId}". Run "maestro-cli set-theme --list" to see the options.`,
+			`Unknown theme "${nameOrId}". Run "openwizardai-cli set-theme --list" to see the options.`,
 			options.json
 		);
 	}

@@ -39,13 +39,13 @@ interface AgentConfigurationViewProps {
 	onRefreshAgent: () => Promise<void>;
 	refreshingAgent: boolean;
 	// Claude Token Source (claude-code only; AgentConfigPanel gates on agent.id)
-	enableMaestroP?: boolean;
-	onEnableMaestroPChange: (value: boolean | undefined) => void;
-	maestroPMode?: 'interactive' | 'dynamic';
-	onMaestroPModeChange: (mode: 'interactive' | 'dynamic') => void;
-	maestroPPath: string;
-	onMaestroPPathChange: (value: string) => void;
-	detectedMaestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	onEnableOpenWizardAIPChange: (value: boolean | undefined) => void;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	onOpenWizardAIPModeChange: (mode: 'interactive' | 'dynamic') => void;
+	openwizardaiPPath: string;
+	onOpenWizardAIPPathChange: (value: string) => void;
+	detectedOpenWizardAIPPath?: string;
 }
 
 export function AgentConfigurationView({
@@ -80,13 +80,13 @@ export function AgentConfigurationView({
 	onRefreshModels,
 	onRefreshAgent,
 	refreshingAgent,
-	enableMaestroP,
-	onEnableMaestroPChange,
-	maestroPMode,
-	onMaestroPModeChange,
-	maestroPPath,
-	onMaestroPPathChange,
-	detectedMaestroPPath,
+	enableOpenWizardAIP,
+	onEnableOpenWizardAIPChange,
+	openwizardaiPMode,
+	onOpenWizardAIPModeChange,
+	openwizardaiPPath,
+	onOpenWizardAIPPathChange,
+	detectedOpenWizardAIPPath,
 }: AgentConfigurationViewProps): JSX.Element {
 	const isSshEnabled = !!(sshRemoteConfig?.enabled && sshRemoteConfig?.remoteId);
 	const sshRemoteId = sshRemoteConfig?.remoteId ?? undefined;
@@ -168,16 +168,16 @@ export function AgentConfigurationView({
 						showBuiltInEnvVars
 						isSshEnabled={isSshEnabled}
 						sshRemoteId={sshRemoteId}
-						enableMaestroP={enableMaestroP}
-						onEnableMaestroPChange={onEnableMaestroPChange}
-						maestroPMode={maestroPMode}
-						onMaestroPModeChange={onMaestroPModeChange}
-						maestroPPath={maestroPPath}
-						onMaestroPPathChange={onMaestroPPathChange}
-						onMaestroPPathBlur={() => {
+						enableOpenWizardAIP={enableOpenWizardAIP}
+						onEnableOpenWizardAIPChange={onEnableOpenWizardAIPChange}
+						openwizardaiPMode={openwizardaiPMode}
+						onOpenWizardAIPModeChange={onOpenWizardAIPModeChange}
+						openwizardaiPPath={openwizardaiPPath}
+						onOpenWizardAIPPathChange={onOpenWizardAIPPathChange}
+						onOpenWizardAIPPathBlur={() => {
 							/* Persisted when the wizard creates the session */
 						}}
-						detectedMaestroPPath={detectedMaestroPPath}
+						detectedOpenWizardAIPPath={detectedOpenWizardAIPPath}
 					/>
 				</div>
 			</div>

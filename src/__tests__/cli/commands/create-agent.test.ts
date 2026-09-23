@@ -5,9 +5,9 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 // Mock formatter
@@ -17,7 +17,7 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { createAgent } from '../../../cli/commands/create-agent';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { formatError, formatSuccess } from '../../../cli/output/formatter';
 
 describe('create-agent command', () => {
@@ -34,7 +34,7 @@ describe('create-agent command', () => {
 
 	describe('successful creation', () => {
 		it('should create an agent with required options', async () => {
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockResolvedValue({
 						type: 'create_session_result',
@@ -54,7 +54,7 @@ describe('create-agent command', () => {
 
 		it('should send config fields when provided', async () => {
 			let sentPayload: Record<string, unknown> = {};
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockImplementation((payload) => {
 						sentPayload = payload;
@@ -96,7 +96,7 @@ describe('create-agent command', () => {
 		describe('placement', () => {
 			function capture() {
 				const sent: Record<string, unknown> = {};
-				vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+				vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 					const mockClient = {
 						sendCommand: vi.fn().mockImplementation((payload) => {
 							Object.assign(sent, payload);
@@ -154,7 +154,7 @@ describe('create-agent command', () => {
 
 		it('should send SSH config when ssh-remote is provided', async () => {
 			let sentPayload: Record<string, unknown> = {};
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockImplementation((payload) => {
 						sentPayload = payload;
@@ -183,7 +183,7 @@ describe('create-agent command', () => {
 		});
 
 		it('should output JSON when --json flag is set', async () => {
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockResolvedValue({
 						type: 'create_session_result',
@@ -238,7 +238,7 @@ describe('create-agent command', () => {
 
 	describe('error handling', () => {
 		it('should handle server returning failure', async () => {
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockResolvedValue({
 						type: 'create_session_result',
@@ -256,7 +256,7 @@ describe('create-agent command', () => {
 		});
 
 		it('should handle connection error', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('App not running'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('App not running'));
 
 			await createAgent('No App', { cwd: '/tmp', type: 'claude-code' });
 
@@ -265,7 +265,7 @@ describe('create-agent command', () => {
 		});
 
 		it('should handle connection error in JSON mode', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('Connection refused'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('Connection refused'));
 
 			await createAgent('No App', { cwd: '/tmp', type: 'claude-code', json: true });
 

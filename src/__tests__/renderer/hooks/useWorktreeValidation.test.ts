@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useWorktreeValidation } from '../../../renderer/hooks';
 
-// Mock the window.maestro.git object
+// Mock the window.openwizardai.git object
 const mockGit = {
 	worktreeInfo: vi.fn(),
 	getRepoRoot: vi.fn(),
@@ -23,9 +23,9 @@ const mockGit = {
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	// Ensure window.maestro.git is mocked
-	(window as any).maestro = {
-		...(window as any).maestro,
+	// Ensure window.openwizardai.git is mocked
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		git: mockGit,
 	};
 });

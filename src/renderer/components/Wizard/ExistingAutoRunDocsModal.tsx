@@ -2,7 +2,7 @@
  * ExistingAutoRunDocsModal.tsx
  *
  * Dialog that appears when the user selects a directory that already contains
- * a playbooks folder (.maestro/playbooks). Gives users the option to:
+ * a playbooks folder (.openwizardai/playbooks). Gives users the option to:
  * 1. Start fresh - delete existing docs and begin new planning
  * 2. Continue planning - have the agent read existing docs and continue from there
  */
@@ -171,7 +171,7 @@ export function ExistingAutoRunDocsModal({
 										className="px-1.5 py-0.5 rounded text-xs font-mono"
 										style={{ backgroundColor: theme.colors.bgMain }}
 									>
-										.maestro/playbooks/
+										.openwizardai/playbooks/
 									</code>
 								</p>
 							</div>

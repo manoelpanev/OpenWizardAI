@@ -1,7 +1,7 @@
 /**
  * Global Hotkey Manager
  *
- * Owns the single system-wide "show Maestro" hotkey registered via Electron's
+ * Owns the single system-wide "show OpenWizardAI" hotkey registered via Electron's
  * globalShortcut API. The setting is stored as a key array (same format as the
  * in-app shortcuts) and translated to an Electron Accelerator at registration
  * time so users can record the hotkey using the same capture UI they already
@@ -58,7 +58,7 @@ export function keysToAccelerator(keys: string[]): string | null {
 	return [...modifiers, mainKey].join('+');
 }
 
-/** Bring the Maestro window to the foreground from any app. */
+/** Bring the OpenWizardAI window to the foreground from any app. */
 function summonMainWindow(window: BrowserWindow): void {
 	if (window.isDestroyed()) return;
 	if (window.isMinimized()) window.restore();
@@ -73,7 +73,7 @@ let currentAccelerator: string | null = null;
 let getWindowFn: (() => BrowserWindow | null) | null = null;
 
 /**
- * Register (or re-register) the global "show Maestro" hotkey.
+ * Register (or re-register) the global "show OpenWizardAI" hotkey.
  * Pass an empty array to clear the binding.
  *
  * @returns `true` on success, `false` if registration failed.

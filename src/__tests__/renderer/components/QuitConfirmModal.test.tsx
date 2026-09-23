@@ -246,7 +246,7 @@ describe('QuitConfirmModal', () => {
 				/>
 			);
 
-			expect(screen.getByText('Quit OpenWizzard?')).toBeInTheDocument();
+			expect(screen.getByText('Quit OpenWizardAI?')).toBeInTheDocument();
 		});
 	});
 
@@ -318,7 +318,7 @@ describe('QuitConfirmModal', () => {
 		});
 	});
 
-	describe('OpenWizzard Cue and group chats', () => {
+	describe('OpenWizardAI Cue and group chats', () => {
 		it('shows Cue runs in the background operations section', () => {
 			renderWithLayerStack(
 				<QuitConfirmModal
@@ -333,8 +333,8 @@ describe('QuitConfirmModal', () => {
 			);
 
 			expect(screen.getByText('Background Operations')).toBeInTheDocument();
-			expect(screen.getByText('OpenWizzard Cue: 2')).toBeInTheDocument();
-			expect(screen.getByText(/2 OpenWizzard Cue operations are running/)).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Cue: 2')).toBeInTheDocument();
+			expect(screen.getByText(/2 OpenWizardAI Cue operations are running/)).toBeInTheDocument();
 		});
 
 		it('shows active group chats in the background operations section', () => {

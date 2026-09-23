@@ -63,7 +63,7 @@ describe('getFileCategory', () => {
 	});
 
 	it.each(['program.exe', 'data.bin', 'archive.zip', 'raw.mkv', 'lib.so'])(
-		'returns null for %s, which Maestro cannot open',
+		'returns null for %s, which OpenWizardAI cannot open',
 		(name) => {
 			expect(getFileCategory(name)).toBeNull();
 		}

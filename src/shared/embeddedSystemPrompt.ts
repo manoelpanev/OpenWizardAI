@@ -1,10 +1,10 @@
 /**
- * The envelope Maestro uses to deliver its system prompt to a provider that has
+ * The envelope OpenWizardAI uses to deliver its system prompt to a provider that has
  * no `--append-system-prompt` flag, and the reader that takes it back apart.
  *
  * Only `claude-code` declares `supportsAppendSystemPrompt`. For every other
  * provider the spawn path has nowhere to put system content except the first
- * user turn, so it sends the whole Maestro system prompt, a `---` rule, and a
+ * user turn, so it sends the whole OpenWizardAI system prompt, a `---` rule, and a
  * `# User Request` heading ahead of whatever the human actually typed. That
  * turn is real conversation as far as the provider is concerned: it is written
  * verbatim into the session transcript on disk and read back whenever a tab is

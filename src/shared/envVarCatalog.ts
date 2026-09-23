@@ -12,7 +12,7 @@
  *  1. **The provider's own catalog below.** Short on purpose: the vars people
  *     actually reach for (account dir, credentials, gateway, model), not every
  *     var the CLI reads. A list nobody can scan is a list nobody uses.
- *  2. **Names the user has already set**, anywhere in Maestro. Setting
+ *  2. **Names the user has already set**, anywhere in OpenWizardAI. Setting
  *     `HTTPS_PROXY` on one agent is the strongest possible signal that it
  *     belongs in the list for the next one, and it costs nothing to remember:
  *     the keys are already on disk in the agent configs, the sessions, and the
@@ -40,7 +40,7 @@ type CatalogEntry = Omit<EnvVarSuggestion, 'origin'>;
 /**
  * Variables worth offering whatever the provider is.
  *
- * Kept to the ones that are about the network between Maestro and the provider
+ * Kept to the ones that are about the network between OpenWizardAI and the provider
  * rather than about the provider itself, which is what makes them universal.
  */
 export const COMMON_ENV_VAR_SUGGESTIONS: readonly CatalogEntry[] = [
@@ -126,7 +126,7 @@ export interface KnownEnvVarKeys {
 export const EMPTY_KNOWN_ENV_VAR_KEYS: KnownEnvVarKeys = { byProvider: {}, global: [] };
 
 /** Shown for a name we only know because the user typed it somewhere before. */
-const REMEMBERED_DESCRIPTION = 'Already set elsewhere in OpenWizzard.';
+const REMEMBERED_DESCRIPTION = 'Already set elsewhere in OpenWizardAI.';
 
 export interface SuggestEnvVarKeysOptions {
 	/** Agent id being edited. Omit for the global environment, which has no provider. */
@@ -165,7 +165,7 @@ export function suggestEnvVarKeys({
 	};
 
 	// The global editor has no provider, so it offers every provider's catalog
-	// rather than none: a user who sets CLAUDE_CONFIG_DIR for everything Maestro
+	// rather than none: a user who sets CLAUDE_CONFIG_DIR for everything OpenWizardAI
 	// spawns is doing something ordinary, and should not have to type it blind.
 	const catalogKeys = toolType ? [toolType] : Object.keys(PROVIDER_ENV_VAR_SUGGESTIONS).sort();
 	for (const key of catalogKeys) {

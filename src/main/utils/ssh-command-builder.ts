@@ -396,14 +396,14 @@ export async function buildSshCommandWithStdin(
 			const parsed = parseDataUrl(remoteOptions.images[i]);
 			if (!parsed) continue;
 			const ext = parsed.mediaType.split('/')[1] || 'png';
-			const remoteTempPath = `/tmp/maestro-image-${timestamp}-${i}.${ext}`;
+			const remoteTempPath = `/tmp/openwizardai-image-${timestamp}-${i}.${ext}`;
 			allRemoteTempPaths.push(remoteTempPath);
 			// Use heredoc + base64 decode to create the file on the remote host
 			// Heredoc avoids shell argument length limits for large images
 			// Base64 alphabet (A-Za-z0-9+/=) is safe in heredocs
-			scriptLines.push(`base64 -d > ${shellEscape(remoteTempPath)} <<'MAESTRO_IMG_${i}_EOF'`);
+			scriptLines.push(`base64 -d > ${shellEscape(remoteTempPath)} <<'OPENWIZARDAI_IMG_${i}_EOF'`);
 			scriptLines.push(parsed.base64);
-			scriptLines.push(`MAESTRO_IMG_${i}_EOF`);
+			scriptLines.push(`OPENWIZARDAI_IMG_${i}_EOF`);
 			if (remoteOptions.imagePromptBuilder || remoteOptions.imageResumeMode === 'prompt-embed') {
 				// Resume mode: collect paths for prompt embedding instead of CLI args
 				remoteImagePaths.push(remoteTempPath);

@@ -359,7 +359,7 @@ describe('FilePreview', () => {
 			const button = screen.getByTestId('external-link-icon').closest('button')!;
 			fireEvent.click(button);
 
-			expect(window.maestro?.shell?.openPath).toHaveBeenCalledWith('/test/readme.md');
+			expect(window.openwizardai?.shell?.openPath).toHaveBeenCalledWith('/test/readme.md');
 		});
 
 		it('hides Open in Default App button for SSH remote sessions', () => {
@@ -392,7 +392,7 @@ describe('FilePreview', () => {
 			const button = screen.getByTestId('folder-open-icon').closest('button')!;
 			fireEvent.click(button);
 
-			expect(window.maestro?.shell?.showItemInFolder).toHaveBeenCalledWith('/test/readme.md');
+			expect(window.openwizardai?.shell?.showItemInFolder).toHaveBeenCalledWith('/test/readme.md');
 		});
 
 		it('hides the reveal button for SSH remote sessions', () => {
@@ -583,7 +583,7 @@ describe('FilePreview', () => {
 				isFile: true,
 				isDirectory: false,
 			});
-			window.maestro.fs.stat = mockStat;
+			window.openwizardai.fs.stat = mockStat;
 
 			render(<FilePreview {...defaultProps} lastModified={1000} onReloadFile={onReloadFile} />);
 
@@ -605,7 +605,7 @@ describe('FilePreview', () => {
 			vi.useFakeTimers();
 			const onReloadFile = vi.fn();
 
-			window.maestro.fs.stat = vi.fn().mockResolvedValue({
+			window.openwizardai.fs.stat = vi.fn().mockResolvedValue({
 				modifiedAt: new Date(2000).toISOString(),
 				size: 100,
 				isFile: true,
@@ -631,7 +631,7 @@ describe('FilePreview', () => {
 		it('dismisses banner when X button is clicked', async () => {
 			vi.useFakeTimers();
 
-			window.maestro.fs.stat = vi.fn().mockResolvedValue({
+			window.openwizardai.fs.stat = vi.fn().mockResolvedValue({
 				modifiedAt: new Date(2000).toISOString(),
 				size: 100,
 				isFile: true,
@@ -657,7 +657,7 @@ describe('FilePreview', () => {
 		it('shows unsaved edits warning when in edit mode with changes', async () => {
 			vi.useFakeTimers();
 
-			window.maestro.fs.stat = vi.fn().mockResolvedValue({
+			window.openwizardai.fs.stat = vi.fn().mockResolvedValue({
 				modifiedAt: new Date(2000).toISOString(),
 				size: 100,
 				isFile: true,
@@ -692,7 +692,7 @@ describe('FilePreview', () => {
 				isFile: true,
 				isDirectory: false,
 			});
-			window.maestro.fs.stat = mockStat;
+			window.openwizardai.fs.stat = mockStat;
 
 			render(<FilePreview {...defaultProps} onReloadFile={vi.fn()} />);
 
@@ -717,7 +717,7 @@ describe('FilePreview', () => {
 			vi.useFakeTimers();
 
 			// stat rejects: the file no longer resolves at its cached path.
-			window.maestro.fs.stat = vi.fn().mockRejectedValue(new Error('ENOENT'));
+			window.openwizardai.fs.stat = vi.fn().mockRejectedValue(new Error('ENOENT'));
 
 			render(<FilePreview {...defaultProps} lastModified={1000} onReloadFile={vi.fn()} />);
 
@@ -739,7 +739,7 @@ describe('FilePreview', () => {
 		it('dismisses the missing-on-disk banner when Dismiss is clicked', async () => {
 			vi.useFakeTimers();
 
-			window.maestro.fs.stat = vi.fn().mockRejectedValue(new Error('ENOENT'));
+			window.openwizardai.fs.stat = vi.fn().mockRejectedValue(new Error('ENOENT'));
 
 			render(<FilePreview {...defaultProps} lastModified={1000} onReloadFile={vi.fn()} />);
 

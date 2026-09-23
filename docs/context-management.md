@@ -65,8 +65,8 @@ Export any tab conversation as a self-contained HTML file:
 The exported HTML file includes:
 
 - **Full conversation history** with all messages
-- **Your current theme colors** - the export adopts your active Maestro theme
-- **Maestro branding** with links to the website and GitHub
+- **Your current theme colors** - the export adopts your active OpenWizardAI theme
+- **OpenWizardAI branding** with links to the website and GitHub
 - **Session metadata** - agent type, working directory, timestamps, token usage
 - **Rendered markdown** - code blocks, tables, and formatting preserved
 
@@ -87,7 +87,7 @@ Context management lets you combine or transfer conversation history between ses
 
 ## Context Window Warnings
 
-As your conversation grows, Maestro monitors context window usage and displays warnings when you're approaching limits.
+As your conversation grows, OpenWizardAI monitors context window usage and displays warnings when you're approaching limits.
 
 ![Context Warning Banner](./screenshots/context-warnings.png)
 
@@ -140,7 +140,7 @@ Hover the context gauge in the main window header to open **Context Details**, a
 
 Messages and Duration are the same figures the [HTML export](#tab-export) prints at the top of the document, so you can read them without exporting first. Duration is wall clock between the first and last entry, not time the agent spent working: a tab left open overnight counts the night.
 
-The same two figures appear in `maestro-cli sessions <agent-id>` for every session Maestro has a tab for.
+The same two figures appear in `openwizardai-cli sessions <agent-id>` for every session OpenWizardAI has a tab for.
 
 ## Compact & Continue
 

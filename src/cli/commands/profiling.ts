@@ -1,5 +1,5 @@
 // Profiling commands - start/stop/status a Chromium performance capture in the
-// running Maestro desktop app, driven externally so scripts can capture ->
+// running OpenWizardAI desktop app, driven externally so scripts can capture ->
 // analyze -> loop while iterating on performance.
 //
 // contentTracing is an Electron main-process API; the CLI has no Electron, so
@@ -7,7 +7,7 @@
 
 import path from 'path';
 import os from 'os';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 
 /**
  * Stopping a capture compresses the raw trace (can be hundreds of MB) into the
@@ -40,7 +40,7 @@ function resolveOutputPath(input: string): string {
 
 export async function profilingStart(options: StartOptions): Promise<void> {
 	try {
-		const result = await withMaestroClient((client) =>
+		const result = await withOpenWizardAIClient((client) =>
 			client.sendCommand<{
 				success: boolean;
 				active?: boolean;
@@ -55,13 +55,13 @@ export async function profilingStart(options: StartOptions): Promise<void> {
 				console.log(JSON.stringify({ success: true, active: result.active }));
 			} else {
 				console.log('Performance profiling started. Reproduce the slowness, then run:');
-				console.log('  maestro-cli profiling stop --output <path.zip>');
+				console.log('  openwizardai-cli profiling stop --output <path.zip>');
 				// How long a capture can run is set by trace-buffer pressure, not by
 				// the clock: a busy app fills the buffer in a fraction of the time a
 				// quiet one takes, and everything past full is dropped without a word.
 				// Point at the one command that can actually answer "is it time yet".
 				console.log('');
-				console.log('Watch buffer pressure with `maestro-cli profiling status` and stop');
+				console.log('Watch buffer pressure with `openwizardai-cli profiling status` and stop');
 				console.log('before it reaches 85% - past that, events are dropped.');
 			}
 		} else {
@@ -93,7 +93,7 @@ export async function profilingStop(options: StopOptions): Promise<void> {
 	const outputPath = resolveOutputPath(options.output);
 
 	try {
-		const result = await withMaestroClient((client) =>
+		const result = await withOpenWizardAIClient((client) =>
 			client.sendCommand<{
 				success: boolean;
 				path?: string;
@@ -160,7 +160,7 @@ export async function profilingStop(options: StopOptions): Promise<void> {
 
 export async function profilingStatus(options: StatusOptions): Promise<void> {
 	try {
-		const result = await withMaestroClient((client) =>
+		const result = await withOpenWizardAIClient((client) =>
 			client.sendCommand<{
 				success: boolean;
 				active?: boolean;

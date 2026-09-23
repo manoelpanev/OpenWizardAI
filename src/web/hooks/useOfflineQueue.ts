@@ -1,5 +1,5 @@
 /**
- * useOfflineQueue hook for Maestro web interface
+ * useOfflineQueue hook for OpenWizardAI web interface
  *
  * Provides offline command queueing functionality that stores commands
  * typed while offline and automatically sends them when reconnected.
@@ -16,7 +16,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { webLogger } from '../utils/logger';
 
 /** Storage key for persisting offline queue */
-const STORAGE_KEY = 'maestro-offline-queue';
+const STORAGE_KEY = 'openwizardai-offline-queue';
 
 /** Maximum number of commands to queue (prevent unbounded growth) */
 const MAX_QUEUE_SIZE = 50;

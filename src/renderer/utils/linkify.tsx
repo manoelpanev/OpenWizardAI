@@ -17,7 +17,7 @@ function ExternalLink({ url, theme }: { url: string; theme: Theme }) {
 			onClick={(e) => {
 				e.preventDefault();
 				e.stopPropagation();
-				void window.maestro.shell.openExternal(url);
+				void window.openwizardai.shell.openExternal(url);
 			}}
 			className="underline hover:opacity-80 cursor-pointer"
 			// accentText (not accent) so links stay legible against accent-tinted

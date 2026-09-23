@@ -1,6 +1,6 @@
 // Cue pipeline commands - list / get / export / add / replace / remove
 // pipeline entries from `cue-pipeline-layout.json`. Goes through the running
-// Maestro daemon so layout edits are atomic and don't race with the desktop
+// OpenWizardAI daemon so layout edits are atomic and don't race with the desktop
 // app's own writes.
 //
 // While the Pipeline Graph is open, the renderer's in-memory state is the
@@ -8,7 +8,7 @@
 // save. Surface to the user via documentation; we don't gate here.
 
 import * as fs from 'fs';
-import { withMaestroClient, type MaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient, type OpenWizardAIClient } from '../services/openwizardai-client';
 
 interface CommonOptions {
 	json?: boolean;
@@ -52,7 +52,7 @@ function reportError(message: string, options: CommonOptions): never {
 	process.exit(1);
 }
 
-async function listPipelines(client: MaestroClient): Promise<PipelineEntry[]> {
+async function listPipelines(client: OpenWizardAIClient): Promise<PipelineEntry[]> {
 	const result = await client.sendCommand<{
 		type: string;
 		pipelines: PipelineEntry[];
@@ -61,7 +61,7 @@ async function listPipelines(client: MaestroClient): Promise<PipelineEntry[]> {
 }
 
 async function getPipeline(
-	client: MaestroClient,
+	client: OpenWizardAIClient,
 	identifier: string
 ): Promise<PipelineEntry | null> {
 	const result = await client.sendCommand<{
@@ -82,7 +82,7 @@ interface MutationErr {
 type MutationResultPayload = MutationOk | MutationErr;
 
 async function setPipeline(
-	client: MaestroClient,
+	client: OpenWizardAIClient,
 	identifier: string,
 	pipeline: unknown,
 	policy: 'add' | 'replace'
@@ -95,7 +95,7 @@ async function setPipeline(
 }
 
 async function removePipeline(
-	client: MaestroClient,
+	client: OpenWizardAIClient,
 	identifier: string
 ): Promise<MutationResultPayload> {
 	const result = await client.sendCommand<{
@@ -109,7 +109,7 @@ async function removePipeline(
 
 export async function cuePipelineList(options: CommonOptions): Promise<void> {
 	try {
-		const pipelines = await withMaestroClient(listPipelines);
+		const pipelines = await withOpenWizardAIClient(listPipelines);
 
 		if (options.json) {
 			console.log(JSON.stringify(pipelines, null, 2));
@@ -138,7 +138,7 @@ export async function cuePipelineList(options: CommonOptions): Promise<void> {
 
 export async function cuePipelineGet(name: string, options: CommonOptions): Promise<void> {
 	try {
-		const pipeline = await withMaestroClient((client) => getPipeline(client, name));
+		const pipeline = await withOpenWizardAIClient((client) => getPipeline(client, name));
 		if (!pipeline) {
 			reportError(`Pipeline "${name}" not found`, options);
 		}
@@ -166,7 +166,9 @@ export async function cuePipelineAdd(name: string, options: AddOptions): Promise
 		const pipeline = readPipelineFile(options.from);
 
 		const policy: 'add' | 'replace' = options.force ? 'replace' : 'add';
-		const result = await withMaestroClient((client) => setPipeline(client, name, pipeline, policy));
+		const result = await withOpenWizardAIClient((client) =>
+			setPipeline(client, name, pipeline, policy)
+		);
 
 		if (result.ok) {
 			if (options.json) {
@@ -188,7 +190,7 @@ export async function cuePipelineReplace(name: string, options: ReplaceOptions):
 			reportError('--from <file> is required', options);
 		}
 		const pipeline = readPipelineFile(options.from);
-		const result = await withMaestroClient((client) =>
+		const result = await withOpenWizardAIClient((client) =>
 			setPipeline(client, name, pipeline, 'replace')
 		);
 
@@ -208,7 +210,7 @@ export async function cuePipelineReplace(name: string, options: ReplaceOptions):
 
 export async function cuePipelineRemove(name: string, options: RemoveOptions): Promise<void> {
 	try {
-		const result = await withMaestroClient((client) => removePipeline(client, name));
+		const result = await withOpenWizardAIClient((client) => removePipeline(client, name));
 		if (result.ok) {
 			if (options.json) {
 				console.log(JSON.stringify({ ok: true, identifier: name }));

@@ -21,7 +21,7 @@ vi.mock('electron', () => ({
 	app: {
 		getPath: (name: string) => {
 			if (name === 'userData') {
-				return path.join(os.tmpdir(), 'maestro-test-group-chat');
+				return path.join(os.tmpdir(), 'openwizardai-test-group-chat');
 			}
 			return os.tmpdir();
 		},

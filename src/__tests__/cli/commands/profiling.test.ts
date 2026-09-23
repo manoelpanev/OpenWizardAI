@@ -5,16 +5,16 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 
 import { profilingStart, profilingStop, profilingStatus } from '../../../cli/commands/profiling';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 
 /** Capture the payload + responseType + timeout passed to sendCommand. */
 function mockSend(result: Record<string, unknown>) {
 	const captured: { payload?: Record<string, unknown>; responseType?: string; timeout?: number } =
 		{};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi
 				.fn()
@@ -59,7 +59,7 @@ describe('profiling commands', () => {
 	describe('stop', () => {
 		it('requires --output and exits before connecting when missing', async () => {
 			await expect(profilingStop({})).rejects.toThrow('__exit__');
-			expect(withMaestroClient).not.toHaveBeenCalled();
+			expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 			expect(processExitSpy).toHaveBeenCalledWith(1);
 		});
 

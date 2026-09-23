@@ -7,8 +7,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	agents: {
 		get: vi.fn(),
 	},
@@ -25,7 +25,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import { conversationManager } from '../../../../../renderer/components/Wizard/services/conversationManager';
@@ -47,8 +47,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				path: '/opt/homebrew/bin/claude', // Fully resolved path from agent detection
 				args: ['--print', '--verbose', '--dangerously-skip-permissions'],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -61,12 +61,12 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify spawn was called with the full path, not the generic command
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 			expect(spawnCall.command).toBe('/opt/homebrew/bin/claude');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -82,8 +82,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				path: undefined, // No resolved path
 				args: ['--print', '--verbose', '--dangerously-skip-permissions'],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -96,12 +96,12 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify spawn was called with the command name as fallback
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 			expect(spawnCall.command).toBe('claude');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -116,8 +116,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: ['--print', '--verbose', '--dangerously-skip-permissions'],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			// Start a conversation first
 			const sessionId = await conversationManager.startConversation({
@@ -138,8 +138,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify spawn was called with correct args
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			// Critical: Verify --output-format stream-json is present
 			// This is required for thinking-chunk events to work
@@ -151,7 +151,7 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			expect(spawnCall.args).toContain('--include-partial-messages');
 
 			// Clean up - simulate exit
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -167,8 +167,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -183,17 +183,17 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onThinkingChunk listener was set up
-			expect(mockMaestro.process.onThinkingChunk).toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onThinkingChunk).toHaveBeenCalled();
 
 			// Simulate receiving a thinking chunk
-			const thinkingCallback = mockMaestro.process.onThinkingChunk.mock.calls[0][0];
+			const thinkingCallback = mockOpenWizardAI.process.onThinkingChunk.mock.calls[0][0];
 			thinkingCallback(sessionId, 'Analyzing the codebase...');
 
 			// Verify callback was invoked
 			expect(onThinkingChunk).toHaveBeenCalledWith('Analyzing the codebase...');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -207,8 +207,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -223,14 +223,14 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Simulate receiving a thinking chunk from a different session
-			const thinkingCallback = mockMaestro.process.onThinkingChunk.mock.calls[0][0];
+			const thinkingCallback = mockOpenWizardAI.process.onThinkingChunk.mock.calls[0][0];
 			thinkingCallback('different-session-id', 'This should be ignored');
 
 			// Verify callback was NOT invoked
 			expect(onThinkingChunk).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -244,8 +244,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -263,10 +263,10 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onThinkingChunk listener was NOT set up
-			expect(mockMaestro.process.onThinkingChunk).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onThinkingChunk).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -280,8 +280,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -296,18 +296,18 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onToolExecution listener was set up
-			expect(mockMaestro.process.onToolExecution).toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onToolExecution).toHaveBeenCalled();
 
 			// Simulate receiving a tool execution event
 			const toolEvent = { toolName: 'Read', state: { status: 'running' }, timestamp: Date.now() };
-			const toolCallback = mockMaestro.process.onToolExecution.mock.calls[0][0];
+			const toolCallback = mockOpenWizardAI.process.onToolExecution.mock.calls[0][0];
 			toolCallback(sessionId, toolEvent);
 
 			// Verify callback was invoked with the tool event
 			expect(onToolExecution).toHaveBeenCalledWith(toolEvent);
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -321,8 +321,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -338,14 +338,14 @@ describe('conversationManager (Onboarding Wizard)', () => {
 
 			// Simulate receiving a tool execution from a different session
 			const toolEvent = { toolName: 'Read', state: { status: 'running' }, timestamp: Date.now() };
-			const toolCallback = mockMaestro.process.onToolExecution.mock.calls[0][0];
+			const toolCallback = mockOpenWizardAI.process.onToolExecution.mock.calls[0][0];
 			toolCallback('different-session-id', toolEvent);
 
 			// Verify callback was NOT invoked
 			expect(onToolExecution).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;
@@ -359,8 +359,8 @@ describe('conversationManager (Onboarding Wizard)', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			const sessionId = await conversationManager.startConversation({
 				agentType: 'claude-code',
@@ -378,10 +378,10 @@ describe('conversationManager (Onboarding Wizard)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify onToolExecution listener was NOT set up
-			expect(mockMaestro.process.onToolExecution).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.onToolExecution).not.toHaveBeenCalled();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(sessionId, 0);
 
 			await messagePromise;

@@ -32,8 +32,8 @@ test.describe('Auto Run Editing', () => {
 
 	test.beforeEach(async () => {
 		// Create a temporary project directory
-		testProjectDir = path.join(os.tmpdir(), `maestro-test-project-${Date.now()}`);
-		testAutoRunFolder = path.join(testProjectDir, '.maestro/playbooks');
+		testProjectDir = path.join(os.tmpdir(), `openwizardai-test-project-${Date.now()}`);
+		testAutoRunFolder = path.join(testProjectDir, '.openwizardai/playbooks');
 		fs.mkdirSync(testAutoRunFolder, { recursive: true });
 
 		// Create test markdown files

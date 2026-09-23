@@ -20,7 +20,7 @@
  *     overageDisabledReason: 'out_of_credits',
  *   }
  *
- * Maestro already carries this object through to the renderer on
+ * OpenWizardAI already carries this object through to the renderer on
  * `AgentError.parsedJson`, but until now read exactly one field out of it
  * (`resetsAt`, so the retry lands on the right second) and threw the rest away.
  * This module reads the rest.
@@ -184,7 +184,7 @@ export function describeQuotaRemedy(detail: QuotaLimitDetail | undefined): strin
 		if (detail.overageStatus === 'rejected') {
 			return 'Extra usage will not cover this either. Nothing to enable - it clears at the reset time.';
 		}
-		return 'This window is fully exhausted. Nothing in OpenWizzard can extend it - it clears at the reset time.';
+		return 'This window is fully exhausted. Nothing in OpenWizardAI can extend it - it clears at the reset time.';
 	}
 
 	if (detail.overageInUse === true) {

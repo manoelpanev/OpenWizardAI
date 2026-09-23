@@ -28,7 +28,7 @@ export function useKnownEnvVarKeys(enabled = true): KnownEnvVarKeys {
 			setKnownEnvVarKeys(EMPTY_KNOWN_ENV_VAR_KEYS);
 			return;
 		}
-		const getKnownEnvVarKeys = window.maestro?.agents?.getKnownEnvVarKeys;
+		const getKnownEnvVarKeys = window.openwizardai?.agents?.getKnownEnvVarKeys;
 		if (!getKnownEnvVarKeys) return;
 
 		let cancelled = false;

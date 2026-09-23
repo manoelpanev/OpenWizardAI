@@ -525,7 +525,7 @@ describe('MainPanel', () => {
 		resetMockGitStatus();
 
 		// Mock git.info for backward compatibility (some tests may still reference it)
-		vi.mocked(window.maestro.git as unknown as { info: ReturnType<typeof vi.fn> }).info = vi
+		vi.mocked(window.openwizardai.git as unknown as { info: ReturnType<typeof vi.fn> }).info = vi
 			.fn()
 			.mockResolvedValue({
 				branch: 'main',
@@ -1792,7 +1792,7 @@ describe('MainPanel', () => {
 				success: true,
 				configs: [{ id: 'ssh-remote-123', name: 'my-ssh-remote' }],
 			});
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockImplementation(mockGetConfigs);
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockImplementation(mockGetConfigs);
 
 			render(<MainPanel {...defaultProps} activeSession={session} setGitLogOpen={setGitLogOpen} />);
 
@@ -3773,13 +3773,13 @@ describe('MainPanel', () => {
 			});
 
 			// Mock getModels: OpenCode returns a slow promise, Claude returns immediately
-			vi.mocked(window.maestro.agents.getModels).mockImplementation((agentId: string) => {
+			vi.mocked(window.openwizardai.agents.getModels).mockImplementation((agentId: string) => {
 				if (agentId === 'opencode') return openCodeModelsPromise;
 				if (agentId === 'claude-code') return Promise.resolve(claudeModels);
 				return Promise.resolve([]);
 			});
-			vi.mocked(window.maestro.agents.getConfigOptions).mockResolvedValue([]);
-			vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
+			vi.mocked(window.openwizardai.agents.getConfigOptions).mockResolvedValue([]);
+			vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
 
 			useSessionStore.setState({ sessions: [openCodeSession] });
 
@@ -3800,7 +3800,7 @@ describe('MainPanel', () => {
 
 			// Wait for Claude models to be applied
 			await waitFor(() => {
-				expect(vi.mocked(window.maestro.agents.getModels)).toHaveBeenCalledWith('claude-code');
+				expect(vi.mocked(window.openwizardai.agents.getModels)).toHaveBeenCalledWith('claude-code');
 			});
 
 			// Now resolve the stale OpenCode models (arriving late)
@@ -3809,8 +3809,8 @@ describe('MainPanel', () => {
 			});
 
 			// Both IPC calls should have fired
-			expect(vi.mocked(window.maestro.agents.getModels)).toHaveBeenCalledWith('opencode');
-			expect(vi.mocked(window.maestro.agents.getModels)).toHaveBeenCalledWith('claude-code');
+			expect(vi.mocked(window.openwizardai.agents.getModels)).toHaveBeenCalledWith('opencode');
+			expect(vi.mocked(window.openwizardai.agents.getModels)).toHaveBeenCalledWith('claude-code');
 
 			// The stale OpenCode models should NOT appear - Claude models should persist.
 			// Verify via the data attribute exposed by the InputArea mock.

@@ -1,5 +1,5 @@
 /**
- * RightPanel component for Maestro web interface
+ * RightPanel component for OpenWizardAI web interface
  *
  * An inline panel (not overlay) that sits alongside the main content area.
  * Provides Files, History, Auto Run, and Git tabs - same content as RightDrawer

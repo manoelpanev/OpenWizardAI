@@ -1,7 +1,7 @@
 /**
  * Group-level stats rollup.
  *
- * The stats DB records one row per turn keyed by Maestro session id, and the
+ * The stats DB records one row per turn keyed by OpenWizardAI session id, and the
  * Left Bar's groups are a `groupId` pointer on each agent. Neither side knows
  * about the other, so "how much did this client cost me" is a join that has to
  * happen somewhere. It happens here, once, over the per-session maps the
@@ -141,7 +141,7 @@ export function groupSessions<T extends GroupMemberSession>(
 /**
  * Sum one group's slice of the aggregation.
  *
- * Every input map is keyed by Maestro session id, so this is a straight
+ * Every input map is keyed by OpenWizardAI session id, so this is a straight
  * accumulate over the members. Days are merged into a single sorted series
  * rather than concatenated, otherwise a group of five agents would draw five
  * overlapping sawteeth instead of one activity curve.

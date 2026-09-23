@@ -43,7 +43,7 @@ const cueRow = (overrides: Partial<HistoryEntry> = {}): HistoryEntry => ({
 	fullResponse: 'full output',
 	projectPath: '/test/project',
 	sessionId: 'agent-1',
-	sessionName: 'Maestro',
+	sessionName: 'OpenWizardAI',
 	success: true,
 	elapsedTimeMs: 4200,
 	cueTriggerName: 'lint-on-save',

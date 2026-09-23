@@ -68,19 +68,19 @@ export interface NotificationCommandResponse {
 }
 
 /**
- * Optional Maestro context forwarded to the custom notification command as
- * environment variables (MAESTRO_NOTIFY_*). Passing metadata via env instead of
+ * Optional OpenWizardAI context forwarded to the custom notification command as
+ * environment variables (OPENWIZARDAI_NOTIFY_*). Passing metadata via env instead of
  * string interpolation keeps it safe from shell injection; unset fields are
  * simply absent from the child's environment.
  */
 export interface NotificationCommandVars {
-	/** Agent name (Left Bar entity / session name) -> MAESTRO_NOTIFY_AGENT */
+	/** Agent name (Left Bar entity / session name) -> OPENWIZARDAI_NOTIFY_AGENT */
 	agent?: string;
-	/** AI tab name within the agent -> MAESTRO_NOTIFY_TAB */
+	/** AI tab name within the agent -> OPENWIZARDAI_NOTIFY_TAB */
 	tab?: string;
-	/** Group the agent belongs to -> MAESTRO_NOTIFY_GROUP */
+	/** Group the agent belongs to -> OPENWIZARDAI_NOTIFY_GROUP */
 	group?: string;
-	/** Originating task/prompt title -> MAESTRO_NOTIFY_TASK */
+	/** Originating task/prompt title -> OPENWIZARDAI_NOTIFY_TASK */
 	task?: string;
 }
 
@@ -154,15 +154,15 @@ export function parseNotificationCommand(command?: string): string {
  * Build the child-process environment for a notification command.
  *
  * Always inherits the parent environment (so PATH etc. stay intact) and layers
- * on MAESTRO_NOTIFY_* variables for any context the caller provided. Empty or
+ * on OPENWIZARDAI_NOTIFY_* variables for any context the caller provided. Empty or
  * missing fields are omitted so commands can test for their presence.
  */
 export function buildNotificationEnv(vars?: NotificationCommandVars): NodeJS.ProcessEnv {
 	const env: NodeJS.ProcessEnv = { ...process.env };
-	if (vars?.agent) env.MAESTRO_NOTIFY_AGENT = vars.agent;
-	if (vars?.tab) env.MAESTRO_NOTIFY_TAB = vars.tab;
-	if (vars?.group) env.MAESTRO_NOTIFY_GROUP = vars.group;
-	if (vars?.task) env.MAESTRO_NOTIFY_TASK = vars.task;
+	if (vars?.agent) env.OPENWIZARDAI_NOTIFY_AGENT = vars.agent;
+	if (vars?.tab) env.OPENWIZARDAI_NOTIFY_TAB = vars.tab;
+	if (vars?.group) env.OPENWIZARDAI_NOTIFY_GROUP = vars.group;
+	if (vars?.task) env.OPENWIZARDAI_NOTIFY_TASK = vars.task;
 	return env;
 }
 
@@ -210,8 +210,8 @@ function executeNotificationCommand(
 		});
 
 		// Spawn the process with shell mode to support pipes and command chains
-		// The text is passed via stdin, not as command arguments. Maestro context
-		// (agent/tab/group/task) rides along as MAESTRO_NOTIFY_* env vars so the
+		// The text is passed via stdin, not as command arguments. OpenWizardAI context
+		// (agent/tab/group/task) rides along as OPENWIZARDAI_NOTIFY_* env vars so the
 		// command can reference it without any shell-injection risk.
 		const child = spawn(fullCommand, [], {
 			stdio: ['pipe', 'ignore', 'pipe'], // stdin: pipe, stdout: ignore, stderr: pipe for errors

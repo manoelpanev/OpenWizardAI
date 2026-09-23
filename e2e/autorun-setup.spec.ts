@@ -35,7 +35,7 @@ test.describe('Auto Run Setup Wizard', () => {
 
 	test.beforeEach(async () => {
 		// Create a temporary directory to use as the project folder
-		testProjectDir = path.join(os.tmpdir(), `maestro-test-project-${Date.now()}`);
+		testProjectDir = path.join(os.tmpdir(), `openwizardai-test-project-${Date.now()}`);
 		fs.mkdirSync(testProjectDir, { recursive: true });
 
 		// Initialize a basic project structure
@@ -64,7 +64,7 @@ test.describe('Auto Run Setup Wizard', () => {
 			await window.keyboard.press('Meta+Shift+N');
 
 			// Wait for wizard to appear - look for the heading specifically
-			const wizardTitle = window.getByRole('heading', { name: 'Create a Maestro Agent' });
+			const wizardTitle = window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' });
 			await expect(wizardTitle).toBeVisible({ timeout: 10000 });
 		});
 
@@ -72,7 +72,9 @@ test.describe('Auto Run Setup Wizard', () => {
 			await window.keyboard.press('Meta+Shift+N');
 
 			// Verify we're on the agent selection screen (use heading specifically)
-			await expect(window.getByRole('heading', { name: 'Create a Maestro Agent' })).toBeVisible();
+			await expect(
+				window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' })
+			).toBeVisible();
 
 			// Should show available agents (use first to avoid multiple matches)
 			await expect(window.locator('text=Claude Code').first()).toBeVisible();
@@ -82,7 +84,7 @@ test.describe('Auto Run Setup Wizard', () => {
 			await window.keyboard.press('Meta+Shift+N');
 
 			// Verify wizard is open (use heading specifically)
-			const wizardTitle = window.getByRole('heading', { name: 'Create a Maestro Agent' });
+			const wizardTitle = window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' });
 			await expect(wizardTitle).toBeVisible();
 
 			// Press Escape to close
@@ -97,7 +99,9 @@ test.describe('Auto Run Setup Wizard', () => {
 		test.beforeEach(async ({ window }) => {
 			// Open wizard before each test in this group
 			await window.keyboard.press('Meta+Shift+N');
-			await expect(window.getByRole('heading', { name: 'Create a Maestro Agent' })).toBeVisible();
+			await expect(
+				window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' })
+			).toBeVisible();
 		});
 
 		test('should display Claude Code as the primary supported agent', async ({ window }) => {
@@ -190,11 +194,11 @@ test.describe('Auto Run Setup Wizard', () => {
 	});
 
 	test.describe('Document Creation Flow', () => {
-		test.skip('should create .maestro/playbooks folder in project', async ({ window }) => {
+		test.skip('should create .openwizardai/playbooks folder in project', async ({ window }) => {
 			// This test requires completing the wizard flow
 			// Would verify:
 			// 1. Complete all wizard steps
-			// 2. '.maestro/playbooks' folder is created in project
+			// 2. '.openwizardai/playbooks' folder is created in project
 			// 3. Initial documents are created
 		});
 
@@ -211,7 +215,9 @@ test.describe('Auto Run Setup Wizard', () => {
 	test.describe('Wizard Navigation', () => {
 		test.beforeEach(async ({ window }) => {
 			await window.keyboard.press('Meta+Shift+N');
-			await expect(window.getByRole('heading', { name: 'Create a Maestro Agent' })).toBeVisible();
+			await expect(
+				window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' })
+			).toBeVisible();
 		});
 
 		test('should show step indicators', async ({ window }) => {
@@ -247,7 +253,7 @@ test.describe('Auto Run Setup Wizard', () => {
 
 					// Should be back on agent selection (use heading specifically)
 					await expect(
-						window.getByRole('heading', { name: 'Create a Maestro Agent' })
+						window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' })
 					).toBeVisible();
 				}
 			}
@@ -275,7 +281,9 @@ test.describe('Auto Run Setup Wizard', () => {
 	test.describe('Accessibility', () => {
 		test.beforeEach(async ({ window }) => {
 			await window.keyboard.press('Meta+Shift+N');
-			await expect(window.getByRole('heading', { name: 'Create a Maestro Agent' })).toBeVisible();
+			await expect(
+				window.getByRole('heading', { name: 'Create an OpenWizardAI Agent' })
+			).toBeVisible();
 		});
 
 		test('should support keyboard-only navigation', async ({ window }) => {

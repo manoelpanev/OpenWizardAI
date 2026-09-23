@@ -7,8 +7,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	agents: {
 		get: vi.fn(),
 	},
@@ -25,7 +25,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import { generateInlineDocuments } from '../../../renderer/services/inlineWizardDocumentGeneration';
@@ -43,8 +43,8 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 			command: 'opencode',
 			args: [],
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
-		mockMaestro.process.spawn.mockResolvedValue(undefined);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 		// Start generation with overrides
 		const generationPromise = generateInlineDocuments({
@@ -53,7 +53,7 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 			sessionCustomPath: '/custom/path/opencode',
 			sessionCustomArgs: '--custom',
 			sessionCustomEnvVars: { TEST: 'true' },
@@ -64,8 +64,8 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 		await new Promise((resolve) => setTimeout(resolve, 10));
 
 		// Verify spawn was called with correct overrides
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sessionCustomPath).toBe('/custom/path/opencode');
 		expect(spawnCall.sessionCustomArgs).toBe('--custom');
@@ -74,7 +74,7 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 
 		// Clean up
 		const spawnSessionId = spawnCall.sessionId;
-		const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+		const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 		exitCallback(spawnSessionId, 0);
 
 		// We don't need to await the full promise since we just wanted to check spawn args
@@ -94,8 +94,8 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 			command: 'opencode',
 			args: [],
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
-		mockMaestro.process.spawn.mockResolvedValue(undefined);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 		// Start generation WITHOUT overrides
 		const generationPromise = generateInlineDocuments({
@@ -104,15 +104,15 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 			projectName: 'Test Project',
 			conversationHistory: [],
 			mode: 'new',
-			autoRunFolderPath: '/test/project/.maestro/playbooks',
+			autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		});
 
 		// Give it a moment to start spawning
 		await new Promise((resolve) => setTimeout(resolve, 10));
 
 		// Verify spawn was called without overrides
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sessionCustomPath).toBeUndefined();
 		expect(spawnCall.sessionCustomArgs).toBeUndefined();
@@ -121,7 +121,7 @@ describe('inlineWizardDocumentGeneration - Session Overrides', () => {
 
 		// Clean up
 		const spawnSessionId = spawnCall.sessionId;
-		const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+		const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 		exitCallback(spawnSessionId, 0);
 
 		try {

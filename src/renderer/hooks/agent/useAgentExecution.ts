@@ -7,7 +7,7 @@ import {
 	resolveQueuedItemTarget,
 } from '../../utils/tabHelpers';
 import { filterYoloArgs } from '../../utils/agentArgs';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from '../../utils/spawnHelpers';
 import {
 	hasRunnableQueueItem,
 	nextRunnableQueueItem,
@@ -96,9 +96,9 @@ export interface UseAgentExecutionReturn {
 			customEnvVars?: Record<string, string>;
 			customModel?: string;
 			customContextWindow?: number;
-			enableMaestroP?: boolean;
-			maestroPMode?: 'interactive' | 'dynamic';
-			maestroPPath?: string;
+			enableOpenWizardAIP?: boolean;
+			openwizardaiPMode?: 'interactive' | 'dynamic';
+			openwizardaiPPath?: string;
 			sessionSshRemoteConfig?: {
 				enabled: boolean;
 				remoteId: string | null;
@@ -120,9 +120,9 @@ export interface UseAgentExecutionReturn {
 					customEnvVars?: Record<string, string>;
 					customModel?: string;
 					customContextWindow?: number;
-					enableMaestroP?: boolean;
-					maestroPMode?: 'interactive' | 'dynamic';
-					maestroPPath?: string;
+					enableOpenWizardAIP?: boolean;
+					openwizardaiPMode?: 'interactive' | 'dynamic';
+					openwizardaiPPath?: string;
 					sessionSshRemoteConfig?: {
 						enabled: boolean;
 						remoteId: string | null;
@@ -140,8 +140,8 @@ export interface UseAgentExecutionReturn {
 	showFlashNotification: (message: string) => void;
 	/** Show success flash notification (center screen, auto-dismisses after 2 seconds) */
 	showSuccessFlash: (message: string) => void;
-	/** Cancel all pending synopsis processes for a given maestro session ID */
-	cancelPendingSynopsis: (maestroSessionId: string) => Promise<void>;
+	/** Cancel all pending synopsis processes for a given openwizardai session ID */
+	cancelPendingSynopsis: (openwizardaiSessionId: string) => Promise<void>;
 }
 
 /**
@@ -175,7 +175,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 	);
 
 	// Track active synopsis session IDs for cancellation
-	// Map: maestroSessionId -> Set of active synopsis process session IDs
+	// Map: openwizardaiSessionId -> Set of active synopsis process session IDs
 	const activeSynopsisSessionsRef = useRef<Map<string, Set<string>>>(new Map());
 	const accumulateUsageStats = useCallback(
 		(current: UsageStats | undefined, usageStats: UsageStats): UsageStats => ({
@@ -226,7 +226,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 			// This spawns a new agent session and waits for completion
 			// Use session's toolType for multi-provider support
 			try {
-				const agent = await window.maestro.agents.get(session.toolType);
+				const agent = await window.openwizardai.agents.get(session.toolType);
 				if (!agent) {
 					logger.error(`[spawnAgentForSession] Agent not found for toolType: ${session.toolType}`);
 					return { success: false };
@@ -242,8 +242,8 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 				// This prevents batch output from appearing in the interactive AI terminal
 				const targetSessionId = `${sessionId}-batch-${Date.now()}`;
 
-				// Batch tasks always spawn fresh sessions - prepare Maestro system prompt
-				const appendSystemPrompt = await prepareMaestroSystemPrompt({
+				// Batch tasks always spawn fresh sessions - prepare OpenWizardAI system prompt
+				const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 					session,
 					activeTabId: getActiveTab(session)?.id,
 				});
@@ -284,7 +284,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 
 					// Set up listeners for this specific agent run
 					cleanupFns.push(
-						window.maestro.process.onData((sid: string, data: string) => {
+						window.openwizardai.process.onData((sid: string, data: string) => {
 							if (sid === targetSessionId) {
 								lastOutputAt = Date.now();
 								responseText += data;
@@ -293,7 +293,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 					);
 
 					cleanupFns.push(
-						window.maestro.process.onSessionId((sid: string, capturedId: string) => {
+						window.openwizardai.process.onSessionId((sid: string, capturedId: string) => {
 							if (sid === targetSessionId) {
 								agentSessionId = capturedId;
 							}
@@ -302,7 +302,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 
 					// Capture usage stats for this specific task
 					cleanupFns.push(
-						window.maestro.process.onUsage((sid: string, usageStats) => {
+						window.openwizardai.process.onUsage((sid: string, usageStats) => {
 							if (sid === targetSessionId) {
 								// Accumulate usage stats for this task (there may be multiple usage events per task)
 								taskUsageStats = accumulateUsageStats(taskUsageStats, usageStats);
@@ -313,12 +313,12 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 					);
 
 					cleanupFns.push(
-						window.maestro.process.onExit((sid: string, code: number | null | undefined) => {
+						window.openwizardai.process.onExit((sid: string, code: number | null | undefined) => {
 							if (sid === targetSessionId) {
 								// Record query stats for Auto Run queries
 								const queryDuration = Date.now() - queryStartTime;
 								const activeTab = getActiveTab(session);
-								window.maestro.stats
+								window.openwizardai.stats
 									.recordQuery({
 										sessionId: sessionId, // Use the original session ID, not the batch ID
 										agentType: session.toolType,
@@ -536,7 +536,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 							inactivityTimer = setInterval(() => {
 								if (settled) return;
 								if (Date.now() - lastOutputAt <= inactivityTimeoutMs) return;
-								window.maestro.process.kill(targetSessionId).catch(() => {});
+								window.openwizardai.process.kill(targetSessionId).catch(() => {});
 								resolveOnce({
 									success: false,
 									error: `Agent task stalled: no output for ${inactivityTimeoutMin} minutes`,
@@ -558,7 +558,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 					});
 
 					// Batch processing (Auto Run) should NOT use read-only mode - it needs to make changes
-					window.maestro.process
+					window.openwizardai.process
 						.spawn({
 							sessionId: targetSessionId,
 							toolType: session.toolType,
@@ -575,7 +575,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 							sessionCustomModel: options?.modelOverride ?? session.customModel,
 							// The agent's effort was silently dropped here while the CLI Auto Run
 							// path passed it through, so the same playbook ran at different effort
-							// depending on whether it was launched from the app or maestro-cli.
+							// depending on whether it was launched from the app or openwizardai-cli.
 							sessionCustomEffort: options?.effortOverride ?? session.customEffort,
 							sessionCustomContextWindow: session.customContextWindow,
 							// Per-session SSH remote config (takes precedence over agent-level SSH config)
@@ -619,7 +619,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 	 * Spawn a background synopsis agent that resumes an old agent session.
 	 * Used for generating summaries without affecting main session state.
 	 *
-	 * @param sessionId - The Maestro session ID (for logging/tracking)
+	 * @param sessionId - The OpenWizardAI session ID (for logging/tracking)
 	 * @param cwd - Working directory for the agent
 	 * @param resumeAgentSessionId - The agent session ID to resume
 	 * @param prompt - The prompt to send to the resumed session
@@ -641,9 +641,9 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 				// Claude token-source selection. The synopsis spawns under a synthetic
 				// sessionId, so the process:spawn handler can't resolve the token mode
 				// from the persisted session - forward these fields explicitly instead.
-				enableMaestroP?: boolean;
-				maestroPMode?: 'interactive' | 'dynamic';
-				maestroPPath?: string;
+				enableOpenWizardAIP?: boolean;
+				openwizardaiPMode?: 'interactive' | 'dynamic';
+				openwizardaiPPath?: string;
 				sessionSshRemoteConfig?: {
 					enabled: boolean;
 					remoteId: string | null;
@@ -652,7 +652,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 			}
 		): Promise<AgentSpawnResult> => {
 			try {
-				const agent = await window.maestro.agents.get(toolType);
+				const agent = await window.openwizardai.agents.get(toolType);
 				if (!agent) {
 					logger.error(`[spawnBackgroundSynopsis] Agent not found for toolType: ${toolType}`);
 					return { success: false };
@@ -691,7 +691,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 					};
 
 					cleanupFns.push(
-						window.maestro.process.onData((sid: string, data: string) => {
+						window.openwizardai.process.onData((sid: string, data: string) => {
 							if (sid === targetSessionId) {
 								responseText += data;
 							}
@@ -699,7 +699,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 					);
 
 					cleanupFns.push(
-						window.maestro.process.onSessionId((sid: string, capturedId: string) => {
+						window.openwizardai.process.onSessionId((sid: string, capturedId: string) => {
 							if (sid === targetSessionId) {
 								agentSessionId = capturedId;
 							}
@@ -708,7 +708,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 
 					// Capture usage stats for this synopsis request
 					cleanupFns.push(
-						window.maestro.process.onUsage((sid: string, usageStats) => {
+						window.openwizardai.process.onUsage((sid: string, usageStats) => {
 							if (sid === targetSessionId) {
 								// Accumulate usage stats (there may be multiple events)
 								synopsisUsageStats = accumulateUsageStats(synopsisUsageStats, usageStats);
@@ -719,7 +719,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 					);
 
 					cleanupFns.push(
-						window.maestro.process.onExit((sid: string) => {
+						window.openwizardai.process.onExit((sid: string) => {
 							if (sid === targetSessionId) {
 								cleanup();
 								const ctx = lastSynopsisUsageEvent
@@ -751,7 +751,7 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 						supportsStreamJsonInput: agent.capabilities?.supportsStreamJsonInput ?? false,
 						hasImages: false, // Resume path does not send images
 					});
-					window.maestro.process
+					window.openwizardai.process
 						.spawn({
 							sessionId: targetSessionId,
 							toolType,
@@ -810,46 +810,49 @@ export function useAgentExecution(deps: UseAgentExecutionDeps): UseAgentExecutio
 	);
 
 	/**
-	 * Cancel all pending synopsis processes for a given maestro session ID.
+	 * Cancel all pending synopsis processes for a given openwizardai session ID.
 	 * Called when user clicks Stop to prevent synopsis from running after interruption.
 	 */
-	const cancelPendingSynopsis = useCallback(async (maestroSessionId: string): Promise<void> => {
-		const synopsisSessions = activeSynopsisSessionsRef.current.get(maestroSessionId);
-		if (!synopsisSessions || synopsisSessions.size === 0) {
-			return;
-		}
-
-		logger.info('[cancelPendingSynopsis] Cancelling synopsis sessions for', undefined, [
-			maestroSessionId,
-			{
-				count: synopsisSessions.size,
-				sessionIds: Array.from(synopsisSessions),
-			},
-		]);
-
-		// Kill all active synopsis processes for this session
-		const killPromises = Array.from(synopsisSessions).map(async (synopsisSessionId) => {
-			try {
-				await window.maestro.process.kill(synopsisSessionId);
-				logger.info(
-					'[cancelPendingSynopsis] Killed synopsis session:',
-					undefined,
-					synopsisSessionId
-				);
-			} catch (error) {
-				// Process may have already exited
-				logger.warn('[cancelPendingSynopsis] Failed to kill synopsis session:', undefined, [
-					synopsisSessionId,
-					error,
-				]);
+	const cancelPendingSynopsis = useCallback(
+		async (openwizardaiSessionId: string): Promise<void> => {
+			const synopsisSessions = activeSynopsisSessionsRef.current.get(openwizardaiSessionId);
+			if (!synopsisSessions || synopsisSessions.size === 0) {
+				return;
 			}
-		});
 
-		await Promise.all(killPromises);
+			logger.info('[cancelPendingSynopsis] Cancelling synopsis sessions for', undefined, [
+				openwizardaiSessionId,
+				{
+					count: synopsisSessions.size,
+					sessionIds: Array.from(synopsisSessions),
+				},
+			]);
 
-		// Clear the tracking set
-		activeSynopsisSessionsRef.current.delete(maestroSessionId);
-	}, []);
+			// Kill all active synopsis processes for this session
+			const killPromises = Array.from(synopsisSessions).map(async (synopsisSessionId) => {
+				try {
+					await window.openwizardai.process.kill(synopsisSessionId);
+					logger.info(
+						'[cancelPendingSynopsis] Killed synopsis session:',
+						undefined,
+						synopsisSessionId
+					);
+				} catch (error) {
+					// Process may have already exited
+					logger.warn('[cancelPendingSynopsis] Failed to kill synopsis session:', undefined, [
+						synopsisSessionId,
+						error,
+					]);
+				}
+			});
+
+			await Promise.all(killPromises);
+
+			// Clear the tracking set
+			activeSynopsisSessionsRef.current.delete(openwizardaiSessionId);
+		},
+		[]
+	);
 
 	/**
 	 * Show flash notification (bottom-right, auto-dismisses after 2 seconds).

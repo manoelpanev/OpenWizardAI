@@ -1,9 +1,9 @@
 /**
  * Preload API for AI command mode
  *
- * Provides the window.maestro.aiCommand namespace for turning a plain-English
+ * Provides the window.openwizardai.aiCommand namespace for turning a plain-English
  * request into one shell command line. This is only the suggestion round trip -
- * running the accepted command still goes through window.maestro.process, so a
+ * running the accepted command still goes through window.openwizardai.process, so a
  * suggested command and a typed `!` command execute through the same path.
  */
 

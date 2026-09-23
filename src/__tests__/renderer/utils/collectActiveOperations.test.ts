@@ -1,6 +1,6 @@
 /**
  * Tests for collectActiveOperations.ts - the single source of truth for "is
- * Maestro busy right now?" shared by the quit-confirmation check and the
+ * OpenWizardAI busy right now?" shared by the quit-confirmation check and the
  * "Quit when idle" watcher. Covers each operation source independently and the
  * graceful degradation when the IPC probes fail.
  */
@@ -13,7 +13,7 @@ import type { BatchRunState, GroupChat } from '../../../renderer/types';
 const mockGetActiveProcesses = vi.fn();
 const mockGetActiveCueRuns = vi.fn();
 vi.stubGlobal('window', {
-	maestro: {
+	openwizardai: {
 		process: { getActiveProcesses: mockGetActiveProcesses },
 		cue: { getActiveRuns: mockGetActiveCueRuns },
 	},
@@ -104,7 +104,7 @@ describe('collectActiveOperations', () => {
 		expect(ops.hasActiveOperations).toBe(true);
 	});
 
-	it('counts in-flight Maestro Cue runs', async () => {
+	it('counts in-flight OpenWizardAI Cue runs', async () => {
 		mockGetActiveCueRuns.mockResolvedValue([{ id: 'r1' }, { id: 'r2' }]);
 		const ops = await collectActiveOperations();
 		expect(ops.activeCueRunCount).toBe(2);

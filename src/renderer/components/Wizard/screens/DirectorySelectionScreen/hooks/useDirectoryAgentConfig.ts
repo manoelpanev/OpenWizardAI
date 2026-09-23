@@ -16,7 +16,7 @@ export function useDirectoryAgentConfig(selectedAgent: ToolType | null): AgentCo
 			}
 
 			try {
-				const config = await window.maestro.agents.get(selectedAgent);
+				const config = await window.openwizardai.agents.get(selectedAgent);
 				if (mounted) {
 					setAgentConfig(config || null);
 				}

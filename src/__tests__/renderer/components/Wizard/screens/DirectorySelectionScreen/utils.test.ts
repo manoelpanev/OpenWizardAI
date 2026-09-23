@@ -50,7 +50,7 @@ describe('DirectorySelectionScreen utils', () => {
 	});
 
 	it('checks existing Auto Run docs and swallows recoverable read failures', async () => {
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: true,
 			files: ['a.md', 'b.md'],
 		});
@@ -59,42 +59,42 @@ describe('DirectorySelectionScreen utils', () => {
 			exists: true,
 			count: 2,
 		});
-		expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith(
-			'/project/.maestro/playbooks',
+		expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(
+			'/project/.openwizardai/playbooks',
 			'remote-1'
 		);
 
-		vi.mocked(window.maestro.autorun.listDocs).mockRejectedValueOnce(new Error('missing'));
+		vi.mocked(window.openwizardai.autorun.listDocs).mockRejectedValueOnce(new Error('missing'));
 		await expect(checkForExistingAutoRunDocs('/project')).resolves.toEqual({
 			exists: false,
 			count: 0,
 		});
 	});
 
-	// MAESTRO-TN: the directory field accepts "/" (readDir succeeds on it), and
+	// OPENWIZARDAI-TN: the directory field accepts "/" (readDir succeeds on it), and
 	// `${dirPath}/${PLAYBOOKS_DIR}` then produced a leading "//". Windows reads
-	// "//.maestro/playbooks" as the UNC path \\.maestro\playbooks, so stat failed
+	// "//.openwizardai/playbooks" as the UNC path \\.openwizardai\playbooks, so stat failed
 	// with UNKNOWN rather than the ENOENT the recoverable-error list matches.
 	it.each([
-		['/', '/.maestro/playbooks'],
-		['/project/', '/project/.maestro/playbooks'],
-		['/project', '/project/.maestro/playbooks'],
-		['C:\\Users\\dev\\proj', 'C:\\Users\\dev\\proj\\.maestro\\playbooks'],
+		['/', '/.openwizardai/playbooks'],
+		['/project/', '/project/.openwizardai/playbooks'],
+		['/project', '/project/.openwizardai/playbooks'],
+		['C:\\Users\\dev\\proj', 'C:\\Users\\dev\\proj\\.openwizardai\\playbooks'],
 	])('builds a non-UNC Auto Run path for %j', async (dirPath, expected) => {
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: true,
 			files: [],
 		});
 
 		await checkForExistingAutoRunDocs(dirPath);
 
-		expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith(expected, undefined);
+		expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(expected, undefined);
 		expect(expected.startsWith('//')).toBe(false);
 	});
 
 	it('reports and rethrows unexpected Auto Run docs lookup failures', async () => {
 		const error = new Error('network timeout');
-		vi.mocked(window.maestro.autorun.listDocs).mockRejectedValueOnce(error);
+		vi.mocked(window.openwizardai.autorun.listDocs).mockRejectedValueOnce(error);
 
 		await expect(checkForExistingAutoRunDocs('/project')).rejects.toThrow('network timeout');
 

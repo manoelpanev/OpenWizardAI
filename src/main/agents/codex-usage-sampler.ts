@@ -29,13 +29,13 @@ const DEFAULT_TIMEOUT_MS = 15_000;
 const SESSION_WINDOW_MAX_SECONDS = 6 * 60 * 60;
 
 /**
- * HTTP statuses from the Codex quota endpoint that say nothing about Maestro.
+ * HTTP statuses from the Codex quota endpoint that say nothing about OpenWizardAI.
  *
  * - 401/403: this CODEX_HOME isn't logged in. Surfaced to the UI as
  *   `unauthenticated`.
  * - 408/429/5xx: the upstream is throttling us or is degraded. The sampler runs
  *   on a timer, so a single ChatGPT outage reports once per tick per install -
- *   the dominant source of MAESTRO-RR volume.
+ *   the dominant source of OPENWIZARDAI-RR volume.
  *
  * Anything else (a 4xx that implies we sent a malformed request) still reports,
  * because that would be our bug.
@@ -136,8 +136,8 @@ export async function sampleCodexUsage(opts: SampleCodexUsageOptions): Promise<C
 		// A thrown fetch means the request never completed: the user is offline,
 		// DNS/TLS failed, the endpoint is unreachable, or our own abort timeout
 		// fired. All are expected, recoverable, user-environment conditions - not
-		// Maestro bugs - so don't report them to Sentry. The UI still reflects the
-		// failure via the returned `error` field. (MAESTRO-RR)
+		// OpenWizardAI bugs - so don't report them to Sentry. The UI still reflects the
+		// failure via the returned `error` field. (OPENWIZARDAI-RR)
 		return {
 			sampledAt,
 			codexHomeKey,
@@ -154,7 +154,7 @@ export async function sampleCodexUsage(opts: SampleCodexUsageOptions): Promise<C
 		// Un-logged-in CODEX_HOMEs and a throttled or degraded upstream are
 		// expected, recoverable states we surface through the returned snapshot,
 		// not failures worth a Sentry breadcrumb. Only report genuinely
-		// unexpected HTTP errors. See isExpectedQuotaStatus (MAESTRO-RR).
+		// unexpected HTTP errors. See isExpectedQuotaStatus (OPENWIZARDAI-RR).
 		if (!isExpectedQuotaStatus(status)) {
 			void reportCodexUsageFailure(codexHomeKey, `http ${status}`);
 		}

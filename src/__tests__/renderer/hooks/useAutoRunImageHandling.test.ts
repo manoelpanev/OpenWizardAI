@@ -184,16 +184,16 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	imageCache.clear();
 
-	// Add/reset image-related mocks on window.maestro.autorun
-	(window.maestro.autorun as any).listImages = vi.fn().mockResolvedValue({
+	// Add/reset image-related mocks on window.openwizardai.autorun
+	(window.openwizardai.autorun as any).listImages = vi.fn().mockResolvedValue({
 		success: true,
 		images: [],
 	});
-	(window.maestro.autorun as any).saveImage = vi.fn().mockResolvedValue({
+	(window.openwizardai.autorun as any).saveImage = vi.fn().mockResolvedValue({
 		success: true,
 		relativePath: 'images/Phase 1-1234567890.png',
 	});
-	(window.maestro.autorun as any).deleteImage = vi.fn().mockResolvedValue({
+	(window.openwizardai.autorun as any).deleteImage = vi.fn().mockResolvedValue({
 		success: true,
 	});
 
@@ -215,7 +215,7 @@ describe('useAutoRunImageHandling', () => {
 		it('should load existing images when folderPath and selectedFile are provided', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [
 					{ filename: 'Phase 1-123.png', relativePath: 'images/Phase 1-123.png' },
@@ -223,7 +223,7 @@ describe('useAutoRunImageHandling', () => {
 				],
 			});
 
-			(window.maestro.fs.readFile as any).mockResolvedValue('data:image/png;base64,abc123');
+			(window.openwizardai.fs.readFile as any).mockResolvedValue('data:image/png;base64,abc123');
 
 			const { result } = renderHook(() => useAutoRunImageHandling(mockDeps));
 
@@ -231,7 +231,7 @@ describe('useAutoRunImageHandling', () => {
 				expect(result.current.attachmentsList).toHaveLength(2);
 			});
 
-			expect(window.maestro.autorun.listImages).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.listImages).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Phase 1',
 				undefined
@@ -243,12 +243,14 @@ describe('useAutoRunImageHandling', () => {
 		it('should load previews for images from fs.readFile', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 			});
 
-			(window.maestro.fs.readFile as any).mockResolvedValue('data:image/png;base64,preview123');
+			(window.openwizardai.fs.readFile as any).mockResolvedValue(
+				'data:image/png;base64,preview123'
+			);
 
 			const { result } = renderHook(() => useAutoRunImageHandling(mockDeps));
 
@@ -256,7 +258,7 @@ describe('useAutoRunImageHandling', () => {
 				expect(result.current.attachmentPreviews.size).toBe(1);
 			});
 
-			expect(window.maestro.fs.readFile).toHaveBeenCalledWith(
+			expect(window.openwizardai.fs.readFile).toHaveBeenCalledWith(
 				'/test/autorun/images/test.png',
 				undefined
 			);
@@ -272,7 +274,7 @@ describe('useAutoRunImageHandling', () => {
 
 			expect(result.current.attachmentsList).toEqual([]);
 			expect(result.current.attachmentPreviews.size).toBe(0);
-			expect(window.maestro.autorun.listImages).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listImages).not.toHaveBeenCalled();
 		});
 
 		it('should clear attachments when selectedFile is null', async () => {
@@ -282,13 +284,13 @@ describe('useAutoRunImageHandling', () => {
 
 			expect(result.current.attachmentsList).toEqual([]);
 			expect(result.current.attachmentPreviews.size).toBe(0);
-			expect(window.maestro.autorun.listImages).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listImages).not.toHaveBeenCalled();
 		});
 
 		it('should handle listImages failure gracefully', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: false,
 				error: 'Failed to list images',
 			});
@@ -296,7 +298,7 @@ describe('useAutoRunImageHandling', () => {
 			const { result } = renderHook(() => useAutoRunImageHandling(mockDeps));
 
 			await waitFor(() => {
-				expect(window.maestro.autorun.listImages).toHaveBeenCalled();
+				expect(window.openwizardai.autorun.listImages).toHaveBeenCalled();
 			});
 
 			// Should have empty list on failure
@@ -306,12 +308,12 @@ describe('useAutoRunImageHandling', () => {
 		it('should handle fs.readFile failure gracefully (missing image file)', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'missing.png', relativePath: 'images/missing.png' }],
 			});
 
-			(window.maestro.fs.readFile as any).mockRejectedValue(new Error('File not found'));
+			(window.openwizardai.fs.readFile as any).mockRejectedValue(new Error('File not found'));
 
 			const { result } = renderHook(() => useAutoRunImageHandling(mockDeps));
 
@@ -328,7 +330,7 @@ describe('useAutoRunImageHandling', () => {
 		it('should reload attachments when selectedFile changes', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'doc1-img.png', relativePath: 'images/doc1-img.png' }],
 			});
@@ -342,7 +344,7 @@ describe('useAutoRunImageHandling', () => {
 			});
 
 			// Change selectedFile
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'doc2-img.png', relativePath: 'images/doc2-img.png' }],
 			});
@@ -353,7 +355,7 @@ describe('useAutoRunImageHandling', () => {
 				expect(result.current.attachmentsList).toContain('images/doc2-img.png');
 			});
 
-			expect(window.maestro.autorun.listImages).toHaveBeenLastCalledWith(
+			expect(window.openwizardai.autorun.listImages).toHaveBeenLastCalledWith(
 				'/test/autorun',
 				'Phase 2',
 				undefined
@@ -375,7 +377,7 @@ describe('useAutoRunImageHandling', () => {
 				localContent: '# Phase 1\n\nSome content',
 			});
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/Phase 1-1234567890.png',
 			});
@@ -390,7 +392,7 @@ describe('useAutoRunImageHandling', () => {
 			});
 
 			expect(clipboardEvent.preventDefault).toHaveBeenCalled();
-			expect(window.maestro.autorun.saveImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.saveImage).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Phase 1',
 				expect.any(String), // base64 content
@@ -411,7 +413,7 @@ describe('useAutoRunImageHandling', () => {
 			});
 
 			expect(clipboardEvent.preventDefault).not.toHaveBeenCalled();
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 
 		it('should NOT paste when folderPath is null', async () => {
@@ -425,7 +427,7 @@ describe('useAutoRunImageHandling', () => {
 				result.current.handlePaste(clipboardEvent);
 			});
 
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 
 		it('should NOT paste when selectedFile is null', async () => {
@@ -439,7 +441,7 @@ describe('useAutoRunImageHandling', () => {
 				result.current.handlePaste(clipboardEvent);
 			});
 
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 
 		it('should handle different image types (jpeg)', async () => {
@@ -450,7 +452,7 @@ describe('useAutoRunImageHandling', () => {
 				editorRef: { current: editor } as unknown as UseAutoRunImageHandlingDeps['editorRef'],
 			});
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/Phase 1-123.jpeg',
 			});
@@ -464,7 +466,7 @@ describe('useAutoRunImageHandling', () => {
 				vi.runAllTimers();
 			});
 
-			expect(window.maestro.autorun.saveImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.saveImage).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Phase 1',
 				expect.any(String),
@@ -481,7 +483,7 @@ describe('useAutoRunImageHandling', () => {
 				editorRef: { current: editor } as unknown as UseAutoRunImageHandlingDeps['editorRef'],
 			});
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/Phase 1-123.png',
 			});
@@ -506,7 +508,7 @@ describe('useAutoRunImageHandling', () => {
 				editorRef: { current: editor } as unknown as UseAutoRunImageHandlingDeps['editorRef'],
 			});
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/Phase 1-newimg.png',
 			});
@@ -531,7 +533,7 @@ describe('useAutoRunImageHandling', () => {
 				editorRef: { current: editor } as unknown as UseAutoRunImageHandlingDeps['editorRef'],
 			});
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: false,
 				error: 'Failed to save',
 			});
@@ -619,7 +621,7 @@ describe('useAutoRunImageHandling', () => {
 				const mockDeps = createMockDeps({
 					editorRef: { current: editor } as unknown as UseAutoRunImageHandlingDeps['editorRef'],
 				});
-				(window.maestro.autorun as any).saveImage.mockResolvedValue({
+				(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 					success: true,
 					relativePath: 'images/Phase 1-1.png',
 				});
@@ -665,7 +667,7 @@ describe('useAutoRunImageHandling', () => {
 
 				expect(claimed).toBe(false);
 				expect(event.preventDefault).not.toHaveBeenCalled();
-				expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+				expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 			});
 		});
 
@@ -703,7 +705,7 @@ describe('useAutoRunImageHandling', () => {
 			});
 
 			expect(clipboardEvent.preventDefault).not.toHaveBeenCalled();
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 	});
 
@@ -717,7 +719,7 @@ describe('useAutoRunImageHandling', () => {
 
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/Phase 1-uploaded.png',
 			});
@@ -731,7 +733,7 @@ describe('useAutoRunImageHandling', () => {
 				vi.runAllTimers();
 			});
 
-			expect(window.maestro.autorun.saveImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.saveImage).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Phase 1',
 				expect.any(String),
@@ -745,7 +747,7 @@ describe('useAutoRunImageHandling', () => {
 
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/Phase 1-upload.png',
 			});
@@ -767,7 +769,7 @@ describe('useAutoRunImageHandling', () => {
 
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/test.png',
 			});
@@ -795,7 +797,7 @@ describe('useAutoRunImageHandling', () => {
 				await result.current.handleFileSelect(fileEvent);
 			});
 
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 
 		it('should NOT upload when selectedFile is null', async () => {
@@ -809,7 +811,7 @@ describe('useAutoRunImageHandling', () => {
 				await result.current.handleFileSelect(fileEvent);
 			});
 
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 
 		it('should do nothing when no file is selected', async () => {
@@ -829,7 +831,7 @@ describe('useAutoRunImageHandling', () => {
 				await result.current.handleFileSelect(fileEvent);
 			});
 
-			expect(window.maestro.autorun.saveImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.saveImage).not.toHaveBeenCalled();
 		});
 
 		it('should push undo state before modifying content', async () => {
@@ -837,7 +839,7 @@ describe('useAutoRunImageHandling', () => {
 
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/test.png',
 			});
@@ -859,7 +861,7 @@ describe('useAutoRunImageHandling', () => {
 
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).saveImage.mockResolvedValue({
+			(window.openwizardai.autorun as any).saveImage.mockResolvedValue({
 				success: true,
 				relativePath: 'images/test.gif',
 			});
@@ -873,7 +875,7 @@ describe('useAutoRunImageHandling', () => {
 				vi.runAllTimers();
 			});
 
-			expect(window.maestro.autorun.saveImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.saveImage).toHaveBeenCalledWith(
 				'/test/autorun',
 				'Phase 1',
 				expect.any(String),
@@ -893,7 +895,7 @@ describe('useAutoRunImageHandling', () => {
 				localContent: '# Phase 1\n\n![test.png](images/test.png)\n\nMore content',
 			});
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 			});
@@ -908,7 +910,7 @@ describe('useAutoRunImageHandling', () => {
 				await result.current.handleRemoveAttachment('images/test.png');
 			});
 
-			expect(window.maestro.autorun.deleteImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.deleteImage).toHaveBeenCalledWith(
 				'/test/autorun',
 				'images/test.png',
 				undefined
@@ -947,11 +949,11 @@ describe('useAutoRunImageHandling', () => {
 		it('should remove from attachmentPreviews', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [{ filename: 'test.png', relativePath: 'images/test.png' }],
 			});
-			(window.maestro.fs.readFile as any).mockResolvedValue('data:image/png;base64,preview');
+			(window.openwizardai.fs.readFile as any).mockResolvedValue('data:image/png;base64,preview');
 
 			const { result } = renderHook(() => useAutoRunImageHandling(mockDeps));
 
@@ -975,7 +977,7 @@ describe('useAutoRunImageHandling', () => {
 				await result.current.handleRemoveAttachment('images/test.png');
 			});
 
-			expect(window.maestro.autorun.deleteImage).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.deleteImage).not.toHaveBeenCalled();
 		});
 
 		it('should clear from imageCache', async () => {
@@ -1004,7 +1006,7 @@ describe('useAutoRunImageHandling', () => {
 				await result.current.handleRemoveAttachment('images/file (1).png');
 			});
 
-			expect(window.maestro.autorun.deleteImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.deleteImage).toHaveBeenCalledWith(
 				'/test/autorun',
 				'images/file (1).png',
 				undefined
@@ -1191,7 +1193,7 @@ describe('useAutoRunImageHandling', () => {
 					await result.current.handleLightboxDelete('images/img.png');
 				});
 
-				expect(window.maestro.autorun.deleteImage).toHaveBeenCalledWith(
+				expect(window.openwizardai.autorun.deleteImage).toHaveBeenCalledWith(
 					'/test/autorun',
 					'images/img.png',
 					undefined
@@ -1218,7 +1220,7 @@ describe('useAutoRunImageHandling', () => {
 			it('should remove from attachmentsList', async () => {
 				const mockDeps = createMockDeps();
 
-				(window.maestro.autorun as any).listImages.mockResolvedValue({
+				(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 					success: true,
 					images: [{ filename: 'todelete.png', relativePath: 'images/todelete.png' }],
 				});
@@ -1245,7 +1247,7 @@ describe('useAutoRunImageHandling', () => {
 					await result.current.handleLightboxDelete('images/test.png');
 				});
 
-				expect(window.maestro.autorun.deleteImage).not.toHaveBeenCalled();
+				expect(window.openwizardai.autorun.deleteImage).not.toHaveBeenCalled();
 			});
 		});
 	});
@@ -1349,7 +1351,7 @@ describe('useAutoRunImageHandling', () => {
 		it('should handle empty attachments list', async () => {
 			const mockDeps = createMockDeps();
 
-			(window.maestro.autorun as any).listImages.mockResolvedValue({
+			(window.openwizardai.autorun as any).listImages.mockResolvedValue({
 				success: true,
 				images: [],
 			});
@@ -1357,7 +1359,7 @@ describe('useAutoRunImageHandling', () => {
 			const { result } = renderHook(() => useAutoRunImageHandling(mockDeps));
 
 			await waitFor(() => {
-				expect(window.maestro.autorun.listImages).toHaveBeenCalled();
+				expect(window.openwizardai.autorun.listImages).toHaveBeenCalled();
 			});
 
 			expect(result.current.attachmentsList).toEqual([]);

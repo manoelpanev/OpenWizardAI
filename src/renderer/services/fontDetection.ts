@@ -3,7 +3,7 @@
  *
  * Three tiers, best first:
  *   1. `queryLocalFonts()` - Chromium's Local Font Access API. Native on every
- *      platform Maestro ships to, needs no external binary, and returns the
+ *      platform OpenWizardAI ships to, needs no external binary, and returns the
  *      real installed set. This is the tier that actually fixes detection on
  *      macOS and Windows.
  *   2. `fonts:detect` in the main process - fontconfig's fc-list, which is the
@@ -72,7 +72,7 @@ async function detectViaLocalFontAccess(): Promise<FontDetectionResult | null> {
 
 /** Ask the main process (fontconfig), when there is one. */
 async function detectViaMainProcess(): Promise<FontDetectionResult | null> {
-	const detect = window.maestro?.fonts?.detect;
+	const detect = window.openwizardai?.fonts?.detect;
 	if (typeof detect !== 'function') return null;
 
 	try {

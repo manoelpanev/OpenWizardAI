@@ -58,7 +58,7 @@ export async function requestAiCommand(options: {
 	});
 
 	try {
-		const result = await window.maestro.aiCommand.suggest({
+		const result = await window.openwizardai.aiCommand.suggest({
 			request,
 			agentType: session.toolType,
 			cwd: resolveCommandCwd(session),

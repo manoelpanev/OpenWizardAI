@@ -3,7 +3,7 @@
  * Refresh BMAD prompts
  *
  * Fetches the current BMAD workflow catalog and prompt sources from GitHub,
- * then regenerates the bundled Maestro prompt files and command catalog.
+ * then regenerates the bundled OpenWizardAI prompt files and command catalog.
  *
  * Usage: npm run refresh-bmad
  */
@@ -26,7 +26,7 @@ const REPO_NAME = 'BMAD-METHOD';
 // `workflow.md` files usable as paste-in slash-command prompts. v6.2.1+ moved to
 // a multi-file "skills" model (SKILL.md + steps + customize.toml) that depends on
 // a local `_bmad/` install and a python resolver script, so those prompts cannot
-// run standalone inside Maestro.
+// run standalone inside OpenWizardAI.
 const REPO_REF = 'v6.2.0';
 const RAW_BASE = `${RAW_GITHUB}/${REPO_OWNER}/${REPO_NAME}/${REPO_REF}`;
 
@@ -34,7 +34,7 @@ const MODULE_HELP_FILES = ['src/core/module-help.csv', 'src/bmm/module-help.csv'
 const REFERENCE_TOKEN_REGEX =
 	/`((?:\.\.?\/)?[A-Za-z0-9_./-]+\.md|\{project-root\}\/_bmad\/[^`]+\.md|\{installed_path\}\/[^`]+\.md)`/g;
 
-function applyMaestroPromptFixes(id, prompt) {
+function applyOpenWizardAIPromptFixes(id, prompt) {
 	let fixed = prompt;
 
 	if (id === 'code-review') {
@@ -109,7 +109,7 @@ function httpsGet(url, options = {}) {
 	return new Promise((resolve, reject) => {
 		const timeoutMs = options.timeoutMs ?? 15000;
 		const headers = {
-			'User-Agent': 'Maestro-BMAD-Refresher',
+			'User-Agent': 'OpenWizardAI-BMAD-Refresher',
 			Accept: 'application/vnd.github+json',
 			...options.headers,
 		};
@@ -223,7 +223,7 @@ function appendReferencedAssets(prompt, assets) {
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ${assets
 	.map(
@@ -364,7 +364,7 @@ function buildCatalog(rows, treePaths) {
 		} catch (error) {
 			// Some rows reference skills that have already migrated to the
 			// multi-file SKILL.md model (no self-contained workflow.md). Those
-			// can't be used as standalone Maestro prompts, so skip them.
+			// can't be used as standalone OpenWizardAI prompts, so skip them.
 			console.warn(`   Skipping ${rawCommand}: ${error.message}`);
 			continue;
 		}
@@ -472,7 +472,7 @@ async function refreshBmad() {
 	console.log('\n✏️  Writing prompt files...');
 	let updatedCount = 0;
 	for (const entry of catalog) {
-		const prompt = applyMaestroPromptFixes(
+		const prompt = applyOpenWizardAIPromptFixes(
 			entry.id,
 			await getText(`${RAW_BASE}/${entry.sourcePath}`)
 		);

@@ -16,7 +16,7 @@ import 'react-diff-view/style/index.css';
 
 export type GitDiffViewType = 'unified' | 'split';
 
-const VIEW_TYPE_STORAGE_KEY = 'maestro.gitDiffViewer.viewType';
+const VIEW_TYPE_STORAGE_KEY = 'openwizardai.gitDiffViewer.viewType';
 
 function readStoredViewType(): GitDiffViewType | null {
 	if (typeof window === 'undefined') return null;

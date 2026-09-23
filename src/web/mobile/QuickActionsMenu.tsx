@@ -30,7 +30,7 @@ export interface CommandPaletteAction {
 const CATEGORY_ORDER = ['Navigation', 'Agent', 'Auto Run', 'Group Chat', 'Cue', 'Settings', 'View'];
 
 /** localStorage key for recent actions */
-const RECENT_ACTIONS_KEY = 'maestro-command-palette-recent';
+const RECENT_ACTIONS_KEY = 'openwizardai-command-palette-recent';
 const MAX_RECENT_ACTIONS = 5;
 
 export interface QuickActionsMenuProps {

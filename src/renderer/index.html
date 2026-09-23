@@ -16,10 +16,10 @@
 		     violation whenever the renderer boots under Vite. -->
 		<meta
 			http-equiv="Content-Security-Policy"
-			content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' http://localhost:8097; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob: maestro-image:; connect-src 'self' https: wss: ws:; worker-src 'self' blob:; media-src 'self' blob: maestro-media:;"
+			content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' http://localhost:8097; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: https: blob: openwizardai-image:; connect-src 'self' https: wss: ws:; worker-src 'self' blob:; media-src 'self' blob: openwizardai-media:;"
 		/>
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>OpenWizzard - Agent Orchestration Command Center</title>
+		<title>OpenWizardAI - Agent Orchestration Command Center</title>
 
 		<!-- Fonts are bundled with the app (see scripts/fetch-webfonts.mjs) and
 		     declared by generated-fonts.css, which index.css imports. There is
@@ -150,11 +150,11 @@
 			<div class="splash-container">
 				<!-- Logo container with app icon -->
 				<div class="splash-logo">
-					<img src="/icon.png" alt="OpenWizzard" />
+					<img src="/icon.png" alt="OpenWizardAI" />
 				</div>
 
-				<!-- Maestro title -->
-				<h1 class="splash-title">OPENWIZZARD</h1>
+				<!-- OpenWizardAI title -->
+				<h1 class="splash-title">OPENWIZARDAI</h1>
 
 				<!-- Progress bar -->
 				<div class="splash-progress-container">
@@ -169,7 +169,7 @@
 		<div id="root"></div>
 
 		<!-- Polyfill `process` for vendor libs that touch it at runtime (must load
-			 before the ES-module entry below). See MAESTRO-K8. -->
+			 before the ES-module entry below). See OPENWIZARDAI-K8. -->
 		<script src="./process-shim.js"></script>
 
 		<!-- Splash screen progress animation (external for CSP compliance) -->

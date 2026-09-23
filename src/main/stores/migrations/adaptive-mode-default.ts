@@ -1,7 +1,7 @@
 /**
  * Adaptive Mode Default Migration
  *
- * One-shot backfill that turns Adaptive Mode (`enableMaestroP`) on for every
+ * One-shot backfill that turns Adaptive Mode (`enableOpenWizardAIP`) on for every
  * existing Claude Code agent that has NEVER configured a token source, matching
  * the new "default on for new agents" behavior (see `isAdaptiveModeDefaultOn`
  * in `src/shared/agentConstants.ts`). Agents with an explicit `false` (the user
@@ -18,7 +18,7 @@ import type Store from 'electron-store';
 import { isAdaptiveModeDefaultOn } from '../../../shared/agentConstants';
 import { logger } from '../../utils/logger';
 import { getSessionsStore } from '../getters';
-import type { MaestroSettings, StoredSession } from '../types';
+import type { OpenWizardAISettings, StoredSession } from '../types';
 
 /** Settings key marking the one-time Adaptive Mode default backfill as done. */
 export const ADAPTIVE_MODE_DEFAULT_MIGRATION_MARKER = 'migration_adaptiveModeDefaultV1';
@@ -27,7 +27,7 @@ export const ADAPTIVE_MODE_DEFAULT_MIGRATION_MARKER = 'migration_adaptiveModeDef
  * Enable Adaptive Mode on existing Claude Code agents once. Reads/writes the
  * sessions store directly; guarded by a marker in the passed settings store.
  */
-export function migrateAdaptiveModeDefault(store: Store<MaestroSettings>): void {
+export function migrateAdaptiveModeDefault(store: Store<OpenWizardAISettings>): void {
 	if (store.get(ADAPTIVE_MODE_DEFAULT_MIGRATION_MARKER)) {
 		return;
 	}
@@ -41,9 +41,9 @@ export function migrateAdaptiveModeDefault(store: Store<MaestroSettings>): void 
 		// `false` means the user deliberately picked API as their token source -
 		// forcing Adaptive Mode back on would silently revert their choice to
 		// Dynamic on the next app launch. `!== true` would wrongly catch both.
-		if (isAdaptiveModeDefaultOn(session.toolType) && session.enableMaestroP === undefined) {
+		if (isAdaptiveModeDefaultOn(session.toolType) && session.enableOpenWizardAIP === undefined) {
 			updated++;
-			return { ...session, enableMaestroP: true };
+			return { ...session, enableOpenWizardAIP: true };
 		}
 		return session;
 	});

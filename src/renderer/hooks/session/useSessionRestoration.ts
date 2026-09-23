@@ -22,7 +22,7 @@ import { generateId } from '../../utils/ids';
 import { rehydrateBrowserTab } from '../../utils/browserTabPersistence';
 import { getRepairedUnifiedTabOrder } from '../../utils/tabHelpers';
 import { isMediaStreamUrl } from '../../../shared/mediaTypes';
-import { PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 import { logger } from '../../utils/logger';
 
 /**
@@ -104,7 +104,7 @@ export function useSessionRestoration(): SessionRestorationReturn {
 	const validateAgentInBackground = useCallback(
 		async (sessionId: string, toolType: string, sshRemoteId: string | undefined) => {
 			try {
-				const agent = await window.maestro.agents.get(toolType, sshRemoteId);
+				const agent = await window.openwizardai.agents.get(toolType, sshRemoteId);
 				if (!agent) {
 					logger.error(`[validateAgentInBackground] Agent not found for toolType: ${toolType}`);
 					setSessions((prev) =>
@@ -558,7 +558,7 @@ export function useSessionRestoration(): SessionRestorationReturn {
 		const loadSessionsAndGroups = async () => {
 			try {
 				window.__updateSplash?.(50, 'Seating the musicians...');
-				const savedSessions = await window.maestro.sessions.getAll();
+				const savedSessions = await window.openwizardai.sessions.getAll();
 
 				// Handle sessions
 				if (savedSessions && savedSessions.length > 0) {
@@ -566,7 +566,7 @@ export function useSessionRestoration(): SessionRestorationReturn {
 					setSessions(restoredSessions);
 
 					// Restore persisted active session ID, falling back to first session.
-					const savedActiveSessionId = await window.maestro.sessions.getActiveSessionId();
+					const savedActiveSessionId = await window.openwizardai.sessions.getActiveSessionId();
 					if (savedActiveSessionId && restoredSessions.find((s) => s.id === savedActiveSessionId)) {
 						// Saved ID is valid - hydrate locally without writing back to disk
 						hydrateActiveSessionId(savedActiveSessionId);
@@ -622,7 +622,7 @@ export function useSessionRestoration(): SessionRestorationReturn {
 				//
 				// So: never persist a registry we never successfully read.
 				try {
-					const savedGroups = await window.maestro.groups.getAll();
+					const savedGroups = await window.openwizardai.groups.getAll();
 					setGroups(savedGroups && savedGroups.length > 0 ? savedGroups : []);
 					setGroupsLoaded(true);
 				} catch (groupsError) {
@@ -638,7 +638,7 @@ export function useSessionRestoration(): SessionRestorationReturn {
 
 				// Load group chats
 				try {
-					const savedGroupChats = await window.maestro.groupChat.list();
+					const savedGroupChats = await window.openwizardai.groupChat.list();
 					setGroupChats(savedGroupChats || []);
 				} catch (gcError) {
 					logger.error('Failed to load group chats:', undefined, gcError);

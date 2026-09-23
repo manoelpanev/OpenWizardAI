@@ -85,7 +85,7 @@ describe('EditAgentModal', () => {
 		mockUnregisterLayer.mockClear();
 		mockUpdateLayerHandler.mockClear();
 
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 			{
 				id: 'claude-code',
 				name: 'Claude Code',
@@ -95,16 +95,19 @@ describe('EditAgentModal', () => {
 				hidden: false,
 			} as AgentConfig,
 		]);
-		vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({
+		vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({
 			model: 'claude-sonnet',
 			contextWindow: 200000,
 		});
-		vi.mocked(window.maestro.agents.getModels).mockResolvedValue(['claude-sonnet', 'claude-opus']);
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([
+			'claude-sonnet',
+			'claude-opus',
+		]);
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [],
 		});
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: true,
 			isFile: false,
 			size: 0,
@@ -213,7 +216,10 @@ describe('EditAgentModal', () => {
 
 		// Save waits for the directory to be confirmed on disk.
 		await waitFor(() => {
-			expect(window.maestro.fs.stat).toHaveBeenCalledWith('/home/user/moved-project', undefined);
+			expect(window.openwizardai.fs.stat).toHaveBeenCalledWith(
+				'/home/user/moved-project',
+				undefined
+			);
 		});
 		await waitFor(() => {
 			expect(screen.getByText('Save Changes').closest('button')).not.toBeDisabled();
@@ -225,7 +231,7 @@ describe('EditAgentModal', () => {
 	});
 
 	it('should refuse a local working directory that does not exist', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue(null);
 
 		render(
 			<EditAgentModal
@@ -248,7 +254,7 @@ describe('EditAgentModal', () => {
 
 	it('should fill the working directory from the folder picker', async () => {
 		const selectFolder = vi.fn().mockResolvedValue('/picked/folder');
-		(window.maestro as any).dialog = { ...(window.maestro as any).dialog, selectFolder };
+		(window.openwizardai as any).dialog = { ...(window.openwizardai as any).dialog, selectFolder };
 
 		render(
 			<EditAgentModal
@@ -310,7 +316,7 @@ describe('EditAgentModal', () => {
 	});
 
 	it('should refuse a new SSH working directory the remote reports is not a directory', async () => {
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [
 				{
@@ -324,7 +330,7 @@ describe('EditAgentModal', () => {
 				},
 			],
 		});
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: false,
 			isFile: true,
 			size: 0,
@@ -476,9 +482,9 @@ describe('EditAgentModal', () => {
 			expect.anything(), // model
 			expect.anything(), // contextWindow
 			expect.objectContaining({ enabled: false }), // SSH disabled
-			undefined, // enableMaestroP
-			undefined, // maestroPPath
-			undefined, // maestroPMode
+			undefined, // enableOpenWizardAIP
+			undefined, // openwizardaiPPath
+			undefined, // openwizardaiPMode
 			true, // retryOnAvailabilityErrors
 			true, // retryOnTokenExhaustion
 			undefined, // customEnvVarsDisabled (nothing switched off)
@@ -659,7 +665,7 @@ describe('EditAgentModal', () => {
 			},
 		});
 
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [
 				{
@@ -708,9 +714,9 @@ describe('EditAgentModal', () => {
 				remoteId: 'remote-1',
 				workingDirOverride: '/home/devuser/my-project',
 			}),
-			undefined, // enableMaestroP
-			undefined, // maestroPPath
-			undefined, // maestroPMode
+			undefined, // enableOpenWizardAIP
+			undefined, // openwizardaiPPath
+			undefined, // openwizardaiPMode
 			true, // retryOnAvailabilityErrors
 			true, // retryOnTokenExhaustion
 			undefined, // customEnvVarsDisabled (nothing switched off)
@@ -731,7 +737,7 @@ describe('EditAgentModal', () => {
 			},
 		});
 
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [
 				{
@@ -780,9 +786,9 @@ describe('EditAgentModal', () => {
 				remoteId: 'remote-1',
 				workingDirOverride: '/explicit/remote/path',
 			}),
-			undefined, // enableMaestroP
-			undefined, // maestroPPath
-			undefined, // maestroPMode
+			undefined, // enableOpenWizardAIP
+			undefined, // openwizardaiPPath
+			undefined, // openwizardaiPMode
 			true, // retryOnAvailabilityErrors
 			true, // retryOnTokenExhaustion
 			undefined, // customEnvVarsDisabled (nothing switched off)
@@ -806,7 +812,7 @@ describe('EditAgentModal', () => {
 			},
 		});
 
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [
 				{
@@ -858,9 +864,9 @@ describe('EditAgentModal', () => {
 				remoteId: null,
 				shareHistoryToProjectDir: true,
 			}),
-			undefined, // enableMaestroP
-			undefined, // maestroPPath
-			undefined, // maestroPMode
+			undefined, // enableOpenWizardAIP
+			undefined, // openwizardaiPPath
+			undefined, // openwizardaiPMode
 			true, // retryOnAvailabilityErrors
 			true, // retryOnTokenExhaustion
 			undefined, // customEnvVarsDisabled (nothing switched off)
@@ -869,7 +875,7 @@ describe('EditAgentModal', () => {
 	});
 
 	it('should render SSH remote selector when remotes exist', async () => {
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [
 				{

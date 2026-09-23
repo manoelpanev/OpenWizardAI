@@ -855,8 +855,8 @@ describe('PlaygroundPanel', () => {
 			expect(screen.getByText('Collapsed:')).toBeInTheDocument();
 		});
 
-		it('displays MAESTRO text in large preview', () => {
-			const elements = screen.getAllByText('MAESTRO');
+		it('displays OPENWIZARDAI text in large preview', () => {
+			const elements = screen.getAllByText('OPENWIZARDAI');
 			expect(elements.length).toBeGreaterThanOrEqual(1);
 		});
 

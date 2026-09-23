@@ -116,7 +116,7 @@ export function usePlaybookManagement(
 		const loadPlaybooks = async () => {
 			setLoadingPlaybooks(true);
 			try {
-				const result = await window.maestro.playbooks.list(sessionId);
+				const result = await window.openwizardai.playbooks.list(sessionId);
 				if (result.success) {
 					setPlaybooks(result.playbooks);
 				}
@@ -220,7 +220,7 @@ export function usePlaybookManagement(
 		if (!playbookToDelete) return;
 
 		try {
-			const result = await window.maestro.playbooks.delete(sessionId, playbookToDelete.id);
+			const result = await window.openwizardai.playbooks.delete(sessionId, playbookToDelete.id);
 			if (result.success) {
 				setPlaybooks((prev) => prev.filter((p) => p.id !== playbookToDelete.id));
 				// If the deleted playbook was loaded, clear it
@@ -246,7 +246,11 @@ export function usePlaybookManagement(
 	const handleExportPlaybook = useCallback(
 		async (playbook: Playbook) => {
 			try {
-				const result = await window.maestro.playbooks.export(sessionId, playbook.id, folderPath);
+				const result = await window.openwizardai.playbooks.export(
+					sessionId,
+					playbook.id,
+					folderPath
+				);
 				if (!result.success && result.error !== 'Export cancelled') {
 					logger.error('Failed to export playbook:', undefined, result.error);
 				}
@@ -260,7 +264,7 @@ export function usePlaybookManagement(
 	// Handle importing a playbook
 	const handleImportPlaybook = useCallback(async () => {
 		try {
-			const result = await window.maestro.playbooks.import(sessionId, folderPath);
+			const result = await window.openwizardai.playbooks.import(sessionId, folderPath);
 			if (result.success && result.playbook) {
 				// Add to local playbooks list
 				setPlaybooks((prev) => [...prev, result.playbook]);
@@ -285,7 +289,7 @@ export function usePlaybookManagement(
 
 				// Build playbook data
 				// Note: Worktree settings are no longer stored in playbooks - see WorktreeConfigModal
-				const playbookData: Parameters<typeof window.maestro.playbooks.create>[1] = {
+				const playbookData: Parameters<typeof window.openwizardai.playbooks.create>[1] = {
 					name,
 					documents: documents.map((d) => ({
 						filename: d.filename,
@@ -297,7 +301,7 @@ export function usePlaybookManagement(
 					taskSelectionMode,
 				};
 
-				const result = await window.maestro.playbooks.create(sessionId, playbookData);
+				const result = await window.openwizardai.playbooks.create(sessionId, playbookData);
 
 				if (result.success) {
 					setPlaybooks((prev) => [...prev, result.playbook]);
@@ -322,7 +326,7 @@ export function usePlaybookManagement(
 
 			// Build update data
 			// Note: Worktree settings are no longer stored in playbooks - see WorktreeConfigModal
-			const updateData: Parameters<typeof window.maestro.playbooks.update>[2] = {
+			const updateData: Parameters<typeof window.openwizardai.playbooks.update>[2] = {
 				documents: documents.map((d) => ({
 					filename: d.filename,
 					resetOnCompletion: d.resetOnCompletion,
@@ -334,7 +338,7 @@ export function usePlaybookManagement(
 				updatedAt: Date.now(),
 			};
 
-			const result = await window.maestro.playbooks.update(
+			const result = await window.openwizardai.playbooks.update(
 				sessionId,
 				loadedPlaybook.id,
 				updateData

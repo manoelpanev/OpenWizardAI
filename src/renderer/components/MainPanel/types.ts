@@ -353,7 +353,7 @@ export interface MainPanelProps {
 	// Document Graph
 	onOpenInGraph?: () => void;
 
-	/** Open the currently previewed file in a new Maestro browser tab. */
+	/** Open the currently previewed file in a new OpenWizardAI browser tab. */
 	onOpenInBrowser?: () => void;
 
 	// Wizard document generation callbacks

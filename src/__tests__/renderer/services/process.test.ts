@@ -13,7 +13,7 @@ import {
 	ProcessSessionIdHandler,
 } from '../../../renderer/services/process';
 
-// Mock the window.maestro.process object
+// Mock the window.openwizardai.process object
 const mockProcess = {
 	spawn: vi.fn(),
 	write: vi.fn(),
@@ -29,9 +29,9 @@ const mockProcess = {
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	// Ensure window.maestro.process is mocked
-	(window as any).maestro = {
-		...(window as any).maestro,
+	// Ensure window.openwizardai.process is mocked
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		process: mockProcess,
 	};
 

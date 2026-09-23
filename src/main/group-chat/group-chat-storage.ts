@@ -2,7 +2,7 @@
  * @file group-chat-storage.ts
  * @description Storage utilities for Group Chat feature.
  *
- * Group chats are stored in the Maestro config directory under 'group-chats/'.
+ * Group chats are stored in the OpenWizardAI config directory under 'group-chats/'.
  * Each group chat has its own directory containing:
  * - metadata.json: GroupChat metadata
  * - chat.log: Pipe-delimited message log
@@ -36,7 +36,7 @@ const enqueueWrite = <T>(chatId: string, fn: () => Promise<T>): Promise<T> =>
 import type { BootstrapSettings } from '../stores/types';
 
 const bootstrapStore = new Store<BootstrapSettings>({
-	name: 'maestro-bootstrap',
+	name: 'openwizardai-bootstrap',
 	defaults: {},
 });
 
@@ -88,7 +88,7 @@ export interface GroupChat {
 	archived?: boolean;
 	/**
 	 * When true (the default), the moderator only hands work to an agent whose
-	 * Maestro agent is idle. Undefined means enabled - read it through
+	 * OpenWizardAI agent is idle. Undefined means enabled - read it through
 	 * `requiresIdleParticipants()` in shared/group-chat-types.
 	 */
 	requireIdleParticipants?: boolean;
@@ -113,7 +113,7 @@ export type GroupChatUpdate = Partial<
 >;
 
 /**
- * Get the Maestro config directory path.
+ * Get the OpenWizardAI config directory path.
  * Uses custom sync path if configured, otherwise falls back to Electron's userData.
  * This respects both the custom storage location setting and demo mode.
  */

@@ -3,14 +3,14 @@ import {
 	resolveClaudeSpawnMode,
 	applyClaudeSpawnDecision,
 	buildRemoteInteractiveSpawn,
-	REMOTE_MAESTRO_P_COMMAND,
+	REMOTE_OPENWIZARDAI_P_COMMAND,
 	type ResolveClaudeSpawnModeDeps,
 } from '../../../main/agents/resolveClaudeSpawnMode';
 import type { UsageSnapshot } from '../../../main/agents/claude-mode-selector';
 
 const claudeAgent = {
 	id: 'claude-code',
-	interactiveCommand: 'maestro-p',
+	interactiveCommand: 'openwizardai-p',
 	interactiveModeArgs: ['--dangerously-skip-permissions'],
 	defaultEnvVars: {},
 };
@@ -45,14 +45,14 @@ function makeDeps(
 	over: Partial<ResolveClaudeSpawnModeDeps> = {}
 ): Partial<ResolveClaudeSpawnModeDeps> {
 	return {
-		getMaestroPBinPath: () => '/bundled/maestro-p.js',
-		isMaestroPBinaryPath: (p) => !!p && p.includes('maestro-p'),
+		getOpenWizardAIPBinPath: () => '/bundled/openwizardai-p.js',
+		isOpenWizardAIPBinaryPath: (p) => !!p && p.includes('openwizardai-p'),
 		resolveConfigDirKey: () => 'key',
 		getUsageSnapshot: () => healthySnapshot(),
 		fileExists: () => true,
 		// Default to "unknown" so remote interactive stays optimistic unless a test
 		// pins a probe result.
-		getRemoteMaestroPAvailable: () => undefined,
+		getRemoteOpenWizardAIPAvailable: () => undefined,
 		...over,
 	};
 }
@@ -68,7 +68,7 @@ describe('resolveClaudeSpawnMode', () => {
 			deps: makeDeps(),
 		});
 		expect(r.mode).toBe('api');
-		expect(r.maestroPBinPath).toBeNull();
+		expect(r.openwizardaiPBinPath).toBeNull();
 	});
 
 	it('SSH-enabled claude with api token mode stays on API', () => {
@@ -95,9 +95,9 @@ describe('resolveClaudeSpawnMode', () => {
 		});
 		expect(r.mode).toBe('interactive');
 		expect(r.remote).toBe(true);
-		// No LOCAL maestro-p script is used for remote spawns; maestro-p runs on
+		// No LOCAL openwizardai-p script is used for remote spawns; openwizardai-p runs on
 		// the remote host.
-		expect(r.maestroPBinPath).toBeNull();
+		expect(r.openwizardaiPBinPath).toBeNull();
 	});
 
 	it('SSH-enabled claude with dynamic token mode falls back to API (no remote quota signal)', () => {
@@ -116,7 +116,7 @@ describe('resolveClaudeSpawnMode', () => {
 		expect(r.remote).toBeFalsy();
 	});
 
-	it('SSH-enabled interactive falls back to API when the remote has no maestro-p (known-absent)', () => {
+	it('SSH-enabled interactive falls back to API when the remote has no openwizardai-p (known-absent)', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
@@ -124,16 +124,16 @@ describe('resolveClaudeSpawnMode', () => {
 			sshRemoteId: 'remote-1',
 			command: 'claude',
 			now: NOW,
-			// Probe determined maestro-p is NOT on the remote PATH: spawning it would
+			// Probe determined openwizardai-p is NOT on the remote PATH: spawning it would
 			// exit 127 on every turn, so the resolver must fall back to API.
-			deps: makeDeps({ getRemoteMaestroPAvailable: () => false }),
+			deps: makeDeps({ getRemoteOpenWizardAIPAvailable: () => false }),
 		});
 		expect(r.mode).toBe('api');
 		expect(r.remote).toBeFalsy();
-		expect(r.maestroPBinPath).toBeNull();
+		expect(r.openwizardaiPBinPath).toBeNull();
 	});
 
-	it('SSH-enabled interactive stays remote when the remote has maestro-p (known-present)', () => {
+	it('SSH-enabled interactive stays remote when the remote has openwizardai-p (known-present)', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
@@ -141,13 +141,13 @@ describe('resolveClaudeSpawnMode', () => {
 			sshRemoteId: 'remote-1',
 			command: 'claude',
 			now: NOW,
-			deps: makeDeps({ getRemoteMaestroPAvailable: () => true }),
+			deps: makeDeps({ getRemoteOpenWizardAIPAvailable: () => true }),
 		});
 		expect(r.mode).toBe('interactive');
 		expect(r.remote).toBe(true);
 	});
 
-	it('SSH-enabled interactive stays remote when remote maestro-p availability is unknown (optimistic)', () => {
+	it('SSH-enabled interactive stays remote when remote openwizardai-p availability is unknown (optimistic)', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
@@ -155,7 +155,7 @@ describe('resolveClaudeSpawnMode', () => {
 			sshRemoteId: 'remote-1',
 			command: 'claude',
 			now: NOW,
-			deps: makeDeps({ getRemoteMaestroPAvailable: () => undefined }),
+			deps: makeDeps({ getRemoteOpenWizardAIPAvailable: () => undefined }),
 		});
 		expect(r.mode).toBe('interactive');
 		expect(r.remote).toBe(true);
@@ -175,51 +175,51 @@ describe('resolveClaudeSpawnMode', () => {
 		expect(r.claudeRealBinPath).toBe('/remote/bin/claude');
 	});
 
-	it('SSH remote interactive does NOT forward a maestro-p custom path as the real bin (self-spawn guard)', () => {
-		// Regression: when the agent's binary IS maestro-p, forwarding it as
-		// MAESTRO_CLAUDE_BIN makes the remote maestro-p drive itself in the PTY -
+	it('SSH remote interactive does NOT forward a openwizardai-p custom path as the real bin (self-spawn guard)', () => {
+		// Regression: when the agent's binary IS openwizardai-p, forwarding it as
+		// OPENWIZARDAI_CLAUDE_BIN makes the remote openwizardai-p drive itself in the PTY -
 		// the claude child exits instantly and the turn dies as `tui_exited`.
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
 			sshEnabled: true,
 			command: 'claude',
-			sessionCustomPath: '/usr/local/bin/maestro-p',
+			sessionCustomPath: '/usr/local/bin/openwizardai-p',
 			now: NOW,
 			deps: makeDeps(),
 		});
 		expect(r.remote).toBe(true);
-		// Undefined → remote maestro-p defaults to `claude` on its PATH.
+		// Undefined → remote openwizardai-p defaults to `claude` on its PATH.
 		expect(r.claudeRealBinPath).toBeUndefined();
 	});
 
-	it('local interactive does NOT use a maestro-p custom path as the real bin (self-spawn guard)', () => {
+	it('local interactive does NOT use a openwizardai-p custom path as the real bin (self-spawn guard)', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
 			sshEnabled: false,
 			command: 'claude',
-			sessionCustomPath: '/custom/maestro-p',
+			sessionCustomPath: '/custom/openwizardai-p',
 			now: NOW,
 			deps: makeDeps(),
 		});
 		expect(r.mode).toBe('interactive');
-		// Falls back to the resolved command (real claude), not the maestro-p path.
+		// Falls back to the resolved command (real claude), not the openwizardai-p path.
 		expect(r.claudeRealBinPath).toBe('claude');
 	});
 
-	it('local interactive with maestro-p as BOTH command and custom path leaves the real bin unset', () => {
+	it('local interactive with openwizardai-p as BOTH command and custom path leaves the real bin unset', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
 			sshEnabled: false,
-			command: '/custom/maestro-p',
-			sessionCustomPath: '/custom/maestro-p',
+			command: '/custom/openwizardai-p',
+			sessionCustomPath: '/custom/openwizardai-p',
 			now: NOW,
 			deps: makeDeps(),
 		});
 		expect(r.mode).toBe('interactive');
-		// Both are maestro-p → undefined so maestro-p defaults to `claude` on PATH.
+		// Both are openwizardai-p → undefined so openwizardai-p defaults to `claude` on PATH.
 		expect(r.claudeRealBinPath).toBeUndefined();
 	});
 
@@ -233,7 +233,7 @@ describe('resolveClaudeSpawnMode', () => {
 			deps: makeDeps(),
 		});
 		expect(r.mode).toBe('api');
-		expect(r.maestroPBinPath).toBeNull();
+		expect(r.openwizardaiPBinPath).toBeNull();
 	});
 
 	it('interactive mode always resolves to interactive regardless of usage', () => {
@@ -246,7 +246,7 @@ describe('resolveClaudeSpawnMode', () => {
 			deps: makeDeps({ getUsageSnapshot: () => limitedSnapshot() }),
 		});
 		expect(r.mode).toBe('interactive');
-		expect(r.maestroPBinPath).toBe('/bundled/maestro-p.js');
+		expect(r.openwizardaiPBinPath).toBe('/bundled/openwizardai-p.js');
 		expect(r.claudeRealBinPath).toBe('/bin/claude');
 	});
 
@@ -290,32 +290,32 @@ describe('resolveClaudeSpawnMode', () => {
 		expect(r.reason).toBe('limit');
 	});
 
-	it('falls back to api when the maestro-p binary cannot be found', () => {
+	it('falls back to api when the openwizardai-p binary cannot be found', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'interactive',
 			sshEnabled: false,
 			command: 'claude',
 			now: NOW,
-			deps: makeDeps({ getMaestroPBinPath: () => null, fileExists: () => false }),
+			deps: makeDeps({ getOpenWizardAIPBinPath: () => null, fileExists: () => false }),
 		});
 		expect(r.mode).toBe('api');
-		expect(r.maestroPBinPath).toBeNull();
+		expect(r.openwizardaiPBinPath).toBeNull();
 	});
 
-	it('detects a maestro-p binary wired directly into the Path under api mode', () => {
+	it('detects a openwizardai-p binary wired directly into the Path under api mode', () => {
 		const r = resolveClaudeSpawnMode({
 			agent: claudeAgent,
 			tokenMode: 'api',
 			sshEnabled: false,
-			command: '/custom/maestro-p',
-			sessionCustomPath: '/custom/maestro-p',
+			command: '/custom/openwizardai-p',
+			sessionCustomPath: '/custom/openwizardai-p',
 			now: NOW,
 			deps: makeDeps(),
 		});
 		expect(r.mode).toBe('interactive');
 		expect(r.directBinary).toBe(true);
-		expect(r.maestroPBinPath).toBeNull();
+		expect(r.openwizardaiPBinPath).toBeNull();
 		expect(r.configDirKey).toBe('key');
 	});
 
@@ -335,12 +335,12 @@ describe('resolveClaudeSpawnMode', () => {
 });
 
 describe('applyClaudeSpawnDecision (batch surfaces)', () => {
-	it('runs maestro-p via execPath, prepends its flags, preserves the prompt args, and injects MAESTRO_CLAUDE_BIN + ELECTRON_RUN_AS_NODE', () => {
+	it('runs openwizardai-p via execPath, prepends its flags, preserves the prompt args, and injects OPENWIZARDAI_CLAUDE_BIN + ELECTRON_RUN_AS_NODE', () => {
 		const result = applyClaudeSpawnDecision({
 			decision: {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: '/bundled/maestro-p.js',
+				openwizardaiPBinPath: '/bundled/openwizardai-p.js',
 				claudeRealBinPath: '/bin/claude',
 			},
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
@@ -350,10 +350,10 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 			execPath: '/usr/bin/node',
 		});
 		expect(result.command).toBe('/usr/bin/node');
-		// maestro-p script + its flags prepended; the original args (incl. the
-		// prompt after `--`) are forwarded verbatim for maestro-p to parse.
+		// openwizardai-p script + its flags prepended; the original args (incl. the
+		// prompt after `--`) are forwarded verbatim for openwizardai-p to parse.
 		expect(result.args).toEqual([
-			'/bundled/maestro-p.js',
+			'/bundled/openwizardai-p.js',
 			'--dangerously-skip-permissions',
 			'--print',
 			'--verbose',
@@ -364,22 +364,22 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 		]);
 		// ELECTRON_RUN_AS_NODE=1 is mandatory: command is `process.execPath` (the
 		// Electron binary in a packaged app), which would otherwise launch a GUI
-		// instead of running maestro-p.js as Node. NODE_PATH is only added when
+		// instead of running openwizardai-p.js as Node. NODE_PATH is only added when
 		// `process.resourcesPath` is set (packaged); in the test env it is not, so
 		// it must be absent here.
 		expect(result.customEnvVars).toEqual({
 			FOO: 'bar',
-			MAESTRO_CLAUDE_BIN: '/bin/claude',
+			OPENWIZARDAI_CLAUDE_BIN: '/bin/claude',
 			ELECTRON_RUN_AS_NODE: '1',
 		});
 	});
 
-	it('injects --max-wait (rounded up) before the maestro-p flags when maxWaitSeconds is given', () => {
+	it('injects --max-wait (rounded up) before the openwizardai-p flags when maxWaitSeconds is given', () => {
 		const result = applyClaudeSpawnDecision({
 			decision: {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: '/bundled/maestro-p.js',
+				openwizardaiPBinPath: '/bundled/openwizardai-p.js',
 				claudeRealBinPath: '/bin/claude',
 			},
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
@@ -392,7 +392,7 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 		// terminate with `-- <prompt>` (anything after `--` is read as the prompt
 		// positional, not a flag). Value is ceil()'d to a whole second.
 		expect(result.args).toEqual([
-			'/bundled/maestro-p.js',
+			'/bundled/openwizardai-p.js',
 			'--max-wait',
 			'3600',
 			'--dangerously-skip-permissions',
@@ -407,7 +407,7 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 			decision: {
 				mode: 'interactive' as const,
 				reason: 'auto' as const,
-				maestroPBinPath: '/bundled/maestro-p.js',
+				openwizardaiPBinPath: '/bundled/openwizardai-p.js',
 				claudeRealBinPath: '/bin/claude',
 			},
 			interactiveModeArgs: [],
@@ -416,13 +416,13 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 			execPath: '/usr/bin/node',
 		};
 		expect(applyClaudeSpawnDecision(base).args).toEqual([
-			'/bundled/maestro-p.js',
+			'/bundled/openwizardai-p.js',
 			'--print',
 			'--',
 			'hi',
 		]);
 		expect(applyClaudeSpawnDecision({ ...base, maxWaitSeconds: 0 }).args).toEqual([
-			'/bundled/maestro-p.js',
+			'/bundled/openwizardai-p.js',
 			'--print',
 			'--',
 			'hi',
@@ -434,20 +434,20 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 		try {
 			// Simulate a packaged app: resourcesPath points at the app Resources dir.
 			Object.defineProperty(process, 'resourcesPath', {
-				value: '/Applications/Maestro.app/Contents/Resources',
+				value: '/Applications/OpenWizardAI.app/Contents/Resources',
 				configurable: true,
 			});
 			const result = applyClaudeSpawnDecision({
 				decision: {
 					mode: 'interactive',
 					reason: 'auto',
-					maestroPBinPath: '/res/maestro-p.js',
+					openwizardaiPBinPath: '/res/openwizardai-p.js',
 					claudeRealBinPath: '/bin/claude',
 				},
 				interactiveModeArgs: [],
 				command: 'claude',
 				args: ['--print', '--', 'hi'],
-				execPath: '/Applications/Maestro.app/Contents/MacOS/Maestro',
+				execPath: '/Applications/OpenWizardAI.app/Contents/MacOS/OpenWizardAI',
 			});
 			expect(result.customEnvVars?.ELECTRON_RUN_AS_NODE).toBe('1');
 			// NODE_PATH must point at the IN-ASAR node_modules, not the unpacked
@@ -455,7 +455,7 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 			// spawn-helper, so handing it the unpacked path double-applies and the
 			// helper exec fails (posix_spawn ENOENT).
 			expect(result.customEnvVars?.NODE_PATH).toBe(
-				'/Applications/Maestro.app/Contents/Resources/app.asar/node_modules'
+				'/Applications/OpenWizardAI.app/Contents/Resources/app.asar/node_modules'
 			);
 		} finally {
 			Object.defineProperty(process, 'resourcesPath', {
@@ -467,7 +467,7 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 
 	it('passes through unchanged for api mode', () => {
 		const result = applyClaudeSpawnDecision({
-			decision: { mode: 'api', reason: 'auto', maestroPBinPath: null },
+			decision: { mode: 'api', reason: 'auto', openwizardaiPBinPath: null },
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 			command: 'claude',
 			args: ['--print', '--', 'hi'],
@@ -481,14 +481,14 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 			decision: {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: null,
+				openwizardaiPBinPath: null,
 				directBinary: true,
 			},
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
-			command: '/custom/maestro-p',
+			command: '/custom/openwizardai-p',
 			args: ['--print', '--', 'hi'],
 		});
-		expect(result.command).toBe('/custom/maestro-p');
+		expect(result.command).toBe('/custom/openwizardai-p');
 		expect(result.args).toEqual(['--print', '--', 'hi']);
 	});
 });
@@ -496,7 +496,7 @@ describe('applyClaudeSpawnDecision (batch surfaces)', () => {
 describe('buildRemoteInteractiveSpawn (SSH remote surfaces)', () => {
 	it('returns null for an API decision (leave SSH config untouched)', () => {
 		const result = buildRemoteInteractiveSpawn({
-			decision: { mode: 'api', reason: 'auto', maestroPBinPath: null },
+			decision: { mode: 'api', reason: 'auto', openwizardaiPBinPath: null },
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 		});
 		expect(result).toBeNull();
@@ -507,44 +507,44 @@ describe('buildRemoteInteractiveSpawn (SSH remote surfaces)', () => {
 			decision: {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: '/bundled/maestro-p.js',
+				openwizardaiPBinPath: '/bundled/openwizardai-p.js',
 			},
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 		});
 		expect(result).toBeNull();
 	});
 
-	it('swaps the command to maestro-p and prepends the interactive flags for a remote decision', () => {
+	it('swaps the command to openwizardai-p and prepends the interactive flags for a remote decision', () => {
 		const result = buildRemoteInteractiveSpawn({
-			decision: { mode: 'interactive', reason: 'auto', maestroPBinPath: null, remote: true },
+			decision: { mode: 'interactive', reason: 'auto', openwizardaiPBinPath: null, remote: true },
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 		});
 		expect(result).not.toBeNull();
-		expect(result!.command).toBe(REMOTE_MAESTRO_P_COMMAND);
+		expect(result!.command).toBe(REMOTE_OPENWIZARDAI_P_COMMAND);
 		expect(result!.prependArgs).toEqual(['--dangerously-skip-permissions']);
-		// No MAESTRO_CLAUDE_BIN when no custom remote claude path: maestro-p
+		// No OPENWIZARDAI_CLAUDE_BIN when no custom remote claude path: openwizardai-p
 		// defaults to `claude` on the remote PATH.
 		expect(result!.env).toEqual({});
 	});
 
-	it('points MAESTRO_CLAUDE_BIN at a custom remote claude path when provided', () => {
+	it('points OPENWIZARDAI_CLAUDE_BIN at a custom remote claude path when provided', () => {
 		const result = buildRemoteInteractiveSpawn({
 			decision: {
 				mode: 'interactive',
 				reason: 'auto',
-				maestroPBinPath: null,
+				openwizardaiPBinPath: null,
 				remote: true,
 				claudeRealBinPath: '/remote/bin/claude',
 			},
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 			remoteClaudeBin: '/remote/bin/claude',
 		});
-		expect(result!.env).toEqual({ MAESTRO_CLAUDE_BIN: '/remote/bin/claude' });
+		expect(result!.env).toEqual({ OPENWIZARDAI_CLAUDE_BIN: '/remote/bin/claude' });
 	});
 
 	it('injects --max-wait ahead of the interactive flags for background surfaces', () => {
 		const result = buildRemoteInteractiveSpawn({
-			decision: { mode: 'interactive', reason: 'auto', maestroPBinPath: null, remote: true },
+			decision: { mode: 'interactive', reason: 'auto', openwizardaiPBinPath: null, remote: true },
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 			maxWaitSeconds: 600,
 		});
@@ -553,7 +553,7 @@ describe('buildRemoteInteractiveSpawn (SSH remote surfaces)', () => {
 
 	it('omits --max-wait when no positive budget is given', () => {
 		const result = buildRemoteInteractiveSpawn({
-			decision: { mode: 'interactive', reason: 'auto', maestroPBinPath: null, remote: true },
+			decision: { mode: 'interactive', reason: 'auto', openwizardaiPBinPath: null, remote: true },
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 			maxWaitSeconds: 0,
 		});

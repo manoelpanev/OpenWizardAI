@@ -1,5 +1,5 @@
 /**
- * SettingsPanel component for Maestro mobile web interface
+ * SettingsPanel component for OpenWizardAI mobile web interface
  *
  * Full-screen settings panel for configuring appearance, behavior, and profile.
  * Follows the same layout pattern as AllSessionsView (full-screen overlay).

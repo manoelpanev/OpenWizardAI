@@ -1,7 +1,7 @@
 // List sessions command
-// Lists agent sessions for a given Maestro agent.
+// Lists agent sessions for a given OpenWizardAI agent.
 // Claude Code: reads rich session data from ~/.claude/projects/ on disk.
-// Other agents (Codex, OpenCode, etc.): lists aiTabs from Maestro's session store.
+// Other agents (Codex, OpenCode, etc.): lists aiTabs from OpenWizardAI's session store.
 //
 // Both paths report the SAME conversation figures. `computeTabConversationStats`
 // is the one definition of "how many messages, over how long", shared with the
@@ -26,7 +26,7 @@ interface ListSessionsOptions {
 const DISK_SESSION_TYPES: ToolType[] = ['claude-code'];
 
 /**
- * An AI tab as it sits in `maestro-sessions.json`.
+ * An AI tab as it sits in `openwizardai-sessions.json`.
  *
  * Deliberately loose: this is JSON off disk, not a live `AITab`, so every field
  * is optional and the log entries may be missing a `source` or a `timestamp`.
@@ -97,11 +97,11 @@ function indexTabStatsBySessionId(tabs: StoredAiTab[]): Map<string, TabSessionSt
 }
 
 /**
- * Replace the disk-derived counts with the tab's own wherever Maestro has the
+ * Replace the disk-derived counts with the tab's own wherever OpenWizardAI has the
  * conversation in hand.
  *
  * The Claude path derives its figures by scanning `~/.claude/projects/*.jsonl`,
- * which is the ONLY record for a session Maestro never rendered - a session
+ * which is the ONLY record for a session OpenWizardAI never rendered - a session
  * started in a bare terminal, or one from before this install. But where a tab
  * does exist, its logs are literally what the Context Details popover counts,
  * so preferring them is what makes the CLI and the app agree. The JSONL
@@ -126,7 +126,7 @@ function overlayTabConversationStats(
 }
 
 /**
- * List sessions from Maestro's aiTabs for non-Claude agents.
+ * List sessions from OpenWizardAI's aiTabs for non-Claude agents.
  * Reads stored session data (aiTabs with agentSessionId, usage, etc.)
  * and formats it as SessionDisplay entries.
  */

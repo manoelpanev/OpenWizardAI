@@ -1,5 +1,5 @@
 /**
- * AllSessionsView component for Maestro mobile web interface
+ * AllSessionsView component for OpenWizardAI mobile web interface
  *
  * A full-screen view displaying all sessions as larger cards.
  * This view is triggered when:

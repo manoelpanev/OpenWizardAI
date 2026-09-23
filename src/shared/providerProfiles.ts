@@ -32,7 +32,7 @@ export interface ProviderProfileConfig {
  * Providers whose agents can be split across accounts.
  *
  * A provider absent from this map has exactly one profile - itself. That is a
- * statement about what Maestro can currently attribute, not about what the CLI
+ * statement about what OpenWizardAI can currently attribute, not about what the CLI
  * supports: adding an entry here immediately splits that provider's agents in
  * every surface built on this module.
  */
@@ -190,7 +190,7 @@ export function providerProfileLabel(toolType: string, accountKey: string | null
 }
 
 /**
- * The custom env vars an agent's process actually receives from Maestro.
+ * The custom env vars an agent's process actually receives from OpenWizardAI.
  *
  * The agent's own vars REPLACE the provider-level set; they do not layer over
  * it. That is what `applyAgentConfigOverrides()` and the CLI's

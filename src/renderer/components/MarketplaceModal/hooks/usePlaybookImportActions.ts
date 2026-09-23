@@ -70,7 +70,7 @@ export function usePlaybookImportActions({
 
 	const handleBrowseFolder = useCallback(async () => {
 		if (isRemoteSession) return;
-		const folder = await window.maestro.dialog.selectFolder();
+		const folder = await window.openwizardai.dialog.selectFolder();
 		if (folder) {
 			setTargetFolderName(folder);
 		}

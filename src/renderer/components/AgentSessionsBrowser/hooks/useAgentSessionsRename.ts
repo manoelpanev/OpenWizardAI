@@ -91,13 +91,13 @@ export function useAgentSessionsRename({
 			const trimmedName = renameValue.trim();
 			try {
 				if (agentId === 'claude-code') {
-					await window.maestro.claude.updateSessionName(
+					await window.openwizardai.claude.updateSessionName(
 						activeSession.projectRoot,
 						sessionId,
 						trimmedName
 					);
 				} else {
-					await window.maestro.agentSessions.setSessionName(
+					await window.openwizardai.agentSessions.setSessionName(
 						agentId,
 						activeSession.projectRoot,
 						sessionId,

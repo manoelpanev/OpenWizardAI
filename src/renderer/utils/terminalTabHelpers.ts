@@ -1,4 +1,4 @@
-// Terminal tab helper functions - pure functions for managing TerminalTab state in Maestro sessions.
+// Terminal tab helper functions - pure functions for managing TerminalTab state in OpenWizardAI sessions.
 // Follows the same pattern as tabHelpers.ts: take a Session, return a new Session (immutable).
 // No React hooks, no side effects, no IPC.
 
@@ -124,7 +124,7 @@ export function resolveTerminalTab(
 // ─── Session ID Helpers ──────────────────────────────────────────────────────
 
 /**
- * Get the composite terminal session ID that identifies a specific terminal tab within a Maestro session.
+ * Get the composite terminal session ID that identifies a specific terminal tab within an OpenWizardAI session.
  * Format: "{sessionId}-terminal-{tabId}"
  * Distinguishes terminal sessions from AI sessions ("{sessionId}-ai-{tabId}").
  */
@@ -172,7 +172,7 @@ export interface AddTerminalTabOptions {
  * would select a tab the user cannot see. A BACKGROUND add deliberately leaves
  * the mode alone - flipping an agent into terminal mode is itself a view change.
  *
- * @param session - The Maestro session to add the tab to
+ * @param session - The OpenWizardAI session to add the tab to
  * @param tab - The TerminalTab to add (created via createTerminalTab)
  * @param options - Placement options; pass `{ activate: false }` for a background tab
  * @returns New session with the tab added
@@ -197,7 +197,7 @@ export function addTerminalTab(
  * When closing the last terminal tab, switches inputMode back to 'ai'.
  * When closing the active terminal tab, selects the adjacent tab to the left (or right if at index 0).
  *
- * @param session - The Maestro session containing the terminal tab
+ * @param session - The OpenWizardAI session containing the terminal tab
  * @param tabId - The ID of the terminal tab to close
  * @returns New session with the tab removed
  */
@@ -305,7 +305,7 @@ export function closeTerminalTab(session: Session, tabId: string): Session {
  * Set the active terminal tab for a session.
  * Clears activeFileTabId so that the terminal view takes focus (only one non-AI tab active at a time).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the terminal tab to make active
  * @returns New session with the terminal tab active, or original session if tab not found
  */
@@ -326,7 +326,7 @@ export function selectTerminalTab(session: Session, tabId: string): Session {
  * Rename a terminal tab.
  * An empty string sets the name back to null (restores auto-generated "Terminal N" display).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the terminal tab to rename
  * @param name - New display name; empty string resets to null (auto-name)
  * @returns New session with the tab renamed, or original session if tab not found
@@ -349,7 +349,7 @@ export function renameTerminalTab(session: Session, tabId: string, name: string)
  * Note: The visual order in the tab bar is determined by unifiedTabOrder and is reordered separately
  * (via reorderUnifiedTabs in tabHelpers.ts). This function updates the underlying array order.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param fromIndex - Zero-based index of the tab to move
  * @param toIndex - Zero-based destination index
  * @returns New session with reordered terminalTabs, or original session if indices are invalid
@@ -382,7 +382,7 @@ export function reorderTerminalTabs(session: Session, fromIndex: number, toIndex
  * Update the PTY lifecycle state of a terminal tab.
  * Optionally sets the exitCode when transitioning to 'exited'.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the terminal tab to update
  * @param state - New state ('idle' | 'busy' | 'exited')
  * @param exitCode - Exit code (only meaningful when state === 'exited')
@@ -405,7 +405,7 @@ export function updateTerminalTabState(
  * Update the PTY process ID for a terminal tab.
  * Called after the PTY is spawned and the PID is known.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the terminal tab to update
  * @param pid - The PTY process ID (0 means not yet spawned)
  * @returns New session with the tab PID updated
@@ -424,7 +424,7 @@ export function updateTerminalTabPid(session: Session, tabId: string, pid: numbe
  * effects in TerminalView pick it up again. Selecting the tab ensures the
  * active-tab spawn path fires even for a terminal with no startup command.
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the terminal tab to restart
  * @returns New session with the tab reset and selected, or original if not found
  */
@@ -479,7 +479,7 @@ export function setTerminalTabStartupCommand(
  * Update the current working directory for a terminal tab.
  * Called when the shell reports a directory change (e.g., via OSC sequences or shell integration).
  *
- * @param session - The Maestro session
+ * @param session - The OpenWizardAI session
  * @param tabId - The ID of the terminal tab to update
  * @param cwd - New working directory path
  * @returns New session with the tab CWD updated

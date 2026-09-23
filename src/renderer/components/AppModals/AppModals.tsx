@@ -14,7 +14,7 @@ import type {
 	Shortcut,
 	KeyboardMasteryStats,
 	AutoRunStats,
-	MaestroUsageStats,
+	OpenWizardAIUsageStats,
 	RightPanelTab,
 	SettingsTab,
 	BatchRunConfig,
@@ -63,7 +63,7 @@ export interface AppModalsProps {
 	keyboardMasteryStats: KeyboardMasteryStats;
 	onCloseAboutModal: () => void;
 	autoRunStats: AutoRunStats;
-	usageStats?: MaestroUsageStats | null;
+	usageStats?: OpenWizardAIUsageStats | null;
 	onSwitchToSession: (sessionId: string) => void;
 	/** Global hands-on time in milliseconds (from settings) */
 	handsOnTimeMs: number;
@@ -110,9 +110,9 @@ export interface AppModalsProps {
 		},
 		customEffort?: string,
 		groupId?: string,
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic'
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic'
 	) => void;
 	existingSessions: Session[];
 	duplicatingSessionId?: string | null; // Session ID to duplicate from
@@ -134,9 +134,9 @@ export interface AppModalsProps {
 			remoteId: string | null;
 			workingDirOverride?: string;
 		},
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic'
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic'
 	) => void;
 	editAgentSession: Session | null;
 	renameSessionValue: string;
@@ -303,8 +303,8 @@ export interface AppModalsProps {
 	onOpenMarketplace?: () => void;
 	// Director's Notes
 	onOpenDirectorNotes?: () => void;
-	// Maestro Cue
-	onOpenMaestroCue?: () => void;
+	// OpenWizardAI Cue
+	onOpenOpenWizardAICue?: () => void;
 	onConfigureCue?: (session: Session) => void;
 	onCloseTabSwitcher: () => void;
 	onCloseCrossTabSearch: () => void;
@@ -750,8 +750,8 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		onOpenMarketplace,
 		// Director's Notes
 		onOpenDirectorNotes,
-		// Maestro Cue
-		onOpenMaestroCue,
+		// OpenWizardAI Cue
+		onOpenOpenWizardAICue,
 		onConfigureCue,
 		onCloseTabSwitcher,
 		onCloseCrossTabSearch,
@@ -1066,7 +1066,7 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				currentGraphFile={currentGraphFile}
 				onOpenCurrentFileInGraph={onOpenCurrentFileInGraph}
 				onOpenDirectorNotes={onOpenDirectorNotes}
-				onOpenMaestroCue={onOpenMaestroCue}
+				onOpenOpenWizardAICue={onOpenOpenWizardAICue}
 				onConfigureCue={onConfigureCue}
 				lightboxImage={lightboxImage}
 				lightboxImages={lightboxImages}

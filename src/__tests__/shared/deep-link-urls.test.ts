@@ -7,60 +7,62 @@ import {
 	buildSessionDeepLink,
 	buildGroupDeepLink,
 	buildFileDeepLink,
-	parseMaestroDeepLink,
+	parseOpenWizardAIDeepLink,
 } from '../../shared/deep-link-urls';
 
 describe('buildSessionDeepLink', () => {
 	it('should build a session-only deep link', () => {
-		expect(buildSessionDeepLink('abc123')).toBe('maestro://session/abc123');
+		expect(buildSessionDeepLink('abc123')).toBe('openwizardai://session/abc123');
 	});
 
 	it('should build a session + tab deep link', () => {
-		expect(buildSessionDeepLink('abc123', 'tab456')).toBe('maestro://session/abc123/tab/tab456');
+		expect(buildSessionDeepLink('abc123', 'tab456')).toBe(
+			'openwizardai://session/abc123/tab/tab456'
+		);
 	});
 
 	it('should URI-encode session IDs with special characters', () => {
 		expect(buildSessionDeepLink('id/with/slashes')).toBe(
-			`maestro://session/${encodeURIComponent('id/with/slashes')}`
+			`openwizardai://session/${encodeURIComponent('id/with/slashes')}`
 		);
 	});
 
 	it('should URI-encode tab IDs with special characters', () => {
 		expect(buildSessionDeepLink('sess', 'tab?special')).toBe(
-			`maestro://session/sess/tab/${encodeURIComponent('tab?special')}`
+			`openwizardai://session/sess/tab/${encodeURIComponent('tab?special')}`
 		);
 	});
 
 	it('should not include tab segment when tabId is undefined', () => {
-		expect(buildSessionDeepLink('abc123', undefined)).toBe('maestro://session/abc123');
+		expect(buildSessionDeepLink('abc123', undefined)).toBe('openwizardai://session/abc123');
 	});
 });
 
 describe('buildGroupDeepLink', () => {
 	it('should build a group deep link', () => {
-		expect(buildGroupDeepLink('grp789')).toBe('maestro://group/grp789');
+		expect(buildGroupDeepLink('grp789')).toBe('openwizardai://group/grp789');
 	});
 
 	it('should URI-encode group IDs with special characters', () => {
 		expect(buildGroupDeepLink('group/name')).toBe(
-			`maestro://group/${encodeURIComponent('group/name')}`
+			`openwizardai://group/${encodeURIComponent('group/name')}`
 		);
 	});
 });
 
-describe('parseMaestroDeepLink', () => {
+describe('parseOpenWizardAIDeepLink', () => {
 	it('parses focus URLs', () => {
-		expect(parseMaestroDeepLink('maestro://focus')).toEqual({ action: 'focus' });
-		expect(parseMaestroDeepLink('maestro://')).toEqual({ action: 'focus' });
-		expect(parseMaestroDeepLink('maestro:')).toEqual({ action: 'focus' });
+		expect(parseOpenWizardAIDeepLink('openwizardai://focus')).toEqual({ action: 'focus' });
+		expect(parseOpenWizardAIDeepLink('openwizardai://')).toEqual({ action: 'focus' });
+		expect(parseOpenWizardAIDeepLink('openwizardai:')).toEqual({ action: 'focus' });
 	});
 
 	it('parses session URLs with and without tabs', () => {
-		expect(parseMaestroDeepLink('maestro://session/abc123')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://session/abc123')).toEqual({
 			action: 'session',
 			sessionId: 'abc123',
 		});
-		expect(parseMaestroDeepLink('maestro://session/abc123/tab/tab456')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://session/abc123/tab/tab456')).toEqual({
 			action: 'session',
 			sessionId: 'abc123',
 			tabId: 'tab456',
@@ -68,38 +70,38 @@ describe('parseMaestroDeepLink', () => {
 	});
 
 	it('decodes URI-encoded IDs', () => {
-		expect(parseMaestroDeepLink('maestro://session/session%20with%20space')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://session/session%20with%20space')).toEqual({
 			action: 'session',
 			sessionId: 'session with space',
 		});
-		expect(parseMaestroDeepLink('maestro://group/group%20name')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://group/group%20name')).toEqual({
 			action: 'group',
 			groupId: 'group name',
 		});
 	});
 
 	it('parses Windows-style URLs without double slash', () => {
-		expect(parseMaestroDeepLink('maestro:session/abc123')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai:session/abc123')).toEqual({
 			action: 'session',
 			sessionId: 'abc123',
 		});
 	});
 
 	it('returns null for unrecognized resources and malformed inputs', () => {
-		expect(parseMaestroDeepLink('maestro://unknown/abc')).toBeNull();
-		expect(parseMaestroDeepLink('maestro://session')).toBeNull();
-		expect(parseMaestroDeepLink('maestro://session/')).toBeNull();
-		expect(parseMaestroDeepLink('maestro://group')).toBeNull();
+		expect(parseOpenWizardAIDeepLink('openwizardai://unknown/abc')).toBeNull();
+		expect(parseOpenWizardAIDeepLink('openwizardai://session')).toBeNull();
+		expect(parseOpenWizardAIDeepLink('openwizardai://session/')).toBeNull();
+		expect(parseOpenWizardAIDeepLink('openwizardai://group')).toBeNull();
 	});
 
 	it('parses file URLs with and without line fragments', () => {
 		const path = '/Users/me/proj/notes.md';
-		expect(parseMaestroDeepLink(buildFileDeepLink('sess1', path))).toEqual({
+		expect(parseOpenWizardAIDeepLink(buildFileDeepLink('sess1', path))).toEqual({
 			action: 'file',
 			sessionId: 'sess1',
 			filePath: path,
 		});
-		expect(parseMaestroDeepLink(buildFileDeepLink('sess1', path, 42))).toEqual({
+		expect(parseOpenWizardAIDeepLink(buildFileDeepLink('sess1', path, 42))).toEqual({
 			action: 'file',
 			sessionId: 'sess1',
 			filePath: path,
@@ -109,13 +111,13 @@ describe('parseMaestroDeepLink', () => {
 
 	it('ignores malformed line fragments on file URLs', () => {
 		const url = `${buildFileDeepLink('sess1', '/x/y.md')}#L0`;
-		expect(parseMaestroDeepLink(url)).toEqual({
+		expect(parseOpenWizardAIDeepLink(url)).toEqual({
 			action: 'file',
 			sessionId: 'sess1',
 			filePath: '/x/y.md',
 		});
 		const url2 = `${buildFileDeepLink('sess1', '/x/y.md')}#Lfoo`;
-		expect(parseMaestroDeepLink(url2)).toEqual({
+		expect(parseOpenWizardAIDeepLink(url2)).toEqual({
 			action: 'file',
 			sessionId: 'sess1',
 			filePath: '/x/y.md',
@@ -125,7 +127,7 @@ describe('parseMaestroDeepLink', () => {
 	it('round-trips file paths with spaces and special characters', () => {
 		const path = '/Users/me/My Notes/2026 plan & ideas.md';
 		const url = buildFileDeepLink('s', path, 7);
-		expect(parseMaestroDeepLink(url)).toEqual({
+		expect(parseOpenWizardAIDeepLink(url)).toEqual({
 			action: 'file',
 			sessionId: 's',
 			filePath: path,
@@ -137,7 +139,7 @@ describe('parseMaestroDeepLink', () => {
 describe('buildFileDeepLink', () => {
 	it('encodes the file path so slashes do not break path-segment parsing', () => {
 		const url = buildFileDeepLink('sess', '/a/b.md');
-		expect(url).toBe(`maestro://file/sess/${encodeURIComponent('/a/b.md')}`);
+		expect(url).toBe(`openwizardai://file/sess/${encodeURIComponent('/a/b.md')}`);
 	});
 
 	it('omits the line fragment when line is undefined or non-positive', () => {
@@ -151,25 +153,25 @@ describe('buildFileDeepLink', () => {
 	});
 });
 
-describe('parseMaestroDeepLink with malformed percent encoding', () => {
+describe('parseOpenWizardAIDeepLink with malformed percent encoding', () => {
 	it('preserves the raw segment instead of dropping the whole link', () => {
-		expect(parseMaestroDeepLink('maestro://session/abc%')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://session/abc%')).toEqual({
 			action: 'session',
 			sessionId: 'abc%',
 		});
-		expect(parseMaestroDeepLink('maestro://session/s1/tab/tab%zz')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://session/s1/tab/tab%zz')).toEqual({
 			action: 'session',
 			sessionId: 's1',
 			tabId: 'tab%zz',
 		});
-		expect(parseMaestroDeepLink('maestro://group/g%E0%A4')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://group/g%E0%A4')).toEqual({
 			action: 'group',
 			groupId: 'g%E0%A4',
 		});
 	});
 
 	it('still resolves file links whose path has a stray percent sign', () => {
-		expect(parseMaestroDeepLink('maestro://file/sess/report%20100%#L12')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://file/sess/report%20100%#L12')).toEqual({
 			action: 'file',
 			sessionId: 'sess',
 			filePath: 'report%20100%',
@@ -178,7 +180,7 @@ describe('parseMaestroDeepLink with malformed percent encoding', () => {
 	});
 
 	it('decodes the segments that are well-formed even when a sibling is not', () => {
-		expect(parseMaestroDeepLink('maestro://file/my%20sess/bad%')).toEqual({
+		expect(parseOpenWizardAIDeepLink('openwizardai://file/my%20sess/bad%')).toEqual({
 			action: 'file',
 			sessionId: 'my sess',
 			filePath: 'bad%',

@@ -35,10 +35,10 @@ test.describe('Auto Run Session Switching', () => {
 	test.beforeEach(async () => {
 		// Create temporary project directories for two sessions
 		const timestamp = Date.now();
-		testProjectDir1 = path.join(os.tmpdir(), `maestro-session-test-1-${timestamp}`);
-		testProjectDir2 = path.join(os.tmpdir(), `maestro-session-test-2-${timestamp}`);
-		testAutoRunFolder1 = path.join(testProjectDir1, '.maestro/playbooks');
-		testAutoRunFolder2 = path.join(testProjectDir2, '.maestro/playbooks');
+		testProjectDir1 = path.join(os.tmpdir(), `openwizardai-session-test-1-${timestamp}`);
+		testProjectDir2 = path.join(os.tmpdir(), `openwizardai-session-test-2-${timestamp}`);
+		testAutoRunFolder1 = path.join(testProjectDir1, '.openwizardai/playbooks');
+		testAutoRunFolder2 = path.join(testProjectDir2, '.openwizardai/playbooks');
 
 		fs.mkdirSync(testAutoRunFolder1, { recursive: true });
 		fs.mkdirSync(testAutoRunFolder2, { recursive: true });

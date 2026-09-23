@@ -20,7 +20,7 @@ export function useDirectorySshRemoteHost(
 
 		async function loadSshRemoteHost() {
 			try {
-				const configsResult = await window.maestro.sshRemote.getConfigs();
+				const configsResult = await window.openwizardai.sshRemote.getConfigs();
 				if (configsResult.success && configsResult.configs) {
 					const remote = configsResult.configs.find((r: SshRemoteConfig) => r.id === remoteId);
 					if (remote) {

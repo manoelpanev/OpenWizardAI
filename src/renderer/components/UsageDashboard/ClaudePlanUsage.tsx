@@ -206,9 +206,9 @@ export const ClaudePlanUsage = memo(function ClaudePlanUsage({
 			snapshots,
 			normalizeKey,
 			deriveShortName,
-			fetchAgentEnvVars: () => window.maestro.agents.getCustomEnvVars('claude-code'),
+			fetchAgentEnvVars: () => window.openwizardai.agents.getCustomEnvVars('claude-code'),
 			fetchAccountKeys: () => {
-				const fn = window.maestro.agents.getClaudeUsageAccountKeys;
+				const fn = window.openwizardai.agents.getClaudeUsageAccountKeys;
 				return typeof fn === 'function' ? fn() : undefined;
 			},
 		});
@@ -285,7 +285,7 @@ export const ClaudePlanUsage = memo(function ClaudePlanUsage({
 	// even when the sampler IPC throws so the dashboard reflects the latest cache.
 	const doRefresh = useCallback(async () => {
 		try {
-			await window.maestro.agents.refreshClaudeUsageSnapshots();
+			await window.openwizardai.agents.refreshClaudeUsageSnapshots();
 		} catch {
 			// Main-side errors surface in main logs.
 		}

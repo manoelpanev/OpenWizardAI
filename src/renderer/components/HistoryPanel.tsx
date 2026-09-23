@@ -93,7 +93,7 @@ export const HistoryPanel = React.memo(
 		},
 		ref
 	) {
-		const maestroCueEnabled = useSettingsStore((s) => s.encoreFeatures.maestroCue);
+		const openwizardaiCueEnabled = useSettingsStore((s) => s.encoreFeatures.openwizardaiCue);
 		// Collapse repeated Cue triggers into one row. The rollup runs in the
 		// main process (SQL over `cue_events`), so flipping this changes the
 		// SHAPE of the loaded window and has to reset pagination - which it
@@ -102,7 +102,7 @@ export const HistoryPanel = React.memo(
 		const shortcuts = useSettingsStore((s) => s.shortcuts);
 		const rightPanelWidth = useSettingsStore((s) => s.rightPanelWidth);
 		const compact = rightPanelWidth < RIGHT_PANEL_COMPACT_THRESHOLD;
-		const visibleTypes: HistoryEntryType[] = maestroCueEnabled
+		const visibleTypes: HistoryEntryType[] = openwizardaiCueEnabled
 			? ['USER', 'AUTO', 'CUE']
 			: ['USER', 'AUTO'];
 
@@ -113,7 +113,7 @@ export const HistoryPanel = React.memo(
 		const [activeFilters, setActiveFilters] = useState<Set<HistoryEntryType>>(() =>
 			resolveInitialHistoryFilters(
 				historyPanelFilterKeyForAgent(session.id),
-				maestroCueEnabled,
+				openwizardaiCueEnabled,
 				HISTORY_PANEL_FILTERS_KEY
 			)
 		);
@@ -183,15 +183,15 @@ export const HistoryPanel = React.memo(
 			]
 		);
 		// `projectPath` is what lets the handler merge a non-SSH session's
-		// `<projectPath>/.maestro/history/*.jsonl` files (entries written
-		// by other Maestro instances pointed at the same project - typically
+		// `<projectPath>/.openwizardai/history/*.jsonl` files (entries written
+		// by other OpenWizardAI instances pointed at the same project - typically
 		// a peer SSH'd into this machine, or vice-versa). Without it, a
 		// machine running the agent locally never sees foreign-host entries
 		// even when the JSONL files are sitting right there on disk.
 		const projectPathForHistory = session.projectRoot || session.cwd || undefined;
 		const loadPage = useCallback(
 			async (offset: number, limit: number): Promise<PaginatedPage<HistoryEntry>> => {
-				const result = await window.maestro.history.getAllPaginated({
+				const result = await window.openwizardai.history.getAllPaginated({
 					sessionId: session.id,
 					projectPath: projectPathForHistory,
 					sharedContext: sharedContextSnapshot,
@@ -279,7 +279,7 @@ export const HistoryPanel = React.memo(
 		// per (sessionId, bucketCount, lookback, source mtime+size).
 		const refreshGraphData = useCallback(async () => {
 			try {
-				const data = await window.maestro.history.getGraphData(
+				const data = await window.openwizardai.history.getGraphData(
 					session.id,
 					bucketCountForLookback(graphLookbackHours),
 					graphLookbackHours,
@@ -305,22 +305,24 @@ export const HistoryPanel = React.memo(
 		// inserted when the loaded window is at the top - when jumped, they're
 		// silently dropped (the next pagination call will pick them up).
 		useEffect(() => {
-			const cleanup = window.maestro.directorNotes.onHistoryEntryAdded((entry, sourceSessionId) => {
-				if (sourceSessionId !== session.id) return;
+			const cleanup = window.openwizardai.directorNotes.onHistoryEntryAdded(
+				(entry, sourceSessionId) => {
+					if (sourceSessionId !== session.id) return;
 
-				const inserted = prependLiveEntry(entry);
+					const inserted = prependLiveEntry(entry);
 
-				// Coalesce graph refreshes - a burst of streamed entries
-				// shouldn't trigger a refetch per entry. Only refresh when
-				// the entry actually landed in view.
-				if (inserted && !graphRefreshScheduled.current) {
-					graphRefreshScheduled.current = true;
-					requestAnimationFrame(() => {
-						graphRefreshScheduled.current = false;
-						refreshGraphData();
-					});
+					// Coalesce graph refreshes - a burst of streamed entries
+					// shouldn't trigger a refetch per entry. Only refresh when
+					// the entry actually landed in view.
+					if (inserted && !graphRefreshScheduled.current) {
+						graphRefreshScheduled.current = true;
+						requestAnimationFrame(() => {
+							graphRefreshScheduled.current = false;
+							refreshGraphData();
+						});
+					}
 				}
-			});
+			);
 
 			return cleanup;
 		}, [session.id, refreshGraphData, prependLiveEntry]);
@@ -329,7 +331,7 @@ export const HistoryPanel = React.memo(
 		useEffect(() => {
 			const loadLookbackPreference = async () => {
 				const settingsKey = `historyGraphLookback:${session.id}`;
-				const saved = await window.maestro.settings.get(settingsKey);
+				const saved = await window.openwizardai.settings.get(settingsKey);
 				if (saved !== undefined) {
 					// saved could be null (all time) or a number
 					setGraphLookbackHours(saved as number | null);
@@ -343,7 +345,7 @@ export const HistoryPanel = React.memo(
 			(hours: number | null) => {
 				setGraphLookbackHours(hours);
 				const settingsKey = `historyGraphLookback:${session.id}`;
-				window.maestro.settings.set(settingsKey, hours);
+				window.openwizardai.settings.set(settingsKey, hours);
 			},
 			[session.id]
 		);
@@ -352,22 +354,22 @@ export const HistoryPanel = React.memo(
 		// genuine off->on transition auto-enables the CUE filter (the feature
 		// just became available). We must NOT force CUE on at mount, otherwise
 		// a persisted "CUE deselected" choice would be clobbered on every open.
-		const prevCueEnabledRef = useRef(maestroCueEnabled);
+		const prevCueEnabledRef = useRef(openwizardaiCueEnabled);
 		useEffect(() => {
 			const wasEnabled = prevCueEnabledRef.current;
-			prevCueEnabledRef.current = maestroCueEnabled;
+			prevCueEnabledRef.current = openwizardaiCueEnabled;
 			setActiveFilters((prev) => {
-				if (!maestroCueEnabled && prev.has('CUE')) {
+				if (!openwizardaiCueEnabled && prev.has('CUE')) {
 					const next = new Set(prev);
 					next.delete('CUE');
 					return next;
 				}
-				if (maestroCueEnabled && !wasEnabled && !prev.has('CUE')) {
+				if (openwizardaiCueEnabled && !wasEnabled && !prev.has('CUE')) {
 					return new Set([...prev, 'CUE']);
 				}
 				return prev;
 			});
-		}, [maestroCueEnabled]);
+		}, [openwizardaiCueEnabled]);
 
 		// Reload the persisted selection when switching agents. Guarded on the
 		// agent id so a Cue feature toggle (handled by the effect above) doesn't
@@ -378,11 +380,11 @@ export const HistoryPanel = React.memo(
 			setActiveFilters(
 				resolveInitialHistoryFilters(
 					historyPanelFilterKeyForAgent(session.id),
-					maestroCueEnabled,
+					openwizardaiCueEnabled,
 					HISTORY_PANEL_FILTERS_KEY
 				)
 			);
-		}, [session.id, maestroCueEnabled]);
+		}, [session.id, openwizardaiCueEnabled]);
 
 		// Persist the selection per-agent so it survives view switches and app
 		// restart. Keyed off the ref (not session.id) so it writes under the
@@ -611,7 +613,7 @@ export const HistoryPanel = React.memo(
 				}
 
 				try {
-					const targetOffset = await window.maestro.history.getOffsetForTimestamp(
+					const targetOffset = await window.openwizardai.history.getOffsetForTimestamp(
 						session.id,
 						bucketEnd - 1,
 						graphLookbackHours,
@@ -785,7 +787,7 @@ export const HistoryPanel = React.memo(
 		const handleDeleteEntry = useCallback(
 			async (entryId: string) => {
 				try {
-					const success = await window.maestro.history.delete(entryId, session.id);
+					const success = await window.openwizardai.history.delete(entryId, session.id);
 					if (success) {
 						mutateEntries((prev) => prev.filter((entry) => entry.id !== entryId));
 						setSelectedIndex(-1);
@@ -1050,7 +1052,11 @@ export const HistoryPanel = React.memo(
 						onDelete={handleDeleteEntry}
 						onUpdate={async (entryId, updates) => {
 							// Pass sessionId for efficient lookup in per-session storage
-							const success = await window.maestro.history.update(entryId, updates, session.id);
+							const success = await window.openwizardai.history.update(
+								entryId,
+								updates,
+								session.id
+							);
 							if (success) {
 								mutateEntries((prev) =>
 									prev.map((e) => (e.id === entryId ? { ...e, ...updates } : e))

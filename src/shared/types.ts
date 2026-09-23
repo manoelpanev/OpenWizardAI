@@ -1,4 +1,4 @@
-// Shared type definitions for Maestro CLI and Electron app
+// Shared type definitions for OpenWizardAI CLI and Electron app
 // These types are used by both the CLI tool and the renderer process
 
 // Re-export agent ID constants and types from the single source of truth
@@ -36,7 +36,7 @@ export type ThinkingMode = 'off' | 'on' | 'sticky';
 
 /**
  * Cycle order for the thinking chip, shared by the composer's toggle and
- * `maestro-cli tab thinking <tab-id> cycle`. One list so a click and a CLI
+ * `openwizardai-cli tab thinking <tab-id> cycle`. One list so a click and a CLI
  * cycle can never disagree about what comes next.
  */
 export const THINKING_MODES: readonly ThinkingMode[] = ['off', 'on', 'sticky'];
@@ -133,7 +133,7 @@ export interface AgentCapabilities {
 	supportsAppendSystemPrompt: boolean;
 
 	/**
-	 * Agent maintains a per-project persistent memory store on disk that Maestro
+	 * Agent maintains a per-project persistent memory store on disk that OpenWizardAI
 	 * can browse and edit. Claude Code does this at ~/.claude/projects/<path>/memory/.
 	 */
 	supportsProjectMemory: boolean;
@@ -238,12 +238,12 @@ export interface SessionInfo {
 	customPath?: string;
 	/** Per-session context window size in tokens. */
 	customContextWindow?: number;
-	/** Claude token-source opt-in: drives the maestro-p TUI (Max quota) when on. */
-	enableMaestroP?: boolean;
-	/** Refines {@link enableMaestroP}: 'interactive' = always TUI, 'dynamic' = TUI then API fallback. */
-	maestroPMode?: 'interactive' | 'dynamic';
-	/** Per-session override of the maestro-p binary path. */
-	maestroPPath?: string;
+	/** Claude token-source opt-in: drives the openwizardai-p TUI (Max quota) when on. */
+	enableOpenWizardAIP?: boolean;
+	/** Refines {@link enableOpenWizardAIP}: 'interactive' = always TUI, 'dynamic' = TUI then API fallback. */
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	/** Per-session override of the openwizardai-p binary path. */
+	openwizardaiPPath?: string;
 	/**
 	 * Agent Resilience: auto-resend the failed prompt on transient upstream
 	 * availability errors (Overloaded / 529 / 5xx / throttling) using exponential
@@ -303,7 +303,7 @@ export interface HistoryEntry {
 	hostname?: string;
 	/**
 	 * Claude-only, per-turn: which interface spent the quota for this turn.
-	 * `interactive` = maestro-p TUI (Max plan), `api` = `claude --print` (per-token).
+	 * `interactive` = openwizardai-p TUI (Max plan), `api` = `claude --print` (per-token).
 	 * Captured per entry because a Dynamic-mode agent flips between the two across turns.
 	 */
 	tokenSource?: 'interactive' | 'api';
@@ -489,7 +489,7 @@ export interface AgentCapabilities {
 	/** Agent supports --append-system-prompt for separate system prompt delivery */
 	supportsAppendSystemPrompt: boolean;
 	/**
-	 * Agent maintains a per-project persistent memory store on disk that Maestro
+	 * Agent maintains a per-project persistent memory store on disk that OpenWizardAI
 	 * can browse and edit. Claude Code does this at ~/.claude/projects/<path>/memory/.
 	 */
 	supportsProjectMemory: boolean;
@@ -788,15 +788,15 @@ export interface AgentSshRemoteConfig {
 	/** Override working directory for this agent */
 	workingDirOverride?: string;
 
-	/** Sync history entries to .maestro/history/ on the remote host (opt-in, default: false) */
+	/** Sync history entries to .openwizardai/history/ on the remote host (opt-in, default: false) */
 	syncHistory?: boolean;
 
 	/**
 	 * Mirror every new history entry for this agent to
-	 * <projectRoot>/.maestro/history/history-<hostname>.jsonl on *this* machine's
+	 * <projectRoot>/.openwizardai/history/history-<hostname>.jsonl on *this* machine's
 	 * local filesystem. Meant for agents that run here locally but are controlled
-	 * by another Maestro instance over SSH - the controller reads the project's
-	 * `.maestro/history/` dir and sees entries generated on this side.
+	 * by another OpenWizardAI instance over SSH - the controller reads the project's
+	 * `.openwizardai/history/` dir and sees entries generated on this side.
 	 * Independent of `enabled` / `syncHistory`.
 	 */
 	shareHistoryToProjectDir?: boolean;
@@ -807,13 +807,13 @@ export interface AgentSshRemoteConfig {
 // ============================================================================
 
 /**
- * Parsed deep link from a maestro:// URL.
+ * Parsed deep link from a openwizardai:// URL.
  * Used by both main process (URL parsing) and renderer (navigation dispatch).
  */
 export interface ParsedDeepLink {
 	/** The type of navigation action */
 	action: 'focus' | 'session' | 'group' | 'file';
-	/** Maestro session ID (for action: 'session' and 'file') */
+	/** OpenWizardAI session ID (for action: 'session' and 'file') */
 	sessionId?: string;
 	/** Tab ID within the session (for action: 'session') */
 	tabId?: string;

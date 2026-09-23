@@ -10,7 +10,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Exercise the upstream update/telemetry logic; OpenWizzard ships with these switched off.
+// Exercise the upstream update/telemetry logic; OpenWizardAI ships with these switched off.
 vi.mock('../../../shared/branding', () => ({
 	UPDATES_ENABLED: true,
 	UPSTREAM_TELEMETRY_ENABLED: true,
@@ -425,7 +425,7 @@ describe('app-lifecycle/window-manager', () => {
 			expect(allowedEvent.preventDefault).not.toHaveBeenCalled();
 
 			// `file:` is explicitly allowed so users can open locally-generated HTML
-			// (Plotly dashboards, etc.) inside Maestro instead of the system browser.
+			// (Plotly dashboards, etc.) inside OpenWizardAI instead of the system browser.
 			const allowedFileEvent = { preventDefault: vi.fn() };
 			navigateHandler?.(allowedFileEvent as any, 'file:///tmp/dashboard.html');
 			expect(allowedFileEvent.preventDefault).not.toHaveBeenCalled();
@@ -1206,7 +1206,7 @@ describe('app-lifecycle/window-manager', () => {
 				alt: false,
 				shift: false,
 			});
-			consoleHandler?.({}, 1, `__MAESTRO_KEY__${payload}`, 0, '');
+			consoleHandler?.({}, 1, `__OPENWIZARDAI_KEY__${payload}`, 0, '');
 
 			expect(mockWebContents.send).toHaveBeenCalledWith(
 				'browser-tab:shortcutKey',
@@ -1214,7 +1214,7 @@ describe('app-lifecycle/window-manager', () => {
 			);
 		});
 
-		it('ignores console-message events without the __MAESTRO_KEY__ prefix', async () => {
+		it('ignores console-message events without the __OPENWIZARDAI_KEY__ prefix', async () => {
 			const { createWindowManager } = await import('../../../main/app-lifecycle/window-manager');
 
 			const windowManager = createWindowManager({
@@ -1524,9 +1524,9 @@ describe('app-lifecycle/window-manager', () => {
 				handler?.({}, { reason, exitCode });
 			}
 
-			// MAESTRO-4X/4Y: intentional terminations (signal-killed / clean exit)
+			// OPENWIZARDAI-4X/4Y: intentional terminations (signal-killed / clean exit)
 			// must not be reported as fatal crashes - that buries real crashes.
-			it('does not report Sentry for an intentionally killed renderer (MAESTRO-4X)', async () => {
+			it('does not report Sentry for an intentionally killed renderer (OPENWIZARDAI-4X)', async () => {
 				await fireRenderProcessGone('killed', 15);
 				await Promise.resolve();
 				expect(sentryCaptureMessageMock).not.toHaveBeenCalled();

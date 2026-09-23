@@ -1,6 +1,6 @@
 /**
  * Conversion between provider transcript messages (as returned by
- * `window.maestro.agentSessions.read`) and the `LogEntry` shape the AI
+ * `window.openwizardai.agentSessions.read`) and the `LogEntry` shape the AI
  * transcript renders, plus the boundary maths used to splice older history in
  * above what is already on screen.
  *
@@ -38,7 +38,7 @@ export interface TranscriptMessage {
 }
 
 /**
- * Matches the Auto Run synopsis prompt that Maestro injects into the agent
+ * Matches the Auto Run synopsis prompt that OpenWizardAI injects into the agent
  * session after a task ("Give/Provide a brief synopsis of what you just
  * accomplished ..."). The leading verb and trailing wording have drifted across
  * versions and the prompt is user-customizable, so we anchor on the stable core
@@ -78,7 +78,7 @@ export function stripSynopsisTurns<T extends { type: string; role?: string; cont
  *
  * A user turn is unwrapped on the way through (`stripEmbeddedSystemPrompt`).
  * Every provider except Claude Code lacks a system-prompt flag, so the spawn
- * path embeds the whole Maestro system prompt in the FIRST user turn, and that
+ * path embeds the whole OpenWizardAI system prompt in the FIRST user turn, and that
  * turn is what the provider writes to disk. Rendering it verbatim showed the
  * system prompt, the conductor profile and the injected context as if the user
  * had typed them, and buried the prompt they really sent at the bottom of it
@@ -178,7 +178,7 @@ export function selectOlderEntries(loaded: LogEntry[], visible: LogEntry[]): Log
 
 	if (bestIndex >= 0) return loaded.slice(0, bestIndex);
 
-	// No match: the boundary entry never reached disk (Maestro-injected system
+	// No match: the boundary entry never reached disk (OpenWizardAI-injected system
 	// notices and Agent Resilience outage markers live only in the tab). Cut on
 	// time instead - staying strictly older than what is on screen is what keeps
 	// the prepend duplicate-free.

@@ -3,7 +3,7 @@
  *
  * Builds the agent-name -> Left Bar group mapping that Director's Notes uses to
  * bucket its bullets. The synopsis agent tags each bullet with the session it
- * came from; Maestro - not the model - decides which group that session sits
+ * came from; OpenWizardAI - not the model - decides which group that session sits
  * in, which is why the mapping is derived here from live store state instead of
  * being another field in the prompt contract.
  *

@@ -47,13 +47,13 @@ export type GroupChatRightTab = 'participants' | 'history';
 // activity and reorder the room list. The cost is that these are per device.
 //
 // Deliberately NOT here: the History lookback window. It is already persisted
-// per chat through `window.maestro.settings` under
+// per chat through `window.openwizardai.settings` under
 // `groupChatHistoryLookback:<id>` (see `GroupChatHistoryPanel`). Folding it in
 // would reset every lookback a user has already chosen, to no benefit.
 
 /** The legacy single-value key, still read once as the default for chats with no entry. */
-const MODERATOR_ONLY_VIEW_KEY = 'maestro.groupChat.moderatorOnlyView';
-const VIEW_PREFS_KEY = 'maestro.groupChat.viewPrefs';
+const MODERATOR_ONLY_VIEW_KEY = 'openwizardai.groupChat.moderatorOnlyView';
+const VIEW_PREFS_KEY = 'openwizardai.groupChat.viewPrefs';
 
 /** What one chat remembers about how it is being read. */
 export interface GroupChatViewPrefs {

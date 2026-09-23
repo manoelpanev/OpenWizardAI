@@ -17,7 +17,7 @@ import { createStoreDeserializer } from './corrupt-store-recovery';
 
 import type {
 	BootstrapSettings,
-	MaestroSettings,
+	OpenWizardAISettings,
 	SessionsData,
 	GroupsData,
 	AgentConfigsData,
@@ -63,7 +63,7 @@ function deserializeStoreJson<T = Record<string, unknown>>(
 // ============================================================================
 
 let _bootstrapStore: Store<BootstrapSettings> | null = null;
-let _settingsStore: Store<MaestroSettings> | null = null;
+let _settingsStore: Store<OpenWizardAISettings> | null = null;
 let _sessionsStore: Store<SessionsData> | null = null;
 let _sessionsWriter: DeferredWriteStore<SessionsData> | null = null;
 let _groupsStore: Store<GroupsData> | null = null;
@@ -102,10 +102,10 @@ export function initializeStores(options: StoreInitOptions): {
 
 	// 1. Initialize bootstrap store first (determines sync path)
 	_bootstrapStore = new Store<BootstrapSettings>({
-		name: 'maestro-bootstrap',
+		name: 'openwizardai-bootstrap',
 		cwd: userDataPath,
 		defaults: {},
-		deserialize: deserializeStoreJson('maestro-bootstrap', userDataPath),
+		deserialize: deserializeStoreJson('openwizardai-bootstrap', userDataPath),
 	});
 
 	// 2. Determine sync path
@@ -118,29 +118,29 @@ export function initializeStores(options: StoreInitOptions): {
 
 	// 3. Initialize all other stores
 	// Instrumented so the settings file watcher can tell our own writes from an
-	// external edit (maestro-cli, an editor) - see stores/write-tracker.ts.
+	// external edit (openwizardai-cli, an editor) - see stores/write-tracker.ts.
 	_settingsStore = trackStoreWrites(
-		new Store<MaestroSettings>({
-			name: 'maestro-settings',
+		new Store<OpenWizardAISettings>({
+			name: 'openwizardai-settings',
 			cwd: _syncPath,
 			defaults: SETTINGS_DEFAULTS,
-			deserialize: deserializeStoreJson('maestro-settings', _syncPath),
+			deserialize: deserializeStoreJson('openwizardai-settings', _syncPath),
 		}),
-		'maestro-settings.json'
+		'openwizardai-settings.json'
 	);
 
 	// The sessions store is read and written far more than any other, and is the
 	// only one that grows with agent count into the multi-megabyte range. Served
 	// from an in-memory cache and flushed asynchronously so a streaming turn
 	// can't block the UI thread that dispatches keyboard input (issue #1501).
-	// Safe to cache: single-instance lock, no file watcher, and maestro-cli only
+	// Safe to cache: single-instance lock, no file watcher, and openwizardai-cli only
 	// reads this file. See stores/deferred-writes.ts.
 	const sessionsWriter = deferStoreWrites(
 		new Store<SessionsData>({
-			name: 'maestro-sessions',
+			name: 'openwizardai-sessions',
 			cwd: _syncPath,
 			defaults: SESSIONS_DEFAULTS,
-			deserialize: deserializeStoreJson('maestro-sessions', _syncPath),
+			deserialize: deserializeStoreJson('openwizardai-sessions', _syncPath),
 		}),
 		'sessions'
 	);
@@ -148,56 +148,56 @@ export function initializeStores(options: StoreInitOptions): {
 	_sessionsStore = sessionsWriter.store;
 
 	_groupsStore = new Store<GroupsData>({
-		name: 'maestro-groups',
+		name: 'openwizardai-groups',
 		cwd: _syncPath,
 		defaults: GROUPS_DEFAULTS,
-		deserialize: deserializeStoreJson('maestro-groups', _syncPath),
+		deserialize: deserializeStoreJson('openwizardai-groups', _syncPath),
 	});
 
 	// Agent configs are ALWAYS stored in the production path, even in dev mode
 	// This ensures agent paths, custom args, and env vars are shared between dev and prod
 	_agentConfigsStore = trackStoreWrites(
 		new Store<AgentConfigsData>({
-			name: 'maestro-agent-configs',
+			name: 'openwizardai-agent-configs',
 			cwd: _productionDataPath,
 			defaults: AGENT_CONFIGS_DEFAULTS,
-			deserialize: deserializeStoreJson('maestro-agent-configs', productionDataPath),
+			deserialize: deserializeStoreJson('openwizardai-agent-configs', productionDataPath),
 		}),
-		'maestro-agent-configs.json'
+		'openwizardai-agent-configs.json'
 	);
 
 	// Agent capability snapshots - keyed by `agentId` or `agentId:remoteUuid`.
 	// Per-device because detection state (installed paths, auth status) is
 	// inherently local to the machine, even when other agent settings sync.
 	_agentCapabilitiesStore = new Store<AgentCapabilitiesData>({
-		name: 'maestro-agent-capabilities',
+		name: 'openwizardai-agent-capabilities',
 		cwd: _productionDataPath,
 		defaults: AGENT_CAPABILITIES_DEFAULTS,
-		deserialize: deserializeStoreJson('maestro-agent-capabilities', productionDataPath),
+		deserialize: deserializeStoreJson('openwizardai-agent-capabilities', productionDataPath),
 	});
 
 	// Window state is intentionally NOT synced - it's per-device
 	_windowStateStore = new Store<WindowState>({
-		name: 'maestro-window-state',
+		name: 'openwizardai-window-state',
 		defaults: WINDOW_STATE_DEFAULTS,
 		// No `cwd` - electron-store defaults it to userData.
-		deserialize: deserializeStoreJson('maestro-window-state', userDataPath),
+		deserialize: deserializeStoreJson('openwizardai-window-state', userDataPath),
 	});
 
-	// Claude session origins - tracks which sessions were created by Maestro
+	// Claude session origins - tracks which sessions were created by OpenWizardAI
 	_claudeSessionOriginsStore = new Store<ClaudeSessionOriginsData>({
-		name: 'maestro-claude-session-origins',
+		name: 'openwizardai-claude-session-origins',
 		cwd: _syncPath,
 		defaults: CLAUDE_SESSION_ORIGINS_DEFAULTS,
-		deserialize: deserializeStoreJson('maestro-claude-session-origins', _syncPath),
+		deserialize: deserializeStoreJson('openwizardai-claude-session-origins', _syncPath),
 	});
 
 	// Generic agent session origins - supports all agents (Codex, OpenCode, etc.)
 	_agentSessionOriginsStore = new Store<AgentSessionOriginsData>({
-		name: 'maestro-agent-session-origins',
+		name: 'openwizardai-agent-session-origins',
 		cwd: _syncPath,
 		defaults: AGENT_SESSION_ORIGINS_DEFAULTS,
-		deserialize: deserializeStoreJson('maestro-agent-session-origins', _syncPath),
+		deserialize: deserializeStoreJson('openwizardai-agent-session-origins', _syncPath),
 	});
 
 	return {

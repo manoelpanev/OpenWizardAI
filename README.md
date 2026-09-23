@@ -1,92 +1,40 @@
-# OpenWizzard
+# OpenWizardAI
 
-OpenWizzard is a fork of [Maestro](https://github.com/RunMaestro/Maestro) by Pedram Amini, licensed under AGPL-3.0. It keeps every Maestro feature. Differences from upstream:
+Your AI project wizard: plan, build and run projects with a fleet of AI coding agents, keyboard-first.
 
-- App name, window titles and UI text say OpenWizzard; app data lives in `~/Library/Application Support/OpenWizzard` (separate from any Maestro install).
-- Update checks and auto-updates are off (they would install Maestro builds). See `src/shared/branding.ts`.
-- Anonymous usage pings to runmaestro.ai (install check-in, Cue stats) are off.
-- Internal identifiers stay unchanged so upstream merges stay easy: `window.maestro`, `.maestro/` project folders, `maestro://` links, `maestro-cli` (also available as `openwizzard-cli`).
+OpenWizardAI runs AI coding agents (DeepSeek, Claude Code, Codex, OpenCode, Gemini CLI and more) side by side, each with its own workspace and history. Plan work with the wizard, then let Auto Run execute it task by task.
 
-### Run from source
-
-Requires Node 22 or 24 (Node 26 is not supported by `better-sqlite3`).
-
-```bash
-npm ci
-npm run dev
-```
-
-The rest of this README is the upstream Maestro documentation.
-
----
-
-# Maestro
-
-<div align="center">
-
-[![Made with Maestro](docs/assets/made-with-maestro.svg)](https://github.com/RunMaestro/Maestro)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Us-5865F2?logo=discord&logoColor=white)](https://runmaestro.ai/discord)
-[![User Docs](https://img.shields.io/badge/Docs-Usage%20%26%20Documentation-blue?logo=readthedocs&logoColor=white)](https://docs.runmaestro.ai/)
-
-<a href="https://trendshift.io/repositories/21112" target="_blank"><img src="https://trendshift.io/api/badge/repositories/21112" alt="RunMaestro%2FMaestro | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-
-"Maestro hones fractured attention into focused intent."
-
-</div>
-
-Maestro is a cross-platform desktop app for orchestrating your fleet of AI agents and projects. It's a high-velocity solution for hackers who are juggling multiple projects in parallel. Designed for power users who live on the keyboard and rarely touch the mouse.
-
-Collaborate with AI to create detailed specification documents, then let Auto Run execute them automatically, each task in a fresh session with clean context. Allowing for long-running unattended sessions, my current record is nearly 24 hours of continuous runtime.
-
-Run multiple agents in parallel with a Linear/Superhuman-level responsive interface. Currently supporting **Claude Code**, **OpenAI Codex**, **OpenCode**, **Factory Droid**, and **Copilot-CLI** (beta) with plans for additional agentic coding tools (Gemini CLI) based on user demand.
-
-> **How It Works:** Maestro is a pass-through to your AI provider. Whatever MCP tools, skills, permissions, or authentication you have configured in Claude Code, Codex, or OpenCode works identically in Maestro. The only difference is we're not running interactively-each task gets a prompt and returns a response, whether it's a new session or resuming a prior one.
-
-<div align="center">
-  <a href="https://youtu.be/3wX5Q1I0sgI?si=oJkJDxgAWUvBXX4D">
-    <img src="https://github.com/user-attachments/assets/deaf601d-1898-4ede-bf5a-42e46874ebb3"
-         alt="Maestro Video Thumbnail"
-         width="650" />
-  </a>
-
-  <div>
-    <a href="https://youtu.be/3wX5Q1I0sgI?si=oJkJDxgAWUvBXX4D">~1m Intro Video</a>
-    &nbsp;|&nbsp;
-    <a href="https://youtu.be/fmwwTOg7cyA?si=VOkjO6oYjCSQvM0A">~27m Walkthrough and Demo</a>
-    &nbsp;|&nbsp;
-    <a href="https://youtu.be/3wX5Q1I0sgI?si=oJkJDxgAWUvBXX4D">~6m Onboarding Demo</a>
-  </div>
-</div>
+> Based on [Maestro](https://github.com/RunMaestro/Maestro) by Pedram Amini, licensed under AGPL-3.0.
 
 ## Features
 
 ### Power Features
 
-- 🌳 **[Git Worktrees](https://docs.runmaestro.ai/git-worktrees)** - Run AI agents in parallel on isolated branches. Create worktree sub-agents from the git branch menu, each operating in their own directory. Work interactively in the main repo while sub-agents process tasks independently-then create PRs with one click. True parallel development without conflicts.
-- 🤖 **[Auto Run & Playbooks](https://docs.runmaestro.ai/autorun-playbooks)** - File-system-based task runner that batch-processes markdown checklists through AI agents. Create playbooks for repeatable workflows, run in loops, and track progress with full history. Each task gets its own AI session for clean conversation context.
-- 💬 **[Group Chat](https://docs.runmaestro.ai/group-chat)** - Coordinate multiple AI agents in a single conversation. A moderator AI orchestrates discussions, routing questions to the right agents and synthesizing their responses for cross-project questions and architecture discussions.
-- 🌐 **[Mobile Remote Control](https://docs.runmaestro.ai/remote-access)** - Built-in web server with QR code access. Monitor and control all your agents from your phone. Supports local network access and remote tunneling via Cloudflare for access from anywhere.
-- 💻 **[Command Line Interface](https://docs.runmaestro.ai/cli)** - Full CLI (`maestro-cli`) for headless operation. List agents/groups, run playbooks from cron jobs or CI/CD pipelines, with human-readable or JSONL output for scripting.
+- 🌳 **[Git Worktrees](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/git-worktrees.md)** - Run AI agents in parallel on isolated branches. Create worktree sub-agents from the git branch menu, each operating in their own directory. Work interactively in the main repo while sub-agents process tasks independently-then create PRs with one click. True parallel development without conflicts.
+- 🤖 **[Auto Run & Playbooks](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/autorun-playbooks.md)** - File-system-based task runner that batch-processes markdown checklists through AI agents. Create playbooks for repeatable workflows, run in loops, and track progress with full history. Each task gets its own AI session for clean conversation context.
+- 💬 **[Group Chat](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/group-chat.md)** - Coordinate multiple AI agents in a single conversation. A moderator AI orchestrates discussions, routing questions to the right agents and synthesizing their responses for cross-project questions and architecture discussions.
+- 🌐 **[Mobile Remote Control](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/remote-access.md)** - Built-in web server with QR code access. Monitor and control all your agents from your phone. Supports local network access and remote tunneling via Cloudflare for access from anywhere.
+- 💻 **[Command Line Interface](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/cli.md)** - Full CLI (`openwizardai-cli`) for headless operation. List agents/groups, run playbooks from cron jobs or CI/CD pipelines, with human-readable or JSONL output for scripting.
 - 🚀 **Multi-Agent Management** - Run unlimited agents and terminal sessions in parallel. Each agent has its own workspace, conversation history, and isolated context.
 - 📬 **Message Queueing** - Queue messages while AI is busy; they're sent automatically when the agent becomes ready. Never lose a thought.
-- 🛡️ **[Agent Resilience](https://docs.runmaestro.ai/agent-resilience)** - Providers fail; your turn does not have to. When a turn dies on `529 Overloaded` or a spent plan quota, Maestro resends the exact prompt on its own, backing off in seconds for a blip or waiting for the real reset time it reads out of the error. One live status card replaces the wall of error dialogs, Auto Run batches resume themselves, and an agent can optionally fail over to a backup endpoint instead of waiting out the window.
+- 🛡️ **[Agent Resilience](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/agent-resilience.md)** - Providers fail; your turn does not have to. When a turn dies on `529 Overloaded` or a spent plan quota, OpenWizardAI resends the exact prompt on its own, backing off in seconds for a blip or waiting for the real reset time it reads out of the error. One live status card replaces the wall of error dialogs, Auto Run batches resume themselves, and an agent can optionally fail over to a backup endpoint instead of waiting out the window.
 
 ### Core Features
 
 - 🔄 **Dual-Mode Sessions** - Each agent has both an AI Terminal and Command Terminal. Switch seamlessly between AI conversation and shell commands with `Cmd+J`.
-- ⌨️ **[Keyboard-First Design](https://docs.runmaestro.ai/keyboard-shortcuts)** - Full keyboard control with customizable shortcuts and [mastery tracking](https://docs.runmaestro.ai/keyboard-shortcuts#keyboard-mastery) that rewards you for leveling up. `Cmd+K` quick actions, rapid agent switching, and focus management designed for flow state.
-- 📋 **Session Discovery** - Automatically discovers and imports existing sessions from all supported providers, including conversations from before Maestro was installed. Browse, search, star, rename, and resume any session.
+- ⌨️ **[Keyboard-First Design](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/keyboard-shortcuts.md)** - Full keyboard control with customizable shortcuts and [mastery tracking](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/keyboard-shortcuts.md#keyboard-mastery) that rewards you for leveling up. `Cmd+K` quick actions, rapid agent switching, and focus management designed for flow state.
+- 📋 **Session Discovery** - Automatically discovers and imports existing sessions from all supported providers, including conversations from before OpenWizardAI was installed. Browse, search, star, rename, and resume any session.
 - 🔀 **Git Integration** - Automatic repo detection, branch display, diff viewer, commit logs, and git-aware file completion. Work with git without leaving the app.
-- 📁 **[File Explorer](https://docs.runmaestro.ai/general-usage#file-explorer-and-preview)** - Browse project files with syntax highlighting, markdown preview, and image viewing. Reference files in prompts with `@` mentions.
-- 🗃️ **[File Formats](https://docs.runmaestro.ai/file-formats)** - Data files open in a viewer built for them, several with their own filtering language: jq over JSON and JSONL, sortable filtered tables for CSV and TSV, rendered Mermaid diagrams, and audio and video in a floating player.
-- 🧮 **[Parquet Preview](https://docs.runmaestro.ai/parquet-preview)** - Parquet files open as a live, filterable table with a schema rail. A typed query language (`ts >= now-7d and price > 100`) runs against the whole file while Maestro skips the row groups it can prove cannot match, so a multi-gigabyte file filters instantly and never loads into memory.
-- 🔍 **[Powerful Output Filtering](https://docs.runmaestro.ai/general-usage#output-filtering)** - Search and filter AI output with include/exclude modes, regex support, and per-response local filters.
-- ⚡ **[Slash Commands](https://docs.runmaestro.ai/slash-commands)** - Extensible command system with autocomplete. Create custom commands with template variables for your workflows.
+- 📁 **[File Explorer](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/general-usage.md#file-explorer-and-preview)** - Browse project files with syntax highlighting, markdown preview, and image viewing. Reference files in prompts with `@` mentions.
+- 🗃️ **[File Formats](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/file-formats.md)** - Data files open in a viewer built for them, several with their own filtering language: jq over JSON and JSONL, sortable filtered tables for CSV and TSV, rendered Mermaid diagrams, and audio and video in a floating player.
+- 🧮 **[Parquet Preview](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/parquet-preview.md)** - Parquet files open as a live, filterable table with a schema rail. A typed query language (`ts >= now-7d and price > 100`) runs against the whole file while OpenWizardAI skips the row groups it can prove cannot match, so a multi-gigabyte file filters instantly and never loads into memory.
+- 🔍 **[Powerful Output Filtering](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/general-usage.md#output-filtering)** - Search and filter AI output with include/exclude modes, regex support, and per-response local filters.
+- ⚡ **[Slash Commands](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/slash-commands.md)** - Extensible command system with autocomplete. Create custom commands with template variables for your workflows.
 - 💾 **Draft Auto-Save** - Never lose work. Drafts are automatically saved and restored per session.
 - 🔊 **Speakable Notifications** - Audio alerts with text-to-speech announcements when agents complete tasks.
 - 🎨 **[Beautiful Themes](THEMES.md)** - 12 themes including Dracula, Monokai, Nord, Tokyo Night, GitHub Light, and more.
 - 💰 **Cost Tracking** - Real-time token usage and cost tracking per session and globally.
-- 🏆 **[Achievements](https://docs.runmaestro.ai/achievements)** - Level up from Apprentice to Titan of the Baton based on cumulative Auto Run time. 11 conductor-themed ranks to unlock.
+- 🏆 **[Achievements](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/achievements.md)** - Level up from Apprentice to Titan of the Baton based on cumulative Auto Run time. 11 conductor-themed ranks to unlock.
 
 ### Analytics & Visualization
 
@@ -124,25 +72,26 @@ then it closes the graph.
 
 Additional interactions: Drag nodes to reposition, scroll to zoom, use mini-map for overview.
 
-> **Note**: Maestro supports Claude Code, OpenAI Codex, OpenCode, Factory Droid, and Copilot-CLI (beta). Support for additional agents (Gemini CLI) may be added in future releases based on community demand.
+> **Note**: OpenWizardAI supports Claude Code, OpenAI Codex, OpenCode, Factory Droid, and Copilot-CLI (beta). Support for additional agents (Gemini CLI) may be added in future releases based on community demand.
 
 ## Quick Start
 
 ### Installation
 
-Download the latest release for your platform from the [Releases page](https://github.com/RunMaestro/Maestro/releases).
+Download the latest release for your platform from the [Releases page](https://github.com/manoelpanev/OpenWizardAI/releases).
 
 Or build from source:
 
 ```bash
-git clone https://github.com/RunMaestro/Maestro.git
-cd Maestro
-npm install
+git clone https://github.com/manoelpanev/OpenWizardAI.git
+cd OpenWizardAI
+npm ci
 npm run dev
 ```
 
 ### Requirements
 
+- Node.js 22 or 24 to build from source (Node 26 is not supported by better-sqlite3)
 - At least one supported AI coding agent installed and authenticated:
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) - Anthropic's AI coding assistant
   - [OpenAI Codex](https://github.com/openai/codex) - OpenAI's coding agent
@@ -163,73 +112,28 @@ npm run dev
 | Usage Dashboard     | `Opt+Cmd+U`       | `Alt+Ctrl+U`        |
 | All Shortcuts       | `Cmd+/`           | `Ctrl+/`            |
 
-[Full keyboard shortcut reference](https://docs.runmaestro.ai/keyboard-shortcuts)
-
-## Screenshots
-
-<p align="center">
-  <img src="docs/screenshots/main-screen.png" alt="Maestro Main Screen" width="800">
-</p>
-
-_Main screen with multiple agents and conversation_
-
-<p align="center">
-  <img src="docs/screenshots/group-chat.png" alt="Group Chat" width="800">
-</p>
-
-_Group Chat coordinates multiple AI agents in a single conversation_
-
-<p align="center">
-  <img src="docs/screenshots/cmd-k-1.png" alt="Command Palette" width="800">
-</p>
-
-_Quick Actions palette for rapid navigation (CTRL/CMD + K)_
-
-<p align="center">
-  <img src="docs/screenshots/git-diff.png" alt="Git Diff Viewer" width="800">
-</p>
-
-_Git diff viewer with syntax highlighting_
-
-[See more...](docs/screenshots/)
+[Full keyboard shortcut reference](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/keyboard-shortcuts.md)
 
 ## Documentation
 
-Full documentation and usage guide available at **[docs.runmaestro.ai](https://docs.runmaestro.ai)**
+Full documentation and usage guide available at **[github.com/manoelpanev/OpenWizardAI/tree/main/docs](https://github.com/manoelpanev/OpenWizardAI/tree/main/docs)**
 
-- [Installation](https://docs.runmaestro.ai/installation)
-- [Getting Started](https://docs.runmaestro.ai/getting-started)
-- [Features Overview](https://docs.runmaestro.ai/features)
-- [Auto Run + Playbooks](https://docs.runmaestro.ai/autorun-playbooks)
-- [Git Worktrees](https://docs.runmaestro.ai/git-worktrees)
-- [Keyboard Shortcuts](https://docs.runmaestro.ai/keyboard-shortcuts)
-- [Context Management](https://docs.runmaestro.ai/context-management)
-- [MCP Server](https://docs.runmaestro.ai/mcp-server) - Connect AI apps to Maestro docs
-- [Troubleshooting](https://docs.runmaestro.ai/troubleshooting)
+- [Installation](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/installation.md)
+- [Getting Started](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/getting-started.md)
+- [Features Overview](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/features.md)
+- [Auto Run + Playbooks](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/autorun-playbooks.md)
+- [Git Worktrees](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/git-worktrees.md)
+- [Keyboard Shortcuts](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/keyboard-shortcuts.md)
+- [Context Management](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/context-management.md)
+- [MCP Server](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/mcp-server.md) - Connect AI apps to OpenWizardAI docs
+- [Troubleshooting](https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/troubleshooting.md)
 
 ## Community
 
-- **Discord**: [Join Us](https://runmaestro.ai/discord)
-- **GitHub Issues**: [Report bugs & request features](https://github.com/RunMaestro/Maestro/issues)
-
-## Team
-
-Meet the team behind Maestro at [runmaestro.ai/team](https://runmaestro.ai/team/).
-
-### Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, architecture details, and contribution guidelines.
+- **Discussions**: [github.com/manoelpanev/OpenWizardAI/discussions](https://github.com/manoelpanev/OpenWizardAI/discussions)
+- **Issues**: [Report bugs & request features](https://github.com/manoelpanev/OpenWizardAI/issues)
+- **Contributing**: see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
-[AGPL-3.0 License](LICENSE)
-
-## Star History
-
-<a href="https://star-history.dera.page/#runmaestro/maestro&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=runmaestro/maestro&type=date&theme=dark&legend=top-left" />
-   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=runmaestro/maestro&type=date&legend=top-left" />
-   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=runmaestro/maestro&type=date&legend=top-left" />
- </picture>
-</a>
+[AGPL-3.0](LICENSE). OpenWizardAI is based on Maestro by Pedram Amini; the original copyright and license notices are kept.

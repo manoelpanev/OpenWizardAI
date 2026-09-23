@@ -1,6 +1,6 @@
 /**
  * useAgentClaudeModeResolvedListener - registers
- * `window.maestro.process.onClaudeModeResolved`.
+ * `window.openwizardai.process.onClaudeModeResolved`.
  *
  * Mirrors the spawner's headless-mode decision back into the renderer:
  * stamps `session.claudeInteractive.{mode, modeReason, lastUsageSnapshotKey}`
@@ -84,7 +84,7 @@ export function useAgentClaudeModeResolvedListener(): void {
 	useEffect(() => {
 		const setSessions = useSessionStore.getState().setSessions;
 
-		const unsubscribe = window.maestro.process.onClaudeModeResolved?.(
+		const unsubscribe = window.openwizardai.process.onClaudeModeResolved?.(
 			(
 				sessionId: string,
 				resolution: {

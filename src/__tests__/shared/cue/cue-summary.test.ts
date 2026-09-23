@@ -23,7 +23,7 @@ function makeResult(overrides: Partial<CueRunResult> = {}): CueRunResult {
 		runId: 'run-1',
 		sessionId: 'sess-1',
 		sessionName: 'rc',
-		subscriptionName: 'Maestro-chain-2',
+		subscriptionName: 'OpenWizardAI-chain-2',
 		event: makeEvent(),
 		status: 'completed',
 		stdout: '',
@@ -146,7 +146,7 @@ describe('humanizeCueEventType', () => {
 describe('buildCueRunSummary', () => {
 	it('strips -chain-N suffix and surfaces chain index after agent (legacy YAML)', () => {
 		const result = makeResult({
-			subscriptionName: 'Maestro-chain-2',
+			subscriptionName: 'OpenWizardAI-chain-2',
 			sessionName: 'rc',
 			pipelineName: undefined,
 			event: makeEvent({
@@ -155,13 +155,13 @@ describe('buildCueRunSummary', () => {
 			}),
 		});
 		expect(buildCueRunSummary(result)).toBe(
-			'"Maestro" · rc #2 - #891 Feature: Support arbitrary CLI agents'
+			'"OpenWizardAI" · rc #2 - #891 Feature: Support arbitrary CLI agents'
 		);
 	});
 
 	it('uses pipeline_name as the trigger label when set (preferred over chain stripping)', () => {
 		const result = makeResult({
-			subscriptionName: 'Maestro-chain-2',
+			subscriptionName: 'OpenWizardAI-chain-2',
 			sessionName: 'rc',
 			pipelineName: 'PR Triage Main',
 			event: makeEvent({
@@ -176,22 +176,22 @@ describe('buildCueRunSummary', () => {
 
 	it('marks fan-in subscriptions with (fan-in) tag', () => {
 		const result = makeResult({
-			subscriptionName: 'Maestro-fanin',
+			subscriptionName: 'OpenWizardAI-fanin',
 			sessionName: 'rc',
 			pipelineName: undefined,
 			event: makeEvent({ type: 'agent.completed', payload: { sourceSession: 'builder' } }),
 		});
-		expect(buildCueRunSummary(result)).toBe('"Maestro" · rc (fan-in) - from builder');
+		expect(buildCueRunSummary(result)).toBe('"OpenWizardAI" · rc (fan-in) - from builder');
 	});
 
 	it('handles fan-in tracker colon-keyed names by taking the first segment', () => {
 		const result = makeResult({
-			subscriptionName: 'Maestro-chain-2:Maestro-chain-3',
+			subscriptionName: 'OpenWizardAI-chain-2:OpenWizardAI-chain-3',
 			sessionName: 'rc',
 			pipelineName: undefined,
 			event: makeEvent({ type: 'time.heartbeat', payload: {} }),
 		});
-		expect(buildCueRunSummary(result)).toBe('"Maestro" · rc #2');
+		expect(buildCueRunSummary(result)).toBe('"OpenWizardAI" · rc #2');
 	});
 
 	it('omits the agent half when sessionName equals subscriptionName', () => {
@@ -215,7 +215,7 @@ describe('buildCueRunSummary', () => {
 	it('drops the legacy [CUE] prefix, (eventType) suffix, and -chain-N suffix', () => {
 		const summary = buildCueRunSummary(
 			makeResult({
-				subscriptionName: 'Maestro-chain-4',
+				subscriptionName: 'OpenWizardAI-chain-4',
 				sessionName: 'rc',
 				event: makeEvent({
 					type: 'github.pull_request',

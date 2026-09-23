@@ -5,10 +5,10 @@
 // `src/shared/themeGloss.ts`, so a slider drag and a CLI call cannot disagree
 // about the levels or their order.
 //
-// Reads come off the on-disk settings store, so `maestro-cli gloss` answers
+// Reads come off the on-disk settings store, so `openwizardai-cli gloss` answers
 // even with the app closed. Writes route through the running app's `set_setting`
 // WS bridge so the change applies live and persists, the same way `set-theme`
-// works. `maestro-cli settings set themeGloss <level>` also works and is picked
+// works. `openwizardai-cli settings set themeGloss <level>` also works and is picked
 // up by the settings watcher, but it skips the validation below, so a typo
 // lands as a value that matches no CSS rule and silently renders as off.
 
@@ -38,7 +38,7 @@ function printLevels(current: GlossLevel): void {
 		const pad = ' '.repeat(Math.max(1, 10 - level.length));
 		console.log(`  ${marker} ${level}${pad}${GLOSS_LEVEL_META[level].description}`);
 	}
-	console.log('\nUsage: maestro-cli gloss <off|sheen|strong|max>');
+	console.log('\nUsage: openwizardai-cli gloss <off|sheen|strong|max>');
 	console.log('Note: gloss has no effect on light themes.');
 }
 

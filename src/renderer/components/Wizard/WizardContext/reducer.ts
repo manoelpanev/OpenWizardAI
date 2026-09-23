@@ -10,9 +10,9 @@ export const initialState: WizardState = {
 	customPath: undefined,
 	customArgs: undefined,
 	customEnvVars: undefined,
-	enableMaestroP: undefined,
-	maestroPMode: undefined,
-	maestroPPath: undefined,
+	enableOpenWizardAIP: undefined,
+	openwizardaiPMode: undefined,
+	openwizardaiPPath: undefined,
 	plannerModel: undefined,
 	sessionSshRemoteConfig: undefined,
 	directoryPath: '',
@@ -68,12 +68,12 @@ export function wizardReducer(state: WizardState, action: WizardAction): WizardS
 			return { ...state, customArgs: action.args };
 		case 'SET_CUSTOM_ENV_VARS':
 			return { ...state, customEnvVars: action.envVars };
-		case 'SET_ENABLE_MAESTRO_P':
-			return { ...state, enableMaestroP: action.value };
-		case 'SET_MAESTRO_P_MODE':
-			return { ...state, maestroPMode: action.mode };
-		case 'SET_MAESTRO_P_PATH':
-			return { ...state, maestroPPath: action.path };
+		case 'SET_ENABLE_OPENWIZARDAI_P':
+			return { ...state, enableOpenWizardAIP: action.value };
+		case 'SET_OPENWIZARDAI_P_MODE':
+			return { ...state, openwizardaiPMode: action.mode };
+		case 'SET_OPENWIZARDAI_P_PATH':
+			return { ...state, openwizardaiPPath: action.path };
 		case 'SET_PLANNER_MODEL':
 			return { ...state, plannerModel: action.model };
 		case 'SET_SESSION_SSH_REMOTE_CONFIG':

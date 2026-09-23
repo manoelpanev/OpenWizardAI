@@ -4,8 +4,8 @@
  * Shared module for the CLI server discovery file, used by both the Electron
  * main process (writes) and the CLI (reads) to locate the running server.
  *
- * NOTE: This file has its own `getConfigDir()` implementation (lowercase "maestro")
- * which matches the electron-store default from package.json `"name": "maestro"`.
+ * NOTE: This file has its own `getConfigDir()` implementation (lowercase "openwizardai")
+ * which matches the electron-store default from package.json `"name": "openwizardai"`.
  * See cli-activity.ts for the same pattern and rationale.
  */
 
@@ -21,31 +21,31 @@ export interface CliServerInfo {
 	/**
 	 * Version of the desktop app that wrote this file (`app.getVersion()`).
 	 * Optional: older builds did not write it, so a missing value itself signals
-	 * an app predating version-skew detection. Read by `maestro-cli doctor` /
+	 * an app predating version-skew detection. Read by `openwizardai-cli doctor` /
 	 * `status` to compare against the CLI's own build version.
 	 */
 	version?: string;
 }
 
-// Get the Maestro config directory path (lowercase "maestro")
+// Get the OpenWizardAI config directory path (lowercase "openwizardai")
 function getConfigDir(): string {
-	// Allow overriding the data directory (e.g. for dev mode: maestro-dev).
+	// Allow overriding the data directory (e.g. for dev mode: openwizardai-dev).
 	// Matches the override honored by src/cli/services/storage.ts so the CLI's
 	// discovery file lookup tracks the same data directory as its session reads.
-	if (process.env.MAESTRO_USER_DATA) {
-		return path.resolve(process.env.MAESTRO_USER_DATA);
+	if (process.env.OPENWIZARDAI_USER_DATA) {
+		return path.resolve(process.env.OPENWIZARDAI_USER_DATA);
 	}
 
 	const platform = os.platform();
 	const home = os.homedir();
 
 	if (platform === 'darwin') {
-		return path.join(home, 'Library', 'Application Support', 'OpenWizzard');
+		return path.join(home, 'Library', 'Application Support', 'OpenWizardAI');
 	} else if (platform === 'win32') {
-		return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'OpenWizzard');
+		return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'OpenWizardAI');
 	} else {
 		// Linux and others
-		return path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizzard');
+		return path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizardAI');
 	}
 }
 

@@ -64,7 +64,7 @@ export function ProfilingCaptureModal({ theme, onClose }: ProfilingCaptureModalP
 	// by the awaited stopProfiling() result below (it carries the full payload), so
 	// ignore terminal phases here to avoid flashing "saved" before the path lands.
 	useEffect(() => {
-		const unsub = window.maestro?.debug?.onProfilingProgress?.((event) => {
+		const unsub = window.openwizardai?.debug?.onProfilingProgress?.((event) => {
 			if (
 				event.phase === 'stopping' ||
 				event.phase === 'awaiting-save' ||
@@ -87,7 +87,7 @@ export function ProfilingCaptureModal({ theme, onClose }: ProfilingCaptureModalP
 		startedRef.current = true;
 		(async () => {
 			try {
-				const res = await window.maestro.debug.stopProfiling();
+				const res = await window.openwizardai.debug.stopProfiling();
 				// Recording has ended regardless of outcome; drop the wand indicator.
 				setProfilingActive(false);
 				if (!res?.success) {

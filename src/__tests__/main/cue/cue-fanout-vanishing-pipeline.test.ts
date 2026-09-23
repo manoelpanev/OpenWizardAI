@@ -7,7 +7,7 @@
  *   2. Assign identical prompts to all three agents. Save. Everything works.
  *   3. Change each agent's prompt to a unique value. Save.
  *   4. The entire pipeline disappears from the UI and does not come back
- *      on reload, even though `.maestro/cue.yaml` and the per-agent
+ *      on reload, even though `.openwizardai/cue.yaml` and the per-agent
  *      prompt files are on disk.
  *
  * Root cause: Commit 7 (fan-out per-agent prompt file externalization)
@@ -59,7 +59,7 @@ let projectRoot = '';
 
 beforeEach(() => {
 	projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cue-fanout-vanish-'));
-	fs.mkdirSync(path.join(projectRoot, '.maestro/prompts'), { recursive: true });
+	fs.mkdirSync(path.join(projectRoot, '.openwizardai/prompts'), { recursive: true });
 });
 
 afterEach(() => {
@@ -189,7 +189,7 @@ describe('fan-out pipeline survives a save with differing per-agent prompts (reg
 		// Step 1: renderer save - write yaml + per-agent prompt files
 		// exactly as the IPC layer would.
 		const { yaml: yamlStr, promptFiles } = pipelinesToYaml([pipe]);
-		fs.writeFileSync(path.join(projectRoot, '.maestro/cue.yaml'), yamlStr, 'utf-8');
+		fs.writeFileSync(path.join(projectRoot, '.openwizardai/cue.yaml'), yamlStr, 'utf-8');
 		for (const [relPath, content] of promptFiles.entries()) {
 			const absPath = path.join(projectRoot, relPath);
 			fs.mkdirSync(path.dirname(absPath), { recursive: true });

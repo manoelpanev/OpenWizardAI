@@ -26,8 +26,8 @@ vi.mock('../../../renderer/hooks/session/useActiveSession', () => ({
 vi.mock('../../../renderer/utils/imageExport', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../../../renderer/utils/imageExport')>()),
 	saveImageToProject: vi.fn().mockResolvedValue({
-		path: '/proj-a/.maestro/diagrams/d.svg',
-		relativePath: '.maestro/diagrams/d.svg',
+		path: '/proj-a/.openwizardai/diagrams/d.svg',
+		relativePath: '.openwizardai/diagrams/d.svg',
 	}),
 }));
 

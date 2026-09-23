@@ -1,14 +1,14 @@
 /**
- * Deep Link Handler for maestro:// URL scheme
+ * Deep Link Handler for openwizardai:// URL scheme
  *
  * Provides OS-level protocol registration and URL parsing for deep links.
  * Enables clickable OS notifications and external app integrations.
  *
  * URL scheme:
- *   maestro://focus                            - bring window to foreground
- *   maestro://session/{sessionId}              - navigate to agent
- *   maestro://session/{sessionId}/tab/{tabId}  - navigate to agent + tab
- *   maestro://group/{groupId}                  - expand group, focus first session
+ *   openwizardai://focus                            - bring window to foreground
+ *   openwizardai://session/{sessionId}              - navigate to agent
+ *   openwizardai://session/{sessionId}/tab/{tabId}  - navigate to agent + tab
+ *   openwizardai://group/{groupId}                  - expand group, focus first session
  *
  * Platform behavior:
  *   macOS:         app.on('open-url') delivers the URL
@@ -21,14 +21,14 @@ import { app, BrowserWindow } from 'electron';
 import { logger } from './utils/logger';
 import { isWebContentsAvailable } from './utils/safe-send';
 import type { ParsedDeepLink } from '../shared/types';
-import { parseMaestroDeepLink } from '../shared/deep-link-urls';
+import { parseOpenWizardAIDeepLink } from '../shared/deep-link-urls';
 import { captureException } from './utils/sentry';
 
 // ============================================================================
 // Constants
 // ============================================================================
 
-const PROTOCOL = 'maestro';
+const PROTOCOL = 'openwizardai';
 const IPC_CHANNEL = 'app:deepLink';
 
 // ============================================================================
@@ -43,7 +43,7 @@ let pendingDeepLinkUrl: string | null = null;
 // ============================================================================
 
 /**
- * Parse a maestro:// URL into a structured deep link object.
+ * Parse a openwizardai:// URL into a structured deep link object.
  * Returns null for malformed or unrecognized URLs.
  *
  * Wraps the pure shared parser with Sentry/log instrumentation so we keep
@@ -51,7 +51,7 @@ let pendingDeepLinkUrl: string | null = null;
  */
 export function parseDeepLink(url: string): ParsedDeepLink | null {
 	try {
-		const parsed = parseMaestroDeepLink(url);
+		const parsed = parseOpenWizardAIDeepLink(url);
 		if (!parsed) {
 			logger.warn(`Unrecognized deep link URL: ${url}`, 'DeepLink');
 		}
@@ -111,7 +111,7 @@ function processDeepLink(url: string, getMainWindow: () => BrowserWindow | null)
  * @returns false if another instance is already running (caller should app.quit())
  */
 export function setupDeepLinkHandling(getMainWindow: () => BrowserWindow | null): boolean {
-	// Register as handler for maestro:// URLs
+	// Register as handler for openwizardai:// URLs
 	// In dev mode, skip registration to avoid clobbering the production app's registration
 	const isDev = !app.isPackaged;
 	const shouldUseSingleInstanceLock =
@@ -121,12 +121,12 @@ export function setupDeepLinkHandling(getMainWindow: () => BrowserWindow | null)
 
 	if (!isDev) {
 		app.setAsDefaultProtocolClient(PROTOCOL);
-		logger.info('Registered as default protocol client for maestro://', 'DeepLink');
+		logger.info('Registered as default protocol client for openwizardai://', 'DeepLink');
 	} else {
 		// In dev, register only if explicitly opted in
 		if (process.env.REGISTER_DEEP_LINKS_IN_DEV === '1') {
 			// In dev mode, the bare Electron binary is used. We must pass the app
-			// entry point as an argument so macOS launches Maestro, not the default
+			// entry point as an argument so macOS launches OpenWizardAI, not the default
 			// Electron splash screen.
 			const appPath = path.resolve(process.argv[1]);
 			app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, [appPath]);

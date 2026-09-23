@@ -1,5 +1,5 @@
 /**
- * useAgentDataListener - registers `window.maestro.process.onData`
+ * useAgentDataListener - registers `window.openwizardai.process.onData`
  *
  * High-frequency listener for process stdout. Behaviour:
  *  - Routes terminal output through `batchedUpdater.appendLog(_, null, false)`.
@@ -39,7 +39,7 @@ export function useAgentDataListener(deps: UseAgentDataListenerDeps): void {
 		const getSessions = () => useSessionStore.getState().sessions;
 		const getActiveSessionId = () => useSessionStore.getState().activeSessionId;
 
-		const unsubscribe = window.maestro.process.onData((sessionId: string, data: string) => {
+		const unsubscribe = window.openwizardai.process.onData((sessionId: string, data: string) => {
 			let actualSessionId: string;
 			let isFromAi: boolean;
 			let tabIdFromSession: string | undefined;
@@ -148,7 +148,7 @@ export function useAgentDataListener(deps: UseAgentDataListenerDeps): void {
 						};
 					})
 				);
-				window.maestro.agentError.clearError(actualSessionId).catch((err) => {
+				window.openwizardai.agentError.clearError(actualSessionId).catch((err) => {
 					logger.error('Failed to clear agent error on successful data:', undefined, err);
 				});
 			}

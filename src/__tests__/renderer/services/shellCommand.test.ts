@@ -62,7 +62,7 @@ beforeEach(() => {
 	runCommand.mockResolvedValue({ exitCode: 0 });
 	cancelCommand.mockResolvedValue(true);
 
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		process: {
 			runCommand,
 			cancelCommand,

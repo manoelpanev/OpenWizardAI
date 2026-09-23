@@ -180,7 +180,7 @@ describe('ssh-command-builder', () => {
 			 * Without forced TTY allocation (-tt), the SSH process hangs indefinitely with no stdout.
 			 *
 			 * This was discovered when SSH commands appeared to run (process status: Running)
-			 * but produced no output, causing Maestro to get stuck in "Thinking..." state forever.
+			 * but produced no output, causing OpenWizardAI to get stuck in "Thinking..." state forever.
 			 *
 			 * The fix requires BOTH:
 			 * 1. The `-tt` flag (force pseudo-TTY allocation even when stdin isn't a terminal)
@@ -842,11 +842,13 @@ describe('ssh-command-builder', () => {
 			const result = await buildSshCommandWithStdin(baseConfig, {
 				command: 'opencode',
 				args: ['run'],
-				stdinInput: 'Line with MAESTRO_PROMPT_EOF inside and <<EOF markers',
+				stdinInput: 'Line with OPENWIZARDAI_PROMPT_EOF inside and <<EOF markers',
 			});
 
 			// The prompt should be verbatim - no special handling needed
-			expect(result.stdinScript).toContain('Line with MAESTRO_PROMPT_EOF inside and <<EOF markers');
+			expect(result.stdinScript).toContain(
+				'Line with OPENWIZARDAI_PROMPT_EOF inside and <<EOF markers'
+			);
 
 			// No heredoc syntax should be present
 			expect(result.stdinScript).not.toContain("<<'");
@@ -932,16 +934,16 @@ describe('ssh-command-builder', () => {
 
 			// Should contain base64 decode command in the script
 			expect(result.stdinScript).toContain('base64 -d >');
-			expect(result.stdinScript).toContain('/tmp/maestro-image-');
+			expect(result.stdinScript).toContain('/tmp/openwizardai-image-');
 			expect(result.stdinScript).toContain('.png');
 			// Should contain the raw base64 data in a heredoc
 			expect(result.stdinScript).toContain('iVBORw0KGgoAAAANSUhEUg==');
-			expect(result.stdinScript).toContain('MAESTRO_IMG_0_EOF');
+			expect(result.stdinScript).toContain('OPENWIZARDAI_IMG_0_EOF');
 			// The command line should include the -i flag with the temp file path
 			// (no exec prefix when temp files exist, so cleanup can run after)
 			const cmdLine = result.stdinScript?.split('\n').find((line) => line.startsWith('codex '));
 			expect(cmdLine).toContain("'-i'");
-			expect(cmdLine).toContain('/tmp/maestro-image-');
+			expect(cmdLine).toContain('/tmp/openwizardai-image-');
 			// Should have cleanup rm -f after the command
 			expect(cmdLine).toContain('; rm -f');
 		});
@@ -957,8 +959,8 @@ describe('ssh-command-builder', () => {
 			});
 
 			// Should have two decode blocks
-			expect(result.stdinScript).toContain('MAESTRO_IMG_0_EOF');
-			expect(result.stdinScript).toContain('MAESTRO_IMG_1_EOF');
+			expect(result.stdinScript).toContain('OPENWIZARDAI_IMG_0_EOF');
+			expect(result.stdinScript).toContain('OPENWIZARDAI_IMG_1_EOF');
 			// Should have correct extensions
 			expect(result.stdinScript).toContain('.png');
 			expect(result.stdinScript).toContain('.jpeg');
@@ -1001,7 +1003,7 @@ describe('ssh-command-builder', () => {
 			});
 
 			expect(result.stdinScript).not.toContain('base64 -d');
-			expect(result.stdinScript).not.toContain('MAESTRO_IMG');
+			expect(result.stdinScript).not.toContain('OPENWIZARDAI_IMG');
 		});
 
 		it('embeds image paths in stdinInput when imageResumeMode is prompt-embed', async () => {
@@ -1017,7 +1019,7 @@ describe('ssh-command-builder', () => {
 
 			// Should still create remote temp files via heredoc
 			expect(result.stdinScript).toContain('base64 -d >');
-			expect(result.stdinScript).toContain('/tmp/maestro-image-');
+			expect(result.stdinScript).toContain('/tmp/openwizardai-image-');
 			expect(result.stdinScript).toContain('iVBORw0KGgoAAAANSUhEUg==');
 			// The command line should NOT have -i flags (prompt-embed mode)
 			// No exec prefix because temp files exist and need cleanup
@@ -1027,7 +1029,7 @@ describe('ssh-command-builder', () => {
 			expect(cmdLine).toContain('; rm -f');
 			// The stdinInput (after the command line) should have the image prefix prepended
 			const afterCmd = result.stdinScript?.split(cmdLine + '\n')[1];
-			expect(afterCmd).toContain('[Attached images: /tmp/maestro-image-');
+			expect(afterCmd).toContain('[Attached images: /tmp/openwizardai-image-');
 			expect(afterCmd).toContain('describe this image');
 			// Image prefix should come BEFORE the prompt content
 			const prefixIdx = afterCmd?.indexOf('[Attached images:') ?? -1;
@@ -1047,8 +1049,8 @@ describe('ssh-command-builder', () => {
 			});
 
 			// Both images should be decoded as temp files
-			expect(result.stdinScript).toContain('MAESTRO_IMG_0_EOF');
-			expect(result.stdinScript).toContain('MAESTRO_IMG_1_EOF');
+			expect(result.stdinScript).toContain('OPENWIZARDAI_IMG_0_EOF');
+			expect(result.stdinScript).toContain('OPENWIZARDAI_IMG_1_EOF');
 			// Command line should NOT have -i flags (no exec prefix when temp files exist)
 			const cmdLine = result.stdinScript?.split('\n').find((line) => line.startsWith('codex '));
 			expect(cmdLine).not.toContain("'-i'");
@@ -1056,12 +1058,12 @@ describe('ssh-command-builder', () => {
 			expect(cmdLine).toContain('; rm -f');
 			// The stdin should contain attached images prefix with both paths
 			const afterCmd = result.stdinScript?.split(cmdLine + '\n')[1];
-			expect(afterCmd).toContain('[Attached images: /tmp/maestro-image-');
+			expect(afterCmd).toContain('[Attached images: /tmp/openwizardai-image-');
 			expect(afterCmd).toContain('.png');
 			expect(afterCmd).toContain('.jpeg');
 			// Both paths separated by comma
 			const attachedLine = afterCmd?.split('\n')[0];
-			expect(attachedLine).toContain(', /tmp/maestro-image-');
+			expect(attachedLine).toContain(', /tmp/openwizardai-image-');
 		});
 
 		it('embeds image paths in prompt when stdinInput is not set and imageResumeMode is prompt-embed', async () => {
@@ -1078,7 +1080,7 @@ describe('ssh-command-builder', () => {
 			// When stdinInput is not set, prompt is added as a CLI arg
 			// The image prefix is prepended to the prompt, which becomes a shell-escaped argument
 			// The prefix contains newlines so it spans multiple lines in the script
-			expect(result.stdinScript).toContain('[Attached images: /tmp/maestro-image-');
+			expect(result.stdinScript).toContain('[Attached images: /tmp/openwizardai-image-');
 			expect(result.stdinScript).toContain('describe this image');
 			// The command line starts with the command (no exec prefix when temp files exist)
 			// and the prompt appears as last argument
@@ -1111,7 +1113,7 @@ describe('ssh-command-builder', () => {
 			expect(cmdLine).toContain('; rm -f');
 
 			const afterCmd = result.stdinScript?.split(cmdLine + '\n')[1];
-			expect(afterCmd).toContain('@/tmp/maestro-image-');
+			expect(afterCmd).toContain('@/tmp/openwizardai-image-');
 			expect(afterCmd).toContain('describe this image');
 		});
 
@@ -1156,7 +1158,7 @@ describe('ssh-command-builder', () => {
 				expect(cmdLine).toBeDefined();
 				// Should have rm -f cleanup appended
 				expect(cmdLine).toContain('; rm -f');
-				expect(cmdLine).toContain('/tmp/maestro-image-');
+				expect(cmdLine).toContain('/tmp/openwizardai-image-');
 			});
 
 			it('uses exec when no remote temp files exist (existing behavior)', async () => {
@@ -1219,7 +1221,7 @@ describe('ssh-command-builder', () => {
 
 				const cmdLine = result.stdinScript?.split('\n').find((line) => line.startsWith('codex '));
 				expect(cmdLine).toContain('; rm -f');
-				expect(cmdLine).toContain('/tmp/maestro-image-');
+				expect(cmdLine).toContain('/tmp/openwizardai-image-');
 			});
 		});
 
@@ -1236,7 +1238,7 @@ describe('ssh-command-builder', () => {
 
 				expect(result.remoteTempImagePaths).toBeDefined();
 				expect(result.remoteTempImagePaths).toHaveLength(1);
-				expect(result.remoteTempImagePaths![0]).toContain('/tmp/maestro-image-');
+				expect(result.remoteTempImagePaths![0]).toContain('/tmp/openwizardai-image-');
 				expect(result.remoteTempImagePaths![0]).toContain('.png');
 			});
 
@@ -1278,7 +1280,7 @@ describe('ssh-command-builder', () => {
 
 				expect(result.remoteTempImagePaths).toBeDefined();
 				expect(result.remoteTempImagePaths).toHaveLength(1);
-				expect(result.remoteTempImagePaths![0]).toContain('/tmp/maestro-image-');
+				expect(result.remoteTempImagePaths![0]).toContain('/tmp/openwizardai-image-');
 			});
 		});
 

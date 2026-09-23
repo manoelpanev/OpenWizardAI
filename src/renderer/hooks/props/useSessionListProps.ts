@@ -59,8 +59,8 @@ export interface UseSessionListPropsDeps {
 	handleDeleteWorktreeSession: (session: Session) => void;
 	handleToggleWorktreeExpanded: (sessionId: string) => void;
 	handleConfigureCue: (session: Session) => void;
-	/** Whether the Maestro Cue Encore Feature is enabled. Gates the "Configure Maestro Cue" context-menu action. */
-	maestroCueEnabled: boolean;
+	/** Whether the OpenWizardAI Cue Encore Feature is enabled. Gates the "Configure OpenWizardAI Cue" context-menu action. */
+	openwizardaiCueEnabled: boolean;
 	handleJumpToStarredSession: (
 		agentId: string,
 		projectPath: string,
@@ -130,9 +130,9 @@ export function useSessionListProps(deps: UseSessionListPropsDeps) {
 			onOpenWorktreeConfig: deps.handleOpenWorktreeConfigSession,
 			onDeleteWorktree: deps.handleDeleteWorktreeSession,
 			// Gate on the Encore Feature flag: when Cue is disabled, leave this
-			// undefined so the "Configure Maestro Cue" context-menu item is hidden
+			// undefined so the "Configure OpenWizardAI Cue" context-menu item is hidden
 			// (the item renders only when onConfigureCue is defined).
-			onConfigureCue: deps.maestroCueEnabled ? deps.handleConfigureCue : undefined,
+			onConfigureCue: deps.openwizardaiCueEnabled ? deps.handleConfigureCue : undefined,
 			onJumpToStarredSession: deps.handleJumpToStarredSession,
 			openWizard: deps.openWizardModal,
 			startTour: deps.handleStartTour,
@@ -181,7 +181,7 @@ export function useSessionListProps(deps: UseSessionListPropsDeps) {
 			deps.handleOpenWorktreeConfigSession,
 			deps.handleDeleteWorktreeSession,
 			deps.handleConfigureCue,
-			deps.maestroCueEnabled,
+			deps.openwizardaiCueEnabled,
 			deps.handleJumpToStarredSession,
 			deps.handleToggleWorktreeExpanded,
 			deps.openWizardModal,

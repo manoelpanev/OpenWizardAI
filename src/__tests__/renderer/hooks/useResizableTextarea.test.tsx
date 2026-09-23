@@ -56,7 +56,7 @@ describe('useResizableTextarea', () => {
 		observers.length = 0;
 		vi.stubGlobal('ResizeObserver', ControllableResizeObserver);
 		useSettingsStore.setState({ textareaHeights: {} });
-		vi.mocked(window.maestro.settings.set).mockClear();
+		vi.mocked(window.openwizardai.settings.set).mockClear();
 	});
 
 	afterEach(() => {
@@ -100,13 +100,13 @@ describe('useResizableTextarea', () => {
 		dragTo(screen.getByTestId('textarea'), 275);
 
 		// Persistence is debounced, so nothing is written mid-drag.
-		expect(window.maestro.settings.set).not.toHaveBeenCalled();
+		expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 		act(() => {
 			vi.advanceTimersByTime(300);
 		});
 
 		expect(useSettingsStore.getState().textareaHeights['test-textarea']).toBe(275);
-		expect(window.maestro.settings.set).toHaveBeenCalledWith('textareaHeights', {
+		expect(window.openwizardai.settings.set).toHaveBeenCalledWith('textareaHeights', {
 			'test-textarea': 275,
 		});
 	});
@@ -129,7 +129,7 @@ describe('useResizableTextarea', () => {
 		vi.useFakeTimers();
 		useSettingsStore.setState({ textareaHeights: { 'test-textarea': 220 } });
 		render(<Harness />);
-		vi.mocked(window.maestro.settings.set).mockClear();
+		vi.mocked(window.openwizardai.settings.set).mockClear();
 
 		// A width change (e.g. the window resizing) fires the observer without
 		// touching the explicit height.
@@ -138,7 +138,7 @@ describe('useResizableTextarea', () => {
 			vi.advanceTimersByTime(300);
 		});
 
-		expect(window.maestro.settings.set).not.toHaveBeenCalled();
+		expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 	});
 
 	it('keeps each key independent', () => {

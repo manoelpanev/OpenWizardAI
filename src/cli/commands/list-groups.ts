@@ -1,5 +1,5 @@
 // List groups command
-// Lists all session groups from Maestro storage
+// Lists all session groups from OpenWizardAI storage
 
 import { readGroups } from '../services/storage';
 import { formatGroups, formatError, GroupDisplay } from '../output/formatter';

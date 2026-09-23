@@ -111,7 +111,7 @@ describe('shouldDropSentryEvent', () => {
 			).toBe(true);
 		});
 
-		// MAESTRO-9V: Electron's catch-all when the OS refuses to trash a path
+		// OPENWIZARDAI-9V: Electron's catch-all when the OS refuses to trash a path
 		// (file open elsewhere, no recycle bin on the volume, permissions). The
 		// delete is user-initiated and the caller already toasts this exact
 		// message, so the crash report on top of it is noise.
@@ -155,7 +155,7 @@ describe('shouldDropSentryEvent', () => {
 				shouldDropSentryEvent(
 					exceptionEvent(
 						'Error',
-						"Error invoking remote method 'sessions:setMany': Error: EACCES: permission denied, open '/Users/x/Library/Application Support/maestro/maestro-sessions.json'"
+						"Error invoking remote method 'sessions:setMany': Error: EACCES: permission denied, open '/Users/x/Library/Application Support/openwizardai/openwizardai-sessions.json'"
 					)
 				)
 			).toBe(true);
@@ -234,7 +234,7 @@ describe('shouldDropSentryEvent', () => {
 			).toBe(true);
 		});
 
-		// Regression (MAESTRO-MR): MarketplaceFetchError carries the original failure
+		// Regression (OPENWIZARDAI-MR): MarketplaceFetchError carries the original failure
 		// as its `cause`, so Sentry's LinkedErrors integration ships TWO exception
 		// values ordered root-cause-first. The classifier used to read values[0]
 		// only, saw the bare `TypeError: fetch failed`, and let the event through -

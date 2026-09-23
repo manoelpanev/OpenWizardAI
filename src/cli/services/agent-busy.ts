@@ -1,5 +1,5 @@
 // Shared agent busy-state checks and wait loop for headless Auto Run commands.
-// Used by `maestro-cli playbook` (run-playbook) and `maestro-cli run-doc`
+// Used by `openwizardai-cli playbook` (run-playbook) and `openwizardai-cli run-doc`
 // (run-doc) so both share one source of truth for busy detection and --wait.
 
 import { getCliActivityForSession, isSessionBusyWithCli } from '../../shared/cli-activity';
@@ -12,9 +12,9 @@ import * as os from 'os';
 /**
  * Check if the desktop app has the session in a busy state.
  *
- * NOTE: This function uses lowercase "maestro" config directory, which matches
- * the electron-store default (from package.json "name": "maestro"). This is
- * intentionally different from cli/services/storage.ts which uses "Maestro"
+ * NOTE: This function uses lowercase "openwizardai" config directory, which matches
+ * the electron-store default (from package.json "name": "openwizardai"). This is
+ * intentionally different from cli/services/storage.ts which uses "OpenWizardAI"
  * (capitalized) for CLI-specific storage. This function needs to read the
  * desktop app's session state, not CLI storage.
  *
@@ -27,20 +27,20 @@ function isSessionBusyInDesktop(sessionId: string): { busy: boolean; reason?: st
 		let configDir: string;
 
 		if (platform === 'darwin') {
-			configDir = path.join(home, 'Library', 'Application Support', 'OpenWizzard');
+			configDir = path.join(home, 'Library', 'Application Support', 'OpenWizardAI');
 		} else if (platform === 'win32') {
 			configDir = path.join(
 				process.env.APPDATA || path.join(home, 'AppData', 'Roaming'),
-				'maestro'
+				'openwizardai'
 			);
 		} else {
 			configDir = path.join(
 				process.env.XDG_CONFIG_HOME || path.join(home, '.config'),
-				'OpenWizzard'
+				'OpenWizardAI'
 			);
 		}
 
-		const sessionsPath = path.join(configDir, 'maestro-sessions.json');
+		const sessionsPath = path.join(configDir, 'openwizardai-sessions.json');
 		const content = fs.readFileSync(sessionsPath, 'utf-8');
 		const data = JSON.parse(content);
 		const sessions = data.sessions || [];

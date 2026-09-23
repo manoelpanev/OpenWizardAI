@@ -20,7 +20,7 @@ interface QuitConfirmModalProps {
 	busyAgentNames: string[];
 	/** Active terminal tasks (e.g., "rc: npm test") */
 	activeTerminalTasks?: string[];
-	/** Number of in-flight Maestro Cue runs */
+	/** Number of in-flight OpenWizardAI Cue runs */
 	activeCueRunCount?: number;
 	/** Number of active (non-idle) group chats */
 	activeGroupChatCount?: number;
@@ -113,7 +113,7 @@ export function QuitConfirmModal({
 						className="text-base font-semibold"
 						style={{ color: theme.colors.textMain }}
 					>
-						Quit OpenWizzard?
+						Quit OpenWizardAI?
 					</h2>
 				</div>
 
@@ -137,7 +137,7 @@ export function QuitConfirmModal({
 						)}
 						{hasCueRuns && (
 							<>
-								{activeCueRunCount} OpenWizzard Cue{' '}
+								{activeCueRunCount} OpenWizardAI Cue{' '}
 								{activeCueRunCount === 1 ? 'operation is' : 'operations are'} running.{' '}
 							</>
 						)}
@@ -232,7 +232,7 @@ export function QuitConfirmModal({
 						</div>
 					)}
 
-					{/* Background operations: Maestro Cue runs and active group chats */}
+					{/* Background operations: OpenWizardAI Cue runs and active group chats */}
 					{(hasCueRuns || hasGroupChats) && (
 						<div
 							className="mt-4 p-3 rounded-lg border"
@@ -257,7 +257,7 @@ export function QuitConfirmModal({
 											className="w-1.5 h-1.5 rounded-full animate-pulse"
 											style={{ backgroundColor: theme.colors.warning }}
 										/>
-										OpenWizzard Cue: {activeCueRunCount}
+										OpenWizardAI Cue: {activeCueRunCount}
 									</span>
 								)}
 								{hasGroupChats && (

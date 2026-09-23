@@ -1,7 +1,7 @@
 /**
  * unreadFilters - the two "show unread only" filters and the combined toggle.
  *
- * Maestro has two independent unread filters: one narrows the Left Bar to
+ * OpenWizardAI has two independent unread filters: one narrows the Left Bar to
  * agents with unread activity, the other narrows the tab bar to unread/draft
  * tabs. They are separate because each is useful alone, but sweeping a busy
  * fleet means turning both on, and doing that by hand is two chords in two

@@ -53,14 +53,14 @@ import { createDirectorNotesApi } from './directorNotes';
 import { createCueApi } from './cue';
 import { createCueBackupApi } from './cueBackup';
 import { createWakatimeApi } from './wakatime';
-import { createMaestroCliApi } from './maestroCli';
+import { createOpenWizardAICliApi } from './openwizardaiCli';
 import { createPromptsApi } from './prompts';
 import { createMemoryApi } from './memory';
 import { createImagesApi } from './images';
 
 // Expose protected methods that allow the renderer process to use
 // the ipcRenderer without exposing the entire object
-contextBridge.exposeInMainWorld('maestro', {
+contextBridge.exposeInMainWorld('openwizardai', {
 	// Settings API
 	settings: createSettingsApi(),
 
@@ -209,14 +209,14 @@ contextBridge.exposeInMainWorld('maestro', {
 	// WakaTime API (CLI check, API key validation)
 	wakatime: createWakatimeApi(),
 
-	// Maestro CLI API (status + install/update)
-	maestroCli: createMaestroCliApi(),
+	// OpenWizardAI CLI API (status + install/update)
+	openwizardaiCli: createOpenWizardAICliApi(),
 	// Core Prompts API (view, edit, reset system prompts)
 	prompts: createPromptsApi(),
 	// Per-project Memory API (Claude Code memory viewer)
 	memory: createMemoryApi(),
 
-	// Session Images API (resolve maestro-image:// refs back to data URLs)
+	// Session Images API (resolve openwizardai-image:// refs back to data URLs)
 	images: createImagesApi(),
 });
 
@@ -295,8 +295,8 @@ export {
 	createCueBackupApi,
 	// WakaTime
 	createWakatimeApi,
-	// Maestro CLI
-	createMaestroCliApi,
+	// OpenWizardAI CLI
+	createOpenWizardAICliApi,
 	// Core Prompts
 	createPromptsApi,
 	// Memory Viewer
@@ -499,9 +499,9 @@ export type {
 	WakatimeApi,
 } from './wakatime';
 export type {
-	// From maestroCli
-	MaestroCliApi,
-} from './maestroCli';
+	// From openwizardaiCli
+	OpenWizardAICliApi,
+} from './openwizardaiCli';
 export type {
 	// From prompts
 	PromptsApi,

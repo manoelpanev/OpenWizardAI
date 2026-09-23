@@ -231,8 +231,8 @@ describe('remote-fs', () => {
 
 	describe('listTreeRemote', () => {
 		// Two find invocations are bundled into one SSH command; output is
-		// `dirs\n__MAESTRO_FIND_SEP__\nfiles`.
-		const SEP = '__MAESTRO_FIND_SEP__';
+		// `dirs\n__OPENWIZARDAI_FIND_SEP__\nfiles`.
+		const SEP = '__OPENWIZARDAI_FIND_SEP__';
 
 		it('parses combined dir/file find output and strips ./ prefixes', async () => {
 			const stdout = `./src\n./src/components\n./docs\n${SEP}\n./README.md\n./src/index.ts\n./src/components/Button.tsx\n`;
@@ -286,7 +286,7 @@ describe('remote-fs', () => {
 				{
 					maxDepth: 4,
 					ignorePatterns: ['node_modules', '.git'],
-					excludePaths: ['.maestro'],
+					excludePaths: ['.openwizardai'],
 					maxFiles: 1000,
 				},
 				baseConfig,
@@ -305,7 +305,7 @@ describe('remote-fs', () => {
 			expect(remoteCommand).toContain("-name 'node_modules'");
 			expect(remoteCommand).toContain("-name '.git'");
 			// excludePaths turn into -path prunes (relative to the cd'd root).
-			expect(remoteCommand).toContain("-path './.maestro'");
+			expect(remoteCommand).toContain("-path './.openwizardai'");
 			// File cap goes to head with cap+1 to detect overflow.
 			expect(remoteCommand).toContain('| head -n 1001');
 			// Symlinks followed so symlinks-to-dirs appear as their target.

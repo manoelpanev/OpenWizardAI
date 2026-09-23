@@ -50,7 +50,7 @@ vi.mock('better-sqlite3', () => {
 });
 
 // Mock electron's app module with trackable userData path
-const mockUserDataPath = path.join(os.tmpdir(), 'maestro-test-stats-db');
+const mockUserDataPath = path.join(os.tmpdir(), 'openwizardai-test-stats-db');
 vi.mock('electron', () => ({
 	app: {
 		getPath: vi.fn((name: string) => {
@@ -1484,9 +1484,9 @@ describe('Aggregation queries return correct calculations', () => {
  * platform-appropriate path on macOS, Windows, and Linux. Electron's
  * app.getPath('userData') returns:
  *
- * - macOS: ~/Library/Application Support/Maestro/
- * - Windows: %APPDATA%\Maestro\ (e.g., C:\Users\<user>\AppData\Roaming\Maestro\)
- * - Linux: ~/.config/Maestro/
+ * - macOS: ~/Library/Application Support/OpenWizardAI/
+ * - Windows: %APPDATA%\OpenWizardAI\ (e.g., C:\Users\<user>\AppData\Roaming\OpenWizardAI\)
+ * - Linux: ~/.config/OpenWizardAI/
  *
  * The stats database is always created at {userData}/stats.db
  */

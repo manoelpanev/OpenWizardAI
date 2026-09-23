@@ -17,7 +17,6 @@ import type { Theme, Shortcut } from '../types';
 import { formatShortcutKeys } from '../utils/shortcutFormatter';
 import { useClickOutside } from '../hooks';
 import { WelcomeContent } from './WelcomeContent';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 import { openUrl } from '../utils/openUrl';
 
 interface EmptyStateViewProps {
@@ -78,7 +77,7 @@ export function EmptyStateView({
 						className="font-bold tracking-widest text-lg"
 						style={{ color: theme.colors.textMain }}
 					>
-						OPENWIZZARD
+						OPENWIZARDAI
 					</h1>
 				</div>
 
@@ -222,7 +221,7 @@ export function EmptyStateView({
 
 								<button
 									onClick={() => {
-										openUrl(buildMaestroUrl('https://runmaestro.ai'));
+										openUrl('https://github.com/manoelpanev/OpenWizardAI');
 										setMenuOpen(false);
 									}}
 									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-white/10 transition-colors text-left"
@@ -230,10 +229,10 @@ export function EmptyStateView({
 									<Globe className="w-5 h-5" style={{ color: theme.colors.textDim }} />
 									<div className="flex-1">
 										<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-											OpenWizzard Website
+											OpenWizardAI Website
 										</div>
 										<div className="text-xs" style={{ color: theme.colors.textDim }}>
-											Visit runmaestro.ai
+											github.com/manoelpanev/OpenWizardAI
 										</div>
 									</div>
 									<ExternalLink className="w-4 h-4" style={{ color: theme.colors.textDim }} />
@@ -241,7 +240,7 @@ export function EmptyStateView({
 
 								<button
 									onClick={() => {
-										openUrl(buildMaestroUrl('https://docs.runmaestro.ai'));
+										openUrl('https://github.com/manoelpanev/OpenWizardAI/tree/main/docs');
 										setMenuOpen(false);
 									}}
 									className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-white/10 transition-colors text-left"
@@ -252,7 +251,7 @@ export function EmptyStateView({
 											Documentation
 										</div>
 										<div className="text-xs" style={{ color: theme.colors.textDim }}>
-											See usage docs on docs.runmaestro.ai
+											See usage docs on github.com/manoelpanev/OpenWizardAI/tree/main/docs
 										</div>
 									</div>
 									<ExternalLink className="w-4 h-4" style={{ color: theme.colors.textDim }} />
@@ -268,7 +267,7 @@ export function EmptyStateView({
 									<Info className="w-5 h-5" style={{ color: theme.colors.textDim }} />
 									<div className="flex-1">
 										<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-											About OpenWizzard
+											About OpenWizardAI
 										</div>
 										<div className="text-xs" style={{ color: theme.colors.textDim }}>
 											Version, Credits, Stats

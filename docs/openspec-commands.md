@@ -4,11 +4,11 @@ description: Spec-driven development workflow for managing code changes with AI-
 icon: code-pull-request
 ---
 
-OpenSpec is a spec-driven development tool from [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) that ensures alignment between humans and AI coding assistants before any code is written. Maestro bundles these workflow commands and keeps them updated automatically.
+OpenSpec is a spec-driven development tool from [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) that ensures alignment between humans and AI coding assistants before any code is written. OpenWizardAI bundles these workflow commands and keeps them updated automatically.
 
 ## OpenSpec vs. Spec-Kit
 
-Maestro offers two complementary spec-driven development tools:
+OpenWizardAI offers two complementary spec-driven development tools:
 
 | Feature       | OpenSpec                               | Spec-Kit                              |
 | ------------- | -------------------------------------- | ------------------------------------- |
@@ -32,7 +32,7 @@ Maestro offers two complementary spec-driven development tools:
 - Creating detailed feature specifications
 - Breaking down work into implementation tasks
 
-Both tools integrate with Maestro's Auto Run for autonomous execution.
+Both tools integrate with OpenWizardAI's Auto Run for autonomous execution.
 
 ## Core Workflow
 
@@ -75,21 +75,21 @@ After deployment, archive the completed change:
 
 **CLI command:** `openspec archive <change-id> --yes` (use `--skip-specs` for tooling-only changes that don't affect capabilities)
 
-## Maestro-Specific Commands
+## OpenWizardAI-Specific Commands
 
 ### `/openspec.implement` - Generate Auto Run Documents
 
-Bridges OpenSpec with Maestro's Auto Run:
+Bridges OpenSpec with OpenWizardAI's Auto Run:
 
 1. Reads the proposal and tasks from a change
 2. Converts tasks into Auto Run document format with phases
-3. Saves to `.maestro/playbooks/` with task checkboxes (filename: `OpenSpec-<change-id>-Phase-XX-[Description].md`)
+3. Saves to `.openwizardai/playbooks/` with task checkboxes (filename: `OpenSpec-<change-id>-Phase-XX-[Description].md`)
 4. Preserves task IDs (T001, T002, etc.) for traceability
 5. Groups related tasks into logical phases (5-15 tasks each)
 
 ### `/openspec.help` - Workflow Overview
 
-Get help with OpenSpec concepts and Maestro integration.
+Get help with OpenSpec concepts and OpenWizardAI integration.
 
 ## Directory Structure
 
@@ -162,7 +162,7 @@ Access OpenSpec commands via **Settings → AI Commands** tab. Here you can:
 - **Edit prompts** - Customize prompts for your workflow
 - **Reset to default** - Restore modified prompts to bundled version
 
-Commands marked with a **Maestro** badge are Maestro-specific additions to the upstream workflow.
+Commands marked with a **OpenWizardAI** badge are OpenWizardAI-specific additions to the upstream workflow.
 
 <Frame>
   <img src="./screenshots/openspec-commands.png" alt="OpenSpec commands in the AI Commands panel" />

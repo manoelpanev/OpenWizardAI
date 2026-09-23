@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { PLAYBOOKS_DIR } from '../../../../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../../../../shared/openwizardai-paths';
 import { joinPath } from '../../../../../../shared/formatters';
 import { gitService } from '../../../../../services/git';
 import { logger } from '../../../../../utils/logger';
@@ -51,7 +51,7 @@ export function useDirectoryActions({
 		setIsBrowsing(true);
 
 		try {
-			const selectedPath = await window.maestro.dialog.selectFolder();
+			const selectedPath = await window.openwizardai.dialog.selectFolder();
 			if (selectedPath) {
 				setDirectoryPath(selectedPath);
 				await validateDirectory(selectedPath);
@@ -95,10 +95,10 @@ export function useDirectoryActions({
 		// separator (or a bare "/") would otherwise double up and read as a UNC path.
 		const autoRunPath = joinPath(directoryPath, PLAYBOOKS_DIR);
 		const sshRemoteId = getSshRemoteId();
-		let result: Awaited<ReturnType<typeof window.maestro.autorun.listDocs>>;
+		let result: Awaited<ReturnType<typeof window.openwizardai.autorun.listDocs>>;
 
 		try {
-			result = await window.maestro.autorun.listDocs(autoRunPath, sshRemoteId);
+			result = await window.openwizardai.autorun.listDocs(autoRunPath, sshRemoteId);
 		} catch (error) {
 			if (isRecoverableAutoRunDocsError(error)) {
 				nextStep();

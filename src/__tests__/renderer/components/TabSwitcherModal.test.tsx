@@ -101,8 +101,8 @@ describe('TabSwitcherModal', () => {
 		Element.prototype.scrollIntoView = vi.fn();
 
 		// Reset the mocks for each test
-		vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([]);
-		vi.mocked(window.maestro.agentSessions.updateSessionName).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([]);
+		vi.mocked(window.openwizardai.agentSessions.updateSessionName).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -964,7 +964,7 @@ describe('TabSwitcherModal', () => {
 		it('switches to All Named mode on pill click', async () => {
 			const tabs = [createTestTab({ name: 'Open Tab' })];
 
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([
 				{
 					agentId: 'claude-code',
 					agentSessionId: 'closed-123-abc-def-789',
@@ -988,7 +988,7 @@ describe('TabSwitcherModal', () => {
 
 			// Wait for named sessions to load
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			// Click All Named pill
@@ -1024,7 +1024,7 @@ describe('TabSwitcherModal', () => {
 		});
 
 		it('shows "Closed" badge for closed named sessions', async () => {
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([
 				{
 					agentId: 'claude-code',
 					agentSessionId: 'closed-session-id',
@@ -1047,7 +1047,7 @@ describe('TabSwitcherModal', () => {
 
 			// Wait for load
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			fireEvent.click(screen.getByText(/All Named/));
@@ -1058,7 +1058,7 @@ describe('TabSwitcherModal', () => {
 		});
 
 		it('filters named sessions by current project', async () => {
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([
 				{
 					agentId: 'claude-code',
 					agentSessionId: 'same-project-id',
@@ -1092,7 +1092,7 @@ describe('TabSwitcherModal', () => {
 			);
 
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			fireEvent.click(screen.getByText(/All Named/));
@@ -1108,7 +1108,7 @@ describe('TabSwitcherModal', () => {
 			const starredTab = createTestTab({ name: 'Starred Tab', starred: true });
 			const unstarredTab = createTestTab({ name: 'Unstarred Tab', starred: false });
 
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([
 				{
 					agentId: 'claude-code',
 					agentSessionId: 'starred-closed-123',
@@ -1138,7 +1138,7 @@ describe('TabSwitcherModal', () => {
 			);
 
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			// Click Starred pill (use exact pattern to avoid matching list items)
@@ -1158,7 +1158,7 @@ describe('TabSwitcherModal', () => {
 		});
 
 		it('shows "No starred sessions" when there are no starred items', async () => {
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([]);
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([]);
 
 			renderWithLayerStack(
 				<TabSwitcherModal
@@ -1173,7 +1173,7 @@ describe('TabSwitcherModal', () => {
 			);
 
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			fireEvent.click(screen.getByRole('button', { name: /Starred \(\d+\)/ }));
@@ -1188,7 +1188,7 @@ describe('TabSwitcherModal', () => {
 			const starredTab2 = createTestTab({ name: 'Starred 2', starred: true });
 			const unstarredTab = createTestTab({ name: 'Unstarred', starred: false });
 
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([
 				{
 					agentId: 'claude-code',
 					agentSessionId: 'starred-closed-abc',
@@ -1211,7 +1211,7 @@ describe('TabSwitcherModal', () => {
 			);
 
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			// Should show count of 3: 2 open starred + 1 closed starred
@@ -1757,7 +1757,7 @@ describe('TabSwitcherModal', () => {
 		});
 
 		it('calls onNamedSessionSelect when clicking a closed named session', async () => {
-			vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue([
+			vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue([
 				{
 					agentId: 'claude-code',
 					agentSessionId: 'closed-abc-123',
@@ -1783,7 +1783,7 @@ describe('TabSwitcherModal', () => {
 			);
 
 			await waitFor(() => {
-				expect(window.maestro.agentSessions.getAllNamedSessions).toHaveBeenCalled();
+				expect(window.openwizardai.agentSessions.getAllNamedSessions).toHaveBeenCalled();
 			});
 
 			fireEvent.click(screen.getByText(/All Named/));
@@ -1825,8 +1825,8 @@ describe('TabSwitcherModal', () => {
 
 			await waitFor(() => {
 				// Should sync only the named tab
-				// For claude-code sessions (default), it uses window.maestro.claude.updateSessionName
-				expect(window.maestro.claude.updateSessionName).toHaveBeenCalledWith(
+				// For claude-code sessions (default), it uses window.openwizardai.claude.updateSessionName
+				expect(window.openwizardai.claude.updateSessionName).toHaveBeenCalledWith(
 					'/test/project',
 					'session-123',
 					'Named Tab'
@@ -1834,14 +1834,14 @@ describe('TabSwitcherModal', () => {
 			});
 
 			// Should NOT sync the unnamed tab (only 1 call total)
-			expect(window.maestro.claude.updateSessionName).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.claude.updateSessionName).toHaveBeenCalledTimes(1);
 		});
 
 		it('handles sync errors gracefully', async () => {
 			const consoleSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
 
-			// For claude-code sessions (default), it uses window.maestro.claude.updateSessionName
-			vi.mocked(window.maestro.claude.updateSessionName).mockRejectedValue(
+			// For claude-code sessions (default), it uses window.openwizardai.claude.updateSessionName
+			vi.mocked(window.openwizardai.claude.updateSessionName).mockRejectedValue(
 				new Error('Sync failed')
 			);
 

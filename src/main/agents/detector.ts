@@ -598,7 +598,7 @@ export class AgentDetector {
 						//     `Warning: Unknown --effort value 'x' - ignoring it and using the default effort. Valid values: low, medium, high, xhigh, max.`
 						const probe = await execFileNoThrow(
 							command,
-							['--effort', '__maestro_probe__', '--version'],
+							['--effort', '__openwizardai_probe__', '--version'],
 							undefined,
 							env
 						);

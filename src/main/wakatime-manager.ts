@@ -199,7 +199,7 @@ function fetchJson(url: string, maxRedirects = 5): Promise<unknown> {
 		const options = {
 			hostname: parsedUrl.hostname,
 			path: parsedUrl.pathname + parsedUrl.search,
-			headers: { 'User-Agent': 'maestro-wakatime' },
+			headers: { 'User-Agent': 'openwizardai-wakatime' },
 		};
 		https
 			.get(options, (response) => {
@@ -241,10 +241,10 @@ const BRANCH_CACHE_TTL_MS = 5 * 60 * 1000;
 /**
  * Minimal read surface this manager needs from the settings store.
  *
- * Declared structurally rather than as `Store<MaestroSettings>` so the same
+ * Declared structurally rather than as `Store<OpenWizardAISettings>` so the same
  * manager runs in three places: the Electron main process (electron-store
- * satisfies this shape as-is), the `maestro-cli` esbuild bundle (which has no
- * native modules and reads `maestro-settings.json` directly), and tests.
+ * satisfies this shape as-is), the `openwizardai-cli` esbuild bundle (which has no
+ * native modules and reads `openwizardai-settings.json` directly), and tests.
  */
 export interface WakaTimeSettingsSource {
 	get(key: 'wakatimeEnabled', defaultValue: boolean): boolean;
@@ -254,7 +254,7 @@ export interface WakaTimeSettingsSource {
 
 /**
  * Identifies the surface that produced a heartbeat. WakaTime shows this as the
- * "editor", which is how Maestro-driven time is told apart from the time
+ * "editor", which is how OpenWizardAI-driven time is told apart from the time
  * Anthropic's own Claude Code plugin reports for the same `claude` process.
  */
 export type WakaTimeOrigin = 'desktop' | 'cue' | 'cli';
@@ -266,11 +266,11 @@ export interface HeartbeatContext {
 	 * True when the agent runs on an SSH remote. Local git/manifest probing is
 	 * skipped in that case: `projectCwd` is a path on the REMOTE host, and a
 	 * path of the same name usually also exists locally (both machines check
-	 * out `~/Projects/Maestro`), so probing it would silently report the local
+	 * out `~/Projects/OpenWizardAI`), so probing it would silently report the local
 	 * machine's branch and language for a remote session.
 	 */
 	isRemote?: boolean;
-	/** Which Maestro surface drove this heartbeat. Defaults to `desktop`. */
+	/** Which OpenWizardAI surface drove this heartbeat. Defaults to `desktop`. */
 	origin?: WakaTimeOrigin;
 }
 
@@ -295,12 +295,12 @@ export class WakaTimeManager {
 	 *
 	 * The origin rides in the editor name so a WakaTime `slice_by=editor` query
 	 * separates desktop chat from Cue runs from CLI/playbook runs. Without it
-	 * every surface collapses into one "Maestro" bucket and there is no way to
+	 * every surface collapses into one "OpenWizardAI" bucket and there is no way to
 	 * tell which one is actually driving the time.
 	 */
 	private pluginString(origin: WakaTimeOrigin = 'desktop'): string {
-		const editor = origin === 'desktop' ? 'maestro' : `maestro-${origin}`;
-		return `${editor}/${this.appVersion} maestro-wakatime/${this.appVersion}`;
+		const editor = origin === 'desktop' ? 'openwizardai' : `openwizardai-${origin}`;
+		return `${editor}/${this.appVersion} openwizardai-wakatime/${this.appVersion}`;
 	}
 
 	/** Get the expected local install path for the WakaTime CLI binary */
@@ -627,7 +627,7 @@ export class WakaTimeManager {
 			'--key',
 			apiKey,
 			'--entity',
-			'OpenWizzard',
+			'OpenWizardAI',
 			'--entity-type',
 			'app',
 			'--project',

@@ -10,7 +10,7 @@
 
 import type { Session, ToolType, ProcessConfig } from '../types';
 import { createMergedSession } from './tabHelpers';
-import { getStdinFlags, prepareMaestroSystemPrompt } from './spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from './spawnHelpers';
 import { logger } from './logger';
 
 /**
@@ -84,7 +84,7 @@ export interface BuildSpawnConfigOptions {
 	};
 	/** Whether the prompt includes images (default: false) */
 	hasImages?: boolean;
-	/** Maestro system prompt to append (injected via --append-system-prompt) */
+	/** OpenWizardAI system prompt to append (injected via --append-system-prompt) */
 	appendSystemPrompt?: string;
 }
 
@@ -96,7 +96,7 @@ export interface BuildSpawnConfigOptions {
  * appropriate command line arguments.
  *
  * @param options - Configuration options for the spawn
- * @returns ProcessConfig ready to pass to window.maestro.process.spawn()
+ * @returns ProcessConfig ready to pass to window.openwizardai.process.spawn()
  *
  * @example
  * const spawnConfig = await buildSpawnConfigForAgent({
@@ -107,7 +107,7 @@ export interface BuildSpawnConfigOptions {
  *   readOnlyMode: false,
  * });
  *
- * await window.maestro.process.spawn(spawnConfig);
+ * await window.openwizardai.process.spawn(spawnConfig);
  */
 export async function buildSpawnConfigForAgent(
 	options: BuildSpawnConfigOptions
@@ -133,7 +133,7 @@ export async function buildSpawnConfigForAgent(
 	} = options;
 
 	// Fetch the agent configuration from main process
-	const agentConfig = await window.maestro.agents.get(toolType);
+	const agentConfig = await window.openwizardai.agents.get(toolType);
 
 	if (!agentConfig) {
 		logger.error(`[sessionHelpers] Agent not found: ${toolType}`);
@@ -204,7 +204,7 @@ export async function buildSpawnConfigForAgent(
  *
  * The caller is responsible for:
  * - Adding the session to app state
- * - Calling window.maestro.process.spawn() with the returned spawnConfig
+ * - Calling window.openwizardai.process.spawn() with the returned spawnConfig
  * - Handling the agent's output
  *
  * @param options - Configuration for the new session
@@ -224,7 +224,7 @@ export async function buildSpawnConfigForAgent(
  *   setSessions(prev => [...prev, result.session]);
  *
  *   // Spawn the agent with the initial context
- *   await window.maestro.process.spawn(result.spawnConfig);
+ *   await window.openwizardai.process.spawn(result.spawnConfig);
  * }
  */
 export async function createSessionForAgent(
@@ -233,7 +233,7 @@ export async function createSessionForAgent(
 	const { agentType, projectRoot, name, initialContext, groupId, saveToHistory = true } = options;
 
 	// Verify the agent is available
-	const agentConfig = await window.maestro.agents.get(agentType);
+	const agentConfig = await window.openwizardai.agents.get(agentType);
 
 	if (!agentConfig) {
 		logger.error(`[sessionHelpers] Agent not found: ${agentType}`);
@@ -256,8 +256,8 @@ export async function createSessionForAgent(
 		saveToHistory,
 	});
 
-	// Prepare Maestro system prompt for new sessions
-	const appendSystemPrompt = await prepareMaestroSystemPrompt({ session });
+	// Prepare OpenWizardAI system prompt for new sessions
+	const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({ session });
 
 	// Build the spawn configuration
 	const spawnConfig = await buildSpawnConfigForAgent({
@@ -288,7 +288,7 @@ export async function createSessionForAgent(
  * @returns True if the agent supports receiving transferred context
  */
 export async function agentSupportsContextTransfer(agentType: ToolType): Promise<boolean> {
-	const capabilities = await window.maestro.agents.getCapabilities(agentType);
+	const capabilities = await window.openwizardai.agents.getCapabilities(agentType);
 	return capabilities?.supportsContextMerge ?? false;
 }
 
@@ -303,7 +303,7 @@ export async function getAgentInfo(agentType: ToolType): Promise<{
 	available: boolean;
 	capabilities: any;
 } | null> {
-	const agentConfig = await window.maestro.agents.get(agentType);
+	const agentConfig = await window.openwizardai.agents.get(agentType);
 
 	if (!agentConfig) {
 		return null;
@@ -353,7 +353,7 @@ export interface SessionSshInfo {
  * const sshId = getSessionSshRemoteId(session);
  *
  * // Use for SSH operations
- * await window.maestro.fs.readFile(path, getSessionSshRemoteId(session));
+ * await window.openwizardai.fs.readFile(path, getSessionSshRemoteId(session));
  * await gitService.isRepo(path, getSessionSshRemoteId(session));
  */
 export function getSessionSshRemoteId(

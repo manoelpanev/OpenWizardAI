@@ -2,13 +2,13 @@
 
 # UI Patterns
 
-Shared UI patterns, component library, and design system conventions for the Maestro renderer.
+Shared UI patterns, component library, and design system conventions for the OpenWizardAI renderer.
 
 ---
 
 ## Modal System (LayerStack)
 
-Maestro uses a centralized **LayerStack** to manage all modals, overlays, and search interfaces. Every dismissable UI surface registers with the stack so that Escape always closes the topmost layer first.
+OpenWizardAI uses a centralized **LayerStack** to manage all modals, overlays, and search interfaces. Every dismissable UI surface registers with the stack so that Escape always closes the topmost layer first.
 
 ### Architecture
 
@@ -124,7 +124,7 @@ function SettingsModal({ theme, onClose }: Props) {
 
 ### Modal Sizing (max footprint)
 
-**The Maestro Cue modal (`90vw x 90vh`) is the maximum modal size.** No modal should exceed it - not even an "expanded" or "fullscreen" state. The Cue modal (`src/renderer/components/CueModal/CueModal.tsx`) sets `width: '90vw'; height: '90vh'` on its container; treat that as the app-wide ceiling.
+**The OpenWizardAI Cue modal (`90vw x 90vh`) is the maximum modal size.** No modal should exceed it - not even an "expanded" or "fullscreen" state. The Cue modal (`src/renderer/components/CueModal/CueModal.tsx`) sets `width: '90vw'; height: '90vh'` on its container; treat that as the app-wide ceiling.
 
 Guidance:
 
@@ -141,7 +141,7 @@ A modal opts into drag-to-resize by passing `resizeKey` to `<Modal>`. Do NOT han
 ```tsx
 <Modal
 	theme={theme}
-	title="About Maestro"
+	title="About OpenWizardAI"
 	priority={MODAL_PRIORITIES.ABOUT}
 	onClose={onClose}
 	resizeKey="about" // stable, unique; enables the resize handles
@@ -316,7 +316,7 @@ const { hasOpenLayers, hasOpenModal, layerCount } = useLayerStack();
 
 ### Debug API
 
-In development mode, `window.__MAESTRO_DEBUG__.layers` provides:
+In development mode, `window.__OPENWIZARDAI_DEBUG__.layers` provides:
 
 - `list()` - print all layers in a table
 - `top()` - log the topmost layer
@@ -479,11 +479,11 @@ Four details that are easy to miss:
 
 **Highlights are pushed, not passed.** CM6 owns its document, so re-rendering the component will not move a decoration and rebuilding the view throws away the undo history and the caret. Push matches through `setSearchMatches(ranges, index)` from an effect, building the ranges with `searchMatchRanges(text, query)` from `utils/highlightMatches` - it runs the same `splitOnMatches()` the rendered preview highlights with, so the two modes cannot disagree about what counts as a hit. Pass `-1` for the active index when the query is a FILTER rather than a find bar: there is no cursor into the results, so every hit gets the same wash.
 
-**A read-only pane needs both halves of the switch.** `<MarkdownEditor readOnly>` pushes `EditorState.readOnly` (refuses edits) AND `EditorView.editable.of(false)` (drops the caret and the `contenteditable` attribute). Setting only the first leaves a pane that still looks like a text box and silently swallows typing. Reach for it whenever the document is a reference rather than a draft - the Maestro Prompts tab renders the bundled default that way.
+**A read-only pane needs both halves of the switch.** `<MarkdownEditor readOnly>` pushes `EditorState.readOnly` (refuses edits) AND `EditorView.editable.of(false)` (drops the caret and the `contenteditable` attribute). Setting only the first leaves a pane that still looks like a text box and silently swallows typing. Reach for it whenever the document is a reference rather than a draft - the OpenWizardAI Prompts tab renders the bundled default that way.
 
 **A host-owned popup claims keys by returning `true` from `onKeyDown`.** That handler is installed at `Prec.highest`, so it sees the key before CodeMirror's own keymap; returning anything else leaves the key to the editor. Without the precedence the arrow keys would have already moved the caret by the time a popup was offered them, which is what makes a `{{`-autocomplete over CM6 possible at all (see `useEditorTemplateAutocomplete`). Returning nothing is the safe default and matches the pre-existing behaviour.
 
-`MemoryViewer` is the reference implementation. Settings -> Maestro Prompts (`MaestroPromptsTab`) is the second rider and shows the variations: it opens on `edit` rather than `preview` (a prompt is opened here to be changed), and its Preview resolves `{{TEMPLATE}}` variables against the active agent first, because what matters about a prompt is what the agent finally receives.
+`MemoryViewer` is the reference implementation. Settings -> OpenWizardAI Prompts (`OpenWizardAIPromptsTab`) is the second rider and shows the variations: it opens on `edit` rather than `preview` (a prompt is opened here to be changed), and its Preview resolves `{{TEMPLATE}}` variables against the active agent first, because what matters about a prompt is what the agent finally receives.
 
 ### Keyboard Navigation in a `<DualPaneFileEditor>` List
 
@@ -631,7 +631,7 @@ Testing this in jsdom cannot assert a height - there is no layout engine, and ev
 
 The 16 ANSI slots map onto the ACTIVE theme, not the xterm palette, with a semantic fallback (`error` / `success` / `warning` / `accent`) for any slot a theme does not declare. Do NOT hand-roll another `new Convert({...})`: a second palette drifts the first time a theme adds a color, and the two surfaces then disagree about what "bright green" means.
 
-Two things have to be true for color to reach the screen, and the renderer only owns one of them. **Nothing Maestro spawns is a TTY**, so the producer suppresses color by default: git needs `-c color.ui=always` and anything its hooks run (a test suite, a linter) needs `FORCE_COLOR=1` / `CLICOLOR_FORCE=1` in the spawn env. A surface that renders ANSI perfectly still shows a wall of gray if its spawn site forgot that half.
+Two things have to be true for color to reach the screen, and the renderer only owns one of them. **Nothing OpenWizardAI spawns is a TTY**, so the producer suppresses color by default: git needs `-c color.ui=always` and anything its hooks run (a test suite, a linter) needs `FORCE_COLOR=1` / `CLICOLOR_FORCE=1` in the spawn env. A surface that renders ANSI perfectly still shows a wall of gray if its spawn site forgot that half.
 
 **Collapse carriage returns BEFORE converting.** `processCarriageReturns()` turns `Writing objects: 42%\r...100%` back into the single line a terminal would have shown; converting first emits a screen of dead progress rows instead. And any regex run against output that may now carry color (the "no upstream branch" probe, for one) must go through `stripAnsiCodes()` first, or a code landing mid-phrase hides the match.
 
@@ -671,8 +671,8 @@ src/renderer/constants/themes.ts - Re-exports for renderer imports
 
 ### `src/shared/themes.ts` Is Public API
 
-The RunMaestro.ai website generates its theme picker from this file. It checks
-out RunMaestro/Maestro in CI (and on a daily cron) and fails its build when its
+The manoelpanev.ai website generates its theme picker from this file. It checks
+out manoelpanev/OpenWizardAI in CI (and on a daily cron) and fails its build when its
 generated palette drifts from ours. Renaming the file, moving the `THEMES`
 export, or changing its shape turns that repo red with no signal here, so treat
 the export surface as public and change it deliberately.
@@ -722,7 +722,7 @@ Three modes with built-in themes:
 
 **Light**: github-light, solarized-light, one-light, gruvbox-light, catppuccin-latte, ayu-light
 
-**Vibe**: pedurple, maestros-choice, dre-synth, winamp
+**Vibe**: pedurple, openwizardais-choice, dre-synth, winamp
 
 Plus `custom` - user-defined via Custom Theme Builder.
 
@@ -832,7 +832,7 @@ Do NOT reach for it to add a global shortcut. Those belong in `constants/shortcu
 
 Every user-reachable action wants both a chord and a command-palette entry, and the palette entry is where a user LEARNS the chord. Two silent failures live at that seam, and `src/__tests__/renderer/components/QuickActionsModal/paletteShortcutCoverage.test.ts` locks both down:
 
-- **A dead lookup.** `shortcuts` and `tabShortcuts` are `Record<string, Shortcut>`, so `shortcuts.maestroCue` type-checks perfectly, evaluates to `undefined`, and renders an entry with no chord beside it. The real id was `openCue`; three more (`mergeSession`, `sendToAgent`, `summarizeAndContinue`) named shortcuts that never existed. Nothing in `tsc` or a render test catches this - the entry looks fine, it is simply missing the one thing that teaches the keyboard.
+- **A dead lookup.** `shortcuts` and `tabShortcuts` are `Record<string, Shortcut>`, so `shortcuts.openwizardaiCue` type-checks perfectly, evaluates to `undefined`, and renders an entry with no chord beside it. The real id was `openCue`; three more (`mergeSession`, `sendToAgent`, `summarizeAndContinue`) named shortcuts that never existed. Nothing in `tsc` or a render test catches this - the entry looks fine, it is simply missing the one thing that teaches the keyboard.
 - **A missing entry.** A shortcut with no palette command is reachable only by someone who already knows the chord, which is the opposite of what the palette is for.
 
 The test greps the whole `QuickActionsModal/` tree for `shortcuts.<id>`, `tabShortcuts?.<id>`, and `FIXED_SHORTCUTS.<id>`, checks each id against the real maps, and then asserts the reverse: every id in `DEFAULT_SHORTCUTS` / `TAB_SHORTCUTS` is either wired to an entry or listed in `NO_PALETTE_ENTRY_BY_DESIGN` (the palette takes focus, so `quickAction` and `agentSwitcher` cannot be invoked from inside it) or `MISSING_PALETTE_ENTRY` (a real gap, each one waiting on a callback threaded to the palette). It is an exact ledger, not an allow-anything set: **adding a shortcut fails this test until you either wire its entry or record it as a gap with a reason.** Remove an id from `MISSING_PALETTE_ENTRY` in the same change that adds its entry.
@@ -856,7 +856,7 @@ Toasts use the **same five-color design language** as Center Flash (`green | yel
 ```text
 src/renderer/stores/notificationStore.ts - Zustand store + notifyToast()
 src/renderer/components/Toast.tsx        - ToastContainer + ToastItem
-src/cli/commands/notify-toast.ts         - `maestro-cli notify toast` command (external trigger)
+src/cli/commands/notify-toast.ts         - `openwizardai-cli notify toast` command (external trigger)
 ```
 
 ### Firing a Toast (in-app)
@@ -890,23 +890,23 @@ notifyToast({
 2. Color resolution (color > legacy type > 'theme')
 3. Duration calculation (config seconds → ms; sticky when `dismissible: true`)
 4. Adding to visible queue (unless toasts disabled with `defaultDuration: -1`)
-5. Logging via `window.maestro.logger.toast`
-6. Audio feedback via `window.maestro.notification.speak` (if enabled)
-7. OS desktop notification via `window.maestro.notification.show` (if enabled)
+5. Logging via `window.openwizardai.logger.toast`
+6. Audio feedback via `window.openwizardai.notification.speak` (if enabled)
+7. OS desktop notification via `window.openwizardai.notification.show` (if enabled)
 8. Auto-dismiss timer (skipped for dismissible toasts)
 
-### Firing a Toast (external - `maestro-cli`)
+### Firing a Toast (external - `openwizardai-cli`)
 
 ```bash
 # Default - themed, auto-dismisses on the app's default schedule.
-maestro-cli notify toast "Build" "Build succeeded on main"
+openwizardai-cli notify toast "Build" "Build succeeded on main"
 
 # Pick a color and a custom duration.
-maestro-cli notify toast "Tests" "All green" --color green --timeout 10
-maestro-cli notify toast "Quota" "Approaching limit" --color orange --timeout 30
+openwizardai-cli notify toast "Tests" "All green" --color green --timeout 10
+openwizardai-cli notify toast "Quota" "Approaching limit" --color orange --timeout 30
 
 # Sticky - user must click to dismiss. Cannot combine with --timeout.
-maestro-cli notify toast "Action required" "Approve the PR before EOD" \
+openwizardai-cli notify toast "Action required" "Approve the PR before EOD" \
     --color red --dismissible
 ```
 
@@ -1018,7 +1018,7 @@ Do NOT add a new hard-coded five-digit z-index. If a surface needs to sit above 
 
 **Center Flash** is the canonical mechanism for momentary, center-screen acknowledgements of user-initiated actions. It is intentionally distinct from the Toast system - they are **not** interchangeable. Use the decision table below; do not hand-roll a new flash component.
 
-The Center Flash visual is **themed** - every Maestro theme produces a visually distinct flash by default. The card uses the active theme's `bgSidebar` with an accent-tinted overlay; the icon, border, and glow take the resolved color (default: `theme.colors.accent`).
+The Center Flash visual is **themed** - every OpenWizardAI theme produces a visually distinct flash by default. The card uses the active theme's `bgSidebar` with an accent-tinted overlay; the icon, border, and glow take the resolved color (default: `theme.colors.accent`).
 
 ### Decision: Center Flash vs Toast
 
@@ -1039,7 +1039,7 @@ The Center Flash visual is **themed** - every Maestro theme produces a visually 
 src/renderer/stores/centerFlashStore.ts  - Zustand store + notifyCenterFlash() / dismissCenterFlash()
 src/renderer/components/CenterFlash/     - <CenterFlash /> component (mounted once in App.tsx via portal)
 src/renderer/utils/flashCopiedToClipboard.ts - clipboard-ack helper
-src/cli/commands/notify-flash.ts         - `maestro-cli notify flash` command (external trigger)
+src/cli/commands/notify-flash.ts         - `openwizardai-cli notify flash` command (external trigger)
 ```
 
 Center Flash is **exclusive** - only one is visible at a time. A new flash replaces the previous one (no queue). The component is mounted once in `App.tsx` next to `<ToastContainer />`; do not mount it locally inside features.
@@ -1068,18 +1068,18 @@ flashCopiedToClipboard(value, 'Session ID Copied'); // custom title
 
 **Always** prefer `flashCopiedToClipboard` for clipboard-success acks so wording, color, and duration stay consistent across the app.
 
-### Firing a flash (external - `maestro-cli`)
+### Firing a flash (external - `openwizardai-cli`)
 
 ```bash
-# Default - themed, matches the active Maestro theme. Auto-dismisses after 1.5 s.
-maestro-cli notify flash "Build complete"
+# Default - themed, matches the active OpenWizardAI theme. Auto-dismisses after 1.5 s.
+openwizardai-cli notify flash "Build complete"
 
 # Pick an explicit color. One of: green, yellow, orange, red, theme.
-maestro-cli notify flash "Tests passed" --color green
-maestro-cli notify flash "Production deploy starting" --color orange --detail "v1.42.0"
+openwizardai-cli notify flash "Tests passed" --color green
+openwizardai-cli notify flash "Production deploy starting" --color orange --detail "v1.42.0"
 
 # Control how long it stays. --timeout is in seconds (max 5).
-maestro-cli notify flash "CI failed on main" --color red --timeout 5
+openwizardai-cli notify flash "CI failed on main" --color red --timeout 5
 ```
 
 External integrations should pass `--color` (one of the 5 canonical values) so the flash visibly matches their intent without depending on the user's theme.
@@ -1105,7 +1105,7 @@ These five colors are the **only** colors the Center Flash will ever render. The
 The component implements one consistent treatment that adapts to color and theme. Do not attempt to restyle it:
 
 - **Themed frosted glass card.** Background = `theme.colors.bgSidebar` + a 135° linear gradient overlay tinted with the resolved color (slightly stronger for `theme` so the theme accent reads clearly). `backdrop-filter: blur(16px) saturate(160%)`.
-- **Color-tinted accents.** Icon color, icon's tinted circle, card border, and outer glow all use the resolved color. Each Maestro theme therefore produces a visually distinct flash for the same color value.
+- **Color-tinted accents.** Icon color, icon's tinted circle, card border, and outer glow all use the resolved color. Each OpenWizardAI theme therefore produces a visually distinct flash for the same color value.
 - **Color icons** (lucide): see Color palette table. Icon sits in a 36 px tinted circle (`color * 26%` bg, `color * 33%` inner ring).
 - **Two-line layout when `detail` is provided.** Semibold title (`textMain`) on top, mono `textDim` detail below (truncated, full value on hover via `title=`).
 - **Bottom progress bar** animates from full width to zero over `duration` using the resolved color at 85% opacity.
@@ -1404,11 +1404,11 @@ directly rather than the shell, but share the same leaf implementation.
 
 #### Auto Run marker pills
 
-`MAESTRO:HITL`, `maestro:halt`, and `MAESTRO:MODEL` are HTML comments, so they
+`OPENWIZARDAI:HITL`, `openwizardai:halt`, and `OPENWIZARDAI:MODEL` are HTML comments, so they
 render as NOTHING - and two of them silently block the next run (a live gate
 pauses it, a halt makes Auto Run refuse to start). That presents to the user as
 "I pressed Run and nothing happened", with the cause in text no surface draws.
-`remarkMaestroMarkers` (`components/Markdown/remarkMaestroMarkers.ts`) rewrites
+`remarkOpenWizardAIMarkers` (`components/Markdown/remarkOpenWizardAIMarkers.ts`) rewrites
 each marker node into a tagged element that `createMarkdownComponents()` renders
 as `<MarkerPill>`.
 
@@ -1428,7 +1428,7 @@ Two things to know before touching it:
 The pill shows STATUS (`live` / `spent` / `invalid`), not presence: a gate above
 an unchecked task and one above a checked task differ by a character in the
 source, and only the first stops the run. Status resolution lives in
-`scanMaestroMarkers()` (`src/shared/autorunMarkers.ts`) alongside the engines'
+`scanOpenWizardAIMarkers()` (`src/shared/autorunMarkers.ts`) alongside the engines'
 own `findPendingHitlGate()` / `detectHaltMarker()`, so the pill and the engine
 cannot disagree about what is live.
 
@@ -1644,7 +1644,7 @@ Every image anywhere in the app - raster `<img>`, agent-authored inline `<svg>`,
 
 - `resolveImageFromEvent(e)` (exported from `ImageContextMenuHost.tsx`) decides what counts. It skips three things: anything inside a `[data-no-image-menu]` subtree, lucide icons (which are `<svg>` but carry the `lucide` class), and anything under 32px rendered (favicons, inline badges).
 - **Opting a surface out:** put `data-no-image-menu` on its container. Use this only when the surface owns its own right-click behavior (e.g. `AnnotatorCanvas`). A menu that already handled the click and called `preventDefault()` is skipped automatically via `defaultPrevented` - that is how `LinkContextMenu` / `FileContextMenu` coexist with this one.
-- `utils/imageExport.ts` does the work: `copyImageElementToClipboard()` returns `'image' | 'text' | 'failed'` so the UI can admit when only markup or a URL reached the clipboard rather than claiming a paste-able image. `saveImageToProject()` writes into the project's `DIAGRAMS_DIR` (`.maestro/diagrams/`), works over SSH, and calls `requestFileTreeRefresh(target.sessionId)` after a successful write so the new file shows up in the Files panel instead of waiting for its timed refresh (the toast offers to open it, so a stale tree reads as the save having failed). That refresh lives inside `saveImageToProject` rather than in the menu host for the same reason the menu itself is delegated: a future save surface gets it with no wiring. `saveImageElementToDisk()` is the native-dialog path and writes wherever the user points it, which is usually outside any workspace, so it does not refresh. `saveImageDataUrlToDisk()` is the same native-dialog path for bytes with no element behind them (a page screenshot, a canvas render); reach for it when there is nothing in the DOM to hand to `saveImageElementToDisk`. Binary writes go through `fs.writeImageFile` (`fs.writeFile` is UTF-8 and would corrupt the bytes).
+- `utils/imageExport.ts` does the work: `copyImageElementToClipboard()` returns `'image' | 'text' | 'failed'` so the UI can admit when only markup or a URL reached the clipboard rather than claiming a paste-able image. `saveImageToProject()` writes into the project's `DIAGRAMS_DIR` (`.openwizardai/diagrams/`), works over SSH, and calls `requestFileTreeRefresh(target.sessionId)` after a successful write so the new file shows up in the Files panel instead of waiting for its timed refresh (the toast offers to open it, so a stale tree reads as the save having failed). That refresh lives inside `saveImageToProject` rather than in the menu host for the same reason the menu itself is delegated: a future save surface gets it with no wiring. `saveImageElementToDisk()` is the native-dialog path and writes wherever the user points it, which is usually outside any workspace, so it does not refresh. `saveImageDataUrlToDisk()` is the same native-dialog path for bytes with no element behind them (a page screenshot, a canvas render); reach for it when there is nothing in the DOM to hand to `saveImageElementToDisk`. Binary writes go through `fs.writeImageFile` (`fs.writeFile` is UTF-8 and would corrupt the bytes).
 - `ImageDestinationModal` is the "Save to Project..." destination picker (folder, file name, SVG/PNG format, live path preview). Not to be confused with `FilePreview/ImageSaveModal`, which is the annotator's overwrite-vs-save-as prompt.
 
 `serializeSvg()` stamps the measured size onto the clone when the source has none. Mermaid sizes charts with CSS (`width="100%"`), and without this the rasterized copy comes out cropped at the browser's 300x150 default.
@@ -1674,7 +1674,7 @@ The Left Bar header is a single row that neither wraps nor scrolls, and the user
 
 **The row is three zones: identity, indicators, menu.** The wand and the wordmark sit in a `shrink-0` zone on the left, the hamburger in a `shrink-0` zone on the right, and every status control goes in the `flex-1 justify-center min-w-0` band between them (`data-testid="sidebar-header-indicators"`). `flex-1` is what centers the band: it takes whatever the two fixed zones leave and centers its contents in that, so the indicators read as their own group rather than as a tail on the wordmark. A new status control belongs in the band, not beside the wordmark.
 
-**The MAESTRO wordmark is drawn in full or not at all.** It used to carry `truncate`, which rendered the brand as "MAE..." on a narrow sidebar. A clipped brand reads as a rendering bug, not as a deliberate space saving, so `SessionList` gates it on a width instead:
+**The OPENWIZARDAI wordmark is drawn in full or not at all.** It used to carry `truncate`, which rendered the brand as "MAE..." on a narrow sidebar. A clipped brand reads as a rendering bug, not as a deliberate space saving, so `SessionList` gates it on a width instead:
 
 ```ts
 const showWordmark =
@@ -1776,7 +1776,7 @@ interface EncoreFeatureFlags {
 	directorNotes: boolean;
 	usageStats: boolean;
 	symphony: boolean;
-	maestroCue: boolean;
+	openwizardaiCue: boolean;
 }
 ```
 
@@ -1814,8 +1814,8 @@ src/main/index.ts                            - IPC handlers for persistence
 ### How Settings Work
 
 1. `useSettings()` returns a `UseSettingsReturn` object with getter/setter pairs for every setting.
-2. Setters call `window.maestro.settings.set(key, value)` to persist to Electron Store.
-3. On mount, `loadAllSettings()` reads all settings via `window.maestro.settings.getAll()`.
+2. Setters call `window.openwizardai.settings.set(key, value)` to persist to Electron Store.
+3. On mount, `loadAllSettings()` reads all settings via `window.openwizardai.settings.getAll()`.
 4. On system resume from sleep, settings are reloaded automatically.
 
 ### Adding a New Setting
@@ -1849,7 +1849,7 @@ The `UseSettingsReturn` interface groups settings by domain:
 
 ## State Management (Zustand Stores)
 
-Maestro uses Zustand stores as the primary state management solution. Located in `src/renderer/stores/`:
+OpenWizardAI uses Zustand stores as the primary state management solution. Located in `src/renderer/stores/`:
 
 | Store               | Purpose                                |
 | ------------------- | -------------------------------------- |

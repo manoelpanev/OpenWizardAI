@@ -10,7 +10,7 @@ import React, {
 	Suspense,
 } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { urlTransformAllowingMaestro } from '../../utils/markdownUrlTransform';
+import { urlTransformAllowingOpenWizardAI } from '../../utils/markdownUrlTransform';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -51,7 +51,7 @@ import { remarkFrontmatterTable } from '../../utils/remarkFrontmatterTable';
 import { remarkAlert } from '../Markdown/remarkAlert';
 import { hardBreakInlineFields } from '../Markdown/preprocess';
 import { REMARK_GFM_PLUGINS, createMarkdownComponents } from '../../utils/markdownConfig';
-import { remarkMaestroMarkers } from '../Markdown/remarkMaestroMarkers';
+import { remarkOpenWizardAIMarkers } from '../Markdown/remarkOpenWizardAIMarkers';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useSurfaceTypography } from '../../hooks/ui/useSurfaceTypography';
 import { useSessionStore } from '../../stores/sessionStore';
@@ -285,7 +285,7 @@ export const FilePreview = React.memo(
 
 			const interval = setInterval(async () => {
 				try {
-					const stat = await window.maestro?.fs?.stat(file.path, sshRemoteId);
+					const stat = await window.openwizardai?.fs?.stat(file.path, sshRemoteId);
 					if (!stat?.modifiedAt) return;
 					const currentMtime = new Date(stat.modifiedAt).getTime();
 					if (currentMtime > (lastModifiedRef.current ?? 0)) {
@@ -309,7 +309,7 @@ export const FilePreview = React.memo(
 		const adoptOwnWriteMtime = useCallback(
 			async (path: string) => {
 				try {
-					const stat = await window.maestro?.fs?.stat(path, sshRemoteId);
+					const stat = await window.openwizardai?.fs?.stat(path, sshRemoteId);
 					if (stat?.modifiedAt) {
 						lastModifiedRef.current = new Date(stat.modifiedAt).getTime();
 					}
@@ -341,7 +341,7 @@ export const FilePreview = React.memo(
 		// user can save unsaved edits after toggling back to preview (Cmd+S, etc.).
 		const hasChanges = editContent !== (file?.content ?? '');
 
-		// Deep-link scroll-to-line. Fires when a maestro://file/...#L<n> link
+		// Deep-link scroll-to-line. Fires when a openwizardai://file/...#L<n> link
 		// opens this file: flip to edit mode, jump the editor to that line,
 		// then notify the parent so it clears the transient flag (otherwise
 		// we'd re-jump on every render).
@@ -794,7 +794,7 @@ export const FilePreview = React.memo(
 				remarkHighlight,
 				// An Auto Run document is often read and edited here rather than in the
 				// panel, so the markers have to be visible on this surface too.
-				remarkMaestroMarkers,
+				remarkOpenWizardAIMarkers,
 				...(fileTree && fileTree.length > 0 && cwd !== undefined
 					? [[remarkFileLinks, { indices: fileTreeIndices || undefined, cwd, homeDir }] as any]
 					: homeDir
@@ -893,7 +893,7 @@ export const FilePreview = React.memo(
 				},
 				onFileClick: (filePath, options) => onFileClick?.(filePath, options),
 				onExternalLinkClick: (href, opts) => {
-					// A file:// target Maestro can render stays inside the app (preview
+					// A file:// target OpenWizardAI can render stays inside the app (preview
 					// tab or player); only OS-owned types go to the default app.
 					if (openFileUrl(href, (path) => onFileClick?.(path))) return;
 					if (/^https?:\/\/|^mailto:/.test(href)) {
@@ -912,7 +912,7 @@ export const FilePreview = React.memo(
 				...components,
 				img: ({ src, alt, ...props }: any) => {
 					// Check if this image came from file tree (set by remarkFileLinks)
-					const isFromTree = props['data-maestro-from-tree'] === 'true';
+					const isFromTree = props['data-openwizardai-from-tree'] === 'true';
 					let projectRootForImage: string | undefined;
 
 					if (isFromTree && cwd && file) {
@@ -944,7 +944,7 @@ export const FilePreview = React.memo(
 				},
 				// Strip event handler attributes (e.g. onToggle) that rehype-raw may
 				// pass through as strings from AI-generated HTML, which React rejects.
-				// Fixes MAESTRO-8Q
+				// Fixes OPENWIZARDAI-8Q
 				details: ({ node: _node, onToggle: _onToggle, ...props }: any) => <details {...props} />,
 			};
 			// `file.path` only: depending on the whole object would rebuild this map
@@ -981,7 +981,7 @@ export const FilePreview = React.memo(
 		// Fetch file stats when file changes
 		useEffect(() => {
 			if (file?.path) {
-				window.maestro.fs
+				window.openwizardai.fs
 					.stat(file.path, sshRemoteId)
 					.then((stats) =>
 						// stat returns null for a missing path - clear stats like the catch.
@@ -1265,7 +1265,7 @@ export const FilePreview = React.memo(
 				if (!imageSaveData) return;
 				setImageSaveBusy(true);
 				try {
-					await window.maestro.fs.writeImageFile(targetPath, imageSaveData, sshRemoteId);
+					await window.openwizardai.fs.writeImageFile(targetPath, imageSaveData, sshRemoteId);
 					// Keep our own write from tripping the file-change poller. Only an
 					// overwrite matters: saving to a new file leaves this tab's file alone.
 					if (reloadAfter) await adoptOwnWriteMtime(targetPath);
@@ -1521,7 +1521,7 @@ export const FilePreview = React.memo(
 			}
 		};
 
-		// Copy a maestro:// deep link that points to the current file at a
+		// Copy a openwizardai:// deep link that points to the current file at a
 		// specific line. Bound to the right-click handler on the editor's line
 		// gutter. The link includes the session ID so it reopens in the same
 		// agent context where it was captured.
@@ -2313,16 +2313,16 @@ export const FilePreview = React.memo(
 										// machine, so download a binary-safe copy to a temp dir over SSH
 										// first, then hand the local path to the OS opener.
 										if (!sshRemoteId) {
-											void window.maestro.shell.openPath(file.path);
+											void window.openwizardai.shell.openPath(file.path);
 											return;
 										}
 										try {
 											notifyCenterFlash({ message: 'Downloading…', color: 'theme' });
-											const { path: localPath } = await window.maestro.fs.downloadRemoteFile(
+											const { path: localPath } = await window.openwizardai.fs.downloadRemoteFile(
 												file.path,
 												sshRemoteId
 											);
-											await window.maestro.shell.openPath(localPath);
+											await window.openwizardai.shell.openPath(localPath);
 										} catch (error) {
 											notifyToast({
 												color: 'red',
@@ -2497,7 +2497,7 @@ export const FilePreview = React.memo(
 								filePath={file.path}
 								onFileClick={onFileClick}
 								onExternalLinkClick={(href, opts) => {
-									// A file:// target Maestro can render stays inside the app;
+									// A file:// target OpenWizardAI can render stays inside the app;
 									// only OS-owned types go to the default app.
 									if (openFileUrl(href, (path) => onFileClick?.(path))) return;
 									if (/^https?:\/\/|^mailto:/.test(href)) {
@@ -2546,7 +2546,7 @@ export const FilePreview = React.memo(
 							<ReactMarkdown
 								remarkPlugins={remarkPlugins}
 								rehypePlugins={rehypePlugins}
-								urlTransform={urlTransformAllowingMaestro}
+								urlTransform={urlTransformAllowingOpenWizardAI}
 								components={markdownComponents}
 							>
 								{markdownSource}
@@ -2780,7 +2780,7 @@ export const FilePreview = React.memo(
 				)}
 
 				{/* Line-number gutter right-click menu. Single action: copy a
-				    maestro:// deep link pointing at this exact line. */}
+				    openwizardai:// deep link pointing at this exact line. */}
 				{lineCtxMenu && (
 					<>
 						<div

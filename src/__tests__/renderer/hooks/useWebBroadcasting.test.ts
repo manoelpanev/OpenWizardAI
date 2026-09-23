@@ -4,14 +4,14 @@ import { useWebBroadcasting } from '../../../renderer/hooks';
 import type { RightPanelHandle } from '../../../renderer/components/RightPanel';
 import type { RefObject } from 'react';
 
-// Type for the window.maestro.history mock
+// Type for the window.openwizardai.history mock
 type HistoryMock = {
 	onExternalChange: Mock<(handler: () => Promise<void>) => () => void>;
 	reload: Mock<() => Promise<boolean>>;
 };
 
 describe('useWebBroadcasting', () => {
-	let originalMaestro: typeof window.maestro;
+	let originalOpenWizardAI: typeof window.openwizardai;
 	let historyMock: HistoryMock;
 	let externalChangeHandler: (() => Promise<void>) | null = null;
 	let unsubscribeFn: Mock;
@@ -36,18 +36,18 @@ describe('useWebBroadcasting', () => {
 			reload: vi.fn().mockResolvedValue(true),
 		};
 
-		originalMaestro = window.maestro;
-		window.maestro = {
-			...originalMaestro,
+		originalOpenWizardAI = window.openwizardai;
+		window.openwizardai = {
+			...originalOpenWizardAI,
 			history: {
-				...originalMaestro?.history,
+				...originalOpenWizardAI?.history,
 				...historyMock,
 			},
-		} as unknown as typeof window.maestro;
+		} as unknown as typeof window.openwizardai;
 	});
 
 	afterEach(() => {
-		window.maestro = originalMaestro;
+		window.openwizardai = originalOpenWizardAI;
 		vi.clearAllMocks();
 	});
 

@@ -1,7 +1,7 @@
 /**
  * WizardPill.tsx
  *
- * Prominent pill component for the inline wizard showing the Maestro wand icon
+ * Prominent pill component for the inline wizard showing the OpenWizardAI wand icon
  * and "Wizard" text. Styled with accent background and subtle pulse animation
  * while the wizard is active. Shows a spinner when thinking.
  */
@@ -24,7 +24,7 @@ interface WizardPillProps {
  * WizardPill - Prominent indicator that wizard mode is active
  *
  * Features:
- * - Wand2 icon from lucide-react (Maestro wand icon)
+ * - Wand2 icon from lucide-react (OpenWizardAI wand icon)
  * - "Wizard" text label, changes to "Thinking..." when waiting
  * - Spinner animation when thinking
  * - Accent background with white text

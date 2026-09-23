@@ -1,5 +1,5 @@
 /**
- * File watcher provider for Maestro Cue file.changed subscriptions.
+ * File watcher provider for OpenWizardAI Cue file.changed subscriptions.
  *
  * Wraps chokidar to watch glob patterns with per-file debouncing
  * and produces CueEvent instances for the engine.

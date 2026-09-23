@@ -1,5 +1,5 @@
 /**
- * Cue Engine Core - thin façade for Maestro Cue event-driven automation.
+ * Cue Engine Core - thin façade for OpenWizardAI Cue event-driven automation.
  *
  * Coordinates a small set of single-responsibility services. The engine itself
  * owns no Cue runtime state - every mutable thing (sessions, dedup keys, run
@@ -896,7 +896,7 @@ export class CueEngine {
 	/**
 	 * Persist updated global Cue settings to every known cue.yaml on disk and
 	 * refresh the in-memory session configs so the engine immediately reflects
-	 * the new values. Used by the Settings → Encore Features → Maestro Cue
+	 * the new values. Used by the Settings → Encore Features → OpenWizardAI Cue
 	 * panel, which autosaves on change without involving the pipeline editor.
 	 *
 	 * Strategy: read each unique session config root's raw YAML, swap only the
@@ -1168,7 +1168,7 @@ export class CueEngine {
 			// fills it in; a manual trigger does not, so without this enrichment the
 			// agent receives an empty task list and reports "nothing to do" even when
 			// the watched file has open tasks (issue #1151). Scan the watched file(s)
-			// now so Run Now / `maestro-cli cue trigger` behaves like the auto scan.
+			// now so Run Now / `openwizardai-cli cue trigger` behaves like the auto scan.
 			const taskPayload =
 				sub.event === 'task.pending' && sub.watch
 					? this.buildManualTaskPendingPayload(ownerSessionId, sub.watch)

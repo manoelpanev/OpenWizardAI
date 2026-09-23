@@ -11,7 +11,7 @@
  * canonical configDirKey, sample each unique key in parallel, persist each
  * successful snapshot. We exercise every skip path, the happy path, dedup,
  * multi-account isolation, env precedence, partial failure, cwd
- * forwarding, and the `agent.path` → MAESTRO_CLAUDE_BIN passthrough.
+ * forwarding, and the `agent.path` → OPENWIZARDAI_CLAUDE_BIN passthrough.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -39,7 +39,7 @@ vi.mock('../../../main/utils/logger', () => ({
 vi.mock('fs', async () => {
 	const actual = await vi.importActual<typeof import('fs')>('fs');
 	const accessSync = vi.fn((filePath: unknown, mode?: number) => {
-		if (typeof filePath === 'string' && filePath.endsWith('maestro-p.js')) {
+		if (typeof filePath === 'string' && filePath.endsWith('openwizardai-p.js')) {
 			return;
 		}
 		return actual.accessSync(filePath as Parameters<typeof actual.accessSync>[0], mode);
@@ -89,7 +89,7 @@ import * as fs from 'fs';
 import path from 'path';
 import {
 	runStartupUsageSampling,
-	isMaestroPBinaryPath,
+	isOpenWizardAIPBinaryPath,
 } from '../../../main/agents/claude-usage-startup';
 import {
 	clear as clearUsageStore,
@@ -156,7 +156,7 @@ function recentClaudeSession(overrides: Record<string, unknown> = {}): Record<st
 		createdAt: FROZEN_NOW - 60_000,
 		// Startup sampling now skips sessions without Batch Mode enabled. Every
 		// fixture session represents a Batch-Mode-opted-in agent by default.
-		enableMaestroP: true,
+		enableOpenWizardAIP: true,
 		// Sampling now requires an explicitly-configured CLAUDE_CONFIG_DIR
 		// (no default fallback) so fixture sessions carry one by default.
 		// Tests that exercise the "no explicit configDir" path can override
@@ -274,15 +274,15 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 			expect(sampleUsageMock).not.toHaveBeenCalled();
 		});
 
-		it('samples sessions with a session-level maestro-p customPath even when Adaptive Mode is off', async () => {
+		it('samples sessions with a session-level openwizardai-p customPath even when Adaptive Mode is off', async () => {
 			sampleUsageMock.mockResolvedValue(makeSnapshot());
 
 			const deps = {
 				sessionsStore: makeStore({
 					sessions: [
 						recentClaudeSession({
-							enableMaestroP: false,
-							customPath: '/usr/local/bin/maestro-p',
+							enableOpenWizardAIP: false,
+							customPath: '/usr/local/bin/openwizardai-p',
 						}),
 					],
 				}) as never,
@@ -296,15 +296,15 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 			expect(sampleUsageMock).toHaveBeenCalledTimes(1);
 		});
 
-		it('samples sessions where the agent-level customPath points to maestro-p', async () => {
+		it('samples sessions where the agent-level customPath points to openwizardai-p', async () => {
 			sampleUsageMock.mockResolvedValue(makeSnapshot());
 
 			const deps = {
 				sessionsStore: makeStore({
-					sessions: [recentClaudeSession({ enableMaestroP: false })],
+					sessions: [recentClaudeSession({ enableOpenWizardAIP: false })],
 				}) as never,
 				agentConfigsStore: makeStore({
-					configs: { 'claude-code': { customPath: '/opt/maestro/maestro-p.js' } },
+					configs: { 'claude-code': { customPath: '/opt/openwizardai/openwizardai-p.js' } },
 				}) as never,
 				settingsStore: makeStore({}) as never,
 				agentDetector: makeDetector(FAKE_AGENT) as never,
@@ -315,12 +315,12 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 			expect(sampleUsageMock).toHaveBeenCalledTimes(1);
 		});
 
-		it('still skips sessions with a non-maestro-p customPath and Adaptive Mode off', async () => {
+		it('still skips sessions with a non-openwizardai-p customPath and Adaptive Mode off', async () => {
 			const deps = {
 				sessionsStore: makeStore({
 					sessions: [
 						recentClaudeSession({
-							enableMaestroP: false,
+							enableOpenWizardAIP: false,
 							customPath: '/usr/local/bin/claude',
 						}),
 					],
@@ -354,7 +354,7 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 			expect(getSnapshot('/Users/test/.claude')).toEqual(snapshot);
 		});
 
-		it('threads MAESTRO_CLAUDE_BIN from the detected agent path', async () => {
+		it('threads OPENWIZARDAI_CLAUDE_BIN from the detected agent path', async () => {
 			sampleUsageMock.mockResolvedValue(makeSnapshot());
 
 			const deps = {
@@ -368,12 +368,14 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 
 			expect(sampleUsageMock).toHaveBeenCalledWith(
 				expect.objectContaining({
-					customEnvVars: expect.objectContaining({ MAESTRO_CLAUDE_BIN: '/opt/claude/bin/claude' }),
+					customEnvVars: expect.objectContaining({
+						OPENWIZARDAI_CLAUDE_BIN: '/opt/claude/bin/claude',
+					}),
 				})
 			);
 		});
 
-		it('omits MAESTRO_CLAUDE_BIN when the agent has neither path nor command resolved', async () => {
+		it('omits OPENWIZARDAI_CLAUDE_BIN when the agent has neither path nor command resolved', async () => {
 			// In this fixture neither path nor command is set, so the startup
 			// module has nothing safe to thread through.
 			sampleUsageMock.mockResolvedValue(makeSnapshot());
@@ -396,7 +398,7 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 			await runStartupUsageSampling(deps);
 
 			const call = sampleUsageMock.mock.calls[0]?.[0];
-			expect(call?.customEnvVars).not.toHaveProperty('MAESTRO_CLAUDE_BIN');
+			expect(call?.customEnvVars).not.toHaveProperty('OPENWIZARDAI_CLAUDE_BIN');
 		});
 	});
 
@@ -717,7 +719,7 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 			expect(getSnapshot('/Users/test/.claude-good')).not.toBeNull();
 			expect(getSnapshot('/Users/test/.claude-broken')).toBeNull();
 			expect(loggerWarnMock).toHaveBeenCalledWith(
-				expect.stringContaining('maestro-p --status sample failed'),
+				expect.stringContaining('openwizardai-p --status sample failed'),
 				expect.any(String),
 				expect.objectContaining({ configDirKey: '/Users/test/.claude-broken' })
 			);
@@ -772,13 +774,13 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 	});
 
 	describe("mode: 'manual'", () => {
-		it('samples claude-code sessions that lack enableMaestroP and customPath', async () => {
+		it('samples claude-code sessions that lack enableOpenWizardAIP and customPath', async () => {
 			sampleUsageMock.mockResolvedValue(makeSnapshot());
 
 			const deps = {
 				sessionsStore: makeStore({
 					sessions: [
-						// No enableMaestroP, no maestro-p customPath, but still a claude-code session.
+						// No enableOpenWizardAIP, no openwizardai-p customPath, but still a claude-code session.
 						{
 							id: 's-1',
 							toolType: 'claude-code',
@@ -1150,36 +1152,38 @@ describe('claude-usage-startup → runStartupUsageSampling', () => {
 		});
 	});
 
-	describe('isMaestroPBinaryPath', () => {
-		it('matches bundled `maestro-p.js` script', () => {
-			expect(isMaestroPBinaryPath('/Users/x/dist/cli/maestro-p.js')).toBe(true);
+	describe('isOpenWizardAIPBinaryPath', () => {
+		it('matches bundled `openwizardai-p.js` script', () => {
+			expect(isOpenWizardAIPBinaryPath('/Users/x/dist/cli/openwizardai-p.js')).toBe(true);
 		});
 
-		it('matches bare `maestro-p` executable', () => {
-			expect(isMaestroPBinaryPath('/usr/local/bin/maestro-p')).toBe(true);
+		it('matches bare `openwizardai-p` executable', () => {
+			expect(isOpenWizardAIPBinaryPath('/usr/local/bin/openwizardai-p')).toBe(true);
 		});
 
-		it('matches Windows `maestro-p.exe` executable', () => {
-			expect(isMaestroPBinaryPath('C:\\Program Files\\Maestro\\maestro-p.exe')).toBe(true);
+		it('matches Windows `openwizardai-p.exe` executable', () => {
+			expect(isOpenWizardAIPBinaryPath('C:\\Program Files\\OpenWizardAI\\openwizardai-p.exe')).toBe(
+				true
+			);
 		});
 
 		it('is case-insensitive on the basename', () => {
-			expect(isMaestroPBinaryPath('/path/MAESTRO-P.JS')).toBe(true);
+			expect(isOpenWizardAIPBinaryPath('/path/OPENWIZARDAI-P.JS')).toBe(true);
 		});
 
 		it('rejects plain `claude` binary', () => {
-			expect(isMaestroPBinaryPath('/Users/x/.local/bin/claude')).toBe(false);
+			expect(isOpenWizardAIPBinaryPath('/Users/x/.local/bin/claude')).toBe(false);
 		});
 
-		it('rejects look-alike prefixes that are not maestro-p', () => {
-			expect(isMaestroPBinaryPath('/path/maestro-pulse')).toBe(false);
-			expect(isMaestroPBinaryPath('/path/maestro-p-wrapper')).toBe(false);
+		it('rejects look-alike prefixes that are not openwizardai-p', () => {
+			expect(isOpenWizardAIPBinaryPath('/path/openwizardai-pulse')).toBe(false);
+			expect(isOpenWizardAIPBinaryPath('/path/openwizardai-p-wrapper')).toBe(false);
 		});
 
 		it('rejects empty / nullish input', () => {
-			expect(isMaestroPBinaryPath(undefined)).toBe(false);
-			expect(isMaestroPBinaryPath(null)).toBe(false);
-			expect(isMaestroPBinaryPath('')).toBe(false);
+			expect(isOpenWizardAIPBinaryPath(undefined)).toBe(false);
+			expect(isOpenWizardAIPBinaryPath(null)).toBe(false);
+			expect(isOpenWizardAIPBinaryPath('')).toBe(false);
 		});
 	});
 });

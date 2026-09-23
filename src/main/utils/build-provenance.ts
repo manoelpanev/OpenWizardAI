@@ -23,10 +23,10 @@ let cached: BuildProvenance | null = null;
  * Read this build's provenance, caching the result.
  *
  * A missing file is the normal case for a build from source (a fork, or a local
- * `npm run build` without `MAESTRO_SENTRY_DSN`), so it reads as unofficial with
+ * `npm run build` without `OPENWIZARDAI_SENTRY_DSN`), so it reads as unofficial with
  * no DSN and never logs an error.
  *
- * An override via `MAESTRO_SENTRY_DSN` in the runtime environment is honored and
+ * An override via `OPENWIZARDAI_SENTRY_DSN` in the runtime environment is honored and
  * marked unofficial: it lets a fork or a local debug session point crash reports
  * at their own project, while keeping `official` reserved for the release
  * pipeline's own builds so channel tags stay meaningful.
@@ -34,7 +34,7 @@ let cached: BuildProvenance | null = null;
 export function getBuildProvenance(): BuildProvenance {
 	if (cached) return cached;
 
-	const envDsn = process.env.MAESTRO_SENTRY_DSN?.trim();
+	const envDsn = process.env.OPENWIZARDAI_SENTRY_DSN?.trim();
 	if (envDsn) {
 		cached = { official: false, sentryDsn: envDsn };
 		return cached;

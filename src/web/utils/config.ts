@@ -1,7 +1,7 @@
 /**
- * Maestro Web Config
+ * OpenWizardAI Web Config
  *
- * Configuration injected by the server into window.__MAESTRO_CONFIG__
+ * Configuration injected by the server into window.__OPENWIZARDAI_CONFIG__
  * This tells the React app about the security token and current context.
  */
 import { webLogger } from './logger';
@@ -9,7 +9,7 @@ import { webLogger } from './logger';
 /**
  * Configuration injected by the server
  */
-export interface MaestroConfig {
+export interface OpenWizardAIConfig {
 	/** Security token (UUID) - required in all API/WS URLs */
 	securityToken: string;
 	/** Session ID if viewing a specific session, null for dashboard */
@@ -25,22 +25,22 @@ export interface MaestroConfig {
 // Extend Window interface
 declare global {
 	interface Window {
-		__MAESTRO_CONFIG__?: MaestroConfig;
+		__OPENWIZARDAI_CONFIG__?: OpenWizardAIConfig;
 	}
 }
 
 /**
- * Get the Maestro config from window
+ * Get the OpenWizardAI config from window
  * Returns default values if not injected (for development)
  */
-export function getMaestroConfig(): MaestroConfig {
-	if (window.__MAESTRO_CONFIG__) {
-		return window.__MAESTRO_CONFIG__;
+export function getOpenWizardAIConfig(): OpenWizardAIConfig {
+	if (window.__OPENWIZARDAI_CONFIG__) {
+		return window.__OPENWIZARDAI_CONFIG__;
 	}
 
 	// Development fallback - use current URL structure
 	// In dev mode, you'd need to manually set the token
-	webLogger.warn('No __MAESTRO_CONFIG__ found, using development defaults', 'Config');
+	webLogger.warn('No __OPENWIZARDAI_CONFIG__ found, using development defaults', 'Config');
 
 	// Try to extract token from URL path (e.g., /abc123-def456/...)
 	const pathParts = window.location.pathname.split('/').filter(Boolean);
@@ -66,7 +66,7 @@ export function getMaestroConfig(): MaestroConfig {
  * Check if we're in dashboard mode (viewing all sessions)
  */
 export function isDashboardMode(): boolean {
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	return config.sessionId === null;
 }
 
@@ -74,7 +74,7 @@ export function isDashboardMode(): boolean {
  * Check if we're in session mode (viewing a specific session)
  */
 export function isSessionMode(): boolean {
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	return config.sessionId !== null;
 }
 
@@ -82,14 +82,14 @@ export function isSessionMode(): boolean {
  * Get the current session ID (if in session mode)
  */
 export function getCurrentSessionId(): string | null {
-	return getMaestroConfig().sessionId;
+	return getOpenWizardAIConfig().sessionId;
 }
 
 /**
  * Build the full API URL for a given endpoint
  */
 export function buildApiUrl(endpoint: string): string {
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	const base = config.apiBase.endsWith('/') ? config.apiBase.slice(0, -1) : config.apiBase;
 	const path = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
 	return `${window.location.origin}${base}${path}`;
@@ -99,7 +99,7 @@ export function buildApiUrl(endpoint: string): string {
  * Build the full WebSocket URL
  */
 export function buildWebSocketUrl(sessionId?: string): string {
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 	const host = window.location.host;
 	let url = `${protocol}//${host}${config.wsUrl}`;
@@ -116,7 +116,7 @@ export function buildWebSocketUrl(sessionId?: string): string {
  * Get the dashboard URL
  */
 export function getDashboardUrl(): string {
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	return `${window.location.origin}/${config.securityToken}`;
 }
 
@@ -124,7 +124,7 @@ export function getDashboardUrl(): string {
  * Get the URL for a specific session
  */
 export function getSessionUrl(sessionId: string, tabId?: string | null): string {
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	const baseUrl = `${window.location.origin}/${config.securityToken}/session/${sessionId}`;
 	if (tabId) {
 		return `${baseUrl}?tabId=${encodeURIComponent(tabId)}`;
@@ -136,7 +136,7 @@ export function getSessionUrl(sessionId: string, tabId?: string | null): string 
  * Get the current tab ID from URL (if specified)
  */
 export function getCurrentTabId(): string | null {
-	return getMaestroConfig().tabId;
+	return getOpenWizardAIConfig().tabId;
 }
 
 /**

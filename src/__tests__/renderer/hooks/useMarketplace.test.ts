@@ -36,7 +36,7 @@ const createManifest = (playbooks: MarketplacePlaybook[] = []): MarketplaceManif
 	playbooks,
 });
 
-// Use the global window.maestro mock from setup.ts
+// Use the global window.openwizardai mock from setup.ts
 beforeEach(() => {
 	vi.clearAllMocks();
 });
@@ -112,7 +112,7 @@ describe('useMarketplace', () => {
 	describe('initial manifest loading', () => {
 		it('loads manifest on mount', async () => {
 			const testManifest = createManifest([createPlaybook()]);
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: true,
 				manifest: testManifest,
 				fromCache: false,
@@ -124,13 +124,13 @@ describe('useMarketplace', () => {
 				expect(result.current.isLoading).toBe(false);
 			});
 
-			expect(window.maestro.marketplace.getManifest).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.marketplace.getManifest).toHaveBeenCalledTimes(1);
 			expect(result.current.manifest).toEqual(testManifest);
 			expect(result.current.playbooks).toHaveLength(1);
 		});
 
 		it('sets fromCache correctly when data is cached', async () => {
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: true,
 				manifest: createManifest([]),
 				fromCache: true,
@@ -148,7 +148,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('sets error when manifest loading fails', async () => {
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: false,
 				error: 'Network error',
 			});
@@ -164,7 +164,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('handles thrown exceptions gracefully', async () => {
-			vi.mocked(window.maestro.marketplace.getManifest).mockRejectedValue(
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockRejectedValue(
 				new Error('Unexpected error')
 			);
 
@@ -180,7 +180,7 @@ describe('useMarketplace', () => {
 
 	describe('category extraction', () => {
 		it('returns ["All"] when manifest is null', async () => {
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: false,
 				error: 'Error',
 			});
@@ -202,7 +202,7 @@ describe('useMarketplace', () => {
 				createPlaybook({ id: '4', category: 'Security' }), // Duplicate
 			]);
 
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: true,
 				manifest: testManifest,
 				fromCache: false,
@@ -220,7 +220,7 @@ describe('useMarketplace', () => {
 		it('always includes "All" as first category', async () => {
 			const testManifest = createManifest([createPlaybook({ category: 'Zebra' })]);
 
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: true,
 				manifest: testManifest,
 				fromCache: false,
@@ -262,7 +262,7 @@ describe('useMarketplace', () => {
 				}),
 			]);
 
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: true,
 				manifest: testManifest,
 				fromCache: false,
@@ -373,7 +373,7 @@ describe('useMarketplace', () => {
 
 	describe('refresh functionality', () => {
 		it('sets isRefreshing while refreshing', async () => {
-			vi.mocked(window.maestro.marketplace.refreshManifest).mockImplementation(
+			vi.mocked(window.openwizardai.marketplace.refreshManifest).mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						setTimeout(
@@ -403,7 +403,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('calls refreshManifest API', async () => {
-			vi.mocked(window.maestro.marketplace.refreshManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.refreshManifest).mockResolvedValue({
 				success: true,
 				manifest: createManifest([createPlaybook()]),
 				fromCache: false,
@@ -419,20 +419,20 @@ describe('useMarketplace', () => {
 				await result.current.refresh();
 			});
 
-			expect(window.maestro.marketplace.refreshManifest).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.marketplace.refreshManifest).toHaveBeenCalledTimes(1);
 		});
 
 		it('updates manifest after refresh', async () => {
 			const initialManifest = createManifest([createPlaybook({ id: 'old' })]);
 			const refreshedManifest = createManifest([createPlaybook({ id: 'new' })]);
 
-			vi.mocked(window.maestro.marketplace.getManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.getManifest).mockResolvedValue({
 				success: true,
 				manifest: initialManifest,
 				fromCache: true,
 			});
 
-			vi.mocked(window.maestro.marketplace.refreshManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.refreshManifest).mockResolvedValue({
 				success: true,
 				manifest: refreshedManifest,
 				fromCache: false,
@@ -456,7 +456,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('sets error on refresh failure', async () => {
-			vi.mocked(window.maestro.marketplace.refreshManifest).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.refreshManifest).mockResolvedValue({
 				success: false,
 				error: 'Refresh failed',
 			});
@@ -477,7 +477,7 @@ describe('useMarketplace', () => {
 
 	describe('import playbook functionality', () => {
 		it('sets isImporting while importing', async () => {
-			vi.mocked(window.maestro.marketplace.importPlaybook).mockImplementation(
+			vi.mocked(window.openwizardai.marketplace.importPlaybook).mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						setTimeout(
@@ -513,7 +513,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('calls importPlaybook API with correct arguments', async () => {
-			vi.mocked(window.maestro.marketplace.importPlaybook).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.importPlaybook).mockResolvedValue({
 				success: true,
 				playbook: { id: 'new', name: 'Test' },
 				importedDocs: ['phase-1'],
@@ -530,7 +530,7 @@ describe('useMarketplace', () => {
 				await result.current.importPlaybook(playbook, 'my-folder', '/path/to/autorun', 'session-1');
 			});
 
-			expect(window.maestro.marketplace.importPlaybook).toHaveBeenCalledWith(
+			expect(window.openwizardai.marketplace.importPlaybook).toHaveBeenCalledWith(
 				'test-id',
 				'my-folder',
 				'/path/to/autorun',
@@ -540,7 +540,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('returns success result from importPlaybook', async () => {
-			vi.mocked(window.maestro.marketplace.importPlaybook).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.importPlaybook).mockResolvedValue({
 				success: true,
 				playbook: { id: 'new', name: 'Test' },
 				importedDocs: ['phase-1'],
@@ -562,7 +562,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('returns error result when import fails', async () => {
-			vi.mocked(window.maestro.marketplace.importPlaybook).mockResolvedValue({
+			vi.mocked(window.openwizardai.marketplace.importPlaybook).mockResolvedValue({
 				success: false,
 				error: 'Import failed',
 			});
@@ -584,7 +584,7 @@ describe('useMarketplace', () => {
 		});
 
 		it('handles thrown exceptions during import', async () => {
-			vi.mocked(window.maestro.marketplace.importPlaybook).mockRejectedValue(
+			vi.mocked(window.openwizardai.marketplace.importPlaybook).mockRejectedValue(
 				new Error('Network error')
 			);
 
@@ -608,7 +608,7 @@ describe('useMarketplace', () => {
 	describe('document fetching', () => {
 		describe('fetchReadme', () => {
 			it('returns content when successful', async () => {
-				vi.mocked(window.maestro.marketplace.getReadme).mockResolvedValue({
+				vi.mocked(window.openwizardai.marketplace.getReadme).mockResolvedValue({
 					success: true,
 					content: '# Test README',
 				});
@@ -625,11 +625,11 @@ describe('useMarketplace', () => {
 				});
 
 				expect(content!).toBe('# Test README');
-				expect(window.maestro.marketplace.getReadme).toHaveBeenCalledWith('playbooks/test');
+				expect(window.openwizardai.marketplace.getReadme).toHaveBeenCalledWith('playbooks/test');
 			});
 
 			it('returns null when README not found', async () => {
-				vi.mocked(window.maestro.marketplace.getReadme).mockResolvedValue({
+				vi.mocked(window.openwizardai.marketplace.getReadme).mockResolvedValue({
 					success: true,
 					content: null,
 				});
@@ -649,7 +649,7 @@ describe('useMarketplace', () => {
 			});
 
 			it('returns null on failure', async () => {
-				vi.mocked(window.maestro.marketplace.getReadme).mockResolvedValue({
+				vi.mocked(window.openwizardai.marketplace.getReadme).mockResolvedValue({
 					success: false,
 					error: 'Fetch failed',
 				});
@@ -669,7 +669,7 @@ describe('useMarketplace', () => {
 			});
 
 			it('returns null on exception', async () => {
-				vi.mocked(window.maestro.marketplace.getReadme).mockRejectedValue(
+				vi.mocked(window.openwizardai.marketplace.getReadme).mockRejectedValue(
 					new Error('Network error')
 				);
 
@@ -690,7 +690,7 @@ describe('useMarketplace', () => {
 
 		describe('fetchDocument', () => {
 			it('returns content when successful', async () => {
-				vi.mocked(window.maestro.marketplace.getDocument).mockResolvedValue({
+				vi.mocked(window.openwizardai.marketplace.getDocument).mockResolvedValue({
 					success: true,
 					content: '# Phase 1 Content',
 				});
@@ -707,14 +707,14 @@ describe('useMarketplace', () => {
 				});
 
 				expect(content!).toBe('# Phase 1 Content');
-				expect(window.maestro.marketplace.getDocument).toHaveBeenCalledWith(
+				expect(window.openwizardai.marketplace.getDocument).toHaveBeenCalledWith(
 					'playbooks/test',
 					'phase-1'
 				);
 			});
 
 			it('returns null on failure', async () => {
-				vi.mocked(window.maestro.marketplace.getDocument).mockResolvedValue({
+				vi.mocked(window.openwizardai.marketplace.getDocument).mockResolvedValue({
 					success: false,
 					error: 'Document not found',
 				});
@@ -734,7 +734,7 @@ describe('useMarketplace', () => {
 			});
 
 			it('returns null on exception', async () => {
-				vi.mocked(window.maestro.marketplace.getDocument).mockRejectedValue(
+				vi.mocked(window.openwizardai.marketplace.getDocument).mockRejectedValue(
 					new Error('Network error')
 				);
 

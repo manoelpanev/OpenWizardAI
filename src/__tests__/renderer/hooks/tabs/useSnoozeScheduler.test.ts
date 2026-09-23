@@ -237,10 +237,10 @@ describe('useSnoozeScheduler', () => {
 	});
 
 	it('releases the transcript mirror when a tab wakes', () => {
-		// The snooze held Maestro's own copy of the transcript; waking hands it
+		// The snooze held OpenWizardAI's own copy of the transcript; waking hands it
 		// back. The main process rehydrates before dropping it, so this call is
 		// what restores a conversation the provider aged out mid-snooze.
-		const release = window.maestro.agentSessions.releaseSnoozedTranscript as ReturnType<
+		const release = window.openwizardai.agentSessions.releaseSnoozedTranscript as ReturnType<
 			typeof vi.fn
 		>;
 		release.mockClear();
@@ -266,7 +266,7 @@ describe('useSnoozeScheduler', () => {
 
 	it('does not try to release a mirror for a tab that never ran', () => {
 		// No agentSessionId means no provider transcript to preserve.
-		const release = window.maestro.agentSessions.releaseSnoozedTranscript as ReturnType<
+		const release = window.openwizardai.agentSessions.releaseSnoozedTranscript as ReturnType<
 			typeof vi.fn
 		>;
 		release.mockClear();

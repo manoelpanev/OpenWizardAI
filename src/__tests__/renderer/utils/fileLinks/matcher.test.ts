@@ -222,7 +222,7 @@ describe('mergeFileTreeIndices', () => {
 		// playbook link opens a preview tab instead of switching documents.
 		const merged = mergeFileTreeIndices(
 			indicesFrom(['Reminders.md']),
-			indicesFrom(['Claude/.maestro/playbooks/Reminders.md'])
+			indicesFrom(['Claude/.openwizardai/playbooks/Reminders.md'])
 		);
 		expect(merged.filenameIndex.get('Reminders.md')?.[0]).toBe('Reminders.md');
 		expect(findClosestMatch('Reminders', merged, '')).toBe('Reminders.md');

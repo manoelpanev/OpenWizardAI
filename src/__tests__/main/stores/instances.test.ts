@@ -87,7 +87,7 @@ describe('stores/instances', () => {
 
 			// First store created should be bootstrap
 			expect(mockStoreConstructorCalls[0]).toEqual({
-				name: 'maestro-bootstrap',
+				name: 'openwizardai-bootstrap',
 				cwd: '/mock/user/data',
 				defaults: {},
 				deserialize: expect.any(Function),
@@ -110,7 +110,7 @@ describe('stores/instances', () => {
 
 			// Second store created should be settings
 			expect(mockStoreConstructorCalls[1]).toMatchObject({
-				name: 'maestro-settings',
+				name: 'openwizardai-settings',
 				cwd: '/mock/user/data',
 			});
 		});
@@ -121,10 +121,10 @@ describe('stores/instances', () => {
 
 			// Agent configs store should use production path
 			const agentConfigsCall = mockStoreConstructorCalls.find(
-				(call) => call.name === 'maestro-agent-configs'
+				(call) => call.name === 'openwizardai-agent-configs'
 			);
 			expect(agentConfigsCall).toMatchObject({
-				name: 'maestro-agent-configs',
+				name: 'openwizardai-agent-configs',
 				cwd: productionPath,
 			});
 		});
@@ -134,10 +134,10 @@ describe('stores/instances', () => {
 
 			// Window state store should not have cwd
 			const windowStateCall = mockStoreConstructorCalls.find(
-				(call) => call.name === 'maestro-window-state'
+				(call) => call.name === 'openwizardai-window-state'
 			);
 			expect(windowStateCall).toMatchObject({
-				name: 'maestro-window-state',
+				name: 'openwizardai-window-state',
 				defaults: {
 					width: 1400,
 					height: 900,
@@ -158,12 +158,12 @@ describe('stores/instances', () => {
 
 			settingsStore!.set('fontSize', 16);
 
-			expect(hadRecentInternalWrite('maestro-settings.json')).toBe(true);
-			expect(hadRecentInternalWrite('maestro-agent-configs.json')).toBe(false);
+			expect(hadRecentInternalWrite('openwizardai-settings.json')).toBe(true);
+			expect(hadRecentInternalWrite('openwizardai-agent-configs.json')).toBe(false);
 
 			agentConfigsStore!.set('configs', {});
 
-			expect(hadRecentInternalWrite('maestro-agent-configs.json')).toBe(true);
+			expect(hadRecentInternalWrite('openwizardai-agent-configs.json')).toBe(true);
 		});
 
 		it('should log startup paths', () => {

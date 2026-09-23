@@ -580,11 +580,11 @@ describe('pipelinesToYaml', () => {
 		expect(yamlStr).toContain('name: test-pipeline');
 		expect(yamlStr).toContain('event: time.heartbeat');
 		expect(yamlStr).toContain('interval_minutes: 15');
-		expect(yamlStr).toContain('prompt_file: .maestro/prompts/worker-test-pipeline.md');
+		expect(yamlStr).toContain('prompt_file: .openwizardai/prompts/worker-test-pipeline.md');
 		expect(yamlStr).not.toContain('prompt: Do stuff');
 
 		// Prompt content saved to external file
-		expect(promptFiles.get('.maestro/prompts/worker-test-pipeline.md')).toBe('Do stuff');
+		expect(promptFiles.get('.openwizardai/prompts/worker-test-pipeline.md')).toBe('Do stuff');
 	});
 
 	it('writes prompt: "" inline when the subscription has no prompt (defensive)', () => {
@@ -854,12 +854,12 @@ describe('pipelinesToYaml', () => {
 		});
 
 		const { yaml: yamlStr, promptFiles } = pipelinesToYaml([pipeline]);
-		expect(yamlStr).toContain('prompt_file: .maestro/prompts/worker-test-pipeline.md');
+		expect(yamlStr).toContain('prompt_file: .openwizardai/prompts/worker-test-pipeline.md');
 		expect(yamlStr).toContain(
-			'output_prompt_file: .maestro/prompts/worker-test-pipeline-output.md'
+			'output_prompt_file: .openwizardai/prompts/worker-test-pipeline-output.md'
 		);
-		expect(promptFiles.get('.maestro/prompts/worker-test-pipeline.md')).toBe('Do work');
-		expect(promptFiles.get('.maestro/prompts/worker-test-pipeline-output.md')).toBe(
+		expect(promptFiles.get('.openwizardai/prompts/worker-test-pipeline.md')).toBe('Do work');
+		expect(promptFiles.get('.openwizardai/prompts/worker-test-pipeline-output.md')).toBe(
 			'Summarize output'
 		);
 	});
@@ -1865,9 +1865,9 @@ describe('fan-out per-agent prompt externalization', () => {
 		expect(yamlStr).not.toMatch(/^\s*fan_out_prompts:/m);
 
 		// One .md per agent, content matches.
-		expect(promptFiles.get('.maestro/prompts/codex_1-pipeline_1.md')).toBe('codex work');
-		expect(promptFiles.get('.maestro/prompts/opencode_1-pipeline_1.md')).toBe('opencode work');
-		expect(promptFiles.get('.maestro/prompts/claude_1-pipeline_1.md')).toBe('claude work');
+		expect(promptFiles.get('.openwizardai/prompts/codex_1-pipeline_1.md')).toBe('codex work');
+		expect(promptFiles.get('.openwizardai/prompts/opencode_1-pipeline_1.md')).toBe('opencode work');
+		expect(promptFiles.get('.openwizardai/prompts/claude_1-pipeline_1.md')).toBe('claude work');
 	});
 
 	it('collapses to a single prompt_file when all fan-out agents share the same prompt', () => {
@@ -1890,9 +1890,9 @@ describe('fan-out per-agent prompt externalization', () => {
 		// Middle agent gets an empty file - dropping the entry would shift
 		// the positional mapping against `fan_out` and mis-route prompts at
 		// runtime.
-		expect(promptFiles.get('.maestro/prompts/codex_1-pipeline_1.md')).toBe('has content');
-		expect(promptFiles.get('.maestro/prompts/opencode_1-pipeline_1.md')).toBe('');
-		expect(promptFiles.get('.maestro/prompts/claude_1-pipeline_1.md')).toBe('also content');
+		expect(promptFiles.get('.openwizardai/prompts/codex_1-pipeline_1.md')).toBe('has content');
+		expect(promptFiles.get('.openwizardai/prompts/opencode_1-pipeline_1.md')).toBe('');
+		expect(promptFiles.get('.openwizardai/prompts/claude_1-pipeline_1.md')).toBe('also content');
 	});
 
 	it('does not emit a redundant single prompt_file when per-agent files are in use', () => {

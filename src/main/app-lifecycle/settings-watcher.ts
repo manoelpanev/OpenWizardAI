@@ -1,6 +1,6 @@
 /**
  * Settings file watcher.
- * Watches for external changes to maestro-settings.json and maestro-agent-configs.json
+ * Watches for external changes to openwizardai-settings.json and openwizardai-agent-configs.json
  * so the running app picks up CLI-driven settings changes immediately.
  */
 
@@ -19,14 +19,14 @@ export interface SettingsWatcherDependencies {
 	/** Function to get the agent configs file directory */
 	getAgentConfigsPath: () => string;
 	/**
-	 * Called after an EXTERNAL change to maestro-settings.json, so main-process
+	 * Called after an EXTERNAL change to openwizardai-settings.json, so main-process
 	 * consumers of a setting can re-read it.
 	 *
 	 * Notifying only the renderer is not enough for settings the main process
 	 * acts on. `preventSleepEnabled` is the case that motivated this: the main
 	 * process reads it once at startup and otherwise only learns about changes
 	 * through the `power:setEnabled` IPC call the Settings UI makes. A CLI write
-	 * (`maestro-cli settings set preventSleepEnabled false`) therefore updated
+	 * (`openwizardai-cli settings set preventSleepEnabled false`) therefore updated
 	 * the file and the renderer while leaving the OS-level power assertion held,
 	 * so the user was told the feature was off while it was still on.
 	 */
@@ -42,8 +42,8 @@ export interface SettingsWatcher {
 }
 
 /**
- * Creates a settings file watcher that monitors maestro-settings.json and
- * maestro-agent-configs.json for external changes (e.g., from maestro-cli).
+ * Creates a settings file watcher that monitors openwizardai-settings.json and
+ * openwizardai-agent-configs.json for external changes (e.g., from openwizardai-cli).
  *
  * When a change is detected, sends IPC events to the renderer so it can reload.
  * Uses debouncing to avoid excessive reloads from rapid writes.
@@ -136,7 +136,7 @@ export function createSettingsWatcher(deps: SettingsWatcherDependencies): Settin
 
 			watchFile(
 				settingsDir,
-				'maestro-settings.json',
+				'openwizardai-settings.json',
 				'settings:externalChange',
 				() => settingsDebounceTimer,
 				(t) => {
@@ -149,7 +149,7 @@ export function createSettingsWatcher(deps: SettingsWatcherDependencies): Settin
 			if (agentConfigsDir !== settingsDir) {
 				watchFile(
 					agentConfigsDir,
-					'maestro-agent-configs.json',
+					'openwizardai-agent-configs.json',
 					'settings:externalChange',
 					() => agentConfigsDebounceTimer,
 					(t) => {
@@ -162,7 +162,7 @@ export function createSettingsWatcher(deps: SettingsWatcherDependencies): Settin
 				// also react to agent config file changes. We'll add a second watcher.
 				watchFile(
 					agentConfigsDir,
-					'maestro-agent-configs.json',
+					'openwizardai-agent-configs.json',
 					'settings:externalChange',
 					() => agentConfigsDebounceTimer,
 					(t) => {

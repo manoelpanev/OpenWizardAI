@@ -482,7 +482,7 @@ describe('QuickActions command builders', () => {
 				onOpenPlaybookExchange: vi.fn(),
 				onOpenSymphony: vi.fn(),
 				onOpenDirectorNotes: vi.fn(),
-				onOpenMaestroCue: vi.fn(),
+				onOpenOpenWizardAICue: vi.fn(),
 				onConfigureCue: vi.fn(),
 				onOpenLastDocumentGraph: vi.fn(),
 				onPublishGist: vi.fn(),
@@ -496,7 +496,7 @@ describe('QuickActions command builders', () => {
 				setShowStarredSessionsSection: vi.fn(),
 				shortcuts: {},
 			}).map((a) => a.id)
-		).toContain('maestro-cue');
+		).toContain('openwizardai-cue');
 
 		// "View in Document Graph" appears only when an active markdown file is open,
 		// and its action focuses the graph on that file then closes the palette.

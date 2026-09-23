@@ -83,12 +83,12 @@ const defaultProps = {
 describe('SessionItem Cue Indicator', () => {
 	beforeEach(() => {
 		// CueIndicator is gated on both the Encore Feature flag and the
-		// per-user Left Bar toggle. Default settings have maestroCue=false,
+		// per-user Left Bar toggle. Default settings have openwizardaiCue=false,
 		// which would hide the indicator under test - enable both here.
 		useSettingsStore.setState({
 			encoreFeatures: {
 				...useSettingsStore.getState().encoreFeatures,
-				maestroCue: true,
+				openwizardaiCue: true,
 			},
 			showLeftPanelCueIndicator: true,
 		});
@@ -104,7 +104,7 @@ describe('SessionItem Cue Indicator', () => {
 		// Title is on the wrapper span, not the icon itself
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'OpenWizzard Cue active (3 subscriptions)'
+			'OpenWizardAI Cue active (3 subscriptions)'
 		);
 	});
 
@@ -130,7 +130,7 @@ describe('SessionItem Cue Indicator', () => {
 		const zapIcon = screen.getByTestId('icon-zap');
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'OpenWizzard Cue active (1 subscription)'
+			'OpenWizardAI Cue active (1 subscription)'
 		);
 	});
 
@@ -197,7 +197,7 @@ describe('SessionItem Cue Indicator', () => {
 		const zapIcon = screen.getByTestId('icon-zap');
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'OpenWizzard Cue running (2 subscriptions)'
+			'OpenWizardAI Cue running (2 subscriptions)'
 		);
 	});
 
@@ -214,7 +214,7 @@ describe('SessionItem Cue Indicator', () => {
 		const zapIcon = screen.getByTestId('icon-zap');
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'OpenWizzard Cue active (2 subscriptions)'
+			'OpenWizardAI Cue active (2 subscriptions)'
 		);
 	});
 

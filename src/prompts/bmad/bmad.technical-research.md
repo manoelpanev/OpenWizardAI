@@ -56,7 +56,7 @@ After gathering the topic and goals:
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ## src/bmm/workflows/1-analysis/research/bmad-technical-research/research.template.md
 

@@ -46,9 +46,9 @@ export const MAX_STEERING_NOTE_LENGTH = 4000;
 export const MAX_PENDING_STEERING_NOTES = 20;
 
 /** Opening marker of the injected block. Also used by tests to assert presence. */
-export const STEERING_BLOCK_START = '<!-- MAESTRO:CONDUCTOR-NOTES -->';
+export const STEERING_BLOCK_START = '<!-- OPENWIZARDAI:CONDUCTOR-NOTES -->';
 /** Closing marker of the injected block. */
-export const STEERING_BLOCK_END = '<!-- /MAESTRO:CONDUCTOR-NOTES -->';
+export const STEERING_BLOCK_END = '<!-- /OPENWIZARDAI:CONDUCTOR-NOTES -->';
 
 /**
  * Trim and cap a note the operator typed. Returns `''` for anything that would

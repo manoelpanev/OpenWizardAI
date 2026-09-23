@@ -28,7 +28,7 @@ let unsubscribeMock = vi.fn();
 beforeEach(() => {
 	statsCallback = null;
 	unsubscribeMock = vi.fn();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		claude: {
 			onProjectStatsUpdate: vi.fn((cb: (stats: any) => void) => {
 				statsCallback = cb;
@@ -105,7 +105,7 @@ describe('useAgentSessionsAggregateStats', () => {
 
 	it('claude-code subscribes to onProjectStatsUpdate', () => {
 		renderHook(() => useAgentSessionsAggregateStats(defaultArgs));
-		expect((window as any).maestro.claude.onProjectStatsUpdate).toHaveBeenCalledTimes(1);
+		expect((window as any).openwizardai.claude.onProjectStatsUpdate).toHaveBeenCalledTimes(1);
 	});
 
 	it('updates stats when projectPath matches projectRoot', () => {
@@ -192,7 +192,7 @@ describe('useAgentSessionsAggregateStats', () => {
 
 	it('does NOT subscribe for non-claude agents', () => {
 		renderHook(() => useAgentSessionsAggregateStats({ ...defaultArgs, agentId: 'codex' }));
-		expect((window as any).maestro.claude.onProjectStatsUpdate).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.claude.onProjectStatsUpdate).not.toHaveBeenCalled();
 	});
 
 	it('non-claude computes totals from sessions array', () => {

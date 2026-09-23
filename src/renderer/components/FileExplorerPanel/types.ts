@@ -6,9 +6,9 @@ import type { FileExplorerIconTheme } from '../../utils/fileExplorerIcons/shared
 import type { FileClickOptions } from '../../hooks/ui/useAppHandlers';
 
 /** MIME type for dragging multiple file-tree rows as a JSON array of relative paths. */
-export const FILE_TREE_MULTI_MIME = 'application/x-maestro-file-paths';
+export const FILE_TREE_MULTI_MIME = 'application/x-openwizardai-file-paths';
 /** MIME type for dragging a single file-tree row as a relative path. */
-export const FILE_TREE_SINGLE_MIME = 'application/x-maestro-file-path';
+export const FILE_TREE_SINGLE_MIME = 'application/x-openwizardai-file-path';
 
 /**
  * Above this many files, "Preview All Files in Folder" asks for confirmation
@@ -148,7 +148,7 @@ export interface FileExplorerPanelProps {
 	onFocusFileInGraph?: (relativePath: string) => void;
 	/**
 	 * Opens a new in-app browser tab pointed at the given URL. Used by the
-	 * "Open in Maestro Browser" context-menu action so JS-heavy local HTML
+	 * "Open in OpenWizardAI Browser" context-menu action so JS-heavy local HTML
 	 * (Plotly dashboards, etc.) renders in the full Electron webview instead
 	 * of the sandboxed file-preview iframe.
 	 */

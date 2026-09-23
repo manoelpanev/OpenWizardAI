@@ -94,7 +94,7 @@ export async function collectStorage(bootstrapStore?: Store<any>): Promise<Stora
 	const dataPath = customSyncPath || userDataPath;
 
 	// Storage file paths
-	const sessionsFile = path.join(dataPath, 'maestro-sessions.json');
+	const sessionsFile = path.join(dataPath, 'openwizardai-sessions.json');
 
 	const result: StorageInfo = {
 		paths: {

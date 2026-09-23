@@ -72,7 +72,7 @@ export function useAITabHandlers(): AITabHandlersReturn {
 			const wasWizardTab = !!tabBeforeClose && hasActiveWizard(tabBeforeClose);
 
 			// Closing a starred tab is a context-loss boundary: capture the provider
-			// transcript into Maestro's own mirror now, so it survives even if the
+			// transcript into OpenWizardAI's own mirror now, so it survives even if the
 			// provider later deletes its copy. Fire-and-forget; no-op for unstarred
 			// tabs or tabs that never got a provider session id.
 			if (
@@ -81,7 +81,7 @@ export function useAITabHandlers(): AITabHandlersReturn {
 				tabBeforeClose.agentSessionId &&
 				sessionBeforeClose.projectRoot
 			) {
-				window.maestro.agentSessions
+				window.openwizardai.agentSessions
 					.snapshotStarredTranscript(
 						sessionBeforeClose.toolType || 'claude-code',
 						sessionBeforeClose.projectRoot,

@@ -10,7 +10,7 @@
  * 6. Standard markdown links: `[Display Text](file.md)` - converted to internal links if file exists
  *
  * Links are validated against the provided fileTree before conversion.
- * Uses `maestro-file://` protocol for internal file preview handling.
+ * Uses `openwizardai-file://` protocol for internal file preview handling.
  */
 
 import { visit } from 'unist-util-visit';
@@ -28,7 +28,7 @@ import {
 	ABSOLUTE_PATH_PATTERN,
 	IMAGE_EMBED_PATTERN,
 	INLINE_CODE_EXT_PATTERN,
-	MAESTRO_DEEP_LINK_PATTERN,
+	OPENWIZARDAI_DEEP_LINK_PATTERN,
 	PATH_PATTERN,
 	TILDE_PATH_PATTERN,
 	WIKI_LINK_PATTERN,
@@ -96,14 +96,14 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 				isRelativeToCwd?: boolean; // For images: true if path needs cwd prepended (fallback paths)
 				isFromFileTree?: boolean; // For images: true if path was found in file tree (complete from project root)
 				imageWidth?: number; // For images: optional width in pixels
-				absoluteUrl?: string; // For links outside projectRoot: use file:// URL instead of maestro-file://
+				absoluteUrl?: string; // For links outside projectRoot: use file:// URL instead of openwizardai-file://
 			}
 			const matches: Match[] = [];
 
-			// Find bare maestro:// deep link URLs so they auto-linkify in plain text.
+			// Find bare openwizardai:// deep link URLs so they auto-linkify in plain text.
 			let deepLinkMatch;
-			MAESTRO_DEEP_LINK_PATTERN.lastIndex = 0;
-			while ((deepLinkMatch = MAESTRO_DEEP_LINK_PATTERN.exec(text)) !== null) {
+			OPENWIZARDAI_DEEP_LINK_PATTERN.lastIndex = 0;
+			while ((deepLinkMatch = OPENWIZARDAI_DEEP_LINK_PATTERN.exec(text)) !== null) {
 				const url = deepLinkMatch[0];
 				matches.push({
 					start: deepLinkMatch.index,
@@ -230,7 +230,7 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 					// Expand ~ to home directory
 					const absolutePath = homeDir + tildePath.slice(1);
 
-					// If within projectRoot, convert to relative maestro-file:// link
+					// If within projectRoot, convert to relative openwizardai-file:// link
 					const relativePath = toRelativePath(absolutePath);
 					if (relativePath) {
 						matches.push({
@@ -327,9 +327,9 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 						alt: match.display,
 						data: {
 							hProperties: {
-								'data-maestro-image': match.resolvedPath,
-								'data-maestro-width': match.imageWidth?.toString(),
-								'data-maestro-from-tree': match.isFromFileTree ? 'true' : undefined,
+								'data-openwizardai-image': match.resolvedPath,
+								'data-openwizardai-width': match.imageWidth?.toString(),
+								'data-openwizardai-from-tree': match.isFromFileTree ? 'true' : undefined,
 								style: imageStyle,
 							},
 						},
@@ -347,10 +347,10 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 					// This survives rehype processing which may strip custom protocols from href
 					replacements.push({
 						type: 'link',
-						url: `maestro-file://${match.resolvedPath}`,
+						url: `openwizardai-file://${match.resolvedPath}`,
 						data: {
 							hProperties: {
-								'data-maestro-file': match.resolvedPath,
+								'data-openwizardai-file': match.resolvedPath,
 							},
 						},
 						children: [{ type: 'text', value: match.display }],
@@ -394,10 +394,10 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 				if (resolvedPath) {
 					const link: Link = {
 						type: 'link',
-						url: `maestro-file://${resolvedPath}`,
+						url: `openwizardai-file://${resolvedPath}`,
 						data: {
 							hProperties: {
-								'data-maestro-file': resolvedPath,
+								'data-openwizardai-file': resolvedPath,
 							},
 						},
 						children: [{ type: 'text', value: displayText || reference }],
@@ -418,10 +418,10 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 						const filename = code.split('/').pop() || code;
 						const link: Link = {
 							type: 'link',
-							url: `maestro-file://${relativePath}`,
+							url: `openwizardai-file://${relativePath}`,
 							data: {
 								hProperties: {
-									'data-maestro-file': relativePath,
+									'data-openwizardai-file': relativePath,
 								},
 							},
 							children: [{ type: 'text', value: filename }],
@@ -442,10 +442,10 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 					if (relativePath) {
 						const link: Link = {
 							type: 'link',
-							url: `maestro-file://${relativePath}`,
+							url: `openwizardai-file://${relativePath}`,
 							data: {
 								hProperties: {
-									'data-maestro-file': relativePath,
+									'data-openwizardai-file': relativePath,
 								},
 							},
 							children: [{ type: 'text', value: filename }],
@@ -472,10 +472,10 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 				const filename = code.split('/').pop() || code;
 				const link: Link = {
 					type: 'link',
-					url: `maestro-file://${code}`,
+					url: `openwizardai-file://${code}`,
 					data: {
 						hProperties: {
-							'data-maestro-file': code,
+							'data-openwizardai-file': code,
 						},
 					},
 					children: [{ type: 'text', value: filename }],
@@ -485,7 +485,7 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 			}
 		});
 
-		// Process existing link nodes - convert relative file references to maestro-file:// protocol
+		// Process existing link nodes - convert relative file references to openwizardai-file:// protocol
 		// This handles standard markdown links like [Kira Systems](Kira Systems.md)
 		visit(tree, 'link', (node: Link) => {
 			const href = node.url;
@@ -493,8 +493,8 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 			// Skip if already processed, external URL, deep link, or anchor link
 			if (
 				!href ||
-				href.startsWith('maestro-file://') ||
-				href.startsWith('maestro://') ||
+				href.startsWith('openwizardai-file://') ||
+				href.startsWith('openwizardai://') ||
 				href.startsWith('http://') ||
 				href.startsWith('https://') ||
 				href.startsWith('mailto:') ||
@@ -534,13 +534,13 @@ export function remarkFileLinks(options: RemarkFileLinksOptions) {
 			}
 
 			if (resolvedPath) {
-				// Convert to maestro-file:// protocol
-				node.url = `maestro-file://${resolvedPath}`;
+				// Convert to openwizardai-file:// protocol
+				node.url = `openwizardai-file://${resolvedPath}`;
 				// Add data attribute for fallback (in case rehype strips custom protocols)
 				node.data = node.data || {};
 				(node.data as any).hProperties = {
 					...((node.data as any).hProperties || {}),
-					'data-maestro-file': resolvedPath,
+					'data-openwizardai-file': resolvedPath,
 				};
 			}
 		});

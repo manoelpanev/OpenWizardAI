@@ -8,7 +8,7 @@
  * state lives here rather than being re-declared per process.
  *
  * Four processes read these flags (renderer store, settings metadata, main
- * process gates, CLI `maestro-cli encore`). Before this module each one
+ * process gates, CLI `openwizardai-cli encore`). Before this module each one
  * carried its own copy of the defaults, and the main process and CLI simply
  * treated a missing key as `false` - so on a fresh install, where nothing has
  * been persisted yet, the renderer showed a feature ON while the main-process
@@ -20,7 +20,7 @@
 export interface EncoreFeatureFlags {
 	directorNotes: boolean;
 	usageStats: boolean;
-	maestroCue: boolean;
+	openwizardaiCue: boolean;
 }
 
 /**
@@ -30,7 +30,7 @@ export interface EncoreFeatureFlags {
 export const DEFAULT_ENCORE_FEATURES: EncoreFeatureFlags = {
 	directorNotes: true,
 	usageStats: true,
-	maestroCue: true,
+	openwizardaiCue: true,
 };
 
 /**

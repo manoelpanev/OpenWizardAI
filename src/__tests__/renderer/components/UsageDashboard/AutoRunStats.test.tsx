@@ -24,7 +24,7 @@ const theme = THEMES['dracula'];
 const mockSessions = [
 	{
 		id: 'session-1',
-		sessionId: 'maestro-1',
+		sessionId: 'openwizardai-1',
 		agentType: 'claude-code',
 		documentPath: '/project/TASKS.md',
 		startTime: Date.now() - 3600000, // 1 hour ago
@@ -35,7 +35,7 @@ const mockSessions = [
 	},
 	{
 		id: 'session-2',
-		sessionId: 'maestro-2',
+		sessionId: 'openwizardai-2',
 		agentType: 'claude-code',
 		documentPath: '/project/TASKS.md',
 		startTime: Date.now() - 7200000, // 2 hours ago
@@ -51,7 +51,7 @@ const mockTasksSession1 = [
 	{
 		id: 'task-1',
 		autoRunSessionId: 'session-1',
-		sessionId: 'maestro-1',
+		sessionId: 'openwizardai-1',
 		agentType: 'claude-code',
 		taskIndex: 0,
 		taskContent: 'Task 1',
@@ -62,7 +62,7 @@ const mockTasksSession1 = [
 	{
 		id: 'task-2',
 		autoRunSessionId: 'session-1',
-		sessionId: 'maestro-1',
+		sessionId: 'openwizardai-1',
 		agentType: 'claude-code',
 		taskIndex: 1,
 		taskContent: 'Task 2',
@@ -73,7 +73,7 @@ const mockTasksSession1 = [
 	{
 		id: 'task-3',
 		autoRunSessionId: 'session-1',
-		sessionId: 'maestro-1',
+		sessionId: 'openwizardai-1',
 		agentType: 'claude-code',
 		taskIndex: 2,
 		taskContent: 'Task 3',
@@ -84,7 +84,7 @@ const mockTasksSession1 = [
 	{
 		id: 'task-4',
 		autoRunSessionId: 'session-1',
-		sessionId: 'maestro-1',
+		sessionId: 'openwizardai-1',
 		agentType: 'claude-code',
 		taskIndex: 3,
 		taskContent: 'Task 4',
@@ -95,7 +95,7 @@ const mockTasksSession1 = [
 	{
 		id: 'task-5',
 		autoRunSessionId: 'session-1',
-		sessionId: 'maestro-1',
+		sessionId: 'openwizardai-1',
 		agentType: 'claude-code',
 		taskIndex: 4,
 		taskContent: 'Task 5 - failed',
@@ -109,7 +109,7 @@ const mockTasksSession2 = [
 	{
 		id: 'task-6',
 		autoRunSessionId: 'session-2',
-		sessionId: 'maestro-2',
+		sessionId: 'openwizardai-2',
 		agentType: 'claude-code',
 		taskIndex: 0,
 		taskContent: 'Task 1',
@@ -120,7 +120,7 @@ const mockTasksSession2 = [
 	{
 		id: 'task-7',
 		autoRunSessionId: 'session-2',
-		sessionId: 'maestro-2',
+		sessionId: 'openwizardai-2',
 		agentType: 'claude-code',
 		taskIndex: 1,
 		taskContent: 'Task 2',
@@ -131,7 +131,7 @@ const mockTasksSession2 = [
 	{
 		id: 'task-8',
 		autoRunSessionId: 'session-2',
-		sessionId: 'maestro-2',
+		sessionId: 'openwizardai-2',
 		agentType: 'claude-code',
 		taskIndex: 2,
 		taskContent: 'Task 3',
@@ -144,7 +144,7 @@ const mockTasksSession2 = [
 // Combined tasks for mocking
 const allTasks = [...mockTasksSession1, ...mockTasksSession2];
 
-// Mock window.maestro.stats API
+// Mock window.openwizardai.stats API
 const mockStatsApi = {
 	getAutoRunSessions: vi.fn(),
 	getAutoRunTasks: vi.fn(),
@@ -153,7 +153,7 @@ const mockStatsApi = {
 
 beforeEach(() => {
 	// Setup mock API
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		stats: mockStatsApi,
 	};
 

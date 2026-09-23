@@ -64,16 +64,16 @@ function applyUpdate(setSessions: Mock, sessions: Session[]): Session[] {
 }
 
 function dispatchOpen(detail: Record<string, unknown>) {
-	window.dispatchEvent(new CustomEvent('maestro:openBrowserTab', { detail }));
+	window.dispatchEvent(new CustomEvent('openwizardai:openBrowserTab', { detail }));
 }
 
 function dispatchClose(detail: Record<string, unknown>) {
-	window.dispatchEvent(new CustomEvent('maestro:closeBrowserTab', { detail }));
+	window.dispatchEvent(new CustomEvent('openwizardai:closeBrowserTab', { detail }));
 }
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		process: {
 			sendRemoteOpenBrowserTabResponse: openAck,
 			sendRemoteCloseBrowserTabResponse: closeAck,
@@ -81,7 +81,7 @@ beforeEach(() => {
 	};
 });
 
-describe('maestro:openBrowserTab', () => {
+describe('openwizardai:openBrowserTab', () => {
 	it('focuses the agent and the new tab for a foreground open', () => {
 		const sessions = [createMockSession({ id: 'session-1', activeBrowserTabId: 'existing' })];
 		const { setActiveSessionId, setSessions } = setup(sessions);
@@ -135,7 +135,7 @@ describe('maestro:openBrowserTab', () => {
 	});
 });
 
-describe('maestro:closeBrowserTab', () => {
+describe('openwizardai:closeBrowserTab', () => {
 	const withTabs = () =>
 		createMockSession({
 			id: 'session-1',

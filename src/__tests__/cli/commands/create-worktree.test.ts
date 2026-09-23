@@ -5,14 +5,17 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 	resolveTargetSessionId: vi.fn((agent?: string) => agent ?? 'resolved-parent-id'),
 }));
 
 import { createWorktree } from '../../../cli/commands/create-worktree';
-import { withMaestroClient, resolveTargetSessionId } from '../../../cli/services/maestro-client';
+import {
+	withOpenWizardAIClient,
+	resolveTargetSessionId,
+} from '../../../cli/services/openwizardai-client';
 
 interface SentCommand {
 	payload: Record<string, unknown>;
@@ -20,13 +23,13 @@ interface SentCommand {
 }
 
 /**
- * Wire up withMaestroClient so its inner action runs against a fake client whose
+ * Wire up withOpenWizardAIClient so its inner action runs against a fake client whose
  * sendCommand returns a response keyed by the expected response-type string.
  * Records every sent command for assertions.
  */
 function mockClient(responses: Record<string, Record<string, unknown>>): SentCommand[] {
 	const sent: SentCommand[] = [];
-	vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 		const fakeClient = {
 			sendCommand: vi.fn().mockImplementation((payload, expected) => {
 				sent.push({ payload, expected });
@@ -271,7 +274,7 @@ describe('create-worktree command', () => {
 		});
 
 		it('handles connection errors in JSON mode', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('App not running'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('App not running'));
 
 			await createWorktree({ agent: 'p', branch: 'feature/q', json: true });
 

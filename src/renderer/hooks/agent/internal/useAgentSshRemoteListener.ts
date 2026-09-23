@@ -1,5 +1,5 @@
 /**
- * useAgentSshRemoteListener - registers `window.maestro.process.onSshRemote`
+ * useAgentSshRemoteListener - registers `window.openwizardai.process.onSshRemote`
  *
  * Stamps `sshRemote` info on the session. When a new remote attaches and the
  * session is not yet flagged as a git repo, fires an async `gitService.isRepo`
@@ -19,7 +19,7 @@ export function useAgentSshRemoteListener(): void {
 		const setSessions = useSessionStore.getState().setSessions;
 		const getSessions = () => useSessionStore.getState().sessions;
 
-		const unsubscribe = window.maestro.process.onSshRemote?.(
+		const unsubscribe = window.openwizardai.process.onSshRemote?.(
 			(sessionId: string, sshRemote: { id: string; name: string; host: string } | null) => {
 				let actualSessionId: string;
 				const aiTabMatch = sessionId.match(REGEX_AI_TAB);

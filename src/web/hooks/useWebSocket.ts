@@ -1,5 +1,5 @@
 /**
- * useWebSocket hook for Maestro web interface
+ * useWebSocket hook for OpenWizardAI web interface
  *
  * Provides WebSocket connection management for the web interface,
  * handling connection, reconnection, and message handling.
@@ -30,7 +30,7 @@ export type WebSocketState =
 export type UsageStats = Partial<BaseUsageStats>;
 
 /**
- * AI Tab data for multi-tab support within a Maestro session
+ * AI Tab data for multi-tab support within an OpenWizardAI session
  */
 export interface AITabData {
 	id: string;
@@ -655,7 +655,7 @@ function buildWebSocketUrl(baseUrl?: string, sessionId?: string): string {
 }
 
 /**
- * useWebSocket hook for managing WebSocket connections to the Maestro server
+ * useWebSocket hook for managing WebSocket connections to the OpenWizardAI server
  *
  * @example
  * ```tsx

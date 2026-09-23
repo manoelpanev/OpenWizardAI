@@ -28,7 +28,7 @@ const createMockSession = (overrides: Partial<Session> = {}): Session => {
 };
 
 describe('useRemoteIntegration', () => {
-	const originalMaestro = { ...window.maestro };
+	const originalOpenWizardAI = { ...window.openwizardai };
 
 	let onRemoteCommandHandler:
 		| ((
@@ -91,7 +91,7 @@ describe('useRemoteIntegration', () => {
 		| undefined;
 
 	const mockProcess = {
-		...window.maestro.process,
+		...window.openwizardai.process,
 		interrupt: vi.fn().mockResolvedValue(true),
 		onRemoteCommand: vi.fn().mockImplementation((handler) => {
 			onRemoteCommandHandler = handler;
@@ -199,12 +199,12 @@ describe('useRemoteIntegration', () => {
 			onRemoteSetSettingHandler = handler;
 			return () => {};
 		}),
-		// Added with `maestro-cli open`: the hook subscribes to this on mount, so
+		// Added with `openwizardai-cli open`: the hook subscribes to this on mount, so
 		// leaving it out makes every test in this file throw before it asserts.
 		onRemoteOpenModal: vi.fn().mockImplementation(() => {
 			return () => {};
 		}),
-		// Same story for `maestro-cli open-graph`.
+		// Same story for `openwizardai-cli open-graph`.
 		onRemoteOpenDocumentGraph: vi.fn().mockImplementation(() => {
 			return () => {};
 		}),
@@ -297,41 +297,41 @@ describe('useRemoteIntegration', () => {
 	};
 
 	const mockLive = {
-		...window.maestro.live,
+		...window.openwizardai.live,
 		broadcastActiveSession: vi.fn(),
 	};
 
 	const mockWeb = {
-		...window.maestro.web,
+		...window.openwizardai.web,
 		broadcastTabsChange: vi.fn(),
 		broadcastSessionState: vi.fn(),
 	};
 
 	const mockClaude = {
-		...window.maestro.claude,
+		...window.openwizardai.claude,
 		updateSessionName: vi.fn().mockResolvedValue(undefined),
 	};
 
 	const mockAgentSessions = {
-		...window.maestro.agentSessions,
+		...window.openwizardai.agentSessions,
 		updateSessionName: vi.fn().mockResolvedValue(true),
 		setSessionName: vi.fn().mockResolvedValue(undefined),
 	};
 
 	const mockHistory = {
-		...window.maestro.history,
+		...window.openwizardai.history,
 		updateSessionName: vi.fn().mockResolvedValue(true),
 	};
 
 	const mockGit = {
-		...window.maestro.git,
+		...window.openwizardai.git,
 		createGist: vi
 			.fn()
 			.mockResolvedValue({ success: true, gistUrl: 'https://gist.github.com/abc' }),
 	};
 
 	const mockCue = {
-		...window.maestro.cue,
+		...window.openwizardai.cue,
 		triggerSubscription: vi.fn().mockResolvedValue(true),
 	};
 
@@ -357,21 +357,21 @@ describe('useRemoteIntegration', () => {
 		useSessionStore.setState({ sessions: [] });
 		useNotificationStore.setState({ toasts: [] });
 
-		window.maestro = {
-			...originalMaestro,
-			process: mockProcess as typeof window.maestro.process,
-			live: mockLive as typeof window.maestro.live,
-			web: mockWeb as typeof window.maestro.web,
-			claude: mockClaude as typeof window.maestro.claude,
-			agentSessions: mockAgentSessions as typeof window.maestro.agentSessions,
-			history: mockHistory as typeof window.maestro.history,
-			cue: mockCue as typeof window.maestro.cue,
-			git: mockGit as typeof window.maestro.git,
+		window.openwizardai = {
+			...originalOpenWizardAI,
+			process: mockProcess as typeof window.openwizardai.process,
+			live: mockLive as typeof window.openwizardai.live,
+			web: mockWeb as typeof window.openwizardai.web,
+			claude: mockClaude as typeof window.openwizardai.claude,
+			agentSessions: mockAgentSessions as typeof window.openwizardai.agentSessions,
+			history: mockHistory as typeof window.openwizardai.history,
+			cue: mockCue as typeof window.openwizardai.cue,
+			git: mockGit as typeof window.openwizardai.git,
 		};
 	});
 
 	afterEach(() => {
-		window.maestro = originalMaestro;
+		window.openwizardai = originalOpenWizardAI;
 	});
 
 	const createDeps = (
@@ -423,7 +423,7 @@ describe('useRemoteIntegration', () => {
 	});
 
 	describe('remote command handling', () => {
-		it('dispatches maestro:remoteCommand event when command is received', () => {
+		it('dispatches openwizardai:remoteCommand event when command is received', () => {
 			const session = createMockSession({ id: 'session-1', state: 'idle' });
 			const deps = createDeps({ sessions: [session] });
 			const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent');
@@ -437,7 +437,7 @@ describe('useRemoteIntegration', () => {
 			expect(deps.setActiveSessionId).toHaveBeenCalledWith('session-1');
 			expect(dispatchEventSpy).toHaveBeenCalledWith(
 				expect.objectContaining({
-					type: 'maestro:remoteCommand',
+					type: 'openwizardai:remoteCommand',
 					detail: {
 						sessionId: 'session-1',
 						command: 'test command',
@@ -466,7 +466,7 @@ describe('useRemoteIntegration', () => {
 			// busy guard is bypassed when force=true
 			expect(dispatchEventSpy).toHaveBeenCalledWith(
 				expect.objectContaining({
-					type: 'maestro:remoteCommand',
+					type: 'openwizardai:remoteCommand',
 					detail: expect.objectContaining({ force: true }),
 				})
 			);
@@ -498,7 +498,7 @@ describe('useRemoteIntegration', () => {
 			expect(deps.setActiveSessionId).not.toHaveBeenCalled();
 			expect(dispatchEventSpy).toHaveBeenCalledWith(
 				expect.objectContaining({
-					type: 'maestro:remoteCommand',
+					type: 'openwizardai:remoteCommand',
 					detail: expect.objectContaining({ command: 'quiet work' }),
 				})
 			);
@@ -844,7 +844,7 @@ describe('useRemoteIntegration', () => {
 			// switches active tabs while the event is in flight.
 			expect(dispatchEventSpy).toHaveBeenCalledWith(
 				expect.objectContaining({
-					type: 'maestro:remoteCommand',
+					type: 'openwizardai:remoteCommand',
 					detail: expect.objectContaining({
 						sessionId: 'session-1',
 						command: 'Hello',
@@ -854,7 +854,7 @@ describe('useRemoteIntegration', () => {
 				})
 			);
 			// The renderer surfaces the new tab id through the IPC ack so
-			// `maestro-cli dispatch --new-tab` can return an addressable id.
+			// `openwizardai-cli dispatch --new-tab` can return an addressable id.
 			expect(mockProcess.sendRemoteNewAITabWithPromptResponse).toHaveBeenCalledWith(
 				'chan-1',
 				true,
@@ -945,7 +945,7 @@ describe('useRemoteIntegration', () => {
 			});
 
 			expect(deps.setSessions).toHaveBeenCalled();
-			// For claude-code sessions, it uses window.maestro.claude.updateSessionName
+			// For claude-code sessions, it uses window.openwizardai.claude.updateSessionName
 			expect(mockClaude.updateSessionName).toHaveBeenCalledWith(
 				'/test/project',
 				'agent-session-1',
@@ -1241,20 +1241,20 @@ describe('useRemoteIntegration', () => {
 					title: 'Watchdog',
 					message: 'Discover broken',
 					color: 'red',
-					sourceAgent: 'Maestro Marketing · Twitter Watchdog',
+					sourceAgent: 'OpenWizardAI Marketing · Twitter Watchdog',
 				});
 			});
 
 			const toasts = useNotificationStore.getState().toasts;
 			expect(toasts).toHaveLength(1);
-			expect(toasts[0]?.project).toBe('Maestro Marketing · Twitter Watchdog');
+			expect(toasts[0]?.project).toBe('OpenWizardAI Marketing · Twitter Watchdog');
 			expect(toasts[0]?.sessionId).toBeUndefined();
 		});
 
 		it('prefers an explicit sourceAgent label over the store-resolved session name', () => {
 			const session = createMockSession({
 				id: 'session-1',
-				name: 'Maestro Marketing',
+				name: 'OpenWizardAI Marketing',
 				aiTabs: [],
 			});
 			useSessionStore.setState({ sessions: [session] });
@@ -1333,18 +1333,18 @@ describe('useRemoteIntegration', () => {
 			useSettingsStore.setState({ activeThemeId: 'dracula', settingsLoaded: false });
 		});
 
-		// `maestro-cli set-theme` lands here. Persisting alone left the live UI on
+		// `openwizardai-cli set-theme` lands here. Persisting alone left the live UI on
 		// the old theme until the next launch, so the CLI reported success and
 		// nothing changed on screen.
 		it('reflects a CLI theme change in the live store, not just on disk', async () => {
 			useSettingsStore.setState({ activeThemeId: 'dracula', settingsLoaded: false });
 			const setSetting = vi.fn().mockResolvedValue(undefined);
 			const getAll = vi.fn().mockResolvedValue({ activeThemeId: 'nord' });
-			window.maestro.settings = {
-				...window.maestro.settings,
+			window.openwizardai.settings = {
+				...window.openwizardai.settings,
 				set: setSetting,
 				getAll,
-			} as typeof window.maestro.settings;
+			} as typeof window.openwizardai.settings;
 
 			renderHook(() => useRemoteIntegration(createDeps({ sessions: [] })));
 
@@ -1364,11 +1364,11 @@ describe('useRemoteIntegration', () => {
 		it('reports failure and leaves the store alone when the write fails', async () => {
 			useSettingsStore.setState({ activeThemeId: 'dracula', settingsLoaded: false });
 			const getAll = vi.fn().mockResolvedValue({ activeThemeId: 'nord' });
-			window.maestro.settings = {
-				...window.maestro.settings,
+			window.openwizardai.settings = {
+				...window.openwizardai.settings,
 				set: vi.fn().mockRejectedValue(new Error('disk full')),
 				getAll,
-			} as typeof window.maestro.settings;
+			} as typeof window.openwizardai.settings;
 
 			renderHook(() => useRemoteIntegration(createDeps({ sessions: [] })));
 

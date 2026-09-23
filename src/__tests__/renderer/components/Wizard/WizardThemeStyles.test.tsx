@@ -144,12 +144,12 @@ vi.mock('../../../../renderer/components/MermaidRenderer', () => ({
 	MermaidRenderer: ({ chart }: { chart: string }) => <div data-testid="mermaid">{chart}</div>,
 }));
 
-// Mock the Maestro API
-const mockMaestro = {
+// Mock the OpenWizardAI API
+const mockOpenWizardAI = {
 	agents: {
 		detect: vi.fn(),
 		get: vi.fn(),
-		getMaestroPDetectedPath: vi.fn().mockResolvedValue(null),
+		getOpenWizardAIPDetectedPath: vi.fn().mockResolvedValue(null),
 	},
 	git: {
 		isRepo: vi.fn(),
@@ -197,31 +197,31 @@ describe('Wizard Theme Styles', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 
-		// Setup window.maestro mock
-		(window as any).maestro = mockMaestro;
+		// Setup window.openwizardai mock
+		(window as any).openwizardai = mockOpenWizardAI;
 
 		// Setup default mock responses
-		mockMaestro.agents.detect.mockResolvedValue([
+		mockOpenWizardAI.agents.detect.mockResolvedValue([
 			{ id: 'claude-code', name: 'Claude Code', available: true, hidden: false },
 			{ id: 'terminal', name: 'Terminal', available: true, hidden: true },
 		]);
-		mockMaestro.agents.get.mockResolvedValue({
+		mockOpenWizardAI.agents.get.mockResolvedValue({
 			id: 'claude-code',
 			name: 'Claude Code',
 			path: '/test/path',
 		});
-		mockMaestro.git.isRepo.mockResolvedValue(true);
-		mockMaestro.dialog.selectFolder.mockResolvedValue('/test/path');
-		mockMaestro.settings.get.mockResolvedValue(null);
-		mockMaestro.settings.set.mockResolvedValue(undefined);
-		mockMaestro.autorun.writeDoc.mockResolvedValue({ success: true });
-		mockMaestro.autorun.listDocs.mockResolvedValue([]);
-		mockMaestro.autorun.saveImage.mockResolvedValue({
+		mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
+		mockOpenWizardAI.dialog.selectFolder.mockResolvedValue('/test/path');
+		mockOpenWizardAI.settings.get.mockResolvedValue(null);
+		mockOpenWizardAI.settings.set.mockResolvedValue(undefined);
+		mockOpenWizardAI.autorun.writeDoc.mockResolvedValue({ success: true });
+		mockOpenWizardAI.autorun.listDocs.mockResolvedValue([]);
+		mockOpenWizardAI.autorun.saveImage.mockResolvedValue({
 			success: true,
 			relativePath: 'images/test.png',
 		});
-		mockMaestro.autorun.deleteImage.mockResolvedValue({ success: true });
-		mockMaestro.fs.readFile.mockResolvedValue('');
+		mockOpenWizardAI.autorun.deleteImage.mockResolvedValue({ success: true });
+		mockOpenWizardAI.fs.readFile.mockResolvedValue('');
 	});
 
 	describe('Theme Color Structure Validation', () => {
@@ -331,7 +331,7 @@ describe('Wizard Theme Styles', () => {
 
 	describe('AgentSelectionScreen Theme Rendering', () => {
 		// Test a representative sample of themes
-		const sampleThemes: ThemeId[] = ['dracula', 'github-light', 'maestros-choice'];
+		const sampleThemes: ThemeId[] = ['dracula', 'github-light', 'openwizardais-choice'];
 
 		it.each(sampleThemes)('should render with %s theme without errors', async (themeId) => {
 			const theme = THEMES[themeId];
@@ -343,11 +343,11 @@ describe('Wizard Theme Styles', () => {
 
 			// Wait for agent detection to complete
 			await vi.waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Check that theme colors are applied to key elements
-			const header = screen.getByText('Create an OpenWizzard Agent');
+			const header = screen.getByText('Create an OpenWizardAI Agent');
 			expect(header).toHaveStyle({ color: theme.colors.textMain });
 		});
 

@@ -12,7 +12,7 @@ import type { Theme, Session } from '../../../renderer/types';
 
 import { createMockTheme } from '../../helpers/mockTheme';
 
-// Mock the window.maestro API
+// Mock the window.openwizardai API
 vi.mock('../../../renderer/services/process', () => ({}));
 
 // Create mock sessions
@@ -81,8 +81,8 @@ describe('RenameSessionModal', () => {
 		});
 		mockSessions = createMockSessions();
 
-		// Setup window.maestro mock
-		(window as unknown as { maestro: Record<string, unknown> }).maestro = {
+		// Setup window.openwizardai mock
+		(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai = {
 			claude: {
 				updateSessionName: vi.fn().mockResolvedValue(undefined),
 			},
@@ -541,8 +541,8 @@ describe('RenameSessionModal', () => {
 
 			fireEvent.click(screen.getByRole('button', { name: 'Rename' }));
 
-			// For claude-code sessions, it uses window.maestro.claude.updateSessionName
-			expect((window as any).maestro.claude.updateSessionName).toHaveBeenCalledWith(
+			// For claude-code sessions, it uses window.openwizardai.claude.updateSessionName
+			expect((window as any).openwizardai.claude.updateSessionName).toHaveBeenCalledWith(
 				'/home/user/project',
 				'claude-123',
 				'New Name'
@@ -566,8 +566,8 @@ describe('RenameSessionModal', () => {
 
 			fireEvent.click(screen.getByRole('button', { name: 'Rename' }));
 
-			expect((window as any).maestro.claude.updateSessionName).not.toHaveBeenCalled();
-			expect((window as any).maestro.agentSessions.setSessionName).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.claude.updateSessionName).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.agentSessions.setSessionName).not.toHaveBeenCalled();
 		});
 	});
 

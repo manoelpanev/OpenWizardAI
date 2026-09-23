@@ -146,15 +146,15 @@ export function useFileExplorerEffects(
 
 			// Check if file should be opened externally (PDF, etc.)
 			if (!sshRemoteId && shouldOpenExternally(filename)) {
-				window.maestro.shell.openPath(fullPath);
+				window.openwizardai.shell.openPath(fullPath);
 				return;
 			}
 
 			try {
 				// Fetch content and stat in parallel for efficiency
 				const [content, stat] = await Promise.all([
-					window.maestro.fs.readFile(fullPath, sshRemoteId),
-					window.maestro.fs.stat(fullPath, sshRemoteId).catch((err) => {
+					window.openwizardai.fs.readFile(fullPath, sshRemoteId),
+					window.openwizardai.fs.stat(fullPath, sshRemoteId).catch((err) => {
 						// ENOENT is expected (file may have been deleted between listing and open)
 						if (err?.code === 'ENOENT') return null;
 						captureException(err, {
@@ -220,7 +220,7 @@ export function useFileExplorerEffects(
 		const filterHiddenFiles = (nodes: FileNode[]): FileNode[] => {
 			if (showHiddenFiles) return nodes;
 			return nodes
-				.filter((node) => !node.name.startsWith('.') || node.name === '.maestro')
+				.filter((node) => !node.name.startsWith('.') || node.name === '.openwizardai')
 				.map((node) => ({
 					...node,
 					children: node.children ? filterHiddenFiles(node.children) : undefined,

@@ -584,7 +584,7 @@ describe.skipIf(!canLoadBetterSqlite3())('Phase 15B - real SQLite smoke test', (
 		// via dynamic import after confirming the binary loads.
 		const dbPath = path.join(
 			os.tmpdir(),
-			`maestro-cue-smoke-${Date.now()}-${Math.random().toString(36).slice(2)}.db`
+			`openwizardai-cue-smoke-${Date.now()}-${Math.random().toString(36).slice(2)}.db`
 		);
 		// Capture the cue-db module lazily so the finally block can close the
 		// SQLite handle even if an assertion above throws. Leaving the handle

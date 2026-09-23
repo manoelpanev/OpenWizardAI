@@ -43,7 +43,7 @@ describe('useChatFileDropZone', () => {
 		render(<Host onDrop={onDrop} />);
 
 		fireEvent.drop(screen.getByTestId('zone'), {
-			dataTransfer: dataTransferOf('application/x-maestro-staged-image'),
+			dataTransfer: dataTransferOf('application/x-openwizardai-staged-image'),
 		});
 
 		expect(onDrop).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe('useChatFileDropZone', () => {
 		render(<Host onDrop={vi.fn()} />);
 
 		fireEvent.dragEnter(screen.getByTestId('zone'), {
-			dataTransfer: dataTransferOf('application/x-maestro-staged-image'),
+			dataTransfer: dataTransferOf('application/x-openwizardai-staged-image'),
 		});
 
 		expect(screen.getByTestId('dragging').textContent).toBe('false');

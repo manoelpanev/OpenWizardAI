@@ -47,8 +47,8 @@ beforeEach(() => {
 	mockStopAll.mockResolvedValue(undefined);
 	mockOnActivityUpdate.mockReturnValue(mockUnsubscribe);
 
-	(window as any).maestro = {
-		...(window as any).maestro,
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		cue: {
 			getStatus: mockGetStatus,
 			getActiveRuns: mockGetActiveRuns,

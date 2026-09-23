@@ -1,8 +1,8 @@
 // Director's Notes Synopsis command
 // Generates an AI synopsis of recent activity across all agents
-// Requires the Maestro desktop app to be running
+// Requires the OpenWizardAI desktop app to be running
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { readSettings } from '../services/storage';
 import { formatError } from '../output/formatter';
 import {
@@ -138,7 +138,7 @@ export async function directorNotesSynopsis(options: DirectorNotesSynopsisOption
 			);
 		}
 
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			// Synopsis generation can take many minutes for large lookbacks. Wait
 			// generously so the inner groomContext timeout (5 min default) wins
 			// rather than racing the CLI's outer wait.

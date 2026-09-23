@@ -1,5 +1,5 @@
 /**
- * usePullToRefresh hook for Maestro mobile web interface
+ * usePullToRefresh hook for OpenWizardAI mobile web interface
  *
  * Provides touch gesture handling for pull-to-refresh functionality.
  * Tracks touch events and determines when to trigger a refresh.

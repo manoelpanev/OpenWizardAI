@@ -205,7 +205,7 @@ export function displayFont(
 		) {
 			console.error(
 				formatWarning(
-					`"${normalized}" is not bundled with OpenWizzard, so it renders only if installed. Run "maestro-cli display fonts" to list guaranteed fonts.`
+					`"${normalized}" is not bundled with OpenWizardAI, so it renders only if installed. Run "openwizardai-cli display fonts" to list guaranteed fonts.`
 				)
 			);
 		}
@@ -351,7 +351,7 @@ export function displayFontsCatalog(options: DisplayFontOptions): void {
 		emitJsonl({ type: 'display-font-catalog', fonts: BUNDLED_FONTS });
 		return;
 	}
-	console.log('Fonts bundled with OpenWizzard (always available, no install needed):\n');
+	console.log('Fonts bundled with OpenWizardAI (always available, no install needed):\n');
 	for (const kind of ['mono', 'sans', 'serif'] as const) {
 		const group = BUNDLED_FONTS.filter((f) => f.kind === kind);
 		if (group.length === 0) continue;

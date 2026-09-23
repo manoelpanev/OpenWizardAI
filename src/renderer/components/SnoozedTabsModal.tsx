@@ -87,7 +87,7 @@ export function SnoozedTabsModal({ theme, onClose, onJumpToTab }: SnoozedTabsMod
 			const session = sessions.find((s) => s.id === sessionId);
 			const entry = session?.snoozedTabs?.find((s) => s.id === snoozeId);
 			dismissSnoozedTab(sessionId, snoozeId);
-			// Dismiss discards Maestro's tab, not the conversation - rehydrate the
+			// Dismiss discards OpenWizardAI's tab, not the conversation - rehydrate the
 			// provider file before releasing so it stays reachable from the Session
 			// Explorer, as the docs promise.
 			if (entry) {

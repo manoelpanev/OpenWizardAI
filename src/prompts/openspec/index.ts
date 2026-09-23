@@ -1,7 +1,7 @@
 /**
  * OpenSpec prompts module
  *
- * Bundled prompts for the OpenSpec workflow from Fission-AI with our custom Maestro integration.
+ * Bundled prompts for the OpenSpec workflow from Fission-AI with our custom OpenWizardAI integration.
  * These prompts are imported at build time using Vite's ?raw suffix.
  *
  * OpenSpec provides a structured change management workflow:
@@ -18,7 +18,7 @@ import proposalPrompt from './openspec.proposal.md?raw';
 import applyPrompt from './openspec.apply.md?raw';
 import archivePrompt from './openspec.archive.md?raw';
 
-// Custom Maestro prompts
+// Custom OpenWizardAI prompts
 import helpPrompt from './openspec.help.md?raw';
 import implementPrompt from './openspec.implement.md?raw';
 
@@ -47,7 +47,7 @@ export const openspecCommands: OpenSpecCommandDefinition[] = [
 	{
 		id: 'help',
 		command: '/openspec.help',
-		description: 'Learn how to use OpenSpec with OpenWizzard',
+		description: 'Learn how to use OpenSpec with OpenWizardAI',
 		prompt: helpPrompt,
 		isCustom: true,
 	},
@@ -75,7 +75,7 @@ export const openspecCommands: OpenSpecCommandDefinition[] = [
 	{
 		id: 'implement',
 		command: '/openspec.implement',
-		description: 'Convert OpenSpec tasks to OpenWizzard Auto Run documents',
+		description: 'Convert OpenSpec tasks to OpenWizardAI Auto Run documents',
 		prompt: implementPrompt,
 		isCustom: true,
 	},

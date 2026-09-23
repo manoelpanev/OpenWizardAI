@@ -19,7 +19,7 @@ interface DebugApplicationStatsModalProps {
 	onClose: () => void;
 }
 
-type AppStatsSnapshot = Awaited<ReturnType<typeof window.maestro.debug.getAppStats>>;
+type AppStatsSnapshot = Awaited<ReturnType<typeof window.openwizardai.debug.getAppStats>>;
 
 type LoadState = 'cold' | 'warm' | 'active';
 
@@ -168,7 +168,7 @@ export function DebugApplicationStatsModal({ theme, onClose }: DebugApplicationS
 		setLoading(true);
 		setError(null);
 		try {
-			const data = await window.maestro.debug.getAppStats();
+			const data = await window.openwizardai.debug.getAppStats();
 			setSnapshot(data);
 		} catch (err) {
 			logger.error('[DebugAppStats] Failed to load stats', undefined, err);

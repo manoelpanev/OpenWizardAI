@@ -181,7 +181,7 @@ describe('CapabilitySnapshotManager', () => {
 		);
 	});
 
-	it('markFailed skips Sentry for expected SSH/network failures but still persists (MAESTRO-RA)', () => {
+	it('markFailed skips Sentry for expected SSH/network failures but still persists (OPENWIZARDAI-RA)', () => {
 		manager.init(store, broadcast);
 		const expectedFailures = [
 			'SSH connection timed out after 10s',

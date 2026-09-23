@@ -43,7 +43,7 @@ Tracks individual AI query/response cycles:
 | Column         | Type             | Description                     |
 | -------------- | ---------------- | ------------------------------- |
 | `id`           | TEXT PK          | UUID                            |
-| `session_id`   | TEXT NOT NULL    | Maestro session ID              |
+| `session_id`   | TEXT NOT NULL    | OpenWizardAI session ID         |
 | `agent_type`   | TEXT NOT NULL    | Agent type (e.g. `claude-code`) |
 | `source`       | TEXT NOT NULL    | `'user'` or `'auto'` (Auto Run) |
 | `start_time`   | INTEGER NOT NULL | Unix timestamp (ms)             |
@@ -63,7 +63,7 @@ Tracks complete Auto Run batch processing runs:
 | Column            | Type             | Description                            |
 | ----------------- | ---------------- | -------------------------------------- |
 | `id`              | TEXT PK          | UUID                                   |
-| `session_id`      | TEXT NOT NULL    | Maestro session ID                     |
+| `session_id`      | TEXT NOT NULL    | OpenWizardAI session ID                |
 | `agent_type`      | TEXT NOT NULL    | Agent type                             |
 | `document_path`   | TEXT             | Path to Auto Run document              |
 | `start_time`      | INTEGER NOT NULL | Unix timestamp (ms)                    |
@@ -82,7 +82,7 @@ Tracks individual tasks within an Auto Run session:
 | --------------------- | ---------------- | ---------------------------------- |
 | `id`                  | TEXT PK          | UUID                               |
 | `auto_run_session_id` | TEXT NOT NULL FK | References `auto_run_sessions(id)` |
-| `session_id`          | TEXT NOT NULL    | Maestro session ID                 |
+| `session_id`          | TEXT NOT NULL    | OpenWizardAI session ID            |
 | `agent_type`          | TEXT NOT NULL    | Agent type                         |
 | `task_index`          | INTEGER NOT NULL | Task position in document          |
 | `task_content`        | TEXT             | Task text content                  |
@@ -96,20 +96,20 @@ Tracks individual tasks within an Auto Run session:
 
 One row per Auto Run wizard conversation, powering the Wizard section of the dashboard's Auto Run tab:
 
-| Column         | Type             | Description                                                |
-| -------------- | ---------------- | ---------------------------------------------------------- |
-| `id`           | TEXT PK          | UUID                                                       |
-| `session_id`   | TEXT NOT NULL    | Maestro agent id (`'onboarding'` for the first-run wizard) |
-| `agent_type`   | TEXT NOT NULL    | Agent type                                                 |
-| `surface`      | TEXT NOT NULL    | `'inline'` (the `/wizard` command) or `'onboarding'`       |
-| `mode`         | TEXT NOT NULL    | `'new'` or `'iterate'`                                     |
-| `outcome`      | TEXT NOT NULL    | `'in-progress'`, `'generated'`, or `'abandoned'`           |
-| `started_at`   | INTEGER NOT NULL | Unix timestamp (ms) the wizard opened                      |
-| `ended_at`     | INTEGER NOT NULL | Unix timestamp (ms) of LAST ACTIVITY, not close            |
-| `exchanges`    | INTEGER NOT NULL | User messages sent during the conversation                 |
-| `documents`    | INTEGER NOT NULL | Auto Run documents produced                                |
-| `tasks`        | INTEGER NOT NULL | Task checkboxes across those documents                     |
-| `project_path` | TEXT             | Project path                                               |
+| Column         | Type             | Description                                                     |
+| -------------- | ---------------- | --------------------------------------------------------------- |
+| `id`           | TEXT PK          | UUID                                                            |
+| `session_id`   | TEXT NOT NULL    | OpenWizardAI agent id (`'onboarding'` for the first-run wizard) |
+| `agent_type`   | TEXT NOT NULL    | Agent type                                                      |
+| `surface`      | TEXT NOT NULL    | `'inline'` (the `/wizard` command) or `'onboarding'`            |
+| `mode`         | TEXT NOT NULL    | `'new'` or `'iterate'`                                          |
+| `outcome`      | TEXT NOT NULL    | `'in-progress'`, `'generated'`, or `'abandoned'`                |
+| `started_at`   | INTEGER NOT NULL | Unix timestamp (ms) the wizard opened                           |
+| `ended_at`     | INTEGER NOT NULL | Unix timestamp (ms) of LAST ACTIVITY, not close                 |
+| `exchanges`    | INTEGER NOT NULL | User messages sent during the conversation                      |
+| `documents`    | INTEGER NOT NULL | Auto Run documents produced                                     |
+| `tasks`        | INTEGER NOT NULL | Task checkboxes across those documents                          |
+| `project_path` | TEXT             | Project path                                                    |
 
 **Indexes**: `started_at`, compound `(surface, started_at)`
 
@@ -128,7 +128,7 @@ Tracks session creation and closure for duration analytics:
 | Column         | Type                 | Description                       |
 | -------------- | -------------------- | --------------------------------- |
 | `id`           | TEXT PK              | UUID                              |
-| `session_id`   | TEXT NOT NULL UNIQUE | Maestro session ID                |
+| `session_id`   | TEXT NOT NULL UNIQUE | OpenWizardAI session ID           |
 | `agent_type`   | TEXT NOT NULL        | Agent type                        |
 | `project_path` | TEXT                 | Project path                      |
 | `created_at`   | INTEGER NOT NULL     | Creation timestamp (ms)           |

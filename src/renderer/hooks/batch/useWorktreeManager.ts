@@ -175,7 +175,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 			sections.push(
 				'',
 				'---',
-				'*This PR was automatically created by [OpenWizzard](https://runmaestro.ai) Auto Run.*'
+				'*This PR was automatically created by [OpenWizardAI](https://github.com/manoelpanev/OpenWizardAI) Auto Run.*'
 			);
 
 			return sections.join('\n');
@@ -209,7 +209,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 
 			// If worktree is enabled but missing path or branch, log warning and return session CWD
 			if (!worktree.path || !worktree.branchName) {
-				window.maestro.logger.log(
+				window.openwizardai.logger.log(
 					'warn',
 					'Worktree enabled but missing configuration',
 					'WorktreeManager',
@@ -226,7 +226,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 				'with branch',
 				worktree.branchName,
 			]);
-			window.maestro.logger.log('info', 'Setting up worktree', 'WorktreeManager', {
+			window.openwizardai.logger.log('info', 'Setting up worktree', 'WorktreeManager', {
 				worktreePath: worktree.path,
 				branchName: worktree.branchName,
 				sessionCwd,
@@ -234,7 +234,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 
 			try {
 				// Set up or reuse the worktree
-				const setupResult = await window.maestro.git.worktreeSetup(
+				const setupResult = await window.openwizardai.git.worktreeSetup(
 					sessionCwd,
 					worktree.path,
 					worktree.branchName,
@@ -242,7 +242,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 					worktree.baseBranch
 				);
 
-				window.maestro.logger.log('info', 'worktreeSetup result', 'WorktreeManager', {
+				window.openwizardai.logger.log('info', 'worktreeSetup result', 'WorktreeManager', {
 					success: setupResult.success,
 					error: setupResult.error,
 					branchMismatch: setupResult.branchMismatch,
@@ -254,7 +254,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 						undefined,
 						setupResult.error
 					);
-					window.maestro.logger.log('error', 'Failed to set up worktree', 'WorktreeManager', {
+					window.openwizardai.logger.log('error', 'Failed to set up worktree', 'WorktreeManager', {
 						error: setupResult.error,
 					});
 					return {
@@ -284,21 +284,21 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 						undefined,
 						worktree.branchName
 					);
-					window.maestro.logger.log(
+					window.openwizardai.logger.log(
 						'info',
 						'Worktree branch mismatch, checking out requested branch',
 						'WorktreeManager',
 						{ branchName: worktree.branchName }
 					);
 
-					const checkoutResult = await window.maestro.git.worktreeCheckout(
+					const checkoutResult = await window.openwizardai.git.worktreeCheckout(
 						worktree.path,
 						worktree.branchName,
 						true, // createIfMissing
 						worktree.sshRemoteId
 					);
 
-					window.maestro.logger.log('info', 'worktreeCheckout result', 'WorktreeManager', {
+					window.openwizardai.logger.log('info', 'worktreeCheckout result', 'WorktreeManager', {
 						success: checkoutResult.success,
 						error: checkoutResult.error,
 						hasUncommittedChanges: checkoutResult.hasUncommittedChanges,
@@ -307,7 +307,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 					if (!checkoutResult.success) {
 						if (checkoutResult.hasUncommittedChanges) {
 							logger.error('[WorktreeManager] Cannot checkout: worktree has uncommitted changes');
-							window.maestro.logger.log(
+							window.openwizardai.logger.log(
 								'error',
 								'Cannot checkout: worktree has uncommitted changes',
 								'WorktreeManager',
@@ -325,9 +325,14 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 								undefined,
 								checkoutResult.error
 							);
-							window.maestro.logger.log('error', 'Failed to checkout branch', 'WorktreeManager', {
-								error: checkoutResult.error,
-							});
+							window.openwizardai.logger.log(
+								'error',
+								'Failed to checkout branch',
+								'WorktreeManager',
+								{
+									error: checkoutResult.error,
+								}
+							);
 							return {
 								success: false,
 								effectiveCwd: sessionCwd,
@@ -340,7 +345,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 
 				// Worktree is ready - return the worktree path as effective CWD
 				logger.info('[WorktreeManager] Worktree ready at', undefined, worktree.path);
-				window.maestro.logger.log('info', 'Worktree ready', 'WorktreeManager', {
+				window.openwizardai.logger.log('info', 'Worktree ready', 'WorktreeManager', {
 					effectiveCwd: worktree.path,
 					worktreeBranch: worktree.branchName,
 				});
@@ -354,9 +359,14 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 				};
 			} catch (error) {
 				logger.error('[WorktreeManager] Error setting up worktree:', undefined, error);
-				window.maestro.logger.log('error', 'Exception setting up worktree', 'WorktreeManager', {
-					error: String(error),
-				});
+				window.openwizardai.logger.log(
+					'error',
+					'Exception setting up worktree',
+					'WorktreeManager',
+					{
+						error: String(error),
+					}
+				);
 				return {
 					success: false,
 					effectiveCwd: sessionCwd,
@@ -390,7 +400,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 			try {
 				// Use the user-selected target branch, or fall back to default branch detection
 				if (!baseBranch) {
-					const defaultBranchResult = await window.maestro.git.getDefaultBranch(mainRepoCwd);
+					const defaultBranchResult = await window.openwizardai.git.getDefaultBranch(mainRepoCwd);
 					baseBranch =
 						defaultBranchResult.success && defaultBranchResult.branch
 							? defaultBranchResult.branch
@@ -400,7 +410,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 				// Fetch recent commit log from the worktree for the PR body
 				let commitSubjects: string[] = [];
 				try {
-					const logResult = await window.maestro.git.log(worktreePath, { limit: 50 });
+					const logResult = await window.openwizardai.git.log(worktreePath, { limit: 50 });
 					if (logResult.entries && logResult.entries.length > 0) {
 						commitSubjects = logResult.entries.map((e) => e.subject);
 					}
@@ -414,7 +424,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 				const prBody = generatePRBody(documents, totalCompletedTasks, commitSubjects);
 
 				// Create the PR (pass ghPath if configured)
-				const prResult = await window.maestro.git.createPR(
+				const prResult = await window.openwizardai.git.createPR(
 					worktreePath,
 					baseBranch,
 					prTitle,

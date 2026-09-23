@@ -1,7 +1,7 @@
 /**
- * `maestro-cli cue schedule` - author, inspect, edit, and cancel Scheduled
+ * `openwizardai-cli cue schedule` - author, inspect, edit, and cancel Scheduled
  * Tasks: the clock-driven Cue subscriptions (`time.once`, `time.scheduled`,
- * `time.heartbeat`) in an agent's `.maestro/cue.yaml`.
+ * `time.heartbeat`) in an agent's `.openwizardai/cue.yaml`.
  *
  * This is the primary agent surface whenever a user asks for a delayed prompt,
  * a reminder, or a repeating job ("in 20 minutes do X", "remind me at 4pm to

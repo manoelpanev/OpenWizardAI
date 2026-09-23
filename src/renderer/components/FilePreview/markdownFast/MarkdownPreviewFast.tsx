@@ -11,7 +11,7 @@ import { Virtuoso, type VirtuosoHandle } from 'react-virtuoso';
 import { buildBlocks } from './pipeline';
 import { sanitizeBlock } from './sanitize';
 import { resolveLinkAction } from './linkRouter';
-import { openMaestroLink } from '../../../utils/openMaestroLink';
+import { openOpenWizardAILink } from '../../../utils/openOpenWizardAILink';
 import { createCodeHighlighter } from './codeHighlighter';
 import { createMermaidRenderer } from './mermaidRenderer';
 import { findHits } from './searchHits';
@@ -204,7 +204,7 @@ export const MarkdownPreviewFast = forwardRef<MarkdownPreviewFastHandle, Markdow
 				const action = resolveLinkAction(
 					{
 						href: anchor.getAttribute('href') ?? '',
-						dataMaestroFile: anchor.getAttribute('data-maestro-file'),
+						dataOpenwizardaiFile: anchor.getAttribute('data-openwizardai-file'),
 					},
 					{
 						metaKey: event.metaKey,
@@ -214,13 +214,13 @@ export const MarkdownPreviewFast = forwardRef<MarkdownPreviewFastHandle, Markdow
 				);
 
 				switch (action.kind) {
-					case 'maestro-file':
+					case 'openwizardai-file':
 						event.preventDefault();
 						onFileClick?.(action.path, { openInNewTab: action.openInNewTab });
 						return;
-					case 'maestro-deep-link':
+					case 'openwizardai-deep-link':
 						event.preventDefault();
-						openMaestroLink(action.href);
+						openOpenWizardAILink(action.href);
 						return;
 					case 'external':
 						event.preventDefault();

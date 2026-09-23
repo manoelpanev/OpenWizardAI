@@ -15,23 +15,23 @@ vi.mock('../../../renderer/services/git', () => ({
 }));
 
 describe('CreateWorktreeModal', () => {
-	// These tests reassign window.maestro.git methods directly (not via vi.spyOn),
+	// These tests reassign window.openwizardai.git methods directly (not via vi.spyOn),
 	// so vi.restoreAllMocks() cannot revert them. Capture the originals and restore
 	// them in afterEach so the mocks do not leak into other tests in this file.
-	const originalCheckGhCli = window.maestro.git.checkGhCli;
-	const originalBranch = window.maestro.git.branch;
+	const originalCheckGhCli = window.openwizardai.git.checkGhCli;
+	const originalBranch = window.openwizardai.git.branch;
 
 	afterEach(() => {
-		window.maestro.git.checkGhCli = originalCheckGhCli;
-		window.maestro.git.branch = originalBranch;
+		window.openwizardai.git.checkGhCli = originalCheckGhCli;
+		window.openwizardai.git.branch = originalBranch;
 	});
 
 	it('wraps a long spaceless creation error without overflowing the modal', async () => {
 		const longError = 'failedtoaddworktreeoversshaborting'.repeat(20);
-		window.maestro.git.checkGhCli = vi
+		window.openwizardai.git.checkGhCli = vi
 			.fn()
 			.mockResolvedValue({ installed: true, authenticated: true });
-		window.maestro.git.branch = vi
+		window.openwizardai.git.branch = vi
 			.fn()
 			.mockResolvedValue({ stdout: 'rc', stderr: '', exitCode: 0 });
 

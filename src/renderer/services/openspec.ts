@@ -13,7 +13,7 @@ import { logger } from '../utils/logger';
  */
 export async function getOpenSpecCommands(): Promise<OpenSpecCommand[]> {
 	try {
-		const result = await window.maestro.openspec.getPrompts();
+		const result = await window.openwizardai.openspec.getPrompts();
 		if (result.success && result.commands) {
 			return result.commands;
 		}
@@ -29,7 +29,7 @@ export async function getOpenSpecCommands(): Promise<OpenSpecCommand[]> {
  */
 export async function getOpenSpecMetadata(): Promise<OpenSpecMetadata | null> {
 	try {
-		const result = await window.maestro.openspec.getMetadata();
+		const result = await window.openwizardai.openspec.getMetadata();
 		if (result.success && result.metadata) {
 			return result.metadata;
 		}
@@ -45,7 +45,7 @@ export async function getOpenSpecMetadata(): Promise<OpenSpecMetadata | null> {
  */
 export async function getOpenSpecCommand(slashCommand: string): Promise<OpenSpecCommand | null> {
 	try {
-		const result = await window.maestro.openspec.getCommand(slashCommand);
+		const result = await window.openwizardai.openspec.getCommand(slashCommand);
 		if (result.success && result.command) {
 			return result.command;
 		}

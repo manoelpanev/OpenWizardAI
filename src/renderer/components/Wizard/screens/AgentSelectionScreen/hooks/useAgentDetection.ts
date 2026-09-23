@@ -41,7 +41,7 @@ export function useAgentDetection({
 
 	const detectAgentsWithContext = useCallback(async () => {
 		const sshRemoteId = getSshRemoteIdForDetection(sshRemoteConfig);
-		return window.maestro.agents.detect(sshRemoteId ?? undefined);
+		return window.openwizardai.agents.detect(sshRemoteId ?? undefined);
 	}, [sshRemoteConfigKey]);
 	const sshEnabled = Boolean(sshRemoteConfig?.enabled);
 

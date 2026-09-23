@@ -1,7 +1,7 @@
 /**
  * Preload API for WakaTime operations
  *
- * Provides the window.maestro.wakatime namespace for:
+ * Provides the window.openwizardai.wakatime namespace for:
  * - CLI availability checking
  * - API key validation
  */

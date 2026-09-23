@@ -192,7 +192,7 @@ export interface DocumentReadResult {
 }
 
 /**
- * Per-task model/effort resolved from the document's `MAESTRO:MODEL` hint.
+ * Per-task model/effort resolved from the document's `OPENWIZARDAI:MODEL` hint.
  * Undefined on either axis means the agent's configured value stands.
  */
 export interface AutoRunTurnOverrides {
@@ -302,7 +302,7 @@ export function useDocumentProcessor(): UseDocumentProcessorReturn {
 			filename: string,
 			sshRemoteId?: string
 		): Promise<DocumentReadResult> => {
-			const result = await window.maestro.autorun.readDoc(
+			const result = await window.openwizardai.autorun.readDoc(
 				folderPath,
 				filename + '.md',
 				sshRemoteId
@@ -350,7 +350,7 @@ export function useDocumentProcessor(): UseDocumentProcessorReturn {
 			const docFilePath = `${folderPath}/${filename}.md`;
 
 			// Read document content (passes sshRemoteId for remote file operations)
-			const docReadResult = await window.maestro.autorun.readDoc(
+			const docReadResult = await window.openwizardai.autorun.readDoc(
 				folderPath,
 				filename + '.md',
 				sshRemoteId
@@ -380,7 +380,7 @@ export function useDocumentProcessor(): UseDocumentProcessorReturn {
 				// Write the expanded content back to the document temporarily
 				// (Agent will read this file, so it needs the expanded variables)
 				if (expandedDocContent !== docReadResult.content) {
-					await window.maestro.autorun.writeDoc(
+					await window.openwizardai.autorun.writeDoc(
 						folderPath,
 						filename + '.md',
 						expandedDocContent,
@@ -431,7 +431,7 @@ export function useDocumentProcessor(): UseDocumentProcessorReturn {
 
 			// Steering notes ride in FRONT of the prompt, and are prepended AFTER
 			// substitution on purpose: a `{{...}}` the operator typed into a note is
-			// their literal text, not a variable for Maestro to expand.
+			// their literal text, not a variable for OpenWizardAI to expand.
 			const steeringBlock = formatSteeringNotesBlock(steeringNotes ?? []);
 			const finalPrompt = steeringBlock
 				? `${steeringBlock}\n\n---\n\n${substitutedPrompt}`
@@ -462,7 +462,7 @@ export function useDocumentProcessor(): UseDocumentProcessorReturn {
 			// Register agent session origin for Auto Run tracking
 			if (result.agentSessionId) {
 				// Use effectiveCwd (worktree path when active) so session can be found later
-				window.maestro.agentSessions
+				window.openwizardai.agentSessions
 					.registerSessionOrigin(effectiveCwd, result.agentSessionId, 'auto')
 					.catch((err) =>
 						logger.error('[DocumentProcessor] Failed to register session origin:', undefined, err)

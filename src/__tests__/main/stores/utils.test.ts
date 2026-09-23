@@ -55,7 +55,7 @@ describe('stores/utils', () => {
 		});
 
 		it('should return the custom path when it exists', () => {
-			const customPath = '/Users/test/iCloud/Maestro';
+			const customPath = '/Users/test/iCloud/OpenWizardAI';
 			const mockStore = {
 				get: vi.fn().mockReturnValue(customPath),
 			} as unknown as Store<BootstrapSettings>;
@@ -69,7 +69,7 @@ describe('stores/utils', () => {
 		});
 
 		it('should create directory when custom path does not exist', () => {
-			const customPath = '/Users/test/iCloud/Maestro';
+			const customPath = '/Users/test/iCloud/OpenWizardAI';
 			const mockStore = {
 				get: vi.fn().mockReturnValue(customPath),
 			} as unknown as Store<BootstrapSettings>;
@@ -150,7 +150,8 @@ describe('stores/utils', () => {
 		});
 
 		it('should reject paths in sensitive system directories', () => {
-			const sensitivePath = process.platform === 'win32' ? 'C:\\Windows\\maestro' : '/etc/maestro';
+			const sensitivePath =
+				process.platform === 'win32' ? 'C:\\Windows\\openwizardai' : '/etc/openwizardai';
 			const mockStore = {
 				get: vi.fn().mockReturnValue(sensitivePath),
 			} as unknown as Store<BootstrapSettings>;
@@ -180,7 +181,7 @@ describe('stores/utils', () => {
 		});
 
 		it('should reject paths containing null bytes', () => {
-			const nullBytePath = '/Users/test/data\0/maestro';
+			const nullBytePath = '/Users/test/data\0/openwizardai';
 			const mockStore = {
 				get: vi.fn().mockReturnValue(nullBytePath),
 			} as unknown as Store<BootstrapSettings>;

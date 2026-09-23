@@ -1,9 +1,9 @@
 // Ad-hoc CDP eval helper. Usage: node scripts/cdp-eval.mjs '<js expression>'
-// Connects to the dev Electron renderer on MAESTRO_CDP_PORT (default 12345),
+// Connects to the dev Electron renderer on OPENWIZARDAI_CDP_PORT (default 12345),
 // evaluates the expression (await-aware), and prints the JSON result.
 import WebSocket from 'ws';
 
-const PORT = process.env.MAESTRO_CDP_PORT || '12345';
+const PORT = process.env.OPENWIZARDAI_CDP_PORT || '12345';
 const expr = process.argv[2];
 if (!expr) {
 	console.error('need an expression');

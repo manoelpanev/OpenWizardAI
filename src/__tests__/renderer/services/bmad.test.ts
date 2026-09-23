@@ -13,8 +13,8 @@ const mockBmad = {
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
-		...(window as any).maestro,
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		bmad: mockBmad,
 	};
 	vi.spyOn(console, 'error').mockImplementation(() => {});

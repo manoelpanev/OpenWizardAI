@@ -169,7 +169,7 @@ describe('pipelineValidation', () => {
 		});
 
 		it('accepts an agent fed by both a prompt edge and a notify edge', () => {
-			// The exact pair `maestro-cli cue schedule --prompt --notify`
+			// The exact pair `openwizardai-cli cue schedule --prompt --notify`
 			// writes: two subs, one trigger, one agent, two edges.
 			const t = triggerNode('t1', 'time.once');
 			const a = agentNode('a1', { sessionName: 'Hotel' });

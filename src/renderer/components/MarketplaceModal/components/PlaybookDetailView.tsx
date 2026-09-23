@@ -89,9 +89,9 @@ export function PlaybookDetailView({
 									backgroundColor: INCOMPAT_BADGE_BG,
 									color: BADGE_FG,
 								}}
-								title={`This playbook needs OpenWizzard ${playbook.minMaestroVersion} or newer. You're running ${runningVersion}.`}
+								title={`This playbook needs OpenWizardAI ${playbook.minOpenWizardAIVersion} or newer. You're running ${runningVersion}.`}
 							>
-								Requires OpenWizzard {playbook.minMaestroVersion}+
+								Requires OpenWizardAI {playbook.minOpenWizardAIVersion}+
 							</span>
 						)}
 					</div>
@@ -113,15 +113,15 @@ export function PlaybookDetailView({
 						⚠
 					</span>
 					<div className="flex-1 text-sm" style={{ color: theme.colors.textMain }}>
-						This playbook requires OpenWizzard <strong>{playbook.minMaestroVersion}</strong> or
-						newer. You're running <strong>{runningVersion}</strong>.
+						This playbook requires OpenWizardAI <strong>{playbook.minOpenWizardAIVersion}</strong>{' '}
+						or newer. You're running <strong>{runningVersion}</strong>.
 					</div>
 					<button
-						onClick={() => openUrl('https://github.com/RunMaestro/Maestro/releases')}
+						onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI/releases')}
 						className="px-3 py-1.5 rounded text-xs font-semibold transition-opacity hover:opacity-90"
 						style={{ backgroundColor: INCOMPAT_BADGE_BG, color: BADGE_FG }}
 					>
-						Update OpenWizzard
+						Update OpenWizardAI
 					</button>
 				</div>
 			)}

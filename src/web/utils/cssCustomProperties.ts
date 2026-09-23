@@ -1,14 +1,14 @@
 /**
- * CSS Custom Properties Generator for Maestro Web Interface
+ * CSS Custom Properties Generator for OpenWizardAI Web Interface
  *
  * Converts theme colors to CSS custom properties (CSS variables) that can be
  * injected into the DOM. This allows dynamic theme switching in the web interface.
  *
  * CSS variable naming convention:
- * - Theme colors are prefixed with `--maestro-`
+ * - Theme colors are prefixed with `--openwizardai-`
  * - Color names are converted from camelCase to kebab-case
  *
- * Example: theme.colors.bgMain -> --maestro-bg-main
+ * Example: theme.colors.bgMain -> --openwizardai-bg-main
  */
 
 import type { Theme, ThemeColors } from '../../shared/theme-types';
@@ -17,59 +17,59 @@ import type { Theme, ThemeColors } from '../../shared/theme-types';
  * CSS custom property name for a theme color
  */
 export type ThemeCSSProperty =
-	| '--maestro-bg-main'
-	| '--maestro-bg-sidebar'
-	| '--maestro-bg-activity'
-	| '--maestro-border'
-	| '--maestro-text-main'
-	| '--maestro-text-dim'
-	| '--maestro-accent'
-	| '--maestro-accent-dim'
-	| '--maestro-accent-text'
-	| '--maestro-accent-foreground'
-	| '--maestro-success'
-	| '--maestro-warning'
-	| '--maestro-error'
-	| '--maestro-mode';
+	| '--openwizardai-bg-main'
+	| '--openwizardai-bg-sidebar'
+	| '--openwizardai-bg-activity'
+	| '--openwizardai-border'
+	| '--openwizardai-text-main'
+	| '--openwizardai-text-dim'
+	| '--openwizardai-accent'
+	| '--openwizardai-accent-dim'
+	| '--openwizardai-accent-text'
+	| '--openwizardai-accent-foreground'
+	| '--openwizardai-success'
+	| '--openwizardai-warning'
+	| '--openwizardai-error'
+	| '--openwizardai-mode';
 
 /**
  * Maps base theme color keys to CSS custom property names.
  * ANSI fields are excluded - they are only used for terminal emulation, not CSS variables.
  */
 const colorToCSSProperty: Partial<Record<keyof ThemeColors, ThemeCSSProperty>> = {
-	bgMain: '--maestro-bg-main',
-	bgSidebar: '--maestro-bg-sidebar',
-	bgActivity: '--maestro-bg-activity',
-	border: '--maestro-border',
-	textMain: '--maestro-text-main',
-	textDim: '--maestro-text-dim',
-	accent: '--maestro-accent',
-	accentDim: '--maestro-accent-dim',
-	accentText: '--maestro-accent-text',
-	accentForeground: '--maestro-accent-foreground',
-	success: '--maestro-success',
-	warning: '--maestro-warning',
-	error: '--maestro-error',
+	bgMain: '--openwizardai-bg-main',
+	bgSidebar: '--openwizardai-bg-sidebar',
+	bgActivity: '--openwizardai-bg-activity',
+	border: '--openwizardai-border',
+	textMain: '--openwizardai-text-main',
+	textDim: '--openwizardai-text-dim',
+	accent: '--openwizardai-accent',
+	accentDim: '--openwizardai-accent-dim',
+	accentText: '--openwizardai-accent-text',
+	accentForeground: '--openwizardai-accent-foreground',
+	success: '--openwizardai-success',
+	warning: '--openwizardai-warning',
+	error: '--openwizardai-error',
 };
 
 /**
  * All CSS custom property names used by the theme system
  */
 export const THEME_CSS_PROPERTIES: ThemeCSSProperty[] = [
-	'--maestro-bg-main',
-	'--maestro-bg-sidebar',
-	'--maestro-bg-activity',
-	'--maestro-border',
-	'--maestro-text-main',
-	'--maestro-text-dim',
-	'--maestro-accent',
-	'--maestro-accent-dim',
-	'--maestro-accent-text',
-	'--maestro-accent-foreground',
-	'--maestro-success',
-	'--maestro-warning',
-	'--maestro-error',
-	'--maestro-mode',
+	'--openwizardai-bg-main',
+	'--openwizardai-bg-sidebar',
+	'--openwizardai-bg-activity',
+	'--openwizardai-border',
+	'--openwizardai-text-main',
+	'--openwizardai-text-dim',
+	'--openwizardai-accent',
+	'--openwizardai-accent-dim',
+	'--openwizardai-accent-text',
+	'--openwizardai-accent-foreground',
+	'--openwizardai-success',
+	'--openwizardai-warning',
+	'--openwizardai-error',
+	'--openwizardai-mode',
 ];
 
 /**
@@ -83,9 +83,9 @@ export const THEME_CSS_PROPERTIES: ThemeCSSProperty[] = [
  * const props = generateCSSProperties(myTheme);
  * // Returns:
  * // {
- * //   '--maestro-bg-main': '#0b0b0d',
- * //   '--maestro-bg-sidebar': '#111113',
- * //   '--maestro-mode': 'dark',
+ * //   '--openwizardai-bg-main': '#0b0b0d',
+ * //   '--openwizardai-bg-sidebar': '#111113',
+ * //   '--openwizardai-mode': 'dark',
  * //   ...
  * // }
  * ```
@@ -105,7 +105,7 @@ export function generateCSSProperties(theme: Theme): Record<ThemeCSSProperty, st
 	}
 
 	// Add mode property for CSS selectors based on theme mode
-	properties['--maestro-mode'] = theme.mode;
+	properties['--openwizardai-mode'] = theme.mode;
 
 	return properties as Record<ThemeCSSProperty, string>;
 }
@@ -122,8 +122,8 @@ export function generateCSSProperties(theme: Theme): Record<ThemeCSSProperty, st
  * const css = generateCSSString(myTheme);
  * // Returns:
  * // `:root {
- * //   --maestro-bg-main: #0b0b0d;
- * //   --maestro-bg-sidebar: #111113;
+ * //   --openwizardai-bg-main: #0b0b0d;
+ * //   --openwizardai-bg-sidebar: #111113;
  * //   ...
  * // }`
  * ```
@@ -140,7 +140,7 @@ export function generateCSSString(theme: Theme, selector: string = ':root'): str
 /**
  * ID of the style element used for theme CSS properties
  */
-const STYLE_ELEMENT_ID = 'maestro-theme-css-properties';
+const STYLE_ELEMENT_ID = 'openwizardai-theme-css-properties';
 
 /**
  * Injects theme CSS custom properties into the document
@@ -168,7 +168,7 @@ export function injectCSSProperties(theme: Theme): void {
 	if (!styleElement) {
 		styleElement = document.createElement('style');
 		styleElement.id = STYLE_ELEMENT_ID;
-		styleElement.setAttribute('data-maestro-theme', 'true');
+		styleElement.setAttribute('data-openwizardai-theme', 'true');
 		document.head.appendChild(styleElement);
 	}
 
@@ -243,7 +243,7 @@ export function removeElementCSSProperties(element: HTMLElement): void {
  *
  * @example
  * ```ts
- * const bgColor = getCSSProperty('--maestro-bg-main');
+ * const bgColor = getCSSProperty('--openwizardai-bg-main');
  * ```
  */
 export function getCSSProperty(
@@ -265,7 +265,7 @@ export function getCSSProperty(
  *
  * @example
  * ```tsx
- * <div style={{ backgroundColor: cssVar('--maestro-bg-main') }}>
+ * <div style={{ backgroundColor: cssVar('--openwizardai-bg-main') }}>
  *   Content
  * </div>
  * ```

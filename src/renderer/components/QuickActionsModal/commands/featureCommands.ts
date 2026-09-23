@@ -34,7 +34,7 @@ interface BuildFeatureCommandsArgs {
 	onOpenQueueBrowser?: () => void;
 	onOpenPlaybookExchange?: () => void;
 	onOpenDirectorNotes?: () => void;
-	onOpenMaestroCue?: () => void;
+	onOpenOpenWizardAICue?: () => void;
 	onConfigureCue?: (session: Session) => void;
 	onOpenLastDocumentGraph?: () => void;
 	onOpenCurrentFileInGraph?: () => void;
@@ -91,7 +91,7 @@ export function buildFeatureCommands({
 	onOpenQueueBrowser,
 	onOpenPlaybookExchange,
 	onOpenDirectorNotes,
-	onOpenMaestroCue,
+	onOpenOpenWizardAICue,
 	onConfigureCue,
 	onOpenLastDocumentGraph,
 	onOpenCurrentFileInGraph,
@@ -326,14 +326,14 @@ export function buildFeatureCommands({
 		});
 	}
 
-	if (onOpenMaestroCue) {
+	if (onOpenOpenWizardAICue) {
 		commands.push({
-			id: 'maestro-cue',
-			label: 'OpenWizzard Cue',
+			id: 'openwizardai-cue',
+			label: 'OpenWizardAI Cue',
 			shortcut: shortcuts.openCue,
 			subtext: 'Event-driven automation dashboard',
 			action: () => {
-				onOpenMaestroCue();
+				onOpenOpenWizardAICue();
 				setQuickActionOpen(false);
 			},
 		});
@@ -342,7 +342,7 @@ export function buildFeatureCommands({
 	if (onConfigureCue && activeSession) {
 		commands.push({
 			id: 'configure-cue',
-			label: `Configure OpenWizzard Cue: ${activeSession.name}`,
+			label: `Configure OpenWizardAI Cue: ${activeSession.name}`,
 			subtext: 'Open YAML editor for event-driven automation',
 			action: () => {
 				onConfigureCue(activeSession);

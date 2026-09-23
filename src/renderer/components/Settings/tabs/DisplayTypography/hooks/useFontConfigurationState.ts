@@ -22,7 +22,9 @@ export function useFontConfigurationState(): FontConfigurationState {
 		let cancelled = false;
 		void (async () => {
 			try {
-				const saved = (await window.maestro.settings.get('customFonts')) as string[] | undefined;
+				const saved = (await window.openwizardai.settings.get('customFonts')) as
+					| string[]
+					| undefined;
 				if (cancelled || customFontsDirty.current || !Array.isArray(saved)) return;
 				setCustomFonts(saved);
 			} catch (error) {
@@ -66,7 +68,7 @@ export function useFontConfigurationState(): FontConfigurationState {
 			if (prev.includes(font)) return prev;
 			const next = [...prev, font];
 			customFontsDirty.current = true;
-			window.maestro.settings.set('customFonts', next);
+			window.openwizardai.settings.set('customFonts', next);
 			return next;
 		});
 	}, []);
@@ -76,7 +78,7 @@ export function useFontConfigurationState(): FontConfigurationState {
 			if (!prev.includes(font)) return prev;
 			const next = prev.filter((f) => f !== font);
 			customFontsDirty.current = true;
-			window.maestro.settings.set('customFonts', next);
+			window.openwizardai.settings.set('customFonts', next);
 			return next;
 		});
 	}, []);

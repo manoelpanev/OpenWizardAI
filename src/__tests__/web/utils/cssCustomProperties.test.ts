@@ -87,20 +87,20 @@ describe('cssCustomProperties', () => {
 
 		it('should include all color properties', () => {
 			const expectedProperties = [
-				'--maestro-bg-main',
-				'--maestro-bg-sidebar',
-				'--maestro-bg-activity',
-				'--maestro-border',
-				'--maestro-text-main',
-				'--maestro-text-dim',
-				'--maestro-accent',
-				'--maestro-accent-dim',
-				'--maestro-accent-text',
-				'--maestro-accent-foreground',
-				'--maestro-success',
-				'--maestro-warning',
-				'--maestro-error',
-				'--maestro-mode',
+				'--openwizardai-bg-main',
+				'--openwizardai-bg-sidebar',
+				'--openwizardai-bg-activity',
+				'--openwizardai-border',
+				'--openwizardai-text-main',
+				'--openwizardai-text-dim',
+				'--openwizardai-accent',
+				'--openwizardai-accent-dim',
+				'--openwizardai-accent-text',
+				'--openwizardai-accent-foreground',
+				'--openwizardai-success',
+				'--openwizardai-warning',
+				'--openwizardai-error',
+				'--openwizardai-mode',
 			];
 
 			expectedProperties.forEach((prop) => {
@@ -108,9 +108,9 @@ describe('cssCustomProperties', () => {
 			});
 		});
 
-		it('should have all properties prefixed with --maestro-', () => {
+		it('should have all properties prefixed with --openwizardai-', () => {
 			THEME_CSS_PROPERTIES.forEach((prop) => {
-				expect(prop).toMatch(/^--maestro-/);
+				expect(prop).toMatch(/^--openwizardai-/);
 			});
 		});
 
@@ -125,35 +125,35 @@ describe('cssCustomProperties', () => {
 			const theme = createMockTheme();
 			const properties = generateCSSProperties(theme);
 
-			expect(properties['--maestro-bg-main']).toBe('#282a36');
-			expect(properties['--maestro-bg-sidebar']).toBe('#21222c');
-			expect(properties['--maestro-bg-activity']).toBe('#44475a');
-			expect(properties['--maestro-border']).toBe('#6272a4');
-			expect(properties['--maestro-text-main']).toBe('#f8f8f2');
-			expect(properties['--maestro-text-dim']).toBe('#6272a4');
-			expect(properties['--maestro-accent']).toBe('#bd93f9');
-			expect(properties['--maestro-accent-dim']).toBe('rgba(189, 147, 249, 0.3)');
-			expect(properties['--maestro-accent-text']).toBe('#bd93f9');
-			expect(properties['--maestro-success']).toBe('#50fa7b');
-			expect(properties['--maestro-warning']).toBe('#ffb86c');
-			expect(properties['--maestro-error']).toBe('#ff5555');
-			expect(properties['--maestro-mode']).toBe('dark');
+			expect(properties['--openwizardai-bg-main']).toBe('#282a36');
+			expect(properties['--openwizardai-bg-sidebar']).toBe('#21222c');
+			expect(properties['--openwizardai-bg-activity']).toBe('#44475a');
+			expect(properties['--openwizardai-border']).toBe('#6272a4');
+			expect(properties['--openwizardai-text-main']).toBe('#f8f8f2');
+			expect(properties['--openwizardai-text-dim']).toBe('#6272a4');
+			expect(properties['--openwizardai-accent']).toBe('#bd93f9');
+			expect(properties['--openwizardai-accent-dim']).toBe('rgba(189, 147, 249, 0.3)');
+			expect(properties['--openwizardai-accent-text']).toBe('#bd93f9');
+			expect(properties['--openwizardai-success']).toBe('#50fa7b');
+			expect(properties['--openwizardai-warning']).toBe('#ffb86c');
+			expect(properties['--openwizardai-error']).toBe('#ff5555');
+			expect(properties['--openwizardai-mode']).toBe('dark');
 		});
 
 		it('should generate CSS properties from a light theme', () => {
 			const theme = createLightTheme();
 			const properties = generateCSSProperties(theme);
 
-			expect(properties['--maestro-bg-main']).toBe('#ffffff');
-			expect(properties['--maestro-bg-sidebar']).toBe('#f6f8fa');
-			expect(properties['--maestro-mode']).toBe('light');
+			expect(properties['--openwizardai-bg-main']).toBe('#ffffff');
+			expect(properties['--openwizardai-bg-sidebar']).toBe('#f6f8fa');
+			expect(properties['--openwizardai-mode']).toBe('light');
 		});
 
 		it('should generate CSS properties from a vibe mode theme', () => {
 			const theme = createMockTheme({ mode: 'vibe' });
 			const properties = generateCSSProperties(theme);
 
-			expect(properties['--maestro-mode']).toBe('vibe');
+			expect(properties['--openwizardai-mode']).toBe('vibe');
 		});
 
 		it('should return all 14 properties', () => {
@@ -169,7 +169,7 @@ describe('cssCustomProperties', () => {
 			});
 			const properties = generateCSSProperties(theme);
 
-			expect(properties['--maestro-accent-dim']).toBe('rgba(100, 200, 255, 0.5)');
+			expect(properties['--openwizardai-accent-dim']).toBe('rgba(100, 200, 255, 0.5)');
 		});
 
 		it('should handle themes with hsl colors', () => {
@@ -178,7 +178,7 @@ describe('cssCustomProperties', () => {
 			});
 			const properties = generateCSSProperties(theme);
 
-			expect(properties['--maestro-bg-main']).toBe('hsl(230, 15%, 18%)');
+			expect(properties['--openwizardai-bg-main']).toBe('hsl(230, 15%, 18%)');
 		});
 
 		it('should handle themes with named colors', () => {
@@ -187,8 +187,8 @@ describe('cssCustomProperties', () => {
 			});
 			const properties = generateCSSProperties(theme);
 
-			expect(properties['--maestro-error']).toBe('red');
-			expect(properties['--maestro-success']).toBe('green');
+			expect(properties['--openwizardai-error']).toBe('red');
+			expect(properties['--openwizardai-success']).toBe('green');
 		});
 	});
 
@@ -199,8 +199,8 @@ describe('cssCustomProperties', () => {
 
 			expect(cssString).toMatch(/^:root \{/);
 			expect(cssString).toMatch(/\}$/);
-			expect(cssString).toContain('--maestro-bg-main: #282a36;');
-			expect(cssString).toContain('--maestro-mode: dark;');
+			expect(cssString).toContain('--openwizardai-bg-main: #282a36;');
+			expect(cssString).toContain('--openwizardai-mode: dark;');
 		});
 
 		it('should use custom selector when provided', () => {
@@ -228,19 +228,19 @@ describe('cssCustomProperties', () => {
 			const theme = createMockTheme();
 			const cssString = generateCSSString(theme);
 
-			expect(cssString).toContain('--maestro-bg-main');
-			expect(cssString).toContain('--maestro-bg-sidebar');
-			expect(cssString).toContain('--maestro-bg-activity');
-			expect(cssString).toContain('--maestro-border');
-			expect(cssString).toContain('--maestro-text-main');
-			expect(cssString).toContain('--maestro-text-dim');
-			expect(cssString).toContain('--maestro-accent');
-			expect(cssString).toContain('--maestro-accent-dim');
-			expect(cssString).toContain('--maestro-accent-text');
-			expect(cssString).toContain('--maestro-success');
-			expect(cssString).toContain('--maestro-warning');
-			expect(cssString).toContain('--maestro-error');
-			expect(cssString).toContain('--maestro-mode');
+			expect(cssString).toContain('--openwizardai-bg-main');
+			expect(cssString).toContain('--openwizardai-bg-sidebar');
+			expect(cssString).toContain('--openwizardai-bg-activity');
+			expect(cssString).toContain('--openwizardai-border');
+			expect(cssString).toContain('--openwizardai-text-main');
+			expect(cssString).toContain('--openwizardai-text-dim');
+			expect(cssString).toContain('--openwizardai-accent');
+			expect(cssString).toContain('--openwizardai-accent-dim');
+			expect(cssString).toContain('--openwizardai-accent-text');
+			expect(cssString).toContain('--openwizardai-success');
+			expect(cssString).toContain('--openwizardai-warning');
+			expect(cssString).toContain('--openwizardai-error');
+			expect(cssString).toContain('--openwizardai-mode');
 		});
 
 		it('should properly format each line with indentation', () => {
@@ -253,7 +253,7 @@ describe('cssCustomProperties', () => {
 
 			// Middle lines should be indented with 2 spaces
 			for (let i = 1; i < lines.length - 1; i++) {
-				expect(lines[i]).toMatch(/^ {2}--maestro-.+: .+;$/);
+				expect(lines[i]).toMatch(/^ {2}--openwizardai-.+: .+;$/);
 			}
 
 			// Last line should be closing brace
@@ -264,8 +264,8 @@ describe('cssCustomProperties', () => {
 			const theme = createLightTheme();
 			const cssString = generateCSSString(theme);
 
-			expect(cssString).toContain('--maestro-bg-main: #ffffff;');
-			expect(cssString).toContain('--maestro-mode: light;');
+			expect(cssString).toContain('--openwizardai-bg-main: #ffffff;');
+			expect(cssString).toContain('--openwizardai-mode: light;');
 		});
 	});
 
@@ -274,20 +274,22 @@ describe('cssCustomProperties', () => {
 
 		beforeEach(() => {
 			// Clean up any existing style elements
-			document.querySelectorAll('#maestro-theme-css-properties').forEach((el) => el.remove());
+			document.querySelectorAll('#openwizardai-theme-css-properties').forEach((el) => el.remove());
 			styleElement = null;
 		});
 
 		afterEach(() => {
 			// Clean up after each test
-			document.querySelectorAll('#maestro-theme-css-properties').forEach((el) => el.remove());
+			document.querySelectorAll('#openwizardai-theme-css-properties').forEach((el) => el.remove());
 		});
 
 		it('should create a style element in document head', () => {
 			const theme = createMockTheme();
 			injectCSSProperties(theme);
 
-			styleElement = document.getElementById('maestro-theme-css-properties') as HTMLStyleElement;
+			styleElement = document.getElementById(
+				'openwizardai-theme-css-properties'
+			) as HTMLStyleElement;
 			expect(styleElement).not.toBeNull();
 			expect(styleElement.parentElement).toBe(document.head);
 		});
@@ -296,24 +298,30 @@ describe('cssCustomProperties', () => {
 			const theme = createMockTheme();
 			injectCSSProperties(theme);
 
-			styleElement = document.getElementById('maestro-theme-css-properties') as HTMLStyleElement;
-			expect(styleElement.id).toBe('maestro-theme-css-properties');
+			styleElement = document.getElementById(
+				'openwizardai-theme-css-properties'
+			) as HTMLStyleElement;
+			expect(styleElement.id).toBe('openwizardai-theme-css-properties');
 		});
 
-		it('should set data-maestro-theme attribute', () => {
+		it('should set data-openwizardai-theme attribute', () => {
 			const theme = createMockTheme();
 			injectCSSProperties(theme);
 
-			styleElement = document.getElementById('maestro-theme-css-properties') as HTMLStyleElement;
-			expect(styleElement.getAttribute('data-maestro-theme')).toBe('true');
+			styleElement = document.getElementById(
+				'openwizardai-theme-css-properties'
+			) as HTMLStyleElement;
+			expect(styleElement.getAttribute('data-openwizardai-theme')).toBe('true');
 		});
 
 		it('should contain CSS custom properties in textContent', () => {
 			const theme = createMockTheme();
 			injectCSSProperties(theme);
 
-			styleElement = document.getElementById('maestro-theme-css-properties') as HTMLStyleElement;
-			expect(styleElement.textContent).toContain('--maestro-bg-main');
+			styleElement = document.getElementById(
+				'openwizardai-theme-css-properties'
+			) as HTMLStyleElement;
+			expect(styleElement.textContent).toContain('--openwizardai-bg-main');
 			expect(styleElement.textContent).toContain('#282a36');
 		});
 
@@ -323,16 +331,18 @@ describe('cssCustomProperties', () => {
 
 			// Inject dark theme
 			injectCSSProperties(darkTheme);
-			const styleElements1 = document.querySelectorAll('#maestro-theme-css-properties');
+			const styleElements1 = document.querySelectorAll('#openwizardai-theme-css-properties');
 			expect(styleElements1).toHaveLength(1);
 
 			// Inject light theme - should update, not create new
 			injectCSSProperties(lightTheme);
-			const styleElements2 = document.querySelectorAll('#maestro-theme-css-properties');
+			const styleElements2 = document.querySelectorAll('#openwizardai-theme-css-properties');
 			expect(styleElements2).toHaveLength(1);
 
 			// Content should be updated
-			styleElement = document.getElementById('maestro-theme-css-properties') as HTMLStyleElement;
+			styleElement = document.getElementById(
+				'openwizardai-theme-css-properties'
+			) as HTMLStyleElement;
 			expect(styleElement.textContent).toContain('#ffffff');
 			expect(styleElement.textContent).not.toContain('#282a36');
 		});
@@ -341,8 +351,10 @@ describe('cssCustomProperties', () => {
 			const theme = createLightTheme();
 			injectCSSProperties(theme);
 
-			styleElement = document.getElementById('maestro-theme-css-properties') as HTMLStyleElement;
-			expect(styleElement.textContent).toContain('--maestro-mode: light;');
+			styleElement = document.getElementById(
+				'openwizardai-theme-css-properties'
+			) as HTMLStyleElement;
+			expect(styleElement.textContent).toContain('--openwizardai-mode: light;');
 		});
 	});
 
@@ -373,23 +385,23 @@ describe('cssCustomProperties', () => {
 
 		afterEach(() => {
 			// Clean up
-			document.querySelectorAll('#maestro-theme-css-properties').forEach((el) => el.remove());
+			document.querySelectorAll('#openwizardai-theme-css-properties').forEach((el) => el.remove());
 		});
 
 		it('should remove the style element from document', () => {
-			const before = document.getElementById('maestro-theme-css-properties');
+			const before = document.getElementById('openwizardai-theme-css-properties');
 			expect(before).not.toBeNull();
 
 			removeCSSProperties();
 
-			const after = document.getElementById('maestro-theme-css-properties');
+			const after = document.getElementById('openwizardai-theme-css-properties');
 			expect(after).toBeNull();
 		});
 
 		it('should not throw when style element does not exist', () => {
 			// First remove
 			removeCSSProperties();
-			expect(document.getElementById('maestro-theme-css-properties')).toBeNull();
+			expect(document.getElementById('openwizardai-theme-css-properties')).toBeNull();
 
 			// Second remove should not throw
 			expect(() => removeCSSProperties()).not.toThrow();
@@ -400,7 +412,7 @@ describe('cssCustomProperties', () => {
 			removeCSSProperties();
 			removeCSSProperties();
 
-			expect(document.getElementById('maestro-theme-css-properties')).toBeNull();
+			expect(document.getElementById('openwizardai-theme-css-properties')).toBeNull();
 		});
 	});
 
@@ -432,9 +444,9 @@ describe('cssCustomProperties', () => {
 			const theme = createMockTheme();
 			setElementCSSProperties(element, theme);
 
-			expect(element.style.getPropertyValue('--maestro-bg-main')).toBe('#282a36');
-			expect(element.style.getPropertyValue('--maestro-bg-sidebar')).toBe('#21222c');
-			expect(element.style.getPropertyValue('--maestro-mode')).toBe('dark');
+			expect(element.style.getPropertyValue('--openwizardai-bg-main')).toBe('#282a36');
+			expect(element.style.getPropertyValue('--openwizardai-bg-sidebar')).toBe('#21222c');
+			expect(element.style.getPropertyValue('--openwizardai-mode')).toBe('dark');
 		});
 
 		it('should set all 13 properties', () => {
@@ -455,10 +467,10 @@ describe('cssCustomProperties', () => {
 			const lightTheme = createLightTheme();
 
 			setElementCSSProperties(element, darkTheme);
-			expect(element.style.getPropertyValue('--maestro-bg-main')).toBe('#282a36');
+			expect(element.style.getPropertyValue('--openwizardai-bg-main')).toBe('#282a36');
 
 			setElementCSSProperties(element, lightTheme);
-			expect(element.style.getPropertyValue('--maestro-bg-main')).toBe('#ffffff');
+			expect(element.style.getPropertyValue('--openwizardai-bg-main')).toBe('#ffffff');
 		});
 
 		it('should work with nested elements', () => {
@@ -470,7 +482,7 @@ describe('cssCustomProperties', () => {
 			const theme = createMockTheme();
 			setElementCSSProperties(childElement, theme);
 
-			expect(childElement.style.getPropertyValue('--maestro-accent')).toBe('#bd93f9');
+			expect(childElement.style.getPropertyValue('--openwizardai-accent')).toBe('#bd93f9');
 
 			parentElement.remove();
 		});
@@ -494,7 +506,7 @@ describe('cssCustomProperties', () => {
 
 		it('should remove all CSS custom properties from element', () => {
 			// Verify properties are set
-			expect(element.style.getPropertyValue('--maestro-bg-main')).toBe('#282a36');
+			expect(element.style.getPropertyValue('--openwizardai-bg-main')).toBe('#282a36');
 
 			removeElementCSSProperties(element);
 
@@ -543,7 +555,7 @@ describe('cssCustomProperties', () => {
 
 			// Note: getComputedStyle may not return the value immediately in jsdom
 			// This tests the function signature and behavior
-			const value = getCSSProperty('--maestro-bg-main');
+			const value = getCSSProperty('--openwizardai-bg-main');
 			// In jsdom, custom properties may not be computed
 			expect(typeof value).toBe('string');
 		});
@@ -552,18 +564,18 @@ describe('cssCustomProperties', () => {
 			const theme = createMockTheme();
 			setElementCSSProperties(element, theme);
 
-			const value = getCSSProperty('--maestro-accent', element);
+			const value = getCSSProperty('--openwizardai-accent', element);
 			expect(typeof value).toBe('string');
 		});
 
 		it('should return empty string for non-existent property', () => {
-			const value = getCSSProperty('--maestro-bg-main');
+			const value = getCSSProperty('--openwizardai-bg-main');
 			expect(value).toBe('');
 		});
 
 		it('should return trimmed value', () => {
-			element.style.setProperty('--maestro-bg-main', '  #ffffff  ');
-			const value = getCSSProperty('--maestro-bg-main', element);
+			element.style.setProperty('--openwizardai-bg-main', '  #ffffff  ');
+			const value = getCSSProperty('--openwizardai-bg-main', element);
 			expect(value).toBe('#ffffff');
 		});
 
@@ -573,7 +585,7 @@ describe('cssCustomProperties', () => {
 			injectCSSProperties(theme);
 
 			// Call without element parameter
-			const value = getCSSProperty('--maestro-mode');
+			const value = getCSSProperty('--openwizardai-mode');
 			expect(typeof value).toBe('string');
 		});
 	});
@@ -584,7 +596,7 @@ describe('cssCustomProperties', () => {
 			// @ts-expect-error - Testing SSR scenario
 			delete globalThis.window;
 
-			const value = getCSSProperty('--maestro-bg-main');
+			const value = getCSSProperty('--openwizardai-bg-main');
 			expect(value).toBe('');
 
 			globalThis.window = originalWindow;
@@ -593,30 +605,30 @@ describe('cssCustomProperties', () => {
 
 	describe('cssVar', () => {
 		it('should generate var() syntax without fallback', () => {
-			const result = cssVar('--maestro-bg-main');
-			expect(result).toBe('var(--maestro-bg-main)');
+			const result = cssVar('--openwizardai-bg-main');
+			expect(result).toBe('var(--openwizardai-bg-main)');
 		});
 
 		it('should generate var() syntax with fallback', () => {
-			const result = cssVar('--maestro-bg-main', '#000000');
-			expect(result).toBe('var(--maestro-bg-main, #000000)');
+			const result = cssVar('--openwizardai-bg-main', '#000000');
+			expect(result).toBe('var(--openwizardai-bg-main, #000000)');
 		});
 
 		it('should work with all property types', () => {
 			const properties: ThemeCSSProperty[] = [
-				'--maestro-bg-main',
-				'--maestro-bg-sidebar',
-				'--maestro-bg-activity',
-				'--maestro-border',
-				'--maestro-text-main',
-				'--maestro-text-dim',
-				'--maestro-accent',
-				'--maestro-accent-dim',
-				'--maestro-accent-text',
-				'--maestro-success',
-				'--maestro-warning',
-				'--maestro-error',
-				'--maestro-mode',
+				'--openwizardai-bg-main',
+				'--openwizardai-bg-sidebar',
+				'--openwizardai-bg-activity',
+				'--openwizardai-border',
+				'--openwizardai-text-main',
+				'--openwizardai-text-dim',
+				'--openwizardai-accent',
+				'--openwizardai-accent-dim',
+				'--openwizardai-accent-text',
+				'--openwizardai-success',
+				'--openwizardai-warning',
+				'--openwizardai-error',
+				'--openwizardai-mode',
 			];
 
 			properties.forEach((prop) => {
@@ -626,34 +638,34 @@ describe('cssCustomProperties', () => {
 		});
 
 		it('should handle various fallback values', () => {
-			expect(cssVar('--maestro-accent', 'rgba(0,0,0,0.5)')).toBe(
-				'var(--maestro-accent, rgba(0,0,0,0.5))'
+			expect(cssVar('--openwizardai-accent', 'rgba(0,0,0,0.5)')).toBe(
+				'var(--openwizardai-accent, rgba(0,0,0,0.5))'
 			);
-			expect(cssVar('--maestro-mode', 'dark')).toBe('var(--maestro-mode, dark)');
-			expect(cssVar('--maestro-bg-main', 'hsl(0, 0%, 0%)')).toBe(
-				'var(--maestro-bg-main, hsl(0, 0%, 0%))'
+			expect(cssVar('--openwizardai-mode', 'dark')).toBe('var(--openwizardai-mode, dark)');
+			expect(cssVar('--openwizardai-bg-main', 'hsl(0, 0%, 0%)')).toBe(
+				'var(--openwizardai-bg-main, hsl(0, 0%, 0%))'
 			);
 		});
 
 		it('should handle empty string fallback', () => {
 			// Empty string is falsy but should still be treated as no fallback
-			const result = cssVar('--maestro-bg-main', '');
-			expect(result).toBe('var(--maestro-bg-main)');
+			const result = cssVar('--openwizardai-bg-main', '');
+			expect(result).toBe('var(--openwizardai-bg-main)');
 		});
 
 		it('should handle whitespace-only fallback', () => {
 			// Note: This tests the actual behavior - whitespace is truthy
-			const result = cssVar('--maestro-bg-main', '   ');
-			expect(result).toBe('var(--maestro-bg-main,    )');
+			const result = cssVar('--openwizardai-bg-main', '   ');
+			expect(result).toBe('var(--openwizardai-bg-main,    )');
 		});
 
 		it('should return correct CSS for use in style objects', () => {
-			const bgColor = cssVar('--maestro-bg-main');
-			const accentWithFallback = cssVar('--maestro-accent', 'blue');
+			const bgColor = cssVar('--openwizardai-bg-main');
+			const accentWithFallback = cssVar('--openwizardai-accent', 'blue');
 
 			// These should be valid CSS values
-			expect(bgColor).toMatch(/^var\(--maestro-.+\)$/);
-			expect(accentWithFallback).toMatch(/^var\(--maestro-.+, .+\)$/);
+			expect(bgColor).toMatch(/^var\(--openwizardai-.+\)$/);
+			expect(accentWithFallback).toMatch(/^var\(--openwizardai-.+, .+\)$/);
 		});
 	});
 
@@ -662,19 +674,19 @@ describe('cssCustomProperties', () => {
 			// This tests type correctness at runtime by ensuring the type
 			// allows all the expected values
 			const validProps: ThemeCSSProperty[] = [
-				'--maestro-bg-main',
-				'--maestro-bg-sidebar',
-				'--maestro-bg-activity',
-				'--maestro-border',
-				'--maestro-text-main',
-				'--maestro-text-dim',
-				'--maestro-accent',
-				'--maestro-accent-dim',
-				'--maestro-accent-text',
-				'--maestro-success',
-				'--maestro-warning',
-				'--maestro-error',
-				'--maestro-mode',
+				'--openwizardai-bg-main',
+				'--openwizardai-bg-sidebar',
+				'--openwizardai-bg-activity',
+				'--openwizardai-border',
+				'--openwizardai-text-main',
+				'--openwizardai-text-dim',
+				'--openwizardai-accent',
+				'--openwizardai-accent-dim',
+				'--openwizardai-accent-text',
+				'--openwizardai-success',
+				'--openwizardai-warning',
+				'--openwizardai-error',
+				'--openwizardai-mode',
 			];
 
 			validProps.forEach((prop) => {
@@ -696,13 +708,13 @@ describe('cssCustomProperties', () => {
 			injectCSSProperties(theme);
 
 			// Verify injection
-			const styleElement = document.getElementById('maestro-theme-css-properties');
+			const styleElement = document.getElementById('openwizardai-theme-css-properties');
 			expect(styleElement).not.toBeNull();
-			expect(styleElement?.textContent).toContain('--maestro-bg-main: #282a36;');
+			expect(styleElement?.textContent).toContain('--openwizardai-bg-main: #282a36;');
 
 			// Clean up
 			removeCSSProperties();
-			expect(document.getElementById('maestro-theme-css-properties')).toBeNull();
+			expect(document.getElementById('openwizardai-theme-css-properties')).toBeNull();
 		});
 
 		it('should support theme switching', () => {
@@ -711,14 +723,14 @@ describe('cssCustomProperties', () => {
 
 			// Start with dark theme
 			injectCSSProperties(darkTheme);
-			let styleElement = document.getElementById('maestro-theme-css-properties');
-			expect(styleElement?.textContent).toContain('--maestro-mode: dark;');
+			let styleElement = document.getElementById('openwizardai-theme-css-properties');
+			expect(styleElement?.textContent).toContain('--openwizardai-mode: dark;');
 
 			// Switch to light theme
 			injectCSSProperties(lightTheme);
-			styleElement = document.getElementById('maestro-theme-css-properties');
-			expect(styleElement?.textContent).toContain('--maestro-mode: light;');
-			expect(styleElement?.textContent).not.toContain('--maestro-mode: dark;');
+			styleElement = document.getElementById('openwizardai-theme-css-properties');
+			expect(styleElement?.textContent).toContain('--openwizardai-mode: light;');
+			expect(styleElement?.textContent).not.toContain('--openwizardai-mode: dark;');
 		});
 
 		it('should support element-scoped theming', () => {
@@ -752,7 +764,7 @@ describe('cssCustomProperties', () => {
 			expect(css).toMatch(/^:root \{[\s\S]+\}$/);
 
 			// Should contain all properties (14 = 13 colors + accentForeground + mode)
-			expect((css.match(/--maestro-/g) || []).length).toBe(14);
+			expect((css.match(/--openwizardai-/g) || []).length).toBe(14);
 		});
 
 		it('should support cssVar in style objects pattern', () => {
@@ -764,13 +776,13 @@ describe('cssCustomProperties', () => {
 			injectCSSProperties(theme);
 
 			// Apply var() styles
-			element.style.backgroundColor = cssVar('--maestro-bg-main');
-			element.style.color = cssVar('--maestro-text-main');
-			element.style.borderColor = cssVar('--maestro-border', '#000');
+			element.style.backgroundColor = cssVar('--openwizardai-bg-main');
+			element.style.color = cssVar('--openwizardai-text-main');
+			element.style.borderColor = cssVar('--openwizardai-border', '#000');
 
-			expect(element.style.backgroundColor).toBe('var(--maestro-bg-main)');
-			expect(element.style.color).toBe('var(--maestro-text-main)');
-			expect(element.style.borderColor).toBe('var(--maestro-border, #000)');
+			expect(element.style.backgroundColor).toBe('var(--openwizardai-bg-main)');
+			expect(element.style.color).toBe('var(--openwizardai-text-main)');
+			expect(element.style.borderColor).toBe('var(--openwizardai-border, #000)');
 
 			element.remove();
 		});
@@ -786,8 +798,8 @@ describe('cssCustomProperties', () => {
 			});
 
 			const properties = generateCSSProperties(theme);
-			expect(properties['--maestro-accent-dim']).toBe('rgba(255, 255, 255, 0.5)');
-			expect(properties['--maestro-bg-main']).toBe('hsla(230, 15%, 18%, 1)');
+			expect(properties['--openwizardai-accent-dim']).toBe('rgba(255, 255, 255, 0.5)');
+			expect(properties['--openwizardai-bg-main']).toBe('hsla(230, 15%, 18%, 1)');
 		});
 
 		it('should handle CSS injection when document.head is empty', () => {
@@ -806,12 +818,12 @@ describe('cssCustomProperties', () => {
 			}
 
 			// Should only have one style element
-			const styleElements = document.querySelectorAll('#maestro-theme-css-properties');
+			const styleElements = document.querySelectorAll('#openwizardai-theme-css-properties');
 			expect(styleElements).toHaveLength(1);
 
 			// Should have the last injected theme (light, since 9 % 2 === 1)
-			const styleElement = document.getElementById('maestro-theme-css-properties');
-			expect(styleElement?.textContent).toContain('--maestro-mode: light;');
+			const styleElement = document.getElementById('openwizardai-theme-css-properties');
+			expect(styleElement?.textContent).toContain('--openwizardai-mode: light;');
 
 			removeCSSProperties();
 		});
@@ -830,7 +842,7 @@ describe('cssCustomProperties', () => {
 
 			// Verify all elements have properties
 			elements.forEach((el) => {
-				expect(el.style.getPropertyValue('--maestro-bg-main')).toBe('#282a36');
+				expect(el.style.getPropertyValue('--openwizardai-bg-main')).toBe('#282a36');
 			});
 
 			// Clean up
@@ -848,18 +860,18 @@ describe('cssCustomProperties', () => {
 
 			// Verify the mapping from color keys to CSS properties
 			const expectedMappings: [keyof ThemeColors, ThemeCSSProperty][] = [
-				['bgMain', '--maestro-bg-main'],
-				['bgSidebar', '--maestro-bg-sidebar'],
-				['bgActivity', '--maestro-bg-activity'],
-				['border', '--maestro-border'],
-				['textMain', '--maestro-text-main'],
-				['textDim', '--maestro-text-dim'],
-				['accent', '--maestro-accent'],
-				['accentDim', '--maestro-accent-dim'],
-				['accentText', '--maestro-accent-text'],
-				['success', '--maestro-success'],
-				['warning', '--maestro-warning'],
-				['error', '--maestro-error'],
+				['bgMain', '--openwizardai-bg-main'],
+				['bgSidebar', '--openwizardai-bg-sidebar'],
+				['bgActivity', '--openwizardai-bg-activity'],
+				['border', '--openwizardai-border'],
+				['textMain', '--openwizardai-text-main'],
+				['textDim', '--openwizardai-text-dim'],
+				['accent', '--openwizardai-accent'],
+				['accentDim', '--openwizardai-accent-dim'],
+				['accentText', '--openwizardai-accent-text'],
+				['success', '--openwizardai-success'],
+				['warning', '--openwizardai-warning'],
+				['error', '--openwizardai-error'],
 			];
 
 			expectedMappings.forEach(([colorKey, cssProperty]) => {
@@ -871,7 +883,7 @@ describe('cssCustomProperties', () => {
 			// The CSS properties follow kebab-case convention
 			THEME_CSS_PROPERTIES.forEach((prop) => {
 				// All properties should be lowercase and kebab-case
-				expect(prop).toMatch(/^--maestro-[a-z]+(-[a-z]+)*$/);
+				expect(prop).toMatch(/^--openwizardai-[a-z]+(-[a-z]+)*$/);
 			});
 		});
 	});

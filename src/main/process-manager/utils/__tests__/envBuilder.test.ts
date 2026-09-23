@@ -14,7 +14,11 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { buildChildProcessEnv, buildPtyTerminalEnv, collectMaestroEnvVars } from '../envBuilder';
+import {
+	buildChildProcessEnv,
+	buildPtyTerminalEnv,
+	collectOpenWizardAIEnvVars,
+} from '../envBuilder';
 
 describe('envBuilder - Global Environment Variables', () => {
 	let originalProcessEnv: NodeJS.ProcessEnv;
@@ -203,9 +207,9 @@ describe('envBuilder - Global Environment Variables', () => {
 			process.env.CLAUDE_AGENT_SDK_VERSION = '1.0.0';
 			process.env.CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING = 'true';
 			// Claude session-identity markers: leaking these into a spawned
-			// claude-code turn (or the maestro-p TUI it drives) makes the child
+			// claude-code turn (or the openwizardai-p TUI it drives) makes the child
 			// claude run as a nested session that never writes its own JSONL
-			// transcript, breaking maestro-p capture (empty synopsis -> no
+			// transcript, breaking openwizardai-p capture (empty synopsis -> no
 			// History entry).
 			process.env.CLAUDE_CODE_SESSION_ID = 'parent-session-uuid';
 			process.env.CLAUDE_CODE_CHILD_SESSION = '1';
@@ -284,37 +288,39 @@ describe('envBuilder - Global Environment Variables', () => {
 		});
 	});
 
-	describe('Test 2.5b: MAESTRO_SESSION_RESUMED Flag', () => {
-		it('should set MAESTRO_SESSION_RESUMED when isResuming is true', () => {
+	describe('Test 2.5b: OPENWIZARDAI_SESSION_RESUMED Flag', () => {
+		it('should set OPENWIZARDAI_SESSION_RESUMED when isResuming is true', () => {
 			const env = buildChildProcessEnv(undefined, true);
 
-			expect(env.MAESTRO_SESSION_RESUMED).toBe('1');
+			expect(env.OPENWIZARDAI_SESSION_RESUMED).toBe('1');
 		});
 
-		it('should not set MAESTRO_SESSION_RESUMED when isResuming is false', () => {
+		it('should not set OPENWIZARDAI_SESSION_RESUMED when isResuming is false', () => {
 			const env = buildChildProcessEnv(undefined, false);
 
-			expect(env.MAESTRO_SESSION_RESUMED).toBeUndefined();
+			expect(env.OPENWIZARDAI_SESSION_RESUMED).toBeUndefined();
 		});
 
-		it('should not set MAESTRO_SESSION_RESUMED when isResuming is undefined', () => {
+		it('should not set OPENWIZARDAI_SESSION_RESUMED when isResuming is undefined', () => {
 			const env = buildChildProcessEnv(undefined, undefined);
 
-			expect(env.MAESTRO_SESSION_RESUMED).toBeUndefined();
+			expect(env.OPENWIZARDAI_SESSION_RESUMED).toBeUndefined();
 		});
 	});
 
-	describe('Test 2.5b2: MAESTRO_QUERY_SOURCE Marker', () => {
+	describe('Test 2.5b2: OPENWIZARDAI_QUERY_SOURCE Marker', () => {
 		it('defaults to user when no caller claims the turn', () => {
-			expect(buildChildProcessEnv().MAESTRO_QUERY_SOURCE).toBe('user');
+			expect(buildChildProcessEnv().OPENWIZARDAI_QUERY_SOURCE).toBe('user');
 		});
 
 		it('carries the claimed origin for Auto Run and Cue turns', () => {
 			expect(
-				buildChildProcessEnv(undefined, false, undefined, undefined, 'auto').MAESTRO_QUERY_SOURCE
+				buildChildProcessEnv(undefined, false, undefined, undefined, 'auto')
+					.OPENWIZARDAI_QUERY_SOURCE
 			).toBe('auto');
 			expect(
-				buildChildProcessEnv(undefined, false, undefined, undefined, 'cue').MAESTRO_QUERY_SOURCE
+				buildChildProcessEnv(undefined, false, undefined, undefined, 'cue')
+					.OPENWIZARDAI_QUERY_SOURCE
 			).toBe('cue');
 		});
 
@@ -322,28 +328,28 @@ describe('envBuilder - Global Environment Variables', () => {
 			// A stray var of the same name in Settings would otherwise relabel every
 			// turn on the machine, which is worse than the var not existing at all.
 			const env = buildChildProcessEnv(
-				{ MAESTRO_QUERY_SOURCE: 'user' },
+				{ OPENWIZARDAI_QUERY_SOURCE: 'user' },
 				false,
-				{ MAESTRO_QUERY_SOURCE: 'user' },
+				{ OPENWIZARDAI_QUERY_SOURCE: 'user' },
 				undefined,
 				'cue'
 			);
 
-			expect(env.MAESTRO_QUERY_SOURCE).toBe('cue');
+			expect(env.OPENWIZARDAI_QUERY_SOURCE).toBe('cue');
 		});
 
 		it('is absent from terminal PTY env - a shell is not an agent turn', () => {
-			expect(buildPtyTerminalEnv().MAESTRO_QUERY_SOURCE).toBeUndefined();
+			expect(buildPtyTerminalEnv().OPENWIZARDAI_QUERY_SOURCE).toBeUndefined();
 		});
 
 		it('is dropped even when the marker is already in the parent env', () => {
-			// Maestro launched from an agent shell inherits the marker, which is the
+			// OpenWizardAI launched from an agent shell inherits the marker, which is the
 			// normal case in development. The PTY env spreads process.env, so
 			// without an explicit delete every Command Terminal would announce
 			// itself as an agent turn. The Windows branch is the sharper edge: it
 			// inherits process.env wholesale and strips nothing else.
-			process.env.MAESTRO_QUERY_SOURCE = 'user';
-			expect(buildPtyTerminalEnv().MAESTRO_QUERY_SOURCE).toBeUndefined();
+			process.env.OPENWIZARDAI_QUERY_SOURCE = 'user';
+			expect(buildPtyTerminalEnv().OPENWIZARDAI_QUERY_SOURCE).toBeUndefined();
 		});
 	});
 
@@ -379,7 +385,7 @@ describe('envBuilder - Global Environment Variables', () => {
 			const originalPlatform = process.platform;
 			Object.defineProperty(process, 'platform', { value: 'darwin' });
 			const originalNvmDir = process.env.NVM_DIR;
-			const tempNvmDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-nvm-'));
+			const tempNvmDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-nvm-'));
 			process.env.NVM_DIR = tempNvmDir;
 			fs.mkdirSync(path.join(tempNvmDir, 'current', 'bin'), { recursive: true });
 			fs.mkdirSync(path.join(tempNvmDir, 'versions', 'node', 'v22.10.0', 'bin'), {
@@ -468,13 +474,13 @@ describe('envBuilder - Global Environment Variables', () => {
 
 		it('should handle config paths with tilde expansion', () => {
 			const globalVars = {
-				JEST_CONFIG_PATH: '~/.maestro/jest.config.js',
+				JEST_CONFIG_PATH: '~/.openwizardai/jest.config.js',
 				APP_CONFIG_DIR: '~/app-configs',
 			};
 
 			const env = buildChildProcessEnv(undefined, false, globalVars);
 
-			expect(env.JEST_CONFIG_PATH).toBe(path.join(originalHomedir, '.maestro/jest.config.js'));
+			expect(env.JEST_CONFIG_PATH).toBe(path.join(originalHomedir, '.openwizardai/jest.config.js'));
 			expect(env.APP_CONFIG_DIR).toBe(path.join(originalHomedir, 'app-configs'));
 		});
 	});
@@ -722,13 +728,13 @@ describe('envBuilder - Global Environment Variables', () => {
 		});
 	});
 
-	describe('collectMaestroEnvVars', () => {
+	describe('collectOpenWizardAIEnvVars', () => {
 		it('returns an empty object when no inputs are provided', () => {
-			expect(collectMaestroEnvVars()).toEqual({});
+			expect(collectOpenWizardAIEnvVars()).toEqual({});
 		});
 
 		it('merges global and custom env vars with custom taking precedence', () => {
-			const result = collectMaestroEnvVars(
+			const result = collectOpenWizardAIEnvVars(
 				{ DEBUG: 'global', PROXY: 'http://global' },
 				{ DEBUG: 'session' }
 			);
@@ -736,32 +742,34 @@ describe('envBuilder - Global Environment Variables', () => {
 		});
 
 		it('expands ~/ paths in both global and custom values', () => {
-			const result = collectMaestroEnvVars({ WORKSPACE: '~/work' }, { CACHE_DIR: '~/cache' });
+			const result = collectOpenWizardAIEnvVars({ WORKSPACE: '~/work' }, { CACHE_DIR: '~/cache' });
 			expect(result.WORKSPACE).toBe(path.join(os.homedir(), 'work'));
 			expect(result.CACHE_DIR).toBe(path.join(os.homedir(), 'cache'));
 		});
 
-		it('reports MAESTRO_QUERY_SOURCE only when the caller resolved one', () => {
+		it('reports OPENWIZARDAI_QUERY_SOURCE only when the caller resolved one', () => {
 			// The list mirrors what the process actually received, so terminal PTYs
 			// (which never get the marker) must not advertise it.
-			expect(collectMaestroEnvVars(undefined, undefined, false).MAESTRO_QUERY_SOURCE).toBe(
-				undefined
-			);
-			expect(collectMaestroEnvVars(undefined, undefined, false, 'cue').MAESTRO_QUERY_SOURCE).toBe(
-				'cue'
-			);
+			expect(
+				collectOpenWizardAIEnvVars(undefined, undefined, false).OPENWIZARDAI_QUERY_SOURCE
+			).toBe(undefined);
+			expect(
+				collectOpenWizardAIEnvVars(undefined, undefined, false, 'cue').OPENWIZARDAI_QUERY_SOURCE
+			).toBe('cue');
 		});
 
-		it('includes MAESTRO_SESSION_RESUMED only when isResuming is true', () => {
+		it('includes OPENWIZARDAI_SESSION_RESUMED only when isResuming is true', () => {
 			expect(
-				collectMaestroEnvVars(undefined, undefined, false).MAESTRO_SESSION_RESUMED
+				collectOpenWizardAIEnvVars(undefined, undefined, false).OPENWIZARDAI_SESSION_RESUMED
 			).toBeUndefined();
-			expect(collectMaestroEnvVars(undefined, undefined, true).MAESTRO_SESSION_RESUMED).toBe('1');
+			expect(
+				collectOpenWizardAIEnvVars(undefined, undefined, true).OPENWIZARDAI_SESSION_RESUMED
+			).toBe('1');
 		});
 
 		it('does not include inherited process env', () => {
 			process.env.SOMETHING_INHERITED = 'inherited';
-			const result = collectMaestroEnvVars({ ONLY_GLOBAL: 'g' });
+			const result = collectOpenWizardAIEnvVars({ ONLY_GLOBAL: 'g' });
 			expect(result).toEqual({ ONLY_GLOBAL: 'g' });
 		});
 
@@ -769,14 +777,14 @@ describe('envBuilder - Global Environment Variables', () => {
 			// This list is what the Process Details modal shows. A blank is dropped at
 			// spawn time, so reporting it here would describe a variable the running
 			// process does not actually have.
-			const result = collectMaestroEnvVars({ BLANK: '', PADDED: '  ', KEPT: 'v' });
+			const result = collectOpenWizardAIEnvVars({ BLANK: '', PADDED: '  ', KEPT: 'v' });
 			expect(result).toEqual({ KEPT: 'v' });
 		});
 
 		it('lets a blank session value cancel a global one', () => {
 			// Same merge-then-strip ordering as buildChildProcessEnv: strip before the
 			// merge and the global value would survive a session-level blank.
-			const result = collectMaestroEnvVars({ DEBUG: 'global' }, { DEBUG: '' });
+			const result = collectOpenWizardAIEnvVars({ DEBUG: 'global' }, { DEBUG: '' });
 			expect(result).toEqual({});
 		});
 	});

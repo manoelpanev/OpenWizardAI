@@ -438,7 +438,7 @@ describe('AutoRunExpandedModal', () => {
 		});
 
 		// A paused run is alive but idle: it is waiting on the user to fix an
-		// agent error or answer a MAESTRO:HITL gate, and answering usually means
+		// agent error or answer a OPENWIZARDAI:HITL gate, and answering usually means
 		// editing the document. `errorPaused` reaches the modal through the store,
 		// not the prop chain, so the state has to be seeded there.
 		describe('Paused run', () => {

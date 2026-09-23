@@ -149,19 +149,24 @@ export function requestTabAutoName(options: RequestTabAutoNameOptions): void {
 		const liveTab = findTab(sessionId, tabId);
 		if (!liveTab) return;
 		if (!canApply(liveTab)) {
-			window.maestro.logger.log('info', 'Tab naming skipped (tab already named)', 'TabNaming', {
-				tabId,
-				sessionId,
-				label,
-				generatedName,
-				existingName: liveTab.name,
-			});
+			window.openwizardai.logger.log(
+				'info',
+				'Tab naming skipped (tab already named)',
+				'TabNaming',
+				{
+					tabId,
+					sessionId,
+					label,
+					generatedName,
+					existingName: liveTab.name,
+				}
+			);
 			if (liveTab.isGeneratingName) setGeneratingName(sessionId, tabId, false);
 			return;
 		}
 		const name = `${prefix}${generatedName}`;
 		updateAiTab(sessionId, tabId, (t) => ({ ...t, name, isGeneratingName: false }));
-		window.maestro.logger.log('info', `Tab named (${how}): "${name}"`, 'TabNaming', {
+		window.openwizardai.logger.log('info', `Tab named (${how}): "${name}"`, 'TabNaming', {
 			tabId,
 			sessionId,
 			label,
@@ -176,7 +181,7 @@ export function requestTabAutoName(options: RequestTabAutoNameOptions): void {
 	}
 
 	setGeneratingName(sessionId, tabId, true);
-	window.maestro.logger.log('info', 'Tab naming started', 'TabNaming', {
+	window.openwizardai.logger.log('info', 'Tab naming started', 'TabNaming', {
 		tabId,
 		sessionId,
 		label,
@@ -184,7 +189,7 @@ export function requestTabAutoName(options: RequestTabAutoNameOptions): void {
 		promptLength: prompt.length,
 	});
 
-	window.maestro.tabNaming
+	window.openwizardai.tabNaming
 		.generateTabName({
 			userMessage: prompt,
 			agentType: session.toolType,
@@ -200,7 +205,7 @@ export function requestTabAutoName(options: RequestTabAutoNameOptions): void {
 		.then((generatedName) => {
 			if (!generatedName) {
 				setGeneratingName(sessionId, tabId, false);
-				window.maestro.logger.log('warn', 'Tab naming returned null', 'TabNaming', {
+				window.openwizardai.logger.log('warn', 'Tab naming returned null', 'TabNaming', {
 					tabId,
 					sessionId,
 					label,
@@ -211,7 +216,7 @@ export function requestTabAutoName(options: RequestTabAutoNameOptions): void {
 		})
 		.catch((error) => {
 			setGeneratingName(sessionId, tabId, false);
-			window.maestro.logger.log('error', 'Tab naming failed', 'TabNaming', {
+			window.openwizardai.logger.log('error', 'Tab naming failed', 'TabNaming', {
 				tabId,
 				sessionId,
 				label,

@@ -1,7 +1,7 @@
 /**
  * Tests for src/main/agents/claude-transcript-sanitizer.ts
  *
- * Mirrors the real failure shape: maestro-p interactive turns persist thinking
+ * Mirrors the real failure shape: openwizardai-p interactive turns persist thinking
  * blocks as signature-only shells (empty `thinking` text + a signature). The
  * sanitizer must remove them so the transcript resumes cleanly under the API
  * token source, while preserving the parentUuid threading and all non-thinking
@@ -31,7 +31,7 @@ function readRows(): Array<Record<string, unknown>> {
 }
 
 beforeEach(() => {
-	dir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-sanitize-'));
+	dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-sanitize-'));
 	transcriptPath = path.join(dir, 'session.jsonl');
 });
 
@@ -151,7 +151,7 @@ describe('stripThinkingFromTranscript', () => {
 		expect(res.sanitized).toBe(false);
 		expect(res.backupPath).toBeNull();
 		expect(fs.readFileSync(transcriptPath, 'utf8')).toBe(before);
-		expect(fs.existsSync(`${transcriptPath}.maestro-presanitize.bak`)).toBe(false);
+		expect(fs.existsSync(`${transcriptPath}.openwizardai-presanitize.bak`)).toBe(false);
 	});
 
 	it('writes a one-time backup of the original before mutating', () => {
@@ -170,7 +170,7 @@ describe('stripThinkingFromTranscript', () => {
 
 		const res = stripThinkingFromTranscript(transcriptPath);
 
-		expect(res.backupPath).toBe(`${transcriptPath}.maestro-presanitize.bak`);
+		expect(res.backupPath).toBe(`${transcriptPath}.openwizardai-presanitize.bak`);
 		expect(fs.readFileSync(res.backupPath as string, 'utf8')).toBe(original);
 	});
 
@@ -247,7 +247,7 @@ describe('stripThinkingFromTranscript', () => {
 	});
 
 	it('strips empty shells while preserving non-empty thinking siblings in the same message', () => {
-		// Hybrid shape: a single assistant message carrying both a maestro-p
+		// Hybrid shape: a single assistant message carrying both a openwizardai-p
 		// shell and a valid API-account thinking block. Only the shell is
 		// removed; the signed reasoning block survives untouched.
 		write([
@@ -258,7 +258,7 @@ describe('stripThinkingFromTranscript', () => {
 				message: {
 					role: 'assistant',
 					content: [
-						{ type: 'thinking', thinking: '', signature: 'maestro-p-sig' },
+						{ type: 'thinking', thinking: '', signature: 'openwizardai-p-sig' },
 						{ type: 'thinking', thinking: 'real reasoning', signature: 'api-sig' },
 						{ type: 'text', text: 'answer' },
 					],
@@ -282,7 +282,7 @@ describe('stripThinkingFromTranscript', () => {
 	it('treats `redacted_thinking` without a thinking field as an empty shell', () => {
 		// `redacted_thinking` blocks may legitimately omit `thinking`; they
 		// only carry an account-bound signature, so they're stripped just like
-		// the empty-string shells maestro-p writes.
+		// the empty-string shells openwizardai-p writes.
 		write([
 			{
 				type: 'assistant',

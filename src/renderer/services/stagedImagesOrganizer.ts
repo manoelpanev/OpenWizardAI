@@ -13,7 +13,7 @@
  */
 
 /** Event name the mounted `StagedImagesStrip` listens for. */
-export const OPEN_STAGED_IMAGES_ORGANIZER_EVENT = 'maestro:openStagedImagesOrganizer';
+export const OPEN_STAGED_IMAGES_ORGANIZER_EVENT = 'openwizardai:openStagedImagesOrganizer';
 
 /**
  * Ask the mounted composer strip to open its expanded image organizer. A no-op

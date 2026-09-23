@@ -13,10 +13,10 @@ import {
 } from '../../../../renderer/components/AchievementCard/components';
 import { firstBadgeStats, level5Stats, mockTheme } from './_fixtures';
 
-vi.mock('../../../../renderer/components/MaestroSilhouette', () => ({
-	MaestroSilhouette: ({ style }: { style?: React.CSSProperties }) => (
-		<div data-testid="maestro-silhouette" style={style}>
-			Maestro Silhouette
+vi.mock('../../../../renderer/components/OpenWizardAISilhouette', () => ({
+	OpenWizardAISilhouette: ({ style }: { style?: React.CSSProperties }) => (
+		<div data-testid="openwizardai-silhouette" style={style}>
+			OpenWizardAI Silhouette
 		</div>
 	),
 }));
@@ -70,7 +70,7 @@ describe('AchievementCard components', () => {
 
 		expect(screen.getByText('No Badge Yet')).toBeInTheDocument();
 		expect(screen.getByText('Complete 15 minutes of AutoRun to unlock')).toBeInTheDocument();
-		expect(screen.getByTestId('maestro-silhouette')).toHaveStyle({ opacity: '0.3' });
+		expect(screen.getByTestId('openwizardai-silhouette')).toHaveStyle({ opacity: '0.3' });
 	});
 
 	it('renders the unlocked hero state', () => {
@@ -78,7 +78,7 @@ describe('AchievementCard components', () => {
 
 		expect(screen.getByText('Apprentice Conductor')).toBeInTheDocument();
 		expect(screen.getByText('Level 1 of 11')).toBeInTheDocument();
-		expect(screen.getByTestId('maestro-silhouette')).toHaveStyle({ opacity: '1' });
+		expect(screen.getByTestId('openwizardai-silhouette')).toHaveStyle({ opacity: '1' });
 	});
 
 	it('renders the stats grid labels and values', () => {
@@ -133,7 +133,7 @@ describe('AchievementCard components', () => {
 		fireEvent.click(
 			screen.getByRole('button', { name: CONDUCTOR_BADGES[0].exampleConductor.name })
 		);
-		expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
+		expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
 			CONDUCTOR_BADGES[0].exampleConductor.wikipediaUrl
 		);
 	});

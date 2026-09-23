@@ -1,5 +1,5 @@
 /**
- * View State Persistence for Maestro Web Interface
+ * View State Persistence for OpenWizardAI Web Interface
  *
  * Saves and restores UI state to localStorage so the view persists across refreshes.
  * Includes: active views, session selection, scroll positions, and UI toggles.
@@ -7,8 +7,8 @@
 
 import { webLogger } from './logger';
 
-const STORAGE_KEY = 'maestro-web-view-state';
-const SCROLL_STORAGE_KEY = 'maestro-web-scroll-state';
+const STORAGE_KEY = 'openwizardai-web-view-state';
+const SCROLL_STORAGE_KEY = 'openwizardai-web-scroll-state';
 
 /**
  * View state that gets persisted

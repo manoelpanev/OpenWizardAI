@@ -18,14 +18,14 @@ describe('useLayerStack', () => {
 	beforeEach(() => {
 		// Set to production to disable debug API by default
 		process.env.NODE_ENV = 'production';
-		// Reset window.__MAESTRO_DEBUG__ before each test
-		delete (window as unknown as Record<string, unknown>).__MAESTRO_DEBUG__;
+		// Reset window.__OPENWIZARDAI_DEBUG__ before each test
+		delete (window as unknown as Record<string, unknown>).__OPENWIZARDAI_DEBUG__;
 	});
 
 	afterEach(() => {
 		vi.restoreAllMocks();
 		process.env.NODE_ENV = originalNodeEnv;
-		delete (window as unknown as Record<string, unknown>).__MAESTRO_DEBUG__;
+		delete (window as unknown as Record<string, unknown>).__OPENWIZARDAI_DEBUG__;
 	});
 
 	// Helper to create a modal layer config (without id)
@@ -967,12 +967,12 @@ describe('useLayerStack', () => {
 				result.current.registerLayer(createModalLayer());
 			});
 
-			expect(window.__MAESTRO_DEBUG__).toBeDefined();
-			expect(window.__MAESTRO_DEBUG__?.layers).toBeDefined();
-			expect(typeof window.__MAESTRO_DEBUG__?.layers?.list).toBe('function');
-			expect(typeof window.__MAESTRO_DEBUG__?.layers?.top).toBe('function');
-			expect(typeof window.__MAESTRO_DEBUG__?.layers?.simulate?.escape).toBe('function');
-			expect(typeof window.__MAESTRO_DEBUG__?.layers?.simulate?.closeAll).toBe('function');
+			expect(window.__OPENWIZARDAI_DEBUG__).toBeDefined();
+			expect(window.__OPENWIZARDAI_DEBUG__?.layers).toBeDefined();
+			expect(typeof window.__OPENWIZARDAI_DEBUG__?.layers?.list).toBe('function');
+			expect(typeof window.__OPENWIZARDAI_DEBUG__?.layers?.top).toBe('function');
+			expect(typeof window.__OPENWIZARDAI_DEBUG__?.layers?.simulate?.escape).toBe('function');
+			expect(typeof window.__OPENWIZARDAI_DEBUG__?.layers?.simulate?.closeAll).toBe('function');
 		});
 
 		it('should clean up debug API on unmount', () => {
@@ -984,11 +984,11 @@ describe('useLayerStack', () => {
 				result.current.registerLayer(createModalLayer());
 			});
 
-			expect(window.__MAESTRO_DEBUG__?.layers).toBeDefined();
+			expect(window.__OPENWIZARDAI_DEBUG__?.layers).toBeDefined();
 
 			unmount();
 
-			expect(window.__MAESTRO_DEBUG__?.layers).toBeUndefined();
+			expect(window.__OPENWIZARDAI_DEBUG__?.layers).toBeUndefined();
 		});
 
 		it('should not set up debug API in production mode', () => {
@@ -1000,14 +1000,14 @@ describe('useLayerStack', () => {
 				result.current.registerLayer(createModalLayer());
 			});
 
-			expect(window.__MAESTRO_DEBUG__?.layers).toBeUndefined();
+			expect(window.__OPENWIZARDAI_DEBUG__?.layers).toBeUndefined();
 		});
 
-		it('should preserve existing __MAESTRO_DEBUG__ properties', () => {
+		it('should preserve existing __OPENWIZARDAI_DEBUG__ properties', () => {
 			process.env.NODE_ENV = 'development';
 
 			// Pre-set some debug properties
-			(window as unknown as Record<string, unknown>).__MAESTRO_DEBUG__ = {
+			(window as unknown as Record<string, unknown>).__OPENWIZARDAI_DEBUG__ = {
 				otherProperty: 'should remain',
 			};
 
@@ -1017,10 +1017,10 @@ describe('useLayerStack', () => {
 				result.current.registerLayer(createModalLayer());
 			});
 
-			expect((window.__MAESTRO_DEBUG__ as Record<string, unknown>)?.otherProperty).toBe(
+			expect((window.__OPENWIZARDAI_DEBUG__ as Record<string, unknown>)?.otherProperty).toBe(
 				'should remain'
 			);
-			expect(window.__MAESTRO_DEBUG__?.layers).toBeDefined();
+			expect(window.__OPENWIZARDAI_DEBUG__?.layers).toBeDefined();
 		});
 
 		describe('debug API functions', () => {
@@ -1036,7 +1036,7 @@ describe('useLayerStack', () => {
 					);
 				});
 
-				window.__MAESTRO_DEBUG__?.layers?.list();
+				window.__OPENWIZARDAI_DEBUG__?.layers?.list();
 
 				expect(consoleSpy).toHaveBeenCalledWith(
 					expect.arrayContaining([
@@ -1061,7 +1061,7 @@ describe('useLayerStack', () => {
 					result.current.registerLayer(createModalLayer({ ariaLabel: 'Top Layer' }));
 				});
 
-				window.__MAESTRO_DEBUG__?.layers?.top();
+				window.__OPENWIZARDAI_DEBUG__?.layers?.top();
 
 				expect(consoleSpy).toHaveBeenCalledWith(
 					'Top Layer:',
@@ -1088,7 +1088,7 @@ describe('useLayerStack', () => {
 					result.current.unregisterLayer(id!);
 				});
 
-				window.__MAESTRO_DEBUG__?.layers?.top();
+				window.__OPENWIZARDAI_DEBUG__?.layers?.top();
 
 				expect(consoleSpy).toHaveBeenCalledWith('No layers in stack');
 
@@ -1106,7 +1106,7 @@ describe('useLayerStack', () => {
 					result.current.registerLayer(createModalLayer());
 				});
 
-				window.__MAESTRO_DEBUG__?.layers?.simulate?.escape();
+				window.__OPENWIZARDAI_DEBUG__?.layers?.simulate?.escape();
 
 				expect(dispatchSpy).toHaveBeenCalledWith(
 					expect.objectContaining({
@@ -1136,7 +1136,7 @@ describe('useLayerStack', () => {
 				expect(result.current.layerCount).toBe(3);
 
 				act(() => {
-					window.__MAESTRO_DEBUG__?.layers?.simulate?.closeAll();
+					window.__OPENWIZARDAI_DEBUG__?.layers?.simulate?.closeAll();
 				});
 
 				expect(result.current.layerCount).toBe(0);

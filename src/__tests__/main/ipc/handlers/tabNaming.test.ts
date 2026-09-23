@@ -65,13 +65,13 @@ vi.mock('../../../../main/utils/ssh-command-builder', () => ({
 	buildSshCommand: vi.fn(),
 }));
 
-// Mock the remote maestro-p probe so the SSH token-mode resolution mirrors the
+// Mock the remote openwizardai-p probe so the SSH token-mode resolution mirrors the
 // chat spawn WITHOUT doing a real SSH round-trip. Returns `true` (remote has
-// maestro-p) and deliberately does NOT write to remoteMaestroPCache, so the
-// resolver's getRemoteMaestroPAvailable() stays undefined (optimistic) rather
+// openwizardai-p) and deliberately does NOT write to remoteOpenWizardAIPCache, so the
+// resolver's getRemoteOpenWizardAIPAvailable() stays undefined (optimistic) rather
 // than caching a probe failure that would downgrade interactive SSH to API.
-vi.mock('../../../../main/agents/probeRemoteMaestroP', () => ({
-	ensureRemoteMaestroPProbed: vi.fn().mockResolvedValue(true),
+vi.mock('../../../../main/agents/probeRemoteOpenWizardAIP', () => ({
+	ensureRemoteOpenWizardAIPProbed: vi.fn().mockResolvedValue(true),
 }));
 
 // Mock platform detection so we can toggle isWindows() per test
@@ -81,7 +81,7 @@ vi.mock('../../../../shared/platformDetection', () => ({
 	isLinux: vi.fn(() => false),
 }));
 
-// Mock fs.existsSync so the shared Claude spawn-mode resolver's maestro-p binary
+// Mock fs.existsSync so the shared Claude spawn-mode resolver's openwizardai-p binary
 // existence check passes. resolveClaudeSpawnMode reads fs.existsSync via its
 // default `fileExists` dependency, and the tab-naming handler calls the resolver
 // with default deps (no injection point at the IPC layer).
@@ -427,8 +427,8 @@ describe('Tab Naming IPC Handlers', () => {
 			expect(result).toBe('Dark Mode Toggle');
 		});
 
-		it('returns null when output is leaked tool-call markup (maestro-p TUI transcript)', async () => {
-			// Regression: when the naming spawn drives the maestro-p TUI, `--tools ""`
+		it('returns null when output is leaked tool-call markup (openwizardai-p TUI transcript)', async () => {
+			// Regression: when the naming spawn drives the openwizardai-p TUI, `--tools ""`
 			// is stripped, the model runs a real agentic turn, and its raw terminal
 			// transcript leaks function-call scaffolding + an empty-turn placeholder.
 			// That garbage used to sail past the length/keyword filters and become the
@@ -1090,7 +1090,7 @@ describe('Tab Naming IPC Handlers', () => {
 	});
 
 	describe('Claude token-source resolution', () => {
-		// A realistic claude-code agent that supports the maestro-p interactive
+		// A realistic claude-code agent that supports the openwizardai-p interactive
 		// wrapper (interactiveCommand + interactiveModeArgs present), so the shared
 		// resolver can pick the TUI path.
 		const interactiveClaudeAgent: AgentConfig = {
@@ -1105,7 +1105,7 @@ describe('Tab Naming IPC Handlers', () => {
 				'stream-json',
 				'--dangerously-skip-permissions',
 			],
-			interactiveCommand: 'maestro-p',
+			interactiveCommand: 'openwizardai-p',
 			interactiveModeArgs: ['--dangerously-skip-permissions'],
 		};
 
@@ -1127,7 +1127,7 @@ describe('Tab Naming IPC Handlers', () => {
 			};
 		}
 
-		it('wraps the spawn with maestro-p when the agent selected interactive (TUI) mode', async () => {
+		it('wraps the spawn with openwizardai-p when the agent selected interactive (TUI) mode', async () => {
 			mockAgentDetector.getAgent.mockResolvedValue(interactiveClaudeAgent);
 			const finish = wireProcessEvents();
 
@@ -1135,11 +1135,11 @@ describe('Tab Naming IPC Handlers', () => {
 				userMessage: 'Help me implement a login form',
 				agentType: 'claude-code',
 				cwd: '/test/project',
-				enableMaestroP: true,
-				maestroPMode: 'interactive',
+				enableOpenWizardAIP: true,
+				openwizardaiPMode: 'interactive',
 				// Explicit override so the resolver doesn't depend on the bundled
 				// lookup; fs.existsSync is mocked to true so the binary "exists".
-				maestroPPath: '/bundled/maestro-p.js',
+				openwizardaiPPath: '/bundled/openwizardai-p.js',
 			});
 
 			await vi.waitFor(() => {
@@ -1147,18 +1147,18 @@ describe('Tab Naming IPC Handlers', () => {
 			});
 
 			const spawnCall = mockProcessManager.spawn.mock.calls[0][0];
-			// Interactive mode runs maestro-p (a Node script) via process.execPath,
-			// with the maestro-p script as the first positional arg.
+			// Interactive mode runs openwizardai-p (a Node script) via process.execPath,
+			// with the openwizardai-p script as the first positional arg.
 			expect(spawnCall.command).toBe(process.execPath);
-			expect(spawnCall.args[0]).toMatch(/maestro-p\.js$/);
-			// maestro-p is told which real claude binary to drive.
-			expect(spawnCall.customEnvVars?.MAESTRO_CLAUDE_BIN).toBe('/usr/local/bin/claude');
+			expect(spawnCall.args[0]).toMatch(/openwizardai-p\.js$/);
+			// openwizardai-p is told which real claude binary to drive.
+			expect(spawnCall.customEnvVars?.OPENWIZARDAI_CLAUDE_BIN).toBe('/usr/local/bin/claude');
 
 			finish();
 			await resultPromise;
 		});
 
-		it('spawns plain claude when the agent is API-only (enableMaestroP false)', async () => {
+		it('spawns plain claude when the agent is API-only (enableOpenWizardAIP false)', async () => {
 			mockAgentDetector.getAgent.mockResolvedValue(interactiveClaudeAgent);
 			const finish = wireProcessEvents();
 
@@ -1166,7 +1166,7 @@ describe('Tab Naming IPC Handlers', () => {
 				userMessage: 'Help me implement a login form',
 				agentType: 'claude-code',
 				cwd: '/test/project',
-				enableMaestroP: false,
+				enableOpenWizardAIP: false,
 			});
 
 			await vi.waitFor(() => {
@@ -1175,10 +1175,10 @@ describe('Tab Naming IPC Handlers', () => {
 
 			const spawnCall = mockProcessManager.spawn.mock.calls[0][0];
 			// API mode leaves the original claude command/args untouched - no
-			// process.execPath wrap, no maestro-p script.
+			// process.execPath wrap, no openwizardai-p script.
 			expect(spawnCall.command).toBe('/usr/local/bin/claude');
 			expect(spawnCall.command).not.toBe(process.execPath);
-			expect(spawnCall.args[0]).not.toMatch(/maestro-p\.js$/);
+			expect(spawnCall.args[0]).not.toMatch(/openwizardai-p\.js$/);
 			expect(spawnCall.args).toContain('--print');
 
 			finish();
@@ -1200,7 +1200,7 @@ describe('Tab Naming IPC Handlers', () => {
 				userMessage: 'Help me implement a login form',
 				agentType: 'claude-code',
 				cwd: '/test/project',
-				enableMaestroP: false,
+				enableOpenWizardAIP: false,
 				sessionCustomEnvVars: { ANTHROPIC_API_KEY: 'sk-session' },
 			});
 
@@ -1218,11 +1218,11 @@ describe('Tab Naming IPC Handlers', () => {
 			await resultPromise;
 		});
 
-		it('runs maestro-p on the remote host when an SSH agent selected interactive (TUI) mode', async () => {
+		it('runs openwizardai-p on the remote host when an SSH agent selected interactive (TUI) mode', async () => {
 			// SSH used to be force-downgraded to `claude --print`. It now honors the
-			// selection: TUI routes to maestro-p on the REMOTE host (driving the
+			// selection: TUI routes to openwizardai-p on the REMOTE host (driving the
 			// remote claude TUI on the Max plan), realized by swapping the SSH
-			// remote command to `maestro-p` and prepending the interactive flags.
+			// remote command to `openwizardai-p` and prepending the interactive flags.
 			const { getSshRemoteConfig } = await import('../../../../main/utils/ssh-remote-resolver');
 			const { buildSshCommand } = await import('../../../../main/utils/ssh-command-builder');
 			(getSshRemoteConfig as Mock).mockReturnValue({
@@ -1241,8 +1241,8 @@ describe('Tab Naming IPC Handlers', () => {
 				userMessage: 'Help me implement a login form',
 				agentType: 'claude-code',
 				cwd: '/test/project',
-				enableMaestroP: true,
-				maestroPMode: 'interactive',
+				enableOpenWizardAIP: true,
+				openwizardaiPMode: 'interactive',
 				sessionSshRemoteConfig: { enabled: true, remoteId: 'r1' },
 			});
 
@@ -1250,10 +1250,10 @@ describe('Tab Naming IPC Handlers', () => {
 				expect(buildSshCommand).toHaveBeenCalled();
 			});
 
-			// The remote command handed to buildSshCommand is maestro-p (not claude),
+			// The remote command handed to buildSshCommand is openwizardai-p (not claude),
 			// with the interactive flags prepended ahead of the existing arg list.
 			const sshCall = (buildSshCommand as Mock).mock.calls[0][1];
-			expect(sshCall.command).toBe('maestro-p');
+			expect(sshCall.command).toBe('openwizardai-p');
 			expect(sshCall.args[0]).toBe('--dangerously-skip-permissions');
 			// stream-json prompt still flows over stdin.
 			expect(sshCall.useStdin).toBe(true);
@@ -1262,7 +1262,7 @@ describe('Tab Naming IPC Handlers', () => {
 			await resultPromise;
 		});
 
-		it('spawns plain claude over SSH when the agent is API-only (enableMaestroP false)', async () => {
+		it('spawns plain claude over SSH when the agent is API-only (enableOpenWizardAIP false)', async () => {
 			const { getSshRemoteConfig } = await import('../../../../main/utils/ssh-remote-resolver');
 			const { buildSshCommand } = await import('../../../../main/utils/ssh-command-builder');
 			(getSshRemoteConfig as Mock).mockReturnValue({
@@ -1281,7 +1281,7 @@ describe('Tab Naming IPC Handlers', () => {
 				userMessage: 'Help me implement a login form',
 				agentType: 'claude-code',
 				cwd: '/test/project',
-				enableMaestroP: false,
+				enableOpenWizardAIP: false,
 				sessionSshRemoteConfig: { enabled: true, remoteId: 'r1' },
 			});
 
@@ -1289,7 +1289,7 @@ describe('Tab Naming IPC Handlers', () => {
 				expect(buildSshCommand).toHaveBeenCalled();
 			});
 
-			// API path keeps the plain remote claude binary - no maestro-p swap.
+			// API path keeps the plain remote claude binary - no openwizardai-p swap.
 			const sshCall = (buildSshCommand as Mock).mock.calls[0][1];
 			expect(sshCall.command).toBe('claude');
 			expect(sshCall.args).not.toContain('--dangerously-skip-permissions');

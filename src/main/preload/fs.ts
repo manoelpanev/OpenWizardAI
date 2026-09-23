@@ -1,7 +1,7 @@
 /**
  * Preload API for filesystem operations
  *
- * Provides the window.maestro.fs namespace for:
+ * Provides the window.openwizardai.fs namespace for:
  * - Reading directories and files
  * - File stats and sizes
  * - Writing, renaming, and deleting files

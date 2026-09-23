@@ -1,5 +1,5 @@
 /**
- * NotificationSettingsSheet component for Maestro mobile web interface
+ * NotificationSettingsSheet component for OpenWizardAI mobile web interface
  *
  * Bottom sheet modal for configuring push notification preferences.
  * Allows toggling individual notification event types and sound.

@@ -12,7 +12,7 @@ import * as path from 'path';
 import {
 	registerPersistenceHandlers,
 	PersistenceHandlerDependencies,
-	MaestroSettings,
+	OpenWizardAISettings,
 	SessionsData,
 	GroupsData,
 } from '../../../../main/ipc/handlers/persistence';
@@ -134,7 +134,7 @@ describe('persistence IPC handlers', () => {
 
 		// Register handlers
 		const deps: PersistenceHandlerDependencies = {
-			settingsStore: mockSettingsStore as unknown as Store<MaestroSettings>,
+			settingsStore: mockSettingsStore as unknown as Store<OpenWizardAISettings>,
 			sessionsStore: mockSessionsStore as unknown as Store<SessionsData>,
 			groupsStore: mockGroupsStore as unknown as Store<GroupsData>,
 			getWebServer: getWebServerFn,
@@ -502,7 +502,7 @@ describe('persistence IPC handlers', () => {
 			// Re-register handlers with null webServer
 			handlers.clear();
 			const deps: PersistenceHandlerDependencies = {
-				settingsStore: mockSettingsStore as unknown as Store<MaestroSettings>,
+				settingsStore: mockSettingsStore as unknown as Store<OpenWizardAISettings>,
 				sessionsStore: mockSessionsStore as unknown as Store<SessionsData>,
 				groupsStore: mockGroupsStore as unknown as Store<GroupsData>,
 				getWebServer: () => null,

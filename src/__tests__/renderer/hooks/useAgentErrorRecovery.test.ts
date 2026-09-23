@@ -30,7 +30,7 @@ describe('useAgentErrorRecovery', () => {
 
 		expect(authAction.id).toBe('authenticate');
 		expect(authAction.label).toBe('Re-authenticate');
-		// The login runs inside Maestro now, so the description names the command
+		// The login runs inside OpenWizardAI now, so the description names the command
 		// rather than telling the user to go find a terminal.
 		expect(authAction.description).toBe('Run "claude /login" here');
 		expect(authAction.primary).toBe(true);

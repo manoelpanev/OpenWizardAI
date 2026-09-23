@@ -45,7 +45,7 @@ beforeEach(() => {
 		enableBetaUpdates: false,
 		crashReportingEnabled: true,
 	});
-	vi.spyOn(window.maestro.settings, 'set').mockResolvedValue(undefined as never);
+	vi.spyOn(window.openwizardai.settings, 'set').mockResolvedValue(undefined as never);
 });
 
 afterEach(() => {
@@ -200,7 +200,7 @@ describe('OnboardingSeriesHost', () => {
 			replayOnboardingSeries('returning');
 			renderHost({ isReturningUser: false });
 
-			expect(screen.getByText('OpenWizzard has new typography')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI has new typography')).toBeInTheDocument();
 		});
 
 		it('falls back to the prop when no series is running', () => {
@@ -252,7 +252,7 @@ describe('OnboardingSeriesHost', () => {
 
 		fireEvent.click(crash);
 		expect(useSettingsStore.getState().crashReportingEnabled).toBe(true);
-		expect(window.maestro.settings.set).toHaveBeenCalledWith('crashReportingEnabled', true);
+		expect(window.openwizardai.settings.set).toHaveBeenCalledWith('crashReportingEnabled', true);
 	});
 
 	it('offers no example prompts when there is no agent to receive them', () => {

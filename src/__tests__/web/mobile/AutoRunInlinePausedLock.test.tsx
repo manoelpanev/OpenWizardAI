@@ -3,7 +3,7 @@
  *
  * @file src/web/mobile/AutoRunInline.tsx
  *
- * A run that is parked on an agent error or a MAESTRO:HITL gate is waiting on
+ * A run that is parked on an agent error or a OPENWIZARDAI:HITL gate is waiting on
  * the user, not driving the document. Holding the read-only lock there makes
  * the gate unanswerable on the web surface: the user cannot tick the box the
  * marker is asking about, or fix the step that stalled.

@@ -117,11 +117,11 @@ export interface ManagedProcess {
 	sshRemoteCommand?: string;
 	dataBuffer?: string;
 	dataBufferTimeout?: NodeJS.Timeout;
-	/** Env vars Maestro explicitly set on this process (global, then the session's own set or else the agent-level set),
-	 *  with `~/` paths expanded and MAESTRO_SESSION_RESUMED included when applicable.
+	/** Env vars OpenWizardAI explicitly set on this process (global, then the session's own set or else the agent-level set),
+	 *  with `~/` paths expanded and OPENWIZARDAI_SESSION_RESUMED included when applicable.
 	 *  Inherited system env is NOT included - this is the actionable set shown in the
 	 *  Process Details modal. */
-	maestroEnvVars?: Record<string, string>;
+	openwizardaiEnvVars?: Record<string, string>;
 	/** Monotonic spawn number for this session id, claimed at registration.
 	 *  Lets a late event from a killed process recognize that a newer spawn owns
 	 *  the session even after that newer spawn has removed its own map entry.

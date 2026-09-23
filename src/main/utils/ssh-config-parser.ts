@@ -1,5 +1,5 @@
 /**
- * SSH Config Parser for Maestro.
+ * SSH Config Parser for OpenWizardAI.
  *
  * Parses ~/.ssh/config file to extract host configurations.
  * This allows users to leverage their existing SSH config for remote execution

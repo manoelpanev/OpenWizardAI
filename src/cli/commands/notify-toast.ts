@@ -1,6 +1,6 @@
-// Notify-toast command - show a toast notification in the Maestro desktop app.
+// Notify-toast command - show a toast notification in the OpenWizardAI desktop app.
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 import type { ToastClickAction } from '../../shared/toastClickAction';
 
@@ -174,7 +174,7 @@ export async function notifyToast(
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{
 					type: 'notify_toast',

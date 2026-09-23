@@ -1,5 +1,5 @@
 /**
- * LeftPanel component for Maestro web interface
+ * LeftPanel component for OpenWizardAI web interface
  *
  * A toggleable sidebar showing the agent/session list.
  * Mirrors the desktop Left Bar (SessionList) in a compact format.

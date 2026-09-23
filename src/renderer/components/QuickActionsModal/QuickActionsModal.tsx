@@ -160,7 +160,7 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 		currentGraphFile,
 		onOpenCurrentFileInGraph,
 		onOpenDirectorNotes,
-		onOpenMaestroCue,
+		onOpenOpenWizardAICue,
 		onConfigureCue,
 		onOpenQueueBrowser,
 		onNewTab,
@@ -266,7 +266,7 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 		let cancelled = false;
 		// Optional-chained: this runs on every palette open, so tolerate a bridge
 		// that isn't ready rather than throwing out of the effect.
-		const statusPromise = window.maestro?.debug?.getProfilingStatus?.();
+		const statusPromise = window.openwizardai?.debug?.getProfilingStatus?.();
 		if (!statusPromise) return;
 		statusPromise
 			.then((res) => {
@@ -285,7 +285,7 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 	}, [setProfilingActive, setProfilingBufferPercent]);
 	const handleStartProfiling = useCallback(async () => {
 		try {
-			const res = await window.maestro.debug.startProfiling();
+			const res = await window.openwizardai.debug.startProfiling();
 			if (res?.success && res.active) {
 				setProfilingActive(true);
 				setProfilingBufferPercent(0);
@@ -454,8 +454,8 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			deleteSession,
 			openWizard,
 			getOpenInLabel,
-			platform: window.maestro?.platform || 'darwin',
-			openPath: window.maestro?.shell?.openPath,
+			platform: window.openwizardai?.platform || 'darwin',
+			openPath: window.openwizardai?.shell?.openPath,
 			onGoToNextUnread,
 			onGoToPreviousUnread,
 			onNavBack,
@@ -594,7 +594,7 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			onOpenQueueBrowser,
 			onOpenPlaybookExchange,
 			onOpenDirectorNotes,
-			onOpenMaestroCue,
+			onOpenOpenWizardAICue,
 			onConfigureCue,
 			onOpenLastDocumentGraph,
 			onOpenCurrentFileInGraph,
@@ -649,7 +649,7 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			createDebugPackage: () => createDebugPackage(),
 			notifyToast,
 			openUrl,
-			toggleDevtools: () => window.maestro.devtools.toggle(),
+			toggleDevtools: () => window.openwizardai.devtools.toggle(),
 			shortcuts: {
 				settings: shortcuts.settings,
 				help: shortcuts.help,
@@ -740,7 +740,7 @@ export const QuickActionsModal = memo(function QuickActionsModal(props: QuickAct
 			onStartProfiling: handleStartProfiling,
 			onStopProfiling: handleStopProfiling,
 			getInstallationId: async () =>
-				((await window.maestro.settings.get('installationId')) as string | null) ?? null,
+				((await window.openwizardai.settings.get('installationId')) as string | null) ?? null,
 			safeClipboardWrite,
 			flashCopiedToClipboard,
 			notifyToast,

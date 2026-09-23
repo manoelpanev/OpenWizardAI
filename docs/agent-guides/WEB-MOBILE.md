@@ -2,13 +2,13 @@
 
 # Web & Mobile Interface
 
-Architecture, components, hooks, and patterns for the Maestro web/mobile remote control interface.
+Architecture, components, hooks, and patterns for the OpenWizardAI web/mobile remote control interface.
 
 ---
 
 ## Overview
 
-The web interface is a **separate React application** from the desktop renderer. It provides remote control of Maestro sessions from mobile/tablet devices over the local network. Communication with the Electron main process happens via WebSocket and REST API, not Electron IPC.
+The web interface is a **separate React application** from the desktop renderer. It provides remote control of OpenWizardAI sessions from mobile/tablet devices over the local network. Communication with the Electron main process happens via WebSocket and REST API, not Electron IPC.
 
 ```text
 Desktop App (Electron)
@@ -65,7 +65,7 @@ src/web/
 │   ├── useMobileAutoReconnect.ts
 │   └── index.ts
 ├── utils/                    # Web-specific utilities
-│   ├── config.ts             # Server config from window.__MAESTRO_CONFIG__
+│   ├── config.ts             # Server config from window.__OPENWIZARDAI_CONFIG__
 │   ├── cssCustomProperties.ts
 │   ├── logger.ts             # Web-specific logger
 │   ├── serviceWorker.ts      # PWA offline support
@@ -117,14 +117,14 @@ src/web/
 
 ### Key Differences from Desktop Renderer
 
-| Aspect          | Desktop                               | Web                        |
-| --------------- | ------------------------------------- | -------------------------- |
-| IPC             | `window.maestro.*` (Electron preload) | WebSocket + REST API       |
-| State           | Zustand stores                        | React hooks + WS events    |
-| Navigation      | Keyboard-first                        | Touch-first                |
-| Process control | Direct PTY spawn                      | Commands sent over WS      |
-| Theme source    | Settings store                        | Synced from desktop via WS |
-| File system     | Direct IPC access                     | No direct FS access        |
+| Aspect          | Desktop                                    | Web                        |
+| --------------- | ------------------------------------------ | -------------------------- |
+| IPC             | `window.openwizardai.*` (Electron preload) | WebSocket + REST API       |
+| State           | Zustand stores                             | React hooks + WS events    |
+| Navigation      | Keyboard-first                             | Touch-first                |
+| Process control | Direct PTY spawn                           | Commands sent over WS      |
+| Theme source    | Settings store                             | Synced from desktop via WS |
+| File system     | Direct IPC access                          | No direct FS access        |
 
 ---
 
@@ -132,10 +132,10 @@ src/web/
 
 ### Server-Injected Config
 
-The Electron main process injects configuration into `window.__MAESTRO_CONFIG__`:
+The Electron main process injects configuration into `window.__OPENWIZARDAI_CONFIG__`:
 
 ```typescript
-interface MaestroConfig {
+interface OpenWizardAIConfig {
 	securityToken: string; // UUID - required in all API/WS URLs
 	sessionId: string | null; // Viewing specific session or null for dashboard
 	tabId: string | null; // Specific tab within session
@@ -144,7 +144,7 @@ interface MaestroConfig {
 }
 ```
 
-Access via `getMaestroConfig()` from `src/web/utils/config.ts`.
+Access via `getOpenWizardAIConfig()` from `src/web/utils/config.ts`.
 
 ### URL Structure
 
@@ -278,7 +278,7 @@ interface GroupInfo {
 ```text
 AppRoot (App.tsx)
 ├── ThemeProvider
-│   └── MaestroModeContext.Provider
+│   └── OpenWizardAIModeContext.Provider
 │       └── OfflineContext.Provider
 │           └── MobileApp (mobile/App.tsx)
 │               ├── MobileHeader
@@ -308,7 +308,7 @@ Tracks whether the device is offline:
 const { isOffline } = useOfflineStatus();
 ```
 
-### MaestroModeContext
+### OpenWizardAIModeContext
 
 Manages dashboard vs. session view navigation:
 
@@ -322,7 +322,7 @@ const {
 	goToDashboard,
 	goToSession,
 	updateUrl,
-} = useMaestroMode();
+} = useOpenWizardAIMode();
 ```
 
 ### DesktopTheme

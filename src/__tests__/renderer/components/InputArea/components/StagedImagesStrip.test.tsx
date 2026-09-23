@@ -267,6 +267,6 @@ describe('StagedImagesStrip', () => {
 		fireEvent.dragStart(thumbOf(1), { dataTransfer });
 
 		expect(dataTransfer.getData('text/plain')).toBe('Screenshot 2');
-		expect(dataTransfer.getData('application/x-maestro-staged-image')).toBe('1');
+		expect(dataTransfer.getData('application/x-openwizardai-staged-image')).toBe('1');
 	});
 });

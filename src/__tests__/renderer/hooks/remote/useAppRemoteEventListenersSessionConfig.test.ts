@@ -66,7 +66,7 @@ function applyUpdate(setSessions: Mock, sessions: Session[]): Session[] {
 
 function dispatchPatch(sessionId: string, configPatch: Record<string, unknown>) {
 	window.dispatchEvent(
-		new CustomEvent('maestro:remoteUpdateSessionConfig', {
+		new CustomEvent('openwizardai:remoteUpdateSessionConfig', {
 			detail: { sessionId, configPatch, responseChannel: 'ch' },
 		})
 	);
@@ -77,7 +77,7 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		process: {
 			sendRemoteUpdateSessionConfigResponse: ack,
 			kill: vi.fn().mockResolvedValue(undefined),
@@ -86,7 +86,7 @@ beforeEach(() => {
 	};
 });
 
-describe('maestro:remoteUpdateSessionConfig', () => {
+describe('openwizardai:remoteUpdateSessionConfig', () => {
 	it('writes the bookmark flag so the CLI can pin an agent in the Left Bar', async () => {
 		const sessions = [createMockSession({ id: 'session-1', bookmarked: false })];
 		const { setSessions } = setup(sessions);
@@ -159,7 +159,7 @@ describe('maestro:remoteUpdateSessionConfig', () => {
 	});
 });
 
-describe('maestro:remoteUpdateSessionConfig with a tabId', () => {
+describe('openwizardai:remoteUpdateSessionConfig with a tabId', () => {
 	/** An agent whose second tab is the one under test. */
 	function twoTabSession() {
 		const session = createMockSession({ id: 'session-1' });

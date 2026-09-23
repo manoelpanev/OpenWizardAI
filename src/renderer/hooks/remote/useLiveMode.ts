@@ -7,7 +7,7 @@
  *   - toggleGlobalLive (start/stop server + tunnel)
  *   - restartWebServer (restart when port settings change)
  *
- * Calls IPC: window.maestro.tunnel, window.maestro.live
+ * Calls IPC: window.openwizardai.tunnel, window.openwizardai.live
  */
 
 import { useState, useCallback, useEffect } from 'react';
@@ -40,11 +40,11 @@ export function useLiveMode(): UseLiveModeReturn {
 		try {
 			if (isLiveMode) {
 				// Stop tunnel first, then update state, then stop web server
-				await (window as any).maestro.tunnel.stop();
+				await (window as any).openwizardai.tunnel.stop();
 				setIsLiveMode(false);
 				setWebInterfaceUrl(null);
 				try {
-					await (window as any).maestro.live.disableAll();
+					await (window as any).openwizardai.live.disableAll();
 				} catch (disableErr) {
 					logger.error(
 						'[toggleGlobalLive] disableAll failed after tunnel stop:',
@@ -54,7 +54,7 @@ export function useLiveMode(): UseLiveModeReturn {
 				}
 			} else {
 				// Turn on - start the server and get the URL
-				const result = await (window as any).maestro.live.startServer();
+				const result = await (window as any).openwizardai.live.startServer();
 				if (result.success && result.url) {
 					setIsLiveMode(true);
 					setWebInterfaceUrl(result.url);
@@ -72,7 +72,7 @@ export function useLiveMode(): UseLiveModeReturn {
 	// 0.0.0.0, so main just hands us the new address and the panel redraws -
 	// no restart, and the token stays the same.
 	useEffect(() => {
-		const unsubscribe = (window as any).maestro?.live?.onUrlChanged?.(
+		const unsubscribe = (window as any).openwizardai?.live?.onUrlChanged?.(
 			({ url }: { url: string }) => {
 				// Only while the panel has a URL to show: with Live off the
 				// server is CLI-only and its address is not user-facing.
@@ -86,8 +86,8 @@ export function useLiveMode(): UseLiveModeReturn {
 		if (!isLiveMode) return null;
 		try {
 			// Stop and restart the server to pick up new port settings
-			await (window as any).maestro.live.stopServer();
-			const result = await (window as any).maestro.live.startServer();
+			await (window as any).openwizardai.live.stopServer();
+			const result = await (window as any).openwizardai.live.startServer();
 			if (result.success && result.url) {
 				setWebInterfaceUrl(result.url);
 				return result.url;

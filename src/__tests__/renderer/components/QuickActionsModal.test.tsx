@@ -26,12 +26,12 @@ function getActionRows(): HTMLElement[] {
 	);
 }
 
-// Add missing window.maestro.devtools and debug mocks
+// Add missing window.openwizardai.devtools and debug mocks
 beforeAll(() => {
-	(window.maestro as any).devtools = {
+	(window.openwizardai as any).devtools = {
 		toggle: vi.fn(),
 	};
-	(window.maestro as any).debug = {
+	(window.openwizardai as any).debug = {
 		createPackage: vi.fn().mockResolvedValue({ success: true, path: '/tmp/test.zip' }),
 		previewPackage: vi.fn().mockResolvedValue({ categories: [] }),
 	};
@@ -393,11 +393,11 @@ describe('QuickActionsModal', () => {
 			expect(screen.getByText('Settings')).toBeInTheDocument();
 		});
 
-		it('renders About OpenWizzard action', () => {
+		it('renders About OpenWizardAI action', () => {
 			const props = createDefaultProps();
 			render(<QuickActionsModal {...props} />);
 
-			expect(screen.getByText('About OpenWizzard')).toBeInTheDocument();
+			expect(screen.getByText('About OpenWizardAI')).toBeInTheDocument();
 		});
 
 		it('renders subtext for session state', () => {
@@ -652,11 +652,11 @@ describe('QuickActionsModal', () => {
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
 		});
 
-		it('handles About OpenWizzard action', () => {
+		it('handles About OpenWizardAI action', () => {
 			const props = createDefaultProps();
 			render(<QuickActionsModal {...props} />);
 
-			fireEvent.click(screen.getByText('About OpenWizzard'));
+			fireEvent.click(screen.getByText('About OpenWizardAI'));
 
 			expect(props.setAboutModalOpen).toHaveBeenCalledWith(true);
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
@@ -960,7 +960,7 @@ describe('QuickActionsModal', () => {
 
 			await waitFor(() => {
 				expect(gitService.getRemoteBrowserUrl).toHaveBeenCalledWith('/home/user/project');
-				expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
+				expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
 					'https://github.com/test/repo'
 				);
 				expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
@@ -990,7 +990,7 @@ describe('QuickActionsModal', () => {
 
 			fireEvent.click(screen.getByText('Toggle JavaScript Console'));
 
-			expect(window.maestro.devtools.toggle).toHaveBeenCalled();
+			expect(window.openwizardai.devtools.toggle).toHaveBeenCalled();
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
 		});
 	});
@@ -1004,7 +1004,7 @@ describe('QuickActionsModal', () => {
 			fireEvent.change(input, { target: { value: 'settings' } });
 
 			expect(screen.getByText('Settings')).toBeInTheDocument();
-			expect(screen.queryByText('About OpenWizzard')).not.toBeInTheDocument();
+			expect(screen.queryByText('About OpenWizardAI')).not.toBeInTheDocument();
 		});
 
 		it('shows no actions found message when no matches', () => {
@@ -1249,10 +1249,10 @@ describe('QuickActionsModal', () => {
 
 			const input = screen.getByPlaceholderText('Type a command or jump to agent...');
 
-			// Cmd+1 should trigger first visible action (which is 'About Maestro' after alphabetical sort)
+			// Cmd+1 should trigger first visible action (which is 'About OpenWizardAI' after alphabetical sort)
 			fireEvent.keyDown(input, { key: '1', metaKey: true });
 
-			// First action is 'About Maestro' due to sorting
+			// First action is 'About OpenWizardAI' due to sorting
 			expect(props.setAboutModalOpen).toHaveBeenCalledWith(true);
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
 		});
@@ -1755,7 +1755,7 @@ describe('QuickActionsModal', () => {
 			fireEvent.click(screen.getByText('Git: Open Repository in Browser'));
 
 			await waitFor(() => {
-				expect(window.maestro.shell.openExternal).not.toHaveBeenCalled();
+				expect(window.openwizardai.shell.openExternal).not.toHaveBeenCalled();
 				expect(mockNotifyToast).toHaveBeenCalledWith({
 					type: 'error',
 					title: 'No Remote URL',
@@ -1999,22 +1999,22 @@ describe('QuickActionsModal', () => {
 		});
 	});
 
-	describe('Configure OpenWizzard Cue action', () => {
-		it('shows Configure OpenWizzard Cue command with agent name when onConfigureCue is provided', () => {
+	describe('Configure OpenWizardAI Cue action', () => {
+		it('shows Configure OpenWizardAI Cue command with agent name when onConfigureCue is provided', () => {
 			const onConfigureCue = vi.fn();
 			const props = createDefaultProps({ onConfigureCue });
 			render(<QuickActionsModal {...props} />);
 
-			expect(screen.getByText('Configure OpenWizzard Cue: Test Session')).toBeInTheDocument();
+			expect(screen.getByText('Configure OpenWizardAI Cue: Test Session')).toBeInTheDocument();
 			expect(screen.getByText('Open YAML editor for event-driven automation')).toBeInTheDocument();
 		});
 
-		it('handles Configure OpenWizzard Cue action - calls onConfigureCue with active session and closes modal', () => {
+		it('handles Configure OpenWizardAI Cue action - calls onConfigureCue with active session and closes modal', () => {
 			const onConfigureCue = vi.fn();
 			const props = createDefaultProps({ onConfigureCue });
 			render(<QuickActionsModal {...props} />);
 
-			fireEvent.click(screen.getByText('Configure OpenWizzard Cue: Test Session'));
+			fireEvent.click(screen.getByText('Configure OpenWizardAI Cue: Test Session'));
 
 			expect(onConfigureCue).toHaveBeenCalledWith(
 				expect.objectContaining({ id: 'session-1', name: 'Test Session' })
@@ -2022,14 +2022,14 @@ describe('QuickActionsModal', () => {
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
 		});
 
-		it('does not show Configure OpenWizzard Cue when onConfigureCue is not provided', () => {
+		it('does not show Configure OpenWizardAI Cue when onConfigureCue is not provided', () => {
 			const props = createDefaultProps();
 			render(<QuickActionsModal {...props} />);
 
-			expect(screen.queryByText(/Configure OpenWizzard Cue/)).not.toBeInTheDocument();
+			expect(screen.queryByText(/Configure OpenWizardAI Cue/)).not.toBeInTheDocument();
 		});
 
-		it('Configure OpenWizzard Cue appears when searching for "cue"', () => {
+		it('Configure OpenWizardAI Cue appears when searching for "cue"', () => {
 			const onConfigureCue = vi.fn();
 			const props = createDefaultProps({ onConfigureCue });
 			render(<QuickActionsModal {...props} />);
@@ -2037,7 +2037,7 @@ describe('QuickActionsModal', () => {
 			const input = screen.getByPlaceholderText('Type a command or jump to agent...');
 			fireEvent.change(input, { target: { value: 'cue' } });
 
-			expect(screen.getByText('Configure OpenWizzard Cue: Test Session')).toBeInTheDocument();
+			expect(screen.getByText('Configure OpenWizardAI Cue: Test Session')).toBeInTheDocument();
 		});
 	});
 

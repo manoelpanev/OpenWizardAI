@@ -1,7 +1,7 @@
 /**
  * EncoreTab - Encore Features settings tab for SettingsModal
  *
- * Contains: Feature flags for optional/experimental Maestro capabilities,
+ * Contains: Feature flags for optional/experimental OpenWizardAI capabilities,
  * Director's Notes configuration (provider selection, agent config, lookback period),
  * Usage & Stats configuration (stats collection, time ranges, WakaTime integration).
  */
@@ -91,7 +91,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 			if (!cancelled) setWakatimeCliStatus({ available: false });
 		};
 
-		window.maestro.wakatime
+		window.openwizardai.wakatime
 			.checkCli()
 			.then((status) => {
 				if (cancelled) return;
@@ -99,7 +99,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 				if (!status.available) {
 					retryTimer = setTimeout(() => {
 						if (!cancelled) {
-							window.maestro.wakatime
+							window.openwizardai.wakatime
 								.checkCli()
 								.then((retryStatus) => {
 									if (!cancelled) setWakatimeCliStatus(retryStatus);
@@ -114,7 +114,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 				handleCliError(err);
 				retryTimer = setTimeout(() => {
 					if (!cancelled) {
-						window.maestro.wakatime
+						window.openwizardai.wakatime
 							.checkCli()
 							.then((retryStatus) => {
 								if (!cancelled) setWakatimeCliStatus(retryStatus);
@@ -191,7 +191,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 		});
 	};
 
-	// ── Maestro Cue global settings (autosaved to every known cue.yaml) ─────
+	// ── OpenWizardAI Cue global settings (autosaved to every known cue.yaml) ─────
 	// State is loaded once when the section becomes visible and persisted via
 	// a debounced IPC call so typing in the number inputs does not hammer the
 	// filesystem. Loaded === false until the IPC fetch resolves so the inputs
@@ -206,7 +206,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 	const [cueQueueSizeStr, setCueQueueSizeStr] = useState(String(DEFAULT_CUE_SETTINGS.queue_size));
 
 	useEffect(() => {
-		if (!isOpen || !encoreFeatures.maestroCue) return;
+		if (!isOpen || !encoreFeatures.openwizardaiCue) return;
 		let cancelled = false;
 		cueService
 			.getSettings()
@@ -230,7 +230,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 		return () => {
 			cancelled = true;
 		};
-	}, [isOpen, encoreFeatures.maestroCue]);
+	}, [isOpen, encoreFeatures.openwizardaiCue]);
 
 	const persistCueSettings = useCallback((next: CueSettings) => {
 		setCueSettingsSaveState('saving');
@@ -270,8 +270,8 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 					Encore Features
 				</h3>
 				<p className="text-xs" style={{ color: theme.colors.textDim }}>
-					Features that extend OpenWizzard's capabilities. They ship on; turn off the ones you don't
-					want. Disabled features are completely hidden from shortcuts, menus, and the command
+					Features that extend OpenWizardAI's capabilities. They ship on; turn off the ones you
+					don't want. Disabled features are completely hidden from shortcuts, menus, and the command
 					palette. Contributors should gate a new feature here and leave it off until it earns a
 					place in the core experience.
 				</p>
@@ -382,7 +382,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 									Enable WakaTime tracking
 								</p>
 								<p className="text-xs opacity-50 mt-0.5">
-									Track coding activity in OpenWizzard sessions via WakaTime.
+									Track coding activity in OpenWizardAI sessions via WakaTime.
 								</p>
 							</div>
 							<button
@@ -467,7 +467,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 											if (keyAtBlur) {
 												setWakatimeKeyValidating(true);
 												setWakatimeKeyValid(null);
-												window.maestro.wakatime
+												window.openwizardai.wakatime
 													.validateApiKey(keyAtBlur)
 													.then((result) => {
 														if (wakatimeApiKeyRef.current === keyAtBlur) {
@@ -518,7 +518,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 								</div>
 								<p className="text-2xs mt-1.5 opacity-50">
 									Get your API key from wakatime.com/settings/api-key. Keys are stored locally in
-									~/.maestro/settings.json.
+									~/.openwizardai/settings.json.
 								</p>
 							</div>
 						)}
@@ -526,13 +526,15 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 				)}
 			</div>
 
-			{/* Maestro Cue Feature Section */}
+			{/* OpenWizardAI Cue Feature Section */}
 			<div
 				data-setting-id="encore-cue"
 				className="rounded-lg border"
 				style={{
-					borderColor: encoreFeatures.maestroCue ? theme.colors.accent : theme.colors.border,
-					backgroundColor: encoreFeatures.maestroCue ? `${theme.colors.accent}08` : 'transparent',
+					borderColor: encoreFeatures.openwizardaiCue ? theme.colors.accent : theme.colors.border,
+					backgroundColor: encoreFeatures.openwizardaiCue
+						? `${theme.colors.accent}08`
+						: 'transparent',
 				}}
 			>
 				<button
@@ -540,7 +542,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 					onClick={() =>
 						setEncoreFeatures({
 							...encoreFeatures,
-							maestroCue: !encoreFeatures.maestroCue,
+							openwizardaiCue: !encoreFeatures.openwizardaiCue,
 						})
 					}
 				>
@@ -548,7 +550,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 						<Zap
 							className="w-5 h-5"
 							style={{
-								color: encoreFeatures.maestroCue ? theme.colors.accent : theme.colors.textDim,
+								color: encoreFeatures.openwizardaiCue ? theme.colors.accent : theme.colors.textDim,
 							}}
 						/>
 						<div>
@@ -556,7 +558,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 								className="text-sm font-bold flex items-center gap-2"
 								style={{ color: theme.colors.textMain }}
 							>
-								OpenWizzard Cue
+								OpenWizardAI Cue
 								<span
 									className="px-1.5 py-0.5 rounded text-3xs font-bold uppercase"
 									style={{
@@ -574,9 +576,9 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 						</div>
 					</div>
 					<div
-						className={`relative w-10 h-5 rounded-full transition-colors ${encoreFeatures.maestroCue ? '' : 'opacity-50'}`}
+						className={`relative w-10 h-5 rounded-full transition-colors ${encoreFeatures.openwizardaiCue ? '' : 'opacity-50'}`}
 						style={{
-							backgroundColor: encoreFeatures.maestroCue
+							backgroundColor: encoreFeatures.openwizardaiCue
 								? theme.colors.accent
 								: theme.colors.border,
 						}}
@@ -584,13 +586,13 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 						<div
 							className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform"
 							style={{
-								transform: encoreFeatures.maestroCue ? 'translateX(22px)' : 'translateX(2px)',
+								transform: encoreFeatures.openwizardaiCue ? 'translateX(22px)' : 'translateX(2px)',
 							}}
 						/>
 					</div>
 				</button>
 
-				{encoreFeatures.maestroCue && (
+				{encoreFeatures.openwizardaiCue && (
 					<div
 						className="px-4 pb-4 space-y-4 border-t"
 						style={{ borderColor: theme.colors.border }}

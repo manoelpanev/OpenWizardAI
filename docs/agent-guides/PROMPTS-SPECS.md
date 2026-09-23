@@ -2,7 +2,7 @@
 
 # Prompts and Specification Systems
 
-Maestro's prompt system consists of Markdown templates loaded from disk at runtime, a template variable substitution engine, and two specification management systems (SpecKit and OpenSpec) that layer user-customizable prompts on top of bundled defaults.
+OpenWizardAI's prompt system consists of Markdown templates loaded from disk at runtime, a template variable substitution engine, and two specification management systems (SpecKit and OpenSpec) that layer user-customizable prompts on top of bundled defaults.
 
 ## Shell examples in prompts must live in code fences
 
@@ -80,11 +80,11 @@ An earlier build step compiled these templates into `src/generated/prompts.ts`. 
 
 #### System Prompts
 
-| File                       | Export                | Purpose                                                                                                                      |
-| -------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `maestro-system-prompt.md` | `maestroSystemPrompt` | Base system prompt injected into all agent sessions. Provides agent name, tool type, conductor profile, and Maestro context. |
-| `tab-naming.md`            | `tabNamingPrompt`     | Prompt for automatic tab naming based on conversation content                                                                |
-| `director-notes.md`        | `directorNotesPrompt` | Prompt for Director's Notes (unified history + synopsis generation)                                                          |
+| File                            | Export                     | Purpose                                                                                                                           |
+| ------------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `openwizardai-system-prompt.md` | `openwizardaiSystemPrompt` | Base system prompt injected into all agent sessions. Provides agent name, tool type, conductor profile, and OpenWizardAI context. |
+| `tab-naming.md`                 | `tabNamingPrompt`          | Prompt for automatic tab naming based on conversation content                                                                     |
+| `director-notes.md`             | `directorNotesPrompt`      | Prompt for Director's Notes (unified history + synopsis generation)                                                               |
 
 <!-- prettier-ignore -->
 > [!NOTE]
@@ -96,7 +96,7 @@ Defined in `src/shared/templateVariables.ts`. Variables use `{{VARIABLE_NAME}}` 
 
 ### Variable Categories
 
-#### Conductor Variables (the Maestro user)
+#### Conductor Variables (the OpenWizardAI user)
 
 | Variable                | Description                           |
 | ----------------------- | ------------------------------------- |
@@ -106,7 +106,7 @@ Defined in `src/shared/templateVariables.ts`. Variables use `{{VARIABLE_NAME}}` 
 
 | Variable                 | Description                                                      |
 | ------------------------ | ---------------------------------------------------------------- |
-| `{{AGENT_ID}}`           | Agent UUID (Maestro agent identifier, for CLI targeting)         |
+| `{{AGENT_ID}}`           | Agent UUID (OpenWizardAI agent identifier, for CLI targeting)    |
 | `{{AGENT_NAME}}`         | Agent display name                                               |
 | `{{AGENT_PATH}}`         | Agent home directory path (full path to project)                 |
 | `{{AGENT_GROUP}}`        | Agent's group name (if grouped)                                  |
@@ -160,21 +160,21 @@ Defined in `src/shared/templateVariables.ts`. Variables use `{{VARIABLE_NAME}}` 
 
 #### Deep Link Variables
 
-| Variable              | Description                                                                |
-| --------------------- | -------------------------------------------------------------------------- |
-| `{{AGENT_DEEP_LINK}}` | `maestro://` deep link to this agent                                       |
-| `{{TAB_DEEP_LINK}}`   | `maestro://` deep link to this agent + active tab                          |
-| `{{GROUP_DEEP_LINK}}` | `maestro://` deep link to this agent's group (empty string if not grouped) |
+| Variable              | Description                                                                     |
+| --------------------- | ------------------------------------------------------------------------------- |
+| `{{AGENT_DEEP_LINK}}` | `openwizardai://` deep link to this agent                                       |
+| `{{TAB_DEEP_LINK}}`   | `openwizardai://` deep link to this agent + active tab                          |
+| `{{GROUP_DEEP_LINK}}` | `openwizardai://` deep link to this agent's group (empty string if not grouped) |
 
-#### Maestro Variables
+#### OpenWizardAI Variables
 
-| Variable               | Description                                                                       |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `{{MAESTRO_CLI_PATH}}` | Platform-appropriate path to the `maestro-cli` binary (for use in shell commands) |
+| Variable                    | Description                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------------- |
+| `{{OPENWIZARDAI_CLI_PATH}}` | Platform-appropriate path to the `openwizardai-cli` binary (for use in shell commands) |
 
 #### Cue Variables (Cue automation only)
 
-Variables populated only when a prompt is rendered as part of a Maestro Cue run. Accessed on `context.cue` in the substitution function. See `src/shared/templateVariables.ts` for the full list, which includes:
+Variables populated only when a prompt is rendered as part of an OpenWizardAI Cue run. Accessed on `context.cue` in the substitution function. See `src/shared/templateVariables.ts` for the full list, which includes:
 
 - **Event metadata:** `{{CUE_EVENT_TYPE}}`, `{{CUE_EVENT_TIMESTAMP}}`, `{{CUE_TRIGGER_NAME}}`, `{{CUE_RUN_ID}}`
 - **File change events:** `{{CUE_FILE_PATH}}`, `{{CUE_FILE_NAME}}`, `{{CUE_FILE_DIR}}`, `{{CUE_FILE_EXT}}`, `{{CUE_FILE_CHANGE_TYPE}}`
@@ -258,20 +258,20 @@ SpecKit provides structured specification management for software projects. It i
 
 ### Commands
 
-| Command                  | ID              | Description                                                   | Custom? |
-| ------------------------ | --------------- | ------------------------------------------------------------- | ------- |
-| `/speckit.help`          | `help`          | Learn how to use spec-kit with Maestro                        | Yes     |
-| `/speckit.constitution`  | `constitution`  | Create or update the project constitution                     | No      |
-| `/speckit.specify`       | `specify`       | Create or update feature specification                        | No      |
-| `/speckit.clarify`       | `clarify`       | Identify underspecified areas and ask clarification questions | No      |
-| `/speckit.plan`          | `plan`          | Execute implementation planning workflow                      | No      |
-| `/speckit.tasks`         | `tasks`         | Generate actionable, dependency-ordered tasks                 | No      |
-| `/speckit.analyze`       | `analyze`       | Cross-artifact consistency and quality analysis               | No      |
-| `/speckit.checklist`     | `checklist`     | Generate custom checklist for feature                         | No      |
-| `/speckit.taskstoissues` | `taskstoissues` | Convert tasks to GitHub issues                                | No      |
-| `/speckit.implement`     | `implement`     | Execute tasks using Maestro Auto Run with worktree support    | Yes     |
+| Command                  | ID              | Description                                                     | Custom? |
+| ------------------------ | --------------- | --------------------------------------------------------------- | ------- |
+| `/speckit.help`          | `help`          | Learn how to use spec-kit with OpenWizardAI                     | Yes     |
+| `/speckit.constitution`  | `constitution`  | Create or update the project constitution                       | No      |
+| `/speckit.specify`       | `specify`       | Create or update feature specification                          | No      |
+| `/speckit.clarify`       | `clarify`       | Identify underspecified areas and ask clarification questions   | No      |
+| `/speckit.plan`          | `plan`          | Execute implementation planning workflow                        | No      |
+| `/speckit.tasks`         | `tasks`         | Generate actionable, dependency-ordered tasks                   | No      |
+| `/speckit.analyze`       | `analyze`       | Cross-artifact consistency and quality analysis                 | No      |
+| `/speckit.checklist`     | `checklist`     | Generate custom checklist for feature                           | No      |
+| `/speckit.taskstoissues` | `taskstoissues` | Convert tasks to GitHub issues                                  | No      |
+| `/speckit.implement`     | `implement`     | Execute tasks using OpenWizardAI Auto Run with worktree support | Yes     |
 
-Commands marked "Custom" (`isCustom: true`) are Maestro-specific additions not from the upstream spec-kit repo.
+Commands marked "Custom" (`isCustom: true`) are OpenWizardAI-specific additions not from the upstream spec-kit repo.
 
 ### Files
 
@@ -309,7 +309,7 @@ interface SpecKitCommand {
 	command: string; // e.g. '/speckit.plan'
 	description: string;
 	prompt: string; // The full prompt text
-	isCustom: boolean; // Whether this is a Maestro-specific command
+	isCustom: boolean; // Whether this is an OpenWizardAI-specific command
 	isModified: boolean; // Whether user has customized this prompt
 }
 
@@ -348,11 +348,11 @@ OpenSpec provides structured change management for software projects. It follows
 
 | Command               | ID          | Description                                                          | Custom? |
 | --------------------- | ----------- | -------------------------------------------------------------------- | ------- |
-| `/openspec.help`      | `help`      | Learn how to use OpenSpec with Maestro                               | Yes     |
+| `/openspec.help`      | `help`      | Learn how to use OpenSpec with OpenWizardAI                          | Yes     |
 | `/openspec.proposal`  | `proposal`  | Create a change proposal with specs, tasks, and optional design docs | No      |
 | `/openspec.apply`     | `apply`     | Implement an approved change proposal by executing tasks             | No      |
 | `/openspec.archive`   | `archive`   | Archive a completed change after deployment                          | No      |
-| `/openspec.implement` | `implement` | Convert OpenSpec tasks to Maestro Auto Run documents                 | Yes     |
+| `/openspec.implement` | `implement` | Convert OpenSpec tasks to OpenWizardAI Auto Run documents            | Yes     |
 
 ### Files
 
@@ -429,7 +429,7 @@ Registered in `src/main/ipc/handlers/openspec.ts`:
 1. `initializePrompts()` in `src/main/prompt-manager.ts` reads every prompt in `CORE_PROMPTS` from `Resources/prompts/core/` at startup
 2. User customizations from `userData/core-prompts-customizations.json` override the bundled text per prompt ID
 3. `{{INCLUDE:name}}` and `{{REF:name}}` directives are resolved during load
-4. Callers fetch text by ID (`window.maestro.prompts.get(...)` from the renderer, `getPrompt(...)` in main), replace template variables (`{{...}}`), and pass the resolved prompt to the agent spawn configuration
+4. Callers fetch text by ID (`window.openwizardai.prompts.get(...)` from the renderer, `getPrompt(...)` in main), replace template variables (`{{...}}`), and pass the resolved prompt to the agent spawn configuration
 
 ### At Runtime (SpecKit/OpenSpec)
 

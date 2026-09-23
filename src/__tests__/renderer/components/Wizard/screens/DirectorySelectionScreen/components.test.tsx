@@ -196,12 +196,12 @@ describe('DirectorySelectionScreen components', () => {
 					theme={mockTheme}
 					show
 					isSkipping={false}
-					skipError="An agent named Maestro already exists"
+					skipError="An agent named OpenWizardAI already exists"
 					onSkip={vi.fn()}
 				/>
 			);
 
-			expect(screen.getByText('An agent named Maestro already exists')).toBeInTheDocument();
+			expect(screen.getByText('An agent named OpenWizardAI already exists')).toBeInTheDocument();
 		});
 	});
 });

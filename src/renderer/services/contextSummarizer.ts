@@ -43,7 +43,7 @@ let contextSummarizerPromptsLoaded = false;
 export async function loadContextSummarizerPrompts(force = false): Promise<void> {
 	if (contextSummarizerPromptsLoaded && !force) return;
 
-	const result = await window.maestro.prompts.get('context-summarize');
+	const result = await window.openwizardai.prompts.get('context-summarize');
 	if (!result.success) {
 		throw new Error(`Failed to load context-summarize prompt: ${result.error}`);
 	}
@@ -198,7 +198,7 @@ export class ContextSummarizationService {
 				prompt.length
 			);
 
-			const summarizedText = await window.maestro.context.groomContext(
+			const summarizedText = await window.openwizardai.context.groomContext(
 				request.projectRoot,
 				request.agentType,
 				prompt,
@@ -280,7 +280,7 @@ export class ContextSummarizationService {
 
 			const prompt = this.buildSummarizationPrompt(chunkText);
 			// Use the new single-call groomContext API (spawns batch process with prompt)
-			const summary = await window.maestro.context.groomContext(
+			const summary = await window.openwizardai.context.groomContext(
 				request.projectRoot,
 				request.agentType,
 				prompt,
@@ -323,7 +323,7 @@ export class ContextSummarizationService {
 			// Build a consolidation prompt that asks for a more aggressive summary
 			const consolidationPrompt = this.buildConsolidationPrompt(combinedSummary, compactedTokens);
 
-			const consolidated = await window.maestro.context.groomContext(
+			const consolidated = await window.openwizardai.context.groomContext(
 				request.projectRoot,
 				request.agentType,
 				consolidationPrompt,
@@ -507,7 +507,7 @@ Please provide a comprehensive but compacted summary of the above conversation, 
 	 */
 	async cancelSummarization(): Promise<void> {
 		try {
-			await window.maestro.context.cancelGrooming();
+			await window.openwizardai.context.cancelGrooming();
 		} catch (error) {
 			logger.error('[ContextSummarizer] Failed to cancel grooming:', undefined, error);
 		}

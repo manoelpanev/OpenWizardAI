@@ -1,5 +1,5 @@
 /**
- * `maestro-cli open <surface> [--tab <tab>]` - open one of Maestro's modals
+ * `openwizardai-cli open <surface> [--tab <tab>]` - open one of OpenWizardAI's modals
  * or dashboards in the running desktop app, optionally on a specific tab.
  *
  * The point is teaching, not just navigating: an agent answering "where do I
@@ -8,7 +8,7 @@
  * Surfaces, their tabs, and those hints all come from `shared/uiSurfaces.ts`.
  */
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { isMacOS } from '../../shared/platformDetection';
 import { formatShortcutKeysFor } from '../../shared/shortcutKeys';
 import { DEFAULT_SHORTCUTS, FIXED_SHORTCUTS } from '../../renderer/constants/shortcuts';
@@ -106,7 +106,7 @@ export async function openModal(
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) =>
+		const result = await withOpenWizardAIClient(async (client) =>
 			client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{ type: 'open_modal', surface: surface.id, tab: tabId },
 				'open_modal_result'
@@ -134,7 +134,7 @@ export async function openModal(
 			return;
 		}
 		const tabSuffix = tabId ? ` (${tabId} tab)` : '';
-		console.log(`Opened ${surface.label}${tabSuffix} in OpenWizzard.`);
+		console.log(`Opened ${surface.label}${tabSuffix} in OpenWizardAI.`);
 		if (hint) console.log(hint);
 	} catch (error) {
 		fail(error instanceof Error ? error.message : String(error), options);

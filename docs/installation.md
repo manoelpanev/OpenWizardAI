@@ -1,12 +1,12 @@
 ---
 title: Installation
-description: Download and install Maestro on macOS, Windows, or Linux.
+description: Download and install OpenWizardAI on macOS, Windows, or Linux.
 icon: download
 ---
 
 ## Download
 
-Download the latest release for your platform from the [Releases](https://github.com/RunMaestro/Maestro/releases) page:
+Download the latest release for your platform from the [Releases](https://github.com/manoelpanev/OpenWizardAI/releases) page:
 
 - **macOS**: `.dmg` or `.zip` (available for both Intel and Apple Silicon)
 - **Windows**: `.exe` installer or portable `.exe` (no installation required)
@@ -25,13 +25,13 @@ Download the latest release for your platform from the [Releases](https://github
 - Git (optional, for git-aware features)
 
 <Note>
-Maestro is a pass-through to your provider. Your MCP tools, custom skills, permissions, and authentication all work in Maestro exactly as they do when running the provider directly - Maestro just orchestrates the conversation flow in batch mode.
+OpenWizardAI is a pass-through to your provider. Your MCP tools, custom skills, permissions, and authentication all work in OpenWizardAI exactly as they do when running the provider directly - OpenWizardAI just orchestrates the conversation flow in batch mode.
 </Note>
 
 ## WSL2 Users (Windows Subsystem for Linux)
 
 <Warning>
-When developing or running Maestro with WSL2, always clone and run from the **native Linux filesystem** (e.g., `/home/username/maestro`), NOT from Windows-mounted paths (`/mnt/c/...`, `/mnt/d/...`).
+When developing or running OpenWizardAI with WSL2, always clone and run from the **native Linux filesystem** (e.g., `/home/username/openwizardai`), NOT from Windows-mounted paths (`/mnt/c/...`, `/mnt/d/...`).
 </Warning>
 
 Using Windows mounts causes several critical issues:
@@ -48,8 +48,8 @@ Using Windows mounts causes several critical issues:
 ```bash
 # Clone to Linux filesystem (not /mnt/...)
 cd ~
-git clone https://github.com/RunMaestro/Maestro.git
-cd maestro
+git clone https://github.com/manoelpanev/OpenWizardAI.git
+cd openwizardai
 
 # Install dependencies
 npm install
@@ -63,7 +63,7 @@ npm run dev
 You can browse your WSL2 files from Windows Explorer using:
 
 ```
-\\wsl$\Ubuntu\home\<username>\maestro
+\\wsl$\Ubuntu\home\<username>\openwizardai
 ```
 
 ### Troubleshooting WSL2
@@ -78,15 +78,15 @@ For persistent issues, see [Troubleshooting](./troubleshooting) for additional W
 
 ## Building from Source
 
-If you prefer to build Maestro from source:
+If you prefer to build OpenWizardAI from source:
 
 ```bash
 # Prerequisites: Node.js 22.0.0 or higher
 node --version  # Verify version
 
 # Clone the repository
-git clone https://github.com/RunMaestro/Maestro.git
-cd maestro
+git clone https://github.com/manoelpanev/OpenWizardAI.git
+cd openwizardai
 
 # Install dependencies
 npm install

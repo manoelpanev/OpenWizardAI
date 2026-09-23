@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/services/storage', () => ({
 	resolveAgentId: vi.fn((id: string) => id),
 }));
@@ -15,13 +15,13 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { setBookmark } from '../../../cli/commands/bookmark';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveAgentId } from '../../../cli/services/storage';
 import { formatError } from '../../../cli/output/formatter';
 
 function mockClient(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				captured = payload;
@@ -87,8 +87,8 @@ describe('bookmark commands', () => {
 	});
 
 	it('exits non-zero when the desktop app is unreachable', async () => {
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('Maestro is not running'));
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('OpenWizardAI is not running'));
 		await expect(setBookmark('agent-1', true, {})).rejects.toThrow('__exit__');
-		expect(formatError).toHaveBeenCalledWith('Maestro is not running');
+		expect(formatError).toHaveBeenCalledWith('OpenWizardAI is not running');
 	});
 });

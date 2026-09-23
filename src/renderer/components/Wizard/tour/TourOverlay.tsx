@@ -2,7 +2,7 @@
  * TourOverlay.tsx
  *
  * Full-screen tour overlay with spotlight cutout that guides users
- * through the Maestro interface. Renders a semi-transparent dark
+ * through the OpenWizardAI interface. Renders a semi-transparent dark
  * backdrop with a highlighted "spotlight" area showing the current
  * element of interest.
  *

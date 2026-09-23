@@ -1,5 +1,5 @@
 /**
- * AgentCreationSheet component for Maestro mobile web interface
+ * AgentCreationSheet component for OpenWizardAI mobile web interface
  *
  * Bottom sheet modal for creating a new agent.
  * Allows selecting agent type, name, working directory, and optional group.

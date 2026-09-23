@@ -80,7 +80,7 @@ export function BatonView({ theme, baton }: BatonViewProps) {
 								className="font-bold tracking-widest text-3xl"
 								style={{ color: theme.colors.textMain }}
 							>
-								MAESTRO
+								OPENWIZARDAI
 							</span>
 							<span className="text-xs" style={{ color: theme.colors.textDim }}>
 								{baton.batonActive ? 'Animation active' : 'Animation paused'}
@@ -117,7 +117,7 @@ export function BatonView({ theme, baton }: BatonViewProps) {
 									className="font-bold tracking-widest text-lg"
 									style={{ color: theme.colors.textMain }}
 								>
-									MAESTRO
+									OPENWIZARDAI
 								</span>
 							</div>
 						</div>

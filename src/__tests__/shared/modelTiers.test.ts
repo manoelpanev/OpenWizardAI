@@ -30,7 +30,7 @@ describe('tier vocabulary', () => {
 });
 
 describe('effort ladders', () => {
-	it('maps Maestro levels to ladder POSITIONS, not to same-named strings', () => {
+	it('maps OpenWizardAI levels to ladder POSITIONS, not to same-named strings', () => {
 		// Claude's ladder is low, medium, high, xhigh, max. "high" means the
 		// ceiling of that ladder, so it resolves to `max`, and "medium" means the
 		// middle rung, which is Claude's `high`. Identity mapping here would mean

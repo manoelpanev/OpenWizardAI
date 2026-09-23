@@ -1,7 +1,7 @@
 /**
  * IPC handlers for core prompts
  *
- * Provides full CRUD for the Maestro Prompts UI tab.
+ * Provides full CRUD for the OpenWizardAI Prompts UI tab.
  * Changes are saved to customizations file AND applied immediately in memory.
  */
 

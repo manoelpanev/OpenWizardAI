@@ -223,7 +223,9 @@ describe('HistoryManager', () => {
 		it('should set up paths based on app.getPath("userData")', async () => {
 			expect(app.getPath).toHaveBeenCalledWith('userData');
 			expect(manager.getHistoryDir()).toBe(path.join('/mock/userData', 'history'));
-			expect(manager.getLegacyFilePath()).toBe(path.join('/mock/userData', 'maestro-history.json'));
+			expect(manager.getLegacyFilePath()).toBe(
+				path.join('/mock/userData', 'openwizardai-history.json')
+			);
 		});
 	});
 
@@ -265,7 +267,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return false;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(JSON.stringify({ entries: legacyEntries }));
@@ -312,7 +314,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return true;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(
@@ -328,7 +330,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return true;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(JSON.stringify({ entries: [] }));
@@ -354,7 +356,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return true;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue('not-json{{{');
@@ -394,7 +396,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return false;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(JSON.stringify({ entries: [entry1, entry2, entry3] }));
@@ -431,7 +433,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return false;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(JSON.stringify({ entries }));
@@ -458,7 +460,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return false;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(JSON.stringify({ entries: [goodEntry, orphanedEntry] }));
@@ -494,7 +496,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return false;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			mockReadFileSync.mockReturnValue(JSON.stringify({ entries }));
@@ -512,7 +514,7 @@ describe('HistoryManager', () => {
 				const s = p.toString();
 				if (s.endsWith('history')) return false;
 				if (s.endsWith('history-migrated.json')) return false;
-				if (s.endsWith('maestro-history.json')) return true;
+				if (s.endsWith('openwizardai-history.json')) return true;
 				return false;
 			});
 			// First call (needsMigration) succeeds; second call (migrateFromLegacy) throws
@@ -635,7 +637,7 @@ describe('HistoryManager', () => {
 			expect(result).toEqual([]);
 		});
 
-		it('does not report corrupt/truncated history JSON to Sentry (MAESTRO-QA)', async () => {
+		it('does not report corrupt/truncated history JSON to Sentry (OPENWIZARDAI-QA)', async () => {
 			const filePath = path.join(
 				'/mock/userData',
 				'history',
@@ -1536,12 +1538,12 @@ describe('HistoryManager', () => {
 			expect(callback).not.toHaveBeenCalled();
 		});
 
-		// MAESTRO-SC: fs.watch throws EMFILE (fd ceiling) / ENOSPC (Linux inotify
+		// OPENWIZARDAI-SC: fs.watch throws EMFILE (fd ceiling) / ENOSPC (Linux inotify
 		// max_user_watches) on constrained machines. Watching only powers live
 		// refresh on external edits and the manager already degrades cleanly, so
-		// these are environment limits, not Maestro faults.
+		// these are environment limits, not OpenWizardAI faults.
 		it.each(['EMFILE', 'ENOSPC', 'ENFILE', 'ENOENT', 'EPERM', 'UNKNOWN'])(
-			'does not report %s from fs.watch to Sentry (MAESTRO-SC)',
+			'does not report %s from fs.watch to Sentry (OPENWIZARDAI-SC)',
 			(code) => {
 				mockExistsSync.mockReturnValue(true);
 				mockWatch.mockImplementation(() => {
@@ -1573,7 +1575,7 @@ describe('HistoryManager', () => {
 		});
 
 		it.each(['EMFILE', 'ENOSPC'])(
-			'does not report a %s watcher error event to Sentry (MAESTRO-SC)',
+			'does not report a %s watcher error event to Sentry (OPENWIZARDAI-SC)',
 			(code) => {
 				let errorHandler: (err: unknown) => void = () => {};
 				const mockWatcher = {
@@ -1596,7 +1598,7 @@ describe('HistoryManager', () => {
 		// has to be under the same guard. Outside the try it propagates to the
 		// caller in main/index.ts and reports as a history init failure instead.
 		it.each(['EMFILE', 'ENOSPC', 'ENFILE', 'ENOENT', 'EPERM', 'UNKNOWN'])(
-			'does not report %s from the directory creation to Sentry (MAESTRO-SC)',
+			'does not report %s from the directory creation to Sentry (OPENWIZARDAI-SC)',
 			(code) => {
 				mockExistsSync.mockReturnValue(false);
 				mockMkdirSync.mockImplementation(() => {

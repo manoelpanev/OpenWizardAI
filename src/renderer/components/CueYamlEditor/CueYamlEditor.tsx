@@ -1,5 +1,5 @@
 /**
- * CueYamlEditor - Modal for editing .maestro/cue.yaml configuration.
+ * CueYamlEditor - Modal for editing .openwizardai/cue.yaml configuration.
  *
  * Thin shell: load/save, validation, modal coordination.
  * Sub-components handle YAML editing, AI chat, and pattern browsing.
@@ -254,7 +254,7 @@ export function CueYamlEditor({
 	if (!isOpen) return null;
 
 	const isDirty = yamlContent !== originalContent;
-	const modalTitle = `Edit .maestro/cue.yaml${session?.name ? ` - ${session.name}` : ''}`;
+	const modalTitle = `Edit .openwizardai/cue.yaml${session?.name ? ` - ${session.name}` : ''}`;
 
 	// Custom header with nav buttons when opened directly (not from CueModal)
 	const directNavHeader = openedDirectly ? (

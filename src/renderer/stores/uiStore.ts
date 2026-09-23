@@ -278,7 +278,7 @@ function patchOutputSearchSlot(
  * back into this store on startup by `loadAllSettings` in settingsStore.
  */
 function persistBookmarksCollapsed(value: boolean): void {
-	window.maestro?.settings?.set('bookmarksCollapsed', value);
+	window.openwizardai?.settings?.set('bookmarksCollapsed', value);
 }
 
 /**
@@ -287,7 +287,7 @@ function persistBookmarksCollapsed(value: boolean): void {
  * `loadAllSettings` in settingsStore.
  */
 function persistHiddenQuotaAccounts(value: Record<string, string[]>): void {
-	window.maestro?.settings?.set('hiddenQuotaAccounts', value);
+	window.openwizardai?.settings?.set('hiddenQuotaAccounts', value);
 }
 
 /**
@@ -296,7 +296,7 @@ function persistHiddenQuotaAccounts(value: Record<string, string[]>): void {
  * Hydrated back into this store on startup by `loadAllSettings` in settingsStore.
  */
 function persistUsageRefreshIntervals(value: Record<string, number>): void {
-	window.maestro?.settings?.set('usageRefreshIntervals', value);
+	window.openwizardai?.settings?.set('usageRefreshIntervals', value);
 }
 
 export const useUIStore = create<UIStore>()((set) => ({

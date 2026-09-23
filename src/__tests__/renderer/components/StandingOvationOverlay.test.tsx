@@ -18,11 +18,11 @@ vi.mock('canvas-confetti', () => ({
 	default: (...args: unknown[]) => mockConfetti(...args),
 }));
 
-// Mock AnimatedMaestro component
-vi.mock('../../../renderer/components/MaestroSilhouette', () => ({
-	AnimatedMaestro: ({ variant, size }: { variant: string; size: number }) => (
-		<div data-testid="animated-maestro" data-variant={variant} data-size={size}>
-			OpenWizzard
+// Mock AnimatedOpenWizardAI component
+vi.mock('../../../renderer/components/OpenWizardAISilhouette', () => ({
+	AnimatedOpenWizardAI: ({ variant, size }: { variant: string; size: number }) => (
+		<div data-testid="animated-openwizardai" data-variant={variant} data-size={size}>
+			OpenWizardAI
 		</div>
 	),
 }));
@@ -61,11 +61,11 @@ vi.mock('../../../renderer/constants/conductorBadges', () => ({
 	},
 }));
 
-// Mock window.maestro.shell.openExternal
+// Mock window.openwizardai.shell.openExternal
 const mockOpenExternal = vi.fn();
-Object.defineProperty(window, 'maestro', {
+Object.defineProperty(window, 'openwizardai', {
 	value: {
-		...window.maestro,
+		...window.openwizardai,
 		shell: {
 			openExternal: mockOpenExternal,
 		},
@@ -249,7 +249,7 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			expect(screen.getByText('Example OpenWizzard')).toBeInTheDocument();
+			expect(screen.getByText('Example OpenWizardAI')).toBeInTheDocument();
 			expect(screen.getByText(badge.exampleConductor.name)).toBeInTheDocument();
 			expect(screen.getByText(badge.exampleConductor.era)).toBeInTheDocument();
 			expect(screen.getByText(badge.exampleConductor.achievement)).toBeInTheDocument();
@@ -327,7 +327,7 @@ describe('StandingOvationOverlay', () => {
 	});
 
 	describe('Theme Mode Handling', () => {
-		it('uses light maestro variant in dark mode', () => {
+		it('uses light openwizardai variant in dark mode', () => {
 			render(
 				<StandingOvationOverlay
 					theme={createTheme('dark')}
@@ -338,11 +338,11 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			const maestro = screen.getByTestId('animated-maestro');
-			expect(maestro).toHaveAttribute('data-variant', 'light');
+			const openwizardai = screen.getByTestId('animated-openwizardai');
+			expect(openwizardai).toHaveAttribute('data-variant', 'light');
 		});
 
-		it('uses dark maestro variant in light mode', () => {
+		it('uses dark openwizardai variant in light mode', () => {
 			render(
 				<StandingOvationOverlay
 					theme={createTheme('light')}
@@ -353,11 +353,11 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			const maestro = screen.getByTestId('animated-maestro');
-			expect(maestro).toHaveAttribute('data-variant', 'dark');
+			const openwizardai = screen.getByTestId('animated-openwizardai');
+			expect(openwizardai).toHaveAttribute('data-variant', 'dark');
 		});
 
-		it('renders maestro with correct size', () => {
+		it('renders openwizardai with correct size', () => {
 			render(
 				<StandingOvationOverlay
 					theme={createTheme()}
@@ -368,8 +368,8 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			const maestro = screen.getByTestId('animated-maestro');
-			expect(maestro).toHaveAttribute('data-size', '160');
+			const openwizardai = screen.getByTestId('animated-openwizardai');
+			expect(openwizardai).toHaveAttribute('data-size', '160');
 		});
 	});
 
@@ -1023,7 +1023,7 @@ describe('StandingOvationOverlay', () => {
 
 		it('handles unicode in badge name', () => {
 			const badge = createBadge();
-			badge.name = 'OpenWizzard 🎼 Level';
+			badge.name = 'OpenWizardAI 🎼 Level';
 
 			render(
 				<StandingOvationOverlay
@@ -1035,7 +1035,7 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			expect(screen.getByText('OpenWizzard 🎼 Level')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI 🎼 Level')).toBeInTheDocument();
 		});
 
 		it('handles vibe theme mode', () => {
@@ -1049,9 +1049,9 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			// Vibe is not dark, so should use dark maestro variant
-			const maestro = screen.getByTestId('animated-maestro');
-			expect(maestro).toHaveAttribute('data-variant', 'dark');
+			// Vibe is not dark, so should use dark openwizardai variant
+			const openwizardai = screen.getByTestId('animated-openwizardai');
+			expect(openwizardai).toHaveAttribute('data-variant', 'dark');
 		});
 	});
 

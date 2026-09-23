@@ -7,7 +7,7 @@ const mockSearch = vi.fn();
 beforeEach(() => {
 	vi.clearAllMocks();
 	vi.useFakeTimers();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		agentSessions: { search: mockSearch },
 	};
 	mockSearch.mockResolvedValue([

@@ -9,7 +9,7 @@
 // images are relocated into the content-addressed store
 // (`<userData>/session-images/<sha>.<ext>`, see
 // src/main/storage/session-image-store.ts) and the transcript keeps a
-// `maestro-image://store/...` reference, so the sessions file the CLI already
+// `openwizardai-image://store/...` reference, so the sessions file the CLI already
 // reads is enough. That also means these work with the desktop closed. The one
 // cost is the renderer's 2s persistence debounce: an image pasted and asked
 // about in the same instant may not be on disk yet, which is what the
@@ -54,7 +54,7 @@ export interface ImageSaveOptions {
 interface CollectedImage {
 	/** 1-based position in the newest-first list; what `image save <n>` takes. */
 	index: number;
-	/** `maestro-image://store/<sha>.<ext>`, or a data URL not yet relocated. */
+	/** `openwizardai-image://store/<sha>.<ext>`, or a data URL not yet relocated. */
 	ref: string;
 	agentId: string;
 	agentName: string;
@@ -261,7 +261,7 @@ function selectImages(
 		const picked = images[Number(token) - 1];
 		if (!picked) {
 			emitError(
-				`No image at index ${token} (${images.length} available). Run "maestro-cli image list".`,
+				`No image at index ${token} (${images.length} available). Run "openwizardai-cli image list".`,
 				'IMAGE_NOT_FOUND',
 				options.json
 			);
@@ -275,7 +275,7 @@ function selectImages(
 	const unique = matches.filter((image, i) => matches.findIndex((m) => m.ref === image.ref) === i);
 	if (unique.length === 0) {
 		emitError(
-			`No image matching '${token}'. Run "maestro-cli image list" for handles.`,
+			`No image matching '${token}'. Run "openwizardai-cli image list" for handles.`,
 			'IMAGE_NOT_FOUND',
 			options.json
 		);

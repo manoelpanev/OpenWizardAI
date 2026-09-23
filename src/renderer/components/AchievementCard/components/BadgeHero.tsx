@@ -1,6 +1,6 @@
 import type { Theme } from '../../../types';
 import type { ConductorBadge } from '../../../constants/conductorBadges';
-import { MaestroSilhouette } from '../../MaestroSilhouette';
+import { OpenWizardAISilhouette } from '../../OpenWizardAISilhouette';
 import { GOLD_COLOR } from '../utils/badgeStyles';
 import { BadgeProgressRing } from './BadgeProgressRing';
 
@@ -27,7 +27,7 @@ export function BadgeHero({ currentBadge, currentLevel, theme }: BadgeHeroProps)
 						border: `2px solid ${currentLevel > 0 ? GOLD_COLOR : theme.colors.border}`,
 					}}
 				>
-					<MaestroSilhouette
+					<OpenWizardAISilhouette
 						variant="light"
 						size={36}
 						style={{ opacity: currentLevel > 0 ? 1 : 0.3 }}

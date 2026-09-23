@@ -66,7 +66,7 @@ describe('usePipelineLayout', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 		vi.clearAllMocks();
-		(window as any).maestro = {
+		(window as any).openwizardai = {
 			cue: {
 				savePipelineLayout: vi.fn().mockResolvedValue(undefined),
 				loadPipelineLayout: vi.fn().mockResolvedValue(null),
@@ -100,14 +100,14 @@ describe('usePipelineLayout', () => {
 		});
 
 		// Not called immediately
-		expect((window as any).maestro.cue.savePipelineLayout).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.cue.savePipelineLayout).not.toHaveBeenCalled();
 
 		act(() => {
 			vi.advanceTimersByTime(500);
 		});
 
-		expect((window as any).maestro.cue.savePipelineLayout).toHaveBeenCalledTimes(1);
-		expect((window as any).maestro.cue.savePipelineLayout).toHaveBeenCalledWith(
+		expect((window as any).openwizardai.cue.savePipelineLayout).toHaveBeenCalledTimes(1);
+		expect((window as any).openwizardai.cue.savePipelineLayout).toHaveBeenCalledWith(
 			expect.objectContaining({
 				pipelines: [makePipeline('p1')],
 				selectedPipelineId: 'p1',
@@ -129,19 +129,19 @@ describe('usePipelineLayout', () => {
 		});
 
 		// Not yet - still inside the 500ms debounce window.
-		expect((window as any).maestro.cue.savePipelineLayout).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.cue.savePipelineLayout).not.toHaveBeenCalled();
 
 		unmount();
 
 		// Unmount flushed the pending write synchronously.
-		expect((window as any).maestro.cue.savePipelineLayout).toHaveBeenCalledTimes(1);
+		expect((window as any).openwizardai.cue.savePipelineLayout).toHaveBeenCalledTimes(1);
 
 		act(() => {
 			vi.advanceTimersByTime(500);
 		});
 
 		// Timer was cleared - no second call after the debounce window elapses.
-		expect((window as any).maestro.cue.savePipelineLayout).toHaveBeenCalledTimes(1);
+		expect((window as any).openwizardai.cue.savePipelineLayout).toHaveBeenCalledTimes(1);
 	});
 
 	it('restores layout from saved state using graphSessionsToPipelines and mergePipelinesWithSavedLayout', async () => {
@@ -152,7 +152,7 @@ describe('usePipelineLayout', () => {
 			pipelines: [makePipeline('p1-saved')],
 			selectedPipelineId: 'p1-saved',
 		};
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 		const setPipelineState = vi.fn();
 		const params = createDefaultParams({ setPipelineState });
@@ -181,7 +181,7 @@ describe('usePipelineLayout', () => {
 			selectedPipelineId: 'p1',
 			viewport: { x: 100, y: 200, zoom: 1.5 },
 		};
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 		const setViewport = vi.fn();
 		const params = createDefaultParams({
@@ -216,7 +216,7 @@ describe('usePipelineLayout', () => {
 			selectedPipelineId: 'p1',
 			// no `viewport` key
 		};
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 		const params = createDefaultParams();
 		const { result } = renderHook(() => usePipelineLayout(params));
@@ -231,7 +231,7 @@ describe('usePipelineLayout', () => {
 	it('leaves pendingSavedViewportRef null when there is no saved layout at all', async () => {
 		const livePipelines = [makePipeline('p1')];
 		mockGraphSessionsToPipelines.mockReturnValue(livePipelines as any);
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 
 		const params = createDefaultParams();
 		const { result } = renderHook(() => usePipelineLayout(params));
@@ -246,7 +246,7 @@ describe('usePipelineLayout', () => {
 	it('uses first pipeline when no saved layout exists', async () => {
 		const livePipelines = [makePipeline('p1'), makePipeline('p2')];
 		mockGraphSessionsToPipelines.mockReturnValue(livePipelines as any);
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 
 		const setPipelineState = vi.fn();
 		const params = createDefaultParams({ setPipelineState });
@@ -266,7 +266,7 @@ describe('usePipelineLayout', () => {
 	it('only restores layout once across re-renders', async () => {
 		const livePipelines = [makePipeline('p1')];
 		mockGraphSessionsToPipelines.mockReturnValue(livePipelines as any);
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 
 		const setPipelineState = vi.fn();
 		const params = createDefaultParams({ setPipelineState });
@@ -329,7 +329,7 @@ describe('usePipelineLayout', () => {
 	it('calls setIsDirty(false) after layout restore', async () => {
 		const livePipelines = [makePipeline('p1')];
 		mockGraphSessionsToPipelines.mockReturnValue(livePipelines as any);
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 
 		const setIsDirty = vi.fn();
 		const params = createDefaultParams({ setIsDirty });
@@ -351,7 +351,7 @@ describe('usePipelineLayout', () => {
 			pipelines: [makePipeline('p1-saved')],
 			selectedPipelineId: 'p1-saved',
 		};
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 		const savedStateRef = { current: '' };
 		const params = createDefaultParams({ savedStateRef });
@@ -370,7 +370,7 @@ describe('usePipelineLayout', () => {
 	it('sets savedStateRef to JSON of live pipelines when no saved layout exists', async () => {
 		const livePipelines = [makePipeline('p1')];
 		mockGraphSessionsToPipelines.mockReturnValue(livePipelines as any);
-		(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+		(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 
 		const savedStateRef = { current: '' };
 		const params = createDefaultParams({ savedStateRef });
@@ -408,7 +408,7 @@ describe('usePipelineLayout', () => {
 		});
 
 		expect(getViewport).toHaveBeenCalled();
-		expect((window as any).maestro.cue.savePipelineLayout).toHaveBeenCalledWith(
+		expect((window as any).openwizardai.cue.savePipelineLayout).toHaveBeenCalledWith(
 			expect.objectContaining({
 				viewport: { x: 42, y: 84, zoom: 2 },
 			})
@@ -441,7 +441,7 @@ describe('usePipelineLayout', () => {
 				vi.advanceTimersByTime(500);
 			});
 
-			const saveCall = (window as any).maestro.cue.savePipelineLayout.mock.calls[0][0];
+			const saveCall = (window as any).openwizardai.cue.savePipelineLayout.mock.calls[0][0];
 			// Stale selection must NOT reach disk - would set up the next
 			// reload to blank the canvas via pickProjectViewState.
 			expect(saveCall.selectedPipelineId).toBeNull();
@@ -472,7 +472,7 @@ describe('usePipelineLayout', () => {
 			act(() => {
 				vi.advanceTimersByTime(500);
 			});
-			const saveCall = (window as any).maestro.cue.savePipelineLayout.mock.calls[0][0];
+			const saveCall = (window as any).openwizardai.cue.savePipelineLayout.mock.calls[0][0];
 			expect(saveCall.selectedPipelineId).toBe('pipeline-B');
 		});
 
@@ -490,7 +490,7 @@ describe('usePipelineLayout', () => {
 			act(() => {
 				vi.advanceTimersByTime(500);
 			});
-			const saveCall = (window as any).maestro.cue.savePipelineLayout.mock.calls[0][0];
+			const saveCall = (window as any).openwizardai.cue.savePipelineLayout.mock.calls[0][0];
 			expect(saveCall.selectedPipelineId).toBeNull();
 		});
 
@@ -519,7 +519,7 @@ describe('usePipelineLayout', () => {
 					},
 				},
 			};
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 			const setPipelineState = vi.fn();
 			const params = createDefaultParams({
@@ -568,7 +568,7 @@ describe('usePipelineLayout', () => {
 					},
 				},
 			};
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 			const setPipelineState = vi.fn();
 			const params = createDefaultParams({
@@ -611,7 +611,7 @@ describe('usePipelineLayout', () => {
 					},
 				},
 			};
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(savedLayout);
 
 			const setPipelineState = vi.fn();
 			const params = createDefaultParams({
@@ -655,7 +655,7 @@ describe('usePipelineLayout', () => {
 		it('flips to true after a successful restore', async () => {
 			const livePipelines = [makePipeline('p1')];
 			mockGraphSessionsToPipelines.mockReturnValue(livePipelines as any);
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 			const params = createDefaultParams();
 			const { result } = renderHook(() => usePipelineLayout(params));
 			await act(async () => {
@@ -666,7 +666,7 @@ describe('usePipelineLayout', () => {
 
 		it('flips to true even when graphSessions yields no live pipelines', async () => {
 			mockGraphSessionsToPipelines.mockReturnValue([]);
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue(null);
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue(null);
 			const params = createDefaultParams();
 			const { result } = renderHook(() => usePipelineLayout(params));
 			await act(async () => {
@@ -708,7 +708,7 @@ describe('usePipelineLayout', () => {
 			const stale = makeDeferred<unknown>();
 			const fresh = makeDeferred<unknown>();
 			let callCount = 0;
-			(window as any).maestro.cue.loadPipelineLayout = vi.fn().mockImplementation(() => {
+			(window as any).openwizardai.cue.loadPipelineLayout = vi.fn().mockImplementation(() => {
 				callCount += 1;
 				if (callCount === 1) return Promise.resolve(null); // writtenRoots reseed
 				if (callCount === 2) return stale.promise; // first pipeline-restore (stale)
@@ -905,7 +905,7 @@ describe('usePipelineLayout', () => {
 			mockMergePipelinesWithSavedLayout.mockImplementation(
 				(live: any) => ({ pipelines: live, selectedPipelineId: 'p1' }) as any
 			);
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue({
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue({
 				pipelines: [overlappingPipeline('p1')],
 				selectedPipelineId: 'p1',
 			});
@@ -941,7 +941,7 @@ describe('usePipelineLayout', () => {
 			mockMergePipelinesWithSavedLayout.mockImplementation(
 				(live: any) => ({ pipelines: live, selectedPipelineId: 'p1' }) as any
 			);
-			(window as any).maestro.cue.loadPipelineLayout.mockResolvedValue({
+			(window as any).openwizardai.cue.loadPipelineLayout.mockResolvedValue({
 				pipelines: [overlappingPipeline('p1')],
 				selectedPipelineId: 'p1',
 				viewport: { x: 100, y: 200, zoom: 1.5 },

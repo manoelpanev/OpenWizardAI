@@ -47,7 +47,7 @@ describe('the preview marker', () => {
 		expect(isParquetPreviewMarker('id,name\n1,a')).toBe(false);
 		expect(isParquetPreviewMarker(null)).toBe(false);
 		expect(isParquetPreviewMarker(undefined)).toBe(false);
-		expect(isParquetPreviewMarker('maestro-media://stream/abc/00')).toBe(false);
-		expect(parseParquetPreviewMarker('maestro-parquet://preview/zz')).toBeNull();
+		expect(isParquetPreviewMarker('openwizardai-media://stream/abc/00')).toBe(false);
+		expect(parseParquetPreviewMarker('openwizardai-parquet://preview/zz')).toBeNull();
 	});
 });

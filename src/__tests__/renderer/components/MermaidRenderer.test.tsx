@@ -73,9 +73,9 @@ describe('MermaidRenderer', () => {
 
 	describe('@ in a label (mermaid edge-id lexer rule)', () => {
 		// Mermaid lexes `[^\\s"]+@` as an edge id and jison takes the longest
-		// match, so `-->|@maestro ...|` fails to parse. The renderer escapes `@`
+		// match, so `-->|@openwizardai ...|` fails to parse. The renderer escapes `@`
 		// to `#64;` first; mermaid decodes it back when it draws the label.
-		const chart = 'flowchart LR\n  C -->|@maestro from user| E[send]';
+		const chart = 'flowchart LR\n  C -->|@openwizardai from user| E[send]';
 
 		it('escapes @ before parsing and rendering', async () => {
 			renderMock.mockResolvedValue({
@@ -89,8 +89,8 @@ describe('MermaidRenderer', () => {
 			await waitFor(() => {
 				expect(container.querySelector('.mermaid-container svg')).not.toBeNull();
 			});
-			expect(parseSpy.mock.calls[0][0]).toContain('|#64;maestro from user|');
-			expect(renderMock.mock.calls[0][1]).toContain('|#64;maestro from user|');
+			expect(parseSpy.mock.calls[0][0]).toContain('|#64;openwizardai from user|');
+			expect(renderMock.mock.calls[0][1]).toContain('|#64;openwizardai from user|');
 		});
 
 		it('shows the author their own source when a diagram still fails', async () => {
@@ -104,7 +104,7 @@ describe('MermaidRenderer', () => {
 			await waitFor(() => {
 				expect(container.textContent).toContain('Failed to render Mermaid diagram');
 			});
-			expect(container.textContent).toContain('|@maestro from user|');
+			expect(container.textContent).toContain('|@openwizardai from user|');
 			expect(container.textContent).not.toContain('#64;');
 		});
 	});

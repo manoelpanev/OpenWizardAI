@@ -60,7 +60,7 @@ describe('buildGraphData scope mode', () => {
 	beforeEach(() => {
 		clearGraphDataCache();
 		vi.stubGlobal('window', {
-			maestro: {
+			openwizardai: {
 				fs: {
 					readDir: vi.fn().mockImplementation(mockReadDir),
 					readFile: vi.fn().mockImplementation(mockReadFile),

@@ -76,7 +76,7 @@ function createMockSession(overrides: Partial<Session> = {}): Session {
 		isLive: true,
 		liveUrl: 'http://localhost:3000',
 		isGitRepo: true,
-		autoRunFolderPath: '/projects/myapp/.maestro-autorun',
+		autoRunFolderPath: '/projects/myapp/.openwizardai-autorun',
 		fileTreeAutoRefreshInterval: 180,
 		activeTimeMs: 5000,
 		unifiedTabOrder: [{ type: 'ai' as const, id: 'tab-1' }],
@@ -119,17 +119,17 @@ beforeEach(() => {
 	} as any);
 
 	// Setup IPC mocks
-	if (!(window as any).maestro) {
-		(window as any).maestro = {};
+	if (!(window as any).openwizardai) {
+		(window as any).openwizardai = {};
 	}
-	(window as any).maestro.sessions = {
+	(window as any).openwizardai.sessions = {
 		getAll: mockGetAll,
 		getActiveSessionId: vi.fn().mockResolvedValue(''),
 		setActiveSessionId: vi.fn(),
 	};
-	(window as any).maestro.groups = { getAll: mockGroupsGetAll };
-	(window as any).maestro.groupChat = { list: mockGroupChatList };
-	(window as any).maestro.agents = {
+	(window as any).openwizardai.groups = { getAll: mockGroupsGetAll };
+	(window as any).openwizardai.groupChat = { list: mockGroupChatList };
+	(window as any).openwizardai.agents = {
 		get: mockAgentsGet.mockResolvedValue({ id: 'claude-code', name: 'Claude Code' }),
 	};
 
@@ -171,7 +171,7 @@ describe('restoreSession — Migration logic', () => {
 			restored = await result.current.restoreSession(session);
 		});
 
-		expect(restored!.autoRunFolderPath).toBe('/projects/myapp/.maestro/playbooks');
+		expect(restored!.autoRunFolderPath).toBe('/projects/myapp/.openwizardai/playbooks');
 	});
 
 	it('sets fileTreeAutoRefreshInterval to 180 when missing', async () => {
@@ -289,7 +289,7 @@ describe('restoreSession — Migration logic', () => {
 
 		expect(restored!.browserTabs[0].url).toBe('about:blank');
 		expect(restored!.browserTabs[0].title).toBe('New Tab');
-		expect(restored!.browserTabs[0].partition).toContain('persist:maestro-browser-session-');
+		expect(restored!.browserTabs[0].partition).toContain('persist:openwizardai-browser-session-');
 		expect(restored!.browserTabs[0].isLoading).toBe(false);
 	});
 
@@ -301,7 +301,7 @@ describe('restoreSession — Migration logic', () => {
 					url: 'https://example.com/docs',
 					title: 'Example Docs',
 					createdAt: 1,
-					partition: 'persist:maestro-browser-session-session-1',
+					partition: 'persist:openwizardai-browser-session-session-1',
 					canGoBack: true,
 					canGoForward: true,
 					isLoading: true,
@@ -321,7 +321,9 @@ describe('restoreSession — Migration logic', () => {
 			restored = await result.current.restoreSession(session);
 		});
 
-		expect(restored!.browserTabs[0].partition).toBe('persist:maestro-browser-session-session-1');
+		expect(restored!.browserTabs[0].partition).toBe(
+			'persist:openwizardai-browser-session-session-1'
+		);
 		expect(restored!.browserTabs[0].webContentsId).toBeUndefined();
 		expect(restored!.activeBrowserTabId).toBe('browser-1');
 		expect(restored!.unifiedTabOrder).toEqual([
@@ -358,7 +360,7 @@ describe('restoreSession — Migration logic', () => {
 		expect(restored!.browserTabs[0]).toMatchObject({
 			url: 'http://localhost:5173/',
 			title: 'localhost:5173',
-			partition: 'persist:maestro-browser-session-session-1',
+			partition: 'persist:openwizardai-browser-session-session-1',
 			canGoBack: false,
 			canGoForward: false,
 			isLoading: false,
@@ -621,7 +623,7 @@ describe('restoreSession — Corruption recovery', () => {
 					id: 'media-tab',
 					path: '/files/podcast.mp3',
 					name: 'podcast.mp3',
-					content: 'maestro-media://stream/tok3n/2f66696c65732f612e6d7033',
+					content: 'openwizardai-media://stream/tok3n/2f66696c65732f612e6d7033',
 					scrollTop: 0,
 					searchQuery: '',
 					editMode: false,
@@ -1367,7 +1369,7 @@ describe('Session & Group loading effect', () => {
 		const session2 = createMockSession({ id: 'sess-2' });
 		mockGetAll.mockResolvedValueOnce([session1, session2]);
 		// Mock the persisted active session ID to be the second session
-		(window as any).maestro.sessions.getActiveSessionId = vi.fn().mockResolvedValue('sess-2');
+		(window as any).openwizardai.sessions.getActiveSessionId = vi.fn().mockResolvedValue('sess-2');
 
 		renderHook(() => useSessionRestoration());
 
@@ -1377,7 +1379,7 @@ describe('Session & Group loading effect', () => {
 
 		expect(useSessionStore.getState().activeSessionId).toBe('sess-2');
 		// Reset mock
-		(window as any).maestro.sessions.getActiveSessionId = vi.fn().mockResolvedValue('');
+		(window as any).openwizardai.sessions.getActiveSessionId = vi.fn().mockResolvedValue('');
 	});
 
 	it('keeps activeSessionId when it matches a loaded session', async () => {

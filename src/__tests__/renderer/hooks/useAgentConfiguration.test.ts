@@ -11,7 +11,7 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { useAgentConfiguration } from '../../../renderer/hooks/agent/useAgentConfiguration';
 import type { AgentConfig } from '../../../renderer/types';
 
-// Mock window.maestro
+// Mock window.openwizardai
 const mockDetect = vi.fn();
 const mockGetConfig = vi.fn();
 const mockSetConfig = vi.fn();
@@ -19,7 +19,7 @@ const mockGetModels = vi.fn();
 const mockRefresh = vi.fn();
 const mockGetSshConfigs = vi.fn();
 
-(window as any).maestro = {
+(window as any).openwizardai = {
 	agents: {
 		detect: mockDetect,
 		getConfig: mockGetConfig,

@@ -21,7 +21,6 @@ import {
 	Download,
 } from 'lucide-react';
 import { openUrl } from '../utils/openUrl';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 import type { Theme, GroupChat, GroupChatMessage, GroupChatHistoryEntry } from '../types';
 import { MODAL_PRIORITIES } from '../constants/modalPriorities';
 import { Modal } from './ui/Modal';
@@ -124,7 +123,7 @@ export function GroupChatInfoOverlay({
 	useEffect(() => {
 		if (!isOpen) return;
 		let cancelled = false;
-		window.maestro.groupChat
+		window.openwizardai.groupChat
 			.getHistory(groupChat.id)
 			.then((entries) => {
 				if (!cancelled) setHistory(entries);
@@ -144,7 +143,7 @@ export function GroupChatInfoOverlay({
 	const openInFinder = useCallback(() => {
 		// Get the parent directory (remove /images from path)
 		const chatDir = groupChat.imagesDir.replace(/\/images\/?$/, '');
-		window.maestro.shell.openPath(chatDir);
+		window.openwizardai.shell.openPath(chatDir);
 	}, [groupChat.imagesDir]);
 
 	const handleExport = useCallback(async () => {
@@ -154,7 +153,7 @@ export function GroupChatInfoOverlay({
 			// Fetch history entries
 			let history: GroupChatHistoryEntry[] = [];
 			try {
-				history = await window.maestro.groupChat.getHistory(groupChat.id);
+				history = await window.openwizardai.groupChat.getHistory(groupChat.id);
 			} catch (error) {
 				logger.warn('Failed to fetch history for export:', undefined, error);
 			}
@@ -404,7 +403,9 @@ export function GroupChatInfoOverlay({
 						{isExporting ? 'Exporting...' : 'Export HTML'}
 					</button>
 					<button
-						onClick={() => openUrl(buildMaestroUrl('https://docs.runmaestro.ai/group-chat'))}
+						onClick={() =>
+							openUrl('https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/group-chat.md')
+						}
 						className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm hover:bg-white/5 transition-colors border"
 						style={{
 							borderColor: theme.colors.border,

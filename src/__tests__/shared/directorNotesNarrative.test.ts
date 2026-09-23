@@ -415,14 +415,14 @@ describe('parseDirectorNotesNarrative', () => {
 						title: 'Challenges',
 						items: [
 							{ text: 'Build pipeline broke', severity: 'critical', agent: 'rc' },
-							{ text: 'Routine cleanup', agent: 'Maestro' },
+							{ text: 'Routine cleanup', agent: 'OpenWizardAI' },
 						],
 					},
 				],
 			});
 			expect(md).toContain('### rc');
 			expect(md).toContain('- **Build pipeline broke**');
-			expect(md).toContain('### Maestro');
+			expect(md).toContain('### OpenWizardAI');
 			expect(md).toContain('- Routine cleanup');
 			// Under an agent heading the attribution would only repeat the heading.
 			expect(md).not.toContain('_(rc)_');
@@ -458,7 +458,7 @@ describe('parseDirectorNotesNarrative', () => {
 							title: 'Challenges',
 							items: [
 								{ text: 'Build pipeline broke', agent: 'rc' },
-								{ text: 'Routine cleanup', agent: 'Maestro' },
+								{ text: 'Routine cleanup', agent: 'OpenWizardAI' },
 								{ text: 'Voice models stalled', agent: 'acappella' },
 							],
 						},
@@ -466,16 +466,16 @@ describe('parseDirectorNotesNarrative', () => {
 				},
 				{
 					groupLookup: buildNarrativeGroupLookup([
-						{ agent: 'rc', group: 'Maestro Core', emoji: '🎬' },
-						{ agent: 'Maestro', group: 'Maestro Core', emoji: '🎬' },
+						{ agent: 'rc', group: 'OpenWizardAI Core', emoji: '🎬' },
+						{ agent: 'OpenWizardAI', group: 'OpenWizardAI Core', emoji: '🎬' },
 					]),
 				}
 			);
 			// Two grouped agents collapse into one bucket; the ungrouped one keeps
 			// its own, and inside a group the pill still names the member.
-			expect(md).toContain('### 🎬 Maestro Core');
+			expect(md).toContain('### 🎬 OpenWizardAI Core');
 			expect(md).toContain('- Build pipeline broke _(rc)_');
-			expect(md).toContain('- Routine cleanup _(Maestro)_');
+			expect(md).toContain('- Routine cleanup _(OpenWizardAI)_');
 			expect(md).toContain('### acappella');
 			expect(md).toContain('- Voice models stalled');
 			expect(md).not.toContain('_(acappella)_');
@@ -517,7 +517,7 @@ describe('parseDirectorNotesNarrative', () => {
 					{
 						kind: 'accomplishments',
 						title: 'Accomplishments',
-						items: [{ text: 'Did the thing', severity: 'info', agent: 'Maestro' }],
+						items: [{ text: 'Did the thing', severity: 'info', agent: 'OpenWizardAI' }],
 					},
 				],
 			});
@@ -550,7 +550,7 @@ describe('recoverDirectorNotesNarrative', () => {
 				title: 'Accomplishments',
 				items: [
 					{ text: 'Shipped the tab-tiling restore', severity: 'info', agent: 'rc' },
-					{ text: 'Fixed the platform detection bug', severity: 'info', agent: 'Maestro' },
+					{ text: 'Fixed the platform detection bug', severity: 'info', agent: 'OpenWizardAI' },
 				],
 			},
 			{

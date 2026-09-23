@@ -30,7 +30,7 @@ vi.mock('../../../renderer/services/wizardIntentParser', () => ({
 vi.mock('../../../renderer/utils/existingDocsDetector', () => ({
 	hasExistingAutoRunDocs: vi.fn(),
 	getExistingAutoRunDocs: vi.fn(),
-	getAutoRunFolderPath: vi.fn((projectPath: string) => `${projectPath}/.maestro/playbooks`),
+	getAutoRunFolderPath: vi.fn((projectPath: string) => `${projectPath}/.openwizardai/playbooks`),
 }));
 
 // Mock inlineWizardConversation service
@@ -60,8 +60,8 @@ vi.mock('../../../renderer/services/inlineWizardDocumentGeneration', () => ({
 	extractDisplayTextFromChunk: vi.fn((chunk) => chunk),
 }));
 
-// Mock window.maestro
-Object.defineProperty(window, 'maestro', {
+// Mock window.openwizardai
+Object.defineProperty(window, 'openwizardai', {
 	value: {
 		agents: {
 			get: vi.fn().mockResolvedValue({
@@ -142,7 +142,7 @@ describe('useInlineWizard - Session Overrides', () => {
 			success: true,
 			files: ['doc1.md'],
 		});
-		window.maestro.autorun.listDocs = mockListDocs;
+		window.openwizardai.autorun.listDocs = mockListDocs;
 		mockParseWizardIntent.mockReturnValue({ mode: 'ask' });
 
 		const overrides = {

@@ -41,7 +41,7 @@ vi.mock('../../../main/cue/cue-file-watcher', () => ({
 // would always see zero candidates in tests and the gate would silently no-op.
 vi.mock('../../../main/cue/config/cue-config-repository', () => ({
 	resolveCueConfigPath: (projectRoot: string) =>
-		mockLoadCueConfig(projectRoot) ? `${projectRoot}/.maestro/cue.yaml` : null,
+		mockLoadCueConfig(projectRoot) ? `${projectRoot}/.openwizardai/cue.yaml` : null,
 }));
 
 // Mock cue-db to prevent real SQLite (better-sqlite3 native addon) operations

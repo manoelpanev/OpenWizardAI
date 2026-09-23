@@ -39,7 +39,7 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ## src/bmm/workflows/2-plan-workflows/bmad-create-ux-design/steps/step-01-init.md
 

@@ -1,7 +1,7 @@
 /**
  * ParquetViewer - the file preview surface for `.parquet` files.
  *
- * Parquet is the first previewable format Maestro handles that is genuinely
+ * Parquet is the first previewable format OpenWizardAI handles that is genuinely
  * too big to read, so this viewer is a thin client over a query engine rather
  * than a renderer over file content. The main process holds the open file (see
  * src/main/parquet/), and this component asks it for a schema once and then
@@ -142,7 +142,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 		// not missed. Effects run in declaration order, and a listener attached
 		// after `open()` starts would drop however many chunks landed first.
 		useEffect(() => {
-			return window.maestro.parquet.onFetchProgress((progress) => {
+			return window.openwizardai.parquet.onFetchProgress((progress) => {
 				// Ignore other tabs' copies: every viewer in this window hears
 				// every event, and a second open would otherwise drive this
 				// tab's bar with someone else's byte counts.
@@ -159,7 +159,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 			setResult(null);
 			setFetchProgress(null);
 
-			window.maestro.parquet
+			window.openwizardai.parquet
 				.open(filePath, sshRemoteId)
 				.then((opened) => {
 					if (!cancelled) setInfo(opened);
@@ -185,7 +185,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 		useEffect(() => {
 			if (!handle) return;
 			return () => {
-				void window.maestro.parquet.close(handle);
+				void window.openwizardai.parquet.close(handle);
 			};
 		}, [handle]);
 
@@ -198,7 +198,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 				loadingRef.current = true;
 				setBusy(true);
 				try {
-					const page = await window.maestro.parquet.query({
+					const page = await window.openwizardai.parquet.query({
 						handle,
 						filter: appliedFilter,
 						columns: projection,
@@ -274,7 +274,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 						await new Promise((resolve) => window.setTimeout(resolve, 120));
 						continue;
 					}
-					const counted = await window.maestro.parquet.query({
+					const counted = await window.openwizardai.parquet.query({
 						handle,
 						filter: appliedFilter,
 						columns: [],
@@ -325,7 +325,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 		const handleExport = useCallback(async () => {
 			if (!handle || !info) return;
 			const base = fileName.replace(/\.(parquet|parq|pq)$/i, '');
-			const destination = await window.maestro.dialog.saveFile({
+			const destination = await window.openwizardai.dialog.saveFile({
 				title: 'Export matching rows',
 				defaultPath: `${base}${appliedFilter ? '-filtered' : ''}.csv`,
 				filters: [
@@ -335,7 +335,7 @@ export const ParquetViewer = forwardRef<ParquetViewerHandle, ParquetViewerProps>
 			});
 			if (!destination) return;
 			try {
-				const exported = await window.maestro.parquet.export({
+				const exported = await window.openwizardai.parquet.export({
 					handle,
 					filter: appliedFilter,
 					columns: projection,

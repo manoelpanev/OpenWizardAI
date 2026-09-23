@@ -1,7 +1,7 @@
 /**
  * Cue IPC Handlers
  *
- * Provides IPC handlers for the Maestro Cue event-driven automation system:
+ * Provides IPC handlers for the OpenWizardAI Cue event-driven automation system:
  * - Engine runtime controls (enable/disable, stop runs)
  * - Status and activity log queries
  * - YAML configuration management (read, write, validate)
@@ -22,7 +22,7 @@ import {
 	readCueConfigFile,
 	readCuePromptFile,
 	pruneOrphanedPromptFiles,
-	removeEmptyMaestroDir,
+	removeEmptyOpenWizardAIDir,
 	removeEmptyPromptsDir,
 	writeCueConfigFile,
 	writeCuePromptFile,
@@ -115,7 +115,7 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 	);
 
 	// Persist global Cue settings to every known cue.yaml on disk + refresh
-	// engine in-memory state. Used by Settings → Encore Features → Maestro Cue.
+	// engine in-memory state. Used by Settings → Encore Features → OpenWizardAI Cue.
 	ipcMain.handle(
 		'cue:saveSettings',
 		withIpcErrorLogging(
@@ -315,7 +315,7 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 	// The clock-driven slice of Cue (time.once / time.scheduled / time.heartbeat),
 	// surfaced by the Cue modal's Scheduled Tasks tab. Filesystem work and
 	// validation live in `cue-scheduled-tasks.ts`, shared byte-for-byte with
-	// `maestro-cli cue schedule` so both surfaces write identical YAML.
+	// `openwizardai-cli cue schedule` so both surfaces write identical YAML.
 
 	ipcMain.handle(
 		'cue:listScheduledTasks',
@@ -367,7 +367,7 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 		)
 	);
 
-	// Read raw YAML content from a session's cue config (checks .maestro/cue.yaml then legacy)
+	// Read raw YAML content from a session's cue config (checks .openwizardai/cue.yaml then legacy)
 	ipcMain.handle(
 		'cue:readYaml',
 		withIpcErrorLogging(
@@ -379,7 +379,7 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 		)
 	);
 
-	// Write YAML content to .maestro/cue.yaml (canonical path, creates .maestro/ if needed)
+	// Write YAML content to .openwizardai/cue.yaml (canonical path, creates .openwizardai/ if needed)
 	// Optionally writes external prompt files alongside the YAML.
 	ipcMain.handle(
 		'cue:writeYaml',
@@ -415,7 +415,7 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 				let promptsChanged = false;
 				const keepPaths = new Set<string>();
 				if (options.promptFiles) {
-					const promptsBase = path.resolve(options.projectRoot, '.maestro/prompts');
+					const promptsBase = path.resolve(options.projectRoot, '.openwizardai/prompts');
 					for (const [relativePath, content] of Object.entries(options.promptFiles)) {
 						// Reject obviously malformed keys before path.resolve - empty
 						// strings would resolve to the project root itself, and
@@ -448,12 +448,12 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 							);
 						}
 						const target = path.resolve(options.projectRoot, normalizedKey);
-						// Must resolve strictly INSIDE .maestro/prompts/. The earlier
+						// Must resolve strictly INSIDE .openwizardai/prompts/. The earlier
 						// check allowed `target === promptsBase` which would attempt
 						// to write to the directory path itself.
 						if (!target.startsWith(promptsBase + path.sep)) {
 							throw new Error(
-								`cue:writeYaml: promptFiles key "${relativePath}" resolves outside the .maestro/prompts directory`
+								`cue:writeYaml: promptFiles key "${relativePath}" resolves outside the .openwizardai/prompts directory`
 							);
 						}
 						// Must be a .md file. pruneOrphanedPromptFiles only deletes
@@ -571,7 +571,7 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 				if (parseSucceeded) {
 					prunedCount = pruneOrphanedPromptFiles(options.projectRoot, keepPaths).length;
 					// If the user saved an empty pipeline state (no prompts left)
-					// collapse `.maestro/prompts/` too so the on-disk footprint
+					// collapse `.openwizardai/prompts/` too so the on-disk footprint
 					// matches the empty UI. Non-empty dirs are left alone.
 					if (keepPaths.size === 0) {
 						removeEmptyPromptsDir(options.projectRoot);
@@ -587,10 +587,10 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 	);
 
 	// Delete a session's cue.yaml config file. Also prunes every `.md` file
-	// under `.maestro/prompts/` (keep-set is empty since there are no
+	// under `.openwizardai/prompts/` (keep-set is empty since there are no
 	// subscriptions left to reference any prompt) and removes the prompts
 	// directory if it ends up empty. Without this, "Remove Cue configuration"
-	// left orphaned prompt files behind and the `.maestro` footprint never
+	// left orphaned prompt files behind and the `.openwizardai` footprint never
 	// shrank.
 	ipcMain.handle(
 		'cue:deleteYaml',
@@ -603,8 +603,8 @@ export function registerCueHandlers(deps: CueHandlerDependencies): void {
 				// invokes this, we still want orphaned prompts cleaned up.
 				pruneOrphanedPromptFiles(options.projectRoot, []);
 				removeEmptyPromptsDir(options.projectRoot);
-				// Collapse .maestro/ itself if nothing else lives there.
-				removeEmptyMaestroDir(options.projectRoot);
+				// Collapse .openwizardai/ itself if nothing else lives there.
+				removeEmptyOpenWizardAIDir(options.projectRoot);
 				return deleted;
 			}
 		)

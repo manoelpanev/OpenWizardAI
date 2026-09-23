@@ -31,7 +31,7 @@ export function AgentSelectionHeader({
 	return (
 		<div className="flex flex-col items-center gap-4">
 			<h3 className="text-2xl font-semibold" style={{ color: theme.colors.textMain }}>
-				Create an OpenWizzard Agent
+				Create an OpenWizardAI Agent
 			</h3>
 
 			<div className="flex items-center gap-3">

@@ -46,7 +46,7 @@ vi.mock('../../../../main/utils/terminalFilter', () => ({
 vi.mock('../../../../main/process-manager/utils/envBuilder', () => ({
 	buildPtyTerminalEnv: vi.fn(() => ({ TERM: 'xterm-256color' })),
 	buildChildProcessEnv: vi.fn(() => ({ PATH: '/usr/bin' })),
-	collectMaestroEnvVars: vi.fn(() => ({})),
+	collectOpenWizardAIEnvVars: vi.fn(() => ({})),
 }));
 
 vi.mock('../../../../shared/platformDetection', () => ({

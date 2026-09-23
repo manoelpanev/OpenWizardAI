@@ -1,5 +1,5 @@
 /**
- * Maestro Web Remote Control
+ * OpenWizardAI Web Remote Control
  *
  * Lightweight interface for controlling sessions from mobile/tablet devices.
  * Focused on quick command input and session monitoring.
@@ -375,7 +375,7 @@ function MobileHeader({
 			) : (
 				<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 					<span style={{ fontSize: '14px', fontWeight: 600, color: colors.textMain }}>
-						OpenWizzard
+						OpenWizardAI
 					</span>
 				</div>
 			)}
@@ -430,8 +430,8 @@ function MobileHeader({
 				<button
 					onClick={onCueTap}
 					style={headerIconButton(colors, hasRunningCue)}
-					aria-label="OpenWizzard Cue"
-					title="OpenWizzard Cue"
+					aria-label="OpenWizardAI Cue"
+					title="OpenWizardAI Cue"
 				>
 					<svg
 						width="14"
@@ -1110,7 +1110,7 @@ export default function MobileApp() {
 		defaultWidth: 240,
 		minWidth: 200,
 		maxWidth: 400,
-		storageKey: 'maestro-web-left-panel-width',
+		storageKey: 'openwizardai-web-left-panel-width',
 	});
 
 	const rightPanelResize = useResizableWebPanel({
@@ -1118,7 +1118,7 @@ export default function MobileApp() {
 		defaultWidth: 320,
 		minWidth: 260,
 		maxWidth: 500,
-		storageKey: 'maestro-web-right-panel-width',
+		storageKey: 'openwizardai-web-right-panel-width',
 	});
 
 	// UI state (not part of session management)
@@ -1136,7 +1136,7 @@ export default function MobileApp() {
 	const [autoRunSelectedDoc, setAutoRunSelectedDoc] = useState<string | null>(null);
 	// Server-driven folder picker - mobile/web parity for desktop's
 	// `dialog.selectFolder` flow that repoints a session at a different
-	// `.maestro/` folder. The picker uses `get_file_tree` to navigate and sends
+	// `.openwizardai/` folder. The picker uses `get_file_tree` to navigate and sends
 	// `set_auto_run_folder` on confirm; the server bridges to the renderer's
 	// `handleAutoRunFolderSelected`-equivalent listener for state + persistence.
 	const [showFolderPicker, setShowFolderPicker] = useState(false);
@@ -1322,7 +1322,7 @@ export default function MobileApp() {
 
 			const notification = showNotification(title, {
 				body: firstLine,
-				tag: `maestro-response-${session.id}`, // Prevent duplicate notifications for same session
+				tag: `openwizardai-response-${session.id}`, // Prevent duplicate notifications for same session
 				silent: false,
 				requireInteraction: false, // Auto-dismiss on mobile
 			} as NotificationOptions);
@@ -1480,8 +1480,8 @@ export default function MobileApp() {
 				setActiveSessionId(detail.sessionId);
 			}
 		};
-		window.addEventListener('maestro-notification-click', handler);
-		return () => window.removeEventListener('maestro-notification-click', handler);
+		window.addEventListener('openwizardai-notification-click', handler);
+		return () => window.removeEventListener('openwizardai-notification-click', handler);
 	}, [setActiveSessionId]);
 
 	// Auto Run hook for panel operations
@@ -1588,7 +1588,7 @@ export default function MobileApp() {
 	}, []);
 
 	// Persists the chosen folder via `set_auto_run_folder`. The server bridges to
-	// the renderer's `maestro:setAutoRunFolder` listener which lists docs from
+	// the renderer's `openwizardai:setAutoRunFolder` listener which lists docs from
 	// the new path and updates the session atomically. After confirmation the
 	// inline panel re-loads via the normal `useAutoRun` document refresh.
 	const handleAutoRunFolderConfirm = useCallback(
@@ -1687,7 +1687,7 @@ export default function MobileApp() {
 	// Connect on mount - use empty dependency array to only connect once
 	// The connect function is stable via useRef pattern in useWebSocket
 	// On mobile browsers, ensure the document is fully loaded before connecting
-	// to avoid race conditions with __MAESTRO_CONFIG__ injection
+	// to avoid race conditions with __OPENWIZARDAI_CONFIG__ injection
 	useEffect(() => {
 		let timeoutId: number | null = null;
 		let cancelled = false;
@@ -1702,7 +1702,7 @@ export default function MobileApp() {
 		const attemptConnect = () => {
 			if (cancelled) return;
 			// Verify config is available before connecting
-			if (window.__MAESTRO_CONFIG__) {
+			if (window.__OPENWIZARDAI_CONFIG__) {
 				connect();
 			} else {
 				// Config not ready, retry after a short delay
@@ -2741,7 +2741,7 @@ export default function MobileApp() {
 		// --- Cue Automation ---
 		acts.push({
 			id: 'cue-dashboard',
-			label: 'OpenWizzard Cue',
+			label: 'OpenWizardAI Cue',
 			category: 'Cue',
 			icon: (
 				<svg
@@ -2987,7 +2987,7 @@ export default function MobileApp() {
 						You're Offline
 					</h2>
 					<p style={{ fontSize: '14px', color: colors.textDim, marginBottom: '12px' }}>
-						No internet connection. OpenWizzard requires a network connection to communicate with
+						No internet connection. OpenWizardAI requires a network connection to communicate with
 						your desktop app.
 					</p>
 					<p style={{ fontSize: '12px', color: colors.textDim }}>
@@ -3013,7 +3013,7 @@ export default function MobileApp() {
 						Connection Lost
 					</h2>
 					<p style={{ fontSize: '14px', color: colors.textDim, marginBottom: '12px' }}>
-						{error || 'Unable to connect to OpenWizzard desktop app.'}
+						{error || 'Unable to connect to OpenWizardAI desktop app.'}
 					</p>
 					<p style={{ fontSize: '12px', color: colors.textDim, marginBottom: '12px' }}>
 						Reconnecting in {reconnectCountdown}s...
@@ -3051,7 +3051,7 @@ export default function MobileApp() {
 					}}
 				>
 					<h2 style={{ fontSize: '16px', marginBottom: '8px', color: colors.textMain }}>
-						Connecting to OpenWizzard...
+						Connecting to OpenWizardAI...
 					</h2>
 					<p style={{ fontSize: '14px', color: colors.textDim }}>
 						Please wait while we establish a connection to your desktop app.
@@ -3552,7 +3552,7 @@ export default function MobileApp() {
 						{renderContent()}
 						{connectionState !== 'connected' && connectionState !== 'authenticated' && (
 							<p style={{ fontSize: '12px', color: colors.textDim }}>
-								Make sure OpenWizzard desktop app is running
+								Make sure OpenWizardAI desktop app is running
 							</p>
 						)}
 					</div>

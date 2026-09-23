@@ -712,7 +712,7 @@ describe('PowerManager', () => {
 	});
 
 	/**
-	 * Regression coverage for the fault where Maestro held a display-sleep
+	 * Regression coverage for the fault where OpenWizardAI held a display-sleep
 	 * assertion for its whole uptime. On macOS that assertion is the signal the
 	 * OS uses to decide a user is present, so holding one indefinitely made the
 	 * Duet Activity Scheduler refuse every discretionary maintenance job -

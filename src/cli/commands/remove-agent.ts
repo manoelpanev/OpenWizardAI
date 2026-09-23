@@ -1,6 +1,6 @@
-// Remove agent command - delete an agent from the Maestro desktop app
+// Remove agent command - delete an agent from the OpenWizardAI desktop app
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 import { formatError, formatSuccess } from '../output/formatter';
 
@@ -24,7 +24,7 @@ export async function removeAgent(agentId: string, options: RemoveAgentOptions):
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

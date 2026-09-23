@@ -165,8 +165,8 @@ export function generateGroupChatExportHtml(
 	// Build HTML document with theme colors
 	const colors = theme.colors;
 
-	// Maestro app icon as base64 PNG (72x72)
-	const maestroIconBase64 =
+	// OpenWizardAI app icon as base64 PNG (72x72)
+	const openwizardaiIconBase64 =
 		'data:image/png;base64,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';
 
 	return `<!DOCTYPE html>
@@ -174,7 +174,7 @@ export function generateGroupChatExportHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(groupChat.name)} - OpenWizzard Group Chat Export</title>
+  <title>${escapeHtml(groupChat.name)} - OpenWizardAI Group Chat Export</title>
   <style>
     :root {
       --bg-primary: ${colors.bgMain};
@@ -671,22 +671,22 @@ export function generateGroupChatExportHtml(
 </head>
 <body>
   <div class="container">
-    <!-- Maestro Branding -->
+    <!-- OpenWizardAI Branding -->
     <div class="branding">
       <div class="branding-logo">
-        <img src="${maestroIconBase64}" alt="OpenWizzard" />
+        <img src="${openwizardaiIconBase64}" alt="OpenWizardAI" />
       </div>
       <div class="branding-text">
         <div class="branding-title">
-          OpenWizzard
+          OpenWizardAI
         </div>
         <div class="branding-tagline">Multi-agent orchestration for AI coding assistants</div>
         <div class="branding-links">
-          <a href="https://runmaestro.ai" target="_blank" class="branding-link">
+          <a href="https://github.com/manoelpanev/OpenWizardAI" target="_blank" class="branding-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            runmaestro.ai
+            github.com/manoelpanev/OpenWizardAI
           </a>
-          <a href="https://github.com/RunMaestro/Maestro" target="_blank" class="branding-link">
+          <a href="https://github.com/manoelpanev/OpenWizardAI" target="_blank" class="branding-link">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
             GitHub
           </a>
@@ -759,7 +759,7 @@ export function generateGroupChatExportHtml(
     </section>
 
     <footer class="footer">
-      <p>Exported from <a href="https://runmaestro.ai" target="_blank">OpenWizzard</a> on ${formatTimestamp(Date.now())}</p>
+      <p>Exported from <a href="https://github.com/manoelpanev/OpenWizardAI" target="_blank">OpenWizardAI</a> on ${formatTimestamp(Date.now())}</p>
       <p class="footer-theme">Theme: ${escapeHtml(theme.name)}</p>
     </footer>
   </div>
@@ -779,7 +779,7 @@ export async function downloadGroupChatExport(
 	// Fetch images from the main process
 	let images: Record<string, string> = {};
 	try {
-		images = await window.maestro.groupChat.getImages(groupChat.id);
+		images = await window.openwizardai.groupChat.getImages(groupChat.id);
 	} catch (error) {
 		logger.warn('Failed to fetch images for export:', undefined, error);
 	}

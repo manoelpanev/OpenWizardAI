@@ -39,20 +39,24 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:listDocs', async () => {
 				mockInvoke.mockResolvedValue(['doc1.md', 'doc2.md']);
 
-				const result = await api.listDocs('/project/.maestro');
+				const result = await api.listDocs('/project/.openwizardai');
 
-				expect(mockInvoke).toHaveBeenCalledWith('autorun:listDocs', '/project/.maestro', undefined);
+				expect(mockInvoke).toHaveBeenCalledWith(
+					'autorun:listDocs',
+					'/project/.openwizardai',
+					undefined
+				);
 				expect(result).toEqual(['doc1.md', 'doc2.md']);
 			});
 
 			it('should invoke with sshRemoteId', async () => {
 				mockInvoke.mockResolvedValue([]);
 
-				await api.listDocs('/project/.maestro', 'ssh-remote-1');
+				await api.listDocs('/project/.openwizardai', 'ssh-remote-1');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:listDocs',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'ssh-remote-1'
 				);
 			});
@@ -73,11 +77,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:readDoc', async () => {
 				mockInvoke.mockResolvedValue('# Document Content');
 
-				const result = await api.readDoc('/project/.maestro', 'tasks.md');
+				const result = await api.readDoc('/project/.openwizardai', 'tasks.md');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:readDoc',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'tasks.md',
 					undefined
 				);
@@ -89,11 +93,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:writeDoc', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.writeDoc('/project/.maestro', 'tasks.md', '# New Content');
+				await api.writeDoc('/project/.openwizardai', 'tasks.md', '# New Content');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:writeDoc',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'tasks.md',
 					'# New Content',
 					undefined
@@ -105,11 +109,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:saveImage', async () => {
 				mockInvoke.mockResolvedValue({ path: 'image.png' });
 
-				await api.saveImage('/project/.maestro', 'doc1', 'base64data', 'png');
+				await api.saveImage('/project/.openwizardai', 'doc1', 'base64data', 'png');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:saveImage',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'doc1',
 					'base64data',
 					'png',
@@ -122,11 +126,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:deleteImage', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.deleteImage('/project/.maestro', 'images/image.png');
+				await api.deleteImage('/project/.openwizardai', 'images/image.png');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:deleteImage',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'images/image.png',
 					undefined
 				);
@@ -137,11 +141,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:listImages', async () => {
 				mockInvoke.mockResolvedValue(['image1.png', 'image2.jpg']);
 
-				const result = await api.listImages('/project/.maestro', 'doc1');
+				const result = await api.listImages('/project/.openwizardai', 'doc1');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:listImages',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'doc1',
 					undefined
 				);
@@ -163,11 +167,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:watchFolder', async () => {
 				mockInvoke.mockResolvedValue({});
 
-				await api.watchFolder('/project/.maestro');
+				await api.watchFolder('/project/.openwizardai');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:watchFolder',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					undefined
 				);
 			});
@@ -178,7 +182,7 @@ describe('Autorun Preload API', () => {
 					message: 'File watching not available for remote',
 				});
 
-				const result = await api.watchFolder('/project/.maestro', 'ssh-remote-1');
+				const result = await api.watchFolder('/project/.openwizardai', 'ssh-remote-1');
 
 				expect(result.isRemote).toBe(true);
 			});
@@ -188,9 +192,9 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:unwatchFolder', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.unwatchFolder('/project/.maestro');
+				await api.unwatchFolder('/project/.openwizardai');
 
-				expect(mockInvoke).toHaveBeenCalledWith('autorun:unwatchFolder', '/project/.maestro');
+				expect(mockInvoke).toHaveBeenCalledWith('autorun:unwatchFolder', '/project/.openwizardai');
 			});
 		});
 
@@ -227,11 +231,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:createBackup', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.createBackup('/project/.maestro', 'tasks.md');
+				await api.createBackup('/project/.openwizardai', 'tasks.md');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:createBackup',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'tasks.md',
 					undefined
 				);
@@ -242,11 +246,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:restoreBackup', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.restoreBackup('/project/.maestro', 'tasks.md');
+				await api.restoreBackup('/project/.openwizardai', 'tasks.md');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:restoreBackup',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'tasks.md',
 					undefined
 				);
@@ -257,11 +261,11 @@ describe('Autorun Preload API', () => {
 			it('should invoke autorun:deleteBackups', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.deleteBackups('/project/.maestro');
+				await api.deleteBackups('/project/.openwizardai');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:deleteBackups',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					undefined
 				);
 			});
@@ -270,15 +274,15 @@ describe('Autorun Preload API', () => {
 		describe('createWorkingCopy', () => {
 			it('should invoke autorun:createWorkingCopy', async () => {
 				mockInvoke.mockResolvedValue({
-					workingCopyPath: '/project/.maestro/tasks.loop-1.md',
-					originalPath: '/project/.maestro/tasks.md',
+					workingCopyPath: '/project/.openwizardai/tasks.loop-1.md',
+					originalPath: '/project/.openwizardai/tasks.md',
 				});
 
-				const result = await api.createWorkingCopy('/project/.maestro', 'tasks.md', 1);
+				const result = await api.createWorkingCopy('/project/.openwizardai', 'tasks.md', 1);
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'autorun:createWorkingCopy',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'tasks.md',
 					1,
 					undefined
@@ -357,13 +361,13 @@ describe('Autorun Preload API', () => {
 			it('should invoke playbooks:export', async () => {
 				mockInvoke.mockResolvedValue({ success: true, path: '/export/playbook.zip' });
 
-				await api.export('session-123', 'pb-1', '/project/.maestro');
+				await api.export('session-123', 'pb-1', '/project/.openwizardai');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'playbooks:export',
 					'session-123',
 					'pb-1',
-					'/project/.maestro'
+					'/project/.openwizardai'
 				);
 			});
 		});
@@ -372,12 +376,12 @@ describe('Autorun Preload API', () => {
 			it('should invoke playbooks:import', async () => {
 				mockInvoke.mockResolvedValue({ success: true, playbookId: 'pb-imported' });
 
-				await api.import('session-123', '/project/.maestro');
+				await api.import('session-123', '/project/.openwizardai');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'playbooks:import',
 					'session-123',
-					'/project/.maestro'
+					'/project/.openwizardai'
 				);
 			});
 		});
@@ -442,13 +446,13 @@ describe('Autorun Preload API', () => {
 			it('should invoke marketplace:importPlaybook', async () => {
 				mockInvoke.mockResolvedValue({ success: true });
 
-				await api.importPlaybook('mp-1', 'my-playbook', '/project/.maestro', 'session-123');
+				await api.importPlaybook('mp-1', 'my-playbook', '/project/.openwizardai', 'session-123');
 
 				expect(mockInvoke).toHaveBeenCalledWith(
 					'marketplace:importPlaybook',
 					'mp-1',
 					'my-playbook',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'session-123',
 					undefined
 				);
@@ -460,7 +464,7 @@ describe('Autorun Preload API', () => {
 				await api.importPlaybook(
 					'mp-1',
 					'my-playbook',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'session-123',
 					'ssh-remote-1'
 				);
@@ -469,7 +473,7 @@ describe('Autorun Preload API', () => {
 					'marketplace:importPlaybook',
 					'mp-1',
 					'my-playbook',
-					'/project/.maestro',
+					'/project/.openwizardai',
 					'session-123',
 					'ssh-remote-1'
 				);

@@ -5,7 +5,7 @@ export interface TabBarProps {
 	tabs: AITab[];
 	activeTabId: string;
 	theme: Theme;
-	/** The Maestro session/agent ID that owns these tabs */
+	/** The OpenWizardAI session/agent ID that owns these tabs */
 	sessionId?: string;
 	/** Session-level agentSessionId fallback for tab title display (used until tab.agentSessionId is wired up) */
 	sessionAgentSessionId?: string | null;

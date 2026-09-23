@@ -1,5 +1,5 @@
 /**
- * Vite configuration for Maestro Web Interface
+ * Vite configuration for OpenWizardAI Web Interface
  *
  * This config builds the web interface (both mobile and desktop)
  * as a standalone bundle that can be served by the Fastify server.
@@ -165,7 +165,7 @@ export default defineConfig(({ mode }) => ({
 	server: {
 		port: process.env.VITE_WEB_PORT ? parseInt(process.env.VITE_WEB_PORT) : 5174, // Different from renderer dev server (5173)
 		strictPort: true,
-		// Proxy API calls to the running Maestro app during development
+		// Proxy API calls to the running OpenWizardAI app during development
 		proxy: {
 			'/api': {
 				target: 'http://localhost:45678',

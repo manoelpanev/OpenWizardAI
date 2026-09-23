@@ -6,7 +6,7 @@ import type { ChildProcess, SpawnOptionsWithoutStdio } from 'child_process';
 const { mockPtySpawn, mockChildSpawn, mockGetBridgeSocketPath } = vi.hoisted(() => ({
 	mockPtySpawn: vi.fn(),
 	mockChildSpawn: vi.fn(),
-	mockGetBridgeSocketPath: vi.fn(() => '/tmp/maestro-test-coworking.sock'),
+	mockGetBridgeSocketPath: vi.fn(() => '/tmp/openwizardai-test-coworking.sock'),
 }));
 
 vi.mock('node-pty', () => ({
@@ -108,7 +108,7 @@ function spawnTerminal(pm: ProcessManager, cwd: string, sessionId = `term-${cwd}
 describe('ProcessManager cwd tilde expansion', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mockGetBridgeSocketPath.mockReturnValue('/tmp/maestro-test-coworking.sock');
+		mockGetBridgeSocketPath.mockReturnValue('/tmp/openwizardai-test-coworking.sock');
 		mockPtySpawn.mockReturnValue(makeFakePty());
 		mockChildSpawn.mockReturnValue(new FakeChildProcess() as unknown as ChildProcess);
 	});
@@ -138,7 +138,7 @@ describe('ProcessManager cwd tilde expansion', () => {
 
 	it('passes an absolute cwd through unchanged for PTY processes', () => {
 		const pm = new ProcessManager();
-		const cwd = '/var/tmp/maestro-project';
+		const cwd = '/var/tmp/openwizardai-project';
 
 		spawnTerminal(pm, cwd, 'pty-absolute');
 

@@ -50,7 +50,7 @@ const makeNamed = (overrides: Record<string, unknown> = {}) => ({
 });
 
 const mockNamedSessions = (rows: Array<Record<string, unknown>>) => {
-	vi.mocked(window.maestro.agentSessions.getAllNamedSessions).mockResolvedValue(rows as never);
+	vi.mocked(window.openwizardai.agentSessions.getAllNamedSessions).mockResolvedValue(rows as never);
 };
 
 // ============================================================================
@@ -91,7 +91,7 @@ describe('useStarredItems', () => {
 
 		// Disabled section never loads disk sessions and never emits open rows.
 		expect(result.current.starredItems).toEqual([]);
-		expect(window.maestro.agentSessions.getAllNamedSessions).not.toHaveBeenCalled();
+		expect(window.openwizardai.agentSessions.getAllNamedSessions).not.toHaveBeenCalled();
 	});
 
 	it('emits a row for each open starred AI tab', () => {

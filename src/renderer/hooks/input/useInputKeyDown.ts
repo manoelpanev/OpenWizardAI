@@ -37,7 +37,7 @@ import { useEventListener } from '../utils/useEventListener';
  * reimplementing the decision. Exported here, next to its only listener, so the
  * two ends of the bridge stay in one place.
  */
-export const FORCED_PARALLEL_SEND_EVENT = 'maestro:forcedParallelSend';
+export const FORCED_PARALLEL_SEND_EVENT = 'openwizardai:forcedParallelSend';
 
 // ============================================================================
 // Dependencies interface
@@ -155,7 +155,7 @@ export function useInputKeyDown(deps: InputKeyDownDeps): InputKeyDownReturn {
 		// Force Send button. With text in the draft, send the draft in parallel.
 		if (getInputValue().trim().length === 0) {
 			logger.info('[ForcedParallel] Empty input, dispatching triggerForceSendQueued');
-			window.dispatchEvent(new CustomEvent('maestro:triggerForceSendQueued'));
+			window.dispatchEvent(new CustomEvent('openwizardai:triggerForceSendQueued'));
 			return;
 		}
 		logger.info('[ForcedParallel] Draft present, calling processInput');

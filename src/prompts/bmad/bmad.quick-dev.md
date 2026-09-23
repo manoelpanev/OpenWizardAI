@@ -41,7 +41,7 @@ Read fully and follow: `./steps/step-01-mode-detection.md` to begin the workflow
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ## src/bmm/workflows/bmad-quick-flow/bmad-quick-dev/steps/step-01-mode-detection.md
 

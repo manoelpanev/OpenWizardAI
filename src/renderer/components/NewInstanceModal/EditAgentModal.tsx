@@ -52,14 +52,16 @@ export function EditAgentModal({
 	const [customEnvVarsDisabled, setCustomEnvVarsDisabled] = useState<Record<string, string>>({});
 	// Tri-state, NOT coerced to a boolean: undefined = never configured (so the
 	// SSH default - TUI - applies), false = explicit API, true = explicit
-	// maestro-p. Coercing undefined->false here (or false->undefined on save)
+	// openwizardai-p. Coercing undefined->false here (or false->undefined on save)
 	// erases the distinction, and over SSH that silently reverts an explicit API
-	// choice to the TUI default (which spawns maestro-p on the remote and exits
+	// choice to the TUI default (which spawns openwizardai-p on the remote and exits
 	// 127 when it isn't installed there).
-	const [enableMaestroP, setEnableMaestroP] = useState<boolean | undefined>(undefined);
-	const [maestroPMode, setMaestroPMode] = useState<'interactive' | 'dynamic'>('dynamic');
-	const [maestroPPath, setMaestroPPath] = useState('');
-	const [detectedMaestroPPath, setDetectedMaestroPPath] = useState<string | undefined>(undefined);
+	const [enableOpenWizardAIP, setEnableOpenWizardAIP] = useState<boolean | undefined>(undefined);
+	const [openwizardaiPMode, setOpenWizardAIPMode] = useState<'interactive' | 'dynamic'>('dynamic');
+	const [openwizardaiPPath, setOpenWizardAIPPath] = useState('');
+	const [detectedOpenWizardAIPPath, setDetectedOpenWizardAIPPath] = useState<string | undefined>(
+		undefined
+	);
 	// Agent Resilience (auto-retry) toggles. Both default ON; read with `?? true`.
 	const [retryOnAvailabilityErrors, setRetryOnAvailabilityErrors] = useState(true);
 	const [retryOnTokenExhaustion, setRetryOnTokenExhaustion] = useState(true);
@@ -104,13 +106,13 @@ export function EditAgentModal({
 	// Track whether provider has been changed from the original
 	const providerChanged = session ? selectedToolType !== session.toolType : false;
 
-	// Resolve the auto-detected maestro-p path so the Batch Mode toggle can show
+	// Resolve the auto-detected openwizardai-p path so the Batch Mode toggle can show
 	// it as helper text in the path-override input.
 	useEffect(() => {
-		void window.maestro.agents
-			.getMaestroPDetectedPath()
-			.then((p) => setDetectedMaestroPPath(p ?? undefined))
-			.catch(() => setDetectedMaestroPPath(undefined));
+		void window.openwizardai.agents
+			.getOpenWizardAIPDetectedPath()
+			.then((p) => setDetectedOpenWizardAIPPath(p ?? undefined))
+			.catch(() => setDetectedOpenWizardAIPPath(undefined));
 	}, []);
 
 	// Load agent info, config, custom settings, and models when modal opens or provider changes
@@ -122,7 +124,7 @@ export function EditAgentModal({
 		const isProviderSwitch = activeToolType !== session.toolType;
 
 		// Load agent definition to get configOptions
-		window.maestro.agents
+		window.openwizardai.agents
 			.detect()
 			.then((agents: AgentConfig[]) => {
 				if (stale) return;
@@ -132,7 +134,7 @@ export function EditAgentModal({
 				// Load models if agent supports model selection
 				if (foundAgent?.capabilities?.supportsModelSelection) {
 					setLoadingModels(true);
-					window.maestro.agents
+					window.openwizardai.agents
 						.getModels(activeToolType)
 						.then((models) => {
 							if (!stale) setAvailableModels(models);
@@ -156,7 +158,10 @@ export function EditAgentModal({
 							try {
 								return {
 									key: opt.key,
-									options: await window.maestro.agents.getConfigOptions(activeToolType, opt.key),
+									options: await window.openwizardai.agents.getConfigOptions(
+										activeToolType,
+										opt.key
+									),
 								};
 							} catch {
 								return { key: opt.key, options: [] as string[] };
@@ -186,7 +191,7 @@ export function EditAgentModal({
 			});
 		// Load agent config for defaults, but use session-level overrides when available
 		// Both model and contextWindow are now per-session
-		window.maestro.agents
+		window.openwizardai.agents
 			.getConfig(activeToolType)
 			.then((globalConfig) => {
 				if (stale) return;
@@ -211,7 +216,7 @@ export function EditAgentModal({
 		// Load SSH remote config from session (per-session, not global).
 		// Always surface the `shareHistoryToProjectDir` flag even when SSH is
 		// disabled, so the checkbox can stay toggled on for locally-executed
-		// agents that are controlled by another Maestro instance over SSH.
+		// agents that are controlled by another OpenWizardAI instance over SSH.
 		const persisted = session.sessionSshRemoteConfig;
 		if (persisted?.enabled && persisted.remoteId) {
 			setSshRemoteConfig({
@@ -232,7 +237,7 @@ export function EditAgentModal({
 		}
 
 		// Load SSH remote configurations
-		window.maestro.sshRemote
+		window.openwizardai.sshRemote
 			.getConfigs()
 			.then((result) => {
 				if (stale) return;
@@ -249,9 +254,9 @@ export function EditAgentModal({
 			setCustomArgs('');
 			setCustomEnvVars({});
 			setCustomEnvVarsDisabled({});
-			setEnableMaestroP(undefined);
-			setMaestroPMode('dynamic');
-			setMaestroPPath('');
+			setEnableOpenWizardAIP(undefined);
+			setOpenWizardAIPMode('dynamic');
+			setOpenWizardAIPPath('');
 			setRetryOnAvailabilityErrors(true);
 			setRetryOnTokenExhaustion(true);
 		} else {
@@ -261,9 +266,9 @@ export function EditAgentModal({
 			setCustomEnvVarsDisabled(session.customEnvVarsDisabled ?? {});
 			// Preserve the tri-state (undefined stays undefined) so an unconfigured
 			// SSH agent keeps its "unset" signal instead of looking like explicit API.
-			setEnableMaestroP(session.enableMaestroP);
-			setMaestroPMode(session.maestroPMode ?? 'dynamic');
-			setMaestroPPath(session.maestroPPath ?? '');
+			setEnableOpenWizardAIP(session.enableOpenWizardAIP);
+			setOpenWizardAIPMode(session.openwizardaiPMode ?? 'dynamic');
+			setOpenWizardAIPPath(session.openwizardaiPPath ?? '');
 			// Both default ON; `undefined` (never configured) reads as enabled.
 			setRetryOnAvailabilityErrors(resilienceEnabled(session.retryOnAvailabilityErrors));
 			setRetryOnTokenExhaustion(resilienceEnabled(session.retryOnTokenExhaustion));
@@ -359,7 +364,7 @@ export function EditAgentModal({
 	]);
 
 	const handleSelectFolder = useCallback(async () => {
-		const folder = await window.maestro.dialog.selectFolder();
+		const folder = await window.openwizardai.dialog.selectFolder();
 		if (folder) setWorkingDir(folder);
 	}, []);
 
@@ -419,9 +424,9 @@ export function EditAgentModal({
 			sessionSshRemoteConfig,
 			// Preserve the explicit tri-state: an explicit `false` (API) must NOT
 			// collapse to `undefined`, or over SSH it reverts to the TUI default.
-			enableMaestroP,
-			enableMaestroP && maestroPPath.trim() ? maestroPPath.trim() : undefined,
-			enableMaestroP ? maestroPMode : undefined,
+			enableOpenWizardAIP,
+			enableOpenWizardAIP && openwizardaiPPath.trim() ? openwizardaiPPath.trim() : undefined,
+			enableOpenWizardAIP ? openwizardaiPMode : undefined,
 			retryOnAvailabilityErrors,
 			retryOnTokenExhaustion,
 			Object.keys(customEnvVarsDisabled).length > 0 ? customEnvVarsDisabled : undefined,
@@ -441,9 +446,9 @@ export function EditAgentModal({
 		customArgs,
 		customEnvVars,
 		customEnvVarsDisabled,
-		enableMaestroP,
-		maestroPMode,
-		maestroPPath,
+		enableOpenWizardAIP,
+		openwizardaiPMode,
+		openwizardaiPPath,
 		retryOnAvailabilityErrors,
 		retryOnTokenExhaustion,
 		agentConfig,
@@ -460,7 +465,7 @@ export function EditAgentModal({
 		if (!agent?.capabilities?.supportsModelSelection) return;
 		setLoadingModels(true);
 		try {
-			const models = await window.maestro.agents.getModels(selectedToolType, true);
+			const models = await window.openwizardai.agents.getModels(selectedToolType, true);
 			setAvailableModels(models);
 		} catch (err) {
 			logger.error('Failed to refresh models:', undefined, err);
@@ -473,7 +478,7 @@ export function EditAgentModal({
 	const handleRefreshAgent = useCallback(async () => {
 		setRefreshingAgent(true);
 		try {
-			const result = await window.maestro.agents.refresh(selectedToolType);
+			const result = await window.openwizardai.agents.refresh(selectedToolType);
 			const foundAgent = result.agents.find((a: AgentConfig) => a.id === selectedToolType);
 			setAgent(foundAgent || null);
 		} catch (error) {
@@ -770,7 +775,7 @@ export function EditAgentModal({
 									...otherConfig
 								} = updatedConfig;
 								if (Object.keys(otherConfig).length > 0) {
-									void window.maestro.agents
+									void window.openwizardai.agents
 										.setConfig(selectedToolType, otherConfig)
 										.catch((error) => {
 											logger.error(
@@ -791,17 +796,17 @@ export function EditAgentModal({
 							showBuiltInEnvVars
 							isSshEnabled={isSshEnabled}
 							sshRemoteId={sshRemoteConfig?.remoteId ?? undefined}
-							enableMaestroP={enableMaestroP}
-							onEnableMaestroPChange={setEnableMaestroP}
-							maestroPMode={maestroPMode}
-							onMaestroPModeChange={setMaestroPMode}
+							enableOpenWizardAIP={enableOpenWizardAIP}
+							onEnableOpenWizardAIPChange={setEnableOpenWizardAIP}
+							openwizardaiPMode={openwizardaiPMode}
+							onOpenWizardAIPModeChange={setOpenWizardAIPMode}
 							claudeInteractive={session?.claudeInteractive}
-							maestroPPath={maestroPPath}
-							onMaestroPPathChange={setMaestroPPath}
-							onMaestroPPathBlur={() => {
+							openwizardaiPPath={openwizardaiPPath}
+							onOpenWizardAIPPathChange={setOpenWizardAIPPath}
+							onOpenWizardAIPPathBlur={() => {
 								/* Saved on modal save */
 							}}
-							detectedMaestroPPath={detectedMaestroPPath}
+							detectedOpenWizardAIPPath={detectedOpenWizardAIPPath}
 						/>
 					</div>
 				)}
@@ -809,7 +814,7 @@ export function EditAgentModal({
 				{/* SSH Remote Execution - Top Level.
 				    Always rendered (not gated on sshRemotes.length) because the
 				    "remote-controlled" toggle inside is meaningful even when no
-				    local remotes exist - it lets an OpenWizzard SSH'd into this
+				    local remotes exist - it lets an OpenWizardAI SSH'd into this
 				    machine see mirrored history for this agent. */}
 				<SshRemoteSelector
 					theme={theme}

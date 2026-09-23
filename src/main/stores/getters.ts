@@ -9,7 +9,7 @@ import type Store from 'electron-store';
 
 import type {
 	BootstrapSettings,
-	MaestroSettings,
+	OpenWizardAISettings,
 	SessionsData,
 	GroupsData,
 	AgentConfigsData,
@@ -44,7 +44,7 @@ export function getBootstrapStore(): Store<BootstrapSettings> {
 	return bootstrapStore;
 }
 
-export function getSettingsStore(): Store<MaestroSettings> {
+export function getSettingsStore(): Store<OpenWizardAISettings> {
 	ensureInitialized();
 	return getStoreInstances().settingsStore!;
 }

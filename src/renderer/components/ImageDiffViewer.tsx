@@ -40,7 +40,7 @@ export function ImageDiffViewer({
 			// Load old image from git HEAD (unless it's a new file)
 			if (!isNewFile) {
 				try {
-					const result = await window.maestro.git.showFile(cwd, 'HEAD', oldPath);
+					const result = await window.openwizardai.git.showFile(cwd, 'HEAD', oldPath);
 					if (result.error) {
 						setOldError(result.error);
 					} else if (result.content) {
@@ -55,7 +55,7 @@ export function ImageDiffViewer({
 			if (!isDeletedFile) {
 				try {
 					const fullPath = `${cwd}/${newPath}`;
-					const content = await window.maestro.fs.readFile(fullPath, sshRemoteId);
+					const content = await window.openwizardai.fs.readFile(fullPath, sshRemoteId);
 					if (content) setNewImage(content);
 				} catch (err) {
 					setNewError(err instanceof Error ? err.message : 'Failed to load new image');

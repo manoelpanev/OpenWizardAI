@@ -48,6 +48,6 @@ export function useRestartWhenIdle(): void {
 		// if the user requested deferred restart while already idle.
 		setPending(false);
 		wasActiveRef.current = false;
-		window.maestro.updates.install();
+		window.openwizardai.updates.install();
 	}, [isActive, pending, setPending]);
 }

@@ -2,7 +2,7 @@
 
 # Main Process Lifecycle
 
-This guide documents the Electron main process lifecycle in Maestro: startup sequence, window management, store initialization, auto-updater, power management, WakaTime integration, history manager, IPC handler registration, and shutdown sequence.
+This guide documents the Electron main process lifecycle in OpenWizardAI: startup sequence, window management, store initialization, auto-updater, power management, WakaTime integration, history manager, IPC handler registration, and shutdown sequence.
 
 ## Startup Sequence
 
@@ -27,7 +27,7 @@ if (DEMO_MODE) {
 
 // Development mode: use isolated directory (unless USE_PROD_DATA=1)
 if (isDevelopment && !DEMO_MODE && !process.env.USE_PROD_DATA) {
-	app.setPath('userData', path.join(app.getPath('userData'), '..', 'maestro-dev'));
+	app.setPath('userData', path.join(app.getPath('userData'), '..', 'openwizardai-dev'));
 }
 ```
 
@@ -96,16 +96,16 @@ if (crashReportingEnabled && !isDevelopment && buildProvenance.sentryDsn) {
 ```
 
 **The DSN is not in source, and must not be put back.** It is injected at package
-time from the `MAESTRO_SENTRY_DSN` repository secret and written to
+time from the `OPENWIZARDAI_SENTRY_DSN` repository secret and written to
 `dist/build-provenance.json` by `scripts/write-build-provenance.mjs`. A build from
 source has no DSN, so Sentry is never initialized and the build reports nowhere.
 
 This exists because the DSN used to be a literal here, so every fork inherited it.
-Four separate forks were found reporting into `smash-labs/maestro` at the same time
+Four separate forks were found reporting into `smash-labs/openwizardai` at the same time
 and one produced 655 events in three hours from a retry loop in code that does not
 exist upstream, firing error-volume alerts on somebody else's bug. It also meant fork
 users' stack traces and installation IDs went to a project they never chose.
-Filtering by release was rejected: two of the four forks reuse real Maestro version
+Filtering by release was rejected: two of the four forks reuse real OpenWizardAI version
 numbers. Full rationale in `src/shared/buildProvenance.ts`.
 
 The renderer mirrors the gate with the Vite-injected `__CRASH_REPORTING_BUILD__`
@@ -114,7 +114,7 @@ process over Classic IPC, so an un-provisioned build already has nowhere to send
 them; the flag makes that explicit rather than relying on the IPC channel's absence.
 
 To report to your own Sentry project (a fork, or local debugging), set
-`MAESTRO_SENTRY_DSN` before `npm run build`. Those builds are tagged
+`OPENWIZARDAI_SENTRY_DSN` before `npm run build`. Those builds are tagged
 `build: unofficial`.
 
 Also starts memory monitoring for crash diagnostics (breadcrumbs every 60s, warns above 500MB heap).
@@ -216,7 +216,7 @@ Wires up process output streaming, group chat routing, power management, usage t
 #### 8. Application Menu
 
 - **macOS**: Custom menu to prevent native tab-switching shortcuts from intercepting keyboard events
-- **Windows/Linux**: Menu hidden entirely (Maestro uses its own UI)
+- **Windows/Linux**: Menu hidden entirely (OpenWizardAI uses its own UI)
 
 #### 9. Window Creation
 
@@ -305,12 +305,12 @@ interface BootstrapSettings {
 }
 ```
 
-#### `MaestroSettings`
+#### `OpenWizardAISettings`
 
 Main settings store with many configuration options:
 
 ```typescript
-interface MaestroSettings {
+interface OpenWizardAISettings {
 	activeThemeId: string;
 	shortcuts: Record<string, any>;
 	fontSize: number;
@@ -364,7 +364,7 @@ src/main/stores/
 
 ### External Settings Changes vs Our Own Writes
 
-`src/main/app-lifecycle/settings-watcher.ts` runs `fs.watch()` over `maestro-settings.json` and `maestro-agent-configs.json` so edits from outside the app (maestro-cli, a text editor, a sync daemon) reach the renderer as a `settings:externalChange` IPC event, which triggers `loadAllSettings()`.
+`src/main/app-lifecycle/settings-watcher.ts` runs `fs.watch()` over `openwizardai-settings.json` and `openwizardai-agent-configs.json` so edits from outside the app (openwizardai-cli, a text editor, a sync daemon) reach the renderer as a `settings:externalChange` IPC event, which triggers `loadAllSettings()`.
 
 The app's own writes fire that same watcher, and echoing them back is actively harmful: `loadAllSettings()` is several IPC round trips long, so reapplying the on-disk snapshot lands on top of whatever the user typed meanwhile. Text settings save on every keystroke (the Conductor Profile textarea is the worst case), so the reload dropped characters and snapped the caret to the end of the field.
 
@@ -393,7 +393,7 @@ autoUpdater.allowPrerelease = false; // Stable channel only
 1. `initAutoUpdater(window)` is called from window manager (production only)
 2. Event handlers are registered for `update-available`, `update-not-available`, `download-progress`, `update-downloaded`, `error`
 3. Status changes are sent to renderer via `updates:status` IPC event
-4. Renderer triggers actions via the `window.maestro.updates` API (see `src/main/preload/system.ts:createUpdatesApi`). The exposed IPC channels are:
+4. Renderer triggers actions via the `window.openwizardai.updates` API (see `src/main/preload/system.ts:createUpdatesApi`). The exposed IPC channels are:
    - `updates:check` - Trigger a manual GitHub-API version check (registered in `src/main/ipc/handlers/system.ts`)
    - `updates:download` - Start downloading the available update
    - `updates:install` - Install and restart
@@ -471,8 +471,8 @@ Defined in `src/main/wakatime-manager.ts`.
 - Sends heartbeats with:
   - Project name (derived from session working directory)
   - Language (mapped from file extension via `EXTENSION_LANGUAGE_MAP`)
-  - Editor: `Maestro`
-  - Plugin: `maestro-wakatime`
+  - Editor: `OpenWizardAI`
+  - Plugin: `openwizardai-wakatime`
 
 ### Settings
 
@@ -522,7 +522,7 @@ Each file contains a `HistoryFileData` object with version info and an array of 
 On first run after upgrade, the manager:
 
 1. Checks for `history-migrated.json` marker
-2. If not migrated, reads legacy `maestro-history.json`
+2. If not migrated, reads legacy `openwizardai-history.json`
 3. Splits entries by session ID into per-session files
 4. Writes migration marker
 

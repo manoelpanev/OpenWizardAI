@@ -1,7 +1,7 @@
 /**
  * Cue backup manager - owns creation, listing, inspection, and restore of
  * Cue config snapshots. A snapshot bundles every distinct workspace's
- * `.maestro/cue.yaml` plus its `.maestro/prompts/*.md` into a single zip
+ * `.openwizardai/cue.yaml` plus its `.openwizardai/prompts/*.md` into a single zip
  * under `userData/cue-backups/`. A `manifest.json` at the zip root records
  * the source cwd for each workspace so restore can map files back.
  */
@@ -12,7 +12,11 @@ import * as crypto from 'crypto';
 import { app } from 'electron';
 import archiver from 'archiver';
 import { readZipArchive, type ZipArchive } from '../../utils/zip-archive';
-import { CUE_CONFIG_PATH, CUE_PROMPTS_DIR, MAESTRO_DIR } from '../../../shared/maestro-paths';
+import {
+	CUE_CONFIG_PATH,
+	CUE_PROMPTS_DIR,
+	OPENWIZARDAI_DIR,
+} from '../../../shared/openwizardai-paths';
 import {
 	CUE_BACKUP_MANIFEST_VERSION,
 	cueBackupStatusKey,
@@ -105,7 +109,7 @@ function groupSessionsByWorkspace(
 }
 
 /**
- * Collect the relative paths under `.maestro/` that are eligible for backup
+ * Collect the relative paths under `.openwizardai/` that are eligible for backup
  * for a given workspace. Returns absolute file paths paired with their
  * in-zip relative paths.
  */
@@ -121,7 +125,7 @@ function collectWorkspaceFiles(
 			out.push({
 				absolutePath: cuePath,
 				// Always normalize to canonical name inside the zip even if the
-				// live file is the legacy `maestro-cue.yaml` - restore will use
+				// live file is the legacy `openwizardai-cue.yaml` - restore will use
 				// the canonical path.
 				relativePath: 'cue.yaml',
 				size: stat.size,
@@ -332,7 +336,7 @@ function liveAbsolutePath(cwd: string, relativePath: string): string {
 		return path.join(cwd, CUE_CONFIG_PATH);
 	}
 	if (relativePath.startsWith('prompts/')) {
-		return path.join(cwd, MAESTRO_DIR, relativePath);
+		return path.join(cwd, OPENWIZARDAI_DIR, relativePath);
 	}
 	throw new Error(`Unsupported backup relative path: ${relativePath}`);
 }

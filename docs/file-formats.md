@@ -1,10 +1,10 @@
 ---
 title: File Formats
-description: Every file type Maestro opens specially, and the filtering language each one gives you - jq for JSON, table filters for CSV, and a typed query language for Parquet.
+description: Every file type OpenWizardAI opens specially, and the filtering language each one gives you - jq for JSON, table filters for CSV, and a typed query language for Parquet.
 icon: file-code
 ---
 
-Maestro's File Preview is not one renderer. Opening a file picks a viewer based on what the file actually is, and several of those viewers come with a filtering language built for that format. This page is the map: what opens as what, and what you can type at it.
+OpenWizardAI's File Preview is not one renderer. Opening a file picks a viewer based on what the file actually is, and several of those viewers come with a filtering language built for that format. This page is the map: what opens as what, and what you can type at it.
 
 Open a file by clicking it in the Files pane (Right Panel), through Fuzzy File Search (`Cmd+P` / `Ctrl+P`), or by clicking a file path an agent mentions in chat.
 
@@ -30,7 +30,7 @@ Three of these give you a real query language rather than a search box. They are
 
 ## Parquet: a typed query language
 
-Parquet gets the most powerful filter in Maestro, because Parquet is the only format that carries enough type and statistics information to make one work. Full detail is in [Parquet Preview](/parquet-preview); the short version:
+Parquet gets the most powerful filter in OpenWizardAI, because Parquet is the only format that carries enough type and statistics information to make one work. Full detail is in [Parquet Preview](/parquet-preview); the short version:
 
 ```
 status = active and price > 100
@@ -137,14 +137,14 @@ Parquet is not part of this system. It never loads the file at all, so its size 
 
 ## SQLite and other databases
 
-**Maestro does not currently open SQLite databases.** A `.sqlite`, `.sqlite3`, or `.db` file gets the generic "Binary File" card with an **Open in Default App** button, which hands it to whatever your OS has registered - usually a dedicated database browser.
+**OpenWizardAI does not currently open SQLite databases.** A `.sqlite`, `.sqlite3`, or `.db` file gets the generic "Binary File" card with an **Open in Default App** button, which hands it to whatever your OS has registered - usually a dedicated database browser.
 
 The same is true of any other database file, archive (`.zip`, `.tar`, `.gz`), font, or compiled binary.
 
-If you want to query a SQLite database inside Maestro today, the practical path is your agent: ask it to run `sqlite3 yourfile.db "select ..."` in [command mode](/general-usage#command-mode) or as a tool call, which works now and needs no viewer.
+If you want to query a SQLite database inside OpenWizardAI today, the practical path is your agent: ask it to run `sqlite3 yourfile.db "select ..."` in [command mode](/general-usage#command-mode) or as a tool call, which works now and needs no viewer.
 
 ## What no viewer does
 
-Every preview in Maestro is **read-only for structured formats**. The CSV table, JSON tree, Parquet grid, and rendered Mermaid all display data; none of them write it back. Plain text, code, and markdown are the exception - those are editable with `Cmd+E` / `Ctrl+E`.
+Every preview in OpenWizardAI is **read-only for structured formats**. The CSV table, JSON tree, Parquet grid, and rendered Mermaid all display data; none of them write it back. Plain text, code, and markdown are the exception - those are editable with `Cmd+E` / `Ctrl+E`.
 
 Exporting is available where it makes sense: the Parquet viewer writes its filtered rows out as CSV or JSON Lines.

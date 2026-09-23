@@ -163,7 +163,7 @@ export class StatsDB {
 	 * by a `before-quit` listener of their own, but listener order across modules
 	 * is not guaranteed and the quit handler re-emits `before-quit`, so that flush
 	 * could land *after* this close - writing against a dead connection, throwing,
-	 * and losing the batch (MAESTRO-ZC). Flushing here means the last events of a
+	 * and losing the batch (OPENWIZARDAI-ZC). Flushing here means the last events of a
 	 * session are written while the handle is unambiguously open, and the later
 	 * listener finds an empty buffer and no-ops.
 	 *

@@ -3,7 +3,7 @@
  *
  * Two editors offer this popup and they share nothing at the DOM level: a plain
  * `<textarea>` (Auto Run, the command panels, the prompt composers) and the
- * CodeMirror `MarkdownEditor` (Maestro Prompts). Everything ABOVE the DOM is
+ * CodeMirror `MarkdownEditor` (OpenWizardAI Prompts). Everything ABOVE the DOM is
  * identical though - when to open, what the query is, which key does what, and
  * what text replaces what - so that half lives here and each surface supplies a
  * small `TemplateAutocompleteTarget` binding.

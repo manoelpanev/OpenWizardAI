@@ -171,7 +171,7 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 	// the spawner merges it, so this is what the login shell below actually got.
 	useEffect(() => {
 		let cancelled = false;
-		void window.maestro.agents
+		void window.openwizardai.agents
 			.getCustomEnvVars(session.toolType)
 			.then((vars) => {
 				if (!cancelled) setProviderEnv(vars ?? {});
@@ -364,13 +364,15 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 		// Windows - ConPTY passes LF through as Ctrl+J, which PSReadLine does not
 		// treat as "run this line", so a PowerShell login would sit there untyped.
 		// A Unix PTY maps CR to NL for us, so this is correct on every platform.
-		void window.maestro.process.write(pending.ptySessionId, `${pending.command}\r`).catch(() => {
-			// A failed write surfaces as the process exiting; nothing to add here.
-		});
+		void window.openwizardai.process
+			.write(pending.ptySessionId, `${pending.command}\r`)
+			.catch(() => {
+				// A failed write surfaces as the process exiting; nothing to add here.
+			});
 	}, []);
 
 	useEffect(() => {
-		return window.maestro.process.onData((dataSessionId: string, data: string) => {
+		return window.openwizardai.process.onData((dataSessionId: string, data: string) => {
 			if (dataSessionId !== ptySessionId) return;
 			flushPendingCommand();
 
@@ -440,7 +442,7 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 		const generation = ++spawnGenerationRef.current;
 		let disposed = false;
 
-		void window.maestro.process
+		void window.openwizardai.process
 			.spawnTerminalTab({
 				sessionId: ptySessionId,
 				// The login runs wherever the shell lands (the remote's home dir
@@ -487,7 +489,7 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 			}
 			// Never leave a login shell running behind a closed modal. Re-spawning
 			// under the same key is safe: ProcessManager kills the predecessor.
-			void window.maestro.process.kill(ptySessionId).catch(() => {
+			void window.openwizardai.process.kill(ptySessionId).catch(() => {
 				// Already gone - that is the desired end state either way.
 			});
 		};
@@ -498,7 +500,7 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 	// remote with no such binary) would otherwise leave an empty box with no
 	// explanation, so say so in the terminal itself.
 	useEffect(() => {
-		return window.maestro.process.onExit((exitSessionId: string) => {
+		return window.openwizardai.process.onExit((exitSessionId: string) => {
 			if (exitSessionId !== ptySessionId) return;
 			pendingCommandRef.current = null;
 			terminalRef.current?.write('\r\n\x1b[2m[the login session ended]\x1b[0m\r\n');
@@ -763,7 +765,7 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 					</p>
 				) : (
 					<p className="text-sm" style={{ color: theme.colors.error }}>
-						{agentName} has no login command OpenWizzard can run. Re-authenticate it from a
+						{agentName} has no login command OpenWizardAI can run. Re-authenticate it from a
 						terminal, then resume.
 					</p>
 				)}

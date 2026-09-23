@@ -68,7 +68,7 @@ function setup(activeSessionId: string | null, sessions: Session[] = []) {
 }
 
 function dispatchRefresh(detail: Record<string, unknown>) {
-	window.dispatchEvent(new CustomEvent('maestro:refreshAutoRunDocs', { detail }));
+	window.dispatchEvent(new CustomEvent('openwizardai:refreshAutoRunDocs', { detail }));
 }
 
 describe('remote refresh-auto-run placement', () => {

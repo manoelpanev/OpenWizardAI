@@ -5,7 +5,7 @@
  * Opened by "Save to Project..." in ImageContextMenu. The user sees (and can
  * change) the project-relative folder, the file name, and the format, so a save
  * is never a blind write into a folder they have to go hunting for. Defaults are
- * the common case: `.maestro/diagrams/` and a timestamped name.
+ * the common case: `.openwizardai/diagrams/` and a timestamped name.
  *
  * Not to be confused with FilePreview/ImageSaveModal, which is the annotator's
  * overwrite-vs-save-as prompt for a file already on disk.
@@ -32,7 +32,7 @@ interface ImageDestinationModalProps {
 	projectRoot: string;
 	/** Whether the target is an <svg> - only then is the SVG/PNG choice offered. */
 	isSvg: boolean;
-	/** Seed values (timestamped name, `.maestro/diagrams`). */
+	/** Seed values (timestamped name, `.openwizardai/diagrams`). */
 	initialDir: string;
 	initialFileName: string;
 	onSave: (destination: ImageDestination) => void;
@@ -126,7 +126,7 @@ export function ImageDestinationModal({
 					label="Folder"
 					value={relativeDir}
 					onChange={setRelativeDir}
-					placeholder=".maestro/diagrams"
+					placeholder=".openwizardai/diagrams"
 					helperText="Relative to the project root. Created if it does not exist."
 				/>
 

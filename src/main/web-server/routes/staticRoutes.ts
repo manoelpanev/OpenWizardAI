@@ -24,7 +24,7 @@ import { captureException } from '../../utils/sentry';
 const LOG_CONTEXT = 'WebServer:Static';
 
 // Redirect URL for invalid/missing token requests
-const REDIRECT_URL = 'https://runmaestro.ai';
+const REDIRECT_URL = 'https://github.com/manoelpanev/OpenWizardAI';
 
 /**
  * File cache for static assets that don't change at runtime.
@@ -140,7 +140,7 @@ export class StaticRoutes {
 
 			// Inject config for the React app to know the token and session context
 			const configScript = `<script>
-        window.__MAESTRO_CONFIG__ = {
+        window.__OPENWIZARDAI_CONFIG__ = {
           securityToken: "${this.securityToken}",
           sessionId: ${safeSessionId ? `"${safeSessionId}"` : 'null'},
           tabId: ${safeTabId ? `"${safeTabId}"` : 'null'},

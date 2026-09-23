@@ -105,59 +105,61 @@ describe('ConversationScreen utils', () => {
 		});
 
 		it('reads listed documents and skips unreadable entries', async () => {
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['one.md', 'two.md'],
 			});
-			vi.mocked(window.maestro.autorun.readDoc)
+			vi.mocked(window.openwizardai.autorun.readDoc)
 				.mockResolvedValueOnce({ success: true, content: 'one' })
 				.mockResolvedValueOnce({ success: false, error: 'missing' });
 
-			await expect(readExistingDocuments('/project/.maestro/playbooks')).resolves.toEqual([
+			await expect(readExistingDocuments('/project/.openwizardai/playbooks')).resolves.toEqual([
 				{ filename: 'one.md', content: 'one' },
 			]);
 		});
 
 		it('continues reading when one document throws', async () => {
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['bad.md', 'good.md'],
 			});
-			vi.mocked(window.maestro.autorun.readDoc)
+			vi.mocked(window.openwizardai.autorun.readDoc)
 				.mockRejectedValueOnce(new Error('bad file'))
 				.mockResolvedValueOnce({ success: true, content: 'good' });
 
-			await expect(readExistingDocuments('/project/.maestro/playbooks')).resolves.toEqual([
+			await expect(readExistingDocuments('/project/.openwizardai/playbooks')).resolves.toEqual([
 				{ filename: 'good.md', content: 'good' },
 			]);
 		});
 
 		it('returns an empty list when listing fails or throws', async () => {
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 				success: false,
 				error: 'nope',
 			});
-			await expect(readExistingDocuments('/project/.maestro/playbooks')).resolves.toEqual([]);
+			await expect(readExistingDocuments('/project/.openwizardai/playbooks')).resolves.toEqual([]);
 
-			vi.mocked(window.maestro.autorun.listDocs).mockRejectedValueOnce(new Error('boom'));
-			await expect(readExistingDocuments('/project/.maestro/playbooks')).resolves.toEqual([]);
+			vi.mocked(window.openwizardai.autorun.listDocs).mockRejectedValueOnce(new Error('boom'));
+			await expect(readExistingDocuments('/project/.openwizardai/playbooks')).resolves.toEqual([]);
 		});
 
 		it('only fetches docs for continue mode', async () => {
 			await expect(fetchExistingDocsForWizard('/project', 'fresh')).resolves.toEqual([]);
 			await expect(fetchExistingDocsForWizard('/project', null)).resolves.toEqual([]);
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 		});
 
 		it('uses the Playbooks folder when fetching continue-mode docs', async () => {
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: [],
 			});
 
 			await fetchExistingDocsForWizard('/project', 'continue');
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/project/.maestro/playbooks');
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(
+				'/project/.openwizardai/playbooks'
+			);
 		});
 	});
 });

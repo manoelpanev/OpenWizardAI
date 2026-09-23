@@ -2,7 +2,7 @@
  * Integration tests for useRemoteHandlers.ts - Windows stdin transport flags
  *
  * These tests verify that remote command spawns correctly pass stdin transport
- * flags to window.maestro.process.spawn on Windows, avoiding command line
+ * flags to window.openwizardai.process.spawn on Windows, avoiding command line
  * length limits (~8KB cmd.exe).
  *
  * Remote commands can include substituted slash command prompts (custom AI
@@ -121,12 +121,12 @@ function createMockDeps(overrides: Partial<UseRemoteHandlersDeps> = {}): UseRemo
 	};
 }
 
-/** Extract the maestro:remoteCommand event handler from addEventListener mock */
+/** Extract the openwizardai:remoteCommand event handler from addEventListener mock */
 function getRemoteCommandHandler() {
 	const call = (window.addEventListener as any).mock.calls.find(
-		(c: any[]) => c[0] === 'maestro:remoteCommand'
+		(c: any[]) => c[0] === 'openwizardai:remoteCommand'
 	);
-	if (!call) throw new Error('maestro:remoteCommand handler not registered');
+	if (!call) throw new Error('openwizardai:remoteCommand handler not registered');
 	return call[1] as (event: Event) => Promise<void>;
 }
 
@@ -152,8 +152,8 @@ beforeEach(() => {
 		setSuccessFlashNotification: vi.fn(),
 	} as any);
 
-	// Mock window.maestro APIs with platform set to win32 for stdin tests
-	(window as any).maestro = {
+	// Mock window.openwizardai APIs with platform set to win32 for stdin tests
+	(window as any).openwizardai = {
 		platform: 'win32',
 		process: {
 			spawn: vi.fn().mockResolvedValue(undefined),
@@ -171,7 +171,7 @@ beforeEach(() => {
 		prompts: {
 			get: vi.fn().mockResolvedValue({
 				success: true,
-				content: 'Maestro System Context: {{AGENT_NAME}}',
+				content: 'OpenWizardAI System Context: {{AGENT_NAME}}',
 			}),
 		},
 		history: {
@@ -187,8 +187,8 @@ beforeEach(() => {
 afterEach(() => {
 	cleanup();
 	// Restore platform to default
-	if ((window as any).maestro) {
-		(window as any).maestro.platform = 'darwin';
+	if ((window as any).openwizardai) {
+		(window as any).openwizardai.platform = 'darwin';
 	}
 });
 
@@ -196,7 +196,7 @@ afterEach(() => {
 // Tests
 // ============================================================================
 
-// Agent Resilience: prompts that arrive from `maestro-cli dispatch`, a Cue
+// Agent Resilience: prompts that arrive from `openwizardai-cli dispatch`, a Cue
 // pipeline, or the web/mobile composer come through THIS handler, which spawns
 // directly instead of going through `agentStore.processQueuedItem` (where the
 // desktop composer records its retry snapshot). Without a snapshot here,
@@ -214,7 +214,7 @@ describe('useRemoteHandlers - Agent Resilience prompt snapshot', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: { sessionId: 'session-1', command: 'explain this code', inputMode: 'ai' },
 				})
 			);
@@ -243,7 +243,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'explain this code',
@@ -253,8 +253,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// On Windows without SSH, text-only prompts use raw stdin
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -283,7 +283,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'explain this code',
@@ -293,8 +293,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// SSH sessions must NOT use stdin flags
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
@@ -302,7 +302,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 	});
 
 	it('should pass both stdin flags as false on non-Windows platforms', async () => {
-		(window as any).maestro.platform = 'darwin';
+		(window as any).openwizardai.platform = 'darwin';
 
 		const session = createMockSession();
 		const deps = createMockDeps({
@@ -314,7 +314,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'explain this code',
@@ -324,15 +324,15 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(false);
 	});
 
 	it('should pass sendPromptViaStdinRaw for agents without stream-json support', async () => {
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'opencode',
 			command: 'opencode',
 			path: '/usr/bin/opencode',
@@ -358,7 +358,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'explain this code',
@@ -368,8 +368,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// Agents without stream-json always use raw stdin on Windows
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -398,7 +398,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'explain this code',
@@ -408,8 +408,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// Disabled SSH should behave like a local session on Windows
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);
@@ -422,7 +422,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 		// sendPromptViaStdin=false so the stream-json branch isn't taken.
 		// Web/mobile paste-image flow exercises the with-images branch
 		// elsewhere.
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'claude-code',
 			command: 'claude',
 			path: '/usr/bin/claude',
@@ -440,7 +440,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'explain this code',
@@ -450,8 +450,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 
 		// sendPromptViaStdin requires hasImages=true; this command has no images.
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
@@ -466,7 +466,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 		// remote-command path forwards those base64 data URLs end-to-end so
 		// the agent can attach them to the prompt, mirroring the desktop
 		// stagedImages flow.
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'claude-code',
 			command: 'claude',
 			path: '/usr/bin/claude',
@@ -485,7 +485,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 		const images = ['data:image/png;base64,abc'];
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'what do you see?',
@@ -496,8 +496,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 		expect(spawnCall.images).toEqual(images);
 		// hasImages=true switches the stream-json branch on (when supported).
 		expect(spawnCall.sendPromptViaStdin).toBe(true);
@@ -510,7 +510,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 		// handler must inject the user-customizable image-only default prompt,
 		// mirroring the desktop input path. Regression test for IMG-03 in
 		// PR #942.
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'claude-code',
 			command: 'claude',
 			path: '/usr/bin/claude',
@@ -529,7 +529,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 		const images = ['data:image/png;base64,abc'];
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: '',
@@ -540,8 +540,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 		// Empty command + images must be replaced with the default prompt.
 		expect(spawnCall.prompt).toBe('Describe this image.');
 		expect(spawnCall.images).toEqual(images);
@@ -549,7 +549,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 	it('preserves a user-supplied prompt when images are also present', async () => {
 		// Sanity check: the image-only fallback must not clobber a real prompt.
-		(window as any).maestro.agents.get.mockResolvedValue({
+		(window as any).openwizardai.agents.get.mockResolvedValue({
 			id: 'claude-code',
 			command: 'claude',
 			path: '/usr/bin/claude',
@@ -567,7 +567,7 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 
 		await act(async () => {
 			await handler(
-				new CustomEvent('maestro:remoteCommand', {
+				new CustomEvent('openwizardai:remoteCommand', {
 					detail: {
 						sessionId: 'session-1',
 						command: 'what do you see?',
@@ -578,8 +578,8 @@ describe('useRemoteHandlers - remote command stdin flags (integration)', () => {
 			);
 		});
 
-		expect((window as any).maestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = (window as any).maestro.process.spawn.mock.calls[0][0];
+		expect((window as any).openwizardai.process.spawn).toHaveBeenCalled();
+		const spawnCall = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 		expect(spawnCall.prompt).toBe('what do you see?');
 	});
 });

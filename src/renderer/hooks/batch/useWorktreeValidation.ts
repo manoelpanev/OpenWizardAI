@@ -112,7 +112,10 @@ export function useWorktreeValidation({
 		const timeoutId = setTimeout(async () => {
 			try {
 				// Check if the path exists and get worktree info
-				const worktreeInfoResult = await window.maestro.git.worktreeInfo(worktreePath, sshRemoteId);
+				const worktreeInfoResult = await window.openwizardai.git.worktreeInfo(
+					worktreePath,
+					sshRemoteId
+				);
 
 				if (!worktreeInfoResult.success) {
 					setValidation({
@@ -142,7 +145,10 @@ export function useWorktreeValidation({
 
 				// Path exists - check if it's part of the same repo
 				// If there's no repoRoot, the directory exists but isn't a git repo - that's fine for a new worktree
-				const mainRepoRootResult = await window.maestro.git.getRepoRoot(sessionCwd, sshRemoteId);
+				const mainRepoRootResult = await window.openwizardai.git.getRepoRoot(
+					sessionCwd,
+					sshRemoteId
+				);
 				const sameRepo =
 					!worktreeInfoResult.repoRoot ||
 					(mainRepoRootResult.success && worktreeInfoResult.repoRoot === mainRepoRootResult.root);
@@ -161,7 +167,7 @@ export function useWorktreeValidation({
 					try {
 						// Use git status to check for uncommitted changes in the worktree
 						// Pass sshRemoteId to support remote worktree validation
-						const statusResult = await window.maestro.git.status(worktreePath, sshRemoteId);
+						const statusResult = await window.openwizardai.git.status(worktreePath, sshRemoteId);
 						hasChanges = hasUncommittedChanges(statusResult.stdout);
 					} catch {
 						// If we can't check, assume no uncommitted changes

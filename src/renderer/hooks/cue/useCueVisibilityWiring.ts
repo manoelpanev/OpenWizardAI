@@ -18,7 +18,7 @@ import { logger } from '../../utils/logger';
 import { captureException } from '../../utils/sentry';
 
 function notifyMain(active: boolean): void {
-	const cue = window.maestro?.cue;
+	const cue = window.openwizardai?.cue;
 	if (!cue || typeof cue.setActive !== 'function') return;
 	cue.setActive(active).catch((err: unknown) => {
 		logger.debug('[Cue] setActive IPC failed', undefined, err);

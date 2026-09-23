@@ -92,8 +92,8 @@ beforeEach(() => {
 	mockOnFileChanged.mockReturnValue(vi.fn()); // returns unsubscribe fn
 	mockUnwatchFolder.mockResolvedValue(undefined);
 
-	// Setup window.maestro
-	(window as any).maestro = {
+	// Setup window.openwizardai
+	(window as any).openwizardai = {
 		autorun: {
 			listDocs: mockListDocs,
 			readDoc: mockReadDoc,

@@ -2366,7 +2366,7 @@ describe('tabHelpers', () => {
 			expect(session.aiTabs).toHaveLength(1);
 			expect(session.activeTabId).toBe(tabId);
 			expect(tabId).toBe('mock-generated-id'); // Uses mocked generateId
-			expect(session.autoRunFolderPath).toBe('/path/to/project/.maestro/playbooks');
+			expect(session.autoRunFolderPath).toBe('/path/to/project/.openwizardai/playbooks');
 		});
 
 		it('creates a session with merged logs in the tab', () => {
@@ -2537,7 +2537,7 @@ describe('tabHelpers', () => {
 			expect(session.closedTabHistory).toEqual([]);
 			expect(session.shellCwd).toBe('/project');
 			expect(session.fileTreeAutoRefreshInterval).toBe(180);
-			expect(session.autoRunFolderPath).toBe('/project/.maestro/playbooks');
+			expect(session.autoRunFolderPath).toBe('/project/.openwizardai/playbooks');
 		});
 
 		it('creates shell log with merged context message', () => {
@@ -3835,14 +3835,14 @@ describe('tabHelpers', () => {
 	describe('extractQuickTabName', () => {
 		it('extracts PR number from GitHub PR URL', () => {
 			expect(
-				extractQuickTabName('https://github.com/RunMaestro/Maestro/pull/380 review this PR')
+				extractQuickTabName('https://github.com/manoelpanev/OpenWizardAI/pull/380 review this PR')
 			).toBe('PR #380');
 		});
 
 		it('extracts issue number from GitHub issue URL', () => {
 			expect(
 				extractQuickTabName(
-					'thoughts on this issue? https://github.com/RunMaestro/Maestro/issues/381'
+					'thoughts on this issue? https://github.com/manoelpanev/OpenWizardAI/issues/381'
 				)
 			).toBe('Issue #381');
 		});

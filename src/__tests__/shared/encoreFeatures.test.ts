@@ -11,7 +11,7 @@ describe('DEFAULT_ENCORE_FEATURES', () => {
 		expect(DEFAULT_ENCORE_FEATURES).toEqual({
 			directorNotes: true,
 			usageStats: true,
-			maestroCue: true,
+			openwizardaiCue: true,
 		});
 	});
 });
@@ -24,9 +24,9 @@ describe('resolveEncoreFeatures', () => {
 	});
 
 	it('honors a flag the user switched off', () => {
-		expect(resolveEncoreFeatures({ maestroCue: false })).toEqual({
+		expect(resolveEncoreFeatures({ openwizardaiCue: false })).toEqual({
 			...DEFAULT_ENCORE_FEATURES,
-			maestroCue: false,
+			openwizardaiCue: false,
 		});
 	});
 
@@ -43,7 +43,7 @@ describe('resolveEncoreFeatures', () => {
 		const resolved = resolveEncoreFeatures({
 			directorNotes: 'false',
 			usageStats: 0,
-			maestroCue: null,
+			openwizardaiCue: null,
 		});
 		expect(resolved).toEqual(DEFAULT_ENCORE_FEATURES);
 	});

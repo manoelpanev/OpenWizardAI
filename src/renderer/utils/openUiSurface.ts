@@ -1,6 +1,6 @@
 /**
  * Open one of the app's registered UI surfaces by id (see
- * `shared/uiSurfaces.ts`). This is the renderer end of `maestro-cli open`,
+ * `shared/uiSurfaces.ts`). This is the renderer end of `openwizardai-cli open`,
  * and the single place that knows how a surface id becomes a modal-store call.
  *
  * Everything routes through `getModalActions()`, so a surface opened from the

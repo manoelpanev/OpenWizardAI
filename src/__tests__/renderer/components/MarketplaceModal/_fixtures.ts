@@ -34,7 +34,7 @@ export function makePlaybook(overrides: Partial<MarketplacePlaybook> = {}): Mark
 		description: 'A playbook for tests',
 		category: 'Development',
 		subcategory: 'Quality',
-		author: 'Maestro Team',
+		author: 'OpenWizardAI Team',
 		authorLink: 'https://example.com/author',
 		tags: ['test', 'automation'],
 		lastUpdated: '2026-01-01',

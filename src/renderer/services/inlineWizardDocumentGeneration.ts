@@ -24,8 +24,8 @@ export async function loadInlineWizardDocGenPrompts(force = false): Promise<void
 	if (inlineWizardDocGenPromptsLoaded && !force) return;
 
 	const [docGenResult, iterateGenResult] = await Promise.all([
-		window.maestro.prompts.get('wizard-document-generation'),
-		window.maestro.prompts.get('wizard-inline-iterate-generation'),
+		window.openwizardai.prompts.get('wizard-document-generation'),
+		window.openwizardai.prompts.get('wizard-inline-iterate-generation'),
 	]);
 
 	if (!docGenResult.success) {
@@ -298,7 +298,7 @@ async function generateUniqueSubfolderName(
 	baseName: string
 ): Promise<string> {
 	// List existing folders in the Auto Run Docs directory
-	const listResult = await window.maestro.autorun.listDocs(autoRunFolderPath);
+	const listResult = await window.openwizardai.autorun.listDocs(autoRunFolderPath);
 
 	if (!listResult.success || !listResult.tree) {
 		// If we can't list, just use the base name (folder may not exist yet)
@@ -384,7 +384,7 @@ export interface PlaybookDocumentEmitter {
 /**
  * Construct a {@link PlaybookDocumentEmitter}. Exposed as a factory (not a
  * class) so consumers can mock the IO surface in tests via the global
- * `window.maestro` bridge without needing to subclass anything.
+ * `window.openwizardai` bridge without needing to subclass anything.
  */
 export function createPlaybookDocumentEmitter(
 	options: PlaybookDocumentEmitterOptions
@@ -406,7 +406,7 @@ export function createPlaybookDocumentEmitter(
 
 		for (let attempt = 1; attempt <= maxAttempts; attempt++) {
 			try {
-				const content = await window.maestro.fs.readFile(fullPath, sshRemoteId);
+				const content = await window.openwizardai.fs.readFile(fullPath, sshRemoteId);
 				if (content && typeof content === 'string' && content.length > 0) {
 					// Re-check in case a parallel read raced ahead while we were awaiting.
 					if (emitted.has(filenameWithExt)) return false;
@@ -437,7 +437,7 @@ export function createPlaybookDocumentEmitter(
 	const pollAndEmit = async (): Promise<number> => {
 		let newCount = 0;
 		try {
-			const listResult = await window.maestro.autorun.listDocs(subfolderPath, sshRemoteId);
+			const listResult = await window.openwizardai.autorun.listDocs(subfolderPath, sshRemoteId);
 			if (!listResult.success || !Array.isArray(listResult.files)) return 0;
 			for (const baseName of listResult.files) {
 				const filename = baseName.endsWith('.md') ? baseName : `${baseName}.md`;
@@ -834,7 +834,7 @@ async function saveDocument(
 
 	// Write the document (creates or overwrites as needed)
 	// Pass sshRemoteId to support remote file writing
-	const result = await window.maestro.autorun.writeDoc(
+	const result = await window.openwizardai.autorun.writeDoc(
 		autoRunFolderPath,
 		filename,
 		doc.content,
@@ -911,7 +911,7 @@ export async function generateInlineDocuments(
 
 	try {
 		// Get the agent configuration
-		const agent = await window.maestro.agents.get(agentType);
+		const agent = await window.openwizardai.agents.get(agentType);
 		// For SSH remote sessions, skip local availability checks since agent may be remote
 		const isRemoteSession = config.sessionSshRemoteConfig?.enabled;
 		if (!agent && !isRemoteSession) {
@@ -969,7 +969,7 @@ export async function generateInlineDocuments(
 					timeoutId = setTimeout(() => {
 						logger.error('[InlineWizardDocGen] TIMEOUT fired! Session:', undefined, sessionId);
 						cleanupAll();
-						window.maestro.process
+						window.openwizardai.process
 							.kill(sessionId)
 							.catch((err) =>
 								logger.warn(
@@ -990,7 +990,7 @@ export async function generateInlineDocuments(
 				let timeoutId = setTimeout(() => {
 					logger.error('[InlineWizardDocGen] TIMEOUT fired! Session:', undefined, sessionId);
 					cleanupAll();
-					window.maestro.process
+					window.openwizardai.process
 						.kill(sessionId)
 						.catch((err) =>
 							logger.warn('[InlineWizardDocGen] Failed to kill session on timeout:', undefined, err)
@@ -1020,7 +1020,7 @@ export async function generateInlineDocuments(
 						pollIntervalId = undefined;
 					}
 					// Stop watching the subfolder
-					window.maestro.autorun
+					window.openwizardai.autorun
 						.unwatchFolder(subfolderPath)
 						.catch((err) =>
 							logger.warn('[InlineWizardDocGen] Failed to unwatch folder:', undefined, err)
@@ -1030,7 +1030,7 @@ export async function generateInlineDocuments(
 				// Set up file watcher for real-time document streaming.
 				// The agent writes files directly; chokidar events route through the
 				// shared emitter so the renderer sees each doc exactly once.
-				window.maestro.autorun
+				window.openwizardai.autorun
 					.watchFolder(subfolderPath, sshRemoteId)
 					.then((watchResult) => {
 						if (watchResult.success) {
@@ -1040,7 +1040,7 @@ export async function generateInlineDocuments(
 								subfolderPath
 							);
 
-							fileWatcherCleanup = window.maestro.autorun.onFileChanged((data) => {
+							fileWatcherCleanup = window.openwizardai.autorun.onFileChanged((data) => {
 								if (data.folderPath !== subfolderPath) return;
 								logger.info('[InlineWizardDocGen] File activity:', undefined, [
 									data.filename,
@@ -1082,7 +1082,7 @@ export async function generateInlineDocuments(
 				}, POLL_INTERVAL_MS);
 
 				// Set up data listener
-				dataListenerCleanup = window.maestro.process.onData(
+				dataListenerCleanup = window.openwizardai.process.onData(
 					(receivedSessionId: string, data: string) => {
 						if (receivedSessionId === sessionId) {
 							outputBuffer += data;
@@ -1093,7 +1093,7 @@ export async function generateInlineDocuments(
 				);
 
 				// Set up exit listener
-				exitListenerCleanup = window.maestro.process.onExit(
+				exitListenerCleanup = window.openwizardai.process.onExit(
 					(receivedSessionId: string, code: number) => {
 						if (receivedSessionId === sessionId) {
 							clearTimeout(timeoutId);
@@ -1137,7 +1137,7 @@ export async function generateInlineDocuments(
 						hasImages: false, // Document generation never sends images
 					});
 
-				window.maestro.process
+				window.openwizardai.process
 					.spawn({
 						sessionId,
 						toolType: agentType,
@@ -1383,7 +1383,7 @@ async function createPlaybookForDocuments(
 	}));
 
 	// Create the playbook via IPC
-	const result = await window.maestro.playbooks.create(sessionId, {
+	const result = await window.openwizardai.playbooks.create(sessionId, {
 		name: projectName,
 		documents: documentEntries,
 		loopEnabled: false,
@@ -1421,7 +1421,7 @@ async function readDocumentsFromDisk(
 
 	try {
 		// List files in the Auto Run folder
-		const listResult = await window.maestro.autorun.listDocs(autoRunFolderPath, sshRemoteId);
+		const listResult = await window.openwizardai.autorun.listDocs(autoRunFolderPath, sshRemoteId);
 		if (!listResult.success || !listResult.files) {
 			return [];
 		}
@@ -1431,7 +1431,7 @@ async function readDocumentsFromDisk(
 		for (const fileBaseName of listResult.files) {
 			const filename = fileBaseName.endsWith('.md') ? fileBaseName : `${fileBaseName}.md`;
 
-			const readResult = await window.maestro.autorun.readDoc(
+			const readResult = await window.openwizardai.autorun.readDoc(
 				autoRunFolderPath,
 				fileBaseName,
 				sshRemoteId

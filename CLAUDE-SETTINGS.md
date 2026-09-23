@@ -220,9 +220,9 @@ Set `clickableRow` on `ToggleSettingRow` so the whole row is a hit target. It al
 A settings control is not done when it renders. All six steps or it will not persist, will not survive restart, or will not be findable:
 
 1. `src/shared/settingsMetadata.ts` - add to `SETTINGS_METADATA` with `description`, `type`, `default`, `category`.
-2. `src/renderer/stores/settingsStore.ts` - **five** edits: interface field, setter signature, initial-state default, setter action (which must call `window.maestro.settings.set`), and the `allSettings[...]` hydration mapping. Skipping hydration is the classic "setting resets on restart" bug.
+2. `src/renderer/stores/settingsStore.ts` - **five** edits: interface field, setter signature, initial-state default, setter action (which must call `window.openwizardai.settings.set`), and the `allSettings[...]` hydration mapping. Skipping hydration is the classic "setting resets on restart" bug.
 3. `src/renderer/hooks/settings/useSettings.ts` - add the field and setter to `UseSettingsReturn`. The store is spread at runtime, but the type is curated, so TS fails without this.
-4. `src/main/stores/defaults.ts` - **only** if `MaestroSettings` requires the key. Editor/input-behavior settings deliberately do not live here; their default comes from `settingsMetadata.ts`.
+4. `src/main/stores/defaults.ts` - **only** if `OpenWizardAISettings` requires the key. Editor/input-behavior settings deliberately do not live here; their default comes from `settingsMetadata.ts`.
 5. `src/renderer/components/Settings/searchableSettings.ts` - add a `SearchableSetting` whose `id` exactly matches the `data-setting-id` on your section root. Put every user-visible string from the section into `keywords`.
 6. Render it and thread props from the tab.
 
@@ -266,7 +266,7 @@ Note on the theme fix: the original plan was to brighten all six failing themes,
 ### Remaining
 
 - **`GeneralTab` still hand-rolls its card bodies and toggle rows** - 10 raw `ToggleSwitch` rows and no `SectionCard`. Migrating these normalises padding and border color, but each row's click/keyboard behaviour needs verifying, so it deserves its own PR. Do it opportunistically when you are already in a section, or as one deliberate pass.
-- **Other tabs still hand-roll section headings** - `EncoreTab` (3), `DisplayTab` (2), plus `SettingsModal`, `MaestroPromptsTab`, `ShortcutsTab`, `ThemeTab`, `EnvironmentTab`, `SshRemoteModal`. The style-guide test currently only enforces `GeneralTab`; widen its scope as each tab is migrated.
+- **Other tabs still hand-roll section headings** - `EncoreTab` (3), `DisplayTab` (2), plus `SettingsModal`, `OpenWizardAIPromptsTab`, `ShortcutsTab`, `ThemeTab`, `EnvironmentTab`, `SshRemoteModal`. The style-guide test currently only enforces `GeneralTab`; widen its scope as each tab is migrated.
 - **`SettingsSectionHeading` has no `description` slot** - about 12 sections follow the heading with an intro paragraph and each styles it slightly differently. An optional slot would collapse that.
 
 ---

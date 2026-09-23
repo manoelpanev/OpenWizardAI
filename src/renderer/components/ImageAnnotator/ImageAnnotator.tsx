@@ -352,7 +352,7 @@ function ImageAnnotatorContent({
 			onSave?.(dataUrl);
 			closeAnnotator();
 			// Best-effort stats recording - never block save on telemetry failure.
-			void window.maestro.stats.recordImageAnnotation(Date.now()).catch((err: unknown) => {
+			void window.openwizardai.stats.recordImageAnnotation(Date.now()).catch((err: unknown) => {
 				logger.warn('Failed to record image annotation stat', undefined, err);
 			});
 		} catch (err) {

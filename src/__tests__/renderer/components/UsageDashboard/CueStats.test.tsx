@@ -283,8 +283,8 @@ beforeEach(() => {
 	// would otherwise leak its filter into the next test. jsdom in this repo can
 	// be Storage-less, hence the guard.
 	window.localStorage?.clear();
-	(window as unknown as { maestro: Record<string, unknown> }).maestro = {
-		...((window as unknown as { maestro: Record<string, unknown> }).maestro ?? {}),
+	(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai = {
+		...((window as unknown as { openwizardai: Record<string, unknown> }).openwizardai ?? {}),
 		cueStats: {
 			getAggregation: mockGetAggregation,
 		},
@@ -599,7 +599,7 @@ describe('CueStats', () => {
 
 			expect(screen.getByText('Cue stats are unavailable.')).toBeInTheDocument();
 			// Defense-in-depth copy mentions both Encore features
-			expect(screen.getByText(/OpenWizzard Cue/)).toBeInTheDocument();
+			expect(screen.getByText(/OpenWizardAI Cue/)).toBeInTheDocument();
 			expect(screen.getByText(/Usage Dashboard/)).toBeInTheDocument();
 			// The retry-style ErrorNote must NOT have rendered.
 			expect(screen.queryByTestId('cue-stats-error')).not.toBeInTheDocument();

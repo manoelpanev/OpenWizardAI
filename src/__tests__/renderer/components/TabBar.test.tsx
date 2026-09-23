@@ -1586,7 +1586,7 @@ describe('TabBar', () => {
 			fireEvent.click(screen.getByText('Copy Deep Link'));
 
 			expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
-				'maestro://session/session-42/tab/tab-1'
+				'openwizardai://session/session-42/tab/tab-1'
 			);
 			expect(screen.getByText('Copied!')).toBeInTheDocument();
 
@@ -3503,13 +3503,13 @@ describe('FileTab overlay menu', () => {
 	it('calls openPath when clicking Open in Default App', async () => {
 		vi.useFakeTimers();
 		const mockOpenPath = vi.fn().mockResolvedValue(undefined);
-		window.maestro = {
-			...window.maestro,
+		window.openwizardai = {
+			...window.openwizardai,
 			shell: {
-				...window.maestro.shell,
+				...window.openwizardai.shell,
 				openPath: mockOpenPath,
 			},
-		} as typeof window.maestro;
+		} as typeof window.openwizardai;
 
 		render(
 			<TabBar
@@ -3546,13 +3546,13 @@ describe('FileTab overlay menu', () => {
 	it('calls showItemInFolder when clicking Reveal in Finder/Explorer', async () => {
 		vi.useFakeTimers();
 		const mockShowItemInFolder = vi.fn().mockResolvedValue(undefined);
-		window.maestro = {
-			...window.maestro,
+		window.openwizardai = {
+			...window.openwizardai,
 			shell: {
-				...window.maestro.shell,
+				...window.openwizardai.shell,
 				showItemInFolder: mockShowItemInFolder,
 			},
-		} as typeof window.maestro;
+		} as typeof window.openwizardai;
 
 		render(
 			<TabBar

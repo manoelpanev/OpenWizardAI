@@ -1,5 +1,5 @@
 /**
- * Scheduled Tasks - the time-driven slice of Maestro Cue.
+ * Scheduled Tasks - the time-driven slice of OpenWizardAI Cue.
  *
  * A "scheduled task" is any Cue subscription whose trigger is a clock:
  *
@@ -7,7 +7,7 @@
  *   - `time.scheduled` recurring, fires at `schedule_times` on `schedule_days`
  *   - `time.heartbeat` recurring, fires every `interval_minutes`
  *
- * The Cue modal's Scheduled Tasks tab, the `maestro-cli cue schedule` command,
+ * The Cue modal's Scheduled Tasks tab, the `openwizardai-cli cue schedule` command,
  * and the IPC layer between them all speak the shapes in this file, so a task
  * created from the CLI and a task created from the UI are the same object on
  * disk. Everything here is pure and renderer-safe - filesystem work lives in

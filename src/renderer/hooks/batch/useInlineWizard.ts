@@ -5,7 +5,7 @@
  * The inline wizard allows users to create new Auto Run documents or iterate
  * on existing ones through a conversational interface triggered by `/wizard`.
  *
- * Unlike the full-screen onboarding wizard (MaestroWizard.tsx), this wizard
+ * Unlike the full-screen onboarding wizard (OpenWizardAIWizard.tsx), this wizard
  * runs inline within the existing AI conversation interface.
  */
 
@@ -154,9 +154,9 @@ export interface InlineWizardState {
 	currentDocumentIndex: number;
 	/** The Claude agent session ID (from session_id in output) - used to switch tab after wizard completes */
 	agentSessionId: string | null;
-	/** Subfolder name where documents were saved (e.g., "Maestro-Marketing") - used for tab naming after wizard completes */
+	/** Subfolder name where documents were saved (e.g., "OpenWizardAI-Marketing") - used for tab naming after wizard completes */
 	subfolderName: string | null;
-	/** Full path to the subfolder where documents are saved (e.g., "/path/Auto Run Docs/Maestro-Marketing") */
+	/** Full path to the subfolder where documents are saved (e.g., "/path/Auto Run Docs/OpenWizardAI-Marketing") */
 	subfolderPath: string | null;
 	/** User-configured Auto Run folder path (overrides default projectPath/Auto Run Docs) */
 	autoRunFolderPath: string | null;
@@ -498,7 +498,7 @@ export function useInlineWizard(): UseInlineWizardReturn {
 
 			for (const doc of docs) {
 				try {
-					const result = await window.maestro.autorun.readDoc(autoRunFolderPath, doc.name);
+					const result = await window.openwizardai.autorun.readDoc(autoRunFolderPath, doc.name);
 					if (result.success && result.content) {
 						docsWithContent.push({
 							...doc,
@@ -638,7 +638,7 @@ export function useInlineWizard(): UseInlineWizardReturn {
 				const isSSH = sessionSshRemoteConfig?.enabled;
 				if (sessionId && !isSSH) {
 					try {
-						const fetchedPath = await window.maestro.history.getFilePath(sessionId);
+						const fetchedPath = await window.openwizardai.history.getFilePath(sessionId);
 						historyFilePath = fetchedPath ?? undefined; // Convert null to undefined
 					} catch {
 						// History file path not available - continue without it
@@ -651,7 +651,7 @@ export function useInlineWizard(): UseInlineWizardReturn {
 				let hasExistingDocs = false;
 				if (effectiveAutoRunFolderPath) {
 					try {
-						const result = await window.maestro.autorun.listDocs(effectiveAutoRunFolderPath);
+						const result = await window.openwizardai.autorun.listDocs(effectiveAutoRunFolderPath);
 						hasExistingDocs = result.success && result.files && result.files.length > 0;
 					} catch {
 						// Folder doesn't exist or can't be read - no existing docs
@@ -687,7 +687,7 @@ export function useInlineWizard(): UseInlineWizardReturn {
 				if (mode === 'iterate' && effectiveAutoRunFolderPath) {
 					// List docs from the configured Auto Run folder
 					try {
-						const result = await window.maestro.autorun.listDocs(effectiveAutoRunFolderPath);
+						const result = await window.openwizardai.autorun.listDocs(effectiveAutoRunFolderPath);
 						if (result.success && result.files) {
 							existingDocs = result.files.map((name: string) => ({
 								name,
@@ -1075,7 +1075,7 @@ export function useInlineWizard(): UseInlineWizardReturn {
 			const session = conversationSessionsMap.current.get(tabId);
 			if (session) {
 				try {
-					await window.maestro.process.kill(session.sessionId);
+					await window.openwizardai.process.kill(session.sessionId);
 				} catch (error) {
 					logger.warn('[useInlineWizard] Failed to kill wizard process on cancel', undefined, {
 						sessionId: session.sessionId,
@@ -1397,7 +1397,7 @@ export function useInlineWizard(): UseInlineWizardReturn {
 	 * 2. Constructs prompt using wizard-document-generation.md with conversation summary
 	 * 3. Streams AI response
 	 * 4. Parses document markers (---BEGIN DOCUMENT--- / ---END DOCUMENT---)
-	 * 5. Saves documents via window.maestro.autorun.writeDoc()
+	 * 5. Saves documents via window.openwizardai.autorun.writeDoc()
 	 * 6. Updates generatedDocuments array as each completes
 	 */
 	const generateDocuments = useCallback(
@@ -1559,9 +1559,9 @@ export function useInlineWizard(): UseInlineWizardReturn {
 							current: finalDocs.length,
 							total: finalDocs.length,
 						},
-						// Store the subfolder name for tab naming (e.g., "Maestro-Marketing")
+						// Store the subfolder name for tab naming (e.g., "OpenWizardAI-Marketing")
 						subfolderName: result.subfolderName || null,
-						// Store the full subfolder path for document loading (e.g., "/path/Auto Run Docs/Maestro-Marketing")
+						// Store the full subfolder path for document loading (e.g., "/path/Auto Run Docs/OpenWizardAI-Marketing")
 						subfolderPath: result.subfolderPath || null,
 					}));
 

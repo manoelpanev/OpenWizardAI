@@ -1,40 +1,39 @@
 {
-	"name": "openwizzard",
-	"productName": "OpenWizzard",
+	"name": "openwizardai",
+	"productName": "OpenWizardAI",
 	"version": "0.17.5",
-	"description": "OpenWizzard orchestrates your fleet of AI agents. Based on Maestro (AGPL-3.0).",
+	"description": "OpenWizardAI: your AI project wizard and agent command center. Based on Maestro by Pedram Amini (AGPL-3.0).",
 	"main": "dist/main/index.js",
 	"author": {
-		"name": "Pedram Amini",
-		"email": "pedram@runmaestro.ai"
+		"name": "manoelpanev",
+		"url": "https://github.com/manoelpanev"
 	},
-	"license": "AGPL 3.0",
+	"license": "AGPL-3.0",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/RunMaestro/Maestro.git"
+		"url": "https://github.com/manoelpanev/OpenWizardAI.git"
 	},
 	"bin": {
-		"maestro-cli": "./dist/cli/maestro-cli.js",
-		"maestro-p": "./dist/cli/maestro-p.js",
-		"openwizzard-cli": "./dist/cli/maestro-cli.js"
+		"openwizardai-cli": "./dist/cli/openwizardai-cli.js",
+		"openwizardai-p": "./dist/cli/openwizardai-p.js"
 	},
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
 		"dev:prod-data": "USE_PROD_DATA=1 node scripts/dev.mjs",
-		"dev:demo": "MAESTRO_DEMO_DIR=/tmp/maestro-demo npm run dev",
+		"dev:demo": "OPENWIZARDAI_DEMO_DIR=/tmp/openwizardai-demo npm run dev",
 		"dev:main": "tsc -p tsconfig.main.json && npm run build:preload && NODE_ENV=development electron .",
 		"dev:main:prod-data": "tsc -p tsconfig.main.json && npm run build:preload && NODE_ENV=development USE_PROD_DATA=1 electron .",
 		"dev:renderer": "vite",
 		"dev:web": "vite --config vite.config.web.mts",
 		"dev:win": "powershell -NoProfile -ExecutionPolicy Bypass -File ./scripts/start-dev.ps1",
-		"build": "npm run build:main && npm run build:provenance && npm run build:preload && npm run build:renderer && npm run build:web && npm run build:cli && npm run build:maestro-p",
+		"build": "npm run build:main && npm run build:provenance && npm run build:preload && npm run build:renderer && npm run build:web && npm run build:cli && npm run build:openwizardai-p",
 		"build:provenance": "node scripts/write-build-provenance.mjs",
 		"verify:provenance": "node scripts/write-build-provenance.mjs --verify",
 		"build:main": "tsc -p tsconfig.main.json",
 		"build:preload": "node scripts/build-preload.mjs",
 		"build:cli": "node scripts/build-cli.mjs",
 		"gen:cli-reference": "node scripts/gen-cli-reference.mjs",
-		"build:maestro-p": "node scripts/build-maestro-p.mjs",
+		"build:openwizardai-p": "node scripts/build-openwizardai-p.mjs",
 		"build:renderer": "vite build",
 		"build:web": "vite build --config vite.config.web.mts",
 		"package": "node scripts/set-version.mjs npm run build && node scripts/set-version.mjs electron-builder --mac --win --linux",
@@ -71,13 +70,13 @@
 	},
 	"build": {
 		"npmRebuild": false,
-		"appId": "com.openwizzard.app",
-		"productName": "OpenWizzard",
+		"appId": "com.openwizardai.app",
+		"productName": "OpenWizardAI",
 		"protocols": [
 			{
-				"name": "OpenWizzard",
+				"name": "OpenWizardAI",
 				"schemes": [
-					"maestro"
+					"openwizardai"
 				]
 			}
 		],
@@ -104,24 +103,24 @@
 			"entitlements": "build/entitlements.mac.plist",
 			"entitlementsInherit": "build/entitlements.mac.plist",
 			"extendInfo": {
-				"NSCalendarsUsageDescription": "A program running inside OpenWizzard wants to access your calendars.",
-				"NSCalendarsFullAccessUsageDescription": "A program running inside OpenWizzard wants to read and change your calendars.",
-				"NSCalendarsWriteOnlyAccessUsageDescription": "A program running inside OpenWizzard wants to add events to your calendars.",
-				"NSRemindersUsageDescription": "A program running inside OpenWizzard wants to access your reminders.",
-				"NSRemindersFullAccessUsageDescription": "A program running inside OpenWizzard wants to read and change your reminders.",
-				"NSContactsUsageDescription": "A program running inside OpenWizzard wants to access your contacts.",
-				"NSPhotoLibraryUsageDescription": "A program running inside OpenWizzard wants to access your photo library.",
-				"NSPhotoLibraryAddUsageDescription": "A program running inside OpenWizzard wants to add photos to your photo library.",
-				"NSAppleMusicUsageDescription": "A program running inside OpenWizzard wants to access your media library.",
-				"NSAppleEventsUsageDescription": "A program running inside OpenWizzard wants to control another app on your Mac.",
-				"NSSpeechRecognitionUsageDescription": "A program running inside OpenWizzard wants to send speech to Apple for recognition.",
-				"NSLocalNetworkUsageDescription": "A program running inside OpenWizzard wants to reach devices on your local network.",
-				"NSLocationWhenInUseUsageDescription": "A program running inside OpenWizzard wants to use your location.",
-				"NSDesktopFolderUsageDescription": "A program running inside OpenWizzard wants to read and change files on your Desktop.",
-				"NSDocumentsFolderUsageDescription": "A program running inside OpenWizzard wants to read and change files in your Documents folder.",
-				"NSDownloadsFolderUsageDescription": "A program running inside OpenWizzard wants to read and change files in your Downloads folder.",
-				"NSRemovableVolumesUsageDescription": "A program running inside OpenWizzard wants to read and change files on a removable volume.",
-				"NSNetworkVolumesUsageDescription": "A program running inside OpenWizzard wants to read and change files on a network volume."
+				"NSCalendarsUsageDescription": "A program running inside OpenWizardAI wants to access your calendars.",
+				"NSCalendarsFullAccessUsageDescription": "A program running inside OpenWizardAI wants to read and change your calendars.",
+				"NSCalendarsWriteOnlyAccessUsageDescription": "A program running inside OpenWizardAI wants to add events to your calendars.",
+				"NSRemindersUsageDescription": "A program running inside OpenWizardAI wants to access your reminders.",
+				"NSRemindersFullAccessUsageDescription": "A program running inside OpenWizardAI wants to read and change your reminders.",
+				"NSContactsUsageDescription": "A program running inside OpenWizardAI wants to access your contacts.",
+				"NSPhotoLibraryUsageDescription": "A program running inside OpenWizardAI wants to access your photo library.",
+				"NSPhotoLibraryAddUsageDescription": "A program running inside OpenWizardAI wants to add photos to your photo library.",
+				"NSAppleMusicUsageDescription": "A program running inside OpenWizardAI wants to access your media library.",
+				"NSAppleEventsUsageDescription": "A program running inside OpenWizardAI wants to control another app on your Mac.",
+				"NSSpeechRecognitionUsageDescription": "A program running inside OpenWizardAI wants to send speech to Apple for recognition.",
+				"NSLocalNetworkUsageDescription": "A program running inside OpenWizardAI wants to reach devices on your local network.",
+				"NSLocationWhenInUseUsageDescription": "A program running inside OpenWizardAI wants to use your location.",
+				"NSDesktopFolderUsageDescription": "A program running inside OpenWizardAI wants to read and change files on your Desktop.",
+				"NSDocumentsFolderUsageDescription": "A program running inside OpenWizardAI wants to read and change files in your Documents folder.",
+				"NSDownloadsFolderUsageDescription": "A program running inside OpenWizardAI wants to read and change files in your Downloads folder.",
+				"NSRemovableVolumesUsageDescription": "A program running inside OpenWizardAI wants to read and change files on a removable volume.",
+				"NSNetworkVolumesUsageDescription": "A program running inside OpenWizardAI wants to read and change files on a network volume."
 			},
 			"target": [
 				"dmg",
@@ -131,12 +130,12 @@
 			"icon": "build/icon.icns",
 			"extraResources": [
 				{
-					"from": "dist/cli/maestro-cli.js",
-					"to": "maestro-cli.js"
+					"from": "dist/cli/openwizardai-cli.js",
+					"to": "openwizardai-cli.js"
 				},
 				{
-					"from": "dist/cli/maestro-p.js",
-					"to": "maestro-p.js"
+					"from": "dist/cli/openwizardai-p.js",
+					"to": "openwizardai-p.js"
 				},
 				{
 					"from": "src/prompts",
@@ -178,12 +177,12 @@
 			"icon": "build/icon.ico",
 			"extraResources": [
 				{
-					"from": "dist/cli/maestro-cli.js",
-					"to": "maestro-cli.js"
+					"from": "dist/cli/openwizardai-cli.js",
+					"to": "openwizardai-cli.js"
 				},
 				{
-					"from": "dist/cli/maestro-p.js",
-					"to": "maestro-p.js"
+					"from": "dist/cli/openwizardai-p.js",
+					"to": "openwizardai-p.js"
 				},
 				{
 					"from": "src/prompts",
@@ -217,12 +216,12 @@
 			"icon": "build/icon.png",
 			"extraResources": [
 				{
-					"from": "dist/cli/maestro-cli.js",
-					"to": "maestro-cli.js"
+					"from": "dist/cli/openwizardai-cli.js",
+					"to": "openwizardai-cli.js"
 				},
 				{
-					"from": "dist/cli/maestro-p.js",
-					"to": "maestro-p.js"
+					"from": "dist/cli/openwizardai-p.js",
+					"to": "openwizardai-p.js"
 				},
 				{
 					"from": "src/prompts",

@@ -131,7 +131,7 @@ class MockResizeObserver {
 // Replace global ResizeObserver with mock
 (global as any).ResizeObserver = MockResizeObserver;
 
-// Mock the maestro API
+// Mock the openwizardai API
 const mockStats = {
 	getAggregation: vi.fn(),
 	getDatabaseSize: vi.fn(),
@@ -153,12 +153,12 @@ beforeEach(() => {
 	// in this file. Reset it so each test starts on 'overview' instead of inheriting
 	// the tab a prior test navigated to (which can mount the Shortcuts panel).
 	useUIStore.setState({ usageDashboardViewMode: 'overview' });
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		stats: mockStats,
 		dialog: mockDialog,
 		fs: mockFs,
 		// Usage snapshot samplers fired by the dashboard's quota-on-open effect.
-		// Without these the effect throws on `window.maestro.agents` and leaks an
+		// Without these the effect throws on `window.openwizardai.agents` and leaks an
 		// unhandled rejection.
 		agents: {
 			refreshClaudeUsageSnapshots: vi.fn().mockResolvedValue({ refreshed: 0 }),

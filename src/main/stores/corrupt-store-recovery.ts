@@ -10,7 +10,7 @@
  * created, the user sees a crash, relaunching re-reads the same bytes, and
  * nothing on the restart path ever repairs the file.
  *
- * That is not hypothetical. A field crash showed an 8 MB `maestro-sessions.json`
+ * That is not hypothetical. A field crash showed an 8 MB `openwizardai-sessions.json`
  * truncated mid-write ("Unterminated string in JSON at position 7949418")
  * reporting the same unhandled `SyntaxError` hundreds of times in a few hours.
  *

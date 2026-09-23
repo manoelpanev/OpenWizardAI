@@ -8,8 +8,8 @@ export interface UseProcessKillResult {
 }
 
 // Owns the kill IPC dispatch.
-// - Routes to window.maestro.cue.stopRun(cueRunId) when a Cue run ID is supplied.
-// - Falls back to window.maestro.process.kill(processSessionId) for everything else.
+// - Routes to window.openwizardai.cue.stopRun(cueRunId) when a Cue run ID is supplied.
+// - Falls back to window.openwizardai.process.kill(processSessionId) for everything else.
 // - Always calls refresh() afterwards (in finally) so the UI reflects reality
 //   regardless of whether the kill IPC succeeded or threw.
 //
@@ -26,9 +26,9 @@ export function useProcessKill(
 			setIsKilling(true);
 			try {
 				if (cueRunId) {
-					await window.maestro.cue.stopRun(cueRunId);
+					await window.openwizardai.cue.stopRun(cueRunId);
 				} else {
-					await window.maestro.process.kill(processSessionId);
+					await window.openwizardai.process.kill(processSessionId);
 				}
 			} catch (error) {
 				logger.error('Failed to kill process:', undefined, error);

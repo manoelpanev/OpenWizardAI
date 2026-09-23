@@ -158,7 +158,7 @@ describe('ProcessDetailView', () => {
 		render(
 			<ProcessDetailView theme={theme} detail={baseDetail} onBack={() => {}} onClose={() => {}} />
 		);
-		expect(screen.queryByText('OpenWizzard Environment Variables')).not.toBeInTheDocument();
+		expect(screen.queryByText('OpenWizardAI Environment Variables')).not.toBeInTheDocument();
 	});
 
 	it('renders all env vars inline when count is at or below the collapsed limit', () => {
@@ -167,30 +167,30 @@ describe('ProcessDetailView', () => {
 				theme={theme}
 				detail={{
 					...baseDetail,
-					maestroEnvVars: {
+					openwizardaiEnvVars: {
 						ANTHROPIC_API_KEY: 'sk-xxx',
-						DEBUG: 'maestro:*',
+						DEBUG: 'openwizardai:*',
 					},
 				}}
 				onBack={() => {}}
 				onClose={() => {}}
 			/>
 		);
-		expect(screen.getByText('OpenWizzard Environment Variables')).toBeInTheDocument();
+		expect(screen.getByText('OpenWizardAI Environment Variables')).toBeInTheDocument();
 		expect(screen.getByText('ANTHROPIC_API_KEY')).toBeInTheDocument();
 		expect(screen.getByText('DEBUG')).toBeInTheDocument();
 		expect(screen.queryByRole('button', { name: /show \d+ more/i })).not.toBeInTheDocument();
 	});
 
 	it('collapses overflow env vars and expands when toggled', () => {
-		const maestroEnvVars: Record<string, string> = {};
+		const openwizardaiEnvVars: Record<string, string> = {};
 		for (let i = 0; i < 8; i++) {
-			maestroEnvVars[`VAR_${String.fromCharCode(65 + i)}`] = `value-${i}`;
+			openwizardaiEnvVars[`VAR_${String.fromCharCode(65 + i)}`] = `value-${i}`;
 		}
 		render(
 			<ProcessDetailView
 				theme={theme}
-				detail={{ ...baseDetail, maestroEnvVars }}
+				detail={{ ...baseDetail, openwizardaiEnvVars }}
 				onBack={() => {}}
 				onClose={() => {}}
 			/>

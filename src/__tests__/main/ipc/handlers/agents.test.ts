@@ -188,8 +188,8 @@ describe('agents IPC handlers', () => {
 				'agents:getSnapshot',
 				'agents:getAllSnapshots',
 				'agents:reprobe',
-				'agents:getMaestroPDetectedPath',
-				'agents:getRemoteMaestroPAvailable',
+				'agents:getOpenWizardAIPDetectedPath',
+				'agents:getRemoteOpenWizardAIPAvailable',
 				'agents:getClaudeUsageSnapshots',
 				'agents:getClaudeUsageAccountKeys',
 				'claude:usage:refresh-all',
@@ -357,23 +357,23 @@ describe('agents IPC handlers', () => {
 				const handler = handlers.get('agents:detect');
 				await handler!({} as any, 'remote-1');
 
-				// The remote detection piggybacks one extra maestro-p launch test
-				// (`maestro-p --version`) on top of the per-agent binary probes, so the
+				// The remote detection piggybacks one extra openwizardai-p launch test
+				// (`openwizardai-p --version`) on top of the per-agent binary probes, so the
 				// total is AGENT_DEFINITIONS.length + 1.
 				const calls = vi.mocked(buildSshCommand).mock.calls;
 				expect(calls.length).toBe(agentCapabilities.AGENT_DEFINITIONS.length + 1);
 
-				// The maestro-p availability check is a LAUNCH test, not a path check:
-				// it runs `maestro-p --version` (which loads node + node-pty) rather
-				// than `command -v maestro-p`, so a host with no node fails it.
-				const maestroPProbe = calls.find(([, o]) => o.command === 'maestro-p');
-				expect(maestroPProbe).toBeDefined();
-				expect(maestroPProbe![1].args).toEqual(['--version']);
+				// The openwizardai-p availability check is a LAUNCH test, not a path check:
+				// it runs `openwizardai-p --version` (which loads node + node-pty) rather
+				// than `command -v openwizardai-p`, so a host with no node fails it.
+				const openwizardaiPProbe = calls.find(([, o]) => o.command === 'openwizardai-p');
+				expect(openwizardaiPProbe).toBeDefined();
+				expect(openwizardaiPProbe![1].args).toEqual(['--version']);
 
 				// Every other (per-agent) probe should invoke 'command -v <binary>',
 				// never 'which'. Asserting one such call per AGENT_DEFINITION catches
 				// regressions that silently skip agents instead of just dropping to zero.
-				const agentProbes = calls.filter(([, o]) => o.command !== 'maestro-p');
+				const agentProbes = calls.filter(([, o]) => o.command !== 'openwizardai-p');
 				expect(agentProbes.length).toBe(agentCapabilities.AGENT_DEFINITIONS.length);
 				for (const [, options] of agentProbes) {
 					expect(options.command).toBe('command');
@@ -1687,7 +1687,7 @@ describe('agents IPC handlers', () => {
 		});
 
 		// ---- Codex (issue #1434) -------------------------------------------
-		// Codex custom commands live on disk as skills / prompts. Maestro drives
+		// Codex custom commands live on disk as skills / prompts. OpenWizardAI drives
 		// Codex through headless `codex exec`, which does NOT expand a slash, so
 		// every discovered command must carry its body as `prompt` for the
 		// renderer to substitute before sending.
@@ -2029,7 +2029,7 @@ describe('agents IPC handlers', () => {
 
 			expect(runSpy).toHaveBeenCalledTimes(1);
 			// Manual refresh must opt into the aggressive sampling path - startup
-			// mode would skip when no maestro-p session exists.
+			// mode would skip when no openwizardai-p session exists.
 			expect(runSpy).toHaveBeenCalledWith(expect.objectContaining({ mode: 'manual' }));
 			expect(result).toEqual({ refreshed: 2 });
 

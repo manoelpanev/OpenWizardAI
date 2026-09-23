@@ -134,7 +134,7 @@ export function AutoRunExpandedModal({
 
 	const isRunActive = batchRunState?.isRunning || false;
 	const isErrorPaused = useAutoRunErrorPaused(sessionId);
-	// A run that is parked on an agent error or a MAESTRO:HITL gate is waiting on
+	// A run that is parked on an agent error or a OPENWIZARDAI:HITL gate is waiting on
 	// the user, not driving the document, so editing opens back up. The Run/Stop
 	// button still reads `isRunActive` - a paused run is stoppable, not startable.
 	const isEditLocked = isRunActive && !isErrorPaused;

@@ -50,7 +50,7 @@ function setup(overrides: Partial<Parameters<typeof usePlaybookImportActions>[0]
 describe('usePlaybookImportActions', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/picked/folder');
+		vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/picked/folder');
 	});
 
 	it('imports the selected playbook with local arguments and closes on success', async () => {
@@ -128,7 +128,7 @@ describe('usePlaybookImportActions', () => {
 			await result.result.current.handleBrowseFolder();
 		});
 
-		expect(window.maestro.dialog.selectFolder).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalledTimes(1);
 		expect(result.setTargetFolderName).toHaveBeenCalledWith('/picked/folder');
 	});
 
@@ -139,7 +139,7 @@ describe('usePlaybookImportActions', () => {
 			await result.result.current.handleBrowseFolder();
 		});
 
-		expect(window.maestro.dialog.selectFolder).not.toHaveBeenCalled();
+		expect(window.openwizardai.dialog.selectFolder).not.toHaveBeenCalled();
 		expect(result.setTargetFolderName).not.toHaveBeenCalled();
 	});
 });

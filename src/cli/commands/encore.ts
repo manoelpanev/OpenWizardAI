@@ -1,4 +1,4 @@
-// Encore Features commands - list and toggle Maestro's Encore Features in the
+// Encore Features commands - list and toggle OpenWizardAI's Encore Features in the
 // running desktop app. Toggling routes through the set_setting
 // WS message (key: encoreFeatures), so changes apply live and persist. Mirrors
 // the Settings -> Encore Features toggles.
@@ -12,7 +12,7 @@ import { resolveEncoreFeatures } from '../../shared/encoreFeatures';
 const FEATURES: Record<string, string> = {
 	directorNotes: "Director's Notes",
 	usageStats: 'Usage Dashboard',
-	maestroCue: 'OpenWizzard Cue',
+	openwizardaiCue: 'OpenWizardAI Cue',
 };
 
 const ALIASES: Record<string, string> = {
@@ -24,8 +24,8 @@ const ALIASES: Record<string, string> = {
 	usage: 'usageStats',
 	stats: 'usageStats',
 	dashboard: 'usageStats',
-	cue: 'maestroCue',
-	maestrocue: 'maestroCue',
+	cue: 'openwizardaiCue',
+	openwizardaicue: 'openwizardaiCue',
 };
 
 interface EncoreOptions {

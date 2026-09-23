@@ -183,7 +183,7 @@ vi.mock('../../../../renderer/components/History', () => ({
 	],
 	UNIFIED_HISTORY_FILTERS_KEY: 'directorNotes.historyFilters',
 	HISTORY_PANEL_FILTERS_KEY: 'historyPanel.filters',
-	resolveInitialHistoryFilters: (key: string, maestroCueEnabled: boolean) => {
+	resolveInitialHistoryFilters: (key: string, openwizardaiCueEnabled: boolean) => {
 		try {
 			const raw = localStorage.getItem(key);
 			if (raw !== null) {
@@ -191,14 +191,14 @@ vi.mock('../../../../renderer/components/History', () => ({
 				if (Array.isArray(parsed)) {
 					const valid = parsed.filter((t) => ['USER', 'AUTO', 'CUE'].includes(t));
 					const set = new Set<string>(valid);
-					if (!maestroCueEnabled) set.delete('CUE');
+					if (!openwizardaiCueEnabled) set.delete('CUE');
 					return set;
 				}
 			}
 		} catch {
 			// fall through to default
 		}
-		return new Set(maestroCueEnabled ? ['USER', 'AUTO', 'CUE'] : ['USER', 'AUTO']);
+		return new Set(openwizardaiCueEnabled ? ['USER', 'AUTO', 'CUE'] : ['USER', 'AUTO']);
 	},
 	savePersistedHistoryFilters: (key: string, filters: Set<string>) => {
 		try {
@@ -292,7 +292,7 @@ beforeEach(() => {
 	installLocalStorageMock();
 
 	mockDirNotesSettings.defaultLookbackDays = 7;
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		directorNotes: {
 			getUnifiedHistory: mockGetUnifiedHistory,
 			getGraphData: mockGetGraphData,
@@ -315,9 +315,14 @@ beforeEach(() => {
 	mockGetGraphData.mockResolvedValue(createGraphDataResponse());
 	mockGetOffsetForTimestamp.mockResolvedValue(0);
 
-	// Default: maestroCue disabled
+	// Default: openwizardaiCue disabled
 	useSettingsStore.setState({
-		encoreFeatures: { directorNotes: false, usageStats: false, symphony: false, maestroCue: false },
+		encoreFeatures: {
+			directorNotes: false,
+			usageStats: false,
+			symphony: false,
+			openwizardaiCue: false,
+		},
 	});
 });
 
@@ -343,7 +348,7 @@ describe('UnifiedHistoryTab', () => {
 				expect(mockGetUnifiedHistory).toHaveBeenCalledWith({
 					lookbackDays: 7,
 					// All visible types selected by default; pushed to the server so
-					// pagination spans the filtered dataset (maestroCue disabled here).
+					// pagination spans the filtered dataset (openwizardaiCue disabled here).
 					filter: ['USER', 'AUTO'],
 					limit: 100,
 					offset: 0,
@@ -496,13 +501,13 @@ describe('UnifiedHistoryTab', () => {
 			expect(screen.getByText('User performed action A')).toBeInTheDocument();
 		});
 
-		it('hides CUE filter when maestroCue is disabled', async () => {
+		it('hides CUE filter when openwizardaiCue is disabled', async () => {
 			useSettingsStore.setState({
 				encoreFeatures: {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: false,
+					openwizardaiCue: false,
 				},
 			});
 
@@ -516,13 +521,13 @@ describe('UnifiedHistoryTab', () => {
 			expect(screen.queryByTestId('filter-cue')).not.toBeInTheDocument();
 		});
 
-		it('shows CUE filter when maestroCue is enabled', async () => {
+		it('shows CUE filter when openwizardaiCue is enabled', async () => {
 			useSettingsStore.setState({
 				encoreFeatures: {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 
@@ -543,7 +548,7 @@ describe('UnifiedHistoryTab', () => {
 					directorNotes: false,
 					usageStats: false,
 					symphony: false,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 			});
 			const cueEntry = {
@@ -721,7 +726,7 @@ describe('UnifiedHistoryTab', () => {
 
 			const afterUsed = useSettingsStore.getState().keyboardMasteryStats.usedShortcuts;
 			expect(afterUsed).toContain('searchDirectorNotes');
-			expect(vi.mocked(window.maestro.stats.recordShortcutUsage)).toHaveBeenCalledWith(
+			expect(vi.mocked(window.openwizardai.stats.recordShortcutUsage)).toHaveBeenCalledWith(
 				expect.any(Number)
 			);
 		});

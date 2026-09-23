@@ -352,7 +352,7 @@ function FileExplorerPanelInner(props: FileExplorerPanelProps) {
 		handleCopyFileName,
 		handleDownloadFile,
 		handleOpenInDefaultApp,
-		handleOpenInMaestroBrowser,
+		handleOpenInOpenWizardAIBrowser,
 		handleOpenInExplorer,
 		handleOpenNewFile,
 		handleOpenNewFolder,
@@ -549,7 +549,7 @@ function FileExplorerPanelInner(props: FileExplorerPanelProps) {
 					{!sshRemoteId && (
 						<button
 							onClick={() =>
-								window.maestro?.shell?.openPath(session.fullPath || session.projectRoot)
+								window.openwizardai?.shell?.openPath(session.fullPath || session.projectRoot)
 							}
 							className="fx-btn flex-1 flex items-center justify-center gap-1 py-0.5 px-2 rounded text-xs font-medium transition-colors hover:bg-white/10"
 							style={{
@@ -557,7 +557,7 @@ function FileExplorerPanelInner(props: FileExplorerPanelProps) {
 								border: `1px solid ${theme.colors.accent}40`,
 								backgroundColor: `${theme.colors.accent}15`,
 							}}
-							title={getOpenInLabel(window.maestro?.platform || 'darwin')}
+							title={getOpenInLabel(window.openwizardai?.platform || 'darwin')}
 						>
 							{!compact && <FolderOpen className="w-3 h-3" />}
 							Open
@@ -920,7 +920,7 @@ function FileExplorerPanelInner(props: FileExplorerPanelProps) {
 						</div>
 					)}
 
-					{/* Drag-out hint - a plain drag only reaches targets inside Maestro
+					{/* Drag-out hint - a plain drag only reaches targets inside OpenWizardAI
 					    (a folder row, the AI composer), so the one gesture that leaves
 					    the app is worth saying out loud while the drag is live. Not a
 					    drop target: pointer-events-none keeps it out of the way of the
@@ -1029,7 +1029,7 @@ function FileExplorerPanelInner(props: FileExplorerPanelProps) {
 					onCopyFileName={handleCopyFileName}
 					onDownloadFile={handleDownloadFile}
 					onOpenInDefaultApp={handleOpenInDefaultApp}
-					onOpenInMaestroBrowser={handleOpenInMaestroBrowser}
+					onOpenInOpenWizardAIBrowser={handleOpenInOpenWizardAIBrowser}
 					onOpenInExplorer={handleOpenInExplorer}
 					onOpenNewFile={handleOpenNewFile}
 					onOpenNewFolder={handleOpenNewFolder}

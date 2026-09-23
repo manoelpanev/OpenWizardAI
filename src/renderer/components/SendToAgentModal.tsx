@@ -1,8 +1,8 @@
 /**
- * SendToAgentModal - Modal for sending session context to another Maestro session
+ * SendToAgentModal - Modal for sending session context to another OpenWizardAI session
  *
  * Allows users to transfer context from the current session/tab to a different
- * Maestro session. The context can be groomed to remove agent-specific artifacts
+ * OpenWizardAI session. The context can be groomed to remove agent-specific artifacts
  * before transfer.
  *
  * Features:

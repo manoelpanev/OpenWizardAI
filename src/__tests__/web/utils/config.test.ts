@@ -1,12 +1,12 @@
 /**
  * Tests for src/web/utils/config.ts
  *
- * Configuration utilities for the Maestro web client.
- * Tests all exported functions and the MaestroConfig interface behavior.
+ * Configuration utilities for the OpenWizardAI web client.
+ * Tests all exported functions and the OpenWizardAIConfig interface behavior.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
-	getMaestroConfig,
+	getOpenWizardAIConfig,
 	isDashboardMode,
 	isSessionMode,
 	getCurrentSessionId,
@@ -14,7 +14,7 @@ import {
 	buildWebSocketUrl,
 	getDashboardUrl,
 	getSessionUrl,
-	type MaestroConfig,
+	type OpenWizardAIConfig,
 } from '../../../web/utils/config';
 import { webLogger } from '../../../web/utils/logger';
 
@@ -31,12 +31,12 @@ vi.mock('../../../web/utils/logger', () => ({
 describe('config.ts', () => {
 	// Store original window properties
 	let originalLocation: Location;
-	let originalMaestroConfig: MaestroConfig | undefined;
+	let originalOpenWizardAIConfig: OpenWizardAIConfig | undefined;
 
 	beforeEach(() => {
 		// Store originals
 		originalLocation = window.location;
-		originalMaestroConfig = window.__MAESTRO_CONFIG__;
+		originalOpenWizardAIConfig = window.__OPENWIZARDAI_CONFIG__;
 
 		// Reset mocks
 		vi.clearAllMocks();
@@ -54,7 +54,7 @@ describe('config.ts', () => {
 		});
 
 		// Clear config by default
-		delete window.__MAESTRO_CONFIG__;
+		delete window.__OPENWIZARDAI_CONFIG__;
 	});
 
 	afterEach(() => {
@@ -63,23 +63,23 @@ describe('config.ts', () => {
 			writable: true,
 			value: originalLocation,
 		});
-		if (originalMaestroConfig) {
-			window.__MAESTRO_CONFIG__ = originalMaestroConfig;
+		if (originalOpenWizardAIConfig) {
+			window.__OPENWIZARDAI_CONFIG__ = originalOpenWizardAIConfig;
 		} else {
-			delete window.__MAESTRO_CONFIG__;
+			delete window.__OPENWIZARDAI_CONFIG__;
 		}
 	});
 
-	describe('MaestroConfig interface', () => {
+	describe('OpenWizardAIConfig interface', () => {
 		it('should have all required properties when injected', () => {
-			const config: MaestroConfig = {
+			const config: OpenWizardAIConfig = {
 				securityToken: 'test-token-123',
 				sessionId: 'session-456',
 				apiBase: '/test-token-123/api',
 				wsUrl: '/test-token-123/ws',
 			};
 
-			window.__MAESTRO_CONFIG__ = config;
+			window.__OPENWIZARDAI_CONFIG__ = config;
 
 			expect(config.securityToken).toBe('test-token-123');
 			expect(config.sessionId).toBe('session-456');
@@ -88,48 +88,48 @@ describe('config.ts', () => {
 		});
 
 		it('should allow null sessionId for dashboard mode', () => {
-			const config: MaestroConfig = {
+			const config: OpenWizardAIConfig = {
 				securityToken: 'test-token',
 				sessionId: null,
 				apiBase: '/test-token/api',
 				wsUrl: '/test-token/ws',
 			};
 
-			window.__MAESTRO_CONFIG__ = config;
+			window.__OPENWIZARDAI_CONFIG__ = config;
 
 			expect(config.sessionId).toBeNull();
 		});
 	});
 
-	describe('getMaestroConfig()', () => {
+	describe('getOpenWizardAIConfig()', () => {
 		describe('with injected config', () => {
 			it('should return injected config when available', () => {
-				const injectedConfig: MaestroConfig = {
+				const injectedConfig: OpenWizardAIConfig = {
 					securityToken: 'injected-token',
 					sessionId: 'injected-session',
 					apiBase: '/injected-token/api',
 					wsUrl: '/injected-token/ws',
 				};
 
-				window.__MAESTRO_CONFIG__ = injectedConfig;
+				window.__OPENWIZARDAI_CONFIG__ = injectedConfig;
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result).toEqual(injectedConfig);
 				expect(webLogger.warn).not.toHaveBeenCalled();
 			});
 
 			it('should return exact reference to injected config', () => {
-				const injectedConfig: MaestroConfig = {
+				const injectedConfig: OpenWizardAIConfig = {
 					securityToken: 'ref-test',
 					sessionId: null,
 					apiBase: '/ref-test/api',
 					wsUrl: '/ref-test/ws',
 				};
 
-				window.__MAESTRO_CONFIG__ = injectedConfig;
+				window.__OPENWIZARDAI_CONFIG__ = injectedConfig;
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result).toBe(injectedConfig);
 			});
@@ -147,14 +147,14 @@ describe('config.ts', () => {
 				];
 
 				for (const token of tokens) {
-					window.__MAESTRO_CONFIG__ = {
+					window.__OPENWIZARDAI_CONFIG__ = {
 						securityToken: token,
 						sessionId: null,
 						apiBase: `/${token}/api`,
 						wsUrl: `/${token}/ws`,
 					};
 
-					const result = getMaestroConfig();
+					const result = getOpenWizardAIConfig();
 					expect(result.securityToken).toBe(token);
 				}
 			});
@@ -173,14 +173,14 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result.securityToken).toBe('my-dev-token');
 				expect(result.sessionId).toBeNull();
 				expect(result.apiBase).toBe('/my-dev-token/api');
 				expect(result.wsUrl).toBe('/my-dev-token/ws');
 				expect(webLogger.warn).toHaveBeenCalledWith(
-					'No __MAESTRO_CONFIG__ found, using development defaults',
+					'No __OPENWIZARDAI_CONFIG__ found, using development defaults',
 					'Config'
 				);
 			});
@@ -197,7 +197,7 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result.securityToken).toBe('extracted-token');
 			});
@@ -214,7 +214,7 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result.securityToken).toBe('dev-token');
 				expect(result.apiBase).toBe('/dev-token/api');
@@ -233,7 +233,7 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result.securityToken).toBe('token123');
 				expect(result.sessionId).toBe('sess-456');
@@ -251,7 +251,7 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				expect(result.sessionId).toBeNull();
 			});
@@ -268,7 +268,7 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				// pathParts = ['token123', 'session'], pathParts[2] is undefined -> null
 				expect(result.sessionId).toBeNull();
@@ -286,7 +286,7 @@ describe('config.ts', () => {
 					},
 				});
 
-				const result = getMaestroConfig();
+				const result = getOpenWizardAIConfig();
 
 				// filter(Boolean) removes empty strings
 				expect(result.securityToken).toBe('token');
@@ -297,7 +297,7 @@ describe('config.ts', () => {
 
 	describe('isDashboardMode()', () => {
 		it('should return true when sessionId is null', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: null,
 				apiBase: '/token/api',
@@ -308,7 +308,7 @@ describe('config.ts', () => {
 		});
 
 		it('should return false when sessionId is set', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: 'session-123',
 				apiBase: '/token/api',
@@ -336,7 +336,7 @@ describe('config.ts', () => {
 
 	describe('isSessionMode()', () => {
 		it('should return true when sessionId is set', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: 'active-session',
 				apiBase: '/token/api',
@@ -347,7 +347,7 @@ describe('config.ts', () => {
 		});
 
 		it('should return false when sessionId is null', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: null,
 				apiBase: '/token/api',
@@ -358,7 +358,7 @@ describe('config.ts', () => {
 		});
 
 		it('should be inverse of isDashboardMode', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: null,
 				apiBase: '/token/api',
@@ -369,7 +369,7 @@ describe('config.ts', () => {
 			expect(isSessionMode()).toBe(false);
 			expect(isDashboardMode()).not.toBe(isSessionMode());
 
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: 'some-session',
 				apiBase: '/token/api',
@@ -384,7 +384,7 @@ describe('config.ts', () => {
 
 	describe('getCurrentSessionId()', () => {
 		it('should return sessionId from config', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: 'current-session-id',
 				apiBase: '/token/api',
@@ -395,7 +395,7 @@ describe('config.ts', () => {
 		});
 
 		it('should return null when no session', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: null,
 				apiBase: '/token/api',
@@ -423,7 +423,7 @@ describe('config.ts', () => {
 
 	describe('buildApiUrl()', () => {
 		beforeEach(() => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'api-token',
 				sessionId: null,
 				apiBase: '/api-token/api',
@@ -447,7 +447,7 @@ describe('config.ts', () => {
 		});
 
 		it('should handle apiBase with trailing slash', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: null,
 				apiBase: '/token/api/',
@@ -473,21 +473,21 @@ describe('config.ts', () => {
 				writable: true,
 				value: {
 					protocol: 'https:',
-					host: 'maestro.example.com',
-					origin: 'https://maestro.example.com',
+					host: 'openwizardai.example.com',
+					origin: 'https://openwizardai.example.com',
 					pathname: '/token/dashboard',
-					href: 'https://maestro.example.com/token/dashboard',
+					href: 'https://openwizardai.example.com/token/dashboard',
 				},
 			});
 
 			const result = buildApiUrl('/status');
-			expect(result).toBe('https://maestro.example.com/api-token/api/status');
+			expect(result).toBe('https://openwizardai.example.com/api-token/api/status');
 		});
 	});
 
 	describe('buildWebSocketUrl()', () => {
 		beforeEach(() => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'ws-token',
 				sessionId: null,
 				apiBase: '/ws-token/api',
@@ -561,7 +561,7 @@ describe('config.ts', () => {
 
 	describe('getDashboardUrl()', () => {
 		it('should return dashboard URL with security token', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'dash-token',
 				sessionId: null,
 				apiBase: '/dash-token/api',
@@ -573,7 +573,7 @@ describe('config.ts', () => {
 		});
 
 		it('should use origin from window.location', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: null,
 				apiBase: '/token/api',
@@ -584,19 +584,19 @@ describe('config.ts', () => {
 				writable: true,
 				value: {
 					protocol: 'https:',
-					host: 'app.maestro.io',
-					origin: 'https://app.maestro.io',
+					host: 'app.openwizardai.io',
+					origin: 'https://app.openwizardai.io',
 					pathname: '/token/session/123',
-					href: 'https://app.maestro.io/token/session/123',
+					href: 'https://app.openwizardai.io/token/session/123',
 				},
 			});
 
 			const result = getDashboardUrl();
-			expect(result).toBe('https://app.maestro.io/token');
+			expect(result).toBe('https://app.openwizardai.io/token');
 		});
 
 		it('should work from session mode', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'return-token',
 				sessionId: 'current-session',
 				apiBase: '/return-token/api',
@@ -610,7 +610,7 @@ describe('config.ts', () => {
 
 	describe('getSessionUrl()', () => {
 		beforeEach(() => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'sess-url-token',
 				sessionId: null,
 				apiBase: '/sess-url-token/api',
@@ -649,7 +649,7 @@ describe('config.ts', () => {
 		});
 
 		it('should work from another session context', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'multi-token',
 				sessionId: 'current-session-1',
 				apiBase: '/multi-token/api',
@@ -665,7 +665,7 @@ describe('config.ts', () => {
 	describe('Integration scenarios', () => {
 		it('should support full navigation flow: dashboard -> session -> dashboard', () => {
 			// Start on dashboard
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'nav-token',
 				sessionId: null,
 				apiBase: '/nav-token/api',
@@ -681,7 +681,7 @@ describe('config.ts', () => {
 			expect(sessionUrl).toBe('http://localhost:3000/nav-token/session/session-1');
 
 			// Simulate being on session page
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'nav-token',
 				sessionId: 'session-1',
 				apiBase: '/nav-token/api',
@@ -698,7 +698,7 @@ describe('config.ts', () => {
 		});
 
 		it('should support API and WebSocket communication from session', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'comm-token',
 				sessionId: 'active-session',
 				apiBase: '/comm-token/api',
@@ -719,14 +719,14 @@ describe('config.ts', () => {
 				writable: true,
 				value: {
 					protocol: 'https:',
-					host: 'maestro.cloud.example.com',
-					origin: 'https://maestro.cloud.example.com',
+					host: 'openwizardai.cloud.example.com',
+					origin: 'https://openwizardai.cloud.example.com',
 					pathname: '/secure-token/session/prod-session',
-					href: 'https://maestro.cloud.example.com/secure-token/session/prod-session',
+					href: 'https://openwizardai.cloud.example.com/secure-token/session/prod-session',
 				},
 			});
 
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'secure-token',
 				sessionId: 'prod-session',
 				apiBase: '/secure-token/api',
@@ -735,13 +735,15 @@ describe('config.ts', () => {
 
 			// All URLs should be secure
 			const apiUrl = buildApiUrl('/health');
-			expect(apiUrl).toBe('https://maestro.cloud.example.com/secure-token/api/health');
+			expect(apiUrl).toBe('https://openwizardai.cloud.example.com/secure-token/api/health');
 
 			const wsUrl = buildWebSocketUrl('prod-session');
-			expect(wsUrl).toBe('wss://maestro.cloud.example.com/secure-token/ws?sessionId=prod-session');
+			expect(wsUrl).toBe(
+				'wss://openwizardai.cloud.example.com/secure-token/ws?sessionId=prod-session'
+			);
 
 			const dashUrl = getDashboardUrl();
-			expect(dashUrl).toBe('https://maestro.cloud.example.com/secure-token');
+			expect(dashUrl).toBe('https://openwizardai.cloud.example.com/secure-token');
 		});
 
 		it('should work with development fallback for full workflow', () => {
@@ -757,7 +759,7 @@ describe('config.ts', () => {
 			});
 
 			// Without injected config
-			const config = getMaestroConfig();
+			const config = getOpenWizardAIConfig();
 
 			expect(config.securityToken).toBe('dev-token-123');
 			expect(config.sessionId).toBe('dev-session');
@@ -772,7 +774,7 @@ describe('config.ts', () => {
 	describe('Edge cases', () => {
 		it('should handle config with empty string sessionId correctly', () => {
 			// Empty string is truthy for isSessionMode check but semantically invalid
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: '',
 				apiBase: '/token/api',
@@ -788,20 +790,20 @@ describe('config.ts', () => {
 		it('should handle very long security tokens', () => {
 			const longToken = 'a'.repeat(500);
 
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: longToken,
 				sessionId: null,
 				apiBase: `/${longToken}/api`,
 				wsUrl: `/${longToken}/ws`,
 			};
 
-			const config = getMaestroConfig();
+			const config = getOpenWizardAIConfig();
 			expect(config.securityToken).toBe(longToken);
 			expect(buildApiUrl('/test').length).toBeGreaterThan(500);
 		});
 
 		it('should handle unicode in session IDs', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'token',
 				sessionId: 'セッション-123',
 				apiBase: '/token/api',
@@ -819,7 +821,7 @@ describe('config.ts', () => {
 		});
 
 		it('should handle rapid config access', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'rapid-token',
 				sessionId: 'rapid-session',
 				apiBase: '/rapid-token/api',
@@ -827,9 +829,9 @@ describe('config.ts', () => {
 			};
 
 			// Multiple rapid accesses should all succeed
-			const results: MaestroConfig[] = [];
+			const results: OpenWizardAIConfig[] = [];
 			for (let i = 0; i < 100; i++) {
-				results.push(getMaestroConfig());
+				results.push(getOpenWizardAIConfig());
 			}
 
 			// All should be identical
@@ -837,7 +839,7 @@ describe('config.ts', () => {
 		});
 
 		it('should handle endpoints with hash fragments', () => {
-			window.__MAESTRO_CONFIG__ = {
+			window.__OPENWIZARDAI_CONFIG__ = {
 				securityToken: 'hash-token',
 				sessionId: null,
 				apiBase: '/hash-token/api',
@@ -850,23 +852,23 @@ describe('config.ts', () => {
 		});
 
 		it('should handle config being mutated externally', () => {
-			const mutableConfig: MaestroConfig = {
+			const mutableConfig: OpenWizardAIConfig = {
 				securityToken: 'original',
 				sessionId: null,
 				apiBase: '/original/api',
 				wsUrl: '/original/ws',
 			};
 
-			window.__MAESTRO_CONFIG__ = mutableConfig;
+			window.__OPENWIZARDAI_CONFIG__ = mutableConfig;
 
-			const firstResult = getMaestroConfig();
+			const firstResult = getOpenWizardAIConfig();
 			expect(firstResult.securityToken).toBe('original');
 
 			// External mutation
 			mutableConfig.securityToken = 'mutated';
 
-			// Since getMaestroConfig returns the reference, it should reflect mutation
-			const secondResult = getMaestroConfig();
+			// Since getOpenWizardAIConfig returns the reference, it should reflect mutation
+			const secondResult = getOpenWizardAIConfig();
 			expect(secondResult.securityToken).toBe('mutated');
 		});
 	});

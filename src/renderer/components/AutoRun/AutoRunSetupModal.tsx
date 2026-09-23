@@ -36,7 +36,7 @@ export function AutoRunSetupModal({
 
 	// Fetch home directory on mount for tilde expansion
 	useEffect(() => {
-		window.maestro.fs.homeDir().then(setHomeDir);
+		window.openwizardai.fs.homeDir().then(setHomeDir);
 	}, []);
 
 	// Expand tilde in path
@@ -75,7 +75,7 @@ export function AutoRunSetupModal({
 					}
 				}
 
-				const result = await window.maestro.autorun.listDocs(expandedPath, sshRemoteId);
+				const result = await window.openwizardai.autorun.listDocs(expandedPath, sshRemoteId);
 
 				if (result.success) {
 					setFolderValidation({
@@ -105,7 +105,7 @@ export function AutoRunSetupModal({
 	}, [selectedFolder, homeDir, sshRemoteId]);
 
 	const handleSelectFolder = async () => {
-		const folder = await window.maestro.dialog.selectFolder();
+		const folder = await window.openwizardai.dialog.selectFolder();
 		if (folder) {
 			setSelectedFolder(folder);
 			// Focus continue button after folder picker selection (not on typing)
@@ -167,7 +167,7 @@ export function AutoRunSetupModal({
 				<div className="space-y-4">
 					<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
 						Auto Run lets you manage and execute Markdown documents containing open tasks. Select a
-						folder that contains your task documents. Each OpenWizzard agent is assigned its own
+						folder that contains your task documents. Each OpenWizardAI agent is assigned its own
 						working folder.
 					</p>
 

@@ -1,7 +1,7 @@
 /**
  * Preload API for logging operations
  *
- * Provides the window.maestro.logger namespace for:
+ * Provides the window.openwizardai.logger namespace for:
  * - Application logging
  * - Log level management
  * - Real-time log subscriptions

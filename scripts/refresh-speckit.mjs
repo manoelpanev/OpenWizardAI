@@ -48,7 +48,7 @@ const UPSTREAM_COMMANDS = [
 function httpsGet(url, options = {}) {
 	return new Promise((resolve, reject) => {
 		const headers = {
-			'User-Agent': 'Maestro-SpecKit-Refresher',
+			'User-Agent': 'OpenWizardAI-SpecKit-Refresher',
 			...options.headers,
 		};
 
@@ -231,7 +231,7 @@ async function refreshSpecKit() {
 		console.log('\n✅ Refresh complete!');
 		console.log(`   Version: ${version.replace(/^v/, '')}`);
 		console.log(`   Updated: ${updatedCount} files`);
-		console.log(`   Skipped: implement (custom Maestro prompt)`);
+		console.log(`   Skipped: implement (custom OpenWizardAI prompt)`);
 	} catch (error) {
 		console.error('\n❌ Refresh failed:', error.message);
 		process.exit(1);

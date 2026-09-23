@@ -104,7 +104,7 @@ function useAgentLevelEnvVars(toolTypes: string[]): {
 		for (const toolType of key ? key.split(',') : []) {
 			if (fetchedRef.current.has(toolType)) continue;
 			fetchedRef.current.add(toolType);
-			const fetcher = window.maestro?.agents?.getCustomEnvVars;
+			const fetcher = window.openwizardai?.agents?.getCustomEnvVars;
 			if (typeof fetcher !== 'function') {
 				markSettled(toolType);
 				continue;
@@ -138,10 +138,10 @@ function useAgentLevelEnvVars(toolTypes: string[]): {
 export function useSshRemoteNames(needed: boolean): Record<string, string> {
 	const [names, setNames] = useState<Record<string, string>>({});
 	useEffect(() => {
-		if (!needed || typeof window.maestro?.sshRemote?.getConfigs !== 'function') return;
+		if (!needed || typeof window.openwizardai?.sshRemote?.getConfigs !== 'function') return;
 		let cancelled = false;
 		ipcCache
-			.getOrFetch('ssh-configs', () => window.maestro.sshRemote.getConfigs(), 30000)
+			.getOrFetch('ssh-configs', () => window.openwizardai.sshRemote.getConfigs(), 30000)
 			.then((result) => {
 				if (cancelled || !result?.success || !result.configs) return;
 				const byId: Record<string, string> = {};

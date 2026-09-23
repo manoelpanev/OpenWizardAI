@@ -84,7 +84,7 @@ export const AutoRunStats = memo(function AutoRunStats({
 		setError(null);
 
 		try {
-			const autoRunSessions = await window.maestro.stats.getAutoRunSessions(timeRange);
+			const autoRunSessions = await window.openwizardai.stats.getAutoRunSessions(timeRange);
 			setSessions(autoRunSessions);
 		} catch (err) {
 			captureException(err);
@@ -99,7 +99,7 @@ export const AutoRunStats = memo(function AutoRunStats({
 		fetchData();
 
 		// Subscribe to stats updates
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			fetchData();
 		});
 

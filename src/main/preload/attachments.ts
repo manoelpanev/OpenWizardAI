@@ -1,7 +1,7 @@
 /**
  * Preload API for attachments
  *
- * Provides the window.maestro.attachments namespace for:
+ * Provides the window.openwizardai.attachments namespace for:
  * - Per-session image storage for scratchpad
  * - Saving, loading, deleting attachments
  * - Listing attachments for a session

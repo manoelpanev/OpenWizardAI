@@ -56,7 +56,7 @@ import type {
 	Theme,
 	Session,
 	AutoRunStats as AutoRunStatsType,
-	MaestroUsageStats,
+	OpenWizardAIUsageStats,
 	UsageDashboardViewMode as ViewMode,
 } from '../../types';
 import {
@@ -136,8 +136,8 @@ interface UsageDashboardModalProps {
 	autoRunStats?: AutoRunStatsType;
 	/** Optional global stats - drives the Sessions/Tokens row in the share image. */
 	globalStats?: AchievementShareGlobalStats | null;
-	/** Maestro peak-usage stats - drives the bottom row of the share image. */
-	usageStats?: MaestroUsageStats | null;
+	/** OpenWizardAI peak-usage stats - drives the bottom row of the share image. */
+	usageStats?: OpenWizardAIUsageStats | null;
 	/** Global hands-on time, in ms, sourced from settings. */
 	handsOnTimeMs?: number;
 }
@@ -206,7 +206,7 @@ export function UsageDashboardModal({
 	// instead of the friendly disabled note.
 	const usageStatsTabEnabled = useSettingsStore((s) => s.encoreFeatures.usageStats);
 	const cueTabEnabled = useSettingsStore(
-		(s) => s.encoreFeatures.maestroCue && s.encoreFeatures.usageStats
+		(s) => s.encoreFeatures.openwizardaiCue && s.encoreFeatures.usageStats
 	);
 	// Groups come straight from the store rather than a prop: the dashboard is
 	// the only consumer, and threading them through AppInfoModals would add a
@@ -318,10 +318,10 @@ export function UsageDashboardModal({
 				// `cueStats`, and reaching through an undefined namespace would
 				// throw past the per-call catch and error out the whole dashboard.
 				const [stats, dbSize, cueAgg] = await Promise.all([
-					window.maestro.stats.getAggregation(timeRange),
-					window.maestro.stats.getDatabaseSize(),
-					cueTabEnabled && window.maestro.cueStats
-						? window.maestro.cueStats.getAggregation(timeRange).catch((err) => {
+					window.openwizardai.stats.getAggregation(timeRange),
+					window.openwizardai.stats.getDatabaseSize(),
+					cueTabEnabled && window.openwizardai.cueStats
+						? window.openwizardai.cueStats.getAggregation(timeRange).catch((err) => {
 								logger.warn('Failed to fetch Cue totals for source chart:', undefined, err);
 								return null;
 							})
@@ -378,7 +378,7 @@ export function UsageDashboardModal({
 	// first snapshot never runs (boot sampling uses a strict recent-session
 	// filter and the panels mount with autoRefresh={false}). Sampling is gated
 	// to once per open and skipped entirely when data is already present, so the
-	// expensive paths (Claude's maestro-p spawn, Codex's quota HTTP request) only
+	// expensive paths (Claude's openwizardai-p spawn, Codex's quota HTTP request) only
 	// fire when there is genuinely nothing to show.
 	const quotaSampledForOpenRef = useRef(false);
 	useEffect(() => {
@@ -407,7 +407,7 @@ export function UsageDashboardModal({
 			const jobs: Promise<unknown>[] = [];
 			if (!claudeHasData) {
 				jobs.push(
-					window.maestro.agents
+					window.openwizardai.agents
 						.refreshClaudeUsageSnapshots()
 						.then(() => useClaudeUsageStore.getState().refresh())
 						.catch(() => {
@@ -418,7 +418,7 @@ export function UsageDashboardModal({
 			}
 			if (!codexHasData) {
 				jobs.push(
-					window.maestro.agents
+					window.openwizardai.agents
 						.refreshCodexUsageSnapshots()
 						.then(() => useCodexUsageStore.getState().refresh())
 						.catch(() => {})
@@ -436,7 +436,7 @@ export function UsageDashboardModal({
 
 		// Subscribe to stats updates with debounce
 		let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			if (debounceTimer) clearTimeout(debounceTimer);
 			debounceTimer = setTimeout(() => {
 				fetchStats(true);
@@ -712,8 +712,8 @@ export function UsageDashboardModal({
 		setIsExporting(true);
 		try {
 			// Show save dialog to let user choose file location
-			const defaultFilename = `maestro-usage-${timeRange}-${new Date().toISOString().split('T')[0]}.csv`;
-			const filePath = await window.maestro.dialog.saveFile({
+			const defaultFilename = `openwizardai-usage-${timeRange}-${new Date().toISOString().split('T')[0]}.csv`;
+			const filePath = await window.openwizardai.dialog.saveFile({
 				defaultPath: defaultFilename,
 				filters: [{ name: 'CSV Files', extensions: ['csv'] }],
 				title: 'Export Usage Data',
@@ -725,8 +725,8 @@ export function UsageDashboardModal({
 			}
 
 			// Get CSV data and write to selected file
-			const csv = await window.maestro.stats.exportCsv(timeRange);
-			await window.maestro.fs.writeFile(filePath, csv);
+			const csv = await window.openwizardai.stats.exportCsv(timeRange);
+			await window.openwizardai.fs.writeFile(filePath, csv);
 		} catch (err) {
 			logger.error('Failed to export CSV:', undefined, err);
 		} finally {

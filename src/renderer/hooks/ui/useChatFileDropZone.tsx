@@ -7,7 +7,7 @@
  * element to render as that container's last child.
  *
  * A file dragged in from the OS carries the `Files` type; a row dragged out of
- * the Files panel carries `application/x-maestro-file-path`. Either should light
+ * the Files panel carries `application/x-openwizardai-file-path`. Either should light
  * up the chat drop target. The actual attach logic lives in the caller's
  * `onDrop` (the shared `handleDrop` from useInputHandlers), which inserts an
  * @mention or stages an image.
@@ -34,7 +34,7 @@ import { dragCarriesStagedImage } from '../../components/InputArea/components/st
 function dragCarriesChatPayload(dataTransfer: DataTransfer | null): boolean {
 	if (!dataTransfer) return false;
 	const types = Array.from(dataTransfer.types);
-	return types.includes('Files') || types.includes('application/x-maestro-file-path');
+	return types.includes('Files') || types.includes('application/x-openwizardai-file-path');
 }
 
 /** True for anything this region should let go through to `onDrop`. */

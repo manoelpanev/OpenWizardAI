@@ -10,7 +10,7 @@
  * every agent on the machine.
  *
  * Precedence (later wins), mirroring the agent spawner:
- *   1. global   - Settings -> Environment, applies to every process Maestro spawns
+ *   1. global   - Settings -> Environment, applies to every process OpenWizardAI spawns
  *   2. session  - this agent's own vars, from Edit Agent, OR, when the agent has
  *      no vars record at all, agent: the provider-level set for its provider.
  *      Never both - the session record replaces the provider set.

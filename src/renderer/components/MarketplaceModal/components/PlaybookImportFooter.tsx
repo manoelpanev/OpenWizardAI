@@ -85,7 +85,7 @@ export function PlaybookImportFooter({
 					}}
 					title={
 						!compatible
-							? `Update OpenWizzard to ${playbook.minMaestroVersion} or newer to install this playbook.`
+							? `Update OpenWizardAI to ${playbook.minOpenWizardAIVersion} or newer to install this playbook.`
 							: undefined
 					}
 				>
@@ -97,7 +97,7 @@ export function PlaybookImportFooter({
 					) : !compatible ? (
 						<span className="flex items-center gap-2">
 							<Download className="w-4 h-4" />
-							Update OpenWizzard to install
+							Update OpenWizardAI to install
 						</span>
 					) : (
 						<span className="flex items-center gap-2">

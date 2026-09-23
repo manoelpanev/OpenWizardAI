@@ -98,17 +98,17 @@ vi.mock('../../../renderer/stores/modalStore', () => ({
 	selectModalData: (id: string) => (state: any) => state.modals.get(id)?.data,
 }));
 
-// Mock window.maestro.cue
+// Mock window.openwizardai.cue
 const mockGetGraphData = vi.fn().mockResolvedValue([]);
 const mockDeleteYaml = vi.fn().mockResolvedValue(undefined);
-if (!window.maestro) {
-	(window as unknown as Record<string, unknown>).maestro = {};
+if (!window.openwizardai) {
+	(window as unknown as Record<string, unknown>).openwizardai = {};
 }
-if (!(window.maestro as Record<string, unknown>).cue) {
-	(window.maestro as Record<string, unknown>).cue = {};
+if (!(window.openwizardai as Record<string, unknown>).cue) {
+	(window.openwizardai as Record<string, unknown>).cue = {};
 }
-(window.maestro.cue as Record<string, unknown>).getGraphData = mockGetGraphData;
-(window.maestro.cue as Record<string, unknown>).deleteYaml = mockDeleteYaml;
+(window.openwizardai.cue as Record<string, unknown>).getGraphData = mockGetGraphData;
+(window.openwizardai.cue as Record<string, unknown>).deleteYaml = mockDeleteYaml;
 
 // Mock useCue hook
 const mockEnable = vi.fn().mockResolvedValue(undefined);
@@ -215,7 +215,7 @@ describe('CueModal', () => {
 		it('should render the modal with header', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
-			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Cue')).toBeInTheDocument();
 		});
 
 		it('should register layer on mount and unregister on unmount', () => {
@@ -453,7 +453,7 @@ describe('CueModal', () => {
 			expect(screen.queryByText('Sessions with Cue')).not.toBeInTheDocument();
 		});
 
-		// A deep link (`maestro-cli open cue --tab activity`) states where to
+		// A deep link (`openwizardai-cli open cue --tab activity`) states where to
 		// land, so it must beat whatever tab happened to be open last.
 		it('lets an explicit initialTab override the remembered tab', () => {
 			const first = render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
@@ -593,17 +593,20 @@ describe('CueModal', () => {
 		});
 
 		it('selects a command-only pipeline that the agent owns', async () => {
-			await renderWithGraph([commandSub('discord-bus', 'Maestro')]);
+			await renderWithGraph([commandSub('discord-bus', 'OpenWizardAI')]);
 
 			await waitFor(() => {
 				fireEvent.click(screen.getByText('View in Graph'));
-				expect(capturedEditorProps.initialGraphTarget?.id).toBe('pipeline-Maestro');
+				expect(capturedEditorProps.initialGraphTarget?.id).toBe('pipeline-OpenWizardAI');
 			});
 			expect(capturedEditorProps.initialGraphTarget?.scope).toBeUndefined();
 		});
 
 		it('scopes the All Pipelines view when the agent owns several', async () => {
-			await renderWithGraph([commandSub('bus', 'Maestro'), commandSub('sweeper', 'Maestro Sweep')]);
+			await renderWithGraph([
+				commandSub('bus', 'OpenWizardAI'),
+				commandSub('sweeper', 'OpenWizardAI Sweep'),
+			]);
 
 			await waitFor(() => {
 				fireEvent.click(screen.getByText('View in Graph'));
@@ -614,7 +617,7 @@ describe('CueModal', () => {
 			expect(target.scope).toEqual({
 				sessionId: 'sess-1',
 				sessionName: 'Test Session',
-				pipelineIds: ['pipeline-Maestro', 'pipeline-Maestro Sweep'],
+				pipelineIds: ['pipeline-OpenWizardAI', 'pipeline-OpenWizardAI Sweep'],
 			});
 		});
 	});
@@ -843,19 +846,19 @@ describe('CueModal', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
 			// Click help button
-			const helpButton = screen.getByTitle('About OpenWizzard Cue');
+			const helpButton = screen.getByTitle('About OpenWizardAI Cue');
 			fireEvent.click(helpButton);
 
 			// Guide is layered on top - both its title and the Cue header are present
-			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
-			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Cue Guide')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Cue')).toBeInTheDocument();
 		});
 
 		it('should close only the guide on escape, leaving the Cue modal open', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
-			fireEvent.click(screen.getByTitle('About OpenWizzard Cue'));
-			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
+			fireEvent.click(screen.getByTitle('About OpenWizardAI Cue'));
+			expect(screen.getByText('OpenWizardAI Cue Guide')).toBeInTheDocument();
 
 			// Escape on the guide's own layer
 			act(() => {
@@ -863,22 +866,22 @@ describe('CueModal', () => {
 			});
 
 			// Guide is gone, Cue modal stays open
-			expect(screen.queryByText('OpenWizzard Cue Guide')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizardAI Cue Guide')).not.toBeInTheDocument();
 			expect(mockOnClose).not.toHaveBeenCalled();
-			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Cue')).toBeInTheDocument();
 		});
 
 		it('should close the guide via its close button', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
-			fireEvent.click(screen.getByTitle('About OpenWizzard Cue'));
-			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
+			fireEvent.click(screen.getByTitle('About OpenWizardAI Cue'));
+			expect(screen.getByText('OpenWizardAI Cue Guide')).toBeInTheDocument();
 
 			// The guide's close button is the last "Close"-titled button in the DOM
 			const closeButtons = screen.getAllByTitle('Close');
 			fireEvent.click(closeButtons[closeButtons.length - 1]);
 
-			expect(screen.queryByText('OpenWizzard Cue Guide')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizardAI Cue Guide')).not.toBeInTheDocument();
 			expect(mockOnClose).not.toHaveBeenCalled();
 		});
 
@@ -917,8 +920,8 @@ describe('CueModal', () => {
 			});
 
 			// Open the guide
-			fireEvent.click(screen.getByTitle('About OpenWizzard Cue'));
-			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
+			fireEvent.click(screen.getByTitle('About OpenWizardAI Cue'));
+			expect(screen.getByText('OpenWizardAI Cue Guide')).toBeInTheDocument();
 
 			// Escape on the guide layer just closes the guide - no discard prompt
 			act(() => {
@@ -927,7 +930,7 @@ describe('CueModal', () => {
 
 			expect(mockShowConfirmation).not.toHaveBeenCalled();
 			expect(mockOnClose).not.toHaveBeenCalled();
-			expect(screen.queryByText('OpenWizzard Cue Guide')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizardAI Cue Guide')).not.toBeInTheDocument();
 		});
 	});
 });

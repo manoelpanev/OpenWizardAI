@@ -986,7 +986,7 @@ describe('Forced parallel send shortcut', () => {
 
 		const used = useSettingsStore.getState().keyboardMasteryStats.usedShortcuts;
 		expect(used).toContain('forcedParallelSend');
-		expect(vi.mocked(window.maestro.stats.recordShortcutUsage)).toHaveBeenCalledWith(
+		expect(vi.mocked(window.openwizardai.stats.recordShortcutUsage)).toHaveBeenCalledWith(
 			expect.any(Number)
 		);
 	});
@@ -1121,11 +1121,11 @@ describe('Forced parallel send shortcut', () => {
 		renderHook(() => useInputKeyDown(deps));
 
 		const queued = vi.fn();
-		window.addEventListener('maestro:triggerForceSendQueued', queued);
+		window.addEventListener('openwizardai:triggerForceSendQueued', queued);
 		act(() => {
 			window.dispatchEvent(new CustomEvent(FORCED_PARALLEL_SEND_EVENT));
 		});
-		window.removeEventListener('maestro:triggerForceSendQueued', queued);
+		window.removeEventListener('openwizardai:triggerForceSendQueued', queued);
 
 		expect(queued).toHaveBeenCalledTimes(1);
 		expect(deps.processInput).not.toHaveBeenCalled();

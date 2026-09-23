@@ -53,7 +53,7 @@ describe('useResizableModal', () => {
 	beforeEach(() => {
 		setViewport(1200, 900);
 		useSettingsStore.setState({ modalSizes: {} });
-		vi.mocked(window.maestro.settings.set).mockClear();
+		vi.mocked(window.openwizardai.settings.set).mockClear();
 	});
 
 	afterEach(() => {
@@ -86,7 +86,7 @@ describe('useResizableModal', () => {
 
 		expect(modal.style.width).toBe('500px');
 		expect(modal.style.height).toBe('340px');
-		expect(window.maestro.settings.set).not.toHaveBeenCalled();
+		expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 
 		fireEvent.mouseUp(document);
 
@@ -94,7 +94,7 @@ describe('useResizableModal', () => {
 			width: 500,
 			height: 340,
 		});
-		expect(window.maestro.settings.set).toHaveBeenCalledWith('modalSizes', {
+		expect(window.openwizardai.settings.set).toHaveBeenCalledWith('modalSizes', {
 			'test-modal': { width: 500, height: 340 },
 		});
 	});
@@ -145,7 +145,7 @@ describe('useResizableModal', () => {
 		// DOM and React state re-clamp synchronously; only the settings write is debounced.
 		expect(modal.style.width).toBe('436px');
 		expect(modal.style.height).toBe('336px');
-		expect(window.maestro.settings.set).not.toHaveBeenCalled();
+		expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 350));
@@ -173,14 +173,14 @@ describe('useResizableModal', () => {
 			window.dispatchEvent(new Event('resize'));
 		});
 
-		expect(window.maestro.settings.set).not.toHaveBeenCalled();
+		expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 
 		await act(async () => {
 			await new Promise((resolve) => setTimeout(resolve, 350));
 		});
 
 		// Three rapid ticks coalesce into a single persisted write.
-		expect(window.maestro.settings.set).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.settings.set).toHaveBeenCalledTimes(1);
 	});
 
 	it('a manual drag commit is not later overwritten by a stale pending debounced resize write', async () => {
@@ -244,7 +244,7 @@ describe('useResizableModal', () => {
 		fireEvent.mouseUp(document);
 
 		// Only the second (active) drag should commit.
-		expect(window.maestro.settings.set).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.settings.set).toHaveBeenCalledTimes(1);
 	});
 
 	it('commits the in-progress size and tears down listeners when the window loses focus mid-drag', () => {
@@ -258,7 +258,7 @@ describe('useResizableModal', () => {
 		fireEvent.mouseMove(document, { clientX: 50, clientY: 20 });
 
 		expect(modal.style.width).toBe('500px');
-		expect(window.maestro.settings.set).not.toHaveBeenCalled();
+		expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 
 		fireEvent(window, new Event('blur'));
 
@@ -363,7 +363,7 @@ describe('useResizableModal', () => {
 			fireEvent.doubleClick(screen.getByTestId('modal-resize-handle-se'));
 
 			expect(useSettingsStore.getState().modalSizes['test-modal']).toBeUndefined();
-			expect(window.maestro.settings.set).toHaveBeenLastCalledWith('modalSizes', {});
+			expect(window.openwizardai.settings.set).toHaveBeenLastCalledWith('modalSizes', {});
 			// The resolve effect rewrites the inline size from defaultSize.
 			expect(modal).toHaveStyle({ width: '400px', height: '300px' });
 		});
@@ -400,7 +400,7 @@ describe('useResizableModal', () => {
 
 			fireEvent.doubleClick(screen.getByTestId('modal-resize-handle-se'));
 
-			expect(window.maestro.settings.set).not.toHaveBeenCalled();
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 		});
 
 		it('only advertises the reset gesture once a size is remembered', () => {

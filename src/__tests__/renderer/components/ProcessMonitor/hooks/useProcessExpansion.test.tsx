@@ -43,7 +43,7 @@ const tree4: ProcessNode[] = [
 ];
 
 describe('useProcessExpansion', () => {
-	const STORAGE_KEY = 'maestro.processMonitor.expandedLevel';
+	const STORAGE_KEY = 'openwizardai.processMonitor.expandedLevel';
 
 	beforeEach(() => {
 		const store = new Map<string, string>();

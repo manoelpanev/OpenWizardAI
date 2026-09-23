@@ -206,7 +206,7 @@ export function getEarlySettings(syncPath: string): {
 		useNativeTitleBar: boolean;
 		autoHideMenuBar: boolean;
 	}>({
-		name: 'maestro-settings',
+		name: 'openwizardai-settings',
 		cwd: syncPath,
 		deserialize: parseJsonWithBom,
 	});

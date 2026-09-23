@@ -3,7 +3,7 @@
  *
  * Pasted conversation images are stored content-addressed on disk by
  * `src/main/storage/session-image-store.ts` and referenced from the session
- * JSON as `maestro-image://store/<sha256>.<ext>`. The `maestro-image` protocol
+ * JSON as `openwizardai-image://store/<sha256>.<ext>`. The `openwizardai-image` protocol
  * (registered in `src/main/index.ts`) serves those refs straight into
  * `<img src>`, so the bytes never re-enter the JSON blob or an IPC payload.
  *
@@ -14,15 +14,15 @@
  */
 
 /** Scheme + host of every reference this app produces. */
-export const IMAGE_REF_PREFIX = 'maestro-image://store/';
+export const IMAGE_REF_PREFIX = 'openwizardai-image://store/';
 
-/** True if `value` is a `maestro-image://` reference produced by the store. */
+/** True if `value` is a `openwizardai-image://` reference produced by the store. */
 export function isSessionImageRef(value: unknown): value is string {
 	return typeof value === 'string' && value.startsWith(IMAGE_REF_PREFIX);
 }
 
 /**
- * Query parameters the `maestro-image` protocol handler understands for
+ * Query parameters the `openwizardai-image` protocol handler understands for
  * on-the-fly (disk-cached) downscaling. Bare refs - no query - always serve the
  * original bytes, so the lightbox and every export path are unaffected.
  */

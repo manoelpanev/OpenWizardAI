@@ -3,7 +3,7 @@
  *
  * The order of `stagedImages` IS the order the agent receives: every send path
  * walks the array in order (stream-json builds one image content block per
- * element, the temp-file path writes `maestro-image-<ts>-<index>` and lists the
+ * element, the temp-file path writes `openwizardai-image-<ts>-<index>` and lists the
  * paths in order). Nothing maps a filename back to a slot, so reordering the
  * array is the whole of reordering what "Screenshot 2" refers to.
  *

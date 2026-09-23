@@ -163,7 +163,7 @@ vi.mock('../../../renderer/stores/onboardingSeriesStore', () => ({
 }));
 
 // ============================================================================
-// Mock window.maestro
+// Mock window.openwizardai
 // ============================================================================
 
 const mockCheckGhCli = vi.fn();
@@ -179,7 +179,7 @@ const mockGetInitializationResult = vi.fn();
 const mockClearInitializationResult = vi.fn();
 
 beforeAll(() => {
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		git: { checkGhCli: mockCheckGhCli },
 		power: { getStatus: mockGetStatus },
 		settings: { get: mockSettingsGet, set: mockSettingsSet },
@@ -338,7 +338,7 @@ describe('useAppInitialization', () => {
 			// Should update to 95%
 			expect((window as any).__updateSplash).toHaveBeenCalledWith(
 				95,
-				'OpenWizzard takes the podium...'
+				'OpenWizardAI takes the podium...'
 			);
 
 			// Advance past the 150ms delay
@@ -854,11 +854,11 @@ describe('useAppInitialization', () => {
 
 		it('should sync idle notification settings', async () => {
 			mockSettingsState.idleNotificationEnabled = true;
-			mockSettingsState.idleNotificationCommand = 'say OpenWizzard is idle';
+			mockSettingsState.idleNotificationCommand = 'say OpenWizardAI is idle';
 			renderHook(() => useAppInitialization());
 			await act(flushPromises);
 
-			expect(mockSetIdleNotification).toHaveBeenCalledWith(true, 'say OpenWizzard is idle');
+			expect(mockSetIdleNotification).toHaveBeenCalledWith(true, 'say OpenWizardAI is idle');
 		});
 	});
 

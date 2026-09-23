@@ -59,7 +59,7 @@ export function useOsFileDragOut({
 			// folders both drag out fine.
 			if (!sshRemoteId) {
 				const abs = relSources.map((r) => `${fullPath}/${r}`);
-				window.maestro.fs.startDragOut(abs);
+				window.openwizardai.fs.startDragOut(abs);
 				return true;
 			}
 
@@ -83,7 +83,7 @@ export function useOsFileDragOut({
 
 			// All bytes are already local (downloaded on a prior drag) - seamless.
 			if (uncached.length === 0) {
-				window.maestro.fs.startDragOut(cached);
+				window.openwizardai.fs.startDragOut(cached);
 				return true;
 			}
 
@@ -99,7 +99,10 @@ export function useOsFileDragOut({
 				let ready = 0;
 				for (const r of uncached) {
 					try {
-						const res = await window.maestro.fs.downloadRemoteFile(`${fullPath}/${r}`, sshRemoteId);
+						const res = await window.openwizardai.fs.downloadRemoteFile(
+							`${fullPath}/${r}`,
+							sshRemoteId
+						);
 						if (res?.path) {
 							remoteTempCache.current.set(r, res.path);
 							ready++;

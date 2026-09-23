@@ -624,7 +624,7 @@ describe('ExitHandler', () => {
 			const fs = await import('fs/promises');
 			const os = await import('os');
 			const path = await import('path');
-			const configDir = await fs.mkdtemp(path.join(os.tmpdir(), 'maestro-exit-copilot-'));
+			const configDir = await fs.mkdtemp(path.join(os.tmpdir(), 'openwizardai-exit-copilot-'));
 			const agentSessionId = 'cp-exit-session';
 			const eventsPath = path.join(configDir, 'session-state', agentSessionId, 'events.jsonl');
 			await fs.mkdir(path.dirname(eventsPath), { recursive: true });

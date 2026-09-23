@@ -28,7 +28,7 @@ describe('requestTranscriptScrollToBottom', () => {
 	it('binds the event name the transcript listens for', () => {
 		// Hard-coded rather than read from the constant: this string is the
 		// contract with TerminalOutput's listener.
-		expect(TRANSCRIPT_SCROLL_TO_BOTTOM_EVENT).toBe('maestro:scrollTranscriptToBottom');
+		expect(TRANSCRIPT_SCROLL_TO_BOTTOM_EVENT).toBe('openwizardai:scrollTranscriptToBottom');
 	});
 
 	it('raises the event naming both the agent and the tab', () => {

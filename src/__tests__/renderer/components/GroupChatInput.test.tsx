@@ -82,8 +82,8 @@ describe('GroupChatInput', () => {
 	describe('@mention autocomplete', () => {
 		it('shows mention dropdown when typing @', () => {
 			const sessions = [
-				createMockSession('session-1', 'Maestro', 'claude-code'),
-				createMockSession('session-2', 'RunMaestro.ai', 'claude-code'),
+				createMockSession('session-1', 'OpenWizardAI', 'claude-code'),
+				createMockSession('session-2', 'manoelpanev.ai', 'claude-code'),
 			];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
@@ -92,29 +92,29 @@ describe('GroupChatInput', () => {
 			typeInTextarea(textarea, '@');
 
 			// Should show dropdown with both sessions
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
-			expect(screen.getByText('@RunMaestro.ai')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
+			expect(screen.getByText('@manoelpanev.ai')).toBeInTheDocument();
 		});
 
 		it('filters mention suggestions as user types', () => {
 			const sessions = [
-				createMockSession('session-1', 'Maestro', 'claude-code'),
-				createMockSession('session-2', 'RunMaestro.ai', 'claude-code'),
+				createMockSession('session-1', 'OpenWizardAI', 'claude-code'),
+				createMockSession('session-2', 'manoelpanev.ai', 'claude-code'),
 				createMockSession('session-3', 'OtherAgent', 'claude-code'),
 			];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
 			const textarea = screen.getByPlaceholderText(/Type a message/i) as HTMLTextAreaElement;
-			typeInTextarea(textarea, '@Mae');
+			typeInTextarea(textarea, '@Ope');
 
 			// Should only show matching sessions (case-insensitive)
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 			expect(screen.queryByText('@OtherAgent')).not.toBeInTheDocument();
 		});
 
 		it('inserts mention when clicking suggestion', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
@@ -122,15 +122,15 @@ describe('GroupChatInput', () => {
 			typeInTextarea(textarea, '@');
 
 			// Click on the suggestion
-			const suggestion = screen.getByText('@Maestro');
+			const suggestion = screen.getByText('@OpenWizardAI');
 			fireEvent.click(suggestion);
 
 			// Should insert the mention
-			expect(textarea.value).toBe('@Maestro ');
+			expect(textarea.value).toBe('@OpenWizardAI ');
 		});
 
 		it('inserts mention when pressing Tab', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
@@ -141,11 +141,11 @@ describe('GroupChatInput', () => {
 			fireEvent.keyDown(textarea, { key: 'Tab' });
 
 			// Should insert the mention
-			expect(textarea.value).toBe('@Maestro ');
+			expect(textarea.value).toBe('@OpenWizardAI ');
 		});
 
 		it('inserts mention when pressing Enter (without modifier)', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
@@ -156,7 +156,7 @@ describe('GroupChatInput', () => {
 			fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
 
 			// Should insert the mention
-			expect(textarea.value).toBe('@Maestro ');
+			expect(textarea.value).toBe('@OpenWizardAI ');
 		});
 
 		it('navigates suggestions with arrow keys', () => {
@@ -183,7 +183,7 @@ describe('GroupChatInput', () => {
 		});
 
 		it('closes dropdown when pressing Escape', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
@@ -191,17 +191,17 @@ describe('GroupChatInput', () => {
 			typeInTextarea(textarea, '@');
 
 			// Dropdown should be visible
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 
 			// Press Escape
 			fireEvent.keyDown(textarea, { key: 'Escape' });
 
 			// Dropdown should be hidden
-			expect(screen.queryByText('@Maestro')).not.toBeInTheDocument();
+			expect(screen.queryByText('@OpenWizardAI')).not.toBeInTheDocument();
 		});
 
 		it('closes dropdown when typing space after @mention trigger', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
@@ -209,18 +209,18 @@ describe('GroupChatInput', () => {
 			typeInTextarea(textarea, '@');
 
 			// Dropdown should be visible
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 
 			// Type space to close
 			typeInTextarea(textarea, '@ ');
 
 			// Dropdown should be hidden
-			expect(screen.queryByText('@Maestro')).not.toBeInTheDocument();
+			expect(screen.queryByText('@OpenWizardAI')).not.toBeInTheDocument();
 		});
 
 		it('excludes terminal sessions from mention suggestions', () => {
 			const sessions = [
-				createMockSession('session-1', 'Maestro', 'claude-code'),
+				createMockSession('session-1', 'OpenWizardAI', 'claude-code'),
 				createMockSession('session-2', 'Terminal', 'terminal'),
 			];
 
@@ -230,7 +230,7 @@ describe('GroupChatInput', () => {
 			typeInTextarea(textarea, '@');
 
 			// Should only show non-terminal sessions
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 			expect(screen.queryByText('@Terminal')).not.toBeInTheDocument();
 		});
 
@@ -249,7 +249,7 @@ describe('GroupChatInput', () => {
 
 		it('handles sessions with special characters in names', () => {
 			const sessions = [
-				createMockSession('session-1', 'RunMaestro.ai', 'claude-code'),
+				createMockSession('session-1', 'manoelpanev.ai', 'claude-code'),
 				createMockSession('session-2', 'my-agent', 'claude-code'),
 				createMockSession('session-3', 'agent_test', 'claude-code'),
 			];
@@ -260,13 +260,13 @@ describe('GroupChatInput', () => {
 			typeInTextarea(textarea, '@');
 
 			// All should be shown
-			expect(screen.getByText('@RunMaestro.ai')).toBeInTheDocument();
+			expect(screen.getByText('@manoelpanev.ai')).toBeInTheDocument();
 			expect(screen.getByText('@my-agent')).toBeInTheDocument();
 			expect(screen.getByText('@agent_test')).toBeInTheDocument();
 		});
 
 		it('shows agent type in parentheses', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
@@ -321,49 +321,49 @@ describe('GroupChatInput', () => {
 
 	describe('mention dropdown visibility', () => {
 		it('shows dropdown when @ is typed at start of input', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
 			const textarea = screen.getByPlaceholderText(/Type a message/i) as HTMLTextAreaElement;
 			typeInTextarea(textarea, '@');
 
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 		});
 
 		it('shows dropdown when @ is typed after text', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
 			const textarea = screen.getByPlaceholderText(/Type a message/i) as HTMLTextAreaElement;
 			typeInTextarea(textarea, 'Hello @');
 
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 		});
 
 		it('hides dropdown when all text is deleted', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
 			const textarea = screen.getByPlaceholderText(/Type a message/i) as HTMLTextAreaElement;
 			typeInTextarea(textarea, '@');
 
-			expect(screen.getByText('@Maestro')).toBeInTheDocument();
+			expect(screen.getByText('@OpenWizardAI')).toBeInTheDocument();
 
 			// Clear the input
 			typeInTextarea(textarea, '');
 
-			expect(screen.queryByText('@Maestro')).not.toBeInTheDocument();
+			expect(screen.queryByText('@OpenWizardAI')).not.toBeInTheDocument();
 		});
 
 		it('hides dropdown when no sessions match filter', () => {
-			const sessions = [createMockSession('session-1', 'Maestro', 'claude-code')];
+			const sessions = [createMockSession('session-1', 'OpenWizardAI', 'claude-code')];
 			render(<GroupChatInput {...createDefaultProps({ sessions })} />);
 
 			const textarea = screen.getByPlaceholderText(/Type a message/i) as HTMLTextAreaElement;
 			typeInTextarea(textarea, '@xyz');
 
 			// No matches, dropdown should not show
-			expect(screen.queryByText('@Maestro')).not.toBeInTheDocument();
+			expect(screen.queryByText('@OpenWizardAI')).not.toBeInTheDocument();
 		});
 	});
 

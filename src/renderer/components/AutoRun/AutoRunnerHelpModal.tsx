@@ -26,14 +26,13 @@ import { MODAL_PRIORITIES } from '../../constants/modalPriorities';
 import { Modal } from '../ui/Modal';
 import { formatShortcutKeys } from '../../utils/shortcutFormatter';
 import { openUrl } from '../../utils/openUrl';
-import { buildMaestroUrl } from '../../utils/buildMaestroUrl';
 
 interface AutoRunnerHelpModalProps {
 	theme: Theme;
 	onClose: () => void;
 	/**
 	 * Visual stacking z-index. Defaults to 50 for the standalone Auto Run panel.
-	 * When opened on top of another modal (e.g. the Maestro Auto Run config
+	 * When opened on top of another modal (e.g. the OpenWizardAI Auto Run config
 	 * modal at z-9999), pass a higher value so the guide renders above it.
 	 */
 	zIndex?: number;
@@ -350,8 +349,8 @@ export function AutoRunnerHelpModal({ theme, onClose, zIndex = 50 }: AutoRunnerH
 							</div>
 						</div>
 						<p>
-							OpenWizzard <strong style={{ color: theme.colors.textMain }}>auto-selects</strong> the
-							mode from the running agent's context window -
+							OpenWizardAI <strong style={{ color: theme.colors.textMain }}>auto-selects</strong>{' '}
+							the mode from the running agent's context window -
 							<strong style={{ color: theme.colors.textMain }}>Document</strong> at 1M tokens or
 							more (e.g. Claude's 1M window),{' '}
 							<strong style={{ color: theme.colors.textMain }}>Task</strong> below that - and you
@@ -619,7 +618,7 @@ export function AutoRunnerHelpModal({ theme, onClose, zIndex = 50 }: AutoRunnerH
 								borderColor: theme.colors.border,
 							}}
 						>
-							{'<!-- MAESTRO:HITL reason="Add STRIPE_SECRET_KEY to .env" artifact=".env" -->'}
+							{'<!-- OPENWIZARDAI:HITL reason="Add STRIPE_SECRET_KEY to .env" artifact=".env" -->'}
 						</div>
 						<p>
 							The engine pauses at the marker, shows the <code>reason</code> (and optional{' '}
@@ -656,7 +655,7 @@ export function AutoRunnerHelpModal({ theme, onClose, zIndex = 50 }: AutoRunnerH
 								borderColor: theme.colors.border,
 							}}
 						>
-							{'<!-- maestro:halt: brief reason here -->'}
+							{'<!-- openwizardai:halt: brief reason here -->'}
 						</div>
 						<p>
 							When the engine sees this marker after a task, it stops immediately - no further tasks
@@ -754,11 +753,15 @@ export function AutoRunnerHelpModal({ theme, onClose, zIndex = 50 }: AutoRunnerH
 				>
 					<Globe className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
 					<button
-						onClick={() => openUrl(buildMaestroUrl('https://docs.runmaestro.ai/autorun-playbooks'))}
+						onClick={() =>
+							openUrl(
+								'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/autorun-playbooks.md'
+							)
+						}
 						className="text-xs hover:opacity-80 transition-colors"
 						style={{ color: theme.colors.accent }}
 					>
-						Read more at docs.runmaestro.ai/autorun-playbooks
+						Read more at github.com/manoelpanev/OpenWizardAI/tree/main/docs/autorun-playbooks
 					</button>
 				</div>
 			</div>

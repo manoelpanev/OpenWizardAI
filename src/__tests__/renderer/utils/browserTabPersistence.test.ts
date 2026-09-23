@@ -30,9 +30,9 @@ describe('browserTabPersistence', () => {
 		});
 
 		it('converts free text into a search URL', () => {
-			expect(resolveBrowserTabNavigationTarget('maestro browser tabs')).toEqual({
+			expect(resolveBrowserTabNavigationTarget('openwizardai browser tabs')).toEqual({
 				kind: 'url',
-				url: 'https://www.google.com/search?q=maestro%20browser%20tabs',
+				url: 'https://www.google.com/search?q=openwizardai%20browser%20tabs',
 			});
 		});
 
@@ -75,7 +75,7 @@ describe('browserTabPersistence', () => {
 		});
 
 		// Electron parses the `src` attribute with `new URL()` while attaching the
-		// element, so any of these would throw mid-render (MAESTRO-QX/QY/QZ).
+		// element, so any of these would throw mid-render (OPENWIZARDAI-QX/QY/QZ).
 		it.each(['http://', 'https://[bad', 'https://x y', 'http://localhost:99999'])(
 			'falls back to about:blank for the unparseable URL %s',
 			(input) => {
@@ -153,16 +153,16 @@ describe('browserTabPersistence', () => {
 
 		it('sanitizes session ids when deriving persisted browser partitions', () => {
 			expect(getBrowserTabPartition(' session / branch:1 ')).toBe(
-				'persist:maestro-browser-session-session-branch-1'
+				'persist:openwizardai-browser-session-session-branch-1'
 			);
 		});
 
 		it('keeps safe persisted partitions and repairs unsafe ones', () => {
 			expect(
-				getSafeBrowserTabPartition('persist:maestro-browser-session-session-1', 'session-1')
-			).toBe('persist:maestro-browser-session-session-1');
+				getSafeBrowserTabPartition('persist:openwizardai-browser-session-session-1', 'session-1')
+			).toBe('persist:openwizardai-browser-session-session-1');
 			expect(getSafeBrowserTabPartition('persist:evil', 'session-1')).toBe(
-				'persist:maestro-browser-session-session-1'
+				'persist:openwizardai-browser-session-session-1'
 			);
 		});
 
@@ -187,7 +187,7 @@ describe('browserTabPersistence', () => {
 				id: 'browser-1',
 				url: 'http://localhost:3000/docs',
 				title: 'localhost:3000',
-				partition: 'persist:maestro-browser-session-session-1',
+				partition: 'persist:openwizardai-browser-session-session-1',
 				canGoBack: false,
 				canGoForward: false,
 				isLoading: false,
@@ -213,7 +213,7 @@ describe('browserTabPersistence', () => {
 				id: 'browser-2',
 				url: DEFAULT_BROWSER_TAB_URL,
 				title: DEFAULT_BROWSER_TAB_TITLE,
-				partition: 'persist:maestro-browser-session-session-2',
+				partition: 'persist:openwizardai-browser-session-session-2',
 				favicon: null,
 			});
 		});

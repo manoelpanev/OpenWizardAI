@@ -1590,7 +1590,7 @@ describe('agent-detector', () => {
 					return {
 						stdout: '',
 						stderr:
-							"error: option '--effort <level>' argument '__maestro_probe__' is invalid. It must be one of: low, medium, high, xhigh, max\n",
+							"error: option '--effort <level>' argument '__openwizardai_probe__' is invalid. It must be one of: low, medium, high, xhigh, max\n",
 						exitCode: 1,
 					};
 				}
@@ -1631,7 +1631,7 @@ describe('agent-detector', () => {
 					return {
 						stdout: 'claude-code/2.0.0\n',
 						stderr:
-							"Warning: Unknown --effort value '__maestro_probe__' - ignoring it and using the default effort. Valid values: low, medium, high, xhigh, max.\n",
+							"Warning: Unknown --effort value '__openwizardai_probe__' - ignoring it and using the default effort. Valid values: low, medium, high, xhigh, max.\n",
 						exitCode: 0,
 					};
 				}
@@ -1671,7 +1671,7 @@ describe('agent-detector', () => {
 					// Probe output the regex can't parse (hypothetical future phrasing).
 					return {
 						stdout: 'claude-code/3.0.0\n',
-						stderr: "Ignoring unrecognized --effort '__maestro_probe__'.\n",
+						stderr: "Ignoring unrecognized --effort '__openwizardai_probe__'.\n",
 						exitCode: 0,
 					};
 				}

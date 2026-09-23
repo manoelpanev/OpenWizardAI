@@ -187,19 +187,19 @@ describe('ProcessMonitor', () => {
 		onClose = vi.fn();
 		onNavigateToSession = vi.fn();
 
-		// Add getActiveProcesses mock to existing window.maestro.process
-		(window.maestro.process as Record<string, unknown>).getActiveProcesses = vi
+		// Add getActiveProcesses mock to existing window.openwizardai.process
+		(window.openwizardai.process as Record<string, unknown>).getActiveProcesses = vi
 			.fn()
 			.mockResolvedValue([]);
 
 		// Reset existing kill mock
-		vi.mocked(window.maestro.process.kill).mockReset().mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.process.kill).mockReset().mockResolvedValue(undefined);
 
 		// Add cue.stopRun mock
-		if (!(window as any).maestro.cue) {
-			(window as any).maestro.cue = {};
+		if (!(window as any).openwizardai.cue) {
+			(window as any).openwizardai.cue = {};
 		}
-		(window as any).maestro.cue.stopRun = vi.fn().mockResolvedValue(true);
+		(window as any).openwizardai.cue.stopRun = vi.fn().mockResolvedValue(true);
 
 		// Mock scrollIntoView
 		Element.prototype.scrollIntoView = vi.fn();
@@ -242,8 +242,8 @@ describe('ProcessMonitor', () => {
 
 	// Helper to get mock functions
 	const getActiveProcessesMock = () =>
-		window.maestro.process.getActiveProcesses as ReturnType<typeof vi.fn>;
-	const killMock = () => vi.mocked(window.maestro.process.kill);
+		window.openwizardai.process.getActiveProcesses as ReturnType<typeof vi.fn>;
+	const killMock = () => vi.mocked(window.openwizardai.process.kill);
 
 	describe('formatRuntime helper', () => {
 		// Test formatRuntime indirectly through process display
@@ -1064,7 +1064,7 @@ describe('ProcessMonitor', () => {
 			expect(screen.getByText('Test Session')).toBeInTheDocument();
 
 			// Persisted level should be 1 (depth-0 group expanded only).
-			expect(window.localStorage.getItem('maestro.processMonitor.expandedLevel')).toBe('1');
+			expect(window.localStorage.getItem('openwizardai.processMonitor.expandedLevel')).toBe('1');
 
 			// Tear down and re-render - should restore to the same level.
 			unmount();
@@ -2042,7 +2042,7 @@ describe('ProcessMonitor', () => {
 	describe('CUE RUNS section', () => {
 		it('renders CUE RUNS section when cue processes are active', async () => {
 			const cueProc = createCueProcess();
-			vi.mocked(window.maestro.process.getActiveProcesses).mockResolvedValue([cueProc] as any);
+			vi.mocked(window.openwizardai.process.getActiveProcesses).mockResolvedValue([cueProc] as any);
 
 			render(<ProcessMonitor theme={theme} sessions={[]} groups={[]} onClose={onClose} />);
 
@@ -2054,7 +2054,9 @@ describe('ProcessMonitor', () => {
 		it('does not render CUE RUNS section when no cue processes', async () => {
 			const regularProc = createActiveProcess();
 			const session = createSession();
-			vi.mocked(window.maestro.process.getActiveProcesses).mockResolvedValue([regularProc] as any);
+			vi.mocked(window.openwizardai.process.getActiveProcesses).mockResolvedValue([
+				regularProc,
+			] as any);
 
 			render(<ProcessMonitor theme={theme} sessions={[session]} groups={[]} onClose={onClose} />);
 
@@ -2072,7 +2074,7 @@ describe('ProcessMonitor', () => {
 				cueSubscriptionName: 'daily-review',
 				cueSessionName: 'Code Agent',
 			});
-			vi.mocked(window.maestro.process.getActiveProcesses).mockResolvedValue([cueProc] as any);
+			vi.mocked(window.openwizardai.process.getActiveProcesses).mockResolvedValue([cueProc] as any);
 
 			render(<ProcessMonitor theme={theme} sessions={[]} groups={[]} onClose={onClose} />);
 
@@ -2083,7 +2085,7 @@ describe('ProcessMonitor', () => {
 
 		it('shows event type badge on cue process', async () => {
 			const cueProc = createCueProcess({ cueEventType: 'time.heartbeat' });
-			vi.mocked(window.maestro.process.getActiveProcesses).mockResolvedValue([cueProc] as any);
+			vi.mocked(window.openwizardai.process.getActiveProcesses).mockResolvedValue([cueProc] as any);
 
 			render(<ProcessMonitor theme={theme} sessions={[]} groups={[]} onClose={onClose} />);
 
@@ -2115,7 +2117,7 @@ describe('ProcessMonitor', () => {
 			fireEvent.click(screen.getByText('Kill Process'));
 
 			await waitFor(() => {
-				expect((window as any).maestro.cue.stopRun).toHaveBeenCalledWith('run-to-kill');
+				expect((window as any).openwizardai.cue.stopRun).toHaveBeenCalledWith('run-to-kill');
 				expect(killMock()).not.toHaveBeenCalled();
 			});
 		});
@@ -2153,7 +2155,7 @@ describe('ProcessMonitor', () => {
 
 			await waitFor(() => {
 				expect(killMock()).toHaveBeenCalledWith('session-1-ai-tab-1');
-				expect((window as any).maestro.cue.stopRun).not.toHaveBeenCalled();
+				expect((window as any).openwizardai.cue.stopRun).not.toHaveBeenCalled();
 			});
 		});
 
@@ -2161,7 +2163,7 @@ describe('ProcessMonitor', () => {
 			const session = createSession();
 			const regularProc = createActiveProcess();
 			const cueProc = createCueProcess();
-			vi.mocked(window.maestro.process.getActiveProcesses).mockResolvedValue([
+			vi.mocked(window.openwizardai.process.getActiveProcesses).mockResolvedValue([
 				regularProc,
 				cueProc,
 			] as any);

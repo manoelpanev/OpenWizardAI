@@ -34,9 +34,9 @@ export function AgentSelectionScreen({ theme }: AgentSelectionScreenProps): JSX.
 		setCustomPath: setWizardCustomPath,
 		setCustomArgs: setWizardCustomArgs,
 		setCustomEnvVars: setWizardCustomEnvVars,
-		setEnableMaestroP,
-		setMaestroPMode,
-		setMaestroPPath,
+		setEnableOpenWizardAIP,
+		setOpenWizardAIPMode,
+		setOpenWizardAIPPath,
 		setSessionSshRemoteConfig: setWizardSessionSshRemoteConfig,
 		nextStep,
 		canProceedToNext,
@@ -239,13 +239,13 @@ export function AgentSelectionScreen({ theme }: AgentSelectionScreenProps): JSX.
 					onRefreshModels={configPanel.handleRefreshModels}
 					onRefreshAgent={configPanel.handleRefreshAgent}
 					refreshingAgent={configPanel.refreshingAgent}
-					enableMaestroP={state.enableMaestroP}
-					onEnableMaestroPChange={setEnableMaestroP}
-					maestroPMode={state.maestroPMode}
-					onMaestroPModeChange={setMaestroPMode}
-					maestroPPath={state.maestroPPath ?? ''}
-					onMaestroPPathChange={setMaestroPPath}
-					detectedMaestroPPath={configPanel.detectedMaestroPPath}
+					enableOpenWizardAIP={state.enableOpenWizardAIP}
+					onEnableOpenWizardAIPChange={setEnableOpenWizardAIP}
+					openwizardaiPMode={state.openwizardaiPMode}
+					onOpenWizardAIPModeChange={setOpenWizardAIPMode}
+					openwizardaiPPath={state.openwizardaiPPath ?? ''}
+					onOpenWizardAIPPathChange={setOpenWizardAIPPath}
+					detectedOpenWizardAIPPath={configPanel.detectedOpenWizardAIPPath}
 				/>
 			</>
 		);

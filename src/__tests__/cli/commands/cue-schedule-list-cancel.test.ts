@@ -1,7 +1,7 @@
 /**
  * @file cue-schedule-list-cancel.test.ts
  * @description Tests for the `--list` and `--cancel` modes of the
- * `maestro-cli cue schedule` command. The create branch is exercised
+ * `openwizardai-cli cue schedule` command. The create branch is exercised
  * elsewhere - this file focuses on the read/delete paths added in Phase 03
  * task 2 of the time.once feature.
  */

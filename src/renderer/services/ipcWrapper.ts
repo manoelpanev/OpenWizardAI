@@ -10,7 +10,7 @@ import { logger } from '../utils/logger';
  * @example
  * // For methods that return a default value on error (swallow errors):
  * const getStatus = createIpcMethod({
- *   call: () => window.maestro.git.status(cwd),
+ *   call: () => window.openwizardai.git.status(cwd),
  *   errorContext: 'Git status',
  *   defaultValue: { files: [] },
  * });
@@ -18,7 +18,7 @@ import { logger } from '../utils/logger';
  * @example
  * // For methods that rethrow errors (propagate errors):
  * const spawn = createIpcMethod({
- *   call: () => window.maestro.process.spawn(config),
+ *   call: () => window.openwizardai.process.spawn(config),
  *   errorContext: 'Process spawn',
  *   rethrow: true,
  * });
@@ -75,7 +75,7 @@ export type IpcMethodOptions<T> = IpcMethodOptionsWithDefault<T> | IpcMethodOpti
  * @example
  * // Swallow errors, return default
  * const branches = await createIpcMethod({
- *   call: () => window.maestro.git.branches(cwd),
+ *   call: () => window.openwizardai.git.branches(cwd),
  *   errorContext: 'Git branches',
  *   defaultValue: [],
  * });
@@ -83,7 +83,7 @@ export type IpcMethodOptions<T> = IpcMethodOptionsWithDefault<T> | IpcMethodOpti
  * @example
  * // Rethrow errors to caller
  * await createIpcMethod({
- *   call: () => window.maestro.process.kill(sessionId),
+ *   call: () => window.openwizardai.process.kill(sessionId),
  *   errorContext: 'Process kill',
  *   rethrow: true,
  * });
@@ -139,7 +139,7 @@ class IpcCache {
 	 * @example
 	 * const configs = await ipcCache.getOrFetch(
 	 *   'ssh-configs',
-	 *   () => window.maestro.sshRemote.getConfigs(),
+	 *   () => window.openwizardai.sshRemote.getConfigs(),
 	 *   30000
 	 * );
 	 */

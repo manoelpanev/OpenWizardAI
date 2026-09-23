@@ -67,7 +67,7 @@ const RICH_STATS = {
 beforeEach(() => {
 	mockGetRichOverviewStats.mockResolvedValue(RICH_STATS);
 
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		directorNotes: {
 			getRichOverviewStats: mockGetRichOverviewStats,
 		},

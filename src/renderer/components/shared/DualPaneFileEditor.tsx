@@ -14,7 +14,7 @@
  *     Backspace/Delete raise `onDeleteItem` for the selected one
  *   - Optional `autoFocusList` so those keys work without clicking a row first
  *
- * Consumers (Maestro Prompts, Memory Viewer) pass in the data + editor body;
+ * Consumers (OpenWizardAI Prompts, Memory Viewer) pass in the data + editor body;
  * this component owns the chrome and common styling.
  */
 
@@ -579,7 +579,7 @@ export function DualPaneFileEditor({
 									{openInFinderPath && (
 										<button
 											className="dual-pane-open-folder-button"
-											onClick={() => window.maestro?.shell?.openPath(openInFinderPath)}
+											onClick={() => window.openwizardai?.shell?.openPath(openInFinderPath)}
 											style={{
 												borderColor: theme.colors.border,
 												color: theme.colors.textMain,
@@ -587,7 +587,7 @@ export function DualPaneFileEditor({
 											title={openInFinderPath}
 										>
 											<ExternalLink className="w-3 h-3" />
-											{getOpenInLabel(window.maestro?.platform || 'darwin')}
+											{getOpenInLabel(window.openwizardai?.platform || 'darwin')}
 										</button>
 									)}
 								</div>

@@ -122,7 +122,7 @@ export function useAutoRunHandlers(
 
 			try {
 				// Load the document list from the folder (use SSH if remote session)
-				result = await window.maestro.autorun.listDocs(folderPath, sshRemoteId);
+				result = await window.openwizardai.autorun.listDocs(folderPath, sshRemoteId);
 			} catch {
 				result = null;
 			}
@@ -135,7 +135,7 @@ export function useAutoRunHandlers(
 				// Load content of first document
 				let firstFileContent = '';
 				if (firstFile) {
-					const contentResult = await window.maestro.autorun.readDoc(
+					const contentResult = await window.openwizardai.autorun.readDoc(
 						folderPath,
 						firstFile + '.md',
 						sshRemoteId
@@ -196,7 +196,7 @@ export function useAutoRunHandlers(
 	// Handler to start batch run from modal with multi-document support
 	const handleStartBatchRun = useCallback(
 		async (config: BatchRunConfig) => {
-			window.maestro.logger.log('info', 'handleStartBatchRun called', 'AutoRunHandlers', {
+			window.openwizardai.logger.log('info', 'handleStartBatchRun called', 'AutoRunHandlers', {
 				hasActiveSession: !!activeSession,
 				sessionId: activeSession?.id,
 				autoRunFolderPath: activeSession?.autoRunFolderPath,
@@ -206,7 +206,7 @@ export function useAutoRunHandlers(
 				worktreeTargetMode: config.worktreeTarget?.mode,
 			});
 			if (!activeSession || !activeSession.autoRunFolderPath) {
-				window.maestro.logger.log(
+				window.openwizardai.logger.log(
 					'warn',
 					'handleStartBatchRun early return - missing session or folder',
 					'AutoRunHandlers'
@@ -222,7 +222,7 @@ export function useAutoRunHandlers(
 					useSessionStore.getState()
 				);
 				if (!targetSession) {
-					window.maestro.logger.log(
+					window.openwizardai.logger.log(
 						'warn',
 						`Target worktree session no longer exists: ${config.worktreeTarget.sessionId}. Falling back to active session.`,
 						'AutoRunHandlers'
@@ -237,7 +237,7 @@ export function useAutoRunHandlers(
 					targetSessionId = activeSession.id;
 				} else if (targetSession.state === 'busy' || targetSession.state === 'connecting') {
 					// Race condition: agent became busy after user selected it
-					window.maestro.logger.log(
+					window.openwizardai.logger.log(
 						'warn',
 						`Target worktree session is busy: ${config.worktreeTarget.sessionId}`,
 						'AutoRunHandlers'
@@ -284,7 +284,7 @@ export function useAutoRunHandlers(
 					if (!newSessionId) return; // Error already shown via toast
 					targetSessionId = newSessionId;
 				} catch (err) {
-					window.maestro.logger.log(
+					window.openwizardai.logger.log(
 						'error',
 						`Failed to spawn worktree agent: ${err instanceof Error ? err.message : String(err)}`,
 						'AutoRunHandlers'
@@ -298,7 +298,7 @@ export function useAutoRunHandlers(
 				}
 			}
 
-			window.maestro.logger.log('info', 'Starting batch run', 'AutoRunHandlers', {
+			window.openwizardai.logger.log('info', 'Starting batch run', 'AutoRunHandlers', {
 				sessionId: targetSessionId,
 				folderPath: activeSession.autoRunFolderPath,
 				isWorktreeTarget: targetSessionId !== activeSession.id,
@@ -315,7 +315,7 @@ export function useAutoRunHandlers(
 		async (filename: string) => {
 			if (!activeSession?.autoRunFolderPath) return 0;
 			const sshRemoteId = getSshRemoteId(activeSession);
-			const result = await window.maestro.autorun.readDoc(
+			const result = await window.openwizardai.autorun.readDoc(
 				activeSession.autoRunFolderPath,
 				filename + '.md',
 				sshRemoteId
@@ -388,7 +388,7 @@ export function useAutoRunHandlers(
 
 			const sshRemoteId = getSshRemoteId(activeSession);
 			// Load new document content
-			const result = await window.maestro.autorun.readDoc(
+			const result = await window.openwizardai.autorun.readDoc(
 				activeSession.autoRunFolderPath,
 				filename + '.md',
 				sshRemoteId
@@ -437,7 +437,7 @@ export function useAutoRunHandlers(
 				useSessionStore.getState().activeSessionId !== sessionId;
 			setAutoRunIsLoadingDocuments(true);
 			try {
-				const result = await window.maestro.autorun.listDocs(folderPath, sshRemoteId);
+				const result = await window.openwizardai.autorun.listDocs(folderPath, sshRemoteId);
 				if (isStale()) return;
 				if (result.success) {
 					const newFiles = result.files || [];
@@ -505,7 +505,7 @@ export function useAutoRunHandlers(
 				setAutoRunSetupModalOpen(true);
 			} else {
 				// Local session - use native folder picker
-				const folder = await window.maestro.dialog.selectFolder();
+				const folder = await window.openwizardai.dialog.selectFolder();
 				if (folder) {
 					handleAutoRunFolderSelected(folder);
 				}
@@ -526,7 +526,7 @@ export function useAutoRunHandlers(
 			const sshRemoteId = getSshRemoteId(activeSession);
 			try {
 				// Create the document with empty content so placeholder hint shows
-				const result = await window.maestro.autorun.writeDoc(
+				const result = await window.openwizardai.autorun.writeDoc(
 					activeSession.autoRunFolderPath,
 					filename + '.md',
 					'',
@@ -535,7 +535,7 @@ export function useAutoRunHandlers(
 
 				if (result.success) {
 					// Refresh the document list
-					const listResult = await window.maestro.autorun.listDocs(
+					const listResult = await window.openwizardai.autorun.listDocs(
 						activeSession.autoRunFolderPath,
 						sshRemoteId
 					);

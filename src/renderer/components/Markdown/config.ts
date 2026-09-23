@@ -8,7 +8,7 @@
  * are minimal, tightly-styled presets.
  *
  * Note for future web/mobile adoption: the IPC-bound pieces (local image
- * loading via window.maestro.fs, shell.openPath) live in the chat/document
+ * loading via window.openwizardai.fs, shell.openPath) live in the chat/document
  * component maps. A platform adapter ({ readFile, openExternalUrl,
  * openFilePath, copyText }) would let a web build reuse this shell - tracked as
  * out-of-scope for the desktop-first consolidation.

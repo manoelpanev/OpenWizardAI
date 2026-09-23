@@ -43,7 +43,7 @@ async function put(name: string, bytes: Buffer | Uint8Array): Promise<string> {
 
 beforeAll(async () => {
 	const { parquetWriteBuffer } = await import('hyparquet-writer');
-	directory = await mkdtemp(path.join(tmpdir(), 'maestro-parquet-robust-'));
+	directory = await mkdtemp(path.join(tmpdir(), 'openwizardai-parquet-robust-'));
 
 	const ids: bigint[] = [];
 	const names: string[] = [];
@@ -145,7 +145,7 @@ describe('unreadable compression', () => {
 	it('refuses at open rather than failing on every page read', async () => {
 		// hyparquet cannot decode pyarrow's LZ4. Detecting that at open is the
 		// whole point: otherwise the file opens, shows a full schema, and then
-		// errors on every page - which reads as Maestro being broken rather
+		// errors on every page - which reads as OpenWizardAI being broken rather
 		// than the file being unsupported.
 		//
 		// Simulated by an unwritable codec rather than a real LZ4 fixture,

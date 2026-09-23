@@ -39,7 +39,7 @@ describe('useTerminalTabHandlers', () => {
 			activeTerminalTabId: terminalTab.id,
 			inputMode: 'terminal',
 		});
-		vi.mocked(window.maestro.process.isTerminalBusy).mockResolvedValue(false);
+		vi.mocked(window.openwizardai.process.isTerminalBusy).mockResolvedValue(false);
 		const { result } = renderHook(() => useTerminalTabHandlers());
 
 		await act(async () => {
@@ -47,7 +47,7 @@ describe('useTerminalTabHandlers', () => {
 			await Promise.resolve();
 		});
 
-		expect(window.maestro.process.isTerminalBusy).toHaveBeenCalledWith(
+		expect(window.openwizardai.process.isTerminalBusy).toHaveBeenCalledWith(
 			'test-session-terminal-term-1'
 		);
 		expect(getSession().terminalTabs).toHaveLength(0);
@@ -60,7 +60,7 @@ describe('useTerminalTabHandlers', () => {
 			activeTerminalTabId: terminalTab.id,
 			inputMode: 'terminal',
 		});
-		vi.mocked(window.maestro.process.isTerminalBusy).mockResolvedValue(true);
+		vi.mocked(window.openwizardai.process.isTerminalBusy).mockResolvedValue(true);
 		const { result } = renderHook(() => useTerminalTabHandlers());
 
 		await act(async () => {

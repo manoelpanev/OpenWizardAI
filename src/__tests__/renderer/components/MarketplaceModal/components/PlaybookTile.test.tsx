@@ -31,7 +31,7 @@ describe('PlaybookTile', () => {
 		const playbook = makePlaybook({
 			source: 'local',
 			beta: true,
-			minMaestroVersion: '99.0.0',
+			minOpenWizardAIVersion: '99.0.0',
 		});
 		const { getByText } = render(
 			<PlaybookTile
@@ -45,7 +45,7 @@ describe('PlaybookTile', () => {
 
 		expect(getByText('Local')).toBeTruthy();
 		expect(getByText('BETA')).toBeTruthy();
-		expect(getByText('Requires OpenWizzard 99.0.0+')).toBeTruthy();
+		expect(getByText('Requires OpenWizardAI 99.0.0+')).toBeTruthy();
 	});
 
 	it('shows selected ring styling and scrolls into view when selected', () => {

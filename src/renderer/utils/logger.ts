@@ -11,19 +11,19 @@ export type LogLevel = BaseLogLevel;
 
 class RendererLogger {
 	debug(message: string, context?: string, data?: unknown): void {
-		window.maestro?.logger?.log('debug', message, context, data);
+		window.openwizardai?.logger?.log('debug', message, context, data);
 	}
 
 	info(message: string, context?: string, data?: unknown): void {
-		window.maestro?.logger?.log('info', message, context, data);
+		window.openwizardai?.logger?.log('info', message, context, data);
 	}
 
 	warn(message: string, context?: string, data?: unknown): void {
-		window.maestro?.logger?.log('warn', message, context, data);
+		window.openwizardai?.logger?.log('warn', message, context, data);
 	}
 
 	error(message: string, context?: string, data?: unknown): void {
-		window.maestro?.logger?.log('error', message, context, data);
+		window.openwizardai?.logger?.log('error', message, context, data);
 	}
 }
 

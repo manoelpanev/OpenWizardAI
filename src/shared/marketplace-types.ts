@@ -12,7 +12,7 @@
 
 /**
  * Root manifest structure fetched from the GitHub repository.
- * URL: https://raw.githubusercontent.com/RunMaestro/Maestro-Playbooks/main/manifest.json
+ * URL: https://raw.githubusercontent.com/manoelpanev/OpenWizardAI-Playbooks/main/manifest.json
  */
 export interface MarketplaceManifest {
 	/** Last update date in YYYY-MM-DD format */
@@ -56,7 +56,7 @@ export interface MarketplacePlaybook {
 	loopEnabled: boolean;
 	/** Maximum number of loops (null for unlimited) */
 	maxLoops?: number | null;
-	/** Custom prompt, or null to use Maestro's default Auto Run prompt */
+	/** Custom prompt, or null to use OpenWizardAI's default Auto Run prompt */
 	prompt: string | null;
 	/**
 	 * Optional list of asset files in the assets/ subfolder.
@@ -67,11 +67,11 @@ export interface MarketplacePlaybook {
 	/** Source of the playbook - official (from GitHub) or local (from local-manifest.json) */
 	source?: PlaybookSource;
 	/**
-	 * Minimum Maestro version required to install this playbook (semver).
+	 * Minimum OpenWizardAI version required to install this playbook (semver).
 	 * If the running version is older, the playbook is shown but install is blocked.
 	 * Absent or invalid → no minimum (treated as compatible with any version).
 	 */
-	minMaestroVersion?: string;
+	minOpenWizardAIVersion?: string;
 	/**
 	 * Beta flag - soft signal that the playbook is still maturing.
 	 * Strictly checked: only the boolean literal `true` counts as beta. Any other

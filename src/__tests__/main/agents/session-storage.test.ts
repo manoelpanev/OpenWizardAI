@@ -24,7 +24,7 @@ vi.mock('os', async () => {
 	// for Node.js built-ins in Vitest's SSR mode.
 	// eslint-disable-next-line @typescript-eslint/no-require-imports
 	const realOs = await import('node:os');
-	const homedirMock = vi.fn(() => '/tmp/maestro-session-storage-home');
+	const homedirMock = vi.fn(() => '/tmp/openwizardai-session-storage-home');
 	const overrides = { homedir: homedirMock, tmpdir: realOs.tmpdir };
 	return {
 		...realOs,
@@ -36,7 +36,12 @@ vi.mock('os', async () => {
 vi.mock('electron', () => ({
 	app: {
 		getPath: vi.fn(() =>
-			path.join('/tmp/maestro-session-storage-home', 'Library', 'Application Support', 'Maestro')
+			path.join(
+				'/tmp/openwizardai-session-storage-home',
+				'Library',
+				'Application Support',
+				'OpenWizardAI'
+			)
 		),
 	},
 }));
@@ -375,7 +380,7 @@ describe('CodexSessionStorage', () => {
 describe('CopilotSessionStorage', () => {
 	let originalCopilotConfigDir: string | undefined;
 	const copilotSessionStateDir = path.join(
-		'/tmp/maestro-session-storage-home',
+		'/tmp/openwizardai-session-storage-home',
 		'.copilot',
 		'session-state'
 	);
@@ -396,14 +401,14 @@ describe('CopilotSessionStorage', () => {
 	beforeEach(async () => {
 		originalCopilotConfigDir = process.env.COPILOT_CONFIG_DIR;
 		delete process.env.COPILOT_CONFIG_DIR;
-		await fs.rm(path.join('/tmp/maestro-session-storage-home', '.copilot'), {
+		await fs.rm(path.join('/tmp/openwizardai-session-storage-home', '.copilot'), {
 			recursive: true,
 			force: true,
 		});
 	});
 
 	afterEach(async () => {
-		await fs.rm(path.join('/tmp/maestro-session-storage-home', '.copilot'), {
+		await fs.rm(path.join('/tmp/openwizardai-session-storage-home', '.copilot'), {
 			recursive: true,
 			force: true,
 		});

@@ -1,7 +1,7 @@
 /**
  * Cue IPC service
  *
- * Wraps all window.maestro.cue.* IPC calls with consistent error handling via
+ * Wraps all window.openwizardai.cue.* IPC calls with consistent error handling via
  * createIpcMethod. Read methods return a safe default on failure; write methods
  * rethrow so callers can handle or report errors.
  */
@@ -25,7 +25,7 @@ export const cueService = {
 
 	async getSettings(): Promise<CueSettings> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getSettings(),
+			call: () => window.openwizardai.cue.getSettings(),
 			errorContext: 'Cue getSettings',
 			defaultValue: {} as CueSettings,
 		});
@@ -33,7 +33,7 @@ export const cueService = {
 
 	async saveSettings(settings: CueSettings): Promise<{ writtenRoots: string[] }> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.saveSettings(settings),
+			call: () => window.openwizardai.cue.saveSettings(settings),
 			errorContext: 'Cue saveSettings',
 			rethrow: true,
 		});
@@ -41,7 +41,7 @@ export const cueService = {
 
 	async getStatus(): Promise<CueSessionStatus[]> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getStatus(),
+			call: () => window.openwizardai.cue.getStatus(),
 			errorContext: 'Cue getStatus',
 			defaultValue: [],
 		});
@@ -49,7 +49,7 @@ export const cueService = {
 
 	async getGraphData(): Promise<CueGraphSession[]> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getGraphData(),
+			call: () => window.openwizardai.cue.getGraphData(),
 			errorContext: 'Cue getGraphData',
 			defaultValue: [],
 		});
@@ -57,7 +57,7 @@ export const cueService = {
 
 	async getActiveRuns(): Promise<CueRunResult[]> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getActiveRuns(),
+			call: () => window.openwizardai.cue.getActiveRuns(),
 			errorContext: 'Cue getActiveRuns',
 			defaultValue: [],
 		});
@@ -65,7 +65,7 @@ export const cueService = {
 
 	async getActivityLog(limit?: number): Promise<CueRunResult[]> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getActivityLog(limit),
+			call: () => window.openwizardai.cue.getActivityLog(limit),
 			errorContext: 'Cue getActivityLog',
 			defaultValue: [],
 		});
@@ -73,7 +73,7 @@ export const cueService = {
 
 	async getEventCount(): Promise<number> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getEventCount(),
+			call: () => window.openwizardai.cue.getEventCount(),
 			errorContext: 'Cue getEventCount',
 			defaultValue: 0,
 		});
@@ -81,7 +81,7 @@ export const cueService = {
 
 	async getQueueStatus(): Promise<Record<string, number>> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getQueueStatus(),
+			call: () => window.openwizardai.cue.getQueueStatus(),
 			errorContext: 'Cue getQueueStatus',
 			defaultValue: {},
 		});
@@ -89,7 +89,7 @@ export const cueService = {
 
 	async getMetrics(): Promise<import('../../main/cue/cue-metrics').CueMetrics | null> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getMetrics(),
+			call: () => window.openwizardai.cue.getMetrics(),
 			errorContext: 'Cue getMetrics',
 			defaultValue: null,
 		});
@@ -97,7 +97,7 @@ export const cueService = {
 
 	async getFanInHealth(): Promise<import('../../main/cue/cue-fan-in-tracker').FanInHealthEntry[]> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getFanInHealth(),
+			call: () => window.openwizardai.cue.getFanInHealth(),
 			errorContext: 'Cue getFanInHealth',
 			defaultValue: [],
 		});
@@ -115,7 +115,7 @@ export const cueService = {
 		// in handleSave (which is now strictly more informative - the IPC
 		// error message propagates instead of "did not persist").
 		return createIpcMethod({
-			call: () => window.maestro.cue.readYaml(projectRoot),
+			call: () => window.openwizardai.cue.readYaml(projectRoot),
 			errorContext: 'Cue readYaml',
 			rethrow: true,
 		});
@@ -123,7 +123,7 @@ export const cueService = {
 
 	async loadPipelineLayout(): Promise<Record<string, unknown> | null> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.loadPipelineLayout(),
+			call: () => window.openwizardai.cue.loadPipelineLayout(),
 			errorContext: 'Cue loadPipelineLayout',
 			defaultValue: null,
 		});
@@ -136,7 +136,7 @@ export const cueService = {
 		// fallback. Callers (CueYamlEditor) already catch the rejection and
 		// gate Save by setting isValid=false + a meaningful error.
 		return createIpcMethod({
-			call: () => window.maestro.cue.validateYaml(content),
+			call: () => window.openwizardai.cue.validateYaml(content),
 			errorContext: 'Cue validateYaml',
 			rethrow: true,
 		});
@@ -146,7 +146,7 @@ export const cueService = {
 
 	async enable(): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.enable(),
+			call: () => window.openwizardai.cue.enable(),
 			errorContext: 'Cue enable',
 			rethrow: true,
 		});
@@ -154,7 +154,7 @@ export const cueService = {
 
 	async disable(): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.disable(),
+			call: () => window.openwizardai.cue.disable(),
 			errorContext: 'Cue disable',
 			rethrow: true,
 		});
@@ -162,7 +162,7 @@ export const cueService = {
 
 	async stopRun(runId: string): Promise<boolean> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.stopRun(runId),
+			call: () => window.openwizardai.cue.stopRun(runId),
 			errorContext: 'Cue stopRun',
 			rethrow: true,
 		});
@@ -174,7 +174,7 @@ export const cueService = {
 	// rather than throwing on completed/stopped runs.
 	async getRunLiveOutput(runId: string): Promise<{ stdout: string; stderr: string } | null> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.getRunLiveOutput(runId),
+			call: () => window.openwizardai.cue.getRunLiveOutput(runId),
 			errorContext: 'Cue getRunLiveOutput',
 			defaultValue: null,
 		});
@@ -182,7 +182,7 @@ export const cueService = {
 
 	async stopAll(): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.stopAll(),
+			call: () => window.openwizardai.cue.stopAll(),
 			errorContext: 'Cue stopAll',
 			rethrow: true,
 		});
@@ -194,7 +194,8 @@ export const cueService = {
 		sourceAgentId?: string
 	): Promise<boolean> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.triggerSubscription(subscriptionName, prompt, sourceAgentId),
+			call: () =>
+				window.openwizardai.cue.triggerSubscription(subscriptionName, prompt, sourceAgentId),
 			errorContext: 'Cue triggerSubscription',
 			rethrow: true,
 		});
@@ -202,7 +203,7 @@ export const cueService = {
 
 	async refreshSession(sessionId: string, projectRoot: string): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.refreshSession(sessionId, projectRoot),
+			call: () => window.openwizardai.cue.refreshSession(sessionId, projectRoot),
 			errorContext: 'Cue refreshSession',
 			rethrow: true,
 		});
@@ -210,7 +211,7 @@ export const cueService = {
 
 	async removeSession(sessionId: string): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.removeSession(sessionId),
+			call: () => window.openwizardai.cue.removeSession(sessionId),
 			errorContext: 'Cue removeSession',
 			rethrow: true,
 		});
@@ -222,7 +223,7 @@ export const cueService = {
 
 	async listScheduledTasks(): Promise<{ tasks: ScheduledTask[]; warnings: string[] }> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.listScheduledTasks(),
+			call: () => window.openwizardai.cue.listScheduledTasks(),
 			errorContext: 'Cue listScheduledTasks',
 			defaultValue: { tasks: [], warnings: [] },
 		});
@@ -230,7 +231,7 @@ export const cueService = {
 
 	async createScheduledTask(input: ScheduledTaskCreateInput): Promise<{ names: string[] }> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.createScheduledTask(input),
+			call: () => window.openwizardai.cue.createScheduledTask(input),
 			errorContext: 'Cue createScheduledTask',
 			rethrow: true,
 		});
@@ -242,7 +243,7 @@ export const cueService = {
 		patch: ScheduledTaskUpdateInput
 	): Promise<{ updated: boolean; reason?: string }> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.updateScheduledTask(projectRoot, name, patch),
+			call: () => window.openwizardai.cue.updateScheduledTask(projectRoot, name, patch),
 			errorContext: 'Cue updateScheduledTask',
 			rethrow: true,
 		});
@@ -253,7 +254,7 @@ export const cueService = {
 		name: string
 	): Promise<{ removed: boolean; reason?: string }> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.cancelScheduledTask(projectRoot, name),
+			call: () => window.openwizardai.cue.cancelScheduledTask(projectRoot, name),
 			errorContext: 'Cue cancelScheduledTask',
 			rethrow: true,
 		});
@@ -265,7 +266,7 @@ export const cueService = {
 		promptFiles?: Record<string, string>
 	): Promise<{ changed: boolean }> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.writeYaml(projectRoot, content, promptFiles),
+			call: () => window.openwizardai.cue.writeYaml(projectRoot, content, promptFiles),
 			errorContext: 'Cue writeYaml',
 			rethrow: true,
 		});
@@ -273,7 +274,7 @@ export const cueService = {
 
 	async deleteYaml(projectRoot: string): Promise<boolean> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.deleteYaml(projectRoot),
+			call: () => window.openwizardai.cue.deleteYaml(projectRoot),
 			errorContext: 'Cue deleteYaml',
 			rethrow: true,
 		});
@@ -292,7 +293,7 @@ export const cueService = {
 		warnings: string[];
 	}> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.renamePipeline(oldName, newName),
+			call: () => window.openwizardai.cue.renamePipeline(oldName, newName),
 			errorContext: 'Cue renamePipeline',
 			rethrow: true,
 		});
@@ -300,7 +301,7 @@ export const cueService = {
 
 	async savePipelineLayout(layout: Record<string, unknown>): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cue.savePipelineLayout(layout),
+			call: () => window.openwizardai.cue.savePipelineLayout(layout),
 			errorContext: 'Cue savePipelineLayout',
 			rethrow: true,
 		});
@@ -309,6 +310,6 @@ export const cueService = {
 	// ── Event passthrough ─────────────────────────────────────────────────────
 
 	onActivityUpdate(callback: (data: CueLogPayload) => void): () => void {
-		return window.maestro.cue.onActivityUpdate(callback);
+		return window.openwizardai.cue.onActivityUpdate(callback);
 	},
 };

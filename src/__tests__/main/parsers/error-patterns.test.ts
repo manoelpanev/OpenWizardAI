@@ -1053,7 +1053,7 @@ describe('isClaudeLimitNotice', () => {
 
 	it('requires the notice to START the string, not appear inside prose', () => {
 		expect(
-			isClaudeLimitNotice("Once you've hit your session limit, Maestro schedules a retry.")
+			isClaudeLimitNotice("Once you've hit your session limit, OpenWizardAI schedules a retry.")
 		).toBe(false);
 		expect(isClaudeLimitNotice('The CLI prints "Claude AI usage limit reached" and stops.')).toBe(
 			false
@@ -1064,7 +1064,7 @@ describe('isClaudeLimitNotice', () => {
 		// A real notice is one short line. An answer that begins with the phrase and
 		// then explains it for a paragraph is prose, and this is the length cap that
 		// tells them apart.
-		const essay = `You've hit your session limit is the message Claude Code prints. ${'Here is why that happens and what Maestro does about it. '.repeat(
+		const essay = `You've hit your session limit is the message Claude Code prints. ${'Here is why that happens and what OpenWizardAI does about it. '.repeat(
 			8
 		)}`;
 		expect(essay.length).toBeGreaterThan(300);

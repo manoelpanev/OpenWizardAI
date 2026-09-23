@@ -89,11 +89,11 @@ export type AgentErrorPatterns = {
  *   "Claude AI usage limit reached|1755500000"   (legacy epoch form)
  *
  * ANCHORED at the start and length-capped on purpose. A result body is ordinary
- * assistant prose, and Maestro's own agents discuss usage limits constantly, so
+ * assistant prose, and OpenWizardAI's own agents discuss usage limits constantly, so
  * anything looser turns a normal answer into a phantom failure.
  *
  * The limit KINDS are enumerated rather than wildcarded, and the list is the same
- * one `LIMIT_REGEX` in `src/maestro-p/tui-driver.ts` uses. A wildcard matched
+ * one `LIMIT_REGEX` in `src/openwizardai-p/tui-driver.ts` uses. A wildcard matched
  * "You've hit your disk limit" and would hand an ordinary answer to the retry
  * scheduler as a quota outage; the two matchers reading the same banner must not
  * disagree about what counts as one.
@@ -123,7 +123,7 @@ export function isClaudeLimitNotice(text: string): boolean {
 // whichever surface shows it, because only that surface knows the credential:
 // telling an ANTHROPIC_AUTH_TOKEN agent to run a login command sends the user
 // somewhere that cannot help, and `claude login` is not even a real command (the
-// CLI's flow is the `/login` slash command). Maestro signs the user in from the
+// CLI's flow is the `/login` slash command). OpenWizardAI signs the user in from the
 // ReauthModal, so no message here should name a terminal command.
 const CLAUDE_ERROR_PATTERNS: AgentErrorPatterns = {
 	auth_expired: [
@@ -673,7 +673,7 @@ const CODEX_ERROR_PATTERNS: AgentErrorPatterns = {
 			// The CLI exits 1 with stderr like:
 			//   "thread/resume: thread/resume failed: no rollout found for thread id <uuid>"
 			// Without this pattern it fell through to a dead-end "Agent exited with
-			// code 1" crash instead of Maestro's in-place fresh-session recovery
+			// code 1" crash instead of OpenWizardAI's in-place fresh-session recovery
 			// (which re-seeds the prior conversation from the tab transcript). See #1042.
 			pattern: /no rollout found|rollout not found/i,
 			message: 'Previous Codex session could not be found. Starting fresh conversation.',

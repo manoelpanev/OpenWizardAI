@@ -1,6 +1,6 @@
 # Spec-Kit Help
 
-You are explaining how to use **Spec-Kit** within OpenWizzard. Spec-Kit is a structured specification workflow from [GitHub's spec-kit project](https://github.com/github/spec-kit) that helps teams create clear, actionable specifications before implementation.
+You are explaining how to use **Spec-Kit** within OpenWizardAI. Spec-Kit is a structured specification workflow from [GitHub's spec-kit project](https://github.com/github/spec-kit) that helps teams create clear, actionable specifications before implementation.
 
 ## What is Spec-Kit?
 
@@ -11,11 +11,11 @@ Spec-Kit provides a set of AI-powered commands that guide you through a structur
 3. **Clarify gaps** - Identify and resolve underspecified areas
 4. **Plan implementation** - Break specifications into actionable plans
 5. **Generate tasks** - Convert plans into dependency-ordered tasks
-6. **Execute with Auto Run** - Use OpenWizzard's Auto Run to implement tasks
+6. **Execute with Auto Run** - Use OpenWizardAI's Auto Run to implement tasks
 
 ## Prerequisites
 
-OpenWizzard does not automatically create the folder structure or scripts required to run Spec-Kit. You’ll need to set these up manually.
+OpenWizardAI does not automatically create the folder structure or scripts required to run Spec-Kit. You’ll need to set these up manually.
 
 Get started: Follow the instructions in the “Get Started” section of the [GitHub Spec-Kit repository](https://github.com/github/spec-kit?tab=readme-ov-file#1-install-specify-cli):
 
@@ -51,9 +51,9 @@ Convert your specification into a high-level implementation plan with phases and
 
 Break your plan into specific, actionable tasks with dependencies clearly mapped.
 
-### 6. `/speckit.implement` - Execute with OpenWizzard Auto Run
+### 6. `/speckit.implement` - Execute with OpenWizardAI Auto Run
 
-**Maestro-specific command.** Converts your tasks into Auto Run documents that Maestro can execute autonomously. This integrates spec-kit's structured approach with Maestro's multi-agent capabilities.
+**OpenWizardAI-specific command.** Converts your tasks into Auto Run documents that OpenWizardAI can execute autonomously. This integrates spec-kit's structured approach with OpenWizardAI's multi-agent capabilities.
 
 ## Optional Commands
 
@@ -69,14 +69,14 @@ Create a custom checklist for your feature based on the specification. Useful fo
 
 Convert your tasks directly into GitHub issues. Useful for team collaboration and project tracking.
 
-## Integration with OpenWizzard Auto Run
+## Integration with OpenWizardAI Auto Run
 
-Spec-Kit is designed to work seamlessly with OpenWizzard's Auto Run feature:
+Spec-Kit is designed to work seamlessly with OpenWizardAI's Auto Run feature:
 
 1. **Use `/speckit.implement`** to generate Auto Run documents from your tasks
-2. Documents are saved to `.maestro/playbooks/` in your project
+2. Documents are saved to `.openwizardai/playbooks/` in your project
 3. Each task becomes a checkbox item that Auto Run can execute and verify
-4. OpenWizzard will work through tasks sequentially, checking them off as completed
+4. OpenWizardAI will work through tasks sequentially, checking them off as completed
 5. You can run multiple agents in parallel on different phases
 
 ## Tips for Best Results
@@ -85,14 +85,14 @@ Spec-Kit is designed to work seamlessly with OpenWizzard's Auto Run feature:
 - **Iterate on specifications** - Use `/speckit.clarify` multiple times to refine your spec
 - **Keep specs focused** - One feature per specification cycle works best
 - **Review before implementing** - Use `/speckit.analyze` to catch issues early
-- **Leverage parallelism** - With OpenWizzard, you can run multiple spec-kit workflows simultaneously across different sessions
+- **Leverage parallelism** - With OpenWizardAI, you can run multiple spec-kit workflows simultaneously across different sessions
 
 ## Learn More
 
 - [GitHub Spec-Kit Repository](https://github.com/github/spec-kit) - Official documentation and examples
-- Spec-Kit prompts are automatically updated when you click "Check for Updates" in OpenWizzard settings
+- Spec-Kit prompts are automatically updated when you click "Check for Updates" in OpenWizardAI settings
 - Custom modifications to prompts are preserved across updates
 
 ---
 
-_This help command is an OpenWizzard-specific addition to the spec-kit workflow._
+_This help command is an OpenWizardAI-specific addition to the spec-kit workflow._

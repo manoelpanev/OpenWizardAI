@@ -22,7 +22,7 @@ const BMAD_REPO_URL = 'https://github.com/bmad-code-org/BMAD-METHOD';
 // `workflow.md` files usable as paste-in slash-command prompts. v6.2.1+ moved to
 // a multi-file "skills" model (SKILL.md + steps + customize.toml) that depends on
 // a local `_bmad/` install and a python resolver, so those prompts cannot run
-// standalone inside Maestro. The bundled catalog.ts source paths only resolve at
+// standalone inside OpenWizardAI. The bundled catalog.ts source paths only resolve at
 // this ref. Keep this in sync with scripts/refresh-bmad.mjs.
 const BMAD_REF = 'v6.2.0';
 const BMAD_RAW_BASE = `https://raw.githubusercontent.com/bmad-code-org/BMAD-METHOD/${BMAD_REF}`;
@@ -37,7 +37,7 @@ const BMAD_COMMANDS = bmadCatalog.map((entry) => ({
 	isCustom: entry.isCustom,
 }));
 
-function applyMaestroPromptFixes(id: string, prompt: string): string {
+function applyOpenWizardAIPromptFixes(id: string, prompt: string): string {
 	let fixed = prompt;
 
 	if (id === 'code-review') {
@@ -239,7 +239,7 @@ function appendReferencedAssets(
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ${assets
 	.map(
@@ -252,8 +252,8 @@ ${asset.content}
 	.join('\n\n')}`;
 }
 
-function applyMaestroRuntimePromptFixes(id: string, prompt: string): string {
-	let fixed = applyMaestroPromptFixes(id, prompt);
+function applyOpenWizardAIRuntimePromptFixes(id: string, prompt: string): string {
+	let fixed = applyOpenWizardAIPromptFixes(id, prompt);
 
 	if (id === 'create-story') {
 		fixed = fixed.replace(/GOTO step 2a/g, 'GOTO step 2');
@@ -547,7 +547,7 @@ export async function refreshBmadPrompts(): Promise<BmadMetadata> {
 				throw new Error(`Failed to fetch ${cmd.sourcePath}: ${response.statusText}`);
 			}
 
-			const prompt = applyMaestroRuntimePromptFixes(cmd.id, await response.text());
+			const prompt = applyOpenWizardAIRuntimePromptFixes(cmd.id, await response.text());
 			const assets = await collectReferencedAssets(cmd.sourcePath, prompt);
 			downloadedPrompts.push({ id: cmd.id, prompt: appendReferencedAssets(prompt, assets) });
 		}

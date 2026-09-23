@@ -1,5 +1,5 @@
 /**
- * Task scanner provider for Maestro Cue task.pending subscriptions.
+ * Task scanner provider for OpenWizardAI Cue task.pending subscriptions.
  *
  * Polls markdown files matching a glob pattern for unchecked tasks (- [ ]),
  * tracks content hashes to avoid re-triggering on unchanged files,
@@ -126,7 +126,7 @@ export interface ScannedTaskFile {
  *
  * Unlike the polling scanner, this does NO content-hash dedup: it always
  * reports the current task state. It is the "scan right now" primitive used by
- * manual triggers (dashboard Run Now, `maestro-cli cue trigger`), where the
+ * manual triggers (dashboard Run Now, `openwizardai-cli cue trigger`), where the
  * user explicitly asked to act on whatever tasks are open this instant,
  * regardless of whether the polling scanner has already seen the file.
  */

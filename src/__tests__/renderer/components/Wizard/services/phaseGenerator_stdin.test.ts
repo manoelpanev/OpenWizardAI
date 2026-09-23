@@ -13,8 +13,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 // Captured callbacks from process events
 let capturedExitCallback: ((sessionId: string, code: number) => void) | null = null;
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	platform: 'win32',
 	agents: {
 		get: vi.fn(),
@@ -40,7 +40,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import { phaseGenerator } from '../../../../../renderer/components/Wizard/services/phaseGenerator';
@@ -50,7 +50,7 @@ import { phaseGenerator } from '../../../../../renderer/components/Wizard/servic
  * with the correct session ID so the internal guards pass.
  */
 function setupSpawnMock(exitDelay = 10) {
-	mockMaestro.process.spawn.mockImplementation(async (config: { sessionId: string }) => {
+	mockOpenWizardAI.process.spawn.mockImplementation(async (config: { sessionId: string }) => {
 		const sid = config.sessionId;
 		setTimeout(() => {
 			if (capturedExitCallback) {
@@ -65,11 +65,11 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		capturedExitCallback = null;
-		mockMaestro.platform = 'win32';
+		mockOpenWizardAI.platform = 'win32';
 	});
 
 	afterEach(() => {
-		mockMaestro.platform = 'darwin';
+		mockOpenWizardAI.platform = 'darwin';
 	});
 
 	it('should pass sendPromptViaStdinRaw when on Windows without SSH', async () => {
@@ -81,7 +81,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 		setupSpawnMock();
 
 		await phaseGenerator.generateDocuments({
@@ -91,8 +91,8 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			conversationHistory: [],
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// On Windows without SSH, text-only prompts use raw stdin
 		// (supportsStreamJsonInput=true but hasImages=false -> sendPromptViaStdinRaw=true)
@@ -109,7 +109,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 		setupSpawnMock();
 
 		await phaseGenerator.generateDocuments({
@@ -123,8 +123,8 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			},
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// SSH sessions must NOT use stdin flags
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
@@ -140,7 +140,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 		setupSpawnMock();
 
 		await phaseGenerator.generateDocuments({
@@ -154,8 +154,8 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			},
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// SSH with enabled=true but remoteId=null must still be treated as SSH
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
@@ -163,7 +163,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 	}, 30000);
 
 	it('should NOT pass stdin flags on non-Windows platforms', async () => {
-		mockMaestro.platform = 'darwin';
+		mockOpenWizardAI.platform = 'darwin';
 
 		const mockAgent = {
 			id: 'claude-code',
@@ -173,7 +173,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 		setupSpawnMock();
 
 		await phaseGenerator.generateDocuments({
@@ -183,8 +183,8 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			conversationHistory: [],
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		expect(spawnCall.sendPromptViaStdin).toBe(false);
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(false);
@@ -201,7 +201,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 		setupSpawnMock();
 
 		await phaseGenerator.generateDocuments({
@@ -211,8 +211,8 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			conversationHistory: [],
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// Document generation never has images, so sendPromptViaStdin should be false
 		// and --input-format should NOT be added
@@ -229,7 +229,7 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: false },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 		setupSpawnMock();
 
 		await phaseGenerator.generateDocuments({
@@ -239,8 +239,8 @@ describe('phaseGenerator - Windows stdin transport flags', () => {
 			conversationHistory: [],
 		});
 
-		expect(mockMaestro.process.spawn).toHaveBeenCalled();
-		const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+		expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+		const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 		// Agents without stream-json support always use raw stdin on Windows
 		expect(spawnCall.sendPromptViaStdinRaw).toBe(true);

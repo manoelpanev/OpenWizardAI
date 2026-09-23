@@ -107,10 +107,10 @@ describe('useSettings', () => {
 		originalFontSize = document.documentElement.style.fontSize;
 		// Reset all mocks to return empty/default (default behavior)
 		// PERF: Implementation now uses batch loading via getAll() instead of individual get() calls
-		vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
-		vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.logger.getLogLevel).mockResolvedValue('info');
-		vi.mocked(window.maestro.logger.getMaxLogBuffer).mockResolvedValue(5000);
+		vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
+		vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.logger.getLogLevel).mockResolvedValue('info');
+		vi.mocked(window.openwizardai.logger.getMaxLogBuffer).mockResolvedValue(5000);
 	});
 
 	afterEach(() => {
@@ -255,7 +255,7 @@ describe('useSettings', () => {
 
 	describe('loading saved settings', () => {
 		it('should load saved UI settings', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				activeThemeId: 'gruvbox-dark',
 				enterToSendAI: true,
 				defaultSaveToHistory: true,
@@ -276,7 +276,7 @@ describe('useSettings', () => {
 		});
 
 		it('should load saved notification settings', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				osNotificationsEnabled: false,
 				audioFeedbackEnabled: true,
 				audioFeedbackCommand: 'espeak',
@@ -297,7 +297,7 @@ describe('useSettings', () => {
 				toggleSidebar: { id: 'toggleSidebar', label: 'Toggle Left Panel', keys: ['Meta', 'b'] },
 			};
 
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				shortcuts: customShortcuts,
 			});
 
@@ -322,7 +322,7 @@ describe('useSettings', () => {
 				{ id: 'custom', command: '/custom', description: 'Custom command', prompt: 'custom' },
 			];
 
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				customAICommands: savedCommands,
 			});
 
@@ -351,7 +351,7 @@ describe('useSettings', () => {
 				{ id: 'custom', command: '/custom', description: 'Custom command', prompt: 'custom' },
 			];
 
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				customAICommands: savedCommands,
 			});
 
@@ -377,7 +377,7 @@ describe('useSettings', () => {
 		});
 
 		it('should load saved totalActiveTimeMs', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				totalActiveTimeMs: 60000,
 			});
 
@@ -394,7 +394,7 @@ describe('useSettings', () => {
 				currentBadgeLevel: 2,
 			};
 
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				autoRunStats: savedStats,
 				concurrentAutoRunTimeMigrationApplied: true, // Legacy flag, now ignored on load
 			});
@@ -410,8 +410,8 @@ describe('useSettings', () => {
 		});
 
 		it('should load log level and max buffer from logger API', async () => {
-			vi.mocked(window.maestro.logger.getLogLevel).mockResolvedValue('debug');
-			vi.mocked(window.maestro.logger.getMaxLogBuffer).mockResolvedValue(10000);
+			vi.mocked(window.openwizardai.logger.getLogLevel).mockResolvedValue('debug');
+			vi.mocked(window.openwizardai.logger.getMaxLogBuffer).mockResolvedValue(10000);
 
 			const { result } = renderHook(() => useSettings());
 			await waitForSettingsLoaded(result);
@@ -421,7 +421,7 @@ describe('useSettings', () => {
 		});
 
 		it('should load rendering settings from saved values', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				disableGpuAcceleration: true,
 				disableConfetti: true,
 			});
@@ -434,7 +434,7 @@ describe('useSettings', () => {
 		});
 
 		it('should load tab naming settings from saved values', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				automaticTabNamingEnabled: false,
 			});
 
@@ -455,7 +455,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.defaultShell).toBe('bash');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('defaultShell', 'bash');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('defaultShell', 'bash');
 		});
 
 		it('should update ghPath and persist to settings', async () => {
@@ -467,7 +467,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.ghPath).toBe('/usr/local/bin/gh');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('ghPath', '/usr/local/bin/gh');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('ghPath', '/usr/local/bin/gh');
 		});
 	});
 
@@ -481,7 +481,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.fontFamily).toBe('JetBrains Mono');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('fontFamily', 'JetBrains Mono');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontFamily', 'JetBrains Mono');
 		});
 
 		it('should update fontSize and persist to settings', async () => {
@@ -493,7 +493,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.fontSize).toBe(16);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('fontSize', 16);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('fontSize', 16);
 		});
 
 		it('should update fileExplorerIconTheme and persist to settings', async () => {
@@ -505,7 +505,10 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.fileExplorerIconTheme).toBe('rich');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('fileExplorerIconTheme', 'rich');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'fileExplorerIconTheme',
+				'rich'
+			);
 		});
 	});
 
@@ -519,7 +522,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.activeThemeId).toBe('monokai');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('activeThemeId', 'monokai');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('activeThemeId', 'monokai');
 		});
 
 		it('should update enterToSendAI and persist to settings', async () => {
@@ -531,7 +534,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.enterToSendAI).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('enterToSendAI', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('enterToSendAI', true);
 		});
 
 		it('should update defaultSaveToHistory and persist to settings', async () => {
@@ -543,7 +546,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.defaultSaveToHistory).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('defaultSaveToHistory', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('defaultSaveToHistory', true);
 		});
 
 		it('should update leftSidebarWidth and persist to settings', async () => {
@@ -555,7 +558,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.leftSidebarWidth).toBe(300);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 300);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('leftSidebarWidth', 300);
 		});
 
 		it('should update rightPanelWidth and persist to settings', async () => {
@@ -567,7 +570,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.rightPanelWidth).toBe(500);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('rightPanelWidth', 500);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('rightPanelWidth', 500);
 		});
 
 		it('should update markdownEditMode and persist to settings', async () => {
@@ -579,7 +582,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.markdownEditMode).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('markdownEditMode', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('markdownEditMode', true);
 		});
 	});
 
@@ -593,7 +596,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.logLevel).toBe('debug');
-			expect(window.maestro.logger.setLogLevel).toHaveBeenCalledWith('debug');
+			expect(window.openwizardai.logger.setLogLevel).toHaveBeenCalledWith('debug');
 		});
 
 		it('should update maxLogBuffer via logger API', async () => {
@@ -605,7 +608,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.maxLogBuffer).toBe(10000);
-			expect(window.maestro.logger.setMaxLogBuffer).toHaveBeenCalledWith(10000);
+			expect(window.openwizardai.logger.setMaxLogBuffer).toHaveBeenCalledWith(10000);
 		});
 	});
 
@@ -619,13 +622,13 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.maxOutputLines).toBe(50);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('maxOutputLines', 50);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('maxOutputLines', 50);
 		});
 
 		it('should treat null maxOutputLines as Infinity (JSON serialization of Infinity)', async () => {
 			// When user selects "All" (Infinity) in the UI, it gets serialized as null in JSON
 			// because JSON.stringify(Infinity) produces null. On reload, we should restore Infinity.
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				maxOutputLines: null,
 			});
 
@@ -636,7 +639,7 @@ describe('useSettings', () => {
 		});
 
 		it('should keep default (Infinity) when maxOutputLines is undefined', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
 
 			const { result } = renderHook(() => useSettings());
 			await waitForSettingsLoaded(result);
@@ -655,7 +658,10 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.osNotificationsEnabled).toBe(false);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('osNotificationsEnabled', false);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'osNotificationsEnabled',
+				false
+			);
 		});
 
 		it('should update audioFeedbackEnabled and persist to settings', async () => {
@@ -667,7 +673,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.audioFeedbackEnabled).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('audioFeedbackEnabled', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('audioFeedbackEnabled', true);
 		});
 
 		it('should update audioFeedbackCommand and persist to settings', async () => {
@@ -679,7 +685,10 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.audioFeedbackCommand).toBe('espeak');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('audioFeedbackCommand', 'espeak');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'audioFeedbackCommand',
+				'espeak'
+			);
 		});
 
 		it('should update toastDuration and persist to settings', async () => {
@@ -691,7 +700,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.toastDuration).toBe(30);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('toastDuration', 30);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('toastDuration', 30);
 		});
 	});
 
@@ -706,7 +715,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.logViewerSelectedLevels).toEqual(newLevels);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'logViewerSelectedLevels',
 				newLevels
 			);
@@ -727,7 +736,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.shortcuts.toggleSidebar.keys).toEqual(['Meta', 'b']);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('shortcuts', newShortcuts);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('shortcuts', newShortcuts);
 		});
 	});
 
@@ -744,7 +753,10 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.customAICommands).toEqual(newCommands);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('customAICommands', newCommands);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'customAICommands',
+				newCommands
+			);
 		});
 	});
 
@@ -758,7 +770,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.disableGpuAcceleration).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('disableGpuAcceleration', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('disableGpuAcceleration', true);
 		});
 
 		it('should update disableConfetti and persist to settings', async () => {
@@ -770,7 +782,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.disableConfetti).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('disableConfetti', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('disableConfetti', true);
 		});
 	});
 
@@ -785,12 +797,15 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.automaticTabNamingEnabled).toBe(false);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('automaticTabNamingEnabled', false);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'automaticTabNamingEnabled',
+				false
+			);
 		});
 
 		it('should toggle automaticTabNamingEnabled back to true', async () => {
 			// Start with false
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				automaticTabNamingEnabled: false,
 			});
 
@@ -804,7 +819,10 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.automaticTabNamingEnabled).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('automaticTabNamingEnabled', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'automaticTabNamingEnabled',
+				true
+			);
 		});
 	});
 
@@ -818,7 +836,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.totalActiveTimeMs).toBe(3600000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 3600000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 3600000);
 		});
 
 		it('should increment totalActiveTimeMs with addTotalActiveTimeMs', async () => {
@@ -830,7 +848,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.totalActiveTimeMs).toBe(30000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 30000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 30000);
 
 			// Second increment
 			act(() => {
@@ -838,7 +856,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.totalActiveTimeMs).toBe(45000);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 45000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 45000);
 		});
 
 		it('should persist totalActiveTimeMs after set', async () => {
@@ -849,7 +867,7 @@ describe('useSettings', () => {
 				result.current.setTotalActiveTimeMs(120000);
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 120000);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('totalActiveTimeMs', 120000);
 		});
 	});
 
@@ -873,7 +891,7 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.autoRunStats).toEqual(newStats);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('autoRunStats', newStats);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('autoRunStats', newStats);
 		});
 
 		describe('recordAutoRunComplete', () => {
@@ -928,7 +946,7 @@ describe('useSettings', () => {
 
 			it('should unlock badge level 1 when cumulative time already at 15 minutes', async () => {
 				// Pre-load cumulative time (simulating updateAutoRunProgress having been called)
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						cumulativeTimeMs: 15 * 60 * 1000, // 15 minutes already accumulated
 						longestRunMs: 0,
@@ -958,7 +976,7 @@ describe('useSettings', () => {
 
 			it('should unlock badge level 2 at 1 hour', async () => {
 				// Pre-load with cumulative time at 1 hour
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						cumulativeTimeMs: 60 * 60 * 1000, // 60 minutes already accumulated
 						longestRunMs: 0,
@@ -987,7 +1005,7 @@ describe('useSettings', () => {
 
 			it('should add badge to history when new badge unlocked', async () => {
 				// Pre-load with cumulative time at 15 minutes
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						cumulativeTimeMs: 15 * 60 * 1000, // 15 minutes already accumulated
 						longestRunMs: 0,
@@ -1027,7 +1045,7 @@ describe('useSettings', () => {
 				});
 
 				// cumulativeTimeMs stays at 0 because recordAutoRunComplete doesn't add time
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'autoRunStats',
 					expect.objectContaining({
 						cumulativeTimeMs: 0,
@@ -1050,7 +1068,7 @@ describe('useSettings', () => {
 			});
 
 			it('should not decrease lastAcknowledgedBadgeLevel', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						cumulativeTimeMs: 0,
 						longestRunMs: 0,
@@ -1081,7 +1099,7 @@ describe('useSettings', () => {
 					result.current.acknowledgeBadge(2);
 				});
 
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'autoRunStats',
 					expect.objectContaining({
 						lastAcknowledgedBadgeLevel: 2,
@@ -1099,7 +1117,7 @@ describe('useSettings', () => {
 			});
 
 			it('should return current level when higher than acknowledged', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						cumulativeTimeMs: 3600000, // 1 hour
 						longestRunMs: 0,
@@ -1119,7 +1137,7 @@ describe('useSettings', () => {
 			});
 
 			it('should return null when current equals acknowledged', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					autoRunStats: {
 						cumulativeTimeMs: 3600000,
 						longestRunMs: 0,
@@ -1311,7 +1329,7 @@ describe('useSettings', () => {
 		});
 
 		it('should apply saved font size on load', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				fontSize: 20,
 			});
 
@@ -1326,19 +1344,19 @@ describe('useSettings', () => {
 		it('should register onSystemResume listener on mount', async () => {
 			renderHook(() => useSettings());
 
-			expect(window.maestro.app.onSystemResume).toHaveBeenCalled();
+			expect(window.openwizardai.app.onSystemResume).toHaveBeenCalled();
 		});
 
 		it('should reload settings when system resumes from sleep', async () => {
 			// Capture the callback passed to onSystemResume
 			let resumeCallback: (() => void) | undefined;
-			vi.mocked(window.maestro.app.onSystemResume).mockImplementation((cb) => {
+			vi.mocked(window.openwizardai.app.onSystemResume).mockImplementation((cb) => {
 				resumeCallback = cb;
 				return () => {};
 			});
 
 			// Initial load with default settings
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				maxOutputLines: 25,
 			});
 
@@ -1350,7 +1368,7 @@ describe('useSettings', () => {
 			// Simulate settings change while asleep (user may have changed via another method)
 			// In the real bug, the setting was being reset, so simulate that by changing
 			// the mock to return a different value on next load
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				maxOutputLines: 0, // 0 means "ALL" in the UI
 			});
 
@@ -1367,7 +1385,7 @@ describe('useSettings', () => {
 
 		it('should cleanup onSystemResume listener on unmount', async () => {
 			const cleanupFn = vi.fn();
-			vi.mocked(window.maestro.app.onSystemResume).mockReturnValue(cleanupFn);
+			vi.mocked(window.openwizardai.app.onSystemResume).mockReturnValue(cleanupFn);
 
 			const { unmount } = renderHook(() => useSettings());
 
@@ -1380,7 +1398,7 @@ describe('useSettings', () => {
 	describe('edge cases', () => {
 		it('should handle undefined values from settings.getAll gracefully', async () => {
 			// All settings return empty object (uses defaults)
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({});
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({});
 
 			const { result } = renderHook(() => useSettings());
 			await waitForSettingsLoaded(result);
@@ -1392,7 +1410,7 @@ describe('useSettings', () => {
 
 		it('should handle null lastAcknowledgedBadgeLevel in acknowledgeBadge', async () => {
 			// Set up stats with undefined/null lastAcknowledgedBadgeLevel
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				autoRunStats: {
 					cumulativeTimeMs: 0,
 					longestRunMs: 0,
@@ -1418,7 +1436,7 @@ describe('useSettings', () => {
 
 		it('should handle null badgeHistory in updateAutoRunProgress', async () => {
 			// Set up stats with undefined/null badgeHistory
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				autoRunStats: {
 					cumulativeTimeMs: 14 * 60 * 1000, // Just below badge 1
 					longestRunMs: 0,
@@ -1443,7 +1461,7 @@ describe('useSettings', () => {
 		});
 
 		it('should handle getUnacknowledgedBadgeLevel with null lastAcknowledgedBadgeLevel', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				autoRunStats: {
 					cumulativeTimeMs: 3600000,
 					longestRunMs: 0,
@@ -1500,7 +1518,7 @@ describe('useSettings', () => {
 				tourCompletionCount: 2,
 			};
 
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				onboardingStats: savedStats,
 			});
 
@@ -1525,7 +1543,7 @@ describe('useSettings', () => {
 				});
 
 				expect(result.current.onboardingStats.wizardStartCount).toBe(1);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'onboardingStats',
 					expect.objectContaining({
 						wizardStartCount: 1,
@@ -1534,7 +1552,7 @@ describe('useSettings', () => {
 			});
 
 			it('should increment from existing count', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					onboardingStats: { wizardStartCount: 5 },
 				});
 
@@ -1617,7 +1635,7 @@ describe('useSettings', () => {
 				});
 
 				expect(result.current.onboardingStats.wizardAbandonCount).toBe(1);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'onboardingStats',
 					expect.objectContaining({
 						wizardAbandonCount: 1,
@@ -1636,7 +1654,7 @@ describe('useSettings', () => {
 				});
 
 				expect(result.current.onboardingStats.wizardResumeCount).toBe(1);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'onboardingStats',
 					expect.objectContaining({
 						wizardResumeCount: 1,
@@ -1655,7 +1673,7 @@ describe('useSettings', () => {
 				});
 
 				expect(result.current.onboardingStats.tourStartCount).toBe(1);
-				expect(window.maestro.settings.set).toHaveBeenCalledWith(
+				expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 					'onboardingStats',
 					expect.objectContaining({
 						tourStartCount: 1,
@@ -1747,7 +1765,7 @@ describe('useSettings', () => {
 			});
 
 			it('should calculate correct completion rates', async () => {
-				vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+				vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 					onboardingStats: {
 						wizardStartCount: 10,
 						wizardCompletionCount: 7,
@@ -1789,7 +1807,10 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.wakatimeApiKey).toBe('waka_test_12345');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('wakatimeApiKey', 'waka_test_12345');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'wakatimeApiKey',
+				'waka_test_12345'
+			);
 		});
 
 		it('should update wakatimeEnabled and persist to settings', async () => {
@@ -1801,11 +1822,11 @@ describe('useSettings', () => {
 			});
 
 			expect(result.current.wakatimeEnabled).toBe(true);
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('wakatimeEnabled', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('wakatimeEnabled', true);
 		});
 
 		it('should load saved WakaTime settings from store', async () => {
-			vi.mocked(window.maestro.settings.getAll).mockResolvedValue({
+			vi.mocked(window.openwizardai.settings.getAll).mockResolvedValue({
 				wakatimeApiKey: 'waka_saved_key',
 				wakatimeEnabled: true,
 			});
@@ -1830,7 +1851,7 @@ describe('useSettings', () => {
 				result.current.setWakatimeApiKey('');
 			});
 			expect(result.current.wakatimeApiKey).toBe('');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('wakatimeApiKey', '');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('wakatimeApiKey', '');
 		});
 	});
 });

@@ -4,7 +4,7 @@
  * candidate-path fallback, in-memory caching, and `{{REF:name}}` resolution.
  *
  * The renderer/main pair (src/main/prompt-manager.ts) is the canonical impl
- * - the CLI loader mirrors its behavior so an agent driven by `maestro-cli`
+ * - the CLI loader mirrors its behavior so an agent driven by `openwizardai-cli`
  * sees the same content as a desktop-spawned agent, including the absolute
  * on-disk paths that `{{REF:_interface-primitives}}` etc. expand to.
  */
@@ -119,7 +119,7 @@ describe('CLI prompt-loader', () => {
 			.mockResolvedValueOnce('See `{{REF:_interface-primitives}}` for the routing table.\n');
 		vi.mocked(fsSync.accessSync).mockReturnValue(undefined);
 
-		const content = await getCliPrompt('maestro-system-prompt');
+		const content = await getCliPrompt('openwizardai-system-prompt');
 
 		// The REF must have been replaced with a string that looks like an
 		// absolute path ending in the include's filename. Both Unix and Windows

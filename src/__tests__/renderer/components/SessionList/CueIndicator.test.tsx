@@ -1,5 +1,5 @@
 /**
- * Tests for {@link CueIndicator} - the Maestro Cue pill rendered next to a
+ * Tests for {@link CueIndicator} - the OpenWizardAI Cue pill rendered next to a
  * session name when the session has registered subscriptions. Extracted from
  * SessionItem in Tier 3.3 so the icon can be memoized independently of the
  * row.
@@ -48,13 +48,13 @@ describe('CueIndicator', () => {
 
 	it('tooltip uses singular "subscription" for count of 1 and "active" when not running', () => {
 		render(<CueIndicator subscriptionCount={1} activeRun={false} />);
-		const wrapper = screen.getByTitle(/OpenWizzard Cue/);
-		expect(wrapper.getAttribute('title')).toBe('OpenWizzard Cue active (1 subscription)');
+		const wrapper = screen.getByTitle(/OpenWizardAI Cue/);
+		expect(wrapper.getAttribute('title')).toBe('OpenWizardAI Cue active (1 subscription)');
 	});
 
 	it('tooltip uses plural "subscriptions" for count > 1 and "running" when active', () => {
 		render(<CueIndicator subscriptionCount={3} activeRun={true} />);
-		const wrapper = screen.getByTitle(/OpenWizzard Cue/);
-		expect(wrapper.getAttribute('title')).toBe('OpenWizzard Cue running (3 subscriptions)');
+		const wrapper = screen.getByTitle(/OpenWizardAI Cue/);
+		expect(wrapper.getAttribute('title')).toBe('OpenWizardAI Cue running (3 subscriptions)');
 	});
 });

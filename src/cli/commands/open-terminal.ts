@@ -1,9 +1,9 @@
-// Open terminal command - open a new terminal tab in the Maestro desktop app.
+// Open terminal command - open a new terminal tab in the OpenWizardAI desktop app.
 //
 // Switches to the new tab, as it always has. Pass --background to create it
 // without moving the view - the tab still appears in the agent's tab bar.
 
-import { withMaestroClient, resolveSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveSessionId } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 import { resolveBackgroundFlag } from '../../shared/focusPlacement';
 
@@ -34,7 +34,7 @@ export async function openTerminal(options: OpenTerminalOptions): Promise<void> 
 	const background = resolveBackgroundFlag(options, 'open-terminal');
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;
@@ -63,8 +63,8 @@ export async function openTerminal(options: OpenTerminalOptions): Promise<void> 
 				const where = background ? ' (background tab)' : '';
 				console.log(
 					options.command
-						? `Terminal tab opened in OpenWizzard${where}, running: ${options.command}`
-						: `Terminal tab opened in OpenWizzard${where}`
+						? `Terminal tab opened in OpenWizardAI${where}, running: ${options.command}`
+						: `Terminal tab opened in OpenWizardAI${where}`
 				);
 				// Surface the id in plain output too - it's the handle for
 				// `send-terminal --tab`, and agents shouldn't need --json to get it.

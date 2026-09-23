@@ -31,7 +31,7 @@ export async function projectHasFiles(
 	if (!directoryPath.trim()) return false;
 
 	try {
-		const entries = await window.maestro.fs.readDir(directoryPath, sshRemoteId);
+		const entries = await window.openwizardai.fs.readDir(directoryPath, sshRemoteId);
 		return hasInformativeEntries(entries ?? []);
 	} catch (error) {
 		logger.warn('Failed to check whether the project folder has files:', undefined, error);

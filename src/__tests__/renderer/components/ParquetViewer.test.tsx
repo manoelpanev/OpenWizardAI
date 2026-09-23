@@ -92,7 +92,7 @@ beforeEach(() => {
 	query = vi.fn().mockResolvedValue(queryResult());
 	close = vi.fn().mockResolvedValue(undefined);
 	fetchProgressListeners = [];
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		parquet: {
 			open,
 			query,

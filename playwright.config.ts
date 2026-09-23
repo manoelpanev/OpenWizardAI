@@ -1,7 +1,7 @@
 /**
  * Playwright configuration for Electron E2E testing
  *
- * This configuration is designed to test the Maestro Electron application.
+ * This configuration is designed to test the OpenWizardAI Electron application.
  * E2E tests launch the actual packaged/built application and interact with
  * the UI through Playwright's browser automation.
  */

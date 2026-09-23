@@ -1,7 +1,7 @@
 # Playbook Exchange v2 - Guided Install Proposal
 
 **Status:** proposal, nothing built.
-**Scope:** `RunMaestro/Maestro` + `RunMaestro/Maestro-Playbooks`.
+**Scope:** `manoelpanev/OpenWizardAI` + `manoelpanev/OpenWizardAI-Playbooks`.
 **Goal:** replace "download docs → hand-edit a 4KB markdown prompt → find the dropdown → hit Start" with "open a tile → confirm a short form → it runs → here's what happened."
 
 Produced by a four-agent design debate (typed-form vs. LLM-interview vs. reporting/analytics, plus an adversarial reviewer). Where the agents converged, this records the decision. Where they didn't, it records the open question.
@@ -14,22 +14,22 @@ This is a live bug, not a proposal, and it undercuts the exact journey we want t
 
 Four playbooks ship an `assets/` folder on disk:
 
-| Playbook                        | Assets                                                                              |
-| ------------------------------- | ----------------------------------------------------------------------------------- |
-| `Assistants/Message-Bus`        | `maestro_message_scanner.py`, `Maestro-Message-Channel.md`, `cue-subscription.yaml` |
-| `Assistants/Voice-Journal`      | `voice_memo_to_journal.py`, `voice_memos.py`, `GIST_README.md`                      |
-| `Assistants/LifeOS-Setup`       | `INSTALL_NOTES.md`                                                                  |
-| `Development/Superpowers-Setup` | `INSTALL_RECIPES.md`                                                                |
+| Playbook                        | Assets                                                                                        |
+| ------------------------------- | --------------------------------------------------------------------------------------------- |
+| `Assistants/Message-Bus`        | `openwizardai_message_scanner.py`, `OpenWizardAI-Message-Channel.md`, `cue-subscription.yaml` |
+| `Assistants/Voice-Journal`      | `voice_memo_to_journal.py`, `voice_memos.py`, `GIST_README.md`                                |
+| `Assistants/LifeOS-Setup`       | `INSTALL_NOTES.md`                                                                            |
+| `Development/Superpowers-Setup` | `INSTALL_RECIPES.md`                                                                          |
 
 **Zero of the 16 manifest entries declare an `assets` key.** At `marketplace-service.ts:551`, `effectiveAssets = marketplacePlaybook.assets ?? []`, and the filesystem-discovery fallback at `:553` is gated on `isLocalPath()` - true only for local-overlay playbooks, never for anything fetched from GitHub. So an Exchange install of Message-Bus writes five markdown docs and no `assets/` directory, and `3_INSTALL.md:63` then runs:
 
 ```
-cp "{{AUTORUN_FOLDER}}/assets/maestro_message_scanner.py" "<INSTALL_DIR>/"
+cp "{{AUTORUN_FOLDER}}/assets/openwizardai_message_scanner.py" "<INSTALL_DIR>/"
 ```
 
 against a path that does not exist. The playbook degrades gracefully (`3_INSTALL.md:75` detects the missing folder and tells the user they must have received it via share) - so it fails _politely_ rather than loudly, which is likely why it went unnoticed.
 
-**Fix:** add `"assets": [...]` to those four manifest entries. That's a manifest-only change, no app release. Then add a CI check in Maestro-Playbooks: every file under `<path>/assets/` must appear in the entry's `assets[]`, and vice versa. Ten lines, and it is the single highest value-per-minute item in this document.
+**Fix:** add `"assets": [...]` to those four manifest entries. That's a manifest-only change, no app release. Then add a CI check in OpenWizardAI-Playbooks: every file under `<path>/assets/` must appear in the entry's `assets[]`, and vice versa. Ten lines, and it is the single highest value-per-minute item in this document.
 
 ---
 
@@ -57,7 +57,7 @@ Honest scoping of where conversation still wins: **two playbooks out of sixteen*
 The strongest challenge to the entire premise, and it holds up:
 
 - Median playbook has **3 variables**. Two have zero. `research-market` - the canonical reference for the whole CONFIGURE convention - has two variables inside a 3,905-byte prompt.
-- Message-Bus, the 7-variable outlier, already ships **correct defaults for 6 of 7** (`self`, `@maestro`, `self`, `manual`, `3`, `~/bin/maestro-message-bus`).
+- Message-Bus, the 7-variable outlier, already ships **correct defaults for 6 of 7** (`self`, `@openwizardai`, `self`, `manual`, `3`, `~/bin/openwizardai-message-bus`).
 - The 7th, `WORK_DIR`, defaults to `{{AGENT_PATH}}` - a template variable that only resolves against a session.
 
 So the form is worth building, but it is not the thing standing between a user and a working message bus. Two other things are, and neither proposal originally modeled them:
@@ -81,7 +81,7 @@ Additive, optional, on the manifest entry. **Four types in v1:** `string`, `enum
 
 ```json
 "inputs": [
-  { "id": "TRIGGER_MARKER", "label": "Trigger marker", "type": "string", "default": "@maestro",
+  { "id": "TRIGGER_MARKER", "label": "Trigger marker", "type": "string", "default": "@openwizardai",
     "help": "Plain ASCII - it is byte-matched inside a binary blob." },
   { "id": "ALLOWED_SENDERS", "label": "Who can drive this agent", "type": "enum", "default": "self",
     "options": [{ "value": "self", "label": "Only me (recommended)" },
@@ -101,8 +101,8 @@ Deferred until a real playbook needs them: `path`, `url`, `agent-ref`, `multienu
 
 Consequences, and they are the whole reason this ships safely:
 
-- Old Maestro drops the unknown `inputs` key and shows today's editable CONFIGURE markdown. Identical behavior.
-- **No `minMaestroVersion` bump.** Bumping _hides the tile_ from older clients rather than degrading it - the opposite of what we want.
+- Old OpenWizardAI drops the unknown `inputs` key and shows today's editable CONFIGURE markdown. Identical behavior.
+- **No `minOpenWizardAIVersion` bump.** Bumping _hides the tile_ from older clients rather than degrading it - the opposite of what we want.
 - The 16 existing playbooks need zero document edits.
 
 ### 2.3 Rendering - patch the prompt, never the documents
@@ -169,26 +169,26 @@ Also write `Runs/<runId>/RUN_REPORT.json`. That folder already exists as an audi
 
 ### 3.3 Playbooks reporting on themselves
 
-Checkboxes are not truth - the agent is the only thing that knows whether the install worked. **One marker**, added to `src/shared/autorunMarkers.ts` beside `MAESTRO:HITL`:
+Checkboxes are not truth - the agent is the only thing that knows whether the install worked. **One marker**, added to `src/shared/autorunMarkers.ts` beside `OPENWIZARDAI:HITL`:
 
 ```
-MAESTRO:RESULT ok|partial|failed reason="short human string"
+OPENWIZARDAI:RESULT ok|partial|failed reason="short human string"
 ```
 
-`MAESTRO:ARTIFACT` is derivable from the filesystem - drop it. `MAESTRO:VERIFY` is valuable but only for playbooks that install things - optional, unenforced.
+`OPENWIZARDAI:ARTIFACT` is derivable from the filesystem - drop it. `OPENWIZARDAI:VERIFY` is valuable but only for playbooks that install things - optional, unenforced.
 
 A terminal `N_REPORT.md` document is a **convention, not a requirement**. Requiring a reporting document of `research-market`, which produces a prose analysis, is ceremony reporting on ceremony - and when the run is broken, the reporting document is the most likely thing to be broken.
 
-**CI warns, never rejects.** A rejecting gate on a volunteer PR repo with one maintainer trades a real contribution for a marker line. Enforcement is social instead: a run with no `MAESTRO:RESULT` reports as `completed_unverified` and its tile lacks a verified checkmark next to peers that have one. Retrofit the ~5 playbooks where success is genuinely checkable; the prose playbooks stay unverified, which is an accurate description of them.
+**CI warns, never rejects.** A rejecting gate on a volunteer PR repo with one maintainer trades a real contribution for a marker line. Enforcement is social instead: a run with no `OPENWIZARDAI:RESULT` reports as `completed_unverified` and its tile lacks a verified checkmark next to peers that have one. Retrofit the ~5 playbooks where success is genuinely checkable; the prose playbooks stay unverified, which is an accurate description of them.
 
 ### 3.4 Error submission - prefilled GitHub issue
 
-|              | GitHub issue                                    | `POST runmaestro.ai/api/…`         | Sentry                                         |
-| ------------ | ----------------------------------------------- | ---------------------------------- | ---------------------------------------------- |
-| Server work  | **none**                                        | route, storage, spam, GDPR, uptime | none                                           |
-| Consent UX   | **user reads the exact text before submitting** | trust-me dialog                    | invisible                                      |
-| Triage/dedup | native                                          | build it                           | groups on stack traces, not playbook semantics |
-| Fix lands    | **same repo as the fix**                        | nowhere                            | separate tool                                  |
+|              | GitHub issue                                    | `POST github.com/manoelpanev/OpenWizardAI/api/…` | Sentry                                         |
+| ------------ | ----------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| Server work  | **none**                                        | route, storage, spam, GDPR, uptime               | none                                           |
+| Consent UX   | **user reads the exact text before submitting** | trust-me dialog                                  | invisible                                      |
+| Triage/dedup | native                                          | build it                                         | groups on stack traces, not playbook semantics |
+| Fix lands    | **same repo as the fix**                        | nowhere                                          | separate tool                                  |
 
 **Pick GitHub issues.** Playbook failures are usually not exceptions - they're "the agent wrote the wrong config file," which needs prose, a repro, and a public thread. Keep Sentry passively: add `playbook_id` / `outcome` tags at the existing `captureException` sites in `marketplace-service.ts`, ~10 lines, free crash visibility.
 
@@ -233,7 +233,7 @@ The owner's stated journey, for Message-Bus specifically.
 
 _Not in Phase 1:_ probes, interview, secrets, YAML toolchain, telemetry, badges, `RUN_REPORT.json`, CI gates, mobile.
 
-**User sees:** Exchange → Message Bus → four prefilled fields → "installing into: _Maestro (~/Projects/Maestro)_" → one button → it runs.
+**User sees:** Exchange → Message Bus → four prefilled fields → "installing into: _OpenWizardAI (~/Projects/OpenWizardAI)_" → one button → it runs.
 
 ### Phase 2 - the report (~1-2 weeks)
 
@@ -241,7 +241,7 @@ _Not in Phase 1:_ probes, interview, secrets, YAML toolchain, telemetry, badges,
 
 ### Phase 3 - widen where the data says to
 
-Add `inputs[]` to whichever playbooks Phase 2's failure issues implicate. Add `path`/`visibleIf` only when a real playbook needs them. `MAESTRO:RESULT` + the FDA preflight probe. Per-run `run.log` teeing.
+Add `inputs[]` to whichever playbooks Phase 2's failure issues implicate. Add `path`/`visibleIf` only when a real playbook needs them. `OPENWIZARDAI:RESULT` + the FDA preflight probe. Per-run `run.log` teeing.
 
 ### Phase 4 - popularity
 
@@ -255,7 +255,7 @@ A per-field "help me pick" affordance on the two fields that need it, filling th
 
 ## 5. Open questions for you
 
-1. **Unattended runs.** The engine is a `while(true)` inside a React `useCallback` in the renderer (`useBatchRunner.ts:~493`). "Hit a button and walk away" is a promise the runtime cannot keep - close the window or sleep the laptop mid-install and Message-Bus dies after writing scripts to `~/bin` and possibly arming a Cue. Do we (a) scope the promise honestly ("keep Maestro open"), (b) add a resume-incomplete-install path, or (c) treat moving the engine to main as the real prerequisite? This is the largest unpriced item in the document.
+1. **Unattended runs.** The engine is a `while(true)` inside a React `useCallback` in the renderer (`useBatchRunner.ts:~493`). "Hit a button and walk away" is a promise the runtime cannot keep - close the window or sleep the laptop mid-install and Message-Bus dies after writing scripts to `~/bin` and possibly arming a Cue. Do we (a) scope the promise honestly ("keep OpenWizardAI open"), (b) add a resume-incomplete-install path, or (c) treat moving the engine to main as the real prerequisite? This is the largest unpriced item in the document.
 
 2. **Mobile/web.** `messageHandlers.ts:855` can already `marketplace_import_playbook` but cannot start a run - the engine is desktop-renderer-only. A form makes mobile's dead end _longer_. Block it explicitly, or leave it?
 

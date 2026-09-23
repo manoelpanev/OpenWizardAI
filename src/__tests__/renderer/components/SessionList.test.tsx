@@ -305,7 +305,7 @@ describe('SessionList', () => {
 			allGroupChatParticipantStates: new Map(),
 		});
 		// Reset tunnel mock
-		(window.maestro as Record<string, unknown>).tunnel = {
+		(window.openwizardai as Record<string, unknown>).tunnel = {
 			isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 			start: vi.fn().mockResolvedValue({ success: true, url: 'https://tunnel.example.com' }),
 			stop: vi.fn().mockResolvedValue(undefined),
@@ -353,7 +353,7 @@ describe('SessionList', () => {
 	// ============================================================================
 
 	describe('Basic Rendering', () => {
-		it('renders the MAESTRO branding header when expanded', () => {
+		it('renders the OPENWIZARDAI branding header when expanded', () => {
 			useUIStore.setState({ leftSidebarOpen: true });
 			// Wide enough to clear the wordmark's width gate. The default sidebar
 			// width is the 256px minimum, where the wordmark is dropped rather than
@@ -362,7 +362,7 @@ describe('SessionList', () => {
 			const props = createDefaultProps({});
 			render(<SessionList {...props} />);
 
-			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZARDAI')).toBeInTheDocument();
 		});
 
 		it('branding header has z-20 to stack menu above sidebar content', () => {
@@ -371,7 +371,7 @@ describe('SessionList', () => {
 			const props = createDefaultProps({});
 			render(<SessionList {...props} />);
 
-			const header = screen.getByText('OPENWIZZARD').closest('.border-b');
+			const header = screen.getByText('OPENWIZARDAI').closest('.border-b');
 			expect(header).toHaveClass('z-20');
 			expect(header).toHaveClass('relative');
 		});
@@ -381,8 +381,8 @@ describe('SessionList', () => {
 			const props = createDefaultProps({});
 			render(<SessionList {...props} />);
 
-			// MAESTRO text should not be visible in collapsed mode
-			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
+			// OPENWIZARDAI text should not be visible in collapsed mode
+			expect(screen.queryByText('OPENWIZARDAI')).not.toBeInTheDocument();
 		});
 
 		it('renders New Agent button in expanded mode', () => {
@@ -521,7 +521,7 @@ describe('SessionList', () => {
 
 			fireEvent.click(screen.getByText('Open in Browser'));
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith('http://localhost:3000');
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith('http://localhost:3000');
 		});
 
 		it('turns off live mode when Turn Off button clicked', () => {
@@ -561,7 +561,7 @@ describe('SessionList', () => {
 			});
 			render(<SessionList {...props} />);
 
-			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZARDAI')).not.toBeInTheDocument();
 			expect(screen.getByText('OFFLINE')).toBeInTheDocument();
 			expect(screen.getByTestId('icon-radio')).toBeInTheDocument();
 		});
@@ -1346,7 +1346,7 @@ describe('SessionList', () => {
 			expect(screen.getByText('Settings')).toBeInTheDocument();
 			expect(screen.getByText('System Logs')).toBeInTheDocument();
 			expect(screen.getByText('Process Monitor')).toBeInTheDocument();
-			expect(screen.getByText('About OpenWizzard')).toBeInTheDocument();
+			expect(screen.getByText('About OpenWizardAI')).toBeInTheDocument();
 		});
 
 		it('opens shortcuts help from menu', () => {
@@ -1407,7 +1407,7 @@ describe('SessionList', () => {
 
 			fireEvent.click(screen.getByTitle('Menu'));
 
-			fireEvent.click(screen.getByText('About OpenWizzard'));
+			fireEvent.click(screen.getByText('About OpenWizardAI'));
 
 			expect(mockModalActions.setAboutModalOpen).toHaveBeenCalledWith(true);
 		});
@@ -2472,7 +2472,7 @@ describe('SessionList', () => {
 	describe('Tunnel and Remote Control', () => {
 		it('checks cloudflared installation when live overlay opens', async () => {
 			const mockIsInstalled = vi.fn().mockResolvedValue(true);
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: mockIsInstalled,
 				start: vi.fn().mockResolvedValue({ success: true, url: 'https://tunnel.example.com' }),
 				stop: vi.fn().mockResolvedValue(undefined),
@@ -2496,7 +2496,7 @@ describe('SessionList', () => {
 
 		it('shows cloudflared not installed message when not available', async () => {
 			const mockIsInstalled = vi.fn().mockResolvedValue(false);
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: mockIsInstalled,
 				start: vi.fn(),
 				stop: vi.fn(),
@@ -2521,7 +2521,7 @@ describe('SessionList', () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -2561,7 +2561,7 @@ describe('SessionList', () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: mockStop,
@@ -2603,7 +2603,7 @@ describe('SessionList', () => {
 
 		it('handles tunnel start error gracefully', async () => {
 			const mockStart = vi.fn().mockResolvedValue({ success: false, error: 'Connection failed' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -2635,7 +2635,7 @@ describe('SessionList', () => {
 
 		it('handles tunnel start exception gracefully', async () => {
 			const mockStart = vi.fn().mockRejectedValue(new Error('Network error'));
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -2665,7 +2665,7 @@ describe('SessionList', () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -2699,7 +2699,7 @@ describe('SessionList', () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -2741,7 +2741,7 @@ describe('SessionList', () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -2780,7 +2780,7 @@ describe('SessionList', () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -3311,7 +3311,9 @@ describe('SessionList', () => {
 	describe('Resize Handle', () => {
 		it('saves sidebar width on mouseup', async () => {
 			const mockSettingsSet = vi.fn();
-			(window.maestro.settings.set as ReturnType<typeof vi.fn>).mockImplementation(mockSettingsSet);
+			(window.openwizardai.settings.set as ReturnType<typeof vi.fn>).mockImplementation(
+				mockSettingsSet
+			);
 
 			useUIStore.setState({ leftSidebarOpen: true });
 			useSettingsStore.setState({ leftSidebarWidth: 300 });
@@ -3437,7 +3439,7 @@ describe('SessionList', () => {
 
 	describe('Live Overlay Open Browser', () => {
 		it('opens local URL in browser', async () => {
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: vi.fn(),
 				stop: vi.fn(),
@@ -3457,14 +3459,14 @@ describe('SessionList', () => {
 				fireEvent.click(screen.getByTitle('Open in Browser'));
 			});
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith('http://localhost:3000');
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith('http://localhost:3000');
 		});
 
 		it('opens remote URL in browser when tunnel connected', async () => {
 			const mockStart = vi
 				.fn()
 				.mockResolvedValue({ success: true, url: 'https://tunnel.example.com' });
-			(window.maestro as Record<string, unknown>).tunnel = {
+			(window.openwizardai as Record<string, unknown>).tunnel = {
 				isCloudflaredInstalled: vi.fn().mockResolvedValue(true),
 				start: mockStart,
 				stop: vi.fn(),
@@ -3496,7 +3498,9 @@ describe('SessionList', () => {
 			const openButtons = screen.getAllByText('Open in Browser');
 			fireEvent.click(openButtons[openButtons.length - 1]);
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith('https://tunnel.example.com');
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://tunnel.example.com'
+			);
 		});
 	});
 
@@ -3568,13 +3572,13 @@ describe('SessionList', () => {
 					directorNotes: false,
 					usageStats: true,
 					symphony: true,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 				showLeftPanelCueIndicator: true,
 			});
 
 			// Mock Cue status to return session with subscriptions
-			(window.maestro as Record<string, unknown>).cue = {
+			(window.openwizardai as Record<string, unknown>).cue = {
 				getStatus: vi.fn().mockResolvedValue([
 					{
 						sessionId: 's1',
@@ -3600,7 +3604,7 @@ describe('SessionList', () => {
 			const zapIcon = screen.getByTestId('icon-zap');
 			expect(zapIcon.closest('span[title]')).toHaveAttribute(
 				'title',
-				'OpenWizzard Cue active (3 subscriptions)'
+				'OpenWizardAI Cue active (3 subscriptions)'
 			);
 		});
 
@@ -3614,13 +3618,13 @@ describe('SessionList', () => {
 					directorNotes: false,
 					usageStats: true,
 					symphony: true,
-					maestroCue: false,
+					openwizardaiCue: false,
 				},
 				showLeftPanelCueIndicator: true,
 			});
 
 			// Mock Cue status to return session with subscriptions
-			(window.maestro as Record<string, unknown>).cue = {
+			(window.openwizardai as Record<string, unknown>).cue = {
 				getStatus: vi.fn().mockResolvedValue([
 					{
 						sessionId: 's1',
@@ -3655,12 +3659,12 @@ describe('SessionList', () => {
 					directorNotes: false,
 					usageStats: true,
 					symphony: true,
-					maestroCue: true,
+					openwizardaiCue: true,
 				},
 				showLeftPanelCueIndicator: false,
 			});
 
-			(window.maestro as Record<string, unknown>).cue = {
+			(window.openwizardai as Record<string, unknown>).cue = {
 				getStatus: vi.fn().mockResolvedValue([
 					{
 						sessionId: 's1',
@@ -3694,7 +3698,7 @@ describe('SessionList', () => {
 			});
 
 			// Mock Cue status with no sessions having subscriptions
-			(window.maestro as Record<string, unknown>).cue = {
+			(window.openwizardai as Record<string, unknown>).cue = {
 				getStatus: vi.fn().mockResolvedValue([]),
 				getActiveRuns: vi.fn().mockResolvedValue([]),
 				getActivityLog: vi.fn().mockResolvedValue([]),
@@ -3854,7 +3858,7 @@ describe('SessionList', () => {
 	// ============================================================================
 
 	/**
-	 * The rule: MAESTRO is drawn IN FULL or not drawn at all. It used to
+	 * The rule: OPENWIZARDAI is drawn IN FULL or not drawn at all. It used to
 	 * `truncate`, so a narrow sidebar rendered the brand as "MAE...", which reads
 	 * as a rendering bug rather than as a deliberate space saving.
 	 *
@@ -3862,7 +3866,7 @@ describe('SessionList', () => {
 	 * now-playing label tests above do, so jsdom's missing layout engine is not a
 	 * problem.
 	 */
-	describe('MAESTRO wordmark', () => {
+	describe('OPENWIZARDAI wordmark', () => {
 		beforeEach(() => {
 			useUIStore.setState({ leftSidebarOpen: true });
 			useMediaPlaybackStore.setState({ dismissed: false, dormant: true, activeItemId: null });
@@ -3914,7 +3918,7 @@ describe('SessionList', () => {
 			expect(band.className).toContain('justify-center');
 
 			// The wordmark is identity, so it stays out of the band.
-			expect(band.contains(screen.getByText('OPENWIZZARD'))).toBe(false);
+			expect(band.contains(screen.getByText('OPENWIZARDAI'))).toBe(false);
 			expect(band.contains(screen.getByTitle('Switch agent'))).toBe(false);
 			expect(band.contains(screen.getByTitle('Menu'))).toBe(false);
 
@@ -3928,7 +3932,7 @@ describe('SessionList', () => {
 			useSettingsStore.setState({ leftSidebarWidth: 600 });
 			render(<SessionList {...createDefaultProps({})} />);
 
-			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZARDAI')).toBeInTheDocument();
 		});
 
 		it('drops the wordmark entirely on a narrow sidebar', () => {
@@ -3937,13 +3941,13 @@ describe('SessionList', () => {
 
 			// Absence, not a class. Asserting that `truncate` is gone would pass on
 			// a wordmark that still renders clipped.
-			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZARDAI')).not.toBeInTheDocument();
 			// The wand stays at every width, so the header keeps its identity and
 			// its switch-agent affordance.
 			expect(screen.getByTitle('Switch agent')).toBeInTheDocument();
 		});
 
-		// The regression that matters. Nothing between "MAESTRO" and nothing.
+		// The regression that matters. Nothing between "OPENWIZARDAI" and nothing.
 		it('never renders a partial wordmark at any allowed width', () => {
 			for (let width = 256; width <= 600; width += 8) {
 				useSettingsStore.setState({ leftSidebarWidth: width });
@@ -3951,7 +3955,7 @@ describe('SessionList', () => {
 
 				const heading = document.querySelector('h1');
 				if (heading) {
-					expect(heading.textContent).toBe('OPENWIZZARD');
+					expect(heading.textContent).toBe('OPENWIZARDAI');
 					// A clipped wordmark is a full one that CSS cut off, so the class
 					// that would do the cutting must not be there either.
 					expect(heading.className).not.toContain('truncate');
@@ -3967,13 +3971,13 @@ describe('SessionList', () => {
 
 			useSettingsStore.setState({ leftSidebarWidth: width, autoRunStats: undefined });
 			const bare = render(<SessionList {...createDefaultProps({})} />);
-			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZARDAI')).toBeInTheDocument();
 			bare.unmount();
 
 			useSettingsStore.setState({ leftSidebarWidth: width });
 			showNowPlayingPill();
 			const withPill = render(<SessionList {...createDefaultProps({})} />);
-			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZARDAI')).not.toBeInTheDocument();
 			withPill.unmount();
 		});
 	});

@@ -48,7 +48,7 @@ describe('filterGroupChatHistory', () => {
 		entry(MODERATOR_PARTICIPANT_NAME, 'delegation'),
 		entry('rc', 'response'),
 		entry(MODERATOR_PARTICIPANT_NAME, 'synthesis'),
-		entry('RunMaestro.ai', 'response'),
+		entry('manoelpanev.ai', 'response'),
 	];
 
 	it('returns every entry in the team view', () => {

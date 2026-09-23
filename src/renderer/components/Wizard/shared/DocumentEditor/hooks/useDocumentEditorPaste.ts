@@ -85,9 +85,9 @@ export function useDocumentEditorPaste({
 
 				const base64Content = base64Data.replace(/^data:image\/\w+;base64,/, '');
 				const extension = imageItem.type.split('/')[1] || 'png';
-				let result: Awaited<ReturnType<typeof window.maestro.autorun.saveImage>>;
+				let result: Awaited<ReturnType<typeof window.openwizardai.autorun.saveImage>>;
 				try {
-					result = await window.maestro.autorun.saveImage(
+					result = await window.openwizardai.autorun.saveImage(
 						folderPath,
 						selectedFile,
 						base64Content,

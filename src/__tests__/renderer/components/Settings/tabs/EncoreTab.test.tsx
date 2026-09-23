@@ -11,7 +11,7 @@
  * - Custom env vars editor integration
  * - Lookback period slider (1-90 range)
  * - Lookback scale markers
- * - Configuration persistence via window.maestro.agents.setConfig
+ * - Configuration persistence via window.openwizardai.agents.setConfig
  * - Agent config panel rendering for supported agents
  * - Models selection and refresh
  * - Agent detection error handling
@@ -169,15 +169,15 @@ describe('EncoreTab', () => {
 		vi.useFakeTimers();
 		mockUseSettingsOverrides = {};
 
-		// Reset window.maestro mocks
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue(mockAllAgents);
-		vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
-		vi.mocked(window.maestro.agents.setConfig).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.agents.getModels).mockResolvedValue([]);
-		vi.mocked(window.maestro.stats.getDatabaseSize).mockResolvedValue(1024 * 1024);
-		vi.mocked(window.maestro.stats.getEarliestTimestamp).mockResolvedValue(null);
-		vi.mocked(window.maestro.wakatime.checkCli).mockResolvedValue({ available: false });
-		vi.mocked(window.maestro.wakatime.validateApiKey).mockResolvedValue({ valid: false });
+		// Reset window.openwizardai mocks
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue(mockAllAgents);
+		vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
+		vi.mocked(window.openwizardai.agents.setConfig).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([]);
+		vi.mocked(window.openwizardai.stats.getDatabaseSize).mockResolvedValue(1024 * 1024);
+		vi.mocked(window.openwizardai.stats.getEarliestTimestamp).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.wakatime.checkCli).mockResolvedValue({ available: false });
+		vi.mocked(window.openwizardai.wakatime.validateApiKey).mockResolvedValue({ valid: false });
 	});
 
 	afterEach(() => {
@@ -206,7 +206,7 @@ describe('EncoreTab', () => {
 			});
 
 			expect(
-				screen.getByText(/Features that extend OpenWizzard's capabilities/)
+				screen.getByText(/Features that extend OpenWizardAI's capabilities/)
 			).toBeInTheDocument();
 			expect(screen.getByText(/Disabled features are completely hidden/)).toBeInTheDocument();
 		});
@@ -416,7 +416,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.detect).toHaveBeenCalled();
+			expect(window.openwizardai.agents.detect).toHaveBeenCalled();
 		});
 
 		it('should not call agents.detect when tab is not open', async () => {
@@ -426,7 +426,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.detect).not.toHaveBeenCalled();
+			expect(window.openwizardai.agents.detect).not.toHaveBeenCalled();
 		});
 
 		it('should not call agents.detect when DN is disabled', async () => {
@@ -437,7 +437,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.detect).not.toHaveBeenCalled();
+			expect(window.openwizardai.agents.detect).not.toHaveBeenCalled();
 		});
 
 		it('should show only available and non-hidden agents', async () => {
@@ -465,7 +465,7 @@ describe('EncoreTab', () => {
 
 		it('should show "Detecting agents..." while loading', async () => {
 			let resolveDetect: (agents: AgentConfig[]) => void;
-			vi.mocked(window.maestro.agents.detect).mockReturnValue(
+			vi.mocked(window.openwizardai.agents.detect).mockReturnValue(
 				new Promise((resolve) => {
 					resolveDetect = resolve;
 				})
@@ -489,7 +489,7 @@ describe('EncoreTab', () => {
 		});
 
 		it('should show "No agents available" when none are detected', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([]);
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([]);
 
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
@@ -524,7 +524,7 @@ describe('EncoreTab', () => {
 			});
 
 			// Clear initial detection call count
-			vi.mocked(window.maestro.agents.detect).mockClear();
+			vi.mocked(window.openwizardai.agents.detect).mockClear();
 
 			// Trigger refresh via AgentConfigPanel mock
 			const refreshButton = screen.getByTestId('trigger-refresh-agent');
@@ -533,7 +533,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.detect).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.agents.detect).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -599,7 +599,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			vi.mocked(window.maestro.agents.getConfig).mockClear();
+			vi.mocked(window.openwizardai.agents.getConfig).mockClear();
 
 			const customizeButton = screen.getByTitle('Customize provider settings');
 			fireEvent.click(customizeButton);
@@ -608,7 +608,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.getConfig).toHaveBeenCalledWith('claude-code');
+			expect(window.openwizardai.agents.getConfig).toHaveBeenCalledWith('claude-code');
 		});
 	});
 
@@ -973,8 +973,10 @@ describe('EncoreTab', () => {
 			mockUseSettingsOverrides = { encoreFeatures: { directorNotes: true } };
 		});
 
-		it('should persist agent config via window.maestro.agents.setConfig on config blur', async () => {
-			vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({ model: 'claude-3-sonnet' });
+		it('should persist agent config via window.openwizardai.agents.setConfig on config blur', async () => {
+			vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({
+				model: 'claude-3-sonnet',
+			});
 
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
@@ -995,14 +997,14 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			vi.mocked(window.maestro.agents.setConfig).mockClear();
+			vi.mocked(window.openwizardai.agents.setConfig).mockClear();
 			fireEvent.click(screen.getByTestId('trigger-config-blur'));
 
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.setConfig).toHaveBeenCalledWith(
+			expect(window.openwizardai.agents.setConfig).toHaveBeenCalledWith(
 				'claude-code',
 				expect.objectContaining({ model: 'claude-3-opus' })
 			);
@@ -1114,8 +1116,8 @@ describe('EncoreTab', () => {
 				},
 			];
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue(agentWithModels);
-			vi.mocked(window.maestro.agents.getModels).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue(agentWithModels);
+			vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([
 				'claude-3-opus',
 				'claude-3-sonnet',
 				'claude-3-haiku',
@@ -1133,7 +1135,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.getModels).toHaveBeenCalledWith('claude-code');
+			expect(window.openwizardai.agents.getModels).toHaveBeenCalledWith('claude-code');
 			expect(screen.getByTestId('agent-config-available-models')).toHaveTextContent(
 				JSON.stringify(['claude-3-opus', 'claude-3-sonnet', 'claude-3-haiku'])
 			);
@@ -1153,7 +1155,7 @@ describe('EncoreTab', () => {
 			});
 
 			// Default mockAvailableAgents have no capabilities.supportsModelSelection
-			expect(window.maestro.agents.getModels).not.toHaveBeenCalled();
+			expect(window.openwizardai.agents.getModels).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1165,7 +1167,7 @@ describe('EncoreTab', () => {
 		});
 
 		it('should call getModels with force=true when refresh models is triggered', async () => {
-			vi.mocked(window.maestro.agents.getModels).mockResolvedValue(['model-1', 'model-2']);
+			vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue(['model-1', 'model-2']);
 
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
@@ -1179,8 +1181,8 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			vi.mocked(window.maestro.agents.getModels).mockClear();
-			vi.mocked(window.maestro.agents.getModels).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.getModels).mockClear();
+			vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([
 				'model-1',
 				'model-2',
 				'model-3',
@@ -1192,7 +1194,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.getModels).toHaveBeenCalledWith('claude-code', true);
+			expect(window.openwizardai.agents.getModels).toHaveBeenCalledWith('claude-code', true);
 		});
 	});
 
@@ -1204,7 +1206,7 @@ describe('EncoreTab', () => {
 		});
 
 		it('should handle detection error gracefully and stop detecting', async () => {
-			vi.mocked(window.maestro.agents.detect).mockRejectedValue(new Error('Detection failed'));
+			vi.mocked(window.openwizardai.agents.detect).mockRejectedValue(new Error('Detection failed'));
 
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
@@ -1249,8 +1251,8 @@ describe('EncoreTab', () => {
 				},
 			];
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue(agentWithModels);
-			vi.mocked(window.maestro.agents.getModels).mockRejectedValue(new Error('Models failed'));
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue(agentWithModels);
+			vi.mocked(window.openwizardai.agents.getModels).mockRejectedValue(new Error('Models failed'));
 
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
@@ -1420,7 +1422,7 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			vi.mocked(window.maestro.agents.getConfig).mockClear();
+			vi.mocked(window.openwizardai.agents.getConfig).mockClear();
 
 			// Change provider
 			const select = screen.getByLabelText('Select synopsis provider agent');
@@ -1430,77 +1432,77 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.agents.getConfig).toHaveBeenCalledWith('codex');
+			expect(window.openwizardai.agents.getConfig).toHaveBeenCalledWith('codex');
 		});
 	});
 
-	describe('OpenWizzard Cue feature section', () => {
-		it('should render OpenWizzard Cue section with toggle', async () => {
+	describe('OpenWizardAI Cue feature section', () => {
+		it('should render OpenWizardAI Cue section with toggle', async () => {
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
-			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Cue')).toBeInTheDocument();
 			expect(screen.getByText(/Event-driven automation/)).toBeInTheDocument();
 		});
 
-		it('should use theme accent for border when OpenWizzard Cue is enabled', async () => {
+		it('should use theme accent for border when OpenWizardAI Cue is enabled', async () => {
 			mockUseSettingsOverrides = {
-				encoreFeatures: { directorNotes: false, maestroCue: true },
+				encoreFeatures: { directorNotes: false, openwizardaiCue: true },
 			};
 
 			const { container } = render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
-			// Find the Maestro Cue section container (second .rounded-lg.border div)
+			// Find the OpenWizardAI Cue section container (second .rounded-lg.border div)
 			const sections = container.querySelectorAll('.rounded-lg.border');
 			const cueSection = Array.from(sections).find((el) =>
-				el.textContent?.includes('OpenWizzard Cue')
+				el.textContent?.includes('OpenWizardAI Cue')
 			);
 			expect(cueSection).toHaveStyle({ borderColor: mockTheme.colors.accent });
 		});
 
-		it('should use theme border color when OpenWizzard Cue is disabled', async () => {
+		it('should use theme border color when OpenWizardAI Cue is disabled', async () => {
 			mockUseSettingsOverrides = {
-				encoreFeatures: { directorNotes: false, maestroCue: false },
+				encoreFeatures: { directorNotes: false, openwizardaiCue: false },
 			};
 
 			const { container } = render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
 			const sections = container.querySelectorAll('.rounded-lg.border');
 			const cueSection = Array.from(sections).find((el) =>
-				el.textContent?.includes('OpenWizzard Cue')
+				el.textContent?.includes('OpenWizardAI Cue')
 			);
 			expect(cueSection).toHaveStyle({ borderColor: mockTheme.colors.border });
 		});
 
-		it('should use theme accent for toggle when OpenWizzard Cue is enabled', async () => {
+		it('should use theme accent for toggle when OpenWizardAI Cue is enabled', async () => {
 			mockUseSettingsOverrides = {
-				encoreFeatures: { directorNotes: false, maestroCue: true },
+				encoreFeatures: { directorNotes: false, openwizardaiCue: true },
 			};
 
 			const { container } = render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
-			// The toggle is a rounded-full div inside the Maestro Cue button
+			// The toggle is a rounded-full div inside the OpenWizardAI Cue button
 			const sections = container.querySelectorAll('.rounded-lg.border');
 			const cueSection = Array.from(sections).find((el) =>
-				el.textContent?.includes('OpenWizzard Cue')
+				el.textContent?.includes('OpenWizardAI Cue')
 			);
 			const toggle = cueSection?.querySelector('.rounded-full');
 			expect(toggle).toHaveStyle({ backgroundColor: mockTheme.colors.accent });
 		});
 
-		it('should call setEncoreFeatures with maestroCue toggled when clicked', async () => {
+		it('should call setEncoreFeatures with openwizardaiCue toggled when clicked', async () => {
 			mockUseSettingsOverrides = {
-				encoreFeatures: { directorNotes: false, maestroCue: false },
+				encoreFeatures: { directorNotes: false, openwizardaiCue: false },
 			};
 
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
-			// Click the Maestro Cue section button
-			const cueButton = screen.getByText('OpenWizzard Cue').closest('button');
+			// Click the OpenWizardAI Cue section button
+			const cueButton = screen.getByText('OpenWizardAI Cue').closest('button');
 			expect(cueButton).toBeTruthy();
 			fireEvent.click(cueButton!);
 
 			expect(mockSetEncoreFeatures).toHaveBeenCalledWith(
-				expect.objectContaining({ maestroCue: true })
+				expect.objectContaining({ openwizardaiCue: true })
 			);
 		});
 	});

@@ -502,7 +502,7 @@ export class ClaudeOutputParser implements AgentOutputParser {
 	 *  - a `result` envelope whose `result` string is the banner,
 	 *  - the legacy `Claude AI usage limit reached|<epoch>` marker in either.
 	 *
-	 * False positives are the real risk here: Maestro's own agents discuss usage
+	 * False positives are the real risk here: OpenWizardAI's own agents discuss usage
 	 * limits constantly, and mistaking a normal reply for a quota failure aborts a
 	 * good turn. So the banner must be the ENTIRE message text (anchored and
 	 * length-capped by `isClaudeLimitNotice`), not merely contained in it - a reply
@@ -538,7 +538,7 @@ export class ClaudeOutputParser implements AgentOutputParser {
 
 		const match = matchErrorPattern(getErrorPatterns(this.agentId), text);
 		return {
-			// `rate_limited` rather than `token_exhaustion`: Maestro's
+			// `rate_limited` rather than `token_exhaustion`: OpenWizardAI's
 			// `token_exhaustion` means the CONTEXT WINDOW is full, which is not
 			// retryable. Plan quota lives under `rate_limited`; the retry strategy is
 			// then chosen from the message text by `classifyRetryableError`.

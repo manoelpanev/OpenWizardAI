@@ -1,5 +1,5 @@
 /** Default YAML template shown when no cue.yaml file exists yet. */
-export const CUE_YAML_TEMPLATE = `# .maestro/cue.yaml
+export const CUE_YAML_TEMPLATE = `# .openwizardai/cue.yaml
 # Define event-driven subscriptions for your agents.
 #
 # subscriptions:

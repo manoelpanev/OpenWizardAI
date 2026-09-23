@@ -1,5 +1,5 @@
 /**
- * useAgentUsageListener - registers `window.maestro.process.onUsage`
+ * useAgentUsageListener - registers `window.openwizardai.process.onUsage`
  *
  * Updates per-tab and per-session usage stats via the batched updater.
  * Estimates context-window % using `estimateContextUsage`; falls back to
@@ -34,7 +34,7 @@ export function useAgentUsageListener(deps: UseAgentUsageListenerDeps): void {
 	useEffect(() => {
 		const getSessions = () => useSessionStore.getState().sessions;
 
-		const unsubscribe = window.maestro.process.onUsage((sessionId: string, usageStats) => {
+		const unsubscribe = window.openwizardai.process.onUsage((sessionId: string, usageStats) => {
 			const parsed = parseSessionId(sessionId);
 			const { actualSessionId, tabId, baseSessionId } = parsed;
 

@@ -19,7 +19,7 @@
  */
 
 /** Marker scheme stored in a file tab's `content` in place of parquet bytes. */
-export const PARQUET_SCHEME = 'maestro-parquet';
+export const PARQUET_SCHEME = 'openwizardai-parquet';
 
 /** Extensions routed to the parquet viewer. */
 const PARQUET_EXTENSIONS = new Set(['parquet', 'parq', 'pq']);

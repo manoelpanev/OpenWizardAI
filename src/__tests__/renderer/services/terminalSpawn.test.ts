@@ -18,7 +18,7 @@ const spawnTerminalTab = vi.fn();
 const write = vi.fn().mockResolvedValue(undefined);
 
 vi.stubGlobal('window', {
-	maestro: { process: { spawnTerminalTab, write } },
+	openwizardai: { process: { spawnTerminalTab, write } },
 });
 
 import { spawnPtyForTab, isSpawnInFlight } from '../../../renderer/services/terminalSpawn';

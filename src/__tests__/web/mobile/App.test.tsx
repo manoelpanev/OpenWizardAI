@@ -58,7 +58,7 @@ let mockDesktopBionifyReadingMode = false;
 
 vi.mock('../../../web/main', () => ({
 	useOfflineStatus: () => mockIsOffline(),
-	useMaestroMode: () => ({
+	useOpenWizardAIMode: () => ({
 		isDashboard: mockIsDashboard(),
 		isSession: mockIsSession(),
 		goToDashboard: mockGoToDashboard,
@@ -172,7 +172,7 @@ vi.mock('../../../web/hooks/useOfflineQueue', () => ({
 // Mock config
 vi.mock('../../../web/utils/config', () => ({
 	buildApiUrl: (endpoint: string) => `http://localhost:3000${endpoint}`,
-	getMaestroConfig: () => ({
+	getOpenWizardAIConfig: () => ({
 		securityToken: 'test-token',
 		sessionId: null,
 		tabId: null,
@@ -796,7 +796,7 @@ describe('MobileApp', () => {
 			configurable: true,
 		});
 
-		(window as any).__MAESTRO_CONFIG__ = {};
+		(window as any).__OPENWIZARDAI_CONFIG__ = {};
 
 		// Reset mock function return values
 		mockSendRequest.mockResolvedValue({});
@@ -1078,7 +1078,7 @@ describe('MobileApp', () => {
 
 			render(<MobileApp />);
 
-			expect(screen.getByText('Connecting to OpenWizzard...')).toBeInTheDocument();
+			expect(screen.getByText('Connecting to OpenWizardAI...')).toBeInTheDocument();
 		});
 
 		it('shows authenticating message when authenticating', () => {
@@ -1086,7 +1086,7 @@ describe('MobileApp', () => {
 
 			render(<MobileApp />);
 
-			expect(screen.getByText('Connecting to OpenWizzard...')).toBeInTheDocument();
+			expect(screen.getByText('Connecting to OpenWizardAI...')).toBeInTheDocument();
 		});
 
 		it('shows select session prompt when connected but no active session', () => {
@@ -2383,7 +2383,7 @@ describe('MobileApp', () => {
 			expect(screen.getByText('Test Session')).toBeInTheDocument();
 		});
 
-		it('shows OpenWizzard title when offline', () => {
+		it('shows OpenWizardAI title when offline', () => {
 			mockIsOffline.mockReturnValue(true);
 
 			render(<MobileApp />);

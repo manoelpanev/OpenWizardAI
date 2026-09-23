@@ -1,7 +1,7 @@
 /**
  * ShellCommandCard - the transcript card for a command-mode (`!command`) run.
  *
- * A message typed as `!git status` never reaches the agent: Maestro runs it in
+ * A message typed as `!git status` never reaches the agent: OpenWizardAI runs it in
  * the agent's working directory and streams stdout/stderr here. The card shows
  * the command, where it ran, a live spinner with a Stop button while it's in
  * flight, and the exit code plus duration once it finishes.
@@ -360,7 +360,7 @@ export function ShellCommandCard({
 					className="px-3 py-1 text-2xs border-t"
 					style={{ color: theme.colors.textDim, borderColor: theme.colors.border }}
 				>
-					Output truncated - the command produced more than OpenWizzard keeps in the transcript.
+					Output truncated - the command produced more than OpenWizardAI keeps in the transcript.
 				</div>
 			)}
 		</div>

@@ -60,14 +60,14 @@ vi.mock('../../../main/utils/ssh-spawn-wrapper', () => ({
 	wrapSpawnWithSsh: (...args: unknown[]) => mockWrapSpawnWithSsh(...args),
 }));
 
-// Mock the Claude token-source resolver's leaf dependencies so the maestro-p
+// Mock the Claude token-source resolver's leaf dependencies so the openwizardai-p
 // binary reads as present and config-dir resolution is deterministic. The
 // resolver itself (resolveClaudeSpawnMode / applyClaudeSpawnDecision) and
 // getClaudeTokenMode run for real, so these tests exercise the actual
 // command/arg/env rewrite produced inside buildSpawnSpec.
 vi.mock('../../../main/agents/claude-usage-startup', () => ({
-	getMaestroPBinPath: () => '/bundled/maestro-p.js',
-	isMaestroPBinaryPath: (p: string | null | undefined) => !!p && p.includes('maestro-p'),
+	getOpenWizardAIPBinPath: () => '/bundled/openwizardai-p.js',
+	isOpenWizardAIPBinaryPath: (p: string | null | undefined) => !!p && p.includes('openwizardai-p'),
 }));
 vi.mock('../../../main/stores/claudeUsageStore', () => ({
 	getSnapshot: () => null,
@@ -75,7 +75,7 @@ vi.mock('../../../main/stores/claudeUsageStore', () => ({
 }));
 vi.mock('fs', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('fs')>();
-	// Make the resolved maestro-p script read as present; leave every other fs
+	// Make the resolved openwizardai-p script read as present; leave every other fs
 	// function untouched so the rest of the import graph behaves normally.
 	return { ...actual, existsSync: () => true };
 });
@@ -132,11 +132,11 @@ describe('cue-spawn-builder', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockGetAgentDefinition.mockReturnValue(defaultAgentDef);
-		// The spec env spreads process.env, so an ambient MAESTRO_CLAUDE_BIN
-		// (leaked when these tests run inside a maestro/claude agent) would bleed
-		// into specs and trip the "maestro-p disabled -> undefined" assertion.
+		// The spec env spreads process.env, so an ambient OPENWIZARDAI_CLAUDE_BIN
+		// (leaked when these tests run inside a openwizardai/claude agent) would bleed
+		// into specs and trip the "openwizardai-p disabled -> undefined" assertion.
 		// Clear it so the suite asserts only what the builder itself injects.
-		vi.stubEnv('MAESTRO_CLAUDE_BIN', undefined as unknown as string);
+		vi.stubEnv('OPENWIZARDAI_CLAUDE_BIN', undefined as unknown as string);
 	});
 
 	afterEach(() => {
@@ -291,19 +291,19 @@ describe('cue-spawn-builder', () => {
 
 			expect(result.ok).toBe(true);
 			if (result.ok) {
-				expect(result.spec.env.MAESTRO_QUERY_SOURCE).toBe('cue');
+				expect(result.spec.env.OPENWIZARDAI_QUERY_SOURCE).toBe('cue');
 			}
 		});
 
 		it('keeps the cue marker even when the agent sets its own env vars', async () => {
 			const result = await buildSpawnSpec(
-				createConfig({ customEnvVars: { MAESTRO_QUERY_SOURCE: 'user' } }),
+				createConfig({ customEnvVars: { OPENWIZARDAI_QUERY_SOURCE: 'user' } }),
 				'prompt'
 			);
 
 			expect(result.ok).toBe(true);
 			if (result.ok) {
-				expect(result.spec.env.MAESTRO_QUERY_SOURCE).toBe('cue');
+				expect(result.spec.env.OPENWIZARDAI_QUERY_SOURCE).toBe('cue');
 			}
 		});
 
@@ -452,63 +452,72 @@ describe('cue-spawn-builder', () => {
 			});
 		});
 
-		describe('Claude token-source (maestro-p) rewrite', () => {
-			// A claude-code definition carrying the interactive (maestro-p) wiring
+		describe('Claude token-source (openwizardai-p) rewrite', () => {
+			// A claude-code definition carrying the interactive (openwizardai-p) wiring
 			// the resolver requires to treat the spawn as a TUI candidate.
 			const claudeInteractiveAgentDef = {
 				...defaultAgentDef,
-				interactiveCommand: 'maestro-p',
+				interactiveCommand: 'openwizardai-p',
 				interactiveModeArgs: ['--dangerously-skip-permissions'],
 				defaultEnvVars: {},
 			};
 
-			it('rewrites a local spawn to maestro-p for interactive token mode, keeping the prompt last', async () => {
+			it('rewrites a local spawn to openwizardai-p for interactive token mode, keeping the prompt last', async () => {
 				mockGetAgentDefinition.mockReturnValue(claudeInteractiveAgentDef);
 
 				const result = await buildSpawnSpec(
-					createConfig({ enableMaestroP: true, maestroPMode: 'interactive' }),
+					createConfig({ enableOpenWizardAIP: true, openwizardaiPMode: 'interactive' }),
 					'Hello world'
 				);
 
 				expect(result.ok).toBe(true);
 				if (result.ok) {
 					const { command, args, env } = result.spec;
-					// maestro-p runs via the Node execPath...
+					// openwizardai-p runs via the Node execPath...
 					expect(command).toBe(process.execPath);
-					// ...with the maestro-p script first, then --max-wait derived from
+					// ...with the openwizardai-p script first, then --max-wait derived from
 					// the run's timeoutMs (30000ms -> 30s), then the interactive flags...
-					expect(args[0]).toBe('/bundled/maestro-p.js');
+					expect(args[0]).toBe('/bundled/openwizardai-p.js');
 					expect(args[1]).toBe('--max-wait');
 					expect(args[2]).toBe('30');
 					expect(args[3]).toBe('--dangerously-skip-permissions');
 					// ...and the substituted prompt still the trailing positional.
 					expect(args[args.length - 1]).toBe('Hello world');
-					// maestro-p is told which real claude binary to drive.
-					expect(env.MAESTRO_CLAUDE_BIN).toBeTruthy();
+					// openwizardai-p is told which real claude binary to drive.
+					expect(env.OPENWIZARDAI_CLAUDE_BIN).toBeTruthy();
 				}
 			});
 
-			it('leaves a plain claude batch spec unchanged when maestro-p is disabled', async () => {
+			it('leaves a plain claude batch spec unchanged when openwizardai-p is disabled', async () => {
 				mockGetAgentDefinition.mockReturnValue(claudeInteractiveAgentDef);
 
-				const result = await buildSpawnSpec(createConfig({ enableMaestroP: false }), 'Hello world');
+				const result = await buildSpawnSpec(
+					createConfig({ enableOpenWizardAIP: false }),
+					'Hello world'
+				);
 
 				expect(result.ok).toBe(true);
 				if (result.ok) {
 					const { command, args, env } = result.spec;
 					expect(command).toBe('claude');
-					expect(args[0]).not.toBe('/bundled/maestro-p.js');
+					expect(args[0]).not.toBe('/bundled/openwizardai-p.js');
 					expect(args[args.length - 1]).toBe('Hello world');
-					expect(env.MAESTRO_CLAUDE_BIN).toBeUndefined();
+					expect(env.OPENWIZARDAI_CLAUDE_BIN).toBeUndefined();
 				}
 			});
 
-			it('routes interactive token mode through maestro-p on the remote when SSH is enabled', async () => {
+			it('routes interactive token mode through openwizardai-p on the remote when SSH is enabled', async () => {
 				mockGetAgentDefinition.mockReturnValue(claudeInteractiveAgentDef);
 				const mockSshStore = { getSshRemotes: vi.fn(() => []) };
 				mockWrapSpawnWithSsh.mockResolvedValue({
 					command: 'ssh',
-					args: ['user@host', 'maestro-p', '--dangerously-skip-permissions', '--', 'Hello world'],
+					args: [
+						'user@host',
+						'openwizardai-p',
+						'--dangerously-skip-permissions',
+						'--',
+						'Hello world',
+					],
 					cwd: '/Users/test',
 					customEnvVars: undefined,
 					prompt: undefined,
@@ -517,21 +526,21 @@ describe('cue-spawn-builder', () => {
 
 				const result = await buildSpawnSpec(
 					createConfig({
-						enableMaestroP: true,
-						maestroPMode: 'interactive',
+						enableOpenWizardAIP: true,
+						openwizardaiPMode: 'interactive',
 						sshRemoteConfig: { enabled: true, remoteId: 'r1' },
 						sshStore: mockSshStore,
 					}),
 					'Hello world'
 				);
 
-				// The SSH wrapper is handed the REMOTE maestro-p command (not the
+				// The SSH wrapper is handed the REMOTE openwizardai-p command (not the
 				// local execPath rewrite), with --max-wait derived from the run's
 				// timeoutMs (30000ms -> 30s) ahead of the interactive flags, then the
-				// headless arg list (maestro-p strips those on the remote).
+				// headless arg list (openwizardai-p strips those on the remote).
 				expect(mockWrapSpawnWithSsh).toHaveBeenCalledWith(
 					expect.objectContaining({
-						agentBinaryName: 'maestro-p',
+						agentBinaryName: 'openwizardai-p',
 						args: expect.arrayContaining(['--max-wait', '30', '--dangerously-skip-permissions']),
 					}),
 					{ enabled: true, remoteId: 'r1' },
@@ -546,7 +555,7 @@ describe('cue-spawn-builder', () => {
 
 				expect(result.ok).toBe(true);
 				if (result.ok) {
-					// The local maestro-p execPath rewrite must NOT apply for SSH.
+					// The local openwizardai-p execPath rewrite must NOT apply for SSH.
 					expect(result.spec.command).toBe('ssh');
 					expect(result.spec.command).not.toBe(process.execPath);
 				}

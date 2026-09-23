@@ -164,7 +164,7 @@ export const TerminalView = memo(
 					// redraws the current line at the top of a fresh screen.
 					terminalRefs.current.get(activeTab.id)?.clear();
 					const terminalSessionId = getTerminalSessionId(session.id, activeTab.id);
-					window.maestro.process.write(terminalSessionId, '\x0c').catch(() => {
+					window.openwizardai.process.write(terminalSessionId, '\x0c').catch(() => {
 						// Write failures are surfaced by the process exit handler
 					});
 				},
@@ -291,7 +291,7 @@ export const TerminalView = memo(
 
 		// Subscribe to PTY exit events for terminal tabs in this session
 		useEffect(() => {
-			const cleanup = window.maestro.process.onExit(
+			const cleanup = window.openwizardai.process.onExit(
 				(exitSessionId: string, code: number, signal?: number) => {
 					const parsed = parseTerminalSessionId(exitSessionId);
 					if (!parsed || parsed.sessionId !== session.id) return;

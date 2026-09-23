@@ -36,18 +36,18 @@ function createMockContext(overrides: Record<string, unknown> = {}) {
 describe('useMainKeyboardHandler', () => {
 	// Track event listeners for cleanup
 	let addedListeners: { type: string; handler: EventListener }[] = [];
-	let originalMaestro: unknown;
+	let originalOpenWizardAI: unknown;
 	const originalAddEventListener = window.addEventListener;
 	const originalRemoveEventListener = window.removeEventListener;
 
 	beforeEach(() => {
 		addedListeners = [];
-		originalMaestro = (window as any).maestro;
-		const maestroObj = ((window as any).maestro ?? {}) as Record<string, unknown>;
-		const processObj = ((maestroObj.process as Record<string, unknown> | undefined) ??
+		originalOpenWizardAI = (window as any).openwizardai;
+		const openwizardaiObj = ((window as any).openwizardai ?? {}) as Record<string, unknown>;
+		const processObj = ((openwizardaiObj.process as Record<string, unknown> | undefined) ??
 			{}) as Record<string, unknown>;
-		(window as any).maestro = {
-			...maestroObj,
+		(window as any).openwizardai = {
+			...openwizardaiObj,
 			process: {
 				...processObj,
 				write: vi.fn(),
@@ -68,7 +68,7 @@ describe('useMainKeyboardHandler', () => {
 	afterEach(() => {
 		window.addEventListener = originalAddEventListener;
 		window.removeEventListener = originalRemoveEventListener;
-		(window as any).maestro = originalMaestro;
+		(window as any).openwizardai = originalOpenWizardAI;
 	});
 
 	describe('hook initialization', () => {
@@ -3142,7 +3142,7 @@ describe('useMainKeyboardHandler', () => {
 			// Cmd+F and a bare Ctrl+F is forwarded to xterm as a readline control
 			// sequence, so this path only applies off-Mac. setup.ts defaults the
 			// bridge platform to 'darwin'; override it for this case.
-			(window as any).maestro = { ...(window as any).maestro, platform: 'linux' };
+			(window as any).openwizardai = { ...(window as any).openwizardai, platform: 'linux' };
 			const { result } = renderHook(() => useMainKeyboardHandler());
 			const mockOpenTerminalSearch = vi.fn();
 
@@ -3333,7 +3333,7 @@ describe('useMainKeyboardHandler', () => {
 
 			expect(mockFocusActiveTerminal).toHaveBeenCalled();
 			expect(preventDefaultSpy).toHaveBeenCalled();
-			expect((window as any).maestro.process.write).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.process.write).not.toHaveBeenCalled();
 		});
 
 		it('should not forward keys when typing in an editable input', () => {
@@ -3366,7 +3366,7 @@ describe('useMainKeyboardHandler', () => {
 			});
 
 			expect(mockFocusActiveTerminal).not.toHaveBeenCalled();
-			expect((window as any).maestro.process.write).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.process.write).not.toHaveBeenCalled();
 			input.remove();
 		});
 	});
@@ -3374,10 +3374,10 @@ describe('useMainKeyboardHandler', () => {
 	describe('browser tab shortcut IPC forwarding', () => {
 		it('dispatches a keydown event on the window when IPC shortcut arrives', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3413,10 +3413,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('blurs the active webview element before dispatching', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3455,10 +3455,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('unsubscribes from IPC on unmount', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3477,10 +3477,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('routes forwarded Cmd+L to focusBrowserAddressBar without re-dispatching', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3525,10 +3525,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('routes forwarded Cmd+Left and Cmd+Right to browserBack/browserForward', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3634,10 +3634,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('routes forwarded Cmd+F to openBrowserFind', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3680,10 +3680,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('routes forwarded Cmd+Shift+, to handleNavBack without re-dispatching', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -3728,10 +3728,10 @@ describe('useMainKeyboardHandler', () => {
 
 		it('routes forwarded Cmd+Shift+. to handleNavForward without re-dispatching', () => {
 			let ipcCallback: ((input: Record<string, unknown>) => void) | null = null;
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				app: {
-					...((window as any).maestro?.app ?? {}),
+					...((window as any).openwizardai?.app ?? {}),
 					onBrowserTabShortcutKey: (cb: (input: Record<string, unknown>) => void) => {
 						ipcCallback = cb;
 						return () => {
@@ -4037,7 +4037,7 @@ describe('useMainKeyboardHandler - editLastQueuedMessage', () => {
 	function session(overrides: Record<string, unknown> = {}) {
 		return {
 			id: 'agent-1',
-			name: 'Maestro',
+			name: 'OpenWizardAI',
 			activeTabId: TAB_A,
 			activeFileTabId: null,
 			activeTerminalTabId: null,
@@ -4232,7 +4232,12 @@ describe('useMainKeyboardHandler - destination surface switching', () => {
 			hasOpenLayers: () => modalOpen,
 			hasOpenModal: () => modalOpen,
 			isShortcut: (e: KeyboardEvent, actionId: string) => actionId === shortcutId && matches(e),
-			encoreFeatures: { usageStats: true, directorNotes: true, symphony: true, maestroCue: true },
+			encoreFeatures: {
+				usageStats: true,
+				directorNotes: true,
+				symphony: true,
+				openwizardaiCue: true,
+			},
 			sessions: [{ id: 'test' }],
 			...extra,
 		});
@@ -4264,7 +4269,7 @@ describe('useMainKeyboardHandler - destination surface switching', () => {
 		expect(setUsageDashboardOpen).toHaveBeenCalledWith(true);
 	});
 
-	it('opens Maestro Cue from an open modal', () => {
+	it('opens OpenWizardAI Cue from an open modal', () => {
 		const setCueModalOpen = vi.fn();
 		pressShortcut('openCue', { key: 'q', altKey: true }, { setCueModalOpen });
 

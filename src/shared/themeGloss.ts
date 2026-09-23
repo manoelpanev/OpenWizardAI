@@ -3,7 +3,7 @@
  *
  * One vocabulary for how much light the app chrome catches, shared by the
  * renderer (which publishes the level onto `<html data-gloss>`), the Settings
- * slider, and `maestro-cli gloss`. A click and a CLI call cannot disagree about
+ * slider, and `openwizardai-cli gloss`. A click and a CLI call cannot disagree about
  * what the levels are or what order they sit in, because there is only one
  * list.
  *
@@ -43,12 +43,12 @@ export interface GlossLevelMeta {
 
 /**
  * Labels and descriptions for each level. Shared so the Settings slider and
- * `maestro-cli gloss --list` describe the same thing in the same words.
+ * `openwizardai-cli gloss --list` describe the same thing in the same words.
  */
 export const GLOSS_LEVEL_META: Record<GlossLevel, GlossLevelMeta> = {
 	off: {
 		label: 'Off',
-		description: 'Flat surfaces, exactly as OpenWizzard has always rendered.',
+		description: 'Flat surfaces, exactly as OpenWizardAI has always rendered.',
 	},
 	sheen: {
 		label: 'Sheen',

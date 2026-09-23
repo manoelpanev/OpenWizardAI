@@ -4,7 +4,7 @@
  * These predicates gate two things that must agree: whether the Usage
  * Dashboard renders a provider tab, and whether the main-process warm-up
  * considers that provider cold enough to sample on boot. A disagreement means
- * either a permanently empty tab or a `maestro-p --status` spawn on every
+ * either a permanently empty tab or a `openwizardai-p --status` spawn on every
  * launch, so the edge cases are pinned here.
  */
 

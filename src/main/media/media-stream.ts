@@ -1,7 +1,7 @@
 /**
  * Local Media Streaming
  *
- * Serves audio/video files to the renderer over the `maestro-media://` custom
+ * Serves audio/video files to the renderer over the `openwizardai-media://` custom
  * protocol with HTTP range support, so `<audio>`/`<video>` can seek without
  * ever pulling the whole file into memory or across IPC.
  *
@@ -77,7 +77,7 @@ export function parseRangeHeader(
 }
 
 /**
- * Handle one `maestro-media://` request. Registered via `protocol.handle` in
+ * Handle one `openwizardai-media://` request. Registered via `protocol.handle` in
  * src/main/index.ts.
  */
 export async function handleMediaStreamRequest(request: Request): Promise<Response> {

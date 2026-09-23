@@ -5,11 +5,11 @@
  * enabling session context transfer and grooming across AI agents.
  *
  * Usage:
- * - window.maestro.context.getStoredSession(agentId, projectRoot, sessionId)
- * - window.maestro.context.groomContext(projectRoot, agentType, prompt) - NEW: single call for grooming
- * - window.maestro.context.createGroomingSession(projectRoot, agentType) - DEPRECATED
- * - window.maestro.context.sendGroomingPrompt(sessionId, prompt) - DEPRECATED
- * - window.maestro.context.cleanupGroomingSession(sessionId)
+ * - window.openwizardai.context.getStoredSession(agentId, projectRoot, sessionId)
+ * - window.openwizardai.context.groomContext(projectRoot, agentType, prompt) - NEW: single call for grooming
+ * - window.openwizardai.context.createGroomingSession(projectRoot, agentType) - DEPRECATED
+ * - window.openwizardai.context.sendGroomingPrompt(sessionId, prompt) - DEPRECATED
+ * - window.openwizardai.context.cleanupGroomingSession(sessionId)
  */
 
 import { ipcMain, BrowserWindow } from 'electron';

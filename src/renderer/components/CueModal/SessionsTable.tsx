@@ -45,7 +45,8 @@ export function SessionsTable({
 	if (sessions.length === 0) {
 		return (
 			<div className="text-center py-8 text-sm" style={{ color: theme.colors.textDim }}>
-				No sessions have a cue config file. Create .maestro/cue.yaml in your project to get started.
+				No sessions have a cue config file. Create .openwizardai/cue.yaml in your project to get
+				started.
 			</div>
 		);
 	}

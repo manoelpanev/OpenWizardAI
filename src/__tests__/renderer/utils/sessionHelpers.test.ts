@@ -25,27 +25,27 @@ vi.mock('../../../renderer/utils/ids', () => ({
 	generateId: vi.fn(() => 'mock-generated-id'),
 }));
 
-// Create a mock for window.maestro
+// Create a mock for window.openwizardai
 const mockAgentsApi = {
 	get: vi.fn(),
 	getCapabilities: vi.fn(),
 };
 
-// Store original window.maestro
-const originalMaestro = (global as any).window?.maestro;
+// Store original window.openwizardai
+const originalOpenWizardAI = (global as any).window?.openwizardai;
 
 describe('sessionHelpers', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 
-		// Setup window.maestro mock
+		// Setup window.openwizardai mock
 		(global as any).window = {
-			maestro: {
+			openwizardai: {
 				agents: mockAgentsApi,
 				prompts: {
 					get: vi.fn().mockResolvedValue({
 						success: true,
-						content: 'Maestro System Context: {{AGENT_NAME}}',
+						content: 'OpenWizardAI System Context: {{AGENT_NAME}}',
 					}),
 				},
 				history: {
@@ -56,9 +56,9 @@ describe('sessionHelpers', () => {
 	});
 
 	afterEach(() => {
-		// Restore original window.maestro if it existed
-		if (originalMaestro) {
-			(global as any).window = { maestro: originalMaestro };
+		// Restore original window.openwizardai if it existed
+		if (originalOpenWizardAI) {
+			(global as any).window = { openwizardai: originalOpenWizardAI };
 		} else {
 			delete (global as any).window;
 		}

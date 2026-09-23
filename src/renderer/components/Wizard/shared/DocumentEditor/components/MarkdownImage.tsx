@@ -45,7 +45,7 @@ export function MarkdownImage({
 		if (src.startsWith('images/') && folderPath) {
 			setLoading(true);
 			const absolutePath = `${folderPath}/${src}`;
-			window.maestro.fs
+			window.openwizardai.fs
 				.readFile(absolutePath)
 				.then((result) => {
 					if (!isCurrentRequest()) return;

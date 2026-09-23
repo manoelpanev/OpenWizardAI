@@ -1444,7 +1444,7 @@ export interface ListTreeOptions {
 	ignorePatterns?: string[];
 	/**
 	 * Relative paths (from `rootPath`) to exclude entirely via `find -path`. Used by
-	 * the renderer to skip `.maestro` in the "rest of tree" phase since `.maestro`
+	 * the renderer to skip `.openwizardai` in the "rest of tree" phase since `.openwizardai`
 	 * is enumerated in its own phase with no entry cap.
 	 */
 	excludePaths?: string[];
@@ -1528,7 +1528,7 @@ export async function listTreeRemote(
 	const headTail = maxFiles !== undefined ? ` | head -n ${maxFiles + 1}` : '';
 	const fileFind = `find -L . -mindepth 1 -maxdepth ${maxDepth} ${pruneClause} -type f -print 2>/dev/null${headTail}`;
 
-	const SEP = '__MAESTRO_FIND_SEP__';
+	const SEP = '__OPENWIZARDAI_FIND_SEP__';
 	const remoteCommand =
 		`cd ${escapedRoot} 2>/dev/null || { echo "__CD_ERROR__"; exit 0; }; ` +
 		`${dirFind}; ` +

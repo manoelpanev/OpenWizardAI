@@ -6,7 +6,7 @@
  * from a scheduler: see what is queued, change when it runs, pause it, cancel
  * it - plus a form to add new ones without hand-editing YAML.
  *
- * The list is the same data `maestro-cli cue schedule --list` prints, read
+ * The list is the same data `openwizardai-cli cue schedule --list` prints, read
  * through the same module, so the two surfaces can never disagree.
  */
 
@@ -378,7 +378,7 @@ export function ScheduledTasksTab({
 						theme={theme}
 						icon={<AlarmClock className="w-8 h-8" />}
 						title="No scheduled tasks"
-						description="Schedule a one-shot reminder, a daily job, or a repeating check. Agents can create the same tasks with: maestro-cli cue schedule --in 20m --agent <name> --prompt '...'"
+						description="Schedule a one-shot reminder, a daily job, or a repeating check. Agents can create the same tasks with: openwizardai-cli cue schedule --in 20m --agent <name> --prompt '...'"
 					/>
 				) : visibleTasks.length === 0 ? (
 					<div

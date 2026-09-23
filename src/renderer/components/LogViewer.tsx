@@ -215,13 +215,13 @@ export function LogViewer({
 	// Load logs on mount and subscribe to new logs
 	useEffect(() => {
 		// Get max buffer setting first, then load logs
-		window.maestro.logger.getMaxLogBuffer().then((max) => {
+		window.openwizardai.logger.getMaxLogBuffer().then((max) => {
 			setMaxLogBuffer(max || 1000);
 			loadLogs();
 		});
 
 		// Subscribe to new log entries
-		const unsubscribe = window.maestro.logger.onNewLog((newLog: SystemLogEntry) => {
+		const unsubscribe = window.openwizardai.logger.onNewLog((newLog: SystemLogEntry) => {
 			setLogs((prevLogs) => {
 				// Add new log at the beginning (newest first)
 				const updated = [newLog, ...prevLogs];
@@ -309,8 +309,8 @@ export function LogViewer({
 	const loadLogs = async () => {
 		try {
 			// Get the configured max log buffer size, default to 1000 if not set
-			const maxBuffer = (await window.maestro.logger.getMaxLogBuffer()) || 1000;
-			const systemLogs = await window.maestro.logger.getLogs({ limit: maxBuffer });
+			const maxBuffer = (await window.openwizardai.logger.getMaxLogBuffer()) || 1000;
+			const systemLogs = await window.openwizardai.logger.getLogs({ limit: maxBuffer });
 			// Reverse to show newest first
 			setLogs(systemLogs.reverse());
 		} catch (error) {
@@ -320,7 +320,7 @@ export function LogViewer({
 
 	const handleClearLogs = async () => {
 		try {
-			await window.maestro.logger.clearLogs();
+			await window.openwizardai.logger.clearLogs();
 			setLogs([]);
 			setFilteredLogs([]);
 		} catch (error) {
@@ -342,7 +342,7 @@ export function LogViewer({
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `maestro-logs-${Date.now()}.txt`;
+		a.download = `openwizardai-logs-${Date.now()}.txt`;
 		a.click();
 		URL.revokeObjectURL(url);
 	};
@@ -464,7 +464,7 @@ export function LogViewer({
 			>
 				<div className="flex items-center gap-3">
 					<h2 className="text-lg font-bold" style={{ color: theme.colors.textMain }}>
-						OpenWizzard System Logs
+						OpenWizardAI System Logs
 					</h2>
 					<span className="text-xs opacity-50" style={{ color: theme.colors.textDim }}>
 						{filteredLogs.length} {filteredLogs.length === 1 ? 'entry' : 'entries'}
@@ -904,7 +904,7 @@ export function LogViewer({
 			{showClearConfirm && (
 				<ConfirmModal
 					theme={theme}
-					message="Are you sure you want to clear all OpenWizzard system logs? This action cannot be undone."
+					message="Are you sure you want to clear all OpenWizardAI system logs? This action cannot be undone."
 					onConfirm={handleClearLogs}
 					onClose={() => setShowClearConfirm(false)}
 				/>

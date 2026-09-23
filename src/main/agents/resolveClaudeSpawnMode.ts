@@ -2,31 +2,31 @@
  * Resolve Claude Spawn Mode (desktop entry)
  *
  * Thin desktop wrapper over the bundle-safe decision core in `claudeSpawnCore.ts`.
- * It supplies the native-backed default deps (electron-store maestro-p path
+ * It supplies the native-backed default deps (electron-store openwizardai-p path
  * resolution, SQLite usage snapshot, remote-probe cache, desktop logger) and
  * preserves the historical `resolveClaudeSpawnMode(input)` signature every
  * desktop spawn surface already calls.
  *
  * The actual decision logic, the spawn realizers (`applyClaudeSpawnDecision`,
  * `buildRemoteInteractiveSpawn`), and all types now live in `claudeSpawnCore.ts`
- * so the standalone `maestro-cli` can share the exact same logic without pulling
+ * so the standalone `openwizardai-cli` can share the exact same logic without pulling
  * the native/Electron dependency graph. See that file for the rationale.
  */
 
 import * as fs from 'fs';
 import type { AgentConfig } from './definitions';
 import { selectMode as defaultSelectMode } from './claude-mode-selector';
-import { getMaestroPBinPath as defaultGetMaestroPBinPath } from './claude-usage-startup';
+import { getOpenWizardAIPBinPath as defaultGetOpenWizardAIPBinPath } from './claude-usage-startup';
 import {
 	getSnapshot as defaultGetUsageSnapshot,
 	resolveConfigDirKey as defaultResolveConfigDirKey,
 } from '../stores/claudeUsageStore';
-import { getRemoteMaestroPAvailable as defaultGetRemoteMaestroPAvailable } from './remoteMaestroPCache';
+import { getRemoteOpenWizardAIPAvailable as defaultGetRemoteOpenWizardAIPAvailable } from './remoteOpenWizardAIPCache';
 import { logger } from '../utils/logger';
 import type { ClaudeTokenMode } from '../../shared/claudeTokenMode';
 import {
 	resolveClaudeSpawnModeCore,
-	isMaestroPBinaryPath,
+	isOpenWizardAIPBinaryPath,
 	type ClaudeSpawnCoreDeps,
 	type ClaudeSpawnDecision,
 	type ResolveClaudeSpawnModeCoreInput,
@@ -38,8 +38,8 @@ import {
 export {
 	applyClaudeSpawnDecision,
 	buildRemoteInteractiveSpawn,
-	isMaestroPBinaryPath,
-	REMOTE_MAESTRO_P_COMMAND,
+	isOpenWizardAIPBinaryPath,
+	REMOTE_OPENWIZARDAI_P_COMMAND,
 } from './claudeSpawnCore';
 export type {
 	ClaudeSpawnDecision,
@@ -53,8 +53,8 @@ export type {
 export type ResolveClaudeSpawnModeDeps = ClaudeSpawnCoreDeps;
 
 const defaultDeps: ClaudeSpawnCoreDeps = {
-	getMaestroPBinPath: defaultGetMaestroPBinPath,
-	isMaestroPBinaryPath,
+	getOpenWizardAIPBinPath: defaultGetOpenWizardAIPBinPath,
+	isOpenWizardAIPBinaryPath,
 	resolveConfigDirKey: defaultResolveConfigDirKey,
 	getUsageSnapshot: defaultGetUsageSnapshot,
 	fileExists: (p: string) => {
@@ -64,7 +64,7 @@ const defaultDeps: ClaudeSpawnCoreDeps = {
 			return false;
 		}
 	},
-	getRemoteMaestroPAvailable: defaultGetRemoteMaestroPAvailable,
+	getRemoteOpenWizardAIPAvailable: defaultGetRemoteOpenWizardAIPAvailable,
 	selectMode: defaultSelectMode,
 	logger,
 };

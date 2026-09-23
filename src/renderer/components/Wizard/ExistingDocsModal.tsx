@@ -75,7 +75,7 @@ export function ExistingDocsModal({
 
 		try {
 			// Delete the playbooks folder
-			const deleteResult = await window.maestro.autorun.deleteFolder(directoryPath);
+			const deleteResult = await window.openwizardai.autorun.deleteFolder(directoryPath);
 			if (!deleteResult.success) {
 				throw new Error(deleteResult.error || 'Failed to delete playbooks folder');
 			}

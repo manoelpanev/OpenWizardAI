@@ -5,14 +5,14 @@
  *
  * Two distinct id spaces are in play and conflating them is what made every
  * Cue token figure read zero:
- * - **Maestro agent id** - what `cue_events` / `session_lifecycle` store. Used
+ * - **OpenWizardAI agent id** - what `cue_events` / `session_lifecycle` store. Used
  *   here only to resolve `(agentType, projectPath, isRemote)` from the
  *   `session_lifecycle` stats table.
  * - **Provider session id** - Claude's `session_id` etc., the key the agents'
  *   on-disk session files (and `AgentSessionInfo.sessionId`) use. Used here to
  *   actually match token totals.
  *
- * Callers therefore pass `{ maestroSessionId, providerSessionId }` pairs and
+ * Callers therefore pass `{ openwizardaiSessionId, providerSessionId }` pairs and
  * get back a map keyed by **providerSessionId**. Each Cue run spawns a fresh
  * agent process (no `--resume`), so one provider session == one Cue event ==
  * one token total; the "credit-the-whole-session" model is exact, not an
@@ -90,12 +90,12 @@ const COVERAGE_BY_AGENT: Record<string, 'full' | 'partial'> = {
 };
 
 /**
- * One unit of work for {@link getSessionTokenSummaries}: the Maestro agent id
+ * One unit of work for {@link getSessionTokenSummaries}: the OpenWizardAI agent id
  * (to resolve agent type / project via `session_lifecycle`) paired with the
  * provider session id the run produced (to match on-disk token totals).
  */
 export interface SessionTokenLookup {
-	maestroSessionId: string;
+	openwizardaiSessionId: string;
 	providerSessionId: string;
 }
 
@@ -201,10 +201,10 @@ function matchesWindow(
 }
 
 /**
- * Resolve token totals for a batch of `{ maestroSessionId, providerSessionId }`
+ * Resolve token totals for a batch of `{ openwizardaiSessionId, providerSessionId }`
  * lookups.
  *
- * @param lookups - Pairs of Maestro agent id (resolves agent type / project via
+ * @param lookups - Pairs of OpenWizardAI agent id (resolves agent type / project via
  *   `session_lifecycle`) and the provider session id the run produced (matches
  *   on-disk token totals). Deduped by `providerSessionId`.
  * @param opts.sinceMs - Optional window lower bound. Sessions whose
@@ -214,7 +214,7 @@ function matchesWindow(
  * @param opts.untilMs - Optional window upper bound. Sessions whose
  *   `windowStartMs` falls after this are excluded from the result. Same
  *   "no clipping" semantics.
- * @returns Map keyed by `providerSessionId`. Provider sessions whose Maestro
+ * @returns Map keyed by `providerSessionId`. Provider sessions whose OpenWizardAI
  *   agent id isn't in `session_lifecycle` are absent from the map (not zeroed).
  *   Sessions for unknown agents are present with `coverage: 'unsupported'` and
  *   zeros.
@@ -229,18 +229,18 @@ export async function getSessionTokenSummaries(
 	const now = Date.now();
 
 	// Dedupe by providerSessionId (globally unique), remembering each one's
-	// Maestro agent id so we can resolve its agent type / project below.
-	const maestroByProvider = new Map<string, string>();
-	for (const { maestroSessionId, providerSessionId } of lookups) {
-		if (!providerSessionId || !maestroSessionId) continue;
-		if (!maestroByProvider.has(providerSessionId)) {
-			maestroByProvider.set(providerSessionId, maestroSessionId);
+	// OpenWizardAI agent id so we can resolve its agent type / project below.
+	const openwizardaiByProvider = new Map<string, string>();
+	for (const { openwizardaiSessionId, providerSessionId } of lookups) {
+		if (!providerSessionId || !openwizardaiSessionId) continue;
+		if (!openwizardaiByProvider.has(providerSessionId)) {
+			openwizardaiByProvider.set(providerSessionId, openwizardaiSessionId);
 		}
 	}
 
 	// First pass - serve from cache, collect uncached provider ids.
 	const uncached: string[] = [];
-	for (const providerSessionId of maestroByProvider.keys()) {
+	for (const providerSessionId of openwizardaiByProvider.keys()) {
 		const entry = cache.get(providerSessionId);
 		if (entry && entry.expiresAt > now) {
 			if (matchesWindow(entry.summary, opts)) {
@@ -253,12 +253,14 @@ export async function getSessionTokenSummaries(
 	if (uncached.length === 0) return result;
 
 	// Resolve agent type / project / remote flag for the uncached batch's
-	// Maestro agent ids (that's what `session_lifecycle` is keyed by).
+	// OpenWizardAI agent ids (that's what `session_lifecycle` is keyed by).
 	let lifecycle: Map<string, SessionLookupRow>;
 	try {
 		const db = getStatsDB().database;
-		const maestroIds = Array.from(new Set(uncached.map((p) => maestroByProvider.get(p)!)));
-		lifecycle = lookupSessions(db, maestroIds);
+		const openwizardaiIds = Array.from(
+			new Set(uncached.map((p) => openwizardaiByProvider.get(p)!))
+		);
+		lifecycle = lookupSessions(db, openwizardaiIds);
 	} catch (error) {
 		void captureException(error);
 		logger.warn(`Failed to look up sessions in stats DB: ${error}`, LOG_CONTEXT);
@@ -277,10 +279,10 @@ export async function getSessionTokenSummaries(
 	const groups = new Map<string, Group>();
 
 	for (const providerSessionId of uncached) {
-		const maestroId = maestroByProvider.get(providerSessionId)!;
-		const row = lifecycle.get(maestroId);
+		const openwizardaiId = openwizardaiByProvider.get(providerSessionId)!;
+		const row = lifecycle.get(openwizardaiId);
 		if (!row) {
-			// Maestro agent isn't in session_lifecycle (aged out, or stats were
+			// OpenWizardAI agent isn't in session_lifecycle (aged out, or stats were
 			// off when it was created): "a session that doesn't exist returns
 			// nothing in the map."
 			continue;
@@ -383,24 +385,24 @@ export async function getSessionTokenSummaries(
 }
 
 /**
- * Resolve `agentType` for a batch of Maestro agent ids from `session_lifecycle`.
+ * Resolve `agentType` for a batch of OpenWizardAI agent ids from `session_lifecycle`.
  *
  * Kept separate from token resolution because agent type is keyed by the
- * Maestro agent id (what `cue_events` stores) and is available even for events
+ * OpenWizardAI agent id (what `cue_events` stores) and is available even for events
  * that never recorded a provider session id - so the dashboard can still label
- * a run's agent when its token total is unknown. Maestro agent ids absent from
+ * a run's agent when its token total is unknown. OpenWizardAI agent ids absent from
  * `session_lifecycle` are simply missing from the returned map.
  */
-export function getAgentTypesForSessions(maestroSessionIds: string[]): Map<string, string> {
+export function getAgentTypesForSessions(openwizardaiSessionIds: string[]): Map<string, string> {
 	const result = new Map<string, string>();
-	const unique = Array.from(new Set(maestroSessionIds.filter(Boolean)));
+	const unique = Array.from(new Set(openwizardaiSessionIds.filter(Boolean)));
 	if (unique.length === 0) return result;
 
 	try {
 		const db = getStatsDB().database;
 		const rows = lookupSessions(db, unique);
-		for (const [maestroId, row] of rows) {
-			if (row.agent_type) result.set(maestroId, row.agent_type);
+		for (const [openwizardaiId, row] of rows) {
+			if (row.agent_type) result.set(openwizardaiId, row.agent_type);
 		}
 	} catch (error) {
 		void captureException(error);

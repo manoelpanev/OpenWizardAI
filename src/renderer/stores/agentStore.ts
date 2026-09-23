@@ -33,7 +33,7 @@ import type {
 import { buildSnapshotKey } from '../../shared/agentCapabilities';
 import { createTab, getActiveTab } from '../utils/tabHelpers';
 import { codifyQueuedTurnSettings } from '../utils/providerTabSessions';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../utils/spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from '../utils/spawnHelpers';
 import { generateId } from '../utils/ids';
 import { useSessionStore, selectSessionById } from './sessionStore';
 // Agent Resilience: snapshot dispatched prompts for auto-retry. Import cycle
@@ -208,7 +208,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 	// --- Actions ---
 
 	refreshAgents: async (sshRemoteId?) => {
-		const agents = await window.maestro.agents.detect(sshRemoteId);
+		const agents = await window.openwizardai.agents.detect(sshRemoteId);
 		set({ availableAgents: agents, agentsDetected: true });
 	},
 
@@ -221,7 +221,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 		// when the IPC call rejects (renderer disposal, main-process crash).
 		// Errors still bubble up so Sentry / ErrorBoundary can record them.
 		try {
-			const snapshots = await window.maestro.agents.getAllSnapshots();
+			const snapshots = await window.openwizardai.agents.getAllSnapshots();
 			set({ capabilitySnapshots: snapshots, capabilitySnapshotsLoaded: true });
 		} catch (err) {
 			set({ capabilitySnapshotsLoaded: true });
@@ -235,7 +235,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 			snapshotUnsubscribe();
 			snapshotUnsubscribe = null;
 		}
-		snapshotUnsubscribe = window.maestro.agents.onSnapshotUpdated((payload) => {
+		snapshotUnsubscribe = window.openwizardai.agents.onSnapshotUpdated((payload) => {
 			const current = get().capabilitySnapshots;
 			const next = { ...current };
 			if (payload.snapshot === null) {
@@ -254,7 +254,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 	},
 
 	reprobeAgent: async (agentId, sshRemoteId) => {
-		return window.maestro.agents.reprobe(agentId, sshRemoteId);
+		return window.openwizardai.agents.reprobe(agentId, sshRemoteId);
 	},
 
 	clearAgentError: (sessionId, tabId?) => {
@@ -290,7 +290,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 			};
 		});
 		// Close the agent error modal if open
-		window.maestro.agentError.clearError(sessionId).catch((err) => {
+		window.openwizardai.agentError.clearError(sessionId).catch((err) => {
 			logger.error('Failed to clear agent error:', undefined, err);
 		});
 	},
@@ -326,7 +326,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 
 		// Kill any existing AI process
 		try {
-			await window.maestro.process.kill(`${sessionId}-ai`);
+			await window.openwizardai.process.kill(`${sessionId}-ai`);
 		} catch {
 			// Process may not exist
 		}
@@ -409,7 +409,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 
 		try {
 			// Get agent configuration for this session's tool type
-			const agent = await window.maestro.agents.get(session.toolType);
+			const agent = await window.openwizardai.agents.get(session.toolType);
 			if (!agent) throw new Error(`Agent not found for toolType: ${session.toolType}`);
 
 			// Get the TARGET TAB's agentSessionId for session continuity
@@ -438,7 +438,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 				// handleQuickActionsDebugReleaseQueuedItem) so it lands atomically with
 				// the dequeue/state-busy transition. Adding it here too would duplicate.
 
-				const appendSystemPrompt = await prepareMaestroSystemPrompt({
+				const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 					session,
 					activeTabId: targetTab.id,
 				});
@@ -462,7 +462,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 					args: spawnArgs,
 				});
 
-				await window.maestro.process.spawn({
+				await window.openwizardai.process.spawn({
 					sessionId: targetSessionId,
 					toolType: session.toolType,
 					cwd: session.cwd,
@@ -535,7 +535,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 						conductorProfile: deps.conductorProfile,
 					});
 
-					const appendSystemPromptForCommand = await prepareMaestroSystemPrompt({
+					const appendSystemPromptForCommand = await prepareOpenWizardAISystemPrompt({
 						session,
 						activeTabId: targetTab.id,
 					});
@@ -570,7 +570,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 						});
 
 					// Spawn agent with the prompt
-					await window.maestro.process.spawn({
+					await window.openwizardai.process.spawn({
 						sessionId: targetSessionId,
 						toolType: session.toolType,
 						cwd: session.cwd,
@@ -685,7 +685,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 	killAgent: async (sessionId, suffix?) => {
 		const target = suffix ? `${sessionId}-${suffix}` : `${sessionId}-ai`;
 		try {
-			await window.maestro.process.kill(target);
+			await window.openwizardai.process.kill(target);
 		} catch {
 			// Process may not exist
 		}
@@ -693,7 +693,7 @@ export const useAgentStore = create<AgentStore>()((set, get) => ({
 
 	interruptAgent: async (sessionId) => {
 		try {
-			await window.maestro.process.interrupt(sessionId);
+			await window.openwizardai.process.interrupt(sessionId);
 		} catch {
 			// Process may not exist
 		}

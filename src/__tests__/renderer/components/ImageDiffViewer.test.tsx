@@ -5,15 +5,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
-// Mock window.maestro
+// Mock window.openwizardai
 const mockShowFile = vi.fn();
 const mockReadFile = vi.fn();
 
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	// Reset maestro mocks
-	(window as any).maestro = {
+	// Reset openwizardai mocks
+	(window as any).openwizardai = {
 		git: {
 			showFile: mockShowFile,
 		},

@@ -26,58 +26,64 @@ function makePlaybook(overrides: Partial<MarketplacePlaybook>): MarketplacePlayb
 }
 
 describe('isCompatible', () => {
-	it('returns true when minMaestroVersion is absent', () => {
+	it('returns true when minOpenWizardAIVersion is absent', () => {
 		expect(isCompatible(makePlaybook({}), '0.1.0')).toBe(true);
 	});
 
-	it('returns true when minMaestroVersion is invalid semver (treats as no minimum)', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: 'not-a-version' }), '1.0.0')).toBe(true);
+	it('returns true when minOpenWizardAIVersion is invalid semver (treats as no minimum)', () => {
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: 'not-a-version' }), '1.0.0')).toBe(
+			true
+		);
 	});
 
 	it('returns true when running version is invalid (defensive fallback)', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '1.0.0' }), 'unknown')).toBe(true);
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '1.0.0' }), 'unknown')).toBe(true);
 	});
 
 	// Documented edge cases from the spec
 	it('final release ≥ its own prerelease', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17-rc' }), '0.16.17')).toBe(true);
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17-rc' }), '0.16.17')).toBe(
+			true
+		);
 	});
 
 	it('exact prerelease match', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17-rc' }), '0.16.17-rc')).toBe(
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17-rc' }), '0.16.17-rc')).toBe(
 			true
 		);
 	});
 
 	it('newer prerelease ≥ older prerelease', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17-rc.1' }), '0.16.17-rc.2')).toBe(
-			true
-		);
+		expect(
+			isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17-rc.1' }), '0.16.17-rc.2')
+		).toBe(true);
 	});
 
 	it('older release < newer prerelease', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17-rc' }), '0.16.16')).toBe(false);
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17-rc' }), '0.16.16')).toBe(
+			false
+		);
 	});
 
 	it('newer minor (even prerelease) ≥ older final', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17' }), '0.17.0-alpha.1')).toBe(
-			true
-		);
+		expect(
+			isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17' }), '0.17.0-alpha.1')
+		).toBe(true);
 	});
 
 	// Case-insensitivity for prerelease tags - addresses the package.json
 	// using "0.16.17-RC" (uppercase) while playbook manifests pin "0.16.17-rc".
 	it('treats uppercase and lowercase prerelease tags as equivalent', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17-rc' }), '0.16.17-RC')).toBe(
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17-rc' }), '0.16.17-RC')).toBe(
 			true
 		);
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '0.16.17-RC' }), '0.16.17-rc')).toBe(
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '0.16.17-RC' }), '0.16.17-rc')).toBe(
 			true
 		);
 	});
 
 	it('older release blocked by newer min', () => {
-		expect(isCompatible(makePlaybook({ minMaestroVersion: '99.0.0' }), '0.16.0')).toBe(false);
+		expect(isCompatible(makePlaybook({ minOpenWizardAIVersion: '99.0.0' }), '0.16.0')).toBe(false);
 	});
 });
 

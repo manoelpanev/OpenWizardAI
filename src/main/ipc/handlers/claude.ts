@@ -8,7 +8,7 @@
  * - Search sessions
  * - Get project and global stats
  * - Session timestamps for activity graphs
- * - Session origins tracking (Maestro vs CLI)
+ * - Session origins tracking (OpenWizardAI vs CLI)
  * - Get available slash commands
  *
  * Extracted from main/index.ts to improve code organization.
@@ -299,7 +299,7 @@ export function registerClaudeHandlers(deps: ClaudeHandlerDependencies): void {
 				.filter((s) => s.sizeBytes > 0)
 				.sort((a, b) => new Date(b.modifiedAt).getTime() - new Date(a.modifiedAt).getTime());
 
-			// Get Maestro session origins
+			// Get OpenWizardAI session origins
 			const origins = claudeSessionOriginsStore.get('origins', {});
 			const projectOrigins = origins[projectPath] || {};
 
@@ -385,7 +385,7 @@ export function registerClaudeHandlers(deps: ClaudeHandlerDependencies): void {
 				const hasMore = startIndex + limit < totalCount;
 				const nextCursor = hasMore ? pageFiles[pageFiles.length - 1]?.sessionId : null;
 
-				// Get Maestro session origins
+				// Get OpenWizardAI session origins
 				const origins = claudeSessionOriginsStore.get('origins', {});
 				const projectOrigins = origins[projectPath] || {};
 

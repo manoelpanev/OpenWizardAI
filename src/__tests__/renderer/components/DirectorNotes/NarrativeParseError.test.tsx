@@ -26,7 +26,7 @@ const mockWriteText = vi.fn().mockResolvedValue(undefined);
 
 beforeEach(() => {
 	// No Electron shell bridge in tests, so safeClipboardWrite uses navigator.
-	(window as unknown as { maestro?: unknown }).maestro = undefined;
+	(window as unknown as { openwizardai?: unknown }).openwizardai = undefined;
 	Object.defineProperty(navigator, 'clipboard', {
 		configurable: true,
 		writable: true,
@@ -45,7 +45,7 @@ describe('NarrativeParseError', () => {
 		const banner = screen.getByRole('alert');
 		expect(banner).toBeInTheDocument();
 		expect(
-			screen.getByText("OpenWizzard could not parse the AI's structured output")
+			screen.getByText("OpenWizardAI could not parse the AI's structured output")
 		).toBeInTheDocument();
 		expect(screen.getByText(ERROR)).toBeInTheDocument();
 	});

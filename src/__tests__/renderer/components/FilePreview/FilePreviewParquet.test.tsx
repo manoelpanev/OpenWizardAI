@@ -13,9 +13,9 @@ import { mockTheme } from '../../../helpers/mockTheme';
  * stay behind an open descriptor in the main process. That makes the ROUTING
  * the load-bearing part: every text branch below it would happily render the
  * marker as a line of source, and the binary branch would show an "Open
- * Externally" card for a file Maestro can display perfectly well.
+ * Externally" card for a file OpenWizardAI can display perfectly well.
  *
- * The ParquetViewer itself is stubbed here. It talks to `window.maestro.parquet`
+ * The ParquetViewer itself is stubbed here. It talks to `window.openwizardai.parquet`
  * and is covered by its own suite; what these tests pin down is that FilePreview
  * reaches it at all, and that nothing else claims the tab first.
  */
@@ -68,14 +68,14 @@ describe('FilePreview parquet routing', () => {
 
 	it('never shows the marker text anywhere on screen', () => {
 		// The failure this guards against is not a crash: it is a tab that looks
-		// like it loaded and shows `maestro-parquet://preview/64617461...`.
+		// like it loaded and shows `openwizardai-parquet://preview/64617461...`.
 		const { container } = renderPreview({
 			name: 'events.parquet',
 			content: MARKER,
 			path: '/data/events.parquet',
 		});
 
-		expect(container.textContent).not.toContain('maestro-parquet');
+		expect(container.textContent).not.toContain('openwizardai-parquet');
 	});
 
 	it('does not fall through to the binary card', () => {

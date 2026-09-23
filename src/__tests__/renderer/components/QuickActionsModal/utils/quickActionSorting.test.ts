@@ -31,7 +31,7 @@ describe('quickActionSorting', () => {
 	it('prefers bookmarked jump actions when two entries share the same agent sort key', () => {
 		const sorted = filterAndSortQuickActions(
 			[
-				action({ id: 'child', label: 'Jump to Maestro subagent: rc', agentSortKey: 'rc' }),
+				action({ id: 'child', label: 'Jump to OpenWizardAI subagent: rc', agentSortKey: 'rc' }),
 				action({ id: 'root', label: 'Jump to: rc', agentSortKey: 'rc', bookmarked: true }),
 			],
 			'',

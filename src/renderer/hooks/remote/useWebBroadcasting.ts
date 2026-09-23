@@ -35,9 +35,9 @@ export function useWebBroadcasting(deps: UseWebBroadcastingDeps): UseWebBroadcas
 
 	// Listen for external history changes (e.g., from CLI) and refresh history panel
 	useEffect(() => {
-		const unsubscribe = window.maestro.history.onExternalChange(async () => {
+		const unsubscribe = window.openwizardai.history.onExternalChange(async () => {
 			// Reload from disk before refreshing (to bypass electron-store cache)
-			await window.maestro.history.reload();
+			await window.openwizardai.history.reload();
 			rightPanelRef.current?.refreshHistoryPanel();
 		});
 		return unsubscribe;

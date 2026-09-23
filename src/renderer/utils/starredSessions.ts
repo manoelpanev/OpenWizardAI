@@ -14,7 +14,7 @@ import type { Session, AITab } from '../types';
 import { captureException } from './sentry';
 
 /** Window event fired whenever any session's starred state changes. */
-const STARRED_CHANGED_EVENT = 'maestro:starredSessionsChanged';
+const STARRED_CHANGED_EVENT = 'openwizardai:starredSessionsChanged';
 
 /** Broadcast that a session's starred state changed (after the disk write resolves). */
 export function notifyStarredSessionsChanged(): void {
@@ -41,8 +41,12 @@ export function persistTabStarred(session: Session, tab: AITab, starred: boolean
 	const agentId = session.toolType || 'claude-code';
 	const persist =
 		agentId === 'claude-code'
-			? window.maestro.claude.updateSessionStarred(session.projectRoot, tab.agentSessionId, starred)
-			: window.maestro.agentSessions.setSessionStarred(
+			? window.openwizardai.claude.updateSessionStarred(
+					session.projectRoot,
+					tab.agentSessionId,
+					starred
+				)
+			: window.openwizardai.agentSessions.setSessionStarred(
 					agentId,
 					session.projectRoot,
 					tab.agentSessionId,

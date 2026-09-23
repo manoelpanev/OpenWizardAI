@@ -204,9 +204,9 @@ vi.mock('lucide-react', () => ({
 
 // Helper to create mock theme
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -223,8 +223,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Default props factory
@@ -254,7 +254,7 @@ function generateSessionData(
 		sessions.push({
 			id: `session-${i}`,
 			content: `# Session ${i} Content\n\n- [ ] Task ${i}.1\n- [x] Task ${i}.2\n- [ ] Task ${i}.3\n\nContent specific to session ${i}.`,
-			folderPath: `/projects/project-${i}/.maestro/playbooks`,
+			folderPath: `/projects/project-${i}/.openwizardai/playbooks`,
 		});
 	}
 	return sessions;
@@ -270,10 +270,10 @@ function generateDocuments(count: number): string[] {
 }
 
 describe('AutoRun Rapid User Interactions Performance', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 

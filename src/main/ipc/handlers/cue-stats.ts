@@ -6,7 +6,7 @@
  * thin transport that delegates to domain code.
  *
  * Gated at the handler on BOTH Encore flags (`encoreFeatures.usageStats` AND
- * `encoreFeatures.maestroCue`). The dashboard fuses Cue lineage with token
+ * `encoreFeatures.openwizardaiCue`). The dashboard fuses Cue lineage with token
  * data, so disabling either feature must hide it. Failure mode is throwing
  * `'CueStatsDisabled'` rather than returning an empty payload - the renderer
  * needs to distinguish "feature off" from "no data in window".
@@ -77,13 +77,13 @@ function buildSubscriptionToPipelineMap(
 
 /**
  * Returns true only when BOTH `encoreFeatures.usageStats` and
- * `encoreFeatures.maestroCue` are enabled (their default, unless the user
+ * `encoreFeatures.openwizardaiCue` are enabled (their default, unless the user
  * turned one off). Reads on every call so
  * the renderer sees toggle changes without an app restart.
  */
 function isCueStatsEnabled(settingsStore: { get: (key: string) => unknown }): boolean {
 	const ef = resolveEncoreFeatures(settingsStore.get('encoreFeatures'));
-	return ef.usageStats && ef.maestroCue;
+	return ef.usageStats && ef.openwizardaiCue;
 }
 
 /**

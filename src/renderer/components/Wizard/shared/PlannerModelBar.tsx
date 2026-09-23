@@ -6,7 +6,7 @@ interface PlannerModelBarProps {
 	selectedAgent: ToolType | null;
 	/** What the run is actually about to use, already resolved. */
 	effectiveModel: string | null;
-	/** Top-tier model for this provider, when Maestro knows one. */
+	/** Top-tier model for this provider, when OpenWizardAI knows one. */
 	topTierModel: string | null;
 	/** True once the user has overridden the agent's configured model. */
 	isOverridden?: boolean;
@@ -21,7 +21,7 @@ interface PlannerModelBarProps {
  * The discovery conversation and the playbook it produces both run on a model
  * the user never saw named, which is how someone ends up paying for a plan
  * written by a model they would not have chosen (issue #1225). This says it out
- * loud, and where Maestro can name the provider's top tier, offers it in one
+ * loud, and where OpenWizardAI can name the provider's top tier, offers it in one
  * click for this run only.
  */
 export function PlannerModelBar({

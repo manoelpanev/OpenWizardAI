@@ -148,7 +148,7 @@ export function DeleteWorktreeModal({
 					<div className="text-sm space-y-2" style={{ color: theme.colors.textDim }}>
 						<p>
 							<strong style={{ color: theme.colors.textMain }}>Remove:</strong> Removes the
-							sub-agent from OpenWizzard but keeps the git worktree directory on disk.
+							sub-agent from OpenWizardAI but keeps the git worktree directory on disk.
 						</p>
 						<p>
 							<strong style={{ color: theme.colors.textMain }}>Remove and Delete:</strong> Removes

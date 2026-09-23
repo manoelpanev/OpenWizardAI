@@ -65,7 +65,7 @@ export async function readTaskCountsAndContent(
 	await Promise.all(
 		documents.map(async (docPath) => {
 			try {
-				const result = await window.maestro.autorun.readDoc(
+				const result = await window.openwizardai.autorun.readDoc(
 					folderPath,
 					docPath + '.md',
 					sshRemoteId
@@ -173,7 +173,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 				setAutoRunDocumentTree([]);
 				setAutoRunDocumentTaskCounts(new Map());
 				try {
-					const listResult = await window.maestro.autorun.listDocs(folderPath, sshRemoteId);
+					const listResult = await window.openwizardai.autorun.listDocs(folderPath, sshRemoteId);
 					if (currentLoadSequence !== loadSequenceRef.current) return;
 					if (listResult.success) {
 						const files = listResult.files || [];
@@ -196,7 +196,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 								content = capturedContent ?? '';
 							} else {
 								// Selected file isn't in the listing (stale ref); read explicitly.
-								const contentResult = await window.maestro.autorun.readDoc(
+								const contentResult = await window.openwizardai.autorun.readDoc(
 									folderPath,
 									selectedFile + '.md',
 									sshRemoteId
@@ -224,7 +224,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 				}
 			} else if (selectedFile) {
 				// Only the selected file changed - read just that file.
-				const contentResult = await window.maestro.autorun.readDoc(
+				const contentResult = await window.openwizardai.autorun.readDoc(
 					folderPath,
 					selectedFile + '.md',
 					sshRemoteId
@@ -276,7 +276,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 		let isRefreshing = false;
 
 		const refreshAutoRunData = async () => {
-			const listResult = await window.maestro.autorun.listDocs(folderPath, sshRemoteId);
+			const listResult = await window.openwizardai.autorun.listDocs(folderPath, sshRemoteId);
 			if (disposed) return;
 			if (!listResult.success) return;
 
@@ -304,7 +304,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 				if (captureInList) {
 					nextContent = capturedContent ?? '';
 				} else {
-					const contentResult = await window.maestro.autorun.readDoc(
+					const contentResult = await window.openwizardai.autorun.readDoc(
 						folderPath,
 						currentSelected + '.md',
 						sshRemoteId
@@ -318,7 +318,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 		};
 
 		(async () => {
-			const watchResult = await window.maestro.autorun.watchFolder(folderPath, sshRemoteId);
+			const watchResult = await window.openwizardai.autorun.watchFolder(folderPath, sshRemoteId);
 			if (disposed) return;
 
 			// SSH remote sessions don't support file watchers; fall back to polling.
@@ -346,7 +346,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 			}
 
 			// Local sessions use file change events.
-			unsubscribe = window.maestro.autorun.onFileChanged(async (data) => {
+			unsubscribe = window.openwizardai.autorun.onFileChanged(async (data) => {
 				if (disposed) return;
 				if (data.folderPath !== folderPath) return;
 
@@ -361,7 +361,7 @@ export function useAutoRunDocumentLoader(): UseAutoRunDocumentLoaderReturn {
 				clearTimeout(remotePollTimeout);
 				remotePollTimeout = null;
 			}
-			window.maestro.autorun.unwatchFolder(folderPath);
+			window.openwizardai.autorun.unwatchFolder(folderPath);
 			unsubscribe();
 		};
 		// Intentionally NOT depending on autoRunSelectedFile - the watcher reads

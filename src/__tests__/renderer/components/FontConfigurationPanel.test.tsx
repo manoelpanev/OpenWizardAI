@@ -68,7 +68,7 @@ describe('FontConfigurationPanel', () => {
 	});
 
 	it('offers proportional faces alongside the monospace ones', () => {
-		// Maestro was fixed width everywhere before per-surface fonts, so a
+		// OpenWizardAI was fixed width everywhere before per-surface fonts, so a
 		// reading face had to be typed in by hand to be reachable at all.
 		renderPanel();
 
@@ -190,7 +190,7 @@ describe('FontConfigurationPanel', () => {
 	describe('bundled fonts', () => {
 		it('lists the fonts that ship with the app', () => {
 			renderPanel();
-			expect(screen.getByRole('group', { name: /Bundled with OpenWizzard/ })).toBeInTheDocument();
+			expect(screen.getByRole('group', { name: /Bundled with OpenWizardAI/ })).toBeInTheDocument();
 		});
 
 		it('never marks a bundled font missing, even when detection found nothing', () => {
@@ -201,7 +201,7 @@ describe('FontConfigurationPanel', () => {
 			// Read the group directly rather than by option name: several bundled
 			// families share a prefix ("Roboto" / "Roboto Mono"), so a name regex
 			// matches more than one.
-			const group = screen.getByRole('group', { name: /Bundled with OpenWizzard/ });
+			const group = screen.getByRole('group', { name: /Bundled with OpenWizardAI/ });
 			const options = [...group.querySelectorAll('option')];
 			expect(options).toHaveLength(BUNDLED_FONT_NAMES.length);
 			for (const option of options) {
@@ -285,13 +285,13 @@ describe('FontConfigurationPanel', () => {
 			renderPanel({
 				fontFamily: '',
 				inheritOptions: [{ value: '', label: 'Same as interface font' }],
-				previewFontFamily: 'var(--maestro-font-chat)',
-				previewFontSize: 'var(--maestro-size-chat)',
+				previewFontFamily: 'var(--openwizardai-font-chat)',
+				previewFontSize: 'var(--openwizardai-size-chat)',
 			});
 
 			const sample = within(screen.getByTestId('font-preview')).getByText(FONT_PREVIEW_PROSE);
-			expect(sample.style.fontFamily).toBe('var(--maestro-font-chat)');
-			expect(sample.style.fontSize).toBe('var(--maestro-size-chat)');
+			expect(sample.style.fontFamily).toBe('var(--openwizardai-font-chat)');
+			expect(sample.style.fontSize).toBe('var(--openwizardai-size-chat)');
 		});
 
 		it('falls back to the selected font with a safe fallback chain', () => {

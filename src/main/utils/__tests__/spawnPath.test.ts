@@ -1,6 +1,6 @@
 /**
  * Tests for buildSpawnPath() - the spawn-time PATH builder that merges
- * Maestro's hardcoded expanded PATH with the user's cached login-shell PATH
+ * OpenWizardAI's hardcoded expanded PATH with the user's cached login-shell PATH
  * and caller-supplied extra dirs.
  *
  * Regression coverage for issue #1016 (codex exit 127 on a non-standard
@@ -39,7 +39,7 @@ describe('buildSpawnPath', () => {
 		process.env.PATH = '/usr/bin';
 		const result = buildSpawnPath();
 
-		// Maestro's hardcoded paths should be present
+		// OpenWizardAI's hardcoded paths should be present
 		expect(result).toContain('/opt/homebrew/bin');
 		expect(result).toContain('/usr/local/bin');
 		expect(result).toContain('/usr/bin');

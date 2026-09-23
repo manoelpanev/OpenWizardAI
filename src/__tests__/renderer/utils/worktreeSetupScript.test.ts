@@ -42,7 +42,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	sessions.length = 0;
 	worktreeRunSetup.mockResolvedValue({ success: true, ran: true, stdout: '', stderr: '' });
-	(globalThis as any).window = { maestro: { git: { worktreeRunSetup } } };
+	(globalThis as any).window = { openwizardai: { git: { worktreeRunSetup } } };
 });
 
 describe('runWorktreeSetupScript', () => {

@@ -425,7 +425,7 @@ describe('playbooks IPC handlers', () => {
 
 			vi.mocked(dialog.showSaveDialog).mockResolvedValue({
 				canceled: false,
-				filePath: '/export/path/Export_Me.maestro-playbook.zip',
+				filePath: '/export/path/Export_Me.openwizardai-playbook.zip',
 			});
 
 			// Mock archiver
@@ -448,7 +448,7 @@ describe('playbooks IPC handlers', () => {
 			const result = await handler!({} as any, 'session-123', 'pb-1', '/autorun/path');
 
 			expect(result.success).toBe(true);
-			expect(result.filePath).toBe('/export/path/Export_Me.maestro-playbook.zip');
+			expect(result.filePath).toBe('/export/path/Export_Me.openwizardai-playbook.zip');
 			expect(mockArchive.append).toHaveBeenCalled();
 		});
 

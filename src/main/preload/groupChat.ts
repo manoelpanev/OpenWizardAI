@@ -1,7 +1,7 @@
 /**
  * Preload API for group chat operations
  *
- * Provides the window.maestro.groupChat namespace for:
+ * Provides the window.openwizardai.groupChat namespace for:
  * - Group chat creation and management
  * - Moderator and participant control
  * - Chat history and messages
@@ -17,11 +17,11 @@ export interface ModeratorConfig {
 	customArgs?: string;
 	customEnvVars?: Record<string, string>;
 	/** Claude token-source opt-in (Claude Code moderator only). */
-	enableMaestroP?: boolean;
-	/** Refines enableMaestroP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
-	maestroPMode?: 'interactive' | 'dynamic';
-	/** Optional maestro-p script override. */
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	/** Refines enableOpenWizardAIP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	/** Optional openwizardai-p script override. */
+	openwizardaiPPath?: string;
 }
 
 /**

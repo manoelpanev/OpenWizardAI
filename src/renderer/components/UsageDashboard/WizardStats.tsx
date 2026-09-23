@@ -50,7 +50,7 @@ export const WizardStats = memo(function WizardStats({ timeRange, theme }: Wizar
 
 	const fetchRuns = useCallback(async () => {
 		try {
-			setRuns(await window.maestro.stats.getWizardRuns(timeRange));
+			setRuns(await window.openwizardai.stats.getWizardRuns(timeRange));
 		} catch (err) {
 			captureException(err, { extra: { operation: 'fetchWizardStats' } });
 		} finally {
@@ -60,7 +60,7 @@ export const WizardStats = memo(function WizardStats({ timeRange, theme }: Wizar
 
 	useEffect(() => {
 		fetchRuns();
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			fetchRuns();
 		});
 		return () => unsubscribe();

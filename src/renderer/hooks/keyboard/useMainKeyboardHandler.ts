@@ -188,7 +188,7 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 						if (data !== null) {
 							ctx.mainPanelRef?.current?.focusActiveTerminal?.();
 							e.preventDefault();
-							window.maestro?.process?.write(termSid, data);
+							window.openwizardai?.process?.write(termSid, data);
 							return;
 						}
 						if (isNavigationKey) {
@@ -205,8 +205,8 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 
 			// CRITICAL: When in terminal mode, let xterm.js handle Ctrl+[A-Z] control sequences.
 			// These include Ctrl+C (SIGINT), Ctrl+D (EOF), Ctrl+Z (suspend), Ctrl+\ (quit), etc.
-			// On macOS, Ctrl is used for terminal control sequences; Cmd (Meta) is for Maestro shortcuts.
-			// On Windows/Linux, Ctrl doubles as the modifier for Maestro shortcuts (Ctrl+F, Ctrl+W, etc.)
+			// On macOS, Ctrl is used for terminal control sequences; Cmd (Meta) is for OpenWizardAI shortcuts.
+			// On Windows/Linux, Ctrl doubles as the modifier for OpenWizardAI shortcuts (Ctrl+F, Ctrl+W, etc.)
 			// so we only bypass for macOS to avoid breaking cross-platform app shortcuts.
 			// Exception: Ctrl+Shift+` always creates a new terminal tab regardless of mode/platform.
 			const isMac = isMacOSPlatform();
@@ -230,7 +230,7 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 					if (code >= 65 && code <= 90) {
 						e.preventDefault();
 						const termSid = `${ctx.activeSession.id}-terminal-${tabId}`;
-						window.maestro?.process?.write(termSid, String.fromCharCode(code - 64));
+						window.openwizardai?.process?.write(termSid, String.fromCharCode(code - 64));
 					}
 				}
 				return;
@@ -483,7 +483,7 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 				}
 				// Fire-and-forget. A failed IPC must never block a shortcut from
 				// taking effect; the daily counter is best-effort telemetry.
-				void window.maestro?.stats?.recordShortcutUsage?.(Date.now());
+				void window.openwizardai?.stats?.recordShortcutUsage?.(Date.now());
 			};
 
 			// Cmd+F while the output find bar is already open: bring focus back to its
@@ -544,12 +544,12 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 					trackShortcut('moveToGroup');
 				}
 			} else if (ctx.isShortcut(e, 'cyclePrev')) {
-				// Cycle to previous Maestro session (global shortcut)
+				// Cycle to previous OpenWizardAI session (global shortcut)
 				e.preventDefault();
 				ctx.cycleSession('prev');
 				trackShortcut('cyclePrev');
 			} else if (ctx.isShortcut(e, 'cycleNext')) {
-				// Cycle to next Maestro session (global shortcut)
+				// Cycle to next OpenWizardAI session (global shortcut)
 				e.preventDefault();
 				ctx.cycleSession('next');
 				trackShortcut('cycleNext');
@@ -883,7 +883,7 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 				e.preventDefault();
 				ctx.setDirectorNotesOpen?.(true);
 				trackShortcut('directorNotes');
-			} else if (ctx.isShortcut(e, 'openCue') && ctx.encoreFeatures?.maestroCue) {
+			} else if (ctx.isShortcut(e, 'openCue') && ctx.encoreFeatures?.openwizardaiCue) {
 				e.preventDefault();
 				ctx.setCueModalOpen?.(true);
 				trackShortcut('openCue');
@@ -1542,8 +1542,8 @@ export function useMainKeyboardHandler(): UseMainKeyboardHandlerReturn {
 	// over IPC.  We blur the webview and re-dispatch so the main keyboard
 	// handler (above) processes them like any other shortcut.
 	useEffect(() => {
-		if (!window.maestro?.app?.onBrowserTabShortcutKey) return;
-		return window.maestro.app.onBrowserTabShortcutKey((input) => {
+		if (!window.openwizardai?.app?.onBrowserTabShortcutKey) return;
+		return window.openwizardai.app.onBrowserTabShortcutKey((input) => {
 			if (document.activeElement?.tagName === 'WEBVIEW') {
 				(document.activeElement as HTMLElement).blur();
 			}

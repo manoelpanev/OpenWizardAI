@@ -259,12 +259,12 @@ describe('Logger Preload API', () => {
 
 	describe('getLogFilePath', () => {
 		it('should invoke logger:getLogFilePath', async () => {
-			mockInvoke.mockResolvedValue('/path/to/logs/maestro.log');
+			mockInvoke.mockResolvedValue('/path/to/logs/openwizardai.log');
 
 			const result = await api.getLogFilePath();
 
 			expect(mockInvoke).toHaveBeenCalledWith('logger:getLogFilePath');
-			expect(result).toBe('/path/to/logs/maestro.log');
+			expect(result).toBe('/path/to/logs/openwizardai.log');
 		});
 	});
 

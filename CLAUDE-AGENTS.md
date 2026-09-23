@@ -1,6 +1,6 @@
 # CLAUDE-AGENTS.md
 
-Agent support documentation for the Maestro codebase. For the main guide, see [[CLAUDE.md]]. For detailed integration instructions, see [PROVIDER-SUPPORT.md](PROVIDER-SUPPORT.md).
+Agent support documentation for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]]. For detailed integration instructions, see [PROVIDER-SUPPORT.md](PROVIDER-SUPPORT.md).
 
 ## Supported Agents
 
@@ -99,8 +99,8 @@ The backing data (`AGENT_DISPLAY_NAMES` record, `BETA_AGENTS` set) is module-pri
 - **Batch Mode:** `-p, --prompt <text>`
 - **Resume:** `--continue`, `--resume[=session-id]`
 - **Read-only:** CLI-enforced via `--allow-tool=read,url`, `--deny-tool=write,shell,memory,github`, `--no-ask-user`
-- **Thinking Display:** Streams `assistant.reasoning_delta` / `assistant.reasoning` into Maestro's thinking panel
-- **Images:** Prompt-embedded `@/tmp/...` mentions (maps Maestro uploads to Copilot file/image mentions)
+- **Thinking Display:** Streams `assistant.reasoning_delta` / `assistant.reasoning` into OpenWizardAI's thinking panel
+- **Images:** Prompt-embedded `@/tmp/...` mentions (maps OpenWizardAI uploads to Copilot file/image mentions)
 - **Session Storage:** `~/.copilot/session-state/<session-id>/` (local and SSH-remote)
 - **Model Discovery:** Fetches available models from [models.dev](https://models.dev) (github-copilot provider) with a 3s timeout, falling back to the user's configured model in `~/.copilot/config.json`. See `readCopilotConfiguredModel` / `fetchCopilotModelsFromApi` in `src/main/agents/detector.ts`.
 - **Known Limitations:**

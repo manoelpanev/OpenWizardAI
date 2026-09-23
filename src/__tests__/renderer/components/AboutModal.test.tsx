@@ -178,16 +178,20 @@ describe('AboutModal', () => {
 		statsCallback = null;
 
 		// Mock onGlobalStatsUpdate to capture the callback (now uses agentSessions API)
-		vi.mocked(window.maestro.agentSessions.onGlobalStatsUpdate).mockImplementation((callback) => {
-			statsCallback = callback;
-			return unsubscribeMock;
-		});
+		vi.mocked(window.openwizardai.agentSessions.onGlobalStatsUpdate).mockImplementation(
+			(callback) => {
+				statsCallback = callback;
+				return unsubscribeMock;
+			}
+		);
 
 		// Mock getGlobalStats (now uses agentSessions API)
-		vi.mocked(window.maestro.agentSessions.getGlobalStats).mockResolvedValue(createGlobalStats());
+		vi.mocked(window.openwizardai.agentSessions.getGlobalStats).mockResolvedValue(
+			createGlobalStats()
+		);
 
 		// Mock shell.openExternal
-		vi.mocked(window.maestro.shell.openExternal).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.shell.openExternal).mockResolvedValue(undefined);
 
 		// Reset layer stack mocks
 		mockRegisterLayer.mockClear().mockReturnValue('layer-about-123');
@@ -214,7 +218,7 @@ describe('AboutModal', () => {
 
 			const dialog = screen.getByRole('dialog');
 			expect(dialog).toHaveAttribute('aria-modal', 'true');
-			expect(dialog).toHaveAttribute('aria-label', 'About OpenWizzard');
+			expect(dialog).toHaveAttribute('aria-label', 'About OpenWizardAI');
 		});
 
 		it('should render the modal header with title', () => {
@@ -227,10 +231,10 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			expect(screen.getByText('About OpenWizzard')).toBeInTheDocument();
+			expect(screen.getByText('About OpenWizardAI')).toBeInTheDocument();
 		});
 
-		it('should render MAESTRO branding', () => {
+		it('should render OPENWIZARDAI branding', () => {
 			render(
 				<AboutModal
 					theme={theme}
@@ -240,7 +244,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZARDAI')).toBeInTheDocument();
 		});
 
 		it('should render version number', () => {
@@ -309,11 +313,11 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			const githubLink = screen.getByText('Maestro on GitHub');
+			const githubLink = screen.getByText('OpenWizardAI on GitHub');
 			fireEvent.click(githubLink);
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://github.com/RunMaestro/Maestro'
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI'
 			);
 		});
 
@@ -333,7 +337,7 @@ describe('AboutModal', () => {
 			expect(texasButton).toBeInTheDocument();
 			fireEvent.click(texasButton!);
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
 				'https://www.sanjacsaloon.com'
 			);
 		});
@@ -357,7 +361,7 @@ describe('AboutModal', () => {
 					blocksLowerLayers: true,
 					capturesFocus: true,
 					focusTrap: 'strict',
-					ariaLabel: 'About OpenWizzard',
+					ariaLabel: 'About OpenWizardAI',
 				})
 			);
 		});
@@ -456,7 +460,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			expect(window.maestro.agentSessions.onGlobalStatsUpdate).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.agentSessions.onGlobalStatsUpdate).toHaveBeenCalledTimes(1);
 		});
 
 		it('should call getGlobalStats on mount', () => {
@@ -469,7 +473,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			expect(window.maestro.agentSessions.getGlobalStats).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.agentSessions.getGlobalStats).toHaveBeenCalledTimes(1);
 		});
 
 		it('should unsubscribe from stats updates on unmount', () => {
@@ -520,7 +524,7 @@ describe('AboutModal', () => {
 
 		it('should show spinner when stats are not complete', async () => {
 			// Mock getGlobalStats to return incomplete stats
-			vi.mocked(window.maestro.agentSessions.getGlobalStats).mockResolvedValue(
+			vi.mocked(window.openwizardai.agentSessions.getGlobalStats).mockResolvedValue(
 				createGlobalStats({ isComplete: false })
 			);
 
@@ -546,7 +550,9 @@ describe('AboutModal', () => {
 
 		it('should handle stats loading error gracefully', async () => {
 			const consoleErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
-			vi.mocked(window.maestro.agentSessions.getGlobalStats).mockRejectedValue(new Error('Failed'));
+			vi.mocked(window.openwizardai.agentSessions.getGlobalStats).mockRejectedValue(
+				new Error('Failed')
+			);
 
 			render(
 				<AboutModal
@@ -572,7 +578,9 @@ describe('AboutModal', () => {
 		it('should display "No sessions found" when no stats', async () => {
 			const consoleErrorSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 			// Setup the mock to reject BEFORE rendering
-			vi.mocked(window.maestro.agentSessions.getGlobalStats).mockRejectedValue(new Error('Failed'));
+			vi.mocked(window.openwizardai.agentSessions.getGlobalStats).mockRejectedValue(
+				new Error('Failed')
+			);
 
 			render(
 				<AboutModal
@@ -847,7 +855,7 @@ describe('AboutModal', () => {
 
 		it('should show cost with pulse animation when incomplete', async () => {
 			// Mock getGlobalStats to return incomplete stats
-			vi.mocked(window.maestro.agentSessions.getGlobalStats).mockResolvedValue(
+			vi.mocked(window.openwizardai.agentSessions.getGlobalStats).mockResolvedValue(
 				createGlobalStats({ totalCostUsd: 25.5, isComplete: false })
 			);
 
@@ -980,7 +988,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			const title = screen.getByText('OPENWIZZARD');
+			const title = screen.getByText('OPENWIZARDAI');
 			expect(title).toHaveStyle({ color: theme.colors.textMain });
 		});
 	});

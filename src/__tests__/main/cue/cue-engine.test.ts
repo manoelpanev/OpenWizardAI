@@ -1037,7 +1037,7 @@ describe('CueEngine', () => {
 
 		it('returns false when the named subscription is absent from the YAML', async () => {
 			mockReadCueConfigFile.mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: [
 					'subscriptions:',
 					'  - name: Other Script',
@@ -1062,7 +1062,7 @@ describe('CueEngine', () => {
 			// could silently toggle the wrong row. Now the engine requires
 			// BOTH pipeline AND name to match.
 			mockReadCueConfigFile.mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: [
 					'subscriptions:',
 					'  - name: Foo',
@@ -1082,7 +1082,7 @@ describe('CueEngine', () => {
 
 		it('toggles the correct row when two pipelines in one session share a sub name', async () => {
 			mockReadCueConfigFile.mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: [
 					'subscriptions:',
 					'  - name: Foo',
@@ -1099,7 +1099,7 @@ describe('CueEngine', () => {
 					'    pipeline_name: Pipeline B',
 				].join('\n'),
 			});
-			mockWriteCueConfigFile.mockReturnValue('/projects/test/.maestro/cue.yaml');
+			mockWriteCueConfigFile.mockReturnValue('/projects/test/.openwizardai/cue.yaml');
 			mockLoadCueConfig.mockReturnValue(createMockConfig({ subscriptions: [] }));
 
 			const engine = new CueEngine(createMockDeps());
@@ -1121,7 +1121,7 @@ describe('CueEngine', () => {
 
 		it('flips the enabled flag, serialises back, and refreshes the session', async () => {
 			mockReadCueConfigFile.mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: [
 					'subscriptions:',
 					'  - name: Digest Script',
@@ -1132,7 +1132,7 @@ describe('CueEngine', () => {
 					'    pipeline_name: My Pipeline',
 				].join('\n'),
 			});
-			mockWriteCueConfigFile.mockReturnValue('/projects/test/.maestro/cue.yaml');
+			mockWriteCueConfigFile.mockReturnValue('/projects/test/.openwizardai/cue.yaml');
 			mockLoadCueConfig.mockReturnValue(
 				createMockConfig({
 					subscriptions: [
@@ -1152,7 +1152,7 @@ describe('CueEngine', () => {
 			mockReadCueConfigFile.mockClear();
 			mockWriteCueConfigFile.mockClear();
 			mockReadCueConfigFile.mockReturnValue({
-				filePath: '/projects/test/.maestro/cue.yaml',
+				filePath: '/projects/test/.openwizardai/cue.yaml',
 				raw: [
 					'subscriptions:',
 					'  - name: Digest Script',
@@ -1189,7 +1189,7 @@ describe('CueEngine', () => {
 			mockReadCueConfigFile.mockImplementation(() => {
 				callLog.push('read');
 				return {
-					filePath: '/projects/test/.maestro/cue.yaml',
+					filePath: '/projects/test/.openwizardai/cue.yaml',
 					raw: [
 						'subscriptions:',
 						'  - name: First',
@@ -1209,7 +1209,7 @@ describe('CueEngine', () => {
 			});
 			mockWriteCueConfigFile.mockImplementation((_root: string) => {
 				callLog.push('write');
-				return '/projects/test/.maestro/cue.yaml';
+				return '/projects/test/.openwizardai/cue.yaml';
 			});
 			mockLoadCueConfig.mockReturnValue(createMockConfig({ subscriptions: [] }));
 
@@ -3666,7 +3666,7 @@ describe('CueEngine', () => {
 		});
 
 		it('fires only the anchor (not the group) when promptOverride is provided', () => {
-			// CLI-shaped call: `maestro cue trigger <sub> --prompt "..."` wants
+			// CLI-shaped call: `openwizardai cue trigger <sub> --prompt "..."` wants
 			// exactly that sub to run with the override. Applying the override
 			// to sibling branches would surprise the caller.
 			const config = createMockConfig({

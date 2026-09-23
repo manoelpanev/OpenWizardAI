@@ -4,7 +4,7 @@
  * The pipeline GRAPH answers "how is this wired?" by drawing it. The pipeline
  * LIST answers "what does this do, and is it working?" in prose, and this
  * module is where both of those sentences are built. Pure and runtime-agnostic
- * (no React, no IPC), so the renderer list view, a future `maestro-cli cue
+ * (no React, no IPC), so the renderer list view, a future `openwizardai-cli cue
  * list`, and tests all describe a pipeline identically.
  *
  * Two entry points:
@@ -125,7 +125,7 @@ export interface CuePipelineStepSummary {
 	label: string;
 	/** Secondary line: command body, or the error's reason. Empty for agents. */
 	detail: string;
-	/** Bound Maestro agent id, when the step has one. */
+	/** Bound OpenWizardAI agent id, when the step has one. */
 	sessionId?: string;
 	/**
 	 * Prompts this step receives, taken from its INCOMING edges (falling back to
@@ -165,7 +165,7 @@ export interface CuePipelineDescription {
 	errorCount: number;
 	/**
 	 * The COLLAPSED one-liner. A small pipeline gets its literal flow
-	 * (`Scheduled (09:00) → rc → Maestro`); a large one gets counts
+	 * (`Scheduled (09:00) → rc → OpenWizardAI`); a large one gets counts
 	 * (`39 triggers (Scheduled, File Change) → 39 agents`).
 	 *
 	 * The threshold is not cosmetic. A pipeline like "Pedsidian" groups 39

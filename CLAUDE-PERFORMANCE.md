@@ -1,6 +1,6 @@
 # CLAUDE-PERFORMANCE.md
 
-Performance best practices for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+Performance best practices for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]].
 
 ## React Component Optimization
 
@@ -261,10 +261,10 @@ ship the entire collection on every change:
 // BAD: clones and ships ALL sessions (with logs, tabs, browser state) on any
 // single-session change. Observed >500 MB short-lived heap churn from this
 // pattern in CDP profiling - the clone itself is the cost, not the disk write.
-window.maestro.sessions.setAll(allSessions);
+window.openwizardai.sessions.setAll(allSessions);
 
 // GOOD: track dirty IDs in the store; ship only the changed subset.
-window.maestro.sessions.setMany([sessionId]);
+window.openwizardai.sessions.setMany([sessionId]);
 ```
 
 Even when the disk write is debounced, `prepare*ForPersistence` allocates a
@@ -377,7 +377,7 @@ For React DevTools profiling workflow, see [[CONTRIBUTING.md#profiling]].
 
 ### CDP Snapshot (dev mode)
 
-Maestro exposes Chrome DevTools Protocol on `ws://localhost:12345` in dev mode
+OpenWizardAI exposes Chrome DevTools Protocol on `ws://localhost:12345` in dev mode
 (see `src/main/index.ts` `--remote-debugging-port`). Useful for taking a quick
 performance snapshot from a script without opening DevTools:
 
@@ -421,25 +421,27 @@ This occurs because Electron 28 doesn't fully support the File System Access API
 
    ```bash
    # macOS
-   /Applications/Maestro.app/Contents/MacOS/Maestro --enable-experimental-web-platform-features
+   /Applications/OpenWizardAI.app/Contents/MacOS/OpenWizardAI --enable-experimental-web-platform-features
 
    # Development
    npm run dev -- --enable-experimental-web-platform-features
    ```
 
-2. **Use Maestro's native save dialog** (copy trace JSON from DevTools, then in renderer console):
+2. **Use OpenWizardAI's native save dialog** (copy trace JSON from DevTools, then in renderer console):
 
    ```javascript
    navigator.clipboard
    	.readText()
-   	.then((data) => window.maestro.dialog.saveFile({ defaultPath: 'trace.json', content: data }));
+   	.then((data) =>
+   		window.openwizardai.dialog.saveFile({ defaultPath: 'trace.json', content: data })
+   	);
    ```
 
 3. **Right-click context menu** - Right-click on the flame graph and select "Save profile..." which may use a different code path.
 
 ### Field Performance Traces (Cmd+K capture)
 
-Maestro can capture a Chromium performance trace from any install (dev or
+OpenWizardAI can capture a Chromium performance trace from any install (dev or
 production) without DevTools. This is the mechanism for collecting field data
 when a user reports lag.
 
@@ -455,7 +457,7 @@ when a user reports lag.
 3. `Cmd+K` -> **Debug: End Performance Profiling** (this entry only appears while
    recording; its subtext shows how full the trace buffer is). A native Save
    dialog writes a compressed `.zip` (default to the Desktop,
-   `maestro-profile-<timestamp>.zip`). A progress modal
+   `openwizardai-profile-<timestamp>.zip`). A progress modal
    (`ProfilingCaptureModal`) owns the stop-and-bundle flow and shows live
    compression progress, driven by `debug:profilingProgress` events from the main
    process, since zipping a large trace can take tens of seconds. When it
@@ -481,7 +483,7 @@ lost. Three consequences:
   user's own "End Performance Profiling" opens - one stop path, not two.
 - A **CLI capture is never auto-stopped** (it would raise a save dialog in the
   middle of an unattended loop and write the bundle somewhere the caller never
-  looks). It sets `autoStopRequested`, which `maestro-cli profiling status`
+  looks). It sets `autoStopRequested`, which `openwizardai-cli profiling status`
   reports, and the caller stops itself.
 
 Every capture now records `peakBufferPercent`, `autoStopped` and
@@ -512,7 +514,7 @@ agent activity. Do not add in-app trace parsing.
 2. **Run the repo dev script for a text summary** (no deps beyond the repo):
 
    ```bash
-   node scripts/analyze-perf-trace.mjs ~/Desktop/maestro-profile-<timestamp>.zip
+   node scripts/analyze-perf-trace.mjs ~/Desktop/openwizardai-profile-<timestamp>.zip
    # accepts a .zip bundle, a raw trace.json, or a trace.json.gz
    ```
 

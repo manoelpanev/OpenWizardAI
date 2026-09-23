@@ -18,8 +18,8 @@ vi.mock('../../../../../../renderer/utils/sentry', () => sentryMocks);
 describe('PhaseReviewScreen hooks', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
-		vi.mocked(window.maestro.autorun.writeDoc).mockResolvedValue({ success: true });
-		vi.mocked(window.maestro.autorun.deleteImage).mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.autorun.writeDoc).mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.autorun.deleteImage).mockResolvedValue({ success: true });
 	});
 
 	afterEach(() => {
@@ -66,8 +66,8 @@ describe('PhaseReviewScreen hooks', () => {
 		await act(async () => {
 			await result.current.handleRemoveAttachment('images/a.png');
 		});
-		expect(window.maestro.autorun.deleteImage).toHaveBeenCalledWith(
-			'/project/.maestro/playbooks',
+		expect(window.openwizardai.autorun.deleteImage).toHaveBeenCalledWith(
+			'/project/.openwizardai/playbooks',
 			'images/a.png'
 		);
 	});
@@ -78,7 +78,7 @@ describe('PhaseReviewScreen hooks', () => {
 			({ localContent }) =>
 				usePhaseReviewAutosave({
 					localContent,
-					folderPath: '/project/.maestro/playbooks',
+					folderPath: '/project/.openwizardai/playbooks',
 					currentDoc: docs[0],
 					currentDocumentIndex: 0,
 					setEditedPhase1Content,
@@ -92,8 +92,8 @@ describe('PhaseReviewScreen hooks', () => {
 			await Promise.resolve();
 		});
 
-		expect(window.maestro.autorun.writeDoc).toHaveBeenCalledWith(
-			'/project/.maestro/playbooks',
+		expect(window.openwizardai.autorun.writeDoc).toHaveBeenCalledWith(
+			'/project/.openwizardai/playbooks',
 			'Phase-01.md',
 			'# Updated'
 		);

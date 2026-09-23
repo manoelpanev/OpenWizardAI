@@ -97,7 +97,7 @@ export function ShortcutsTab({ theme, hasNoAgents, onRecordingChange }: Shortcut
 		const keys = buildKeysFromEvent(e);
 		if (!keys) return;
 
-		// Refuse a chord the OS owns inside a text field before checking Maestro's
+		// Refuse a chord the OS owns inside a text field before checking OpenWizardAI's
 		// own table. These never collide with another action, so the conflict
 		// check below would wave them through, and the binding then shadows
 		// select-to-end in every input in the app.

@@ -266,9 +266,9 @@ export function registerPlaybooksHandlers(deps: PlaybooksHandlerDependencies): v
 				// Show save dialog
 				const result = await dialog.showSaveDialog(mainWindow, {
 					title: 'Export Playbook',
-					defaultPath: `${playbook.name.replace(/[^a-zA-Z0-9-_]/g, '_')}.maestro-playbook.zip`,
+					defaultPath: `${playbook.name.replace(/[^a-zA-Z0-9-_]/g, '_')}.openwizardai-playbook.zip`,
 					filters: [
-						{ name: 'OpenWizzard Playbook', extensions: ['maestro-playbook.zip'] },
+						{ name: 'OpenWizardAI Playbook', extensions: ['openwizardai-playbook.zip'] },
 						{ name: 'All Files', extensions: ['*'] },
 					],
 				});
@@ -368,7 +368,7 @@ export function registerPlaybooksHandlers(deps: PlaybooksHandlerDependencies): v
 				const result = await dialog.showOpenDialog(mainWindow, {
 					title: 'Import Playbook',
 					filters: [
-						{ name: 'OpenWizzard Playbook', extensions: ['maestro-playbook.zip', 'zip'] },
+						{ name: 'OpenWizardAI Playbook', extensions: ['openwizardai-playbook.zip', 'zip'] },
 						{ name: 'All Files', extensions: ['*'] },
 					],
 					properties: ['openFile'],

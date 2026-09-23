@@ -1,4 +1,4 @@
-# Maestro
+# OpenWizardAI
 TEMP-REFACTORING-PLAN.md
 TEMP-REFACTORING-PLAN-2.md
 CUE-NOTES.md
@@ -9,8 +9,8 @@ Work\ Trees/
 community-data/
 .mcp.json
 specs/
-.maestro/
-maestro-cue.yaml
+.openwizardai/
+openwizardai-cue.yaml
 sm/
 
 # Tests

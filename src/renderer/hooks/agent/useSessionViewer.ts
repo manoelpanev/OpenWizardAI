@@ -138,7 +138,7 @@ export function useSessionViewer({
 			try {
 				// Use the generic agentSessions API with agentId parameter
 				// Pass sshRemoteId for SSH remote session access
-				const result = await window.maestro.agentSessions.read(
+				const result = await window.openwizardai.agentSessions.read(
 					agentId,
 					cwd,
 					session.sessionId,

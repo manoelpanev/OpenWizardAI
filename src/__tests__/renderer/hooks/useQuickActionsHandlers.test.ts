@@ -81,7 +81,7 @@ function createSession(overrides: Partial<Session> = {}): Session {
 		activeFileTabId: null,
 		unifiedTabOrder: [{ type: 'ai' as const, id: tab.id }],
 		unifiedClosedTabHistory: [],
-		autoRunFolderPath: '/test/project/.maestro/playbooks',
+		autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		terminalTabs: [],
 		activeTerminalTabId: null,
 		...overrides,
@@ -1125,7 +1125,7 @@ describe('useQuickActionsHandlers', () => {
 			expect(useSettingsStore.getState().markdownEditMode).toBe(false);
 		});
 
-		it('persists markdownEditMode via window.maestro.settings.set', () => {
+		it('persists markdownEditMode via window.openwizardai.settings.set', () => {
 			useSettingsStore.setState({ markdownEditMode: false } as any);
 			const session = createSession({ id: 'sess-1', activeFileTabId: 'file-tab-1' });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'sess-1' });
@@ -1137,10 +1137,10 @@ describe('useQuickActionsHandlers', () => {
 				result.current.handleQuickActionsToggleMarkdownEditMode();
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('markdownEditMode', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('markdownEditMode', true);
 		});
 
-		it('persists chatRawTextMode via window.maestro.settings.set', () => {
+		it('persists chatRawTextMode via window.openwizardai.settings.set', () => {
 			useSettingsStore.setState({ chatRawTextMode: false } as any);
 			const session = createSession({ id: 'sess-1', activeFileTabId: null });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'sess-1' });
@@ -1152,7 +1152,7 @@ describe('useQuickActionsHandlers', () => {
 				result.current.handleQuickActionsToggleMarkdownEditMode();
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('chatRawTextMode', true);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('chatRawTextMode', true);
 		});
 	});
 

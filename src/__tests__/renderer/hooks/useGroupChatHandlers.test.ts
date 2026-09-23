@@ -20,7 +20,7 @@ import type { GroupChatMessage } from '../../../shared/group-chat-types';
 type ChatMessageHandler = (chatId: string, message: GroupChatMessage) => void;
 
 // ---------------------------------------------------------------------------
-// Mock window.maestro.groupChat (not in global setup)
+// Mock window.openwizardai.groupChat (not in global setup)
 // ---------------------------------------------------------------------------
 const mockGroupChat = {
 	load: vi.fn().mockResolvedValue(null),
@@ -71,10 +71,10 @@ beforeEach(() => {
 	useUIStore.setState({ activeFocus: 'main' });
 
 	// Attach groupChat mock
-	if (!(window.maestro as any).groupChat) {
-		(window.maestro as any).groupChat = mockGroupChat;
+	if (!(window.openwizardai as any).groupChat) {
+		(window.openwizardai as any).groupChat = mockGroupChat;
 	}
-	Object.assign((window.maestro as any).groupChat, mockGroupChat);
+	Object.assign((window.openwizardai as any).groupChat, mockGroupChat);
 });
 
 // ===========================================================================
@@ -234,7 +234,7 @@ describe('useGroupChatHandlers', () => {
 			mockGroupChat.load.mockResolvedValueOnce(chat);
 			mockGroupChat.getMessages.mockResolvedValueOnce([]);
 			mockGroupChat.startModerator.mockResolvedValueOnce(null);
-			(window.maestro.settings.get as any).mockResolvedValueOnce('history');
+			(window.openwizardai.settings.get as any).mockResolvedValueOnce('history');
 
 			const { result } = renderHook(() => useGroupChatHandlers());
 			await act(async () => {
@@ -875,7 +875,10 @@ describe('useGroupChatHandlers', () => {
 			act(() => result.current.handleGroupChatRightTabChange('history'));
 
 			expect(useGroupChatStore.getState().groupChatRightTab).toBe('history');
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('groupChatRightTab:gc-1', 'history');
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
+				'groupChatRightTab:gc-1',
+				'history'
+			);
 		});
 	});
 
@@ -1446,7 +1449,7 @@ describe('useGroupChatHandlers', () => {
 			act(() => result.current.handleGroupChatRightTabChange('history'));
 
 			expect(useGroupChatStore.getState().groupChatRightTab).toBe('history');
-			expect(window.maestro.settings.set).not.toHaveBeenCalled();
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalled();
 		});
 	});
 });

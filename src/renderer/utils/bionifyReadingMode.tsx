@@ -50,7 +50,7 @@ const DEFAULT_BIONIFY_SCOPE_SELECTOR = '.bionify-text-block';
 const DEFAULT_BIONIFY_REST_OPACITY = 0.65;
 const DEFAULT_BIONIFY_INTENSITY = 1;
 export const DEFAULT_BIONIFY_ALGORITHM = '- 0 1 1 2 0.4';
-const BIONIFY_STYLE_ID = 'maestro-bionify-reading-mode-styles';
+const BIONIFY_STYLE_ID = 'openwizardai-bionify-reading-mode-styles';
 let hasInjectedBionifyStyles = false;
 
 interface ParsedBionifyAlgorithm {

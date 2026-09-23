@@ -22,7 +22,7 @@ export function useSshRemoteName(
 
 		const callSeq = ++seqRef.current;
 
-		window.maestro.sshRemote
+		window.openwizardai.sshRemote
 			.getConfigs()
 			.then((result) => {
 				if (callSeq !== seqRef.current) return; // Stale response - skip

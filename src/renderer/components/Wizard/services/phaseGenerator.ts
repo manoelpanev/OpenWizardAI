@@ -20,7 +20,7 @@ let phaseGeneratorPromptsLoaded = false;
 export async function loadPhaseGeneratorPrompts(force = false): Promise<void> {
 	if (phaseGeneratorPromptsLoaded && !force) return;
 
-	const result = await window.maestro.prompts.get('wizard-document-generation');
+	const result = await window.openwizardai.prompts.get('wizard-document-generation');
 	if (!result.success) {
 		throw new Error(`Failed to load wizard-document-generation prompt: ${result.error}`);
 	}
@@ -170,7 +170,7 @@ interface ParsedDocument {
 	phase: number;
 }
 
-import { PLAYBOOKS_DIR } from '../../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../../shared/openwizardai-paths';
 import { logger } from '../../../utils/logger';
 import { createPlaybookDocumentEmitter } from '../../../services/inlineWizardDocumentGeneration';
 
@@ -616,7 +616,7 @@ class PhaseGenerator {
 			wizardDebugLogger.log('info', 'Fetching agent configuration', {
 				agentType: config.agentType,
 			});
-			const agent = await window.maestro.agents.get(config.agentType);
+			const agent = await window.openwizardai.agents.get(config.agentType);
 
 			// For SSH remote sessions, skip the availability check since we're executing remotely
 			// The agent detector checks for binaries locally, but we need to execute on the remote host
@@ -908,7 +908,7 @@ class PhaseGenerator {
 					if (fileWatcherCleanup) {
 						fileWatcherCleanup();
 					}
-					window.maestro.process
+					window.openwizardai.process
 						.kill(sessionId)
 						.catch((err) =>
 							logger.warn('[PhaseGenerator] Failed to kill session:', undefined, err)
@@ -922,7 +922,7 @@ class PhaseGenerator {
 			};
 
 			// Set up data listener
-			this.dataListenerCleanup = window.maestro.process.onData((sid: string, data: string) => {
+			this.dataListenerCleanup = window.openwizardai.process.onData((sid: string, data: string) => {
 				if (sid === sessionId) {
 					this.outputBuffer += data;
 					dataChunks++;
@@ -953,7 +953,7 @@ class PhaseGenerator {
 			});
 
 			// Set up exit listener
-			this.exitListenerCleanup = window.maestro.process.onExit((sid: string, code: number) => {
+			this.exitListenerCleanup = window.openwizardai.process.onExit((sid: string, code: number) => {
 				if (sid === sessionId) {
 					clearTimeout(timeoutId);
 					this.cleanup();
@@ -1053,7 +1053,7 @@ class PhaseGenerator {
 			});
 
 			// Start watching the folder for file changes
-			window.maestro.autorun
+			window.openwizardai.autorun
 				.watchFolder(autoRunPath, sshRemoteId)
 				.then((result) => {
 					if (result.success) {
@@ -1062,7 +1062,7 @@ class PhaseGenerator {
 						this.currentWatchPath = autoRunPath;
 
 						// Set up file change listener
-						fileWatcherCleanup = window.maestro.autorun.onFileChanged((data) => {
+						fileWatcherCleanup = window.openwizardai.autorun.onFileChanged((data) => {
 							if (data.folderPath === autoRunPath) {
 								logger.info('[PhaseGenerator] File system activity:', undefined, [
 									data.filename,
@@ -1160,7 +1160,7 @@ class PhaseGenerator {
 				hasRemoteSsh: !!config.sshRemoteConfig?.enabled,
 				remoteId: config.sshRemoteConfig?.remoteId || null,
 			});
-			window.maestro.process
+			window.openwizardai.process
 				.spawn({
 					sessionId,
 					toolType: config.agentType,
@@ -1216,7 +1216,7 @@ class PhaseGenerator {
 
 		try {
 			// List files in the Auto Run folder
-			const listResult = await window.maestro.autorun.listDocs(autoRunPath, sshRemoteId);
+			const listResult = await window.openwizardai.autorun.listDocs(autoRunPath, sshRemoteId);
 			if (!listResult.success || !listResult.files) {
 				return [];
 			}
@@ -1227,7 +1227,7 @@ class PhaseGenerator {
 			for (const fileBaseName of listResult.files) {
 				const filename = fileBaseName.endsWith('.md') ? fileBaseName : `${fileBaseName}.md`;
 
-				const readResult = await window.maestro.autorun.readDoc(
+				const readResult = await window.openwizardai.autorun.readDoc(
 					autoRunPath,
 					fileBaseName,
 					sshRemoteId
@@ -1274,7 +1274,7 @@ class PhaseGenerator {
 		}
 		// Stop watching the Auto Run folder
 		if (this.currentWatchPath) {
-			window.maestro.autorun
+			window.openwizardai.autorun
 				.unwatchFolder(this.currentWatchPath)
 				.catch((err) => logger.warn('[PhaseGenerator] Failed to unwatch folder:', undefined, err));
 			this.currentWatchPath = undefined;
@@ -1312,7 +1312,7 @@ class PhaseGenerator {
 				logger.info('[PhaseGenerator] Saving document:', undefined, filename);
 
 				// Write the document (autorun:writeDoc creates the folder if needed)
-				const result = await window.maestro.autorun.writeDoc(
+				const result = await window.openwizardai.autorun.writeDoc(
 					autoRunPath,
 					filename,
 					doc.content,

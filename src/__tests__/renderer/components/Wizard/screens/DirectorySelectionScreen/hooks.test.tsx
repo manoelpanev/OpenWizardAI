@@ -22,14 +22,14 @@ describe('DirectorySelectionScreen hooks', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.useFakeTimers();
-		vi.mocked(window.maestro.fs.readDir).mockResolvedValue([]);
-		vi.mocked(window.maestro.git.isRepo).mockResolvedValue(true);
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.readDir).mockResolvedValue([]);
+		vi.mocked(window.openwizardai.git.isRepo).mockResolvedValue(true);
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [{ id: 'remote-1', name: 'Remote One', host: 'remote.local' }],
 		});
-		(window.maestro.git as any).init = vi.fn().mockResolvedValue({ success: true });
+		(window.openwizardai.git as any).init = vi.fn().mockResolvedValue({ success: true });
 	});
 
 	afterEach(() => {
@@ -53,7 +53,7 @@ describe('DirectorySelectionScreen hooks', () => {
 	}
 
 	it('validates a directory with SSH-aware fs, git, and existing-doc checks', async () => {
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: true,
 			files: ['plan.md'],
 		});
@@ -65,15 +65,15 @@ describe('DirectorySelectionScreen hooks', () => {
 			await result.current.validateDirectory('/project');
 		});
 
-		expect(window.maestro.fs.readDir).toHaveBeenCalledWith('/project', 'remote-1');
-		expect(window.maestro.git.isRepo).toHaveBeenCalledWith('/project', 'remote-1');
+		expect(window.openwizardai.fs.readDir).toHaveBeenCalledWith('/project', 'remote-1');
+		expect(window.openwizardai.git.isRepo).toHaveBeenCalledWith('/project', 'remote-1');
 		expect(params.setIsGitRepo).toHaveBeenCalledWith(true);
 		expect(params.setHasExistingAutoRunDocs).toHaveBeenCalledWith(true, 1);
 		expect(params.announce).toHaveBeenCalledWith('Directory validated. Git repository detected.');
 	});
 
 	it('sets directory errors for inaccessible paths and debounces typed validation', async () => {
-		vi.mocked(window.maestro.fs.readDir).mockRejectedValueOnce(new Error('missing'));
+		vi.mocked(window.openwizardai.fs.readDir).mockRejectedValueOnce(new Error('missing'));
 		const { result, params } = renderValidation();
 
 		await act(async () => {
@@ -93,17 +93,17 @@ describe('DirectorySelectionScreen hooks', () => {
 			} as React.ChangeEvent<HTMLInputElement>);
 		});
 		expect(params.setDirectoryPath).toHaveBeenCalledWith('/typed');
-		expect(window.maestro.fs.readDir).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.fs.readDir).toHaveBeenCalledTimes(1);
 
 		await act(async () => {
 			vi.advanceTimersByTime(800);
 		});
-		expect(window.maestro.fs.readDir).toHaveBeenCalledWith('/typed', undefined);
+		expect(window.openwizardai.fs.readDir).toHaveBeenCalledWith('/typed', undefined);
 	});
 
 	it('ignores stale directory validation results', async () => {
 		let resolveFirstRead: (value: string[]) => void = () => {};
-		vi.mocked(window.maestro.fs.readDir)
+		vi.mocked(window.openwizardai.fs.readDir)
 			.mockImplementationOnce(
 				() =>
 					new Promise<string[]>((resolve) => {
@@ -124,7 +124,7 @@ describe('DirectorySelectionScreen hooks', () => {
 			await firstValidation;
 		});
 
-		expect(window.maestro.git.isRepo).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.git.isRepo).toHaveBeenCalledTimes(1);
 		expect(params.announce).toHaveBeenCalledTimes(1);
 		expect(params.announce).toHaveBeenCalledWith('Directory validated. Git repository detected.');
 	});
@@ -146,7 +146,7 @@ describe('DirectorySelectionScreen hooks', () => {
 	});
 
 	it('clears SSH remote host labels on lookup misses and reports lookup failures', async () => {
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValueOnce({
 			success: true,
 			configs: [],
 		});
@@ -167,7 +167,9 @@ describe('DirectorySelectionScreen hooks', () => {
 			})
 		);
 
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockRejectedValueOnce(new Error('ssh down'));
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockRejectedValueOnce(
+			new Error('ssh down')
+		);
 		rerender({ remoteId: 'remote-error' });
 		await act(async () => {
 			await Promise.resolve();
@@ -188,8 +190,8 @@ describe('DirectorySelectionScreen hooks', () => {
 		const setDirectoryPath = vi.fn();
 		const setHasExistingAutoRunDocs = vi.fn();
 		const setExistingDocsChoice = vi.fn();
-		vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/picked');
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/picked');
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: true,
 			files: ['a.md', 'b.md'],
 		});
@@ -225,7 +227,7 @@ describe('DirectorySelectionScreen hooks', () => {
 		await act(async () => {
 			await result.current.handleInitRepo();
 		});
-		expect(window.maestro.git.init).toHaveBeenCalledWith('/project', 'remote-1');
+		expect(window.openwizardai.git.init).toHaveBeenCalledWith('/project', 'remote-1');
 
 		await act(async () => {
 			await result.current.attemptNextStep();
@@ -245,7 +247,7 @@ describe('DirectorySelectionScreen hooks', () => {
 	it('does not advance when existing-doc lookup fails unexpectedly', async () => {
 		const nextStep = vi.fn();
 		const setDirectoryError = vi.fn();
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: false,
 			files: [],
 			error: 'network timeout',
@@ -346,19 +348,19 @@ describe('DirectorySelectionScreen hooks', () => {
 			const setAgentName = vi.fn();
 			renderAutoName({
 				agentName: '',
-				directoryPath: '/Projects/Maestro',
+				directoryPath: '/Projects/OpenWizardAI',
 				directoryError: null,
 				setAgentName,
 			});
 
-			expect(setAgentName).toHaveBeenCalledWith('Maestro');
+			expect(setAgentName).toHaveBeenCalledWith('OpenWizardAI');
 		});
 
 		it('leaves a name the user typed alone', () => {
 			const setAgentName = vi.fn();
 			renderAutoName({
 				agentName: 'Scout',
-				directoryPath: '/Projects/Maestro',
+				directoryPath: '/Projects/OpenWizardAI',
 				directoryError: null,
 				setAgentName,
 			});
@@ -367,23 +369,23 @@ describe('DirectorySelectionScreen hooks', () => {
 		});
 
 		it('does not suggest a name already taken by another agent', () => {
-			useSessionStore.setState({ sessions: [{ name: 'Maestro' }] } as any);
+			useSessionStore.setState({ sessions: [{ name: 'OpenWizardAI' }] } as any);
 			const setAgentName = vi.fn();
 			renderAutoName({
 				agentName: '',
-				directoryPath: '/Projects/Maestro',
+				directoryPath: '/Projects/OpenWizardAI',
 				directoryError: null,
 				setAgentName,
 			});
 
-			expect(setAgentName).toHaveBeenCalledWith('Maestro 2');
+			expect(setAgentName).toHaveBeenCalledWith('OpenWizardAI 2');
 		});
 
 		it('waits for a valid directory', () => {
 			const setAgentName = vi.fn();
 			renderAutoName({
 				agentName: '',
-				directoryPath: '/Projects/Maestro',
+				directoryPath: '/Projects/OpenWizardAI',
 				directoryError: 'Directory not found.',
 				setAgentName,
 			});
@@ -398,7 +400,7 @@ describe('DirectorySelectionScreen hooks', () => {
 			const onLaunchSession = vi.fn().mockResolvedValue(undefined);
 			const { result } = renderHook(() =>
 				useSkipPlaybookLaunch({
-					directoryPath: '/Projects/Maestro',
+					directoryPath: '/Projects/OpenWizardAI',
 					selectedAgent: 'claude-code',
 					setAutoRunMode,
 					onLaunchSession,
@@ -420,7 +422,7 @@ describe('DirectorySelectionScreen hooks', () => {
 				.mockRejectedValue(new Error('An agent named X already exists'));
 			const { result } = renderHook(() =>
 				useSkipPlaybookLaunch({
-					directoryPath: '/Projects/Maestro',
+					directoryPath: '/Projects/OpenWizardAI',
 					selectedAgent: 'claude-code',
 					setAutoRunMode: vi.fn(),
 					onLaunchSession,

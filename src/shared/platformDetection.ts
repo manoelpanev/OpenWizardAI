@@ -8,7 +8,7 @@
  * Do NOT convert these to module-level constants.
  *
  * In renderer (browser) contexts there is no real `process` global; the platform
- * string is exposed via the preload bridge at `window.maestro.platform`.
+ * string is exposed via the preload bridge at `window.openwizardai.platform`.
  * Touching the bare `process` identifier in renderer code throws a
  * ReferenceError, so the lookup goes through `globalThis` instead.
  *
@@ -24,14 +24,14 @@ const SHIM_PLATFORM = 'browser';
 
 type GlobalWithPlatform = {
 	process?: { platform?: string };
-	maestro?: { platform?: string };
+	openwizardai?: { platform?: string };
 };
 
 function getPlatform(): string {
 	const g = globalThis as GlobalWithPlatform;
 	const fromProcess = g.process?.platform;
 	if (fromProcess && fromProcess !== SHIM_PLATFORM) return fromProcess;
-	if (g.maestro?.platform) return g.maestro.platform;
+	if (g.openwizardai?.platform) return g.openwizardai.platform;
 	return 'linux';
 }
 

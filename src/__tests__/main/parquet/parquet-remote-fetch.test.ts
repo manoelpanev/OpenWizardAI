@@ -72,7 +72,7 @@ let directory: string;
 
 beforeAll(async () => {
 	const { parquetWriteBuffer } = await import('hyparquet-writer');
-	directory = await mkdtemp(path.join(tmpdir(), 'maestro-parquet-remote-'));
+	directory = await mkdtemp(path.join(tmpdir(), 'openwizardai-parquet-remote-'));
 
 	const ids: bigint[] = [];
 	const names: string[] = [];
@@ -96,13 +96,13 @@ beforeAll(async () => {
 afterAll(async () => {
 	await closeAllParquetFiles();
 	await rm(directory, { recursive: true, force: true });
-	await rm(path.join(tmpdir(), 'maestro-parquet-cache'), { recursive: true, force: true });
+	await rm(path.join(tmpdir(), 'openwizardai-parquet-cache'), { recursive: true, force: true });
 });
 
 /** Fresh cache + counters, so each test opens for real rather than hitting the cache. */
 async function resetFetchState() {
 	await closeAllParquetFiles();
-	await rm(path.join(tmpdir(), 'maestro-parquet-cache'), { recursive: true, force: true });
+	await rm(path.join(tmpdir(), 'openwizardai-parquet-cache'), { recursive: true, force: true });
 	blockRequests = [];
 	failNextBlock = null;
 	advertisedLength = null;
@@ -117,7 +117,7 @@ describe('remote parquet fetch', () => {
 		// The assembled copy must hash-match the source. Anything else means a
 		// dropped, duplicated, or misordered block, which shows up to the user
 		// as an unreadable file rather than as an error.
-		const cachePath = path.join(tmpdir(), 'maestro-parquet-cache');
+		const cachePath = path.join(tmpdir(), 'openwizardai-parquet-cache');
 		const { readdir } = await import('fs/promises');
 		const entries = (await readdir(cachePath)).filter((f) => f.endsWith('.parquet'));
 		expect(entries).toHaveLength(1);
@@ -214,7 +214,9 @@ describe('remote parquet fetch', () => {
 		// complete on the next open, turning a transient network blip into a
 		// permanently corrupt-looking file.
 		const { readdir } = await import('fs/promises');
-		const entries = await readdir(path.join(tmpdir(), 'maestro-parquet-cache')).catch(() => []);
+		const entries = await readdir(path.join(tmpdir(), 'openwizardai-parquet-cache')).catch(
+			() => []
+		);
 		expect(entries.filter((f) => f.endsWith('.parquet'))).toHaveLength(0);
 	});
 
@@ -230,7 +232,9 @@ describe('remote parquet fetch', () => {
 		await expect(openParquetFile(REMOTE_PATH, SSH_REMOTE_ID)).rejects.toThrow(/ended early/);
 
 		const { readdir } = await import('fs/promises');
-		const entries = await readdir(path.join(tmpdir(), 'maestro-parquet-cache')).catch(() => []);
+		const entries = await readdir(path.join(tmpdir(), 'openwizardai-parquet-cache')).catch(
+			() => []
+		);
 		expect(entries.filter((f) => f.endsWith('.parquet'))).toHaveLength(0);
 	});
 });

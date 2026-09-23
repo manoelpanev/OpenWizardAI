@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Maestro CLI
-// Command-line interface for Maestro
+// OpenWizardAI CLI
+// Command-line interface for OpenWizardAI
 
 import { Command } from 'commander';
 import { asThinkingMode, type ThinkingMode } from '../shared/types';
@@ -113,15 +113,15 @@ import { setVerbosity } from './output/verbosity';
 // Injected at build time by scripts/build-cli.mjs via esbuild `define`.
 // The typeof guard keeps non-esbuild execution paths (ts-node, plain tsc output) from
 // throwing a ReferenceError; in those paths the constant is never substituted.
-declare const __MAESTRO_CLI_VERSION__: string;
+declare const __OPENWIZARDAI_CLI_VERSION__: string;
 const cliVersion: string =
-	typeof __MAESTRO_CLI_VERSION__ !== 'undefined' ? __MAESTRO_CLI_VERSION__ : '0.0.0-dev';
+	typeof __OPENWIZARDAI_CLI_VERSION__ !== 'undefined' ? __OPENWIZARDAI_CLI_VERSION__ : '0.0.0-dev';
 
 const program = new Command();
 
 program
-	.name('maestro-cli')
-	.description('Command-line interface for OpenWizzard')
+	.name('openwizardai-cli')
+	.description('Command-line interface for OpenWizardAI')
 	.version(cliVersion);
 
 // Global verbosity flags. `--verbose` has no short alias on purpose: several
@@ -216,13 +216,13 @@ program
 // Run-doc command - run raw Auto Run documents headlessly without saving a
 // playbook first. Self-contained (spawns the agent itself); unlike
 // `auto-run --launch` it does not route through the desktop renderer, so it
-// works whether or not the Maestro window is open.
+// works whether or not the OpenWizardAI window is open.
 program
 	.command('run-doc <docs...>')
 	.description('Run one or more Auto Run documents headlessly (no saved playbook required)')
 	.requiredOption(
 		'-a, --agent <id>',
-		'Target agent by ID or name (use "maestro-cli list agents" to find agents)'
+		'Target agent by ID or name (use "openwizardai-cli list agents" to find agents)'
 	)
 	.option('-p, --prompt <text>', 'Custom prompt for the run (defaults to the Auto Run prompt)')
 	.option('--loop', 'Enable looping')
@@ -251,16 +251,16 @@ clean
 	.action(cleanPlaybooks);
 
 // Send command - run an agent locally and return its response synchronously.
-// For desktop-handoff workflows, use `maestro-cli dispatch` instead.
+// For desktop-handoff workflows, use `openwizardai-cli dispatch` instead.
 program
 	.command('send <agent-id> <message>')
 	.description('Send a message to an agent and get a JSON response')
 	.option('-s, --session <id>', 'Resume an existing agent session (for multi-turn conversations)')
 	.option('-r, --read-only', 'Run in read-only/plan mode (agent cannot modify files)')
-	.option('-t, --tab', 'Open/focus the session tab in OpenWizzard desktop')
+	.option('-t, --tab', 'Open/focus the session tab in OpenWizardAI desktop')
 	.option(
 		'--no-system-prompt',
-		'Skip the OpenWizzard system prompt (agent identity, git branch, history path, conductor profile). Default is to include it for parity with the desktop app.'
+		'Skip the OpenWizardAI system prompt (agent identity, git branch, history path, conductor profile). Default is to include it for parity with the desktop app.'
 	)
 	.action(send);
 
@@ -270,7 +270,7 @@ program
 program
 	.command('dispatch <agent-id> <message>')
 	.description(
-		'Dispatch a prompt to an agent in the OpenWizzard desktop app and return its tab/session ID'
+		'Dispatch a prompt to an agent in the OpenWizardAI desktop app and return its tab/session ID'
 	)
 	.option('--new-tab', 'Create a fresh AI tab and dispatch the prompt into it')
 	.option(
@@ -289,7 +289,7 @@ program
 	.action(dispatch);
 
 // Session inspection commands - read-only access to desktop conversation state.
-// Lets external pollers (Maestro-Discord, Cue follow-ups) pick up where Maestro
+// Lets external pollers (OpenWizardAI-Discord, Cue follow-ups) pick up where OpenWizardAI
 // left off without owning a persistent channel - pair with `dispatch` to write
 // and `session show` to follow up.
 const session = program
@@ -313,10 +313,10 @@ session
 	.option('--json', 'Output as JSON (for scripting); default is a formatted transcript')
 	.action(sessionShow);
 
-// Open file command - open a file in the Maestro desktop app
+// Open file command - open a file in the OpenWizardAI desktop app
 program
 	.command('open-file <file-path>')
-	.description('Open a file as a preview tab in the OpenWizzard desktop app')
+	.description('Open a file as a preview tab in the OpenWizardAI desktop app')
 	.option('-a, --agent <id>', "Target agent (defaults to auto-detect by file path's owning agent)")
 	.option(
 		'--background',
@@ -339,10 +339,10 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(openGraph);
 
-// Open browser command - open a URL in a browser tab in the Maestro desktop app
+// Open browser command - open a URL in a browser tab in the OpenWizardAI desktop app
 program
 	.command('open-browser <url>')
-	.description('Open a URL as a browser tab in the OpenWizzard desktop app')
+	.description('Open a URL as a browser tab in the OpenWizardAI desktop app')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--background',
@@ -352,13 +352,13 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(openBrowser);
 
-// Open modal command - bring up a Maestro surface (Cue, Settings, Usage
+// Open modal command - bring up an OpenWizardAI surface (Cue, Settings, Usage
 // Dashboard, ...) in the running desktop app, optionally on a given tab. Prints
 // the hotkey / command-palette / click paths too, so an agent that opens a
 // surface for the user can also teach them how to reach it by hand.
 program
 	.command('open [surface]')
-	.description('Open an OpenWizzard modal or dashboard (use --list to see every surface)')
+	.description('Open an OpenWizardAI modal or dashboard (use --list to see every surface)')
 	.option('-t, --tab <tab>', 'Deep-link to a tab within the surface')
 	.option('--list', 'List every openable surface, its tabs, and its shortcut')
 	.option('--json', 'Output as JSON (for scripting)')
@@ -371,7 +371,7 @@ program
 // `image save` writes the bytes to disk.
 const image = program
 	.command('image')
-	.description('List and save images pasted into an OpenWizzard chat');
+	.description('List and save images pasted into an OpenWizardAI chat');
 
 image
 	.command('list')
@@ -400,15 +400,15 @@ image
 program
 	.command('close-browser <tab-id>')
 	.description(
-		'Close a browser tab in the OpenWizzard desktop app (owning agent resolved by tab ID)'
+		'Close a browser tab in the OpenWizardAI desktop app (owning agent resolved by tab ID)'
 	)
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(closeBrowser);
 
-// Open terminal command - open a new terminal tab in the Maestro desktop app
+// Open terminal command - open a new terminal tab in the OpenWizardAI desktop app
 program
 	.command('open-terminal')
-	.description('Open a new terminal tab in the OpenWizzard desktop app')
+	.description('Open a new terminal tab in the OpenWizardAI desktop app')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option('--cwd <path>', "Working directory for the terminal (must be within the agent's cwd)")
 	.option('--shell <shell>', 'Shell binary to use (default: zsh)')
@@ -425,7 +425,7 @@ program
 // Send terminal command - run something in a terminal tab that already exists
 program
 	.command('send-terminal [command]')
-	.description('Run a command in an existing OpenWizzard terminal tab')
+	.description('Run a command in an existing OpenWizardAI terminal tab')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--tab <id-or-name>',
@@ -436,10 +436,10 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(sendTerminal);
 
-// Read-terminal command - read the scrollback of an existing Maestro terminal tab
+// Read-terminal command - read the scrollback of an existing OpenWizardAI terminal tab
 program
 	.command('read-terminal')
-	.description("Read an OpenWizzard terminal tab's output")
+	.description("Read an OpenWizardAI terminal tab's output")
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--tab <id-or-name>',
@@ -449,10 +449,10 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(readTerminal);
 
-// Refresh files command - refresh the file tree in the Maestro desktop app
+// Refresh files command - refresh the file tree in the OpenWizardAI desktop app
 program
 	.command('refresh-files')
-	.description('Refresh the file tree in the OpenWizzard desktop app (never moves the view)')
+	.description('Refresh the file tree in the OpenWizardAI desktop app (never moves the view)')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--background',
@@ -461,10 +461,10 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(refreshFiles);
 
-// Refresh auto-run command - refresh Auto Run documents in the Maestro desktop app
+// Refresh auto-run command - refresh Auto Run documents in the OpenWizardAI desktop app
 program
 	.command('refresh-auto-run')
-	.description('Refresh Auto Run documents in the OpenWizzard desktop app')
+	.description('Refresh Auto Run documents in the OpenWizardAI desktop app')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option('--background', 'Refresh without switching to the target agent (default)')
 	.option('--focus', 'Switch to the target agent while refreshing')
@@ -475,7 +475,7 @@ program
 program
 	.command('auto-run <docs...>')
 	.description('Configure and optionally launch an auto-run with documents')
-	.option('-a, --agent <id>', 'Target agent by ID (use "maestro-cli list agents" to find IDs)')
+	.option('-a, --agent <id>', 'Target agent by ID (use "openwizardai-cli list agents" to find IDs)')
 	.option('-p, --prompt <text>', 'Custom prompt for the auto-run')
 	.option('--loop', 'Enable looping')
 	.option('--max-loops <n>', 'Maximum loop count (implies --loop)')
@@ -546,8 +546,8 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((agentId, playbookId, options) => removePlaybook(agentId, playbookId, options));
 
-// Cue commands - interact with Maestro Cue automation
-const cue = program.command('cue').description('Interact with OpenWizzard Cue automation');
+// Cue commands - interact with OpenWizardAI Cue automation
+const cue = program.command('cue').description('Interact with OpenWizardAI Cue automation');
 
 cue
 	.command('trigger <subscription-name>')
@@ -566,9 +566,9 @@ cue
 // Cue schedule - author / inspect / edit / cancel Scheduled Tasks (the
 // clock-driven subscriptions: time.once, time.scheduled, time.heartbeat).
 // Primary agent surface for "in 20 minutes do X", "remind me at 4pm…", and
-// "every weekday at 9am…" - writes directly to the agent's `.maestro/cue.yaml`
+// "every weekday at 9am…" - writes directly to the agent's `.openwizardai/cue.yaml`
 // so it works without the desktop app running. The same tasks are listed and
-// editable in the app under Maestro Cue → Scheduled Tasks. See
+// editable in the app under OpenWizardAI Cue → Scheduled Tasks. See
 // `cue-schedule.ts` for the full flag matrix.
 cue
 	.command('schedule')
@@ -665,16 +665,16 @@ directorNotes
 
 directorNotes
 	.command('synopsis')
-	.description('Generate AI synopsis of recent activity (requires running OpenWizzard app)')
+	.description('Generate AI synopsis of recent activity (requires running OpenWizardAI app)')
 	.option('-d, --days <n>', 'Lookback period in days (default: from app settings)')
 	.option('-f, --format <type>', 'Output format: json, markdown, text (default: text)')
 	.option('--json', 'Output as JSON (shorthand for --format json)')
 	.action(directorNotesSynopsis);
 
-// Status command - check if Maestro desktop app is running and reachable
+// Status command - check if OpenWizardAI desktop app is running and reachable
 program
 	.command('status')
-	.description('Check if the OpenWizzard desktop app is running and reachable')
+	.description('Check if the OpenWizardAI desktop app is running and reachable')
 	.action(status);
 
 // Doctor command - diagnose connection, version skew, handler support, SSH config
@@ -697,10 +697,10 @@ program
 	.option('--format <format>', 'Output format: md (default) or json')
 	.action((options) => reference(program, options));
 
-// Create agent command - create a new agent in the Maestro desktop app
+// Create agent command - create a new agent in the OpenWizardAI desktop app
 program
 	.command('create-agent <name>')
-	.description('Create a new agent in the OpenWizzard desktop app')
+	.description('Create a new agent in the OpenWizardAI desktop app')
 	.requiredOption('-d, --cwd <path>', 'Working directory for the agent')
 	.option(
 		'-t, --type <type>',
@@ -726,31 +726,31 @@ program
 	.option('--ssh-cwd <path>', 'Working directory override on SSH remote')
 	.option(
 		'--sync-history-to-remote <bool>',
-		'Sync history entries to .maestro/history/ on the remote host (true/false; requires --ssh-remote)'
+		'Sync history entries to .openwizardai/history/ on the remote host (true/false; requires --ssh-remote)'
 	)
 	.option(
 		'--auto-run-folder <path>',
-		'Path to the agent Auto Run / playbooks folder (overrides the default <cwd>/.maestro/playbooks)'
+		'Path to the agent Auto Run / playbooks folder (overrides the default <cwd>/.openwizardai/playbooks)'
 	)
 	.option('--background', 'Create the agent without selecting it (Left Bar selection stays put)')
 	.option('--focus', 'Select the new agent after creating it (default)')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(createAgent);
 
-// Create group command - create a new group in the Maestro desktop app
+// Create group command - create a new group in the OpenWizardAI desktop app
 program
 	.command('create-group <name>')
-	.description('Create a new group in the OpenWizzard desktop app')
+	.description('Create a new group in the OpenWizardAI desktop app')
 	.option('-e, --emoji <emoji>', 'Emoji icon for the group')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(createGroup);
 
-// Remove group command - delete a group from the Maestro desktop app. Agents
+// Remove group command - delete a group from the OpenWizardAI desktop app. Agents
 // inside are ungrouped, not deleted. Refuses a non-empty group without --force.
 program
 	.command('remove-group <group-id>')
 	.description(
-		'Remove a group from the OpenWizzard desktop app (agents inside are ungrouped, not deleted)'
+		'Remove a group from the OpenWizardAI desktop app (agents inside are ungrouped, not deleted)'
 	)
 	.option('-f, --force', 'Delete even if the group still has agents (ungroups them)')
 	.option('--json', 'Output as JSON (for scripting)')
@@ -759,7 +759,7 @@ program
 // Rename group command - change a group's name in the desktop app
 program
 	.command('rename-group <group-id> <new-name>')
-	.description('Rename a group in the OpenWizzard desktop app')
+	.description('Rename a group in the OpenWizardAI desktop app')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((groupId, newName, options) => renameGroup(groupId, newName, options));
 
@@ -771,7 +771,7 @@ program
 	.description('Create a new agent in a git worktree branched off an existing parent agent')
 	.requiredOption(
 		'-a, --agent <id>',
-		'Parent agent ID the worktree branches from (use "maestro-cli list agents" to find IDs)'
+		'Parent agent ID the worktree branches from (use "openwizardai-cli list agents" to find IDs)'
 	)
 	.requiredOption(
 		'-b, --branch <name>',
@@ -790,10 +790,10 @@ program
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(createWorktree);
 
-// Remove agent command - remove an agent from the Maestro desktop app
+// Remove agent command - remove an agent from the OpenWizardAI desktop app
 program
 	.command('remove-agent <agent-id>')
-	.description('Remove an agent from the OpenWizzard desktop app')
+	.description('Remove an agent from the OpenWizardAI desktop app')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(removeAgent);
 
@@ -818,7 +818,7 @@ program
 	.option('--ssh-cwd <path>', 'Working directory override on the SSH remote')
 	.option(
 		'--sync-history-to-remote <bool>',
-		'Sync history entries to .maestro/history/ on the remote host (true/false)'
+		'Sync history entries to .openwizardai/history/ on the remote host (true/false)'
 	)
 	// Editable per-agent settings (the Edit Agent modal). Pass an empty string to
 	// clear a text field (e.g. --nudge "").
@@ -843,7 +843,10 @@ program
 		'--token-source <mode>',
 		'Claude token source: api | tui | dynamic (Claude Code agents only)'
 	)
-	.option('--maestro-p-path <path>', 'Override the maestro-p binary path (empty string clears)')
+	.option(
+		'--openwizardai-p-path <path>',
+		'Override the openwizardai-p binary path (empty string clears)'
+	)
 	.option('--bookmark <bool>', 'Bookmark the agent in the Left Bar (true/false)')
 	.option(
 		'--provider <type>',
@@ -856,7 +859,7 @@ program
 // Rename agent command - change an agent's display name in the desktop app
 program
 	.command('rename-agent <agent-id> <new-name>')
-	.description('Rename an agent in the OpenWizzard desktop app')
+	.description('Rename an agent in the OpenWizardAI desktop app')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((agentId, newName, options) => renameAgent(agentId, newName, options));
 
@@ -878,7 +881,7 @@ program
 // Focus agent command - select/focus an agent (and optionally a tab) in the UI
 program
 	.command('focus-agent <agent-id>')
-	.description('Focus (select) an agent in the OpenWizzard desktop UI')
+	.description('Focus (select) an agent in the OpenWizardAI desktop UI')
 	.option('--tab <tab-id>', 'Also focus this tab within the agent')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((agentId, options) => focusAgent(agentId, options));
@@ -1077,14 +1080,14 @@ display
 
 display
 	.command('fonts')
-	.description('List the fonts bundled with OpenWizzard (guaranteed available on any machine)')
+	.description('List the fonts bundled with OpenWizardAI (guaranteed available on any machine)')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(displayFontsCatalog);
 
 // Settings commands
 const settings = program
 	.command('settings')
-	.description('View and manage OpenWizzard configuration');
+	.description('View and manage OpenWizardAI configuration');
 
 settings
 	.command('list')
@@ -1153,7 +1156,7 @@ agent
 // activeThemeId setting with validation + discovery).
 program
 	.command('set-theme [name-or-id]')
-	.description('Switch the active OpenWizzard theme (applies live). Use --list to see options.')
+	.description('Switch the active OpenWizardAI theme (applies live). Use --list to see options.')
 	.option('-l, --list', 'List available themes')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((nameOrId, options) => setTheme(nameOrId, options));
@@ -1217,7 +1220,7 @@ encore
 
 encore
 	.command('enable <feature>')
-	.description('Enable an Encore feature (directorNotes, usageStats, maestroCue)')
+	.description('Enable an Encore feature (directorNotes, usageStats, openwizardaiCue)')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((feature, options) => encoreSet(feature, true, options));
 
@@ -1227,10 +1230,10 @@ encore
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((feature, options) => encoreSet(feature, false, options));
 
-// Prompts command - read Maestro's bundled or user-customized system prompts.
+// Prompts command - read OpenWizardAI's bundled or user-customized system prompts.
 // Designed for agent self-fetch: parent prompts reference includes via `{{REF:_name}}`
 // and the agent retrieves the full content on demand with `prompts get _name`.
-const prompts = program.command('prompts').description('Read OpenWizzard system prompts');
+const prompts = program.command('prompts').description('Read OpenWizardAI system prompts');
 
 prompts
 	.command('list')
@@ -1241,20 +1244,20 @@ prompts
 prompts
 	.command('get <id>')
 	.description(
-		'Print a prompt by id (honors user customizations from Settings → OpenWizzard Prompts)'
+		'Print a prompt by id (honors user customizations from Settings → OpenWizardAI Prompts)'
 	)
 	.option('--json', 'Output as JSON object with metadata + content')
 	.action(promptsGet);
 
 // Gist commands - publish agent session transcripts to GitHub gists via the
-// running Maestro desktop app. Grouped as a subcommand so we can add more gist
+// running OpenWizardAI desktop app. Grouped as a subcommand so we can add more gist
 // operations (list, show, delete, etc.) later.
 const gist = program.command('gist').description('Publish session context to GitHub gists');
 
 gist
 	.command('create <agent-id>')
 	.description(
-		"Publish an agent's session transcript as a GitHub gist (requires running OpenWizzard app)"
+		"Publish an agent's session transcript as a GitHub gist (requires running OpenWizardAI app)"
 	)
 	.option('-d, --description <text>', 'Gist description')
 	.option('-p, --public', 'Create a public gist (default: private)')
@@ -1264,10 +1267,10 @@ gist
 	)
 	.action(gistCreate);
 
-// Notify commands - surface notifications in the Maestro desktop app
+// Notify commands - surface notifications in the OpenWizardAI desktop app
 const notify = program
 	.command('notify')
-	.description('Show notifications in the OpenWizzard desktop app');
+	.description('Show notifications in the OpenWizardAI desktop app');
 
 notify
 	.command('toast <title> <message>')
@@ -1313,7 +1316,7 @@ notify
 	)
 	.option(
 		'--open-url <url>',
-		'On click, open this URL in the system browser (opens outside OpenWizzard; use --open-browser for an in-app tab)'
+		'On click, open this URL in the system browser (opens outside OpenWizardAI; use --open-browser for an in-app tab)'
 	)
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(notifyToast);
@@ -1354,7 +1357,7 @@ profiling
 	.action(profilingStatus);
 
 // Stats commands - introspect the Usage Dashboard's SQLite store (requires the
-// running Maestro desktop app, which owns the open database).
+// running OpenWizardAI desktop app, which owns the open database).
 program
 	.command('stats')
 	.description('Show aggregated Usage Dashboard metrics for a time range')
@@ -1378,5 +1381,5 @@ program
 // set, which is still true under ELECTRON_RUN_AS_NODE=1. In that mode Commander
 // only strips argv[0] and treats the script path as the first user command.
 // Force node-style argv parsing so the shim that spawns us via Electron-as-Node
-// (see MaestroCliManager.writeUnixShim / writeWindowsShim) works correctly.
+// (see OpenWizardAICliManager.writeUnixShim / writeWindowsShim) works correctly.
 program.parse(process.argv, { from: 'node' });

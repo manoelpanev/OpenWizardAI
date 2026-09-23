@@ -132,9 +132,9 @@ vi.mock('../../../renderer/components/TemplateAutocompleteDropdown', () => ({
 	TemplateAutocompleteDropdown: React.forwardRef(() => null),
 }));
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -151,8 +151,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Default props for AutoRun component
@@ -174,10 +174,10 @@ const createDefaultProps = (overrides: Partial<React.ComponentProps<typeof AutoR
 });
 
 describe('AutoRun Content Synchronization Race Conditions', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 	});
 
 	afterEach(() => {
@@ -511,7 +511,7 @@ describe('AutoRun Content Synchronization Race Conditions', () => {
 			expect(ref.current?.isDirty()).toBe(false);
 
 			// Verify save was called with correct content
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/test/path',
 				'my-doc.md',
 				'New content to save',

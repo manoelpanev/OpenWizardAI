@@ -1,20 +1,20 @@
 ---
 title: Agent Resilience
-description: Maestro resends your prompt automatically when a provider is overloaded or your plan quota runs out.
+description: OpenWizardAI resends your prompt automatically when a provider is overloaded or your plan quota runs out.
 icon: shield-check
 ---
 
 Providers fail. Anthropic returns `529 Overloaded` for a minute, or you burn through a Max plan window at 11am and the next reset is three hours out. Without help, both look the same from your side: a turn that stops, a prompt you have to send again, and an autonomous run that quietly stalls until you notice.
 
-Agent Resilience answers that failure for you. When a turn fails for a reason that time alone will fix, Maestro keeps the exact prompt, waits the right amount, and sends it again. You get a live status card in the transcript instead of an error dialog, and long Auto Run batches survive an outage that started while you were asleep.
+Agent Resilience answers that failure for you. When a turn fails for a reason that time alone will fix, OpenWizardAI keeps the exact prompt, waits the right amount, and sends it again. You get a live status card in the transcript instead of an error dialog, and long Auto Run batches survive an outage that started while you were asleep.
 
 It is on by default for every agent.
 
 ## What it does
 
-When an agent turn fails, Maestro classifies the error and picks one of two strategies.
+When an agent turn fails, OpenWizardAI classifies the error and picks one of two strategies.
 
-| Failure                  | What it looks like                                                                                    | What Maestro does                                               |
+| Failure                  | What it looks like                                                                                    | What OpenWizardAI does                                          |
 | ------------------------ | ----------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
 | **Availability**         | `Overloaded`, HTTP 529/503/502/500, `429`, `too many requests`, rate-limit throttling, network errors | Backs off and resends: 30s, 1m, 2m, 4m, 8m, 16m, then every 30m |
 | **Plan quota exhausted** | `You've hit your session limit`, `usage limit reached`, `quota exceeded`, `out of credits`            | Waits until the quota actually resets, then resends             |
@@ -23,7 +23,7 @@ The resend is your original prompt replayed through the same code path that sent
 
 ### It waits for the real reset time
 
-For a quota failure, backing off in seconds is pointless. Maestro reads the reset moment out of the error itself, in descending order of confidence:
+For a quota failure, backing off in seconds is pointless. OpenWizardAI reads the reset moment out of the error itself, in descending order of confidence:
 
 1. The provider's own quota block. Claude Code sends `quotaLimits.resetsAt` alongside the limit message, which is the exact reset second, so the retry lands the moment your window reopens rather than up to an hour late.
 2. A top-level `retryAfter` / `resetAt` field, or a `retry after 30 seconds` / `try again in 5 minutes` phrase.
@@ -33,7 +33,7 @@ For a quota failure, backing off in seconds is pointless. Maestro reads the rese
 If none of those parse, it falls back to waiting an hour and retrying hourly. A wall-clock phrase with no timezone (`resets at 3pm`) is deliberately ignored, since a wrong guess is worse than the reliable hourly poll.
 
 <Note>
-Claude Code does not report a hit plan limit as an error. It sends an ordinary-looking assistant message whose text is the banner, which is why an unpatched build showed the notice as a normal reply and the turn appeared to succeed. Maestro recognizes that message specifically. It requires the banner to be the entire message, so an agent that merely writes *about* usage limits is never mistaken for one.
+Claude Code does not report a hit plan limit as an error. It sends an ordinary-looking assistant message whose text is the banner, which is why an unpatched build showed the notice as a normal reply and the turn appeared to succeed. OpenWizardAI recognizes that message specifically. It requires the banner to be the entire message, so an agent that merely writes *about* usage limits is never mistaken for one.
 </Note>
 
 ### What it will never retry
@@ -59,7 +59,7 @@ Two buttons:
 When a retry succeeds, the card turns green and freezes: _Connection recovered. Service overloaded cleared after 3 retries over 4m._ Every outage keeps its own card, so a transcript honestly records what the day was like.
 
 <Note>
-Pending retries do not survive quitting Maestro. This is deliberate: a closed app should not sit in the background burning quota on your behalf. Reopening the app leaves the outage card in place as a dim summary, and you send the prompt again yourself.
+Pending retries do not survive quitting OpenWizardAI. This is deliberate: a closed app should not sit in the background burning quota on your behalf. Reopening the app leaves the outage card in place as a dim summary, and you send the prompt again yourself.
 </Note>
 
 ## Queued messages
@@ -72,7 +72,7 @@ Sending a **new** message while a retry is counting down is different: that is y
 
 ## Prompts that arrive from automation
 
-A turn does not have to be typed to be covered. Prompts that arrive from `maestro-cli dispatch`, a Cue pipeline, or the web and mobile composer are ordinary desktop turns, and they retry on exactly the same rules as one you typed yourself.
+A turn does not have to be typed to be covered. Prompts that arrive from `openwizardai-cli dispatch`, a Cue pipeline, or the web and mobile composer are ordinary desktop turns, and they retry on exactly the same rules as one you typed yourself.
 
 This matters more for automation than for interactive use: when a scheduled pipeline hits a quota wall at 3am, nobody is watching to press **Try now**.
 
@@ -89,17 +89,17 @@ Both default to on, including for agents you created before the feature existed.
 
 An Auto Run batch is where this matters most, because a stalled overnight run wastes the whole night.
 
-When a batch turn fails with a retryable error, Maestro parks the loop rather than aborting it, then resumes it automatically once the backoff elapses. The run continues from where it stopped, re-reading the document so any task you checked off in the meantime is respected. You get a toast reading **Auto Run: retrying**, and the History entry records the outage rather than logging it as a plain failure.
+When a batch turn fails with a retryable error, OpenWizardAI parks the loop rather than aborting it, then resumes it automatically once the backoff elapses. The run continues from where it stopped, re-reading the document so any task you checked off in the meantime is respected. You get a toast reading **Auto Run: retrying**, and the History entry records the outage rather than logging it as a plain failure.
 
 You can still take over: cancel the auto-retry from the status card and the batch's usual resume, skip, and abort controls come back.
 
 <Note>
-Auto Run batches launched from `maestro-cli` do not auto-retry. Resilience is a desktop feature, and the CLI's batch runner reports the failure instead. A prompt sent INTO the running desktop app with `maestro-cli dispatch` is different: it is a normal desktop turn and retries like any other.
+Auto Run batches launched from `openwizardai-cli` do not auto-retry. Resilience is a desktop feature, and the CLI's batch runner reports the failure instead. A prompt sent INTO the running desktop app with `openwizardai-cli dispatch` is different: it is a normal desktop turn and retries like any other.
 </Note>
 
 ## Tracking it over time
 
-The [Usage Dashboard](/usage-dashboard) (`Cmd+Alt+U` / `Ctrl+Alt+U`) keeps score under **Activity → Resilience**: how many outages Maestro carried your work through, how much downtime it bridged while you were away, the recovery rate, and a per-day timeline split into recovered vs. stopped. Only resolved outages are counted - a countdown still in progress shows on its transcript card, not here.
+The [Usage Dashboard](/usage-dashboard) (`Cmd+Alt+U` / `Ctrl+Alt+U`) keeps score under **Activity → Resilience**: how many outages OpenWizardAI carried your work through, how much downtime it bridged while you were away, the recovery rate, and a per-day timeline split into recovered vs. stopped. Only resolved outages are counted - a countdown still in progress shows on its transcript card, not here.
 
 ## See also
 

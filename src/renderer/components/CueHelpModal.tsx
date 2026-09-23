@@ -21,7 +21,6 @@ import type { Theme } from '../types';
 import { formatShortcutKeys } from '../utils/shortcutFormatter';
 import { DEFAULT_SHORTCUTS } from '../constants/shortcuts';
 import { openUrl } from '../utils/openUrl';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 import { useModalLayer } from '../hooks/ui/useModalLayer';
 import { useResizableModal } from '../hooks/ui/useResizableModal';
 import { MODAL_PRIORITIES } from '../constants/modalPriorities';
@@ -41,14 +40,14 @@ export interface CueHelpModalProps {
 }
 
 /**
- * Maestro Cue Guide, rendered as its own narrow modal layered on top of the
+ * OpenWizardAI Cue Guide, rendered as its own narrow modal layered on top of the
  * Cue modal. Sitting at CUE_HELP (above CUE_MODAL) means Escape closes the
  * guide first and returns to whatever Cue tab was open underneath - the
  * narrower width leaves the Cue modal visible on either side so the layering
  * reads clearly. Width is sized to the text column, not the host modal.
  */
 export function CueHelpModal({ theme, onClose, cueShortcutKeys }: CueHelpModalProps) {
-	useModalLayer(MODAL_PRIORITIES.CUE_HELP, 'OpenWizzard Cue Guide', onClose);
+	useModalLayer(MODAL_PRIORITIES.CUE_HELP, 'OpenWizardAI Cue Guide', onClose);
 	const resizableModal = useResizableModal({
 		resizeKey: 'cue-help',
 		defaultSize: { width: 820, height: 760 },
@@ -99,7 +98,7 @@ export function CueHelpModal({ theme, onClose, cueShortcutKeys }: CueHelpModalPr
 							className="text-base font-bold"
 							style={{ color: theme.colors.textMain }}
 						>
-							OpenWizzard Cue Guide
+							OpenWizardAI Cue Guide
 						</h2>
 					</div>
 					<button
@@ -124,22 +123,22 @@ export function CueHelpModal({ theme, onClose, cueShortcutKeys }: CueHelpModalPr
 }
 
 /**
- * Help content for Maestro Cue, used inline within the CueModal.
+ * Help content for OpenWizardAI Cue, used inline within the CueModal.
  */
 export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) {
 	return (
 		<div className="space-y-6" style={{ color: theme.colors.textMain }}>
-			{/* Section 1: What is Maestro Cue? */}
+			{/* Section 1: What is OpenWizardAI Cue? */}
 			<section>
 				<div className="flex items-center gap-2 mb-3">
 					<Zap className="w-5 h-5" style={{ color: theme.colors.accent }} />
-					<h3 className="font-bold">What is OpenWizzard Cue?</h3>
+					<h3 className="font-bold">What is OpenWizardAI Cue?</h3>
 				</div>
 				<div className="text-sm space-y-2 pl-7" style={{ color: theme.colors.textDim }}>
 					<p>
-						OpenWizzard Cue is an event-driven automation system. Define triggers in a YAML file,
-						and OpenWizzard automatically executes prompts against your AI agents when events occur.
-						The conductor gives the cue - the agents respond.
+						OpenWizardAI Cue is an event-driven automation system. Define triggers in a YAML file,
+						and OpenWizardAI automatically executes prompts against your AI agents when events
+						occur. The conductor gives the cue - the agents respond.
 					</p>
 				</div>
 			</section>
@@ -157,7 +156,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 						from the right drawer onto the canvas, then connect them to define your workflow. The
 						editor automatically generates and manages the underlying{' '}
 						<code className="px-1 rounded" style={{ backgroundColor: theme.colors.bgActivity }}>
-							.maestro/cue.yaml
+							.openwizardai/cue.yaml
 						</code>{' '}
 						file.
 					</p>
@@ -201,7 +200,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 							</code>
 						</p>
 						<p className="mt-1">
-							Fires once when the OpenWizzard application starts. No additional fields required.
+							Fires once when the OpenWizardAI application starts. No additional fields required.
 							Does not re-fire on YAML hot-reload or when toggling Cue on/off.
 						</p>
 					</div>
@@ -474,7 +473,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 								className="px-1 rounded text-xs"
 								style={{ backgroundColor: theme.colors.bgActivity }}
 							>
-								maestro-cli cue trigger &lt;name&gt;
+								openwizardai-cli cue trigger &lt;name&gt;
 							</code>
 							. Useful for hooking Cue into shell scripts, Git hooks, or other automation. The
 							optional{' '}
@@ -894,7 +893,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 					>
 						<Code className="w-4 h-4 flex-shrink-0" style={{ color: theme.colors.accent }} />
 						<span>
-							All standard OpenWizzard template variables (
+							All standard OpenWizardAI template variables (
 							<code
 								className="px-1 rounded text-xs"
 								style={{ backgroundColor: theme.colors.bgActivity }}
@@ -1124,7 +1123,9 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 							program for you to approve.{' '}
 							<button
 								onClick={() =>
-									openUrl(buildMaestroUrl('https://docs.runmaestro.ai/maestro-cue-karpathy-loop'))
+									openUrl(
+										'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/openwizardai-cue-karpathy-loop.md'
+									)
 								}
 								className="underline hover:opacity-80 transition-colors"
 								style={{ color: theme.colors.accent }}
@@ -1146,7 +1147,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 						<span>
 							<strong style={{ color: theme.colors.textMain }}>Case study:</strong> the eight-chain{' '}
 							<strong style={{ color: theme.colors.textMain }}>
-								@RunMaestroAI marketing pipeline
+								@manoelpanevAI marketing pipeline
 							</strong>{' '}
 							is a production Karpathy Loop with two-tier evaluation, auto-tunable section markers,
 							two-strikes campaign graduation, and async filesystem handoff between scheduled
@@ -1154,7 +1155,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 							<button
 								onClick={() =>
 									openUrl(
-										buildMaestroUrl('https://docs.runmaestro.ai/maestro-cue-marketing-example')
+										'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/openwizardai-cue-marketing-example.md'
 									)
 								}
 								className="underline hover:opacity-80 transition-colors"
@@ -1243,8 +1244,8 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 				</div>
 				<div className="text-sm space-y-2 pl-7" style={{ color: theme.colors.textDim }}>
 					<p>
-						When your computer wakes from sleep, OpenWizzard Cue replays missed triggers so a closed
-						laptop doesn't mean missed work:
+						When your computer wakes from sleep, OpenWizardAI Cue replays missed triggers so a
+						closed laptop doesn't mean missed work:
 					</p>
 					<ul className="list-disc pl-5 space-y-1">
 						<li>
@@ -1457,11 +1458,15 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 			>
 				<ExternalLink className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
 				<button
-					onClick={() => openUrl(buildMaestroUrl('https://docs.runmaestro.ai/maestro-cue'))}
+					onClick={() =>
+						openUrl(
+							'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/openwizardai-cue.md'
+						)
+					}
 					className="text-xs hover:opacity-80 transition-colors"
 					style={{ color: theme.colors.accent }}
 				>
-					Read more at docs.runmaestro.ai/maestro-cue
+					Read more at github.com/manoelpanev/OpenWizardAI/tree/main/docs/openwizardai-cue
 				</button>
 			</div>
 		</div>

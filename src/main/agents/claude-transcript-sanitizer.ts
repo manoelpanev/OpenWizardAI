@@ -6,7 +6,7 @@
  *
  * Why this exists
  * ---------------
- * maestro-p's interactive turns persist thinking blocks as signature-only
+ * openwizardai-p's interactive turns persist thinking blocks as signature-only
  * shells: the `thinking` text is empty but a `signature` (bound to the
  * subscription account that produced it) is retained. When the wrapper exits
  * with code 2 mid-turn (Max-plan quota), the controller respawns the same
@@ -27,7 +27,7 @@
  * thinking blocks always carry non-empty reasoning text alongside their
  * signature, and Anthropic's API requires them to be re-sent verbatim when
  * extended thinking is enabled on the next turn - removing them would itself
- * trip the same 400. The signature-only shell pattern is unique to maestro-p,
+ * trip the same 400. The signature-only shell pattern is unique to openwizardai-p,
  * so the narrow predicate is the only safe target.
  *
  * Transform
@@ -70,7 +70,7 @@ interface ParsedRow {
 
 /**
  * Empty-thinking shell: a `thinking` / `redacted_thinking` block whose `thinking`
- * text is the empty string. This is what maestro-p persists for subscription-
+ * text is the empty string. This is what openwizardai-p persists for subscription-
  * account turns and the only shape we strip. API-account thinking blocks always
  * have non-empty reasoning text and are preserved verbatim.
  *
@@ -205,12 +205,12 @@ export function stripThinkingFromTranscript(transcriptPath: string): SanitizeRes
 	const output = outLines.join('\n');
 
 	// Back up the original once, then rewrite atomically.
-	const backupPath = `${transcriptPath}.maestro-presanitize.bak`;
+	const backupPath = `${transcriptPath}.openwizardai-presanitize.bak`;
 	if (!fs.existsSync(backupPath)) {
 		fs.writeFileSync(backupPath, original, 'utf8');
 	}
 
-	const tmpPath = `${transcriptPath}.maestro-sanitize.tmp`;
+	const tmpPath = `${transcriptPath}.openwizardai-sanitize.tmp`;
 	fs.writeFileSync(tmpPath, output, 'utf8');
 	fs.renameSync(tmpPath, transcriptPath);
 

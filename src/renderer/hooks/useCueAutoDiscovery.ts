@@ -6,7 +6,7 @@ import { captureException } from '../utils/sentry';
 import { logger } from '../utils/logger';
 
 /**
- * useCueAutoDiscovery - auto-discovers .maestro/cue.yaml files for sessions.
+ * useCueAutoDiscovery - auto-discovers .openwizardai/cue.yaml files for sessions.
  *
  * Integration points:
  * 1. After sessions are restored on app launch, refreshes all sessions
@@ -14,18 +14,18 @@ import { logger } from '../utils/logger';
  * 3. When a session's projectRoot changes (the agent was moved to another
  *    directory), refreshes it against the new root
  * 4. When a session is removed, notifies the engine to clean up
- * 5. When the maestroCue encore feature is toggled on, starts the engine
- * 6. When the maestroCue encore feature is toggled off, stops the engine
+ * 5. When the openwizardaiCue encore feature is toggled on, starts the engine
+ * 6. When the openwizardaiCue encore feature is toggled off, stops the engine
  *
  * Session discovery always runs so the Cue indicator shows in the Left Bar
- * whenever a .maestro/cue.yaml exists. The encore feature flag only gates
+ * whenever a .openwizardai/cue.yaml exists. The encore feature flag only gates
  * engine execution (start/stop), not config discovery.
  */
 export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreFeatureFlags) {
 	const sessionsLoaded = useSessionStore((s) => s.sessionsLoaded);
 	// projectRoot per session id as of the last pass: spots additions, moves, and removals.
 	const prevProjectRootsRef = useRef<Map<string, string>>(new Map());
-	const prevMaestroCueEnabledRef = useRef<boolean>(encoreFeatures.maestroCue);
+	const prevOpenWizardAICueEnabledRef = useRef<boolean>(encoreFeatures.openwizardaiCue);
 	const initialScanDoneRef = useRef(false);
 	// Serializes in-flight enable/disable IPC calls so rapid toggles
 	// (ON → OFF → ON) can't interleave and leave the engine in a state
@@ -44,7 +44,7 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 			initialScanDoneRef.current = true;
 			for (const session of sessions) {
 				if (session.projectRoot) {
-					window.maestro.cue
+					window.openwizardai.cue
 						.refreshSession(session.id, session.projectRoot)
 						.catch((err) =>
 							logger.error('[CueAutoDiscovery] Failed to refresh session:', undefined, err)
@@ -60,7 +60,7 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 		// left the engine on the old folder's cue.yaml until the next app launch.
 		for (const session of sessions) {
 			if (session.projectRoot && prevRoots.get(session.id) !== session.projectRoot) {
-				window.maestro.cue
+				window.openwizardai.cue
 					.refreshSession(session.id, session.projectRoot)
 					.catch((err) =>
 						logger.error('[CueAutoDiscovery] Failed to refresh session:', undefined, err)
@@ -71,7 +71,7 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 		// --- Detect removed sessions ---
 		for (const prevId of prevRoots.keys()) {
 			if (!currentRoots.has(prevId)) {
-				window.maestro.cue
+				window.openwizardai.cue
 					.removeSession(prevId)
 					.catch((err) =>
 						logger.error('[CueAutoDiscovery] Failed to remove session:', undefined, err)
@@ -88,9 +88,9 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 	useEffect(() => {
 		if (!sessionsLoaded) return;
 
-		const wasEnabled = prevMaestroCueEnabledRef.current;
-		const isEnabled = encoreFeatures.maestroCue;
-		prevMaestroCueEnabledRef.current = isEnabled;
+		const wasEnabled = prevOpenWizardAICueEnabledRef.current;
+		const isEnabled = encoreFeatures.openwizardaiCue;
+		prevOpenWizardAICueEnabledRef.current = isEnabled;
 
 		if (wasEnabled === isEnabled) return;
 
@@ -99,10 +99,10 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 		toggleChainRef.current = toggleChainRef.current.then(async () => {
 			if (isEnabled) {
 				try {
-					await window.maestro.cue.enable();
+					await window.openwizardai.cue.enable();
 					await Promise.all(
 						sessionsSnapshot.map((session) =>
-							window.maestro.cue
+							window.openwizardai.cue
 								.refreshSession(session.id, session.projectRoot)
 								.catch((err) =>
 									logger.error('[CueAutoDiscovery] Failed to refresh session:', undefined, err)
@@ -111,22 +111,22 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 					);
 				} catch (err) {
 					logger.error('[CueAutoDiscovery] Failed to enable Cue:', undefined, err);
-					captureException(err, { extra: { action: 'maestro.cue.enable' } });
+					captureException(err, { extra: { action: 'openwizardai.cue.enable' } });
 					notifyToast({
 						type: 'error',
 						title: 'Cue engine failed to start',
 						message:
 							err instanceof Error
 								? err.message
-								: 'Re-toggle OpenWizzard Cue in Settings → Encore Features to retry.',
+								: 'Re-toggle OpenWizardAI Cue in Settings → Encore Features to retry.',
 					});
 				}
 			} else {
 				try {
-					await window.maestro.cue.disable();
+					await window.openwizardai.cue.disable();
 				} catch (err) {
 					logger.error('[CueAutoDiscovery] Failed to disable Cue:', undefined, err);
-					captureException(err, { extra: { action: 'maestro.cue.disable' } });
+					captureException(err, { extra: { action: 'openwizardai.cue.disable' } });
 					notifyToast({
 						type: 'error',
 						title: 'Cue engine failed to stop',
@@ -138,5 +138,5 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 				}
 			}
 		});
-	}, [encoreFeatures.maestroCue, sessions, sessionsLoaded]);
+	}, [encoreFeatures.openwizardaiCue, sessions, sessionsLoaded]);
 }

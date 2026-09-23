@@ -250,12 +250,12 @@ describe('DisplayTab', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
 
-		// Reset window.maestro font/settings mocks
-		(window as any).maestro.fonts = {
+		// Reset window.openwizardai font/settings mocks
+		(window as any).openwizardai.fonts = {
 			detect: vi.fn().mockResolvedValue(['Menlo', 'Monaco', 'Courier New', 'JetBrains Mono']),
 		};
-		(window as any).maestro.settings.get = vi.fn().mockResolvedValue(undefined);
-		(window as any).maestro.settings.set = vi.fn().mockResolvedValue(undefined);
+		(window as any).openwizardai.settings.get = vi.fn().mockResolvedValue(undefined);
+		(window as any).openwizardai.settings.set = vi.fn().mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -408,7 +408,7 @@ describe('DisplayTab', () => {
 			// The select must stay mounted during load (the #1228 fix); previously a
 			// "Loading fonts..." placeholder replaced it and swallowed the first click.
 			let resolveFonts: (value: string[]) => void;
-			(window as any).maestro.fonts.detect = vi.fn(
+			(window as any).openwizardai.fonts.detect = vi.fn(
 				() =>
 					new Promise<string[]>((resolve) => {
 						resolveFonts = resolve;
@@ -452,7 +452,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect((window as any).maestro.fonts.detect).toHaveBeenCalled();
+			expect((window as any).openwizardai.fonts.detect).toHaveBeenCalled();
 		});
 
 		it('should load fonts on select click (interaction)', async () => {
@@ -469,7 +469,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect((window as any).maestro.fonts.detect).toHaveBeenCalled();
+			expect((window as any).openwizardai.fonts.detect).toHaveBeenCalled();
 		});
 
 		it('should call setFontFamily when font is changed', async () => {
@@ -513,7 +513,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect((window as any).maestro.fonts.detect).toHaveBeenCalledTimes(1);
+			expect((window as any).openwizardai.fonts.detect).toHaveBeenCalledTimes(1);
 
 			// Second focus should not reload
 			fireEvent.focus(fontSelect);
@@ -521,7 +521,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect((window as any).maestro.fonts.detect).toHaveBeenCalledTimes(1);
+			expect((window as any).openwizardai.fonts.detect).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -637,7 +637,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect((window as any).maestro.settings.set).toHaveBeenCalledWith('customFonts', [
+			expect((window as any).openwizardai.settings.set).toHaveBeenCalledWith('customFonts', [
 				'My Custom Font',
 			]);
 		});
@@ -657,7 +657,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect((window as any).maestro.settings.set).toHaveBeenCalledWith('customFonts', [
+			expect((window as any).openwizardai.settings.set).toHaveBeenCalledWith('customFonts', [
 				'My Custom Font',
 			]);
 		});
@@ -679,7 +679,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect((window as any).maestro.settings.set).not.toHaveBeenCalledWith(
+			expect((window as any).openwizardai.settings.set).not.toHaveBeenCalledWith(
 				'customFonts',
 				expect.anything()
 			);
@@ -687,7 +687,7 @@ describe('DisplayTab', () => {
 
 		it('should remove custom font when X is clicked', async () => {
 			// Preload custom fonts so they appear after font loading
-			(window as any).maestro.settings.get = vi
+			(window as any).openwizardai.settings.get = vi
 				.fn()
 				.mockResolvedValue(['MyCustomFont', 'AnotherFont']);
 
@@ -724,7 +724,7 @@ describe('DisplayTab', () => {
 			});
 
 			// Should save updated custom fonts (without MyCustomFont)
-			expect((window as any).maestro.settings.set).toHaveBeenCalledWith('customFonts', [
+			expect((window as any).openwizardai.settings.set).toHaveBeenCalledWith('customFonts', [
 				'AnotherFont',
 			]);
 		});
@@ -746,7 +746,7 @@ describe('DisplayTab', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect((window as any).maestro.settings.set).toHaveBeenCalledWith('customFonts', [
+			expect((window as any).openwizardai.settings.set).toHaveBeenCalledWith('customFonts', [
 				'DuplicateFont',
 			]);
 
@@ -759,11 +759,11 @@ describe('DisplayTab', () => {
 			});
 
 			// Should not have been called again with a second entry
-			expect((window as any).maestro.settings.set).toHaveBeenCalledTimes(1);
+			expect((window as any).openwizardai.settings.set).toHaveBeenCalledTimes(1);
 		});
 
 		it('should load saved custom fonts from settings', async () => {
-			(window as any).maestro.settings.get = vi
+			(window as any).openwizardai.settings.get = vi
 				.fn()
 				.mockResolvedValue(['SavedFont1', 'SavedFont2']);
 
@@ -1154,7 +1154,7 @@ describe('DisplayTab', () => {
 
 			expect(screen.getByText('Use native title bar')).toBeInTheDocument();
 			expect(
-				screen.getByText(/Use the OS native title bar instead of OpenWizzard's custom title bar/)
+				screen.getByText(/Use the OS native title bar instead of OpenWizardAI's custom title bar/)
 			).toBeInTheDocument();
 		});
 
@@ -1912,7 +1912,7 @@ describe('DisplayTab', () => {
 
 	describe('Font detection failure', () => {
 		it('should handle font detection failure gracefully', async () => {
-			(window as any).maestro.fonts.detect = vi
+			(window as any).openwizardai.fonts.detect = vi
 				.fn()
 				.mockRejectedValue(new Error('Font detection failed'));
 
@@ -1947,7 +1947,7 @@ describe('DisplayTab', () => {
 		});
 
 		it('should still render common monospace fonts even without system font detection', async () => {
-			(window as any).maestro.fonts.detect = vi
+			(window as any).openwizardai.fonts.detect = vi
 				.fn()
 				.mockRejectedValue(new Error('Font detection failed'));
 
@@ -1988,7 +1988,7 @@ describe('DisplayTab', () => {
 			const optionTexts = Array.from(options).map((o) => o.textContent?.trim());
 
 			// Bundled families (Roboto Mono, JetBrains Mono, Fira Code) render in
-			// the "Bundled with Maestro" group and are deduplicated out of the
+			// the "Bundled with OpenWizardAI" group and are deduplicated out of the
 			// system group, so their option text carries a note. The system-only
 			// faces below still appear verbatim.
 			expect(optionTexts.some((t) => t?.startsWith('Roboto Mono'))).toBe(true);
@@ -2015,7 +2015,7 @@ describe('DisplayTab', () => {
 
 		it('should show font availability indicators after loading', async () => {
 			// Only JetBrains Mono is available
-			(window as any).maestro.fonts.detect = vi.fn().mockResolvedValue(['JetBrains Mono']);
+			(window as any).openwizardai.fonts.detect = vi.fn().mockResolvedValue(['JetBrains Mono']);
 
 			render(<DisplayTab theme={mockTheme} />);
 

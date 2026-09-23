@@ -6,7 +6,7 @@
  * based on the user's first message.
  *
  * Usage:
- * - window.maestro.tabNaming.generateTabName(userMessage, agentType, cwd, sshRemoteConfig?)
+ * - window.openwizardai.tabNaming.generateTabName(userMessage, agentType, cwd, sshRemoteConfig?)
  */
 
 import { ipcMain } from 'electron';
@@ -31,13 +31,13 @@ import { getClaudeTokenMode } from '../../../shared/claudeTokenMode';
 import { cheapTurnSettings } from '../../../shared/modelTiers';
 import type { ToolType } from '../../../shared/types';
 import { getSshRemoteConfig, createSshRemoteStoreAdapter } from '../../utils/ssh-remote-resolver';
-import { ensureRemoteMaestroPProbed } from '../../agents/probeRemoteMaestroP';
+import { ensureRemoteOpenWizardAIPProbed } from '../../agents/probeRemoteOpenWizardAIP';
 import { buildSshCommand } from '../../utils/ssh-command-builder';
 import { getPrompt } from '../../prompt-manager';
 import { isWindows } from '../../../shared/platformDetection';
 import type { ProcessManager } from '../../process-manager';
 import type { AgentDetector } from '../../agents';
-import type { MaestroSettings } from './persistence';
+import type { OpenWizardAISettings } from './persistence';
 import { captureException } from '../../utils/sentry';
 
 const LOG_CONTEXT = '[TabNaming]';
@@ -64,7 +64,7 @@ export interface TabNamingHandlerDependencies {
 	getProcessManager: () => ProcessManager | null;
 	getAgentDetector: () => AgentDetector | null;
 	agentConfigsStore: Store<AgentConfigsData>;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 }
 
 /**
@@ -119,9 +119,9 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 				// from the renderer's session (tab naming has no sessionId to look up
 				// the persisted session by, so the caller passes these inline). When
 				// absent, getClaudeTokenMode() collapses to 'api'.
-				enableMaestroP?: boolean;
-				maestroPMode?: 'interactive' | 'dynamic';
-				maestroPPath?: string;
+				enableOpenWizardAIP?: boolean;
+				openwizardaiPMode?: 'interactive' | 'dynamic';
+				openwizardaiPPath?: string;
 			}): Promise<string | null> => {
 				const processManager = requireDependency(getProcessManager, 'Process manager');
 				const agentDetector = requireDependency(getAgentDetector, 'Agent detector');
@@ -214,20 +214,20 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 					};
 
 					// Resolve the triggering agent's Claude token source ONCE, up front,
-					// so BOTH the SSH-remote path (maestro-p on the remote host) and the
-					// local path (maestro-p via process.execPath) realize the same
+					// so BOTH the SSH-remote path (openwizardai-p on the remote host) and the
+					// local path (openwizardai-p via process.execPath) realize the same
 					// decision. Tab naming spawns claude directly (it does NOT route
 					// through process:spawn where the resolver normally lives), so without
 					// this it would always run `claude --print`.
 					//
 					// SSH now HONORS the selection instead of forcing API: API ->
-					// `claude --print`, TUI -> remote maestro-p driving the remote claude
+					// `claude --print`, TUI -> remote openwizardai-p driving the remote claude
 					// TUI on the Max plan. (`dynamic` over SSH has no remote quota signal,
 					// so the resolver collapses it back to API.) For LOCAL spawns the
-					// resolver already falls back to `claude --print` when no maestro-p
-					// binary is found; the remote path trusts maestro-p on the remote PATH.
+					// resolver already falls back to `claude --print` when no openwizardai-p
+					// binary is found; the remote path trusts openwizardai-p on the remote PATH.
 					//
-					// NOTE: interactive tab-naming (local OR remote) drives the maestro-p
+					// NOTE: interactive tab-naming (local OR remote) drives the openwizardai-p
 					// TUI and therefore spends Max-plan quota on a short, low-value turn.
 					// That's the correct behavior when the user picked TUI/Dynamic.
 					let claudeSpawnDecision: ClaudeSpawnDecision | null = null;
@@ -237,40 +237,40 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 
 						// Mirror the chat spawn (process.ts) EXACTLY so the naming turn spends
 						// the same provider the chat would. Over SSH that means probing whether
-						// the remote actually has maestro-p on its PATH: without this, the
+						// the remote actually has openwizardai-p on its PATH: without this, the
 						// unconfigured-SSH default and the TUI->API backstop resolve blind, so
 						// the naming spawn could drive the remote TUI while the chat correctly
 						// fell back to API (or vice-versa) - the token-source mismatch we must
 						// never produce. Local (non-SSH) spawns skip the probe entirely.
-						let sshMaestroPAvailable: boolean | undefined;
+						let sshOpenWizardAIPAvailable: boolean | undefined;
 						if (sshEnabled && sshRemoteId) {
 							const sshRemote = getSshRemoteConfig(createSshRemoteStoreAdapter(settingsStore), {
 								sessionSshConfig: config.sessionSshRemoteConfig,
 							}).config;
 							if (sshRemote) {
-								sshMaestroPAvailable = await ensureRemoteMaestroPProbed(sshRemote);
+								sshOpenWizardAIPAvailable = await ensureRemoteOpenWizardAIPProbed(sshRemote);
 							}
 						}
 
 						const tokenMode = getClaudeTokenMode(
 							{
-								enableMaestroP: config.enableMaestroP,
-								maestroPMode: config.maestroPMode,
+								enableOpenWizardAIP: config.enableOpenWizardAIP,
+								openwizardaiPMode: config.openwizardaiPMode,
 							},
 							// Match the agent's own spawn: an unconfigured SSH agent defaults to
 							// the remote TUI, unless the probe shows the remote can't run it.
-							{ sshEnabled, sshMaestroPAvailable }
+							{ sshEnabled, sshOpenWizardAIPAvailable }
 						);
 						claudeSpawnDecision = resolveClaudeSpawnMode({
 							agent,
 							tokenMode,
 							sshEnabled,
 							// Lets the resolver fall a remote TUI spawn back to API when the
-							// remote has no maestro-p on its PATH (avoids exit 127) - same as chat.
+							// remote has no openwizardai-p on its PATH (avoids exit 127) - same as chat.
 							sshRemoteId,
 							command,
 							sessionCustomEnvVars: customEnvVars,
-							maestroPPath: config.maestroPPath,
+							openwizardaiPPath: config.openwizardaiPPath,
 							now: new Date(),
 						});
 					}
@@ -335,15 +335,15 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 								});
 							}
 
-							// Claude TUI/dynamic over SSH runs maestro-p on the REMOTE host
+							// Claude TUI/dynamic over SSH runs openwizardai-p on the REMOTE host
 							// (must be on its PATH) to drive the remote claude TUI on the Max
 							// subscription. Returns null for the API path and non-claude
 							// agents, leaving the spawn on the plain claude binary. The
 							// interactive flags are prepended ahead of the existing arg list
-							// (incl. `--input-format stream-json`): maestro-p strips the
+							// (incl. `--input-format stream-json`): openwizardai-p strips the
 							// headless-only flags, parses the stream-json prompt from stdin,
 							// and drives the TUI. We do NOT pre-probe the remote FS for
-							// maestro-p; if it's absent this throwaway naming turn just fails
+							// openwizardai-p; if it's absent this throwaway naming turn just fails
 							// and the tab keeps its default name.
 							const remoteInteractive = claudeSpawnDecision
 								? buildRemoteInteractiveSpawn({
@@ -356,9 +356,13 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 								remoteCommand = remoteInteractive.command;
 								finalArgs = [...remoteInteractive.prependArgs, ...finalArgs];
 								customEnvVars = { ...(customEnvVars ?? {}), ...remoteInteractive.env };
-								logger.debug('Tab naming resolved to remote maestro-p TUI over SSH', LOG_CONTEXT, {
-									sessionId,
-								});
+								logger.debug(
+									'Tab naming resolved to remote openwizardai-p TUI over SSH',
+									LOG_CONTEXT,
+									{
+										sessionId,
+									}
+								);
 							}
 
 							const sshCommand = await buildSshCommand(sshResult.config, {
@@ -375,12 +379,15 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 						}
 					}
 
-					// Realize a LOCAL interactive (maestro-p) decision by wrapping the
-					// spawn with maestro-p via `process.execPath`. The SSH-remote case was
-					// already handled above (remote maestro-p), and its decision carries a
-					// null `maestroPBinPath`, so this guard naturally skips it. API and
+					// Realize a LOCAL interactive (openwizardai-p) decision by wrapping the
+					// spawn with openwizardai-p via `process.execPath`. The SSH-remote case was
+					// already handled above (remote openwizardai-p), and its decision carries a
+					// null `openwizardaiPBinPath`, so this guard naturally skips it. API and
 					// non-claude spawns pass through unchanged on `claude --print`.
-					if (claudeSpawnDecision?.mode === 'interactive' && claudeSpawnDecision.maestroPBinPath) {
+					if (
+						claudeSpawnDecision?.mode === 'interactive' &&
+						claudeSpawnDecision.openwizardaiPBinPath
+					) {
 						const applied = applyClaudeSpawnDecision({
 							decision: claudeSpawnDecision,
 							interactiveModeArgs: agent.interactiveModeArgs,
@@ -391,9 +398,9 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
 						command = applied.command;
 						finalArgs = applied.args;
 						customEnvVars = applied.customEnvVars;
-						logger.debug('Tab naming resolved to interactive maestro-p TUI', LOG_CONTEXT, {
+						logger.debug('Tab naming resolved to interactive openwizardai-p TUI', LOG_CONTEXT, {
 							sessionId,
-							maestroPBin: claudeSpawnDecision.maestroPBinPath,
+							openwizardaiPBin: claudeSpawnDecision.openwizardaiPBinPath,
 						});
 					}
 
@@ -550,7 +557,7 @@ export function registerTabNamingHandlers(deps: TabNamingHandlerDependencies): v
  * Structural noise that must never survive into a tab name.
  *
  * Two real-world leaks this guards against:
- *   1. Tool-call scaffolding. When the naming spawn drives the maestro-p TUI
+ *   1. Tool-call scaffolding. When the naming spawn drives the openwizardai-p TUI
  *      (Claude token mode = TUI/dynamic), the `--tools ""` guard is stripped
  *      along with the other headless-only flags, so the model runs a real
  *      agentic turn and its raw terminal transcript leaks function-call markup
@@ -593,7 +600,7 @@ interface TabNameExtractionResult {
  * the accumulated assistant text) before the plain-text cleanup runs.
  *
  * Returns null when the output isn't structured JSON at all (e.g. the
- * maestro-p TUI emits plain terminal text), so the caller falls back to
+ * openwizardai-p TUI emits plain terminal text), so the caller falls back to
  * running extractTabName over the raw output exactly as before.
  */
 function extractAgentResponseText(agentType: string, output: string): string | null {
@@ -610,7 +617,7 @@ function extractAgentResponseText(agentType: string, output: string): string | n
 		try {
 			parsed = JSON.parse(trimmed);
 		} catch {
-			// Non-JSON line (e.g. maestro-p TUI text) - not stream-json output.
+			// Non-JSON line (e.g. openwizardai-p TUI text) - not stream-json output.
 			continue;
 		}
 		if (!parsed || typeof parsed !== 'object') continue;

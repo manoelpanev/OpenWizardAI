@@ -12,7 +12,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	// Default: stat succeeds, i.e. the file still exists at its cached path.
 	mockStat.mockResolvedValue({ modifiedAt: new Date().toISOString() });
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		fs: { writeFile: mockWriteFile, stat: mockStat },
 		dialog: { saveFile: mockSaveFile },
 	};

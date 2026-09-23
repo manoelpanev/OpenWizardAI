@@ -257,7 +257,7 @@ describe('gitUtils', () => {
 			expect(remoteUrlToBrowserUrl('just-a-string')).toBeNull();
 		});
 
-		it('handles malformed HTTPS+SSH hybrid URLs (MAESTRO-43)', () => {
+		it('handles malformed HTTPS+SSH hybrid URLs (OPENWIZARDAI-43)', () => {
 			// Some git clients may produce malformed URLs that mix HTTPS and SSH formats
 			expect(remoteUrlToBrowserUrl('https://git@github.com:chancegraff/project-aig')).toBe(
 				'https://github.com/chancegraff/project-aig'

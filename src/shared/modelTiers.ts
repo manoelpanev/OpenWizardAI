@@ -1,7 +1,7 @@
 /**
  * Provider-normalized model tiers and effort levels.
  *
- * Maestro speaks one vocabulary for "how much horsepower does this turn need":
+ * OpenWizardAI speaks one vocabulary for "how much horsepower does this turn need":
  * `low | medium | high`, for both the model TIER and the EFFORT level. Every
  * provider spells those differently (or not at all), so this module is the one
  * place that translates. An Auto Run document says `tier="high"`; what actually
@@ -17,8 +17,8 @@
  * The ladder rule for effort: `low` is the FLOOR of the provider's ladder,
  * `high` is the CEILING, `medium` is the middle rung. That is why the mapping
  * is not the identity even where the provider happens to use the same three
- * words. Claude's ladder runs `low, medium, high, xhigh, max`, so Maestro's
- * `high` means `max` (the actual ceiling) and Maestro's `medium` means `high`
+ * words. Claude's ladder runs `low, medium, high, xhigh, max`, so OpenWizardAI's
+ * `high` means `max` (the actual ceiling) and OpenWizardAI's `medium` means `high`
  * (the actual middle). Codex's floor is `minimal`, not `low`. The tables below
  * are written out per provider rather than computed from an index so the
  * resolution is auditable by reading it - a surprising row should be obvious
@@ -102,7 +102,7 @@ const TIER_MODELS: Partial<Record<ToolType, Record<ModelTier, string>>> = {
 };
 
 /**
- * The model for a tier on this provider, or `undefined` when Maestro has no
+ * The model for a tier on this provider, or `undefined` when OpenWizardAI has no
  * opinion. `undefined` means "fall back to the agent's configured model" - the
  * caller is expected to report that it did, so the author learns their hint had
  * no effect rather than silently getting the wrong model.

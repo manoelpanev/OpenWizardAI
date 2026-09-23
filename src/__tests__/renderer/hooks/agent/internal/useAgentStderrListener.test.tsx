@@ -28,7 +28,7 @@ function makeBatched(): BatchedUpdater {
 beforeEach(() => {
 	vi.clearAllMocks();
 	onStderrHandler = undefined;
-	(window as any).maestro = { ...((window as any).maestro || {}), process: mockProcess };
+	(window as any).openwizardai = { ...((window as any).openwizardai || {}), process: mockProcess };
 });
 
 describe('useAgentStderrListener', () => {

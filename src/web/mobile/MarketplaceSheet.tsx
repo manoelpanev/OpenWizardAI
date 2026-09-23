@@ -1,5 +1,5 @@
 /**
- * MarketplaceSheet component for Maestro mobile web interface
+ * MarketplaceSheet component for OpenWizardAI mobile web interface
  *
  * Bottom sheet for browsing and importing Playbook Exchange playbooks.
  * Mirrors the desktop MarketplaceModal flow (list → detail → import) but

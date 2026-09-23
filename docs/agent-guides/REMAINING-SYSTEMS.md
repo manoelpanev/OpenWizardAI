@@ -70,7 +70,7 @@ enabled).
 
 ### InlineWizardContext.tsx (177 lines)
 
-Wraps `useInlineWizard` hook to make `/wizard` slash command state available globally. The inline wizard creates or iterates on Auto Run documents within an existing session conversation, unlike the full-screen onboarding wizard (`MaestroWizard.tsx`).
+Wraps `useInlineWizard` hook to make `/wizard` slash command state available globally. The inline wizard creates or iterates on Auto Run documents within an existing session conversation, unlike the full-screen onboarding wizard (`OpenWizardAIWizard.tsx`).
 
 **Hook:** `useInlineWizardContext()` returns `UseInlineWizardReturn`
 
@@ -142,7 +142,7 @@ The central type file. Contains the `Session` interface (the largest type at ~20
 - `AgentConfig` - Agent configuration (binary path, args, config options).
 - `ProcessConfig` - Process spawning configuration.
 - `BatchRunConfig` / `BatchRunState` - Batch processing configuration and state.
-- `AutoRunStats`, `MaestroUsageStats`, `OnboardingStats` - Achievement/analytics types.
+- `AutoRunStats`, `OpenWizardAIUsageStats`, `OnboardingStats` - Achievement/analytics types.
 - `KeyboardMasteryStats`, `LeaderboardRegistration` - Gamification types.
 - `EncoreFeatureFlags`, `DirectorNotesSettings`, `ContextManagementSettings` - Feature settings.
 - `SessionWizardState`, `WizardMessage`, `WizardGeneratedDocument` - Inline wizard state.
@@ -196,11 +196,11 @@ Utilities for the web/mobile interface (PWA). These serve the `src/web/` subsyst
 
 ### config.ts (152 lines)
 
-Configuration management for the web interface. Reads server-injected `window.__MAESTRO_CONFIG__` containing security token, session ID, and API base paths.
+Configuration management for the web interface. Reads server-injected `window.__OPENWIZARDAI_CONFIG__` containing security token, session ID, and API base paths.
 
 **Key exports:**
 
-- `getMaestroConfig()` - Returns `MaestroConfig` (security token, session/tab IDs, API/WS base paths). Falls back to URL extraction in dev mode.
+- `getOpenWizardAIConfig()` - Returns `OpenWizardAIConfig` (security token, session/tab IDs, API/WS base paths). Falls back to URL extraction in dev mode.
 - `isDashboardMode()` / `isSessionMode()` - View mode checks
 - `getCurrentSessionId()` / `getCurrentTabId()` - Current navigation state
 - `buildApiUrl(endpoint)` - Constructs full API URLs with token prefix
@@ -210,7 +210,7 @@ Configuration management for the web interface. Reads server-injected `window.__
 
 ### cssCustomProperties.ts (275 lines)
 
-Converts Maestro theme colors to CSS custom properties for dynamic theming in the web interface. Maps camelCase color keys to `--maestro-*` CSS variables.
+Converts OpenWizardAI theme colors to CSS custom properties for dynamic theming in the web interface. Maps camelCase color keys to `--openwizardai-*` CSS variables.
 
 **Key exports:**
 
@@ -221,7 +221,7 @@ Converts Maestro theme colors to CSS custom properties for dynamic theming in th
 - `setElementCSSProperties(element, theme)` - Applies to specific DOM element (scoped theming)
 - `removeElementCSSProperties(element)` - Cleans up element styles
 - `getCSSProperty(property, element?)` - Reads computed value
-- `cssVar(property, fallback?)` - Returns `var(--maestro-*, fallback)` string for inline styles
+- `cssVar(property, fallback?)` - Returns `var(--openwizardai-*, fallback)` string for inline styles
 - `THEME_CSS_PROPERTIES` - Array of all 13 CSS variable names
 
 ### logger.ts (170 lines)
@@ -247,7 +247,7 @@ Service worker lifecycle management for offline PWA capability.
 
 ### viewState.ts (198 lines)
 
-Persists web UI state to `localStorage` across page refreshes. Two storage keys: `maestro-web-view-state` (view state) and `maestro-web-scroll-state` (scroll positions).
+Persists web UI state to `localStorage` across page refreshes. Two storage keys: `openwizardai-web-view-state` (view state) and `openwizardai-web-scroll-state` (scroll positions).
 
 **State persisted:** `ViewState` includes active overlays, session/tab selection, input mode, history panel filter/search, plus `savedAt` timestamp. State older than 5 minutes is considered stale and discarded.
 
@@ -266,7 +266,7 @@ Barrel file re-exporting from `cssCustomProperties` and `serviceWorker`. Does NO
 
 ## 4. Symphony Runner (`src/main/services/symphony-runner.ts`, 443 lines)
 
-Orchestrates open-source contributions via Maestro Symphony. This is a main-process service that handles the git/GitHub workflow for contributing to repositories.
+Orchestrates open-source contributions via OpenWizardAI Symphony. This is a main-process service that handles the git/GitHub workflow for contributing to repositories.
 
 ### Contribution Flow
 
@@ -275,7 +275,7 @@ Orchestrates open-source contributions via Maestro Symphony. This is a main-proc
 1. **Clone** - Shallow clone (`--depth=1`) of the target repository
 2. **Branch** - Create and checkout a feature branch
 3. **Fork setup** - Uses `ensureForkSetup()` from `symphony-fork` utils to detect if user needs a fork (no push access to upstream). Configures git remotes accordingly.
-4. **Git config** - Sets `user.name` = "Maestro Symphony", `user.email` = "symphony@runmaestro.ai"
+4. **Git config** - Sets `user.name` = "OpenWizardAI Symphony", `user.email` = "github.com/manoelpanev/OpenWizardAI/issues"
 5. **Empty commit + Push** - Creates placeholder commit `[Symphony] Start contribution for #N` and pushes branch
 6. **Draft PR** - Creates a draft PR via `gh pr create --draft` with "Closes #N" body. Handles cross-fork PRs with `--repo` and `--head` flags.
 7. **Setup Auto Run docs** - Copies or downloads documents to `Auto Run Docs/` folder in the cloned repo. Handles both repo-relative paths and external URLs (GitHub attachments).

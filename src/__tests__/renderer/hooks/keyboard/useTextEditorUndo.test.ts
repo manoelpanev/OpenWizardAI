@@ -1,6 +1,6 @@
 /**
  * Tests for useTextEditorUndo - the window-level Cmd/Ctrl+Z fallback that
- * routes undo/redo to focused text inputs after Maestro's Edit menu
+ * routes undo/redo to focused text inputs after OpenWizardAI's Edit menu
  * intentionally omits the undo/redo roles (image annotator owns Cmd+Z).
  */
 

@@ -41,7 +41,7 @@ import type { Session, AITab } from '../../../renderer/types';
 // Window mock
 // ============================================================================
 
-const mockMaestro = {
+const mockOpenWizardAI = {
 	process: {
 		interrupt: vi.fn().mockResolvedValue(undefined),
 		kill: vi.fn().mockResolvedValue(undefined),
@@ -49,7 +49,7 @@ const mockMaestro = {
 	},
 };
 
-(window as any).maestro = mockMaestro;
+(window as any).openwizardai = mockOpenWizardAI;
 
 // Mock confirm for force-kill dialog
 const originalConfirm = window.confirm;
@@ -112,7 +112,7 @@ function createSession(overrides: Partial<Session> = {}): Session {
 		activeFileTabId: null,
 		unifiedTabOrder: [{ type: 'ai' as const, id: tab.id }],
 		unifiedClosedTabHistory: [],
-		autoRunFolderPath: '/test/project/.maestro/playbooks',
+		autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		terminalTabs: [],
 		activeTerminalTabId: null,
 		...overrides,
@@ -168,7 +168,7 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.interrupt).not.toHaveBeenCalled();
 			expect(deps.cancelPendingSynopsis).not.toHaveBeenCalled();
 		});
 	});
@@ -198,7 +198,7 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).toHaveBeenCalledWith('sess-ai-ai-tab-ai-1');
+			expect(mockOpenWizardAI.process.interrupt).toHaveBeenCalledWith('sess-ai-ai-tab-ai-1');
 		});
 
 		it('cancels pending synopsis before interrupting', async () => {
@@ -223,7 +223,7 @@ describe('useInterruptHandler', () => {
 			expect(deps.cancelPendingSynopsis).toHaveBeenCalledWith('sess-syn');
 			// cancelPendingSynopsis should be called before interrupt
 			const synopsisCallOrder = (deps.cancelPendingSynopsis as any).mock.invocationCallOrder[0];
-			const interruptCallOrder = mockMaestro.process.interrupt.mock.invocationCallOrder[0];
+			const interruptCallOrder = mockOpenWizardAI.process.interrupt.mock.invocationCallOrder[0];
 			expect(synopsisCallOrder).toBeLessThan(interruptCallOrder);
 		});
 
@@ -391,8 +391,8 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).toHaveBeenCalledWith('sess-multi-ai-tab-b');
-			expect(mockMaestro.process.interrupt).toHaveBeenCalledWith('sess-multi-ai-tab-a');
+			expect(mockOpenWizardAI.process.interrupt).toHaveBeenCalledWith('sess-multi-ai-tab-b');
+			expect(mockOpenWizardAI.process.interrupt).toHaveBeenCalledWith('sess-multi-ai-tab-a');
 		});
 
 		it('interrupts a busy orphaned tab (closed while its turn was running)', async () => {
@@ -415,7 +415,7 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).toHaveBeenCalledWith('sess-orphan-ai-tab-orphan');
+			expect(mockOpenWizardAI.process.interrupt).toHaveBeenCalledWith('sess-orphan-ai-tab-orphan');
 		});
 
 		it('signals the active tab exactly once when it is also busy', async () => {
@@ -436,7 +436,7 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			const calls = mockMaestro.process.interrupt.mock.calls.filter(
+			const calls = mockOpenWizardAI.process.interrupt.mock.calls.filter(
 				([id]) => id === 'sess-dedupe-ai-tab-solo'
 			);
 			expect(calls).toHaveLength(1);
@@ -461,11 +461,13 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).not.toHaveBeenCalledWith('sess-idle-bg-ai-tab-idle');
+			expect(mockOpenWizardAI.process.interrupt).not.toHaveBeenCalledWith(
+				'sess-idle-bg-ai-tab-idle'
+			);
 		});
 
 		it('interrupts forced-parallel processes of a busy background tab', async () => {
-			mockMaestro.process.getActiveProcesses.mockResolvedValueOnce([
+			mockOpenWizardAI.process.getActiveProcesses.mockResolvedValueOnce([
 				{ sessionId: 'sess-fp-ai-tab-a-fp-1700000000' },
 				{ sessionId: 'sess-fp-ai-tab-unrelated' },
 			]);
@@ -488,12 +490,16 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).toHaveBeenCalledWith('sess-fp-ai-tab-a-fp-1700000000');
-			expect(mockMaestro.process.interrupt).not.toHaveBeenCalledWith('sess-fp-ai-tab-unrelated');
+			expect(mockOpenWizardAI.process.interrupt).toHaveBeenCalledWith(
+				'sess-fp-ai-tab-a-fp-1700000000'
+			);
+			expect(mockOpenWizardAI.process.interrupt).not.toHaveBeenCalledWith(
+				'sess-fp-ai-tab-unrelated'
+			);
 		});
 
 		it('force-kills every target when the primary interrupt fails', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('interrupt failed'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('interrupt failed'));
 			window.confirm = vi.fn(() => true);
 
 			const backgroundTab = createTab({ id: 'tab-a', state: 'busy' });
@@ -514,8 +520,8 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('sess-kill-all-ai-tab-b');
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('sess-kill-all-ai-tab-a');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('sess-kill-all-ai-tab-b');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('sess-kill-all-ai-tab-a');
 		});
 	});
 
@@ -541,7 +547,7 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.interrupt).toHaveBeenCalledWith('sess-term-terminal');
+			expect(mockOpenWizardAI.process.interrupt).toHaveBeenCalledWith('sess-term-terminal');
 		});
 
 		it('does not add "Canceled by user" log for terminal mode', async () => {
@@ -731,7 +737,7 @@ describe('useInterruptHandler', () => {
 	// ========================================================================
 	describe('force kill fallback', () => {
 		it('offers force kill when interrupt fails and user confirms', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
 			window.confirm = vi.fn().mockReturnValue(true);
 
 			const tab = createTab({ id: 'tab-kill', state: 'busy' });
@@ -756,12 +762,12 @@ describe('useInterruptHandler', () => {
 			});
 
 			expect(window.confirm).toHaveBeenCalled();
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('sess-kill-ai-tab-kill');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('sess-kill-ai-tab-kill');
 			consoleError.mockRestore();
 		});
 
 		it('does not kill when user declines force kill', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
 			window.confirm = vi.fn().mockReturnValue(false);
 
 			const tab = createTab({ id: 'tab-no-kill', state: 'busy' });
@@ -785,12 +791,12 @@ describe('useInterruptHandler', () => {
 				await result.current.handleInterrupt();
 			});
 
-			expect(mockMaestro.process.kill).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.process.kill).not.toHaveBeenCalled();
 			consoleError.mockRestore();
 		});
 
 		it('adds "Process forcefully terminated" log after force kill', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
 			window.confirm = vi.fn().mockReturnValue(true);
 
 			const tab = createTab({ id: 'tab-fk', state: 'busy' });
@@ -823,7 +829,7 @@ describe('useInterruptHandler', () => {
 		});
 
 		it('adds kill log to shell logs in terminal mode', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
 			window.confirm = vi.fn().mockReturnValue(true);
 
 			const session = createSession({
@@ -859,8 +865,8 @@ describe('useInterruptHandler', () => {
 	// ========================================================================
 	describe('kill error handling', () => {
 		it('adds error log when kill also fails in AI mode', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
-			mockMaestro.process.kill.mockRejectedValueOnce(new Error('Kill also failed'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
+			mockOpenWizardAI.process.kill.mockRejectedValueOnce(new Error('Kill also failed'));
 			window.confirm = vi.fn().mockReturnValue(true);
 
 			const tab = createTab({ id: 'tab-err', state: 'busy' });
@@ -897,8 +903,8 @@ describe('useInterruptHandler', () => {
 		});
 
 		it('adds error log to shell logs when kill fails in terminal mode', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
-			mockMaestro.process.kill.mockRejectedValueOnce(new Error('Kill failed too'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('SIGINT failed'));
+			mockOpenWizardAI.process.kill.mockRejectedValueOnce(new Error('Kill failed too'));
 			window.confirm = vi.fn().mockReturnValue(true);
 
 			const session = createSession({
@@ -930,8 +936,8 @@ describe('useInterruptHandler', () => {
 		});
 
 		it('clears thinking/tool logs even when kill fails', async () => {
-			mockMaestro.process.interrupt.mockRejectedValueOnce(new Error('fail'));
-			mockMaestro.process.kill.mockRejectedValueOnce(new Error('fail'));
+			mockOpenWizardAI.process.interrupt.mockRejectedValueOnce(new Error('fail'));
+			mockOpenWizardAI.process.kill.mockRejectedValueOnce(new Error('fail'));
 			window.confirm = vi.fn().mockReturnValue(true);
 
 			const tab = createTab({

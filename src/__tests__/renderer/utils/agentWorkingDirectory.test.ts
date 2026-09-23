@@ -19,7 +19,7 @@ describe('withWorkingDirectory', () => {
 			fullPath: '/projects/old',
 			shellCwd: '/projects/old',
 			projectRoot: '/projects/old',
-			autoRunFolderPath: '/projects/old/.maestro/playbooks',
+			autoRunFolderPath: '/projects/old/.openwizardai/playbooks',
 		});
 
 	it('moves every path field to the new directory', () => {
@@ -29,7 +29,7 @@ describe('withWorkingDirectory', () => {
 		expect(moved.fullPath).toBe('/projects/new');
 		expect(moved.shellCwd).toBe('/projects/new');
 		expect(moved.projectRoot).toBe('/projects/new');
-		expect(moved.autoRunFolderPath).toBe('/projects/new/.maestro/playbooks');
+		expect(moved.autoRunFolderPath).toBe('/projects/new/.openwizardai/playbooks');
 	});
 
 	it('leaves an Auto Run folder that lives outside the project where the user put it', () => {
@@ -147,14 +147,22 @@ describe('withWorkingDirectory', () => {
 describe('rebasePathOntoRoot', () => {
 	it('keeps Windows separators', () => {
 		expect(
-			rebasePathOntoRoot('C:\\work\\old\\.maestro\\playbooks', 'C:\\work\\old', 'C:\\work\\new')
-		).toBe('C:\\work\\new\\.maestro\\playbooks');
+			rebasePathOntoRoot(
+				'C:\\work\\old\\.openwizardai\\playbooks',
+				'C:\\work\\old',
+				'C:\\work\\new'
+			)
+		).toBe('C:\\work\\new\\.openwizardai\\playbooks');
 	});
 
 	it('matches a Windows root regardless of case', () => {
 		expect(
-			rebasePathOntoRoot('c:\\Work\\Old\\.maestro\\playbooks', 'C:\\work\\old', 'C:\\work\\new')
-		).toBe('C:\\work\\new\\.maestro\\playbooks');
+			rebasePathOntoRoot(
+				'c:\\Work\\Old\\.openwizardai\\playbooks',
+				'C:\\work\\old',
+				'C:\\work\\new'
+			)
+		).toBe('C:\\work\\new\\.openwizardai\\playbooks');
 	});
 
 	it('keeps POSIX paths case-sensitive', () => {
@@ -176,11 +184,11 @@ describe('rebasePathOntoRoot', () => {
 	});
 
 	it('moves a folder out from under a bare root', () => {
-		expect(rebasePathOntoRoot('/.maestro/playbooks', '/', '/projects/new')).toBe(
-			'/projects/new/.maestro/playbooks'
+		expect(rebasePathOntoRoot('/.openwizardai/playbooks', '/', '/projects/new')).toBe(
+			'/projects/new/.openwizardai/playbooks'
 		);
-		expect(rebasePathOntoRoot('C:\\.maestro\\playbooks', 'C:\\', 'D:\\work')).toBe(
-			'D:\\work\\.maestro\\playbooks'
+		expect(rebasePathOntoRoot('C:\\.openwizardai\\playbooks', 'C:\\', 'D:\\work')).toBe(
+			'D:\\work\\.openwizardai\\playbooks'
 		);
 	});
 });

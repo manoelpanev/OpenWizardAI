@@ -2,7 +2,7 @@
  * Integration tests for UsageDashboardModal - Phase 04 Cue tab gating.
  *
  * Verifies:
- * - The "Cue" tab is visible when both encoreFeatures.maestroCue and
+ * - The "Cue" tab is visible when both encoreFeatures.openwizardaiCue and
  *   encoreFeatures.usageStats are true.
  * - The "Cue" tab is hidden when EITHER Encore flag is off (matches the IPC
  *   handler's gating; otherwise the user lands on a generic error/retry note
@@ -160,13 +160,19 @@ const mockAgents = {
 	refreshCodexUsageSnapshots: vi.fn(),
 };
 
-function setEncoreFlags({ maestroCue, usageStats }: { maestroCue: boolean; usageStats: boolean }) {
+function setEncoreFlags({
+	openwizardaiCue,
+	usageStats,
+}: {
+	openwizardaiCue: boolean;
+	usageStats: boolean;
+}) {
 	useSettingsStore.setState({
 		encoreFeatures: {
 			directorNotes: false,
 			usageStats,
 			symphony: false,
-			maestroCue,
+			openwizardaiCue,
 		},
 	});
 }
@@ -215,7 +221,7 @@ beforeEach(() => {
 	mockAgents.refreshClaudeUsageSnapshots.mockResolvedValue({ refreshed: 1 });
 	mockAgents.refreshCodexUsageSnapshots.mockResolvedValue({ refreshed: 1 });
 	mockCueStats.getAggregation.mockResolvedValue(null);
-	(window as unknown as { maestro: Record<string, unknown> }).maestro = {
+	(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai = {
 		stats: mockStats,
 		cueStats: mockCueStats,
 		dialog: mockDialog,
@@ -237,8 +243,8 @@ afterEach(() => {
 });
 
 describe('UsageDashboardModal - Cue tab gating', () => {
-	it('shows the "Cue" tab when both maestroCue and usageStats are enabled', async () => {
-		setEncoreFlags({ maestroCue: true, usageStats: true });
+	it('shows the "Cue" tab when both openwizardaiCue and usageStats are enabled', async () => {
+		setEncoreFlags({ openwizardaiCue: true, usageStats: true });
 
 		render(<UsageDashboardModal isOpen={true} onClose={() => {}} theme={mockTheme} />);
 
@@ -250,9 +256,9 @@ describe('UsageDashboardModal - Cue tab gating', () => {
 	});
 
 	it.each([
-		['maestroCue is disabled', { maestroCue: false, usageStats: true }],
-		['usageStats is disabled', { maestroCue: true, usageStats: false }],
-		['both flags are disabled', { maestroCue: false, usageStats: false }],
+		['openwizardaiCue is disabled', { openwizardaiCue: false, usageStats: true }],
+		['usageStats is disabled', { openwizardaiCue: true, usageStats: false }],
+		['both flags are disabled', { openwizardaiCue: false, usageStats: false }],
 	])('hides the "Cue" tab when %s (rest of dashboard still renders)', async (_label, flags) => {
 		setEncoreFlags(flags);
 
@@ -274,7 +280,7 @@ describe('UsageDashboardModal - Cue tab gating', () => {
 	});
 
 	it('renders <CueStats> when the Cue tab is selected', async () => {
-		setEncoreFlags({ maestroCue: true, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: true, usageStats: true });
 
 		render(
 			<UsageDashboardModal
@@ -308,7 +314,7 @@ describe('UsageDashboardModal - Cue tab gating', () => {
 
 describe('UsageDashboardModal - tab ordering', () => {
 	it('places the Cue tab immediately after Auto Run, before Shortcuts', async () => {
-		setEncoreFlags({ maestroCue: true, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: true, usageStats: true });
 
 		render(<UsageDashboardModal isOpen={true} onClose={() => {}} theme={mockTheme} />);
 
@@ -329,7 +335,7 @@ describe('UsageDashboardModal - tab ordering', () => {
 
 describe('UsageDashboardModal - remembers last-selected tab', () => {
 	it('reopens on the previously selected tab (within the same session)', async () => {
-		setEncoreFlags({ maestroCue: true, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: true, usageStats: true });
 
 		const { unmount } = render(
 			<UsageDashboardModal isOpen={true} onClose={() => {}} theme={mockTheme} />
@@ -363,7 +369,7 @@ describe('UsageDashboardModal - remembers last-selected tab', () => {
 
 describe('UsageDashboardModal - provider quota tabs', () => {
 	it('shows Anthropic Usage and OpenAI Usage only when useful provider snapshots exist', async () => {
-		setEncoreFlags({ maestroCue: true, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: true, usageStats: true });
 		seedAnthropicUsageSnapshots();
 		seedCodexUsageSnapshots();
 
@@ -395,7 +401,7 @@ describe('UsageDashboardModal - provider quota tabs', () => {
 	});
 
 	it('samples both providers on open when no cached snapshot exists, then surfaces the tabs', async () => {
-		setEncoreFlags({ maestroCue: false, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: false, usageStats: true });
 		// Stores start empty (beforeEach reset + getters resolve {}). Sampling is
 		// the only way a first snapshot can appear, so opening the dashboard must
 		// trigger it. Wire each sampler to populate its mirror getter on call.
@@ -440,7 +446,7 @@ describe('UsageDashboardModal - provider quota tabs', () => {
 	});
 
 	it('hides provider quota tabs when usageStats is disabled even if snapshots exist', async () => {
-		setEncoreFlags({ maestroCue: false, usageStats: false });
+		setEncoreFlags({ openwizardaiCue: false, usageStats: false });
 		seedAnthropicUsageSnapshots();
 		seedCodexUsageSnapshots();
 
@@ -455,7 +461,7 @@ describe('UsageDashboardModal - provider quota tabs', () => {
 	});
 
 	it('hides provider quota tabs when snapshots contain no useful quota details', async () => {
-		setEncoreFlags({ maestroCue: false, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: false, usageStats: true });
 		useClaudeUsageStore.setState({
 			loaded: true,
 			refreshing: false,
@@ -494,7 +500,7 @@ describe('UsageDashboardModal - provider quota tabs', () => {
 	});
 
 	it('bypasses the AI-query empty state because provider quota snapshots do not come from stats.db', async () => {
-		setEncoreFlags({ maestroCue: false, usageStats: true });
+		setEncoreFlags({ openwizardaiCue: false, usageStats: true });
 		seedCodexUsageSnapshots();
 		mockStats.getAggregation.mockResolvedValueOnce(emptyAggregation);
 

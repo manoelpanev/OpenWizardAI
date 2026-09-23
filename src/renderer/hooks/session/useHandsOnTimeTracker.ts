@@ -7,7 +7,7 @@ const TICK_INTERVAL_MS = 1000; // Update every second
 const PERSIST_INTERVAL_MS = 30000; // Persist to settings every 30 seconds
 
 /**
- * Hook to track global user hands-on time in Maestro.
+ * Hook to track global user hands-on time in OpenWizardAI.
  *
  * Time is tracked when the user is "active" - meaning they've interacted
  * with the app (keyboard, mouse, wheel, touch) within the last 5 minutes.
@@ -16,7 +16,7 @@ const PERSIST_INTERVAL_MS = 30000; // Persist to settings every 30 seconds
  * visibility change/app quit, ensuring no time is lost.
  *
  * This is a global tracker - it doesn't care which session is active,
- * just that the user is actively using Maestro.
+ * just that the user is actively using OpenWizardAI.
  */
 export function useHandsOnTimeTracker(addTotalActiveTimeMs: (delta: number) => void): void {
 	const lastActivityRef = useRef<number>(Date.now());

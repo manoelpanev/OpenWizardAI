@@ -36,7 +36,7 @@ import {
 import { useSettings } from '../../../hooks';
 import { captureException } from '../../../utils/sentry';
 import type { Theme, ShellInfo } from '../../../types';
-import type { MaestroCliStatus } from '../../../../shared/maestro-cli';
+import type { OpenWizardAICliStatus } from '../../../../shared/openwizardai-cli';
 import {
 	formatMetaKey,
 	formatMetaKeyName,
@@ -64,7 +64,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 		// Conductor Profile
 		conductorProfile,
 		setConductorProfile,
-		// Global show-Maestro hotkey
+		// Global show-OpenWizardAI hotkey
 		globalShowHotkey,
 		setGlobalShowHotkey,
 		// Shell settings
@@ -160,11 +160,15 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 	const [syncMigrating, setSyncMigrating] = useState(false);
 	const [syncError, setSyncError] = useState<string | null>(null);
 	const [syncMigratedCount, setSyncMigratedCount] = useState<number | null>(null);
-	const [maestroCliStatus, setMaestroCliStatus] = useState<MaestroCliStatus | null>(null);
-	const [maestroCliStatusError, setMaestroCliStatusError] = useState<string | null>(null);
-	const [maestroCliChecking, setMaestroCliChecking] = useState(false);
-	const [maestroCliInstalling, setMaestroCliInstalling] = useState(false);
-	const [maestroCliInstallMessage, setMaestroCliInstallMessage] = useState<string | null>(null);
+	const [openwizardaiCliStatus, setOpenWizardAICliStatus] = useState<OpenWizardAICliStatus | null>(
+		null
+	);
+	const [openwizardaiCliStatusError, setOpenWizardAICliStatusError] = useState<string | null>(null);
+	const [openwizardaiCliChecking, setOpenWizardAICliChecking] = useState(false);
+	const [openwizardaiCliInstalling, setOpenWizardAICliInstalling] = useState(false);
+	const [openwizardaiCliInstallMessage, setOpenWizardAICliInstallMessage] = useState<string | null>(
+		null
+	);
 
 	// Forced Parallel Execution modal state
 	const [showForcedParallelWarning, setShowForcedParallelWarning] = useState(false);
@@ -189,64 +193,64 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 		setShowForcedParallelWarning(false);
 	}, []);
 
-	const checkMaestroCliStatus = useCallback(async () => {
-		setMaestroCliChecking(true);
-		setMaestroCliStatusError(null);
+	const checkOpenWizardAICliStatus = useCallback(async () => {
+		setOpenWizardAICliChecking(true);
+		setOpenWizardAICliStatusError(null);
 		try {
-			const status = await window.maestro.maestroCli.checkStatus();
-			setMaestroCliStatus(status);
+			const status = await window.openwizardai.openwizardaiCli.checkStatus();
+			setOpenWizardAICliStatus(status);
 		} catch (err) {
-			setMaestroCliStatusError('Failed to check OpenWizzard CLI status');
+			setOpenWizardAICliStatusError('Failed to check OpenWizardAI CLI status');
 			captureException(err instanceof Error ? err : new Error(String(err)), {
-				extra: { context: 'GeneralTab: OpenWizzard CLI status check' },
+				extra: { context: 'GeneralTab: OpenWizardAI CLI status check' },
 			});
 		} finally {
-			setMaestroCliChecking(false);
+			setOpenWizardAICliChecking(false);
 		}
 	}, []);
 
-	const installOrUpdateMaestroCli = useCallback(async () => {
-		setMaestroCliInstalling(true);
-		setMaestroCliInstallMessage(null);
-		setMaestroCliStatusError(null);
+	const installOrUpdateOpenWizardAICli = useCallback(async () => {
+		setOpenWizardAICliInstalling(true);
+		setOpenWizardAICliInstallMessage(null);
+		setOpenWizardAICliStatusError(null);
 		try {
-			const result = await window.maestro.maestroCli.installOrUpdate();
-			setMaestroCliStatus(result.status);
+			const result = await window.openwizardai.openwizardaiCli.installOrUpdate();
+			setOpenWizardAICliStatus(result.status);
 			if (result.pathUpdateError) {
-				setMaestroCliStatusError(result.pathUpdateError);
+				setOpenWizardAICliStatusError(result.pathUpdateError);
 			}
 			if (result.restartRequired) {
-				setMaestroCliInstallMessage(
+				setOpenWizardAICliInstallMessage(
 					'CLI installed. Open a new terminal for PATH changes to apply.'
 				);
 			} else if (result.success && result.status.versionMatch) {
-				setMaestroCliInstallMessage('CLI is installed and matches this OpenWizzard version.');
+				setOpenWizardAICliInstallMessage('CLI is installed and matches this OpenWizardAI version.');
 			} else {
-				setMaestroCliInstallMessage(
+				setOpenWizardAICliInstallMessage(
 					'CLI was installed but version/path check still needs attention.'
 				);
 			}
 		} catch (err) {
-			setMaestroCliStatusError('Failed to install/update OpenWizzard CLI');
+			setOpenWizardAICliStatusError('Failed to install/update OpenWizardAI CLI');
 			captureException(err instanceof Error ? err : new Error(String(err)), {
-				extra: { context: 'GeneralTab: OpenWizzard CLI install/update' },
+				extra: { context: 'GeneralTab: OpenWizardAI CLI install/update' },
 			});
 		} finally {
-			setMaestroCliInstalling(false);
+			setOpenWizardAICliInstalling(false);
 		}
 	}, []);
 
 	// Load sync settings when modal opens
 	useEffect(() => {
 		if (!isOpen) return;
-		setMaestroCliInstallMessage(null);
-		void checkMaestroCliStatus();
+		setOpenWizardAICliInstallMessage(null);
+		void checkOpenWizardAICliStatus();
 
 		// Load sync settings
 		Promise.all([
-			window.maestro.sync.getDefaultPath(),
-			window.maestro.sync.getSettings(),
-			window.maestro.sync.getCurrentStoragePath(),
+			window.openwizardai.sync.getDefaultPath(),
+			window.openwizardai.sync.getSettings(),
+			window.openwizardai.sync.getCurrentStoragePath(),
 		])
 			.then(([defaultPath, settings, currentPath]) => {
 				setDefaultStoragePath(defaultPath);
@@ -265,13 +269,13 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					extra: { context: 'GeneralTab: failed to load sync/storage settings' },
 				});
 			});
-	}, [checkMaestroCliStatus, isOpen]);
+	}, [checkOpenWizardAICliStatus, isOpen]);
 
 	const loadShells = async () => {
 		if (shellsLoaded) return;
 		setShellsLoading(true);
 		try {
-			const detected = await window.maestro.shells.detect();
+			const detected = await window.openwizardai.shells.detect();
 			setShells(detected);
 			if (detected && detected.length > 0) {
 				setShellsLoaded(true);
@@ -300,10 +304,10 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 			<div data-setting-id="general-global-show-hotkey">
 				<div className="block text-xs font-bold opacity-70 uppercase mb-1 flex items-center gap-2">
 					<Keyboard className="w-3 h-3" />
-					Global Hotkey to Show OpenWizzard
+					Global Hotkey to Show OpenWizardAI
 				</div>
 				<p className="text-xs opacity-50 mb-2">
-					System-wide shortcut that brings OpenWizzard to the foreground from any app. Works on
+					System-wide shortcut that brings OpenWizardAI to the foreground from any app. Works on
 					macOS, Windows, and Linux. Leave blank to disable. (Tip: pick something with two
 					modifiers, e.g. {formatShortcutKeys(['Meta', 'Shift', 'M'])}, to avoid clashes.)
 				</p>
@@ -324,7 +328,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					Conductor Profile (aka, About Me)
 				</div>
 				<p className="text-xs opacity-50 mb-2">
-					Tell us a little about yourself so that agents created under OpenWizzard know how to work
+					Tell us a little about yourself so that agents created under OpenWizardAI know how to work
 					and communicate with you. As the conductor, you orchestrate the symphony of AI agents.
 					(Optional, max 5000 characters)
 				</p>
@@ -633,36 +637,36 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 				</div>
 			</div>
 
-			{/* Maestro CLI Management */}
-			<div data-setting-id="general-maestro-cli">
+			{/* OpenWizardAI CLI Management */}
+			<div data-setting-id="general-openwizardai-cli">
 				<div className="block text-xs font-bold opacity-70 uppercase mb-2 flex items-center gap-2">
 					<Terminal className="w-3 h-3" />
-					OpenWizzard CLI
+					OpenWizardAI CLI
 				</div>
 				<div
 					className="p-3 rounded border space-y-2"
 					style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.bgMain }}
 				>
 					<div className="text-xs opacity-70">
-						Check whether <code>maestro-cli</code> is available in your PATH and whether its version
-						matches OpenWizzard v{maestroCliStatus?.expectedVersion || appVersion}.
+						Check whether <code>openwizardai-cli</code> is available in your PATH and whether its
+						version matches OpenWizardAI v{openwizardaiCliStatus?.expectedVersion || appVersion}.
 					</div>
 
-					{maestroCliStatus && !maestroCliChecking && (
+					{openwizardaiCliStatus && !openwizardaiCliChecking && (
 						<div className="text-xs space-y-1">
 							<div>
 								<span style={{ color: theme.colors.textDim }}>PATH:</span>{' '}
 								<span
 									style={{
 										color:
-											maestroCliStatus.inPath || maestroCliStatus.inShellPath
+											openwizardaiCliStatus.inPath || openwizardaiCliStatus.inShellPath
 												? theme.colors.success
 												: theme.colors.warning,
 									}}
 								>
-									{maestroCliStatus.inPath
+									{openwizardaiCliStatus.inPath
 										? 'Detected'
-										: maestroCliStatus.inShellPath
+										: openwizardaiCliStatus.inShellPath
 											? 'Detected (shell PATH)'
 											: 'Not detected'}
 								</span>
@@ -670,22 +674,22 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							<div>
 								<span style={{ color: theme.colors.textDim }}>Installed version:</span>{' '}
 								<span style={{ color: theme.colors.textMain }}>
-									{maestroCliStatus.installedVersion || 'Not installed'}
+									{openwizardaiCliStatus.installedVersion || 'Not installed'}
 								</span>
 							</div>
 							<div>
 								<span style={{ color: theme.colors.textDim }}>Expected version:</span>{' '}
 								<span style={{ color: theme.colors.textMain }}>
-									{maestroCliStatus.expectedVersion}
+									{openwizardaiCliStatus.expectedVersion}
 								</span>
 							</div>
-							{maestroCliStatus.commandPath && (
+							{openwizardaiCliStatus.commandPath && (
 								<div className="break-all">
 									<span style={{ color: theme.colors.textDim }}>Command path:</span>{' '}
-									<code>{maestroCliStatus.commandPath}</code>
+									<code>{openwizardaiCliStatus.commandPath}</code>
 								</div>
 							)}
-							{maestroCliStatus.needsInstallOrUpdate && (
+							{openwizardaiCliStatus.needsInstallOrUpdate && (
 								<div style={{ color: theme.colors.warning }}>
 									Mismatch or missing CLI detected. Install/update to sync versions.
 								</div>
@@ -694,54 +698,54 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					)}
 
 					<div
-						role={maestroCliStatusError ? 'alert' : 'status'}
-						aria-live={maestroCliStatusError ? 'assertive' : 'polite'}
+						role={openwizardaiCliStatusError ? 'alert' : 'status'}
+						aria-live={openwizardaiCliStatusError ? 'assertive' : 'polite'}
 						aria-atomic="true"
 						className="text-xs space-y-1"
 					>
-						{maestroCliChecking && (
-							<div className="opacity-60">Checking OpenWizzard CLI status...</div>
+						{openwizardaiCliChecking && (
+							<div className="opacity-60">Checking OpenWizardAI CLI status...</div>
 						)}
-						{maestroCliStatusError && (
-							<div style={{ color: theme.colors.warning }}>{maestroCliStatusError}</div>
+						{openwizardaiCliStatusError && (
+							<div style={{ color: theme.colors.warning }}>{openwizardaiCliStatusError}</div>
 						)}
-						{maestroCliInstallMessage && (
-							<div style={{ color: theme.colors.success }}>{maestroCliInstallMessage}</div>
+						{openwizardaiCliInstallMessage && (
+							<div style={{ color: theme.colors.success }}>{openwizardaiCliInstallMessage}</div>
 						)}
 					</div>
 
 					<div className="flex gap-2">
 						<button
-							onClick={() => void checkMaestroCliStatus()}
-							disabled={maestroCliChecking || maestroCliInstalling}
+							onClick={() => void checkOpenWizardAICliStatus()}
+							disabled={openwizardaiCliChecking || openwizardaiCliInstalling}
 							className="px-2 py-1 rounded text-xs"
 							style={{
 								backgroundColor: theme.colors.bgActivity,
 								color: theme.colors.textMain,
-								opacity: maestroCliChecking || maestroCliInstalling ? 0.6 : 1,
+								opacity: openwizardaiCliChecking || openwizardaiCliInstalling ? 0.6 : 1,
 							}}
 						>
-							{maestroCliChecking ? 'Checking...' : 'Check now'}
+							{openwizardaiCliChecking ? 'Checking...' : 'Check now'}
 						</button>
 						<button
-							onClick={() => void installOrUpdateMaestroCli()}
-							disabled={maestroCliChecking || maestroCliInstalling}
+							onClick={() => void installOrUpdateOpenWizardAICli()}
+							disabled={openwizardaiCliChecking || openwizardaiCliInstalling}
 							className="px-2 py-1 rounded text-xs"
 							style={{
 								backgroundColor: theme.colors.accentDim,
 								color: theme.colors.textMain,
-								opacity: maestroCliChecking || maestroCliInstalling ? 0.6 : 1,
+								opacity: openwizardaiCliChecking || openwizardaiCliInstalling ? 0.6 : 1,
 							}}
 						>
-							{maestroCliInstalling
+							{openwizardaiCliInstalling
 								? 'Installing...'
-								: maestroCliStatus?.needsInstallOrUpdate
+								: openwizardaiCliStatus?.needsInstallOrUpdate
 									? 'Install / Update CLI'
 									: 'Reinstall CLI'}
 						</button>
 					</div>
 					<div className="text-xs-plus opacity-50">
-						Install target: <code>{maestroCliStatus?.installDir || '~/.local/bin'}</code>
+						Install target: <code>{openwizardaiCliStatus?.installDir || '~/.local/bin'}</code>
 					</div>
 				</div>
 			</div>
@@ -1384,7 +1388,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 								Check for updates automatically
 							</div>
 							<div className="text-xs opacity-50 mt-0.5" style={{ color: theme.colors.textDim }}>
-								Check for new OpenWizzard versions on startup and once per day while the app is
+								Check for new OpenWizardAI versions on startup and once per day while the app is
 								running. Also sends an anonymous check-in (a random install ID, app version, OS, and
 								theme) so we can count active installs. Turning this off disables both.
 							</div>
@@ -1441,7 +1445,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					icon={Bug}
 					sectionLabel="Privacy"
 					title="Send anonymous crash reports"
-					description="Help improve OpenWizzard by automatically sending crash reports. No personal data is collected. Changes take effect after restart."
+					description="Help improve OpenWizardAI by automatically sending crash reports. No personal data is collected. Changes take effect after restart."
 					checked={crashReportingEnabled}
 					onChange={setCrashReportingEnabled}
 					theme={theme}
@@ -1475,11 +1479,11 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 				>
 					<div className="flex-1 pr-3">
 						<div className="font-medium" style={{ color: theme.colors.textMain }}>
-							Open HTML files in OpenWizzard Browser on double-click
+							Open HTML files in OpenWizardAI Browser on double-click
 						</div>
 						<div className="text-xs opacity-50 mt-0.5" style={{ color: theme.colors.textDim }}>
 							When enabled, double-clicking an HTML file in the file explorer opens it in the
-							OpenWizzard browser instead of the file preview. Right-click for the full menu either
+							OpenWizardAI browser instead of the file preview. Right-click for the full menu either
 							way.
 						</div>
 					</div>
@@ -1487,7 +1491,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 						checked={htmlDoubleClickOpensInBrowser}
 						onChange={setHtmlDoubleClickOpensInBrowser}
 						theme={theme}
-						ariaLabel="Open HTML files in OpenWizzard Browser on double-click"
+						ariaLabel="Open HTML files in OpenWizardAI Browser on double-click"
 					/>
 				</div>
 				<div
@@ -1500,13 +1504,13 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							type="text"
 							value={browserHomeUrl}
 							onChange={(e) => setBrowserHomeUrl(e.target.value)}
-							placeholder="https://runmaestro.ai/#leaderboard"
+							placeholder="https://github.com/manoelpanev/OpenWizardAI"
 							className="flex-1 p-1.5 rounded border bg-transparent outline-none text-xs font-mono"
 							style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
 						/>
-						{browserHomeUrl !== 'https://runmaestro.ai/#leaderboard' && (
+						{browserHomeUrl !== 'https://github.com/manoelpanev/OpenWizardAI' && (
 							<button
-								onClick={() => setBrowserHomeUrl('https://runmaestro.ai/#leaderboard')}
+								onClick={() => setBrowserHomeUrl('https://github.com/manoelpanev/OpenWizardAI')}
 								className="px-2 py-1 rounded text-xs"
 								style={{
 									backgroundColor: theme.colors.bgActivity,
@@ -1582,12 +1586,12 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							Settings folder
 						</p>
 						<p className="text-xs opacity-60 mt-0.5">
-							Choose where OpenWizzard stores settings, sessions, and groups (including global
+							Choose where OpenWizardAI stores settings, sessions, and groups (including global
 							environment variables, agents, and configurations). Use a synced folder (iCloud Drive,
 							Dropbox, OneDrive) to share across devices.
 						</p>
 						<p className="text-xs opacity-50 mt-1 italic">
-							Note: Only run OpenWizzard on one device at a time to avoid sync conflicts.
+							Note: Only run OpenWizardAI on one device at a time to avoid sync conflicts.
 						</p>
 					</div>
 
@@ -1626,13 +1630,13 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 						<button
 							onClick={async () => {
 								try {
-									const folder = await window.maestro.sync.selectSyncFolder();
+									const folder = await window.openwizardai.sync.selectSyncFolder();
 									if (folder) {
 										setSyncMigrating(true);
 										setSyncError(null);
 										setSyncMigratedCount(null);
 										try {
-											const result = await window.maestro.sync.setCustomPath(folder);
+											const result = await window.openwizardai.sync.setCustomPath(folder);
 											if (result.success) {
 												setCustomSyncPath(folder);
 												setCurrentStoragePath(folder);
@@ -1682,7 +1686,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 									setSyncError(null);
 									setSyncMigratedCount(null);
 									try {
-										const result = await window.maestro.sync.setCustomPath(null);
+										const result = await window.openwizardai.sync.setCustomPath(null);
 										if (result.success) {
 											setCustomSyncPath(undefined);
 											setCurrentStoragePath(defaultStoragePath);
@@ -1755,7 +1759,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							}}
 						>
 							<RotateCcw className="w-3 h-3" />
-							Restart OpenWizzard for changes to take effect
+							Restart OpenWizardAI for changes to take effect
 						</div>
 					)}
 
@@ -1765,7 +1769,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							onClick={() => {
 								const folderPath = customSyncPath || defaultStoragePath;
 								if (folderPath) {
-									window.maestro?.shell?.openPath(folderPath);
+									window.openwizardai?.shell?.openPath(folderPath);
 								}
 							}}
 							disabled={!defaultStoragePath && !customSyncPath}
@@ -1774,7 +1778,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							title={customSyncPath || defaultStoragePath}
 						>
 							<ExternalLink className="w-3 h-3" />
-							{getOpenInLabel(window.maestro?.platform || 'darwin')}
+							{getOpenInLabel(window.openwizardai?.platform || 'darwin')}
 						</button>
 					</div>
 				</div>

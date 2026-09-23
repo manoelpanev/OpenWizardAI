@@ -1,4 +1,4 @@
-// Global verbosity state for maestro-cli, driven by the root `--quiet` /
+// Global verbosity state for openwizardai-cli, driven by the root `--quiet` /
 // `--verbose` flags. A Commander `preAction` hook in index.ts copies the parsed
 // global options here before any command action runs, so shared output helpers
 // can consult the level without threading flags through every command.

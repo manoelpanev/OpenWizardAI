@@ -1,7 +1,7 @@
 /**
  * Preload API for context operations
  *
- * Provides the window.maestro.context namespace for:
+ * Provides the window.openwizardai.context namespace for:
  * - Session context transfer and grooming
  * - Context retrieval from stored sessions
  */

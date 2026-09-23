@@ -40,13 +40,13 @@ export function useCliActivityMonitoring(
 	// Update session states to show busy when CLI is active
 	useEffect(() => {
 		// Guard: cli API may not be available in all environments
-		if (!window.maestro?.cli) {
+		if (!window.openwizardai?.cli) {
 			return;
 		}
 
 		const checkCliActivity = async () => {
 			try {
-				const activities = await window.maestro.cli.getActivity();
+				const activities = await window.openwizardai.cli.getActivity();
 				if (!Array.isArray(activities)) return;
 				setSessions((prev) =>
 					prev.map((session) => {
@@ -87,7 +87,7 @@ export function useCliActivityMonitoring(
 		checkCliActivity();
 
 		// Listen for changes
-		const unsubscribe = window.maestro.cli.onActivityChange(() => {
+		const unsubscribe = window.openwizardai.cli.onActivityChange(() => {
 			checkCliActivity();
 		});
 		return unsubscribe;

@@ -66,9 +66,9 @@ export function PlaybookTile({
 								backgroundColor: INCOMPAT_BADGE_BG,
 								color: BADGE_FG,
 							}}
-							title={`This playbook needs OpenWizzard ${playbook.minMaestroVersion} or newer. You're running ${runningVersion}. Update OpenWizzard to install this playbook.`}
+							title={`This playbook needs OpenWizardAI ${playbook.minOpenWizardAIVersion} or newer. You're running ${runningVersion}. Update OpenWizardAI to install this playbook.`}
 						>
-							Requires OpenWizzard {playbook.minMaestroVersion}+
+							Requires OpenWizardAI {playbook.minOpenWizardAIVersion}+
 						</span>
 					)}
 				</div>

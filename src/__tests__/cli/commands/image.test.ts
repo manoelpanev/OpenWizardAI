@@ -34,9 +34,9 @@ import { nudgeFileTreeForPaths } from '../../../cli/services/file-tree-refresh';
 const PNG_SHA = 'a'.repeat(64);
 const JPEG_SHA = 'b'.repeat(64);
 const STAGED_SHA = 'c'.repeat(64);
-const PNG_REF = `maestro-image://store/${PNG_SHA}.png`;
-const JPEG_REF = `maestro-image://store/${JPEG_SHA}.jpeg`;
-const STAGED_REF = `maestro-image://store/${STAGED_SHA}.png`;
+const PNG_REF = `openwizardai-image://store/${PNG_SHA}.png`;
+const JPEG_REF = `openwizardai-image://store/${JPEG_SHA}.jpeg`;
+const STAGED_REF = `openwizardai-image://store/${STAGED_SHA}.png`;
 
 describe('image commands', () => {
 	let consoleSpy: MockInstance;
@@ -67,8 +67,8 @@ describe('image commands', () => {
 		] as unknown as SessionInfo[];
 
 	beforeEach(() => {
-		configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-image-test-'));
-		outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-image-out-'));
+		configDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-image-test-'));
+		outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-image-out-'));
 		const imageDir = path.join(configDir, 'session-images');
 		fs.mkdirSync(imageDir, { recursive: true });
 		fs.writeFileSync(path.join(imageDir, `${PNG_SHA}.png`), Buffer.from('png-bytes'));

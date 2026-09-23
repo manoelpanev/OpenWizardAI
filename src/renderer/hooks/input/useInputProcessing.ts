@@ -8,7 +8,7 @@ import type {
 	BatchRunState,
 } from '../../types';
 import { getActiveTab, getBusyTabs, getTabDisplayName } from '../../utils/tabHelpers';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from '../../utils/spawnHelpers';
 import { generateId } from '../../utils/ids';
 import { captureQueuedTurnSettings, codifyTurnSettings } from '../../utils/providerTabSessions';
 import { substituteTemplateVariables } from '../../utils/templateVariables';
@@ -35,7 +35,7 @@ let inputProcessingPromptsLoaded = false;
 export async function loadInputProcessingPrompts(force = false): Promise<void> {
 	if (inputProcessingPromptsLoaded && !force) return;
 
-	const imageResult = await window.maestro.prompts.get('image-only-default');
+	const imageResult = await window.openwizardai.prompts.get('image-only-default');
 
 	if (!imageResult.success) {
 		throw new Error(`Failed to load image-only-default prompt: ${imageResult.error}`);
@@ -308,7 +308,7 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 				const isTerminalMode = activeSession.inputMode === 'terminal';
 
 				// Handle built-in /history command (only in AI mode)
-				// This is intercepted here because it requires Maestro to handle the synopsis generation
+				// This is intercepted here because it requires OpenWizardAI to handle the synopsis generation
 				// rather than passing through to the agent (which may not support it or require special permissions)
 				if (!isTerminalMode && commandText === '/history' && onHistoryCommand) {
 					setInputValue('');
@@ -870,7 +870,7 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 						activeSession.sessionSshRemoteConfig?.remoteId ||
 						undefined;
 					try {
-						await window.maestro.fs.readDir(candidatePath, sshIdForVerify);
+						await window.openwizardai.fs.readDir(candidatePath, sshIdForVerify);
 						// Directory exists, update the appropriate CWD
 						if (isRemoteSession) {
 							remoteCwdChanged = true;
@@ -1009,7 +1009,11 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 
 			// Broadcast user input to web clients so they stay in sync
 			// Use effectiveInputValue (without nudge) since nudge should be hidden from UI
-			window.maestro.web.broadcastUserInput(activeSession.id, effectiveInputValue, currentMode);
+			window.openwizardai.web.broadcastUserInput(
+				activeSession.id,
+				effectiveInputValue,
+				currentMode
+			);
 
 			setInputValue('');
 			if (!usingOverrideImages) setStagedImages([]);
@@ -1055,7 +1059,7 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 				(async () => {
 					try {
 						// Get agent configuration
-						const agent = await window.maestro.agents.get(activeSession.toolType);
+						const agent = await window.openwizardai.agents.get(activeSession.toolType);
 						if (!agent) throw new Error(`${activeSession.toolType} agent not found`);
 
 						// IMPORTANT: Get fresh session state from ref to avoid stale closure bug
@@ -1146,13 +1150,13 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 							});
 						}
 
-						// Prepare Maestro system prompt. Always send it; the main-process handler
+						// Prepare OpenWizardAI system prompt. Always send it; the main-process handler
 						// decides how to deliver it based on agent capabilities:
 						//  - Native --append-system-prompt agents (e.g. Claude Code): re-send every
 						//    invocation - the flag isn't persisted into the session transcript.
 						//  - Fallback-embed agents (e.g. Copilot-CLI, Codex): embed only on first
 						//    turn; on resume the prompt is already in the transcript.
-						const appendSystemPrompt = await prepareMaestroSystemPrompt({
+						const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 							session: freshSession,
 							activeTabId: freshSession.activeTabId,
 						});
@@ -1166,7 +1170,7 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 
 						// Spawn agent with generic config - the main process will use agent-specific
 						// argument builders (resumeArgs, readOnlyArgs, etc.) to construct the final args
-						await window.maestro.process.spawn({
+						await window.openwizardai.process.spawn({
 							sessionId: targetSessionId,
 							toolType: freshSession.toolType,
 							cwd: freshSession.cwd,
@@ -1259,7 +1263,7 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 						activeSession.sessionSshRemoteConfig?.workingDirOverride ||
 						activeSession.cwd
 					: activeSession.shellCwd || activeSession.cwd;
-				window.maestro.process
+				window.openwizardai.process
 					.runCommand({
 						sessionId: activeSession.id, // Plain session ID (not suffixed)
 						command: capturedInputValue,
@@ -1295,7 +1299,7 @@ export function useInputProcessing(deps: UseInputProcessingDeps): UseInputProces
 					});
 			} else if (targetPid > 0) {
 				// AI mode: Write to stdin
-				window.maestro.process.write(targetSessionId, capturedInputValue).catch((error) => {
+				window.openwizardai.process.write(targetSessionId, capturedInputValue).catch((error) => {
 					logger.error('Failed to write to process:', undefined, error);
 					const errorLog: LogEntry = {
 						id: generateId(),

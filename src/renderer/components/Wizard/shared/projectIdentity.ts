@@ -3,7 +3,7 @@
  *
  * The wizard used to have one string for both: the name typed into "Name your
  * agent" was also handed to the discovery prompt as `{{PROJECT_NAME}}`, so
- * naming an agent "Maestro" made the assistant open with "Hello Maestro" as if
+ * naming an agent "OpenWizardAI" made the assistant open with "Hello OpenWizardAI" as if
  * that were the project, and typing the project name there put the project name
  * in the Left Bar. They are different things and are derived differently:
  *

@@ -70,7 +70,7 @@ export function NotificationsPanel({
 	useEffect(() => {
 		if (testNotificationId === null) return;
 
-		const cleanup = window.maestro.notification.onCommandCompleted((completedId) => {
+		const cleanup = window.openwizardai.notification.onCommandCompleted((completedId) => {
 			if (completedId === testNotificationId) {
 				logger.info('[Notification] Command completed, id:', undefined, completedId);
 				setTestNotificationId(null);
@@ -96,7 +96,7 @@ export function NotificationsPanel({
 	useEffect(() => {
 		if (idleTestNotificationId === null) return;
 
-		const cleanup = window.maestro.notification.onCommandCompleted((completedId) => {
+		const cleanup = window.openwizardai.notification.onCommandCompleted((completedId) => {
 			if (completedId === idleTestNotificationId) {
 				setIdleTestNotificationId(null);
 				setIdleTestStatus('success');
@@ -121,8 +121,8 @@ export function NotificationsPanel({
 				/>
 				<button
 					onClick={() =>
-						window.maestro.notification.show(
-							'OpenWizzard',
+						window.openwizardai.notification.show(
+							'OpenWizardAI',
 							'Test notification - notifications are working!'
 						)
 					}
@@ -170,7 +170,7 @@ export function NotificationsPanel({
 										testNotificationId
 									);
 									try {
-										await window.maestro.notification.stopSpeak(testNotificationId);
+										await window.openwizardai.notification.stopSpeak(testNotificationId);
 									} catch (err) {
 										logger.error('[Notification] Stop error:', undefined, err);
 									}
@@ -198,8 +198,8 @@ export function NotificationsPanel({
 									setTestStatus('running');
 									setTestError(null);
 									try {
-										const result = await window.maestro.notification.speak(
-											"Howdy, I'm OpenWizzard, here to conduct your agentic tools into a well-tuned symphony.",
+										const result = await window.openwizardai.notification.speak(
+											"Howdy, I'm OpenWizardAI, here to conduct your agentic tools into a well-tuned symphony.",
 											audioFeedbackCommand
 										);
 										logger.info('[Notification] Speak result:', undefined, result);
@@ -324,7 +324,7 @@ export function NotificationsPanel({
 					icon={Coffee}
 					sectionLabel="Idle Notification"
 					title="Enable Idle Notification"
-					description="Execute a custom command when all agents and Auto Runs finish and OpenWizzard becomes idle"
+					description="Execute a custom command when all agents and Auto Runs finish and OpenWizardAI becomes idle"
 					checked={idleNotificationEnabled}
 					onChange={setIdleNotificationEnabled}
 					theme={theme}
@@ -338,7 +338,7 @@ export function NotificationsPanel({
 							type="text"
 							value={idleNotificationCommand}
 							onChange={(e) => setIdleNotificationCommand(e.target.value)}
-							placeholder="say OpenWizzard is idle"
+							placeholder="say OpenWizardAI is idle"
 							className="flex-1 p-2 rounded border bg-transparent outline-none text-sm font-mono"
 							style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
 						/>
@@ -346,7 +346,7 @@ export function NotificationsPanel({
 							<button
 								onClick={async () => {
 									try {
-										await window.maestro.notification.stopSpeak(idleTestNotificationId);
+										await window.openwizardai.notification.stopSpeak(idleTestNotificationId);
 									} catch (err) {
 										console.error('[IdleNotification] Stop error:', err);
 									}
@@ -369,8 +369,8 @@ export function NotificationsPanel({
 									setIdleTestStatus('running');
 									setIdleTestError(null);
 									try {
-										const result = await window.maestro.notification.speak(
-											'OpenWizzard is idle',
+										const result = await window.openwizardai.notification.speak(
+											'OpenWizardAI is idle',
 											idleNotificationCommand
 										);
 										if (result.success && result.notificationId) {
@@ -443,7 +443,7 @@ export function NotificationsPanel({
 					)}
 					<p className="text-xs opacity-50 mt-2" style={{ color: theme.colors.textDim }}>
 						Runs when all agents finish and no Auto Run is active. Cue tasks don&apos;t count as
-						activity. The command receives &quot;OpenWizzard is idle&quot; via stdin.
+						activity. The command receives &quot;OpenWizardAI is idle&quot; via stdin.
 					</p>
 				</div>
 			</div>

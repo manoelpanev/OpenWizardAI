@@ -9,7 +9,7 @@
 // Prints a JSON array of per-action results.
 import WebSocket from 'ws';
 
-const PORT = process.env.MAESTRO_CDP_PORT || '12345';
+const PORT = process.env.OPENWIZARDAI_CDP_PORT || '12345';
 const actions = JSON.parse(process.argv[2] || '[]');
 
 const list = await (await fetch(`http://127.0.0.1:${PORT}/json/list`)).json();

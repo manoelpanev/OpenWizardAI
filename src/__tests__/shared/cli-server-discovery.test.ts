@@ -67,10 +67,10 @@ describe('cli-server-discovery', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 
-		// Ensure MAESTRO_USER_DATA from the test runner's environment doesn't
+		// Ensure OPENWIZARDAI_USER_DATA from the test runner's environment doesn't
 		// leak into platform-default tests; individual tests opt in by setting it.
-		savedUserDataEnv = process.env.MAESTRO_USER_DATA;
-		delete process.env.MAESTRO_USER_DATA;
+		savedUserDataEnv = process.env.OPENWIZARDAI_USER_DATA;
+		delete process.env.OPENWIZARDAI_USER_DATA;
 
 		// Default mock implementations
 		mockOs.platform.mockReturnValue('darwin');
@@ -86,9 +86,9 @@ describe('cli-server-discovery', () => {
 	afterEach(() => {
 		vi.restoreAllMocks();
 		if (savedUserDataEnv === undefined) {
-			delete process.env.MAESTRO_USER_DATA;
+			delete process.env.OPENWIZARDAI_USER_DATA;
 		} else {
-			process.env.MAESTRO_USER_DATA = savedUserDataEnv;
+			process.env.OPENWIZARDAI_USER_DATA = savedUserDataEnv;
 		}
 	});
 
@@ -104,7 +104,7 @@ describe('cli-server-discovery', () => {
 					'/Users/testuser',
 					'Library',
 					'Application Support',
-					'OpenWizzard',
+					'OpenWizardAI',
 					'cli-server.json'
 				),
 				'utf-8'
@@ -121,7 +121,7 @@ describe('cli-server-discovery', () => {
 				readCliServerInfo();
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('C:\\Users\\testuser\\AppData\\Roaming', 'OpenWizzard', 'cli-server.json'),
+					path.join('C:\\Users\\testuser\\AppData\\Roaming', 'OpenWizardAI', 'cli-server.json'),
 					'utf-8'
 				);
 			} finally {
@@ -143,7 +143,7 @@ describe('cli-server-discovery', () => {
 				readCliServerInfo();
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('C:\\Users\\testuser', 'AppData', 'Roaming', 'OpenWizzard', 'cli-server.json'),
+					path.join('C:\\Users\\testuser', 'AppData', 'Roaming', 'OpenWizardAI', 'cli-server.json'),
 					'utf-8'
 				);
 			} finally {
@@ -165,7 +165,7 @@ describe('cli-server-discovery', () => {
 				readCliServerInfo();
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('/home/testuser/.custom-config', 'OpenWizzard', 'cli-server.json'),
+					path.join('/home/testuser/.custom-config', 'OpenWizardAI', 'cli-server.json'),
 					'utf-8'
 				);
 			} finally {
@@ -187,7 +187,7 @@ describe('cli-server-discovery', () => {
 				readCliServerInfo();
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('/home/testuser', '.config', 'OpenWizzard', 'cli-server.json'),
+					path.join('/home/testuser', '.config', 'OpenWizardAI', 'cli-server.json'),
 					'utf-8'
 				);
 			} finally {
@@ -199,33 +199,37 @@ describe('cli-server-discovery', () => {
 			}
 		});
 
-		it('should honor MAESTRO_USER_DATA override over platform default', () => {
+		it('should honor OPENWIZARDAI_USER_DATA override over platform default', () => {
 			mockOs.platform.mockReturnValue('darwin');
 			mockOs.homedir.mockReturnValue('/Users/testuser');
-			const originalUserData = process.env.MAESTRO_USER_DATA;
-			process.env.MAESTRO_USER_DATA = '/Users/testuser/Library/Application Support/maestro-dev';
+			const originalUserData = process.env.OPENWIZARDAI_USER_DATA;
+			process.env.OPENWIZARDAI_USER_DATA =
+				'/Users/testuser/Library/Application Support/openwizardai-dev';
 
 			try {
 				readCliServerInfo();
 
 				expect(mockFs.readFileSync).toHaveBeenCalledWith(
-					path.join('/Users/testuser/Library/Application Support/maestro-dev', 'cli-server.json'),
+					path.join(
+						'/Users/testuser/Library/Application Support/openwizardai-dev',
+						'cli-server.json'
+					),
 					'utf-8'
 				);
 			} finally {
 				if (originalUserData === undefined) {
-					delete process.env.MAESTRO_USER_DATA;
+					delete process.env.OPENWIZARDAI_USER_DATA;
 				} else {
-					process.env.MAESTRO_USER_DATA = originalUserData;
+					process.env.OPENWIZARDAI_USER_DATA = originalUserData;
 				}
 			}
 		});
 
-		it('should resolve relative MAESTRO_USER_DATA to absolute path', () => {
+		it('should resolve relative OPENWIZARDAI_USER_DATA to absolute path', () => {
 			mockOs.platform.mockReturnValue('darwin');
 			mockOs.homedir.mockReturnValue('/Users/testuser');
-			const originalUserData = process.env.MAESTRO_USER_DATA;
-			process.env.MAESTRO_USER_DATA = './relative-data-dir';
+			const originalUserData = process.env.OPENWIZARDAI_USER_DATA;
+			process.env.OPENWIZARDAI_USER_DATA = './relative-data-dir';
 
 			try {
 				readCliServerInfo();
@@ -236,9 +240,9 @@ describe('cli-server-discovery', () => {
 				);
 			} finally {
 				if (originalUserData === undefined) {
-					delete process.env.MAESTRO_USER_DATA;
+					delete process.env.OPENWIZARDAI_USER_DATA;
 				} else {
-					process.env.MAESTRO_USER_DATA = originalUserData;
+					process.env.OPENWIZARDAI_USER_DATA = originalUserData;
 				}
 			}
 		});
@@ -252,7 +256,7 @@ describe('cli-server-discovery', () => {
 				'/Users/testuser',
 				'Library',
 				'Application Support',
-				'OpenWizzard'
+				'OpenWizardAI'
 			);
 			const expectedFile = path.join(expectedDir, 'cli-server.json');
 			const expectedTmp = expectedFile + '.tmp';
@@ -271,7 +275,7 @@ describe('cli-server-discovery', () => {
 			writeCliServerInfo(sampleInfo);
 
 			expect(mockFs.mkdirSync).toHaveBeenCalledWith(
-				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizzard'),
+				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizardAI'),
 				{ recursive: true }
 			);
 		});
@@ -375,7 +379,7 @@ describe('cli-server-discovery', () => {
 				'/Users/testuser',
 				'Library',
 				'Application Support',
-				'OpenWizzard',
+				'OpenWizardAI',
 				'cli-server.json'
 			);
 			expect(mockFs.unlinkSync).toHaveBeenCalledWith(expectedFile);

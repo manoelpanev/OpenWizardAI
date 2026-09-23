@@ -176,9 +176,9 @@ beforeEach(() => {
 		batchRunStates: {},
 	});
 
-	// Ensure window.maestro.app is available for quit confirmation
-	(window as any).maestro = {
-		...((window as any).maestro || {}),
+	// Ensure window.openwizardai.app is available for quit confirmation
+	(window as any).openwizardai = {
+		...((window as any).openwizardai || {}),
 		app: {
 			onQuitConfirmationRequest: vi.fn().mockReturnValue(vi.fn()),
 			confirmQuit: vi.fn(),
@@ -701,7 +701,7 @@ describe('useBatchHandlers', () => {
 		it('registers quit confirmation listener on mount', () => {
 			renderHook(() => useBatchHandlers(createDeps()));
 
-			expect(window.maestro.app.onQuitConfirmationRequest).toHaveBeenCalled();
+			expect(window.openwizardai.app.onQuitConfirmationRequest).toHaveBeenCalled();
 		});
 
 		it('calls confirmQuit when no busy agents and no active auto-runs', async () => {
@@ -711,7 +711,7 @@ describe('useBatchHandlers', () => {
 
 			// Capture the callback
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -725,7 +725,7 @@ describe('useBatchHandlers', () => {
 				await quitCallback();
 			});
 
-			expect(window.maestro.app.confirmQuit).toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).toHaveBeenCalled();
 		});
 
 		it('opens quit confirm modal when agents are busy', async () => {
@@ -738,7 +738,7 @@ describe('useBatchHandlers', () => {
 			useSessionStore.setState({ sessions: [busySession], activeSessionId: 'session-1' });
 
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -751,7 +751,7 @@ describe('useBatchHandlers', () => {
 				await quitCallback();
 			});
 
-			expect(window.maestro.app.confirmQuit).not.toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).not.toHaveBeenCalled();
 			const quitModal = useModalStore.getState().modals.get('quitConfirm');
 			expect(quitModal?.open).toBe(true);
 		});
@@ -761,7 +761,7 @@ describe('useBatchHandlers', () => {
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -781,7 +781,7 @@ describe('useBatchHandlers', () => {
 				await quitCallback();
 			});
 
-			expect(window.maestro.app.confirmQuit).not.toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).not.toHaveBeenCalled();
 			const quitModal = useModalStore.getState().modals.get('quitConfirm');
 			expect(quitModal?.open).toBe(true);
 		});
@@ -800,7 +800,7 @@ describe('useBatchHandlers', () => {
 			mockGetBatchState.mockReturnValue(createDefaultBatchState({ isRunning: false }));
 
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -814,12 +814,12 @@ describe('useBatchHandlers', () => {
 			});
 
 			// Terminal sessions should not prevent quitting
-			expect(window.maestro.app.confirmQuit).toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).toHaveBeenCalled();
 		});
 
 		it('unsubscribes on unmount', () => {
 			const mockUnsubscribe = vi.fn();
-			(window.maestro.app.onQuitConfirmationRequest as any).mockReturnValue(mockUnsubscribe);
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockReturnValue(mockUnsubscribe);
 
 			const { unmount } = renderHook(() => useBatchHandlers(createDeps()));
 
@@ -898,7 +898,7 @@ describe('useBatchHandlers', () => {
 				} as any);
 			});
 
-			expect(window.maestro.history.add).toHaveBeenCalled();
+			expect(window.openwizardai.history.add).toHaveBeenCalled();
 			expect(mockRefresh).toHaveBeenCalled();
 		});
 	});
@@ -1472,7 +1472,7 @@ describe('useBatchHandlers', () => {
 			});
 
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -1491,7 +1491,7 @@ describe('useBatchHandlers', () => {
 				await quitCallback();
 			});
 
-			expect(window.maestro.app.confirmQuit).not.toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).not.toHaveBeenCalled();
 			const quitModal = useModalStore.getState().modals.get('quitConfirm');
 			expect(quitModal?.open).toBe(true);
 		});
@@ -1511,7 +1511,7 @@ describe('useBatchHandlers', () => {
 			mockGetBatchState.mockReturnValue(createDefaultBatchState({ isRunning: false }));
 
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -1526,14 +1526,14 @@ describe('useBatchHandlers', () => {
 
 			// busySource is 'terminal' not 'ai', so agent is NOT in busyAgents filter
 			// No active auto-runs either, so quit should be confirmed
-			expect(window.maestro.app.confirmQuit).toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).toHaveBeenCalled();
 		});
 
 		it('confirms quit immediately when there are no sessions at all', async () => {
 			useSessionStore.setState({ sessions: [], activeSessionId: '' });
 
 			let quitCallback: () => Promise<void> = async () => {};
-			(window.maestro.app.onQuitConfirmationRequest as any).mockImplementation(
+			(window.openwizardai.app.onQuitConfirmationRequest as any).mockImplementation(
 				(cb: () => Promise<void>) => {
 					quitCallback = cb;
 					return vi.fn();
@@ -1546,7 +1546,7 @@ describe('useBatchHandlers', () => {
 				await quitCallback();
 			});
 
-			expect(window.maestro.app.confirmQuit).toHaveBeenCalled();
+			expect(window.openwizardai.app.confirmQuit).toHaveBeenCalled();
 			const quitModal = useModalStore.getState().modals.get('quitConfirm');
 			expect(quitModal?.open).not.toBe(true);
 		});
@@ -1630,7 +1630,7 @@ describe('useBatchHandlers', () => {
 			});
 
 			// IPC history.add should still be called
-			expect(window.maestro.history.add).toHaveBeenCalled();
+			expect(window.openwizardai.history.add).toHaveBeenCalled();
 			// Should not throw - no crash from null ref
 		});
 	});

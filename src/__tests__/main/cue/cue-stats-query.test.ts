@@ -38,7 +38,7 @@ vi.mock('../../../main/cue/cue-db', () => ({
 
 vi.mock('../../../main/cue/stats/cue-token-accessor', () => ({
 	getSessionTokenSummaries: vi.fn(
-		async (lookups: Array<{ maestroSessionId: string; providerSessionId: string }>) => {
+		async (lookups: Array<{ openwizardaiSessionId: string; providerSessionId: string }>) => {
 			const result = new Map<string, SessionTokenSummary>();
 			for (const { providerSessionId } of lookups) {
 				const summary = mockSummaries.get(providerSessionId);
@@ -47,11 +47,11 @@ vi.mock('../../../main/cue/stats/cue-token-accessor', () => ({
 			return result;
 		}
 	),
-	// Agent type is keyed by the Maestro agent id; in these fixtures that equals
+	// Agent type is keyed by the OpenWizardAI agent id; in these fixtures that equals
 	// the (shared) summary key, so derive the label from the seeded summaries.
-	getAgentTypesForSessions: vi.fn((maestroSessionIds: string[]) => {
+	getAgentTypesForSessions: vi.fn((openwizardaiSessionIds: string[]) => {
 		const result = new Map<string, string>();
-		for (const id of maestroSessionIds) {
+		for (const id of openwizardaiSessionIds) {
 			const agentType = mockSummaries.get(id)?.agentType;
 			if (agentType) result.set(id, agentType);
 		}
@@ -79,7 +79,7 @@ function makeEvent(overrides: Partial<CueEventRecord> = {}): CueEventRecord {
 		pipelineId: null,
 		chainRootId: id,
 		parentEventId: null,
-		// Default the provider session id to the Maestro session id so token
+		// Default the provider session id to the OpenWizardAI session id so token
 		// attribution resolves; tests that care about the distinction override it.
 		providerSessionId: overrides.providerSessionId ?? sessionId,
 		...overrides,

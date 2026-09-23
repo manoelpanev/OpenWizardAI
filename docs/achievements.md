@@ -4,7 +4,7 @@ description: Level up through 11 conductor-themed ranks based on your cumulative
 icon: trophy
 ---
 
-Maestro features a conductor-themed achievement system that tracks your cumulative Auto Run time. The focus is simple: **longest run wins**. As you accumulate Auto Run hours, you level up through 11 ranks inspired by the hierarchy of orchestral conductors.
+OpenWizardAI features a conductor-themed achievement system that tracks your cumulative Auto Run time. The focus is simple: **longest run wins**. As you accumulate Auto Run hours, you level up through 11 ranks inspired by the hierarchy of orchestral conductors.
 
 ![Achievements](./screenshots/achievements.png)
 
@@ -19,22 +19,22 @@ Maestro features a conductor-themed achievement system that tracks your cumulati
 |   5   | **Principal Guest Conductor** | 1 week        | Esa-Pekka Salonen              |
 |   6   | **Chief Conductor**           | 30 days       | Andris Nelsons                 |
 |   7   | **Music Director**            | 3 months      | Sir Simon Rattle               |
-|   8   | **Maestro Emeritus**          | 6 months      | Bernard Haitink                |
-|   9   | **World Maestro**             | 1 year        | Kirill Petrenko                |
-|  10   | **Grand Maestro**             | 5 years       | Riccardo Muti                  |
+|   8   | **OpenWizardAI Emeritus**     | 6 months      | Bernard Haitink                |
+|   9   | **World OpenWizardAI**        | 1 year        | Kirill Petrenko                |
+|  10   | **Grand OpenWizardAI**        | 5 years       | Riccardo Muti                  |
 |  11   | **Titan of the Baton**        | 10 years      | Leonard Bernstein              |
 
 ## Reaching the Top
 
-Since Auto Runs can execute in parallel across multiple Maestro sessions, achieving **Titan of the Baton** (Level 11) is technically feasible in less than 10 calendar years. Run 10 agents simultaneously with worktrees and you could theoretically hit that milestone in about a year of real time.
+Since Auto Runs can execute in parallel across multiple OpenWizardAI sessions, achieving **Titan of the Baton** (Level 11) is technically feasible in less than 10 calendar years. Run 10 agents simultaneously with worktrees and you could theoretically hit that milestone in about a year of real time.
 
-But let's be real - getting to Level 11 is going to take some serious hacking. You'll need a well-orchestrated fleet of agents running around the clock, carefully crafted playbooks that loop indefinitely, and the infrastructure to keep it all humming. It's the ultimate test of your Maestro skills.
+But let's be real - getting to Level 11 is going to take some serious hacking. You'll need a well-orchestrated fleet of agents running around the clock, carefully crafted playbooks that loop indefinitely, and the infrastructure to keep it all humming. It's the ultimate test of your OpenWizardAI skills.
 
 The achievement panel shows your current rank, progress to the next level, and total accumulated time. Each rank includes flavor text and information about a legendary conductor who exemplifies that level of mastery.
 
 ## Sharing Your Achievements
 
-Generate a shareable image of your achievements to celebrate milestones or compare progress with other Maestro users. The share image captures **unique statistics not tracked anywhere else** in the app.
+Generate a shareable image of your achievements to celebrate milestones or compare progress with other OpenWizardAI users. The share image captures **unique statistics not tracked anywhere else** in the app.
 
 ![Achievement Share Image](./screenshots/achievements-share.png)
 
@@ -54,27 +54,27 @@ The share image includes comprehensive usage statistics:
 | **Total Tokens**      | Cumulative tokens processed across all sessions      |
 | **Total AutoRun**     | Cumulative Auto Run execution time                   |
 | **Longest AutoRun**   | Your personal record for longest continuous Auto Run |
-| **Hands-on Time**     | Time spent actively interacting with Maestro         |
+| **Hands-on Time**     | Time spent actively interacting with OpenWizardAI    |
 | **Registered Agents** | Peak number of agents you've configured              |
 | **Parallel AutoRuns** | Peak simultaneous Auto Runs achieved                 |
 | **Parallel Queries**  | Peak simultaneous AI queries in flight               |
 | **Queue Depth**       | Peak message queue depth reached                     |
 
-These peak usage stats are tracked automatically and persist across sessions. They represent your high-water marks - evidence of your most intensive Maestro orchestrations.
+These peak usage stats are tracked automatically and persist across sessions. They represent your high-water marks - evidence of your most intensive OpenWizardAI orchestrations.
 
-A peak only ever moves up. Nothing ages it out, prunes it, or recomputes it from your current setup, so a record you set months ago still stands even if you have since slimmed down to a handful of agents. Maestro enforces that when the value is written to disk rather than in the window that observed it, so a second window, or a window that is still starting up, cannot lower a record another one set.
+A peak only ever moves up. Nothing ages it out, prunes it, or recomputes it from your current setup, so a record you set months ago still stands even if you have since slimmed down to a handful of agents. OpenWizardAI enforces that when the value is written to disk rather than in the window that observed it, so a second window, or a window that is still starting up, cannot lower a record another one set.
 
 ## Keyboard Mastery
 
-Separate from Conductor ranks, Maestro tracks your **keyboard mastery** based on shortcut usage. As you discover and use more keyboard shortcuts, you level up through 5 mastery levels:
+Separate from Conductor ranks, OpenWizardAI tracks your **keyboard mastery** based on shortcut usage. As you discover and use more keyboard shortcuts, you level up through 5 mastery levels:
 
-| Level | Title            | Shortcuts Used |
-| :---: | ---------------- | -------------- |
-|   0   | Beginner         | 0-24%          |
-|   1   | Student          | 25-49%         |
-|   2   | Performer        | 50-74%         |
-|   3   | Virtuoso         | 75-99%         |
-|   4   | Keyboard Maestro | 100%           |
+| Level | Title                 | Shortcuts Used |
+| :---: | --------------------- | -------------- |
+|   0   | Beginner              | 0-24%          |
+|   1   | Student               | 25-49%         |
+|   2   | Performer             | 50-74%         |
+|   3   | Virtuoso              | 75-99%         |
+|   4   | Keyboard OpenWizardAI | 100%           |
 
 Mastery counts only the shortcuts that have a chord bound, so unassigned actions never hold you below 100%.
 
@@ -82,7 +82,7 @@ Your current keyboard mastery level and progress are shown in the **Keyboard Sho
 
 ## Leaderboard
 
-Opt-in to compete with fellow Maestro users on the global **Leaderboard** at [RunMaestro.ai](https://runmaestro.ai). Sign up to have your stats tracked and compete for top rankings.
+Opt-in to compete with fellow OpenWizardAI users on the global **Leaderboard** at [manoelpanev.ai](https://github.com/manoelpanev/OpenWizardAI). Sign up to have your stats tracked and compete for top rankings.
 
 ![Leaderboard](./screenshots/leaderboard.png)
 
@@ -93,7 +93,7 @@ The leaderboard tracks two competitive categories:
 | **Cumulative Auto Run Time** | Total time spent in Auto Run across all sessions |
 | **Longest Single Auto Run**  | Personal record for longest continuous Auto Run  |
 
-Each entry shows the user's conductor badge level, social links, and ranking. Your stats sync across devices when you're signed in, so your achievements follow you wherever you use Maestro.
+Each entry shows the user's conductor badge level, social links, and ranking. Your stats sync across devices when you're signed in, so your achievements follow you wherever you use OpenWizardAI.
 
 Your leaderboard avatar is sourced from GitHub. Link your GitHub profile in the registration form, and update your picture on GitHub to change how it appears on the leaderboard.
 
@@ -101,12 +101,12 @@ Your leaderboard avatar is sourced from GitHub. Link your GitHub profile in the 
 
 Auto Run time is credited on your machine first and sent to the leaderboard as
 it is earned. When a submission cannot go through (you are offline, the server
-is unreachable, or you quit mid-run before the time was sent), Maestro keeps the
+is unreachable, or you quit mid-run before the time was sent), OpenWizardAI keeps the
 unsent time in a queue and ships it on the next launch instead of dropping it.
 
 Occasionally time still goes missing - usually from a crash or a machine that
 was offline for a long stretch. The leaderboard adds up the time it receives, so
 it cannot backfill on its own: later runs only ever add their own time. When
-Maestro detects a gap, it warns you and the **Push Difference** button appears
+OpenWizardAI detects a gap, it warns you and the **Push Difference** button appears
 in the leaderboard panel next to **Pull Down**. Click it to send the missing
 time in one go, then **Pull Down** to confirm the new total.

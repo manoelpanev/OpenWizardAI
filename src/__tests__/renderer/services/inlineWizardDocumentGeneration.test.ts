@@ -423,8 +423,8 @@ CONTENT:
 			const fs = require('fs');
 			const path = require('path');
 			const promptsDir = path.resolve(__dirname, '..', '..', '..', '..', 'src', 'prompts');
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				prompts: {
 					get: vi.fn((id: string) => {
 						const filenameMap: Record<string, string> = {
@@ -458,7 +458,7 @@ CONTENT:
 				{ id: '2', role: 'assistant', content: 'I can help with that', timestamp: Date.now() },
 			],
 			mode: 'new',
-			autoRunFolderPath: '/project/root/.maestro/playbooks',
+			autoRunFolderPath: '/project/root/.openwizardai/playbooks',
 			...overrides,
 		});
 
@@ -469,10 +469,10 @@ CONTENT:
 
 			const prompt = generateDocumentPrompt(config);
 
-			// The prompt should contain the custom path, not the default '.maestro/playbooks'
+			// The prompt should contain the custom path, not the default '.openwizardai/playbooks'
 			expect(prompt).toContain('/custom/autorun/path');
 			// Should NOT contain the hardcoded pattern with directoryPath + default folder
-			expect(prompt).not.toContain('/project/root/.maestro/playbooks');
+			expect(prompt).not.toContain('/project/root/.openwizardai/playbooks');
 		});
 
 		it('should use external autoRunFolderPath when different from directoryPath', () => {
@@ -503,13 +503,13 @@ CONTENT:
 		it('should handle autoRunFolderPath that is inside directoryPath', () => {
 			const config = createTestConfig({
 				directoryPath: '/project/root',
-				autoRunFolderPath: '/project/root/.maestro/playbooks',
+				autoRunFolderPath: '/project/root/.openwizardai/playbooks',
 			});
 
 			const prompt = generateDocumentPrompt(config);
 
 			// Should still work correctly when path is inside project
-			expect(prompt).toContain('/project/root/.maestro/playbooks');
+			expect(prompt).toContain('/project/root/.openwizardai/playbooks');
 		});
 
 		it('should include project name in the prompt', () => {
@@ -561,7 +561,7 @@ CONTENT:
 			expect(prompt).toContain('Existing Documents');
 		});
 
-		it('should NOT contain hardcoded .maestro/playbooks when custom path is configured', () => {
+		it('should NOT contain hardcoded .openwizardai/playbooks when custom path is configured', () => {
 			const config = createTestConfig({
 				directoryPath: '/my/project',
 				autoRunFolderPath: '/completely/different/path',
@@ -571,7 +571,7 @@ CONTENT:
 
 			// The combined pattern should be replaced with custom path
 			// Check that we don't have the default path in write instructions
-			expect(prompt).not.toMatch(/\/my\/project\/\.maestro\/playbooks/);
+			expect(prompt).not.toMatch(/\/my\/project\/\.openwizardai\/playbooks/);
 			expect(prompt).toContain('/completely/different/path');
 		});
 
@@ -630,11 +630,11 @@ CONTENT:
 				return Promise.resolve({ success: true, files });
 			});
 
-			(window as any).maestro = {
-				...(window as any).maestro,
+			(window as any).openwizardai = {
+				...(window as any).openwizardai,
 				fs: { readFile: readFileMock },
 				autorun: {
-					...((window as any).maestro?.autorun || {}),
+					...((window as any).openwizardai?.autorun || {}),
 					listDocs: listDocsMock,
 				},
 			};

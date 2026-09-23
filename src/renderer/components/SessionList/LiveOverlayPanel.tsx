@@ -132,13 +132,13 @@ export const LiveOverlayPanel = memo(function LiveOverlayPanel({
 						{tunnelStatus === 'connected' ? (
 							<span className="text-blue-400">
 								{' '}
-								Remote tunnel active - access OpenWizzard from anywhere, even outside your network.
+								Remote tunnel active - access OpenWizardAI from anywhere, even outside your network.
 							</span>
 						) : (
 							<span>
 								{' '}
 								Scan the QR code on your local network, or enable remote control to control
-								OpenWizzard from anywhere.
+								OpenWizardAI from anywhere.
 							</span>
 						)}
 					</div>

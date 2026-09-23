@@ -32,7 +32,7 @@ describe('prCreationStore', () => {
 					reject = rejectFn;
 				})
 		);
-		(globalThis as unknown as { window: { maestro: unknown } }).window.maestro = {
+		(globalThis as unknown as { window: { openwizardai: unknown } }).window.openwizardai = {
 			git: { createPR },
 		};
 	});

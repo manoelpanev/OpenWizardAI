@@ -95,7 +95,10 @@ describe('StaticRoutes', () => {
 			const reply = createMockReply();
 			await route!.handler({}, reply);
 
-			expect(reply.redirect).toHaveBeenCalledWith(302, 'https://runmaestro.ai');
+			expect(reply.redirect).toHaveBeenCalledWith(
+				302,
+				'https://github.com/manoelpanev/OpenWizardAI'
+			);
 		});
 	});
 
@@ -156,7 +159,10 @@ describe('StaticRoutes', () => {
 			const reply = createMockReply();
 			await route!.handler({ params: { token: 'invalid-token' } }, reply);
 
-			expect(reply.redirect).toHaveBeenCalledWith(302, 'https://runmaestro.ai');
+			expect(reply.redirect).toHaveBeenCalledWith(
+				302,
+				'https://github.com/manoelpanev/OpenWizardAI'
+			);
 		});
 	});
 
@@ -176,7 +182,7 @@ describe('StaticRoutes', () => {
 
 	describe('Index HTML freshness', () => {
 		it('should serve updated index.html content after the file changes on disk', async () => {
-			const tempRoot = mkdtempSync(path.join(tmpdir(), 'maestro-static-routes-'));
+			const tempRoot = mkdtempSync(path.join(tmpdir(), 'openwizardai-static-routes-'));
 			const tempAssetsPath = path.join(tempRoot, 'web');
 			const tempIndexPath = path.join(tempAssetsPath, 'index.html');
 

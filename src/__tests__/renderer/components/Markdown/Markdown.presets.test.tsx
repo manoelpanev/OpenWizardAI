@@ -104,11 +104,11 @@ describe('Markdown presets', () => {
 			const { queryByTestId } = render(
 				<Markdown
 					preset="chat"
-					content={'<!-- maestro:halt: missing dependency -->'}
+					content={'<!-- openwizardai:halt: missing dependency -->'}
 					theme={mockTheme}
 				/>
 			);
-			expect(queryByTestId('maestro-marker-halt')).not.toBeInTheDocument();
+			expect(queryByTestId('openwizardai-marker-halt')).not.toBeInTheDocument();
 		});
 
 		it('renders mermaid fences via MermaidCodeBlock, not the plain CodeFence', () => {
@@ -157,11 +157,11 @@ describe('Markdown presets', () => {
 			const { getByTestId } = render(
 				<Markdown
 					preset="document"
-					content={'<!-- maestro:halt: missing dependency -->'}
+					content={'<!-- openwizardai:halt: missing dependency -->'}
 					theme={mockTheme}
 				/>
 			);
-			const pill = getByTestId('maestro-marker-halt');
+			const pill = getByTestId('openwizardai-marker-halt');
 			expect(pill).toHaveTextContent('Halted');
 			expect(pill).toHaveTextContent('missing dependency');
 		});

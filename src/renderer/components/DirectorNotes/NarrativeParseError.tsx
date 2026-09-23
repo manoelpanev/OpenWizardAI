@@ -79,7 +79,7 @@ export function NarrativeParseError({
 					<h3 className="text-sm font-bold" style={{ color: accent }}>
 						{recovery
 							? "Part of the AI's structured output could not be parsed"
-							: "OpenWizzard could not parse the AI's structured output"}
+							: "OpenWizardAI could not parse the AI's structured output"}
 					</h3>
 					<p className="text-xs mt-1" style={{ color: theme.colors.textMain }}>
 						{recovery

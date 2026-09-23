@@ -1,7 +1,7 @@
 /**
  * Preload API for file operations
  *
- * Provides the window.maestro.tempfile, history, and cli namespaces for:
+ * Provides the window.openwizardai.tempfile, history, and cli namespaces for:
  * - Temporary file operations
  * - History persistence
  * - CLI activity monitoring
@@ -62,7 +62,7 @@ export interface HistoryEntry {
 	elapsedTimeMs?: number;
 	validated?: boolean;
 	hostname?: string;
-	/** Claude-only, per-turn: `interactive` = maestro-p TUI, `api` = `claude --print`. */
+	/** Claude-only, per-turn: `interactive` = openwizardai-p TUI, `api` = `claude --print`. */
 	tokenSource?: 'interactive' | 'api';
 	/** Claude-only, per-turn: `auto` = user/usage selected, `limit` = forced API fallback. */
 	tokenSourceReason?: 'auto' | 'limit';

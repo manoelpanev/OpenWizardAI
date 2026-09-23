@@ -17,7 +17,7 @@
  * target. rename() is atomic on POSIX and effectively atomic on NTFS, so every
  * reader sees either the whole old file or the whole new file - never a partial
  * one. This holds across processes too, which matters because both the desktop
- * app and `maestro-cli` write the same history files.
+ * app and `openwizardai-cli` write the same history files.
  *
  * `createKeyedWriteQueue` fixes (2) within a process: it serializes every
  * mutation for a given key (e.g. a session id) so read-modify-write sequences

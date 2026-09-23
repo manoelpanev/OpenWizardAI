@@ -1,7 +1,7 @@
 import type { ClickModifiers, LinkAction, LinkDescriptor } from './types';
 
-const MAESTRO_FILE_PROTOCOL = 'maestro-file://';
-const MAESTRO_DEEP_LINK_PROTOCOL = 'maestro://';
+const OPENWIZARDAI_FILE_PROTOCOL = 'openwizardai-file://';
+const OPENWIZARDAI_DEEP_LINK_PROTOCOL = 'openwizardai://';
 
 /** External protocols we hand off to the parent's external-link handler.
  * Case-insensitive so `HTTPS://` and other uppercase variants still match. */
@@ -24,22 +24,22 @@ export function resolveLinkAction(link: LinkDescriptor, modifiers: ClickModifier
 	// Internal file references emitted by remarkFileLinks pre-rewrite get
 	// stamped with a data attribute. Prefer it over href because it survives
 	// DOMPurify sanitization even when the URI scheme is exotic.
-	if (link.dataMaestroFile) {
-		return { kind: 'maestro-file', path: link.dataMaestroFile, openInNewTab };
+	if (link.dataOpenwizardaiFile) {
+		return { kind: 'openwizardai-file', path: link.dataOpenwizardaiFile, openInNewTab };
 	}
 
 	const href = link.href || '';
 
-	if (href.startsWith(MAESTRO_FILE_PROTOCOL)) {
+	if (href.startsWith(OPENWIZARDAI_FILE_PROTOCOL)) {
 		return {
-			kind: 'maestro-file',
-			path: href.slice(MAESTRO_FILE_PROTOCOL.length),
+			kind: 'openwizardai-file',
+			path: href.slice(OPENWIZARDAI_FILE_PROTOCOL.length),
 			openInNewTab,
 		};
 	}
 
-	if (href.startsWith(MAESTRO_DEEP_LINK_PROTOCOL)) {
-		return { kind: 'maestro-deep-link', href };
+	if (href.startsWith(OPENWIZARDAI_DEEP_LINK_PROTOCOL)) {
+		return { kind: 'openwizardai-deep-link', href };
 	}
 
 	if (href.startsWith('#')) {

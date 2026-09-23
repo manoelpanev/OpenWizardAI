@@ -1,5 +1,5 @@
 /**
- * Maestro's Auto Run document markers, and what state each one is in.
+ * OpenWizardAI's Auto Run document markers, and what state each one is in.
  *
  * A playbook carries three kinds of HTML-comment marker, and they share a
  * problem: an HTML comment renders as nothing, so a marker that is actively
@@ -11,16 +11,16 @@
  *
  * | Marker              | Effect when live                                  |
  * | ------------------- | ------------------------------------------------- |
- * | `MAESTRO:HITL`      | Pauses the run until a human ticks the box         |
- * | `maestro:halt`      | Refuses to start; must be removed by hand          |
- * | `MAESTRO:MODEL`     | Changes the model/effort the next task runs at     |
+ * | `OPENWIZARDAI:HITL`      | Pauses the run until a human ticks the box         |
+ * | `openwizardai:halt`      | Refuses to start; must be removed by hand          |
+ * | `OPENWIZARDAI:MODEL`     | Changes the model/effort the next task runs at     |
  *
  * This module owns the regexes and the state resolution for all three, so the
  * engines and the renderer agree on what is live. It lives in `shared/` because
  * the CLI engine cannot import from `src/renderer`, and a marker that meant one
  * thing to the engine and another to the pill would be worse than no pill.
  *
- * {@link scanMaestroMarkers} is the rendering side: every marker, with status.
+ * {@link scanOpenWizardAIMarkers} is the rendering side: every marker, with status.
  * {@link findPendingHitlGate} and {@link detectHaltMarker} are the engine side,
  * moved here unchanged from the desktop and CLI engines respectively.
  */
@@ -33,29 +33,29 @@ import {
 import { parseModelMarker, type ModelHint } from './autorunModelHints';
 
 /**
- * `<!-- MAESTRO:HITL reason="..." artifact="..." -->`
+ * `<!-- OPENWIZARDAI:HITL reason="..." artifact="..." -->`
  *
  * The marker may span multiple lines in source, but a single line is the unit
  * because playbook authors place it on its own line per the documented
  * convention.
  */
-export const HITL_MARKER_REGEX = /<!--\s*MAESTRO:HITL\b([^]*?)-->/;
+export const HITL_MARKER_REGEX = /<!--\s*OPENWIZARDAI:HITL\b([^]*?)-->/;
 
 /**
- * `<!-- maestro:halt -->` or `<!-- maestro:halt: reason -->`
+ * `<!-- openwizardai:halt -->` or `<!-- openwizardai:halt: reason -->`
  *
  * Case-insensitive on the keyword to tolerate agent variations, but the literal
- * token `maestro:halt` is required to keep false positives effectively zero.
+ * token `openwizardai:halt` is required to keep false positives effectively zero.
  */
-export const HALT_MARKER_REGEX = /<!--\s*maestro:halt\s*(?::\s*([^>]*?))?\s*-->/i;
+export const HALT_MARKER_REGEX = /<!--\s*openwizardai:halt\s*(?::\s*([^>]*?))?\s*-->/i;
 
-/** `<!-- MAESTRO:MODEL tier="high" effort="high" -->` */
-export const MODEL_MARKER_REGEX = /<!--\s*MAESTRO:MODEL\b([^]*?)-->/i;
+/** `<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->` */
+export const MODEL_MARKER_REGEX = /<!--\s*OPENWIZARDAI:MODEL\b([^]*?)-->/i;
 
 /**
  * Inline code spans, so a marker someone QUOTED in prose is not obeyed.
  *
- * `` `<!-- maestro:halt: reason -->` `` in a sentence is an author showing the
+ * `` `<!-- openwizardai:halt: reason -->` `` in a sentence is an author showing the
  * syntax; the same bytes without backticks are an agent using it. Markers carry
  * no backticks of their own, so the naive lazy match is exact here.
  */
@@ -67,7 +67,7 @@ function stripInlineCode(line: string): string {
 }
 
 /** Any of the three, for the cheap "is this comment ours at all" test. */
-const ANY_MARKER_REGEX = /<!--\s*(?:MAESTRO:HITL|maestro:halt|MAESTRO:MODEL)\b/i;
+const ANY_MARKER_REGEX = /<!--\s*(?:OPENWIZARDAI:HITL|openwizardai:halt|OPENWIZARDAI:MODEL)\b/i;
 
 export interface HitlGate {
 	reason: string;
@@ -145,7 +145,7 @@ export interface HaltMarker {
 }
 
 /**
- * Find the `<!-- maestro:halt -->` early-exit marker a run must obey.
+ * Find the `<!-- openwizardai:halt -->` early-exit marker a run must obey.
  *
  * An EXECUTING agent writes this marker into the current Auto Run document to
  * abort the whole playbook: no further tasks in this document, no further
@@ -155,7 +155,7 @@ export interface HaltMarker {
  * The hard part is that an AUTHORING agent writes the same bytes for the
  * opposite purpose. Playbook authors are told they may call out halt-worthy
  * conditions, so they produce lines like "if the build is broken, write
- * `<!-- maestro:halt: build broken -->`" - a DESCRIPTION of a halt, not a
+ * `<!-- openwizardai:halt: build broken -->`" - a DESCRIPTION of a halt, not a
  * halt. Matched naively that description blocks the playbook before its first
  * task ever runs, and because an HTML comment renders as nothing, the user sees
  * a playbook that refuses to start with no visible cause. That is the failure
@@ -208,7 +208,7 @@ export function detectHaltMarker(content: string): { halted: boolean; reason?: s
  *   passed, and a halt blocks wherever it sits.
  * - `spent` - it has already been passed and is now inert. A HITL gate whose
  *   box has been ticked; a model hint whose section is finished.
- * - `invalid` - it names a value Maestro does not understand, so it will be
+ * - `invalid` - it names a value OpenWizardAI does not understand, so it will be
  *   ignored. Worth showing loudly: the author thinks it is doing something.
  *
  * The `upcoming` / `spent` split exists because collapsing them told the reader
@@ -240,7 +240,7 @@ export interface ScannedMarker {
 }
 
 /**
- * Every Maestro marker in a document, in source order, each with its status.
+ * Every OpenWizardAI marker in a document, in source order, each with its status.
  *
  * This is what the renderer draws pills from. It answers the question a reader
  * actually has - "is this thing going to stop my run?" - rather than merely
@@ -262,7 +262,7 @@ export interface ScannedMarker {
  * and quotation-aware in the same three positions {@link findHaltMarker} uses,
  * so the pill and the engine cannot disagree about whether a run will stop.
  */
-export function scanMaestroMarkers(content: string): ScannedMarker[] {
+export function scanOpenWizardAIMarkers(content: string): ScannedMarker[] {
 	const markers: ScannedMarker[] = [];
 	// HITL markers whose status is still unknown because no task has appeared
 	// below them yet. Resolved in bulk when the next task line decides for all.
@@ -380,7 +380,7 @@ export function scanMaestroMarkers(content: string): ScannedMarker[] {
 	return markers;
 }
 
-/** True when a line carries any Maestro marker. Cheap pre-filter for renderers. */
-export function hasMaestroMarker(text: string): boolean {
+/** True when a line carries any OpenWizardAI marker. Cheap pre-filter for renderers. */
+export function hasOpenWizardAIMarker(text: string): boolean {
 	return ANY_MARKER_REGEX.test(text);
 }

@@ -65,7 +65,7 @@ function getRecoveryActionsForError(
 	switch (error.type) {
 		case 'auth_expired': {
 			// Authentication error - offer to re-authenticate or start new session.
-			// The login runs inside Maestro's re-authentication terminal, so the
+			// The login runs inside OpenWizardAI's re-authentication terminal, so the
 			// description names the actual command instead of telling the user to
 			// go find a terminal themselves.
 			const login = getAgentLoginCommand(agentId);

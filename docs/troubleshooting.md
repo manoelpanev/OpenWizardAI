@@ -1,24 +1,24 @@
 ---
 title: Troubleshooting & Support
-description: System logs, process monitor, debug packages, and how to get help with Maestro.
+description: System logs, process monitor, debug packages, and how to get help with OpenWizardAI.
 icon: life-ring
 ---
 
 ## Frequently Asked Questions
 
-**Do my MCP tools, skills, and permissions work in Maestro?**
+**Do my MCP tools, skills, and permissions work in OpenWizardAI?**
 
-Yes. Maestro is a pass-through - it calls your provider (Claude Code, Codex, OpenCode) in batch mode rather than interactive mode. Whatever works when you run the provider directly will work in Maestro. Your MCP servers, custom skills, authentication, and tool permissions all carry over automatically.
+Yes. OpenWizardAI is a pass-through - it calls your provider (Claude Code, Codex, OpenCode) in batch mode rather than interactive mode. Whatever works when you run the provider directly will work in OpenWizardAI. Your MCP servers, custom skills, authentication, and tool permissions all carry over automatically.
 
-**What's the difference between running the provider directly vs. through Maestro?**
+**What's the difference between running the provider directly vs. through OpenWizardAI?**
 
-The only difference is execution mode. When you run Claude Code directly, it's interactive - you send a message, watch it work, and respond in real-time. Maestro runs in batch mode: it sends a prompt, the provider processes it fully, and returns the response. This enables unattended automation via Auto Run and parallel agent management. Everything else - your tools, permissions, context - remains identical.
+The only difference is execution mode. When you run Claude Code directly, it's interactive - you send a message, watch it work, and respond in real-time. OpenWizardAI runs in batch mode: it sends a prompt, the provider processes it fully, and returns the response. This enables unattended automation via Auto Run and parallel agent management. Everything else - your tools, permissions, context - remains identical.
 
 ---
 
 ## System Logs
 
-Maestro maintains detailed system logs that help diagnose issues. Access them via:
+OpenWizardAI maintains detailed system logs that help diagnose issues. Access them via:
 
 - **Keyboard:** `Opt+Cmd+L` (Mac) / `Alt+Ctrl+L` (Windows/Linux)
 - **Quick Actions:** `Cmd+K` / `Ctrl+K` → "View System Logs"
@@ -35,7 +35,7 @@ The **System Log Viewer** shows:
 
 ## Process Monitor
 
-Monitor all running processes spawned by Maestro:
+Monitor all running processes spawned by OpenWizardAI:
 
 - **Keyboard:** `Opt+Cmd+P` (Mac) / `Alt+Ctrl+P` (Windows/Linux)
 - **Quick Actions:** `Cmd+K` / `Ctrl+K` → "View System Processes"
@@ -76,7 +76,7 @@ This is useful when an agent becomes unresponsive or you need to diagnose proces
 
 Two of the errors below rarely reach you at all. **Rate Limit Exceeded** and a spent plan quota are handled by [Agent Resilience](/agent-resilience), which resends your prompt on its own and shows a live countdown card in the transcript instead of a modal. The table applies when resilience is turned off for that agent, or when the failure is one it deliberately does not retry.
 
-When an AI agent encounters an error, Maestro displays a modal with clear recovery options. Common error types include:
+When an AI agent encounters an error, OpenWizardAI displays a modal with clear recovery options. Common error types include:
 
 | Error Type                  | Description                        | Recovery Options                               |
 | --------------------------- | ---------------------------------- | ---------------------------------------------- |
@@ -97,24 +97,24 @@ Each error modal shows:
 
 ### Expired Provider Credentials
 
-An expired token is handled differently from the errors above, because it takes down every agent AND every Cue pipeline on that provider at once. Instead of the generic error modal, Maestro opens a re-authentication dialog with a terminal embedded in it and runs the provider's own login command for you (`claude /login`, `codex login`, `opencode auth login`, and so on). Finish the login in that terminal and click Done. The agent keeps its view and its transcript.
+An expired token is handled differently from the errors above, because it takes down every agent AND every Cue pipeline on that provider at once. Instead of the generic error modal, OpenWizardAI opens a re-authentication dialog with a terminal embedded in it and runs the provider's own login command for you (`claude /login`, `codex login`, `opencode auth login`, and so on). Finish the login in that terminal and click Done. The agent keeps its view and its transcript.
 
 Two details worth knowing:
 
 - **Agents on an SSH remote log in on that remote.** The embedded terminal is spawned exactly like a terminal tab, so the login runs on the host the agent actually runs on.
-- **Cue pipelines raise the same dialog.** Cue spawns its agents outside the normal streaming path, so a pipeline that fails on expired credentials used to fail silently in the background. Maestro now classifies the failed run and prompts once per provider. It stays quiet after that until a run for that provider succeeds again, so a busy board cannot bury you in dialogs.
+- **Cue pipelines raise the same dialog.** Cue spawns its agents outside the normal streaming path, so a pipeline that fails on expired credentials used to fail silently in the background. OpenWizardAI now classifies the failed run and prompts once per provider. It stays quiet after that until a run for that provider succeeds again, so a busy board cannot bury you in dialogs.
 - **You can sign in before anything breaks.** Command K -> **Re-authenticate Provider** opens the same dialog for the current agent's provider, with nothing failed. Useful when you are switching accounts, or when you know a token is about to lapse and would rather not have it expire mid-run.
 
 ## Debug Package
 
-If you encounter deep-seated issues that are difficult to diagnose, Maestro can generate a **Debug Package** - a compressed bundle of diagnostic information that you can safely share when reporting bugs.
+If you encounter deep-seated issues that are difficult to diagnose, OpenWizardAI can generate a **Debug Package** - a compressed bundle of diagnostic information that you can safely share when reporting bugs.
 
 **To create a Debug Package:**
 
 1. Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux) to open Quick Actions
 2. Search for "Create Debug Package"
 3. Choose a save location for the `.zip` file
-4. Attach the file to your [GitHub issue](https://github.com/RunMaestro/Maestro/issues)
+4. Attach the file to your [GitHub issue](https://github.com/manoelpanev/OpenWizardAI/issues)
 
 ### What's Included
 
@@ -170,7 +170,7 @@ The descriptor keeps only what is useful for debugging: where the path starts (`
 
 ## WSL2 Issues (Windows)
 
-If you're running Maestro through WSL2, most issues stem from using Windows-mounted paths. See the [WSL2 installation guide](./installation#wsl2-users-windows-subsystem-for-linux) for the recommended setup.
+If you're running OpenWizardAI through WSL2, most issues stem from using Windows-mounted paths. See the [WSL2 installation guide](./installation#wsl2-users-windows-subsystem-for-linux) for the recommended setup.
 
 ### Common WSL2 Problems
 
@@ -181,8 +181,8 @@ The Vite dev server or Electron cannot bind to ports when running from `/mnt/...
 **Solution:** Move your project to the native Linux filesystem:
 
 ```bash
-mv /mnt/c/projects/maestro ~/maestro
-cd ~/maestro
+mv /mnt/c/projects/openwizardai ~/openwizardai
+cd ~/openwizardai
 npm install
 npm run dev
 ```
@@ -201,8 +201,8 @@ Cross-filesystem operations between WSL and Windows are unreliable for npm's fil
 
 ```bash
 cd ~
-git clone https://github.com/RunMaestro/Maestro.git
-cd maestro
+git clone https://github.com/manoelpanev/OpenWizardAI.git
+cd openwizardai
 npm install
 ```
 
@@ -251,41 +251,41 @@ Then rebuild the cache: `fc-cache -f -v`
 
 ## macOS Privacy Permissions
 
-macOS gates calendars, reminders, contacts, photos, the local network, and the Desktop / Documents / Downloads folders behind TCC (Transparency, Consent, and Control). TCC attributes a request to the **responsible process**, which for anything an agent shells out to is Maestro itself:
+macOS gates calendars, reminders, contacts, photos, the local network, and the Desktop / Documents / Downloads folders behind TCC (Transparency, Consent, and Control). TCC attributes a request to the **responsible process**, which for anything an agent shells out to is OpenWizardAI itself:
 
 ```
-Maestro.app -> claude -> zsh -> ical
+OpenWizardAI.app -> claude -> zsh -> ical
 ```
 
-So when an agent runs a CLI that touches one of those services, the consent dialog names **Maestro**, and the switch you flip afterwards lives under Maestro's row in System Settings > Privacy & Security. That attribution is expected, not a bug: the tool is borrowing Maestro's identity because Maestro is what launched it.
+So when an agent runs a CLI that touches one of those services, the consent dialog names **OpenWizardAI**, and the switch you flip afterwards lives under OpenWizardAI's row in System Settings > Privacy & Security. That attribution is expected, not a bug: the tool is borrowing OpenWizardAI's identity because OpenWizardAI is what launched it.
 
 ### A tool reports "access denied" and no dialog ever appears
 
-On older builds, Maestro declared no usage-description string for these services, so macOS denied every such request instantly and silently. It will not prompt on behalf of a purpose string an app never declared, and with nothing to prompt for, no Maestro row appears in the Privacy pane to enable. Update Maestro.
+On older builds, OpenWizardAI declared no usage-description string for these services, so macOS denied every such request instantly and silently. It will not prompt on behalf of a purpose string an app never declared, and with nothing to prompt for, no OpenWizardAI row appears in the Privacy pane to enable. Update OpenWizardAI.
 
 On a current build, a missing prompt usually means macOS has cached an earlier decision. Reset the relevant service and run the command again:
 
 ```bash
-tccutil reset Calendar com.maestro.app
-tccutil reset Reminders com.maestro.app
-tccutil reset AddressBook com.maestro.app
-tccutil reset Photos com.maestro.app
-tccutil reset MediaLibrary com.maestro.app
-tccutil reset AppleEvents com.maestro.app
-tccutil reset SpeechRecognition com.maestro.app
-tccutil reset SystemPolicyDesktopFolder com.maestro.app
-tccutil reset SystemPolicyDocumentsFolder com.maestro.app
-tccutil reset SystemPolicyDownloadsFolder com.maestro.app
-tccutil reset SystemPolicyRemovableVolumes com.maestro.app
-tccutil reset SystemPolicyNetworkVolumes com.maestro.app
+tccutil reset Calendar com.openwizardai.app
+tccutil reset Reminders com.openwizardai.app
+tccutil reset AddressBook com.openwizardai.app
+tccutil reset Photos com.openwizardai.app
+tccutil reset MediaLibrary com.openwizardai.app
+tccutil reset AppleEvents com.openwizardai.app
+tccutil reset SpeechRecognition com.openwizardai.app
+tccutil reset SystemPolicyDesktopFolder com.openwizardai.app
+tccutil reset SystemPolicyDocumentsFolder com.openwizardai.app
+tccutil reset SystemPolicyDownloadsFolder com.openwizardai.app
+tccutil reset SystemPolicyRemovableVolumes com.openwizardai.app
+tccutil reset SystemPolicyNetworkVolumes com.openwizardai.app
 ```
 
-Run `tccutil reset All com.maestro.app` to clear every service at once. Local network access has no `tccutil` service name; toggle Maestro off and on under System Settings > Privacy & Security > Local Network instead.
+Run `tccutil reset All com.openwizardai.app` to clear every service at once. Local network access has no `tccutil` service name; toggle OpenWizardAI off and on under System Settings > Privacy & Security > Local Network instead.
 
 Omitting the bundle id resets that service for every app on the machine.
 
 ## Getting Help
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/RunMaestro/Maestro/issues)
-- **Discord**: [Join the community](https://runmaestro.ai/discord)
-- **Documentation**: [Docs site](https://docs.runmaestro.ai), [CONTRIBUTING.md](https://github.com/RunMaestro/Maestro/blob/main/CONTRIBUTING.md), and [ARCHITECTURE.md](https://github.com/RunMaestro/Maestro/blob/main/ARCHITECTURE.md)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/manoelpanev/OpenWizardAI/issues)
+- **Discord**: [Join the community](https://github.com/manoelpanev/OpenWizardAI/discussions)
+- **Documentation**: [Docs site](https://github.com/manoelpanev/OpenWizardAI/tree/main/docs), [CONTRIBUTING.md](https://github.com/manoelpanev/OpenWizardAI/blob/main/CONTRIBUTING.md), and [ARCHITECTURE.md](https://github.com/manoelpanev/OpenWizardAI/blob/main/ARCHITECTURE.md)

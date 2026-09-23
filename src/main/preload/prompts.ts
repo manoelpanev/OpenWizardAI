@@ -1,7 +1,7 @@
 /**
  * Preload API for core prompts
  *
- * Provides the window.maestro.prompts namespace for:
+ * Provides the window.openwizardai.prompts namespace for:
  * - Getting individual prompts by ID
  * - Getting all prompts with metadata (for Settings UI)
  * - Saving user customizations

@@ -412,8 +412,8 @@ export const BrowserTabView = React.memo(
 			// cooldown) whenever the viewport height changes, so only post-resize,
 			// same-height deltas can move the bar.
 			const scrollInjection = `(function(){
-			if(window.__maestroScrollListenerInstalled)return;
-			window.__maestroScrollListenerInstalled=true;
+			if(window.__openwizardaiScrollListenerInstalled)return;
+			window.__openwizardaiScrollListenerInstalled=true;
 			var lastY=window.scrollY,lastH=window.innerHeight,hidden=false,ticking=false,settleUntil=0;
 			window.addEventListener('resize',function(){
 				lastH=window.innerHeight;lastY=window.scrollY;settleUntil=Date.now()+400;
@@ -426,9 +426,9 @@ export const BrowserTabView = React.memo(
 					var y=window.scrollY,h=window.innerHeight;
 					if(h!==lastH){lastH=h;lastY=y;settleUntil=Date.now()+400;return;}
 					if(Date.now()<settleUntil){lastY=y;return;}
-					if(y<=0&&hidden){hidden=false;console.log('__MAESTRO_SCROLL__0');}
-					else if(y-lastY>10&&!hidden){hidden=true;console.log('__MAESTRO_SCROLL__1');}
-					else if(lastY-y>10&&hidden){hidden=false;console.log('__MAESTRO_SCROLL__0');}
+					if(y<=0&&hidden){hidden=false;console.log('__OPENWIZARDAI_SCROLL__0');}
+					else if(y-lastY>10&&!hidden){hidden=true;console.log('__OPENWIZARDAI_SCROLL__1');}
+					else if(lastY-y>10&&hidden){hidden=false;console.log('__OPENWIZARDAI_SCROLL__0');}
 					lastY=y;
 				});
 			},{passive:true});
@@ -445,8 +445,8 @@ export const BrowserTabView = React.memo(
 			// letters (a/c/x/z) keep their native text-editing behavior inside
 			// page inputs.
 			const keyboardInjection = `(function(){
-			if(window.__maestroShortcutCaptureInstalled)return;
-			window.__maestroShortcutCaptureInstalled=true;
+			if(window.__openwizardaiShortcutCaptureInstalled)return;
+			window.__openwizardaiShortcutCaptureInstalled=true;
 			document.addEventListener('keydown',function(e){
 				var hasMod=e.metaKey||e.ctrlKey;
 				var hasAlt=e.altKey;
@@ -457,7 +457,7 @@ export const BrowserTabView = React.memo(
 				if(te||re)return;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				console.log('__MAESTRO_KEY__'+JSON.stringify({
+				console.log('__OPENWIZARDAI_KEY__'+JSON.stringify({
 					key:e.key,code:e.code,
 					meta:e.metaKey,control:e.ctrlKey,
 					alt:e.altKey,shift:e.shiftKey
@@ -470,9 +470,9 @@ export const BrowserTabView = React.memo(
 			};
 			const handleConsoleMessage = (event: Event) => {
 				const msg = (event as Event & { message?: string }).message;
-				if (msg === '__MAESTRO_SCROLL__1') setAddressBarHidden(true);
-				else if (msg === '__MAESTRO_SCROLL__0') setAddressBarHidden(false);
-				// __MAESTRO_KEY__ shortcuts are forwarded by the main process
+				if (msg === '__OPENWIZARDAI_SCROLL__1') setAddressBarHidden(true);
+				else if (msg === '__OPENWIZARDAI_SCROLL__0') setAddressBarHidden(false);
+				// __OPENWIZARDAI_KEY__ shortcuts are forwarded by the main process
 				// (via before-input-event and console-message → IPC) and handled
 				// by the onBrowserTabShortcutKey listener in useMainKeyboardHandler.
 			};
@@ -694,7 +694,7 @@ export const BrowserTabView = React.memo(
 
 		const handleOpenExternal = useCallback(() => {
 			if (tab.url === DEFAULT_BROWSER_TAB_URL) return;
-			void window.maestro.shell.openExternal(tab.url);
+			void window.openwizardai.shell.openExternal(tab.url);
 		}, [tab.url]);
 
 		return (
@@ -827,7 +827,7 @@ export const BrowserTabView = React.memo(
 						partition={tab.partition}
 						// Must go through toWebviewSrc: Electron parses this attribute with
 						// `new URL()` while attaching, and an unparseable value throws
-						// mid-commit and crashes the renderer (MAESTRO-QX/QY/QZ).
+						// mid-commit and crashes the renderer (OPENWIZARDAI-QX/QY/QZ).
 						src={toWebviewSrc(tab.url)}
 					/>
 					{findOpen ? (

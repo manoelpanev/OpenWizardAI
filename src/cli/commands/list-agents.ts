@@ -1,5 +1,5 @@
 // List agents command
-// Lists all agents/sessions from Maestro storage
+// Lists all agents/sessions from OpenWizardAI storage
 
 import { readSessions, readGroups, getSessionsByGroup, resolveGroupId } from '../services/storage';
 import { formatAgents, formatError, AgentDisplay } from '../output/formatter';

@@ -1,5 +1,5 @@
 /**
- * Notification Hook for Maestro Mobile Web
+ * Notification Hook for OpenWizardAI Mobile Web
  *
  * Handles notification permission requests and push notification
  * functionality for the mobile web interface.
@@ -64,7 +64,7 @@ const DEFAULT_PREFERENCES: NotificationPreferences = {
 	soundEnabled: false,
 };
 
-const NOTIFICATION_PREFS_KEY = 'maestro-notification-prefs';
+const NOTIFICATION_PREFS_KEY = 'openwizardai-notification-prefs';
 
 /**
  * Notification permission states
@@ -74,12 +74,12 @@ export type NotificationPermission = 'default' | 'granted' | 'denied';
 /**
  * Storage key for tracking if we've asked for permission before
  */
-const NOTIFICATION_PROMPT_KEY = 'maestro_notification_prompted';
+const NOTIFICATION_PROMPT_KEY = 'openwizardai_notification_prompted';
 
 /**
  * Storage key for user preference (if they explicitly declined)
  */
-const NOTIFICATION_DECLINED_KEY = 'maestro_notification_declined';
+const NOTIFICATION_DECLINED_KEY = 'openwizardai_notification_declined';
 
 /**
  * Configuration options for the useNotifications hook
@@ -238,8 +238,8 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
 			try {
 				const notification = new Notification(title, {
-					icon: '/maestro-icon-192.png',
-					badge: '/maestro-icon-192.png',
+					icon: '/openwizardai-icon-192.png',
+					badge: '/openwizardai-icon-192.png',
 					...options,
 				});
 
@@ -356,7 +356,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
 			const notification = showNotificationRef.current(event.sessionName, {
 				body: event.message,
-				tag: `maestro-${event.eventType}-${event.sessionId}`,
+				tag: `openwizardai-${event.eventType}-${event.sessionId}`,
 				icon: '/icon-192.png',
 			});
 
@@ -364,7 +364,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 				notification.onclick = () => {
 					window.focus();
 					window.dispatchEvent(
-						new CustomEvent('maestro-notification-click', {
+						new CustomEvent('openwizardai-notification-click', {
 							detail: { sessionId: event.sessionId },
 						})
 					);

@@ -68,7 +68,7 @@ export function useRemotePathValidation({
 			setValidation((prev) => ({ ...prev, checking: true }));
 
 			try {
-				const stat = await window.maestro.fs.stat(trimmedPath, remoteId ?? undefined);
+				const stat = await window.openwizardai.fs.stat(trimmedPath, remoteId ?? undefined);
 				if (cancelled) return;
 				if (stat && stat.isDirectory) {
 					setValidation({

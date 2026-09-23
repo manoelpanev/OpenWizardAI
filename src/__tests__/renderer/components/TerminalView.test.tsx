@@ -165,16 +165,16 @@ const defaultProps = {
 	onTabPidChange: vi.fn(),
 };
 
-// Extend the global window.maestro process mock with terminal-specific methods
+// Extend the global window.openwizardai process mock with terminal-specific methods
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const maestro = () => (window as any).maestro;
+const openwizardai = () => (window as any).openwizardai;
 
 beforeEach(() => {
 	vi.clearAllMocks();
 	xtermPropsBySessionId.clear();
 	// spawnTerminalTab and onData are not in the global setup mock - add them here
-	maestro().process.spawnTerminalTab = vi.fn().mockResolvedValue({ success: true, pid: 9999 });
-	maestro().process.onData = vi.fn().mockReturnValue(() => {});
+	openwizardai().process.spawnTerminalTab = vi.fn().mockResolvedValue({ success: true, pid: 9999 });
+	openwizardai().process.onData = vi.fn().mockReturnValue(() => {});
 });
 
 // ---------------------------------------------------------------------------
@@ -502,7 +502,7 @@ describe('TerminalView — killed shell keeps the tab (issue #1184)', () => {
 	 *  rerenders with the tab flipped to 'exited' as the store would. */
 	function exitPlainTabWith(code: number, signal?: number) {
 		let onExitCb: ((sessionId: string, code: number, signal?: number) => void) | undefined;
-		maestro().process.onExit = vi.fn((cb: typeof onExitCb) => {
+		openwizardai().process.onExit = vi.fn((cb: typeof onExitCb) => {
 			onExitCb = cb;
 			return () => {};
 		});
@@ -584,7 +584,7 @@ describe('TerminalView — SSH terminal working directory (regression)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		});
 
-		expect(maestro().process.spawnTerminalTab).toHaveBeenCalledWith(
+		expect(openwizardai().process.spawnTerminalTab).toHaveBeenCalledWith(
 			expect.objectContaining({
 				sessionSshRemoteConfig: expect.objectContaining({
 					enabled: true,
@@ -613,7 +613,7 @@ describe('TerminalView — SSH terminal working directory (regression)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		});
 
-		expect(maestro().process.spawnTerminalTab).toHaveBeenCalledWith(
+		expect(openwizardai().process.spawnTerminalTab).toHaveBeenCalledWith(
 			expect.objectContaining({
 				sessionSshRemoteConfig: expect.objectContaining({
 					enabled: true,
@@ -642,7 +642,7 @@ describe('TerminalView — SSH terminal working directory (regression)', () => {
 		});
 
 		// session.cwd is the last-resort fallback - for SSH sessions this IS a remote path
-		expect(maestro().process.spawnTerminalTab).toHaveBeenCalledWith(
+		expect(openwizardai().process.spawnTerminalTab).toHaveBeenCalledWith(
 			expect.objectContaining({
 				sessionSshRemoteConfig: expect.objectContaining({
 					enabled: true,
@@ -668,7 +668,7 @@ describe('TerminalView — SSH terminal working directory (regression)', () => {
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		});
 
-		expect(maestro().process.spawnTerminalTab).toHaveBeenCalledWith(
+		expect(openwizardai().process.spawnTerminalTab).toHaveBeenCalledWith(
 			expect.objectContaining({
 				sessionSshRemoteConfig: expect.objectContaining({
 					enabled: true,
@@ -745,7 +745,7 @@ describe('TerminalView — clearActiveTerminal sends Ctrl+L to the PTY', () => {
 	it('calls XTerminal.clear and writes \\x0c to the tab PTY when invoked', async () => {
 		const tab = makeTab({ id: 'tab-1', pid: 1234, state: 'idle' });
 		const session = makeSession([tab]);
-		maestro().process.write = vi.fn().mockResolvedValue(undefined);
+		openwizardai().process.write = vi.fn().mockResolvedValue(undefined);
 
 		const ref =
 			React.createRef<import('../../../renderer/components/TerminalView').TerminalViewHandle>();
@@ -757,12 +757,12 @@ describe('TerminalView — clearActiveTerminal sends Ctrl+L to the PTY', () => {
 		});
 
 		expect(mockXtermClear).toHaveBeenCalledTimes(1);
-		expect(maestro().process.write).toHaveBeenCalledWith('session-1-terminal-tab-1', '\x0c');
+		expect(openwizardai().process.write).toHaveBeenCalledWith('session-1-terminal-tab-1', '\x0c');
 	});
 
 	it('is a no-op when there is no active terminal tab', () => {
 		const session = makeSession([]);
-		maestro().process.write = vi.fn().mockResolvedValue(undefined);
+		openwizardai().process.write = vi.fn().mockResolvedValue(undefined);
 
 		const ref =
 			React.createRef<import('../../../renderer/components/TerminalView').TerminalViewHandle>();
@@ -771,7 +771,7 @@ describe('TerminalView — clearActiveTerminal sends Ctrl+L to the PTY', () => {
 		ref.current?.clearActiveTerminal();
 
 		expect(mockXtermClear).not.toHaveBeenCalled();
-		expect(maestro().process.write).not.toHaveBeenCalled();
+		expect(openwizardai().process.write).not.toHaveBeenCalled();
 	});
 });
 
@@ -801,7 +801,7 @@ describe('TerminalView — PTY window size', () => {
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		});
 
-		expect(maestro().process.spawnTerminalTab).toHaveBeenCalledWith(
+		expect(openwizardai().process.spawnTerminalTab).toHaveBeenCalledWith(
 			expect.objectContaining({ cols: 170, rows: 59 })
 		);
 	});
@@ -815,7 +815,7 @@ describe('TerminalView — PTY window size', () => {
 			await new Promise((resolve) => setTimeout(resolve, 50));
 		});
 
-		const config = (maestro().process.spawnTerminalTab as ReturnType<typeof vi.fn>).mock
+		const config = (openwizardai().process.spawnTerminalTab as ReturnType<typeof vi.fn>).mock
 			.calls[0][0];
 		expect(config.cols).toBeUndefined();
 		expect(config.rows).toBeUndefined();

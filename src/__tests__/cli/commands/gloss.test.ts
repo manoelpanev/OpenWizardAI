@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/services/storage', () => ({ readSettingValue: vi.fn() }));
 vi.mock('../../../cli/output/formatter', () => ({
 	formatError: vi.fn((msg) => `Error: ${msg}`),
@@ -13,13 +13,13 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { gloss } from '../../../cli/commands/gloss';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { readSettingValue } from '../../../cli/services/storage';
 import { formatError } from '../../../cli/output/formatter';
 
 function mockSend(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				captured = payload;
@@ -65,7 +65,7 @@ describe('gloss command', () => {
 		// no error anywhere.
 		await expect(gloss('shiny', {})).rejects.toThrow('__exit__');
 		expect(formatError).toHaveBeenCalledWith(expect.stringContaining('Unknown gloss level'));
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
@@ -73,7 +73,7 @@ describe('gloss command', () => {
 		vi.mocked(readSettingValue).mockReturnValue('sheen');
 		await gloss(undefined, {});
 		expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Gloss levels'));
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 	});
 
 	it('reports an unrecognized stored level as off rather than echoing it back', async () => {

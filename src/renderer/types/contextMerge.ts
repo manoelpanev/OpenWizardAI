@@ -16,7 +16,7 @@ import type { LogEntry } from './index';
 export interface ContextSource {
 	/** Whether this is a tab within a session or a stored session */
 	type: 'tab' | 'session';
-	/** The Maestro session ID containing this context */
+	/** The OpenWizardAI session ID containing this context */
 	sessionId: string;
 	/** For tabs: the specific tab ID */
 	tabId?: string;
@@ -54,7 +54,7 @@ export interface MergeRequest {
 export interface MergeResult {
 	/** Whether the merge completed successfully */
 	success: boolean;
-	/** ID of the newly created Maestro session (on success with createNewSession) */
+	/** ID of the newly created OpenWizardAI session (on success with createNewSession) */
 	newSessionId?: string;
 	/** ID of the active tab in the new session (on success with createNewSession) */
 	newTabId?: string;
@@ -127,7 +127,7 @@ export interface SummarizeRequestSshConfig {
  * Request to summarize and continue a conversation in a new tab.
  */
 export interface SummarizeRequest {
-	/** The Maestro session ID containing the source tab */
+	/** The OpenWizardAI session ID containing the source tab */
 	sourceSessionId: string;
 	/** The ID of the tab to summarize */
 	sourceTabId: string;

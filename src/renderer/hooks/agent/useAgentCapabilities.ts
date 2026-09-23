@@ -84,7 +84,7 @@ export function useAgentCapabilities(
 			setLoading(true);
 
 			try {
-				const result = await window.maestro.agents.getCapabilities(agentId);
+				const result = await window.openwizardai.agents.getCapabilities(agentId);
 				// Merge with defaults to ensure all optional fields are defined
 				const fullCapabilities: AgentCapabilities = { ...DEFAULT_CAPABILITIES, ...result };
 				capabilitiesCache.set(agentId, fullCapabilities);

@@ -162,8 +162,8 @@ describe('MemoryViewer', () => {
 			{ name: 'project_worktrees.md', body: 'Worktrees have no node_modules.' },
 			{ name: 'user_role.md', body: 'Security researcher on macOS.' },
 		];
-		(window as unknown as { maestro: Record<string, unknown> }).maestro = {
-			...(window as unknown as { maestro: Record<string, unknown> }).maestro,
+		(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai = {
+			...(window as unknown as { openwizardai: Record<string, unknown> }).openwizardai,
 			memory: memoryApi,
 		};
 	});

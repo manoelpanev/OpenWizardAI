@@ -130,7 +130,7 @@ describe('uiStore', () => {
 		});
 
 		it('persists bookmarks collapse state so it survives restarts', () => {
-			const setSetting = (window as any).maestro.settings.set as ReturnType<typeof vi.fn>;
+			const setSetting = (window as any).openwizardai.settings.set as ReturnType<typeof vi.fn>;
 			setSetting.mockClear();
 
 			useUIStore.getState().setBookmarksCollapsed(true);

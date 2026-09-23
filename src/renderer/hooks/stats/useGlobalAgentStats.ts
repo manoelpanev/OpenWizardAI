@@ -38,7 +38,7 @@ export function useGlobalAgentStats(enabled = true): UseGlobalAgentStatsResult {
 		setLoading(true);
 		setIsComplete(false);
 
-		const unsubscribe = window.maestro.agentSessions.onGlobalStatsUpdate((stats) => {
+		const unsubscribe = window.openwizardai.agentSessions.onGlobalStatsUpdate((stats) => {
 			setGlobalStats(stats);
 			setLoading(false);
 			if (stats.isComplete) {
@@ -46,7 +46,7 @@ export function useGlobalAgentStats(enabled = true): UseGlobalAgentStatsResult {
 			}
 		});
 
-		window.maestro.agentSessions
+		window.openwizardai.agentSessions
 			.getGlobalStats()
 			.then((stats) => {
 				setGlobalStats((current) => current ?? stats);

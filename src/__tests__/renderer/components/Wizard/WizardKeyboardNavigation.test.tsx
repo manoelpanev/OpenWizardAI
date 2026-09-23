@@ -9,7 +9,7 @@ import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { WizardProvider, useWizard } from '../../../../renderer/components/Wizard/WizardContext';
-import { MaestroWizard } from '../../../../renderer/components/Wizard/MaestroWizard';
+import { OpenWizardAIWizard } from '../../../../renderer/components/Wizard/OpenWizardAIWizard';
 import { AgentSelectionScreen } from '../../../../renderer/components/Wizard/screens/AgentSelectionScreen';
 import { DirectorySelectionScreen } from '../../../../renderer/components/Wizard/screens/DirectorySelectionScreen';
 import { ConversationScreen } from '../../../../renderer/components/Wizard/screens/ConversationScreen';
@@ -132,12 +132,12 @@ vi.mock('../../../../renderer/components/MermaidRenderer', () => ({
 	MermaidRenderer: ({ chart }: { chart: string }) => <div data-testid="mermaid">{chart}</div>,
 }));
 
-// Mock the window.maestro API
-const mockMaestro = {
+// Mock the window.openwizardai API
+const mockOpenWizardAI = {
 	agents: {
 		detect: vi.fn(),
 		get: vi.fn(),
-		getMaestroPDetectedPath: vi.fn().mockResolvedValue(null),
+		getOpenWizardAIPDetectedPath: vi.fn().mockResolvedValue(null),
 	},
 	git: {
 		isRepo: vi.fn(),
@@ -203,23 +203,23 @@ function WizardOpener({ theme }: { theme: Theme }) {
 			<button onClick={openWizard} data-testid="open-wizard">
 				Open Wizard
 			</button>
-			{state.isOpen && <MaestroWizard theme={theme} />}
+			{state.isOpen && <OpenWizardAIWizard theme={theme} />}
 		</>
 	);
 }
 
 describe('Wizard Keyboard Navigation', () => {
 	beforeEach(() => {
-		// Setup window.maestro mock
-		(window as any).maestro = mockMaestro;
+		// Setup window.openwizardai mock
+		(window as any).openwizardai = mockOpenWizardAI;
 
 		// Setup default mock responses
-		mockMaestro.agents.detect.mockResolvedValue(mockAgents);
-		mockMaestro.agents.get.mockResolvedValue(mockAgents[0]);
-		mockMaestro.git.isRepo.mockResolvedValue(true);
-		mockMaestro.settings.get.mockResolvedValue(undefined);
-		mockMaestro.settings.set.mockResolvedValue(undefined);
-		mockMaestro.dialog.selectFolder.mockResolvedValue('/test/path');
+		mockOpenWizardAI.agents.detect.mockResolvedValue(mockAgents);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgents[0]);
+		mockOpenWizardAI.git.isRepo.mockResolvedValue(true);
+		mockOpenWizardAI.settings.get.mockResolvedValue(undefined);
+		mockOpenWizardAI.settings.set.mockResolvedValue(undefined);
+		mockOpenWizardAI.dialog.selectFolder.mockResolvedValue('/test/path');
 	});
 
 	afterEach(() => {
@@ -253,7 +253,7 @@ describe('Wizard Keyboard Navigation', () => {
 			});
 
 			// Get the container with keyboard handler
-			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizardAI Agent').closest('div[tabindex]');
 			expect(container).toBeInTheDocument();
 
 			// When only one agent is available, focus goes to name field, not tiles
@@ -287,7 +287,7 @@ describe('Wizard Keyboard Navigation', () => {
 				expect(screen.queryByText('Detecting available agents...')).not.toBeInTheDocument();
 			});
 
-			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizardAI Agent').closest('div[tabindex]');
 
 			// Press Tab to move to name field
 			fireEvent.keyDown(container!, { key: 'Tab' });
@@ -311,7 +311,7 @@ describe('Wizard Keyboard Navigation', () => {
 			expect(nameInput).toHaveFocus();
 
 			// Get the container with keyboard handler
-			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizardAI Agent').closest('div[tabindex]');
 
 			// Press Shift+Tab to go back to tiles
 			// Note: This triggers the keyboard handler but disabled buttons can't receive focus
@@ -329,7 +329,7 @@ describe('Wizard Keyboard Navigation', () => {
 				expect(screen.queryByText('Detecting available agents...')).not.toBeInTheDocument();
 			});
 
-			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizardAI Agent').closest('div[tabindex]');
 			const claudeTile = screen.getByRole('button', { name: /claude code/i });
 
 			// Claude Code should be auto-selected (available agent)
@@ -535,7 +535,7 @@ describe('Wizard Keyboard Navigation', () => {
 		});
 
 		it('should toggle thinking display when clicking the thinking button', async () => {
-			// Note: Cmd+Shift+K shortcut is now handled at MaestroWizard level, not in ConversationScreen
+			// Note: Cmd+Shift+K shortcut is now handled at OpenWizardAIWizard level, not in ConversationScreen
 			// This test verifies the button click toggle works correctly
 			renderWithProviders(<ConversationScreenWrapper theme={mockTheme} />);
 
@@ -626,7 +626,7 @@ describe('Wizard Keyboard Navigation', () => {
 		});
 	});
 
-	describe('MaestroWizard Integration', () => {
+	describe('OpenWizardAIWizard Integration', () => {
 		it('should show exit confirmation when pressing Escape after step 1', async () => {
 			function TestWrapper() {
 				const { openWizard, state, goToStep, setSelectedAgent } = useWizard();
@@ -640,7 +640,7 @@ describe('Wizard Keyboard Navigation', () => {
 					}
 				}, [openWizard, goToStep, setSelectedAgent, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -672,7 +672,7 @@ describe('Wizard Keyboard Navigation', () => {
 				return (
 					<>
 						<div data-testid="wizard-open">{state.isOpen ? 'open' : 'closed'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -680,7 +680,7 @@ describe('Wizard Keyboard Navigation', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Click close button on step 1
@@ -688,7 +688,7 @@ describe('Wizard Keyboard Navigation', () => {
 			fireEvent.click(closeButton);
 
 			// Wizard should close directly without confirmation on step 1
-			// The MaestroWizard's handleCloseRequest will call closeWizard directly when on step 1
+			// The OpenWizardAIWizard's handleCloseRequest will call closeWizard directly when on step 1
 			await waitFor(
 				() => {
 					// After clicking close, the wizard should close directly (no confirmation on step 1)
@@ -711,7 +711,7 @@ describe('Wizard Keyboard Navigation', () => {
 				return (
 					<>
 						<div data-testid="wizard-open">{state.isOpen ? 'open' : 'closed'}</div>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</>
 				);
 			}
@@ -719,7 +719,7 @@ describe('Wizard Keyboard Navigation', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizardAI Agent')).toBeInTheDocument();
 			});
 
 			// Click the backdrop (the div with wizard-backdrop class)
@@ -750,7 +750,7 @@ describe('Wizard Keyboard Navigation', () => {
 					}
 				}, [openWizard, goToStep, setSelectedAgent, state.isOpen]);
 
-				return state.isOpen ? <MaestroWizard theme={mockTheme} /> : null;
+				return state.isOpen ? <OpenWizardAIWizard theme={mockTheme} /> : null;
 			}
 
 			renderWithProviders(<TestWrapper />);
@@ -928,7 +928,7 @@ describe('Wizard Keyboard Navigation', () => {
 
 				return (
 					<div onKeyDown={outsideHandler}>
-						{state.isOpen && <MaestroWizard theme={mockTheme} />}
+						{state.isOpen && <OpenWizardAIWizard theme={mockTheme} />}
 					</div>
 				);
 			}

@@ -1,9 +1,9 @@
 /**
  * @file session.test.ts
- * @description Tests for `maestro-cli session list` and `session show`
+ * @description Tests for `openwizardai-cli session list` and `session show`
  *
  * These two commands are PR2 of the CLI surface refactor: read-only
- * conversation-state inspection used by external pollers (Maestro-Discord,
+ * conversation-state inspection used by external pollers (OpenWizardAI-Discord,
  * Cue follow-ups) that paired with `dispatch` form the "write then poll"
  * loop the design plan calls out.
  *
@@ -15,12 +15,12 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 import { sessionList, sessionShow } from '../../../cli/commands/session';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 
 describe('session list command', () => {
 	let consoleSpy: MockInstance;
@@ -51,7 +51,7 @@ describe('session list command', () => {
 				},
 			],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -77,7 +77,7 @@ describe('session list command', () => {
 			success: true,
 			sessions: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -107,7 +107,7 @@ describe('session list command', () => {
 				},
 			],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -146,7 +146,7 @@ describe('session list command', () => {
 				},
 			],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -156,31 +156,31 @@ describe('session list command', () => {
 		expect(consoleSpy.mock.calls[0][0]).toContain('unknown');
 	});
 
-	it('maps connection errors to MAESTRO_NOT_RUNNING (consistent with dispatch)', async () => {
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('ECONNREFUSED'));
+	it('maps connection errors to OPENWIZARDAI_NOT_RUNNING (consistent with dispatch)', async () => {
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('ECONNREFUSED'));
 
 		await sessionList({ json: true });
 
 		const output = JSON.parse(consoleSpy.mock.calls[0][0]);
 		expect(output.success).toBe(false);
-		expect(output.code).toBe('MAESTRO_NOT_RUNNING');
+		expect(output.code).toBe('OPENWIZARDAI_NOT_RUNNING');
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
 	it.each([
-		['Maestro desktop app is not running'],
-		['Maestro discovery file is stale (app may have crashed)'],
-		['Not connected to Maestro'],
-	])('maps MaestroClient error "%s" to MAESTRO_NOT_RUNNING', async (errorMessage) => {
+		['OpenWizardAI desktop app is not running'],
+		['OpenWizardAI discovery file is stale (app may have crashed)'],
+		['Not connected to OpenWizardAI'],
+	])('maps OpenWizardAIClient error "%s" to OPENWIZARDAI_NOT_RUNNING', async (errorMessage) => {
 		// Same three pre-WebSocket throws covered by dispatch.test - keeping the
 		// mapping in sync means external scripts can branch on a single error
 		// code regardless of which CLI verb they used.
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error(errorMessage));
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error(errorMessage));
 
 		await sessionList({ json: true });
 
 		const output = JSON.parse(consoleSpy.mock.calls[0][0]);
-		expect(output.code).toBe('MAESTRO_NOT_RUNNING');
+		expect(output.code).toBe('OPENWIZARDAI_NOT_RUNNING');
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 });
@@ -220,7 +220,7 @@ describe('session show command', () => {
 				},
 			],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -269,7 +269,7 @@ describe('session show command', () => {
 				},
 			],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -303,7 +303,7 @@ describe('session show command', () => {
 			agentSessionId: null,
 			messages: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -325,7 +325,7 @@ describe('session show command', () => {
 			agentSessionId: null,
 			messages: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -357,7 +357,7 @@ describe('session show command', () => {
 			agentSessionId: null,
 			messages: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -380,7 +380,7 @@ describe('session show command', () => {
 			agentSessionId: null,
 			messages: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -400,7 +400,7 @@ describe('session show command', () => {
 		expect(output.success).toBe(false);
 		expect(output.code).toBe('INVALID_OPTION');
 		expect(processExitSpy).toHaveBeenCalledWith(1);
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 	});
 
 	it('forwards --tail as an integer to the desktop', async () => {
@@ -413,7 +413,7 @@ describe('session show command', () => {
 			agentSessionId: null,
 			messages: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -433,7 +433,7 @@ describe('session show command', () => {
 		expect(output.success).toBe(false);
 		expect(output.code).toBe('INVALID_OPTION');
 		expect(processExitSpy).toHaveBeenCalledWith(1);
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 	});
 
 	it.each([['5abc'], ['1.9'], ['5e2'], ['  '], ['']])(
@@ -449,7 +449,7 @@ describe('session show command', () => {
 			expect(output.success).toBe(false);
 			expect(output.code).toBe('INVALID_OPTION');
 			expect(processExitSpy).toHaveBeenCalledWith(1);
-			expect(withMaestroClient).not.toHaveBeenCalled();
+			expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		}
 	);
 
@@ -468,7 +468,7 @@ describe('session show command', () => {
 			agentSessionId: null,
 			messages: [],
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -488,7 +488,7 @@ describe('session show command', () => {
 			error: 'Tab not found: tab-bogus',
 			code: 'TAB_NOT_FOUND',
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = { sendCommand: mockSendCommand };
 			return action(mockClient as never);
 		});
@@ -501,14 +501,14 @@ describe('session show command', () => {
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
-	it('maps connection errors to MAESTRO_NOT_RUNNING', async () => {
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('ECONNREFUSED'));
+	it('maps connection errors to OPENWIZARDAI_NOT_RUNNING', async () => {
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('ECONNREFUSED'));
 
 		await sessionShow('tab-1', {});
 
 		const output = JSON.parse(consoleSpy.mock.calls[0][0]);
 		expect(output.success).toBe(false);
-		expect(output.code).toBe('MAESTRO_NOT_RUNNING');
+		expect(output.code).toBe('OPENWIZARDAI_NOT_RUNNING');
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 });

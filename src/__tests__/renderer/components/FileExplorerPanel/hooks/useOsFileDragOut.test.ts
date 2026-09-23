@@ -19,7 +19,7 @@ const session = {
 
 const startDragOut = vi.fn();
 const downloadRemoteFile = vi.fn();
-(window as any).maestro = { fs: { startDragOut, downloadRemoteFile } };
+(window as any).openwizardai = { fs: { startDragOut, downloadRemoteFile } };
 
 function makeDragEvent(altKey: boolean): React.DragEvent {
 	return {

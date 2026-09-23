@@ -13,7 +13,9 @@ export default {
 				// comma-separated literals does not degrade to them: an undefined
 				// custom property makes the whole declaration invalid at
 				// computed-value time, so the literals never get a chance.
-				mono: ['var(--maestro-font-mono, "JetBrains Mono", "Fira Code", "Courier New", monospace)'],
+				mono: [
+					'var(--openwizardai-font-mono, "JetBrains Mono", "Fira Code", "Courier New", monospace)',
+				],
 			},
 			fontSize: {
 				'3xs': '0.643rem', // 9px at 14px root

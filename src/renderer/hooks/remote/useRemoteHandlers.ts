@@ -7,7 +7,7 @@
  *   - sessionSshRemoteNames (memoized map for group chat participant cards)
  *
  * Reads from: sessionStore, settingsStore, uiStore
- * Event: 'maestro:remoteCommand' custom DOM event
+ * Event: 'openwizardai:remoteCommand' custom DOM event
  */
 
 import { useEffect, useMemo, useCallback } from 'react';
@@ -23,7 +23,7 @@ import { substituteTemplateVariables } from '../../utils/templateVariables';
 import { gitService } from '../../services/git';
 import { captureException } from '../../utils/sentry';
 import { filterYoloArgs } from '../../utils/agentArgs';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from '../../utils/spawnHelpers';
 import { DEFAULT_IMAGE_ONLY_PROMPT } from '../input/useInputProcessing';
 import { noteDispatch } from '../../stores/retryStore';
 import type { ProcessQueuedItemDeps } from '../../stores/agentStore';
@@ -123,7 +123,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 				sessionId: string;
 				command: string;
 				inputMode?: 'ai' | 'terminal';
-				/** Optional explicit tab target (from `maestro-cli dispatch --session
+				/** Optional explicit tab target (from `openwizardai-cli dispatch --session
 				 *  <tabId>`). When unset, falls back to the active tab. When set
 				 *  but unknown, the command is dropped (we never silently re-route
 				 *  to the active tab - callers chaining `--session <tabId>` would
@@ -208,7 +208,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 					? session.remoteCwd || session.sessionSshRemoteConfig?.workingDirOverride || session.cwd
 					: session.shellCwd || session.cwd;
 				try {
-					await window.maestro.process.runCommand({
+					await window.openwizardai.process.runCommand({
 						sessionId: sessionId,
 						command: command,
 						cwd: commandCwd,
@@ -393,7 +393,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 
 			try {
 				// Get agent configuration for this session's tool type
-				const agent = await window.maestro.agents.get(session.toolType);
+				const agent = await window.openwizardai.agents.get(session.toolType);
 				if (!agent) {
 					logger.info(`[Remote] ERROR: Agent not found for toolType: ${session.toolType}`);
 					return;
@@ -425,7 +425,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 				const targetSessionId = `${sessionId}-ai-${targetTab?.id || 'default'}`;
 				const commandToUse = agent.path ?? agent.command ?? '';
 
-				const appendSystemPrompt = await prepareMaestroSystemPrompt({
+				const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 					session,
 					activeTabId: targetTab?.id,
 				});
@@ -442,7 +442,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 				});
 
 				logger.info('[Remote] Spawning agent:', undefined, {
-					maestroSessionId: sessionId,
+					openwizardaiSessionId: sessionId,
 					targetSessionId,
 					targetTabId: targetTab?.id,
 					tabAgentSessionId: tabAgentSessionId || 'NEW SESSION',
@@ -514,7 +514,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 				// This path spawns directly rather than going through
 				// `agentStore.processQueuedItem`, which is where the desktop
 				// composer records its snapshot - so without this call every
-				// prompt that arrives from `maestro-cli dispatch`, a Cue
+				// prompt that arrives from `openwizardai-cli dispatch`, a Cue
 				// pipeline, or the web/mobile composer failed with
 				// "No prompt snapshot to resend" and fell back to the error
 				// modal. Those are the UNATTENDED paths, where nobody is
@@ -550,7 +550,7 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 				}
 
 				// Spawn agent with the prompt
-				await window.maestro.process.spawn({
+				await window.openwizardai.process.spawn({
 					sessionId: targetSessionId,
 					toolType: session.toolType,
 					cwd: session.cwd,
@@ -623,8 +623,8 @@ export function useRemoteHandlers(deps: UseRemoteHandlersDeps): UseRemoteHandler
 				);
 			}
 		};
-		window.addEventListener('maestro:remoteCommand', handleRemoteCommand);
-		return () => window.removeEventListener('maestro:remoteCommand', handleRemoteCommand);
+		window.addEventListener('openwizardai:remoteCommand', handleRemoteCommand);
+		return () => window.removeEventListener('openwizardai:remoteCommand', handleRemoteCommand);
 	}, []);
 
 	// ====================================================================

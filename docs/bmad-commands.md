@@ -1,12 +1,12 @@
 ---
 title: BMAD Commands
-description: Use BMAD Method workflows inside Maestro's AI Commands panel.
+description: Use BMAD Method workflows inside OpenWizardAI's AI Commands panel.
 icon: hammer
 ---
 
 # BMAD Commands
 
-Maestro bundles a curated set of prompts from [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) and exposes them in **Settings -> AI Commands**.
+OpenWizardAI bundles a curated set of prompts from [bmad-code-org/BMAD-METHOD](https://github.com/bmad-code-org/BMAD-METHOD) and exposes them in **Settings -> AI Commands**.
 
 You can review, edit, and reset these prompts the same way you can with Spec-Kit and OpenSpec.
 
@@ -29,7 +29,7 @@ If those files are missing, the prompt may still provide guidance, but BMAD work
 
 ## Bundle Version
 
-The BMAD bundle is pinned to **v6.2.0**, the last BMAD release whose workflows run as standalone slash commands. Newer releases moved to a skills-based architecture that requires a local install and a resolver script, so they are not compatible with Maestro's paste-in prompt model.
+The BMAD bundle is pinned to **v6.2.0**, the last BMAD release whose workflows run as standalone slash commands. Newer releases moved to a skills-based architecture that requires a local install and a resolver script, so they are not compatible with OpenWizardAI's paste-in prompt model.
 
 For this reason the BMAD section shows a **Frozen** badge instead of a "Check for Updates" button. Spec-Kit and OpenSpec still pull updates from upstream; BMAD does not.
 
@@ -41,4 +41,4 @@ Each bundled BMAD command can be:
 - edited and saved locally
 - reset back to the bundled default
 
-Local edits are stored in Maestro's application data and do not modify the upstream BMAD project.
+Local edits are stored in OpenWizardAI's application data and do not modify the upstream BMAD project.

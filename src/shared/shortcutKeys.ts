@@ -3,7 +3,7 @@
  *
  * The renderer's `shortcutFormatter.ts` used to own both the key maps and the
  * platform lookup, which made it unusable outside the renderer (it reads
- * `window.maestro`). The CLI needs the same strings when it tells a user how
+ * `window.openwizardai`). The CLI needs the same strings when it tells a user how
  * to reach a surface by hand ("Alt+Q", "⌥ Q"), so the maps and the pure
  * formatting live here and every caller supplies its own `isMac` answer:
  *
@@ -102,10 +102,10 @@ export function shortcutKeysEqual(a: readonly string[], b: readonly string[]): b
 }
 
 /**
- * Chords the OS owns inside a text field, which Maestro must never bind.
+ * Chords the OS owns inside a text field, which OpenWizardAI must never bind.
  *
  * `Cmd/Ctrl+Shift+Arrow` extends a text selection to the top or bottom of the
- * field (and to the start or end of the line horizontally). A Maestro binding
+ * field (and to the start or end of the line horizontally). An OpenWizardAI binding
  * on one of these wins over the native behavior everywhere, including in the
  * composer, so the user loses select-to-end in every input in the app and gets
  * an agent-navigation jump instead. There is no way to tell that apart from a

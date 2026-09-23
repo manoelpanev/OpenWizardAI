@@ -67,8 +67,8 @@ export function BmadCommandsPanel({ theme, enabled, onEnabledChange }: BmadComma
 		const loadData = async () => {
 			try {
 				const [promptsResult, metadataResult] = await Promise.all([
-					window.maestro.bmad.getPrompts(),
-					window.maestro.bmad.getMetadata(),
+					window.openwizardai.bmad.getPrompts(),
+					window.openwizardai.bmad.getMetadata(),
 				]);
 
 				if (promptsResult.success && promptsResult.commands) {
@@ -96,7 +96,10 @@ export function BmadCommandsPanel({ theme, enabled, onEnabledChange }: BmadComma
 		if (!editingCommand) return;
 
 		try {
-			const result = await window.maestro.bmad.savePrompt(editingCommand.id, editingCommand.prompt);
+			const result = await window.openwizardai.bmad.savePrompt(
+				editingCommand.id,
+				editingCommand.prompt
+			);
 			if (result.success) {
 				setCommands(
 					commands.map((cmd) =>
@@ -114,7 +117,7 @@ export function BmadCommandsPanel({ theme, enabled, onEnabledChange }: BmadComma
 
 	const handleReset = async (id: string) => {
 		try {
-			const result = await window.maestro.bmad.resetPrompt(id);
+			const result = await window.openwizardai.bmad.resetPrompt(id);
 			if (result.success && result.prompt) {
 				setCommands(
 					commands.map((cmd) =>
@@ -258,7 +261,7 @@ export function BmadCommandsPanel({ theme, enabled, onEnabledChange }: BmadComma
 						Pinned to v6.2.0, the last BMAD release whose workflows run as standalone slash
 						commands. Newer releases (currently 6.8.0) moved to a skills-based architecture that
 						requires a local install and a resolver script, so they are not compatible with
-						OpenWizzard. Updates are disabled.
+						OpenWizardAI. Updates are disabled.
 					</p>
 				</div>
 			)}

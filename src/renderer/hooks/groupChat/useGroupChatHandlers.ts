@@ -51,9 +51,9 @@ export interface GroupChatHandlersReturn {
 			customArgs?: string;
 			customEnvVars?: Record<string, string>;
 			customModel?: string;
-			enableMaestroP?: boolean;
-			maestroPMode?: 'interactive' | 'dynamic';
-			maestroPPath?: string;
+			enableOpenWizardAIP?: boolean;
+			openwizardaiPMode?: 'interactive' | 'dynamic';
+			openwizardaiPPath?: string;
 		}
 	) => Promise<void>;
 	handleDeleteGroupChat: (id: string) => Promise<void>;
@@ -67,9 +67,9 @@ export interface GroupChatHandlersReturn {
 			customPath?: string;
 			customArgs?: string;
 			customEnvVars?: Record<string, string>;
-			enableMaestroP?: boolean;
-			maestroPMode?: 'interactive' | 'dynamic';
-			maestroPPath?: string;
+			enableOpenWizardAIP?: boolean;
+			openwizardaiPMode?: 'interactive' | 'dynamic';
+			openwizardaiPPath?: string;
 		}
 	) => Promise<void>;
 	deleteGroupChatWithConfirmation: (id: string) => void;
@@ -183,7 +183,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			clearParticipantLiveOutput,
 		} = useGroupChatStore.getState();
 
-		const unsubState = window.maestro.groupChat.onStateChange((id, state) => {
+		const unsubState = window.openwizardai.groupChat.onStateChange((id, state) => {
 			// Track state for ALL group chats (for sidebar indicator when not active)
 			setGroupChatStates((prev) => {
 				const next = new Map(prev);
@@ -196,24 +196,26 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			}
 		});
 
-		const unsubParticipants = window.maestro.groupChat.onParticipantsChanged((id, participants) => {
-			setGroupChats((prev) =>
-				prev.map((chat) => (chat.id === id ? { ...chat, participants } : chat))
-			);
-		});
+		const unsubParticipants = window.openwizardai.groupChat.onParticipantsChanged(
+			(id, participants) => {
+				setGroupChats((prev) =>
+					prev.map((chat) => (chat.id === id ? { ...chat, participants } : chat))
+				);
+			}
+		);
 
 		// Unread tracking. The active room's own message listener is registered
 		// per-chat below and appends to the transcript; this one exists to catch
 		// the rooms nobody is looking at, so it deliberately skips the active one.
 		// Echoes of what the conductor just sent are not news, hence the
 		// 'user' filter - a Cue-driven prompt can land in an inactive room.
-		const unsubUnread = window.maestro.groupChat.onMessage((id, message) => {
+		const unsubUnread = window.openwizardai.groupChat.onMessage((id, message) => {
 			if (message.from === 'user') return;
 			if (id === useGroupChatStore.getState().activeGroupChatId) return;
 			useGroupChatStore.getState().markGroupChatUnread(id);
 		});
 
-		const unsubParticipantState = window.maestro.groupChat.onParticipantState?.(
+		const unsubParticipantState = window.openwizardai.groupChat.onParticipantState?.(
 			(id, participantName, state) => {
 				// Track participant state for ALL group chats (for sidebar indicator)
 				setAllGroupChatParticipantStates((prev) => {
@@ -239,7 +241,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			}
 		);
 
-		const unsubLiveOutput = window.maestro.groupChat.onParticipantLiveOutput?.(
+		const unsubLiveOutput = window.openwizardai.groupChat.onParticipantLiveOutput?.(
 			(id, participantName, chunk) => {
 				if (id === useGroupChatStore.getState().activeGroupChatId) {
 					appendParticipantLiveOutput(`${id}:${participantName}`, chunk);
@@ -247,7 +249,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			}
 		);
 
-		const unsubModeratorSessionId = window.maestro.groupChat.onModeratorSessionIdChanged?.(
+		const unsubModeratorSessionId = window.openwizardai.groupChat.onModeratorSessionIdChanged?.(
 			(id, agentSessionId) => {
 				setGroupChats((prev) =>
 					prev.map((chat) =>
@@ -260,7 +262,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 		// Force-complete the batch run for an autorun participant.
 		// Fired by the main process on both normal completion (reportAutoRunComplete) and
 		// on the participant timeout, so the AUTO badge and progress bar always clear.
-		const unsubBatchComplete = window.maestro.groupChat.onAutoRunBatchComplete?.(
+		const unsubBatchComplete = window.openwizardai.groupChat.onAutoRunBatchComplete?.(
 			(groupChatId, participantName) => {
 				// Prefer group-chat-scoped autorun registry to avoid name collisions across chats.
 				// Only complete the specific participant's session, not all sessions for the chat.
@@ -308,13 +310,13 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 
 		const { setGroupChatMessages, setModeratorUsage } = useGroupChatStore.getState();
 
-		const unsubMessage = window.maestro.groupChat.onMessage((id, message) => {
+		const unsubMessage = window.openwizardai.groupChat.onMessage((id, message) => {
 			if (id === activeGroupChatId) {
 				setGroupChatMessages((prev) => [...prev, message]);
 			}
 		});
 
-		const unsubModeratorUsage = window.maestro.groupChat.onModeratorUsage?.((id, usage) => {
+		const unsubModeratorUsage = window.openwizardai.groupChat.onModeratorUsage?.((id, usage) => {
 			if (id === activeGroupChatId) {
 				// When contextUsage is -1, tokens were accumulated from multi-tool turns.
 				// Preserve previous context/token values; only update cost.
@@ -358,7 +360,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 				next.set(activeGroupChatId, 'moderator-thinking');
 				return next;
 			});
-			window.maestro.groupChat
+			window.openwizardai.groupChat
 				.sendToModerator(
 					activeGroupChatId,
 					nextItem.text || '',
@@ -423,13 +425,13 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 		} = useGroupChatStore.getState();
 		const { setActiveFocus } = useUIStore.getState();
 
-		const chat = await window.maestro.groupChat.load(id);
+		const chat = await window.openwizardai.groupChat.load(id);
 		if (chat) {
 			// Opening the room is reading it. Cleared before the transcript loads
 			// so a slow load can't leave the dot up on a room already on screen.
 			clearGroupChatUnread(id);
 			setActiveGroupChatId(id);
-			const messages = await window.maestro.groupChat.getMessages(id);
+			const messages = await window.openwizardai.groupChat.getMessages(id);
 			setGroupChatMessages(messages);
 
 			// Restore the state for this specific chat from the per-chat state map
@@ -439,7 +441,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			setParticipantStates(allGroupChatParticipantStates.get(id) ?? new Map());
 
 			// Load saved right tab preference for this group chat
-			const savedTab = await window.maestro.settings.get(`groupChatRightTab:${id}`);
+			const savedTab = await window.openwizardai.settings.get(`groupChatRightTab:${id}`);
 			if (savedTab === 'participants' || savedTab === 'history') {
 				setGroupChatRightTab(savedTab);
 			} else {
@@ -447,9 +449,9 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			}
 
 			// Start moderator if not running
-			// Fixes MAESTRO-B2: handle case where group chat was deleted between operations
+			// Fixes OPENWIZARDAI-B2: handle case where group chat was deleted between operations
 			try {
-				const moderatorSessionId = await window.maestro.groupChat.startModerator(id);
+				const moderatorSessionId = await window.openwizardai.groupChat.startModerator(id);
 				if (moderatorSessionId) {
 					setGroupChats((prev) =>
 						prev.map((c) => (c.id === id ? { ...c, moderatorSessionId } : c))
@@ -499,7 +501,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 		const { setGroupChatRightTab, activeGroupChatId } = useGroupChatStore.getState();
 		setGroupChatRightTab(tab);
 		if (activeGroupChatId) {
-			window.maestro.settings.set(`groupChatRightTab:${activeGroupChatId}`, tab);
+			window.openwizardai.settings.set(`groupChatRightTab:${activeGroupChatId}`, tab);
 		}
 	}, []);
 
@@ -539,16 +541,16 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 				customArgs?: string;
 				customEnvVars?: Record<string, string>;
 				customModel?: string;
-				enableMaestroP?: boolean;
-				maestroPMode?: 'interactive' | 'dynamic';
-				maestroPPath?: string;
+				enableOpenWizardAIP?: boolean;
+				openwizardaiPMode?: 'interactive' | 'dynamic';
+				openwizardaiPPath?: string;
 			},
 			requireIdleParticipants?: boolean
 		) => {
 			const { setGroupChats } = useGroupChatStore.getState();
 			const { closeModal } = useModalStore.getState();
 			try {
-				const chat = await window.maestro.groupChat.create(
+				const chat = await window.openwizardai.groupChat.create(
 					name,
 					moderatorAgentId,
 					moderatorConfig,
@@ -581,7 +583,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 			const { activeGroupChatId, groupChats, setGroupChats } = useGroupChatStore.getState();
 			const { closeModal } = useModalStore.getState();
 			const priorChats = groupChats;
-			await window.maestro.groupChat.delete(id);
+			await window.openwizardai.groupChat.delete(id);
 			setGroupChats((prev) => prev.filter((c) => c.id !== id));
 			if (activeGroupChatId === id) {
 				await focusNextGroupChatAfterDelete(id, priorChats);
@@ -594,7 +596,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 	const handleArchiveGroupChat = useCallback(
 		async (id: string, archived: boolean) => {
 			const { activeGroupChatId, setGroupChats } = useGroupChatStore.getState();
-			const updated = await window.maestro.groupChat.archive(id, archived);
+			const updated = await window.openwizardai.groupChat.archive(id, archived);
 			setGroupChats((prev) => prev.map((c) => (c.id === id ? updated : c)));
 			if (archived && activeGroupChatId === id) {
 				handleCloseGroupChat();
@@ -606,7 +608,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 	const handleRenameGroupChat = useCallback(async (id: string, newName: string) => {
 		const { setGroupChats } = useGroupChatStore.getState();
 		const { closeModal } = useModalStore.getState();
-		await window.maestro.groupChat.rename(id, newName);
+		await window.openwizardai.groupChat.rename(id, newName);
 		setGroupChats((prev) => prev.map((c) => (c.id === id ? { ...c, name: newName } : c)));
 		closeModal('renameGroupChat');
 	}, []);
@@ -620,15 +622,15 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 				customPath?: string;
 				customArgs?: string;
 				customEnvVars?: Record<string, string>;
-				enableMaestroP?: boolean;
-				maestroPMode?: 'interactive' | 'dynamic';
-				maestroPPath?: string;
+				enableOpenWizardAIP?: boolean;
+				openwizardaiPMode?: 'interactive' | 'dynamic';
+				openwizardaiPPath?: string;
 			},
 			requireIdleParticipants?: boolean
 		) => {
 			const { setGroupChats } = useGroupChatStore.getState();
 			const { closeModal } = useModalStore.getState();
-			const updated = await window.maestro.groupChat.update(id, {
+			const updated = await window.openwizardai.groupChat.update(id, {
 				name,
 				moderatorAgentId,
 				moderatorConfig,
@@ -655,7 +657,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 				const { activeGroupChatId, setGroupChats } = useGroupChatStore.getState();
 				const archivedIds = new Set(archivedChats.map((c) => c.id));
 				// Delete all archived chats
-				await Promise.all(archivedChats.map((c) => window.maestro.groupChat.delete(c.id)));
+				await Promise.all(archivedChats.map((c) => window.openwizardai.groupChat.delete(c.id)));
 				setGroupChats((prev) => prev.filter((c) => !archivedIds.has(c.id)));
 				if (activeGroupChatId && archivedIds.has(activeGroupChatId)) {
 					handleCloseGroupChat();
@@ -678,7 +680,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 				message: `Are you sure you want to delete the group chat "${chat.name}"? This action cannot be undone.`,
 				onConfirm: async () => {
 					const { groupChats: priorChats, setGroupChats } = useGroupChatStore.getState();
-					await window.maestro.groupChat.delete(id);
+					await window.openwizardai.groupChat.delete(id);
 					setGroupChats((prev) => prev.filter((c) => c.id !== id));
 					if (activeGroupChatId === id) {
 						await focusNextGroupChatAfterDelete(id, priorChats);
@@ -728,7 +730,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 				return next;
 			});
 			try {
-				await window.maestro.groupChat.sendToModerator(
+				await window.openwizardai.groupChat.sendToModerator(
 					activeGroupChatId,
 					content,
 					images,
@@ -761,7 +763,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 		if (!activeGroupChatId) return;
 		try {
 			// Cancel any in-flight autorun batch runs for this group chat.
-			// These run in the agent's own Maestro session (not group-chat-prefixed),
+			// These run in the agent's own OpenWizardAI session (not group-chat-prefixed),
 			// so the main process's clearAllParticipantSessions won't reach them.
 			const autoRunSessionIds = getAutoRunSessionsForGroupChat(activeGroupChatId);
 			for (const sessionId of autoRunSessionIds) {
@@ -770,7 +772,7 @@ export function useGroupChatHandlers(): GroupChatHandlersReturn {
 					sessionId,
 				});
 			}
-			await window.maestro.groupChat.stopAll(activeGroupChatId);
+			await window.openwizardai.groupChat.stopAll(activeGroupChatId);
 		} catch (error) {
 			logger.error('[GroupChat] Failed to stop all:', undefined, error);
 			notifyToast({

@@ -73,7 +73,7 @@ export interface UseSummarizeAndContinueResult {
  * Tracks per-tab state to allow non-blocking operations. While one tab is
  * summarizing, other tabs remain fully interactive.
  *
- * @param session - The Maestro session containing the tabs
+ * @param session - The OpenWizardAI session containing the tabs
  * @returns Object with summarization state and control functions
  *
  * @example

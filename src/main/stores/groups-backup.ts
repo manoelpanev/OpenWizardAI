@@ -1,7 +1,7 @@
 /**
  * Group registry backup.
  *
- * The group registry (`maestro-groups.json`) is the ONLY copy of a group's
+ * The group registry (`openwizardai-groups.json`) is the ONLY copy of a group's
  * name, emoji and collapsed state. Agents reference groups by `groupId`, so
  * when the registry is emptied the ids survive and point at rows that no longer
  * exist: every agent silently becomes ungrouped and there is nothing on disk to
@@ -24,7 +24,7 @@ import { atomicWriteJson } from '../utils/atomic-json-store';
 import type { Group } from '../../shared/types';
 
 /** Filename written beside the live store when a non-empty registry is replaced by an empty one. */
-export const GROUPS_BACKUP_FILENAME = 'maestro-groups.backup.json';
+export const GROUPS_BACKUP_FILENAME = 'openwizardai-groups.backup.json';
 
 /** Minimal surface this module needs, so tests can pass a plain object. */
 export interface GroupsBackupStore {

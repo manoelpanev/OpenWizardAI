@@ -1,7 +1,7 @@
 /**
  * Audio / Video Media Types
  *
- * Canonical extension lists, MIME mapping, and the `maestro-media://` stream
+ * Canonical extension lists, MIME mapping, and the `openwizardai-media://` stream
  * URL format shared by the main process (protocol handler + `fs:readFile`) and
  * the renderer (MediaViewer).
  *
@@ -20,9 +20,9 @@
  */
 
 /** Custom protocol scheme that streams local media files to the renderer. */
-export const MEDIA_SCHEME = 'maestro-media';
+export const MEDIA_SCHEME = 'openwizardai-media';
 
-/** Host segment of a media stream URL: `maestro-media://stream/<token>/<hex>`. */
+/** Host segment of a media stream URL: `openwizardai-media://stream/<token>/<hex>`. */
 export const MEDIA_STREAM_HOST = 'stream';
 
 /** Extension -> MIME type for audio formats Chromium can decode. */

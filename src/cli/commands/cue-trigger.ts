@@ -1,6 +1,6 @@
 // Cue trigger command - manually trigger a Cue subscription by name
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 
 interface CueTriggerOptions {
 	prompt?: string;
@@ -13,7 +13,7 @@ export async function cueTrigger(
 	options: CueTriggerOptions
 ): Promise<void> {
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

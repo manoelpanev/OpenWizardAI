@@ -108,8 +108,8 @@ beforeEach(() => {
 		preFilterActiveTabId: null,
 	});
 
-	// Mock window.maestro APIs
-	(window as any).maestro = {
+	// Mock window.openwizardai APIs
+	(window as any).openwizardai = {
 		process: {
 			kill: vi.fn().mockResolvedValue(undefined),
 		},
@@ -218,9 +218,9 @@ describe('useSessionLifecycle', () => {
 					undefined, // customModel
 					undefined, // customContextWindow
 					undefined, // sessionSshRemoteConfig
-					undefined, // enableMaestroP
-					undefined, // maestroPPath
-					undefined, // maestroPMode
+					undefined, // enableOpenWizardAIP
+					undefined, // openwizardaiPPath
+					undefined, // openwizardaiPMode
 					undefined, // retryOnAvailabilityErrors
 					undefined, // retryOnTokenExhaustion
 					{ PARKED: 'b' }
@@ -289,9 +289,9 @@ describe('useSessionLifecycle', () => {
 				undefined, // customModel
 				undefined, // customContextWindow
 				undefined, // sessionSshRemoteConfig
-				undefined, // enableMaestroP
-				undefined, // maestroPPath
-				undefined, // maestroPMode
+				undefined, // enableOpenWizardAIP
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode
 				undefined, // retryOnAvailabilityErrors
 				undefined, // retryOnTokenExhaustion
 				undefined, // customEnvVarsDisabled
@@ -302,7 +302,7 @@ describe('useSessionLifecycle', () => {
 			const session = createMockSession({
 				id: 'session-1',
 				shellCwd: '/projects/myapp',
-				autoRunFolderPath: '/projects/myapp/.maestro/playbooks',
+				autoRunFolderPath: '/projects/myapp/.openwizardai/playbooks',
 			});
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
@@ -317,7 +317,7 @@ describe('useSessionLifecycle', () => {
 			expect(updated.fullPath).toBe('/projects/moved');
 			expect(updated.shellCwd).toBe('/projects/moved');
 			expect(updated.projectRoot).toBe('/projects/moved');
-			expect(updated.autoRunFolderPath).toBe('/projects/moved/.maestro/playbooks');
+			expect(updated.autoRunFolderPath).toBe('/projects/moved/.openwizardai/playbooks');
 		});
 
 		it('does not refuse a busy agent when the directory differs only by a trailing slash', () => {
@@ -413,7 +413,7 @@ describe('useSessionLifecycle', () => {
 			expect(updated.customContextWindow).toBeUndefined();
 
 			// A running turn is codified at send, so nothing is killed.
-			expect((window as any).maestro.process.kill).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.process.kill).not.toHaveBeenCalled();
 		});
 
 		it('restores a provider session when switching back to it', () => {
@@ -496,7 +496,7 @@ describe('useSessionLifecycle', () => {
 			expect(updated.aiTabs[0].id).toBe('my-tab');
 			expect(updated.activeTabId).toBe('my-tab');
 			// Process should NOT be killed
-			expect((window as any).maestro.process.kill).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.process.kill).not.toHaveBeenCalled();
 		});
 
 		it('preserves session identity fields when changing provider', () => {
@@ -552,12 +552,12 @@ describe('useSessionLifecycle', () => {
 			const updated = useSessionStore.getState().sessions[0].aiTabs[0];
 			expect(updated.name).toBe('New Tab Name');
 			expect(updated.isGeneratingName).toBe(false);
-			expect(window.maestro.claude.updateSessionName).toHaveBeenCalledWith(
+			expect(window.openwizardai.claude.updateSessionName).toHaveBeenCalledWith(
 				'/projects/myapp',
 				'agent-123',
 				'New Tab Name'
 			);
-			expect(window.maestro.history.updateSessionName).toHaveBeenCalledWith(
+			expect(window.openwizardai.history.updateSessionName).toHaveBeenCalledWith(
 				'agent-123',
 				'New Tab Name'
 			);
@@ -581,13 +581,13 @@ describe('useSessionLifecycle', () => {
 				result.current.handleRenameTab('Codex Tab');
 			});
 
-			expect(window.maestro.agentSessions.setSessionName).toHaveBeenCalledWith(
+			expect(window.openwizardai.agentSessions.setSessionName).toHaveBeenCalledWith(
 				'codex',
 				'/projects/myapp',
 				'agent-456',
 				'Codex Tab'
 			);
-			expect(window.maestro.claude.updateSessionName).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionName).not.toHaveBeenCalled();
 		});
 
 		it('logs rename with context via logger', () => {
@@ -607,7 +607,7 @@ describe('useSessionLifecycle', () => {
 				result.current.handleRenameTab('New Name');
 			});
 
-			expect(window.maestro.logger.log).toHaveBeenCalledWith(
+			expect(window.openwizardai.logger.log).toHaveBeenCalledWith(
 				'info',
 				expect.stringContaining('Old Name'),
 				'TabNaming',
@@ -637,13 +637,13 @@ describe('useSessionLifecycle', () => {
 				result.current.handleRenameTab('Named');
 			});
 
-			expect(window.maestro.logger.log).toHaveBeenCalledWith(
+			expect(window.openwizardai.logger.log).toHaveBeenCalledWith(
 				'info',
 				expect.stringContaining('skipping persistence'),
 				'TabNaming',
 				expect.objectContaining({ tabId: 'tab-1' })
 			);
-			expect(window.maestro.claude.updateSessionName).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionName).not.toHaveBeenCalled();
 		});
 
 		it('sets name to null when empty string is provided', () => {
@@ -732,7 +732,7 @@ describe('useSessionLifecycle', () => {
 				result.current.handleRenameTab('Test');
 			});
 
-			expect(window.maestro.logger.log).not.toHaveBeenCalled();
+			expect(window.openwizardai.logger.log).not.toHaveBeenCalled();
 		});
 
 		it('returns early if no renameTabId', () => {
@@ -746,7 +746,7 @@ describe('useSessionLifecycle', () => {
 				result.current.handleRenameTab('Test');
 			});
 
-			expect(window.maestro.logger.log).not.toHaveBeenCalled();
+			expect(window.openwizardai.logger.log).not.toHaveBeenCalled();
 		});
 	});
 
@@ -765,7 +765,7 @@ describe('useSessionLifecycle', () => {
 				await result.current.performDeleteSession(session, false);
 			});
 
-			expect(window.maestro.stats.recordSessionClosed).toHaveBeenCalledWith(
+			expect(window.openwizardai.stats.recordSessionClosed).toHaveBeenCalledWith(
 				'session-1',
 				expect.any(Number)
 			);
@@ -803,10 +803,10 @@ describe('useSessionLifecycle', () => {
 				await result.current.performDeleteSession(session, false);
 			});
 
-			expect(window.maestro.process.kill).toHaveBeenCalledWith('session-1-ai');
-			expect(window.maestro.process.kill).toHaveBeenCalledWith('session-1-terminal');
-			expect(window.maestro.process.kill).toHaveBeenCalledWith('session-1-terminal-tab-t1');
-			expect(window.maestro.process.kill).toHaveBeenCalledWith('session-1-terminal-tab-t2');
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith('session-1-ai');
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith('session-1-terminal');
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith('session-1-terminal-tab-t1');
+			expect(window.openwizardai.process.kill).toHaveBeenCalledWith('session-1-terminal-tab-t2');
 		});
 
 		it('deletes all associated playbooks', async () => {
@@ -819,7 +819,7 @@ describe('useSessionLifecycle', () => {
 				await result.current.performDeleteSession(session, false);
 			});
 
-			expect(window.maestro.playbooks.deleteAll).toHaveBeenCalledWith('session-1');
+			expect(window.openwizardai.playbooks.deleteAll).toHaveBeenCalledWith('session-1');
 		});
 
 		it('removes session from store and activates next session', async () => {
@@ -920,7 +920,7 @@ describe('useSessionLifecycle', () => {
 				await result.current.performDeleteSession(session, true);
 			});
 
-			expect(window.maestro.shell.trashItem).toHaveBeenCalledWith('/projects/myapp');
+			expect(window.openwizardai.shell.trashItem).toHaveBeenCalledWith('/projects/myapp');
 		});
 
 		it('does not trash working directory when eraseWorkingDirectory is false', async () => {
@@ -933,11 +933,11 @@ describe('useSessionLifecycle', () => {
 				await result.current.performDeleteSession(session, false);
 			});
 
-			expect(window.maestro.shell.trashItem).not.toHaveBeenCalled();
+			expect(window.openwizardai.shell.trashItem).not.toHaveBeenCalled();
 		});
 
 		it('continues cleanup even if process kill fails', async () => {
-			(window.maestro.process.kill as ReturnType<typeof vi.fn>).mockRejectedValue(
+			(window.openwizardai.process.kill as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Process not found')
 			);
 			const session = createMockSession({ id: 'session-1' });
@@ -951,11 +951,11 @@ describe('useSessionLifecycle', () => {
 
 			// Should still have removed the session
 			expect(useSessionStore.getState().sessions).toHaveLength(0);
-			expect(window.maestro.playbooks.deleteAll).toHaveBeenCalled();
+			expect(window.openwizardai.playbooks.deleteAll).toHaveBeenCalled();
 		});
 
 		it('shows error toast if trashItem fails', async () => {
-			(window.maestro.shell.trashItem as ReturnType<typeof vi.fn>).mockRejectedValue(
+			(window.openwizardai.shell.trashItem as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Permission denied')
 			);
 			const session = createMockSession({ id: 'session-1', cwd: '/projects/myapp' });
@@ -1016,7 +1016,7 @@ describe('useSessionLifecycle', () => {
 
 			const updated = useSessionStore.getState().sessions[0].aiTabs[0];
 			expect(updated.starred).toBe(true);
-			expect(window.maestro.claude.updateSessionStarred).toHaveBeenCalledWith(
+			expect(window.openwizardai.claude.updateSessionStarred).toHaveBeenCalledWith(
 				'/projects/myapp',
 				'ag-1',
 				true
@@ -1041,7 +1041,7 @@ describe('useSessionLifecycle', () => {
 
 			const updated = useSessionStore.getState().sessions[0].aiTabs[0];
 			expect(updated.starred).toBe(false);
-			expect(window.maestro.claude.updateSessionStarred).toHaveBeenCalledWith(
+			expect(window.openwizardai.claude.updateSessionStarred).toHaveBeenCalledWith(
 				'/projects/myapp',
 				'ag-1',
 				false
@@ -1065,13 +1065,13 @@ describe('useSessionLifecycle', () => {
 				result.current.toggleTabStar();
 			});
 
-			expect(window.maestro.agentSessions.setSessionStarred).toHaveBeenCalledWith(
+			expect(window.openwizardai.agentSessions.setSessionStarred).toHaveBeenCalledWith(
 				'codex',
 				'/projects/myapp',
 				'ag-1',
 				true
 			);
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
 		});
 
 		it('skips persistence when tab has no agentSessionId', () => {
@@ -1092,8 +1092,8 @@ describe('useSessionLifecycle', () => {
 
 			const updated = useSessionStore.getState().sessions[0].aiTabs[0];
 			expect(updated.starred).toBe(true);
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
-			expect(window.maestro.agentSessions.setSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.agentSessions.setSessionStarred).not.toHaveBeenCalled();
 		});
 
 		it('returns early if no active session', () => {
@@ -1105,7 +1105,7 @@ describe('useSessionLifecycle', () => {
 				result.current.toggleTabStar();
 			});
 
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
 		});
 
 		it('returns early if no active tab', () => {
@@ -1118,7 +1118,7 @@ describe('useSessionLifecycle', () => {
 				result.current.toggleTabStar();
 			});
 
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
 		});
 
 		it('is a no-op when the active view is a terminal tab', () => {
@@ -1138,7 +1138,7 @@ describe('useSessionLifecycle', () => {
 			});
 
 			expect(useSessionStore.getState().sessions[0].aiTabs[0].starred).toBe(false);
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
 		});
 
 		it('is a no-op when a file preview tab is focused', () => {
@@ -1158,7 +1158,7 @@ describe('useSessionLifecycle', () => {
 			});
 
 			expect(useSessionStore.getState().sessions[0].aiTabs[0].starred).toBe(false);
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
 		});
 
 		it('is a no-op when a browser tab is focused', () => {
@@ -1178,7 +1178,7 @@ describe('useSessionLifecycle', () => {
 			});
 
 			expect(useSessionStore.getState().sessions[0].aiTabs[0].starred).toBe(false);
-			expect(window.maestro.claude.updateSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.updateSessionStarred).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1368,7 +1368,7 @@ describe('useSessionLifecycle', () => {
 
 			renderHook(() => useSessionLifecycle(createDeps()));
 
-			expect(window.maestro.groups.setAll).toHaveBeenCalledWith(groups);
+			expect(window.openwizardai.groups.setAll).toHaveBeenCalledWith(groups);
 		});
 
 		it('does not persist groups before initialLoadComplete', () => {
@@ -1383,7 +1383,7 @@ describe('useSessionLifecycle', () => {
 
 			renderHook(() => useSessionLifecycle(createDeps()));
 
-			expect(window.maestro.groups.setAll).not.toHaveBeenCalled();
+			expect(window.openwizardai.groups.setAll).not.toHaveBeenCalled();
 		});
 
 		it('re-persists when groups change', () => {
@@ -1398,7 +1398,7 @@ describe('useSessionLifecycle', () => {
 
 			renderHook(() => useSessionLifecycle(createDeps()));
 
-			expect(window.maestro.groups.setAll).toHaveBeenCalledWith(groups1);
+			expect(window.openwizardai.groups.setAll).toHaveBeenCalledWith(groups1);
 
 			const groups2 = [
 				{ id: 'g1', name: 'Group 1', emoji: '', collapsed: false },
@@ -1409,7 +1409,7 @@ describe('useSessionLifecycle', () => {
 				useSessionStore.setState({ groups: groups2 });
 			});
 
-			expect(window.maestro.groups.setAll).toHaveBeenCalledWith(groups2);
+			expect(window.openwizardai.groups.setAll).toHaveBeenCalledWith(groups2);
 		});
 
 		// Regression: a group registry that was never successfully READ must never
@@ -1427,7 +1427,7 @@ describe('useSessionLifecycle', () => {
 
 			renderHook(() => useSessionLifecycle(createDeps()));
 
-			expect(window.maestro.groups.setAll).not.toHaveBeenCalled();
+			expect(window.openwizardai.groups.setAll).not.toHaveBeenCalled();
 		});
 
 		it('does not persist a group change while the registry is unloaded', () => {
@@ -1445,7 +1445,7 @@ describe('useSessionLifecycle', () => {
 				useSessionStore.setState({ groups: [] });
 			});
 
-			expect(window.maestro.groups.setAll).not.toHaveBeenCalled();
+			expect(window.openwizardai.groups.setAll).not.toHaveBeenCalled();
 		});
 
 		// A user who genuinely has no groups must still be able to persist: the
@@ -1461,7 +1461,7 @@ describe('useSessionLifecycle', () => {
 
 			renderHook(() => useSessionLifecycle(createDeps()));
 
-			expect(window.maestro.groups.setAll).toHaveBeenCalledWith([]);
+			expect(window.openwizardai.groups.setAll).toHaveBeenCalledWith([]);
 		});
 	});
 
@@ -1630,7 +1630,7 @@ describe('useSessionLifecycle', () => {
 			const updatedTab = useSessionStore.getState().sessions[0].aiTabs[0];
 			expect(updatedTab.name).toBe('Tab 1');
 			// Logger should still be called with undefined tab fields
-			expect(window.maestro.logger.log).toHaveBeenCalledWith(
+			expect(window.openwizardai.logger.log).toHaveBeenCalledWith(
 				'info',
 				expect.any(String),
 				'TabNaming',
@@ -1687,12 +1687,12 @@ describe('useSessionLifecycle', () => {
 			});
 
 			// Should fall back to claude-code path when toolType is falsy
-			expect(window.maestro.claude.updateSessionName).toHaveBeenCalledWith(
+			expect(window.openwizardai.claude.updateSessionName).toHaveBeenCalledWith(
 				'/projects/myapp',
 				'ag-1',
 				'Renamed'
 			);
-			expect(window.maestro.agentSessions.setSessionName).not.toHaveBeenCalled();
+			expect(window.openwizardai.agentSessions.setSessionName).not.toHaveBeenCalled();
 		});
 	});
 
@@ -1702,7 +1702,7 @@ describe('useSessionLifecycle', () => {
 
 	describe('performDeleteSession edge cases', () => {
 		it('continues cleanup when playbooks.deleteAll throws an error', async () => {
-			(window.maestro.playbooks.deleteAll as ReturnType<typeof vi.fn>).mockRejectedValue(
+			(window.openwizardai.playbooks.deleteAll as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Storage error')
 			);
 			const session = createMockSession({ id: 'session-1', cwd: '/projects/myapp' });
@@ -1733,7 +1733,7 @@ describe('useSessionLifecycle', () => {
 			});
 
 			// eraseWorkingDirectory is true but cwd is empty, so trashItem should not be called
-			expect(window.maestro.shell.trashItem).not.toHaveBeenCalled();
+			expect(window.openwizardai.shell.trashItem).not.toHaveBeenCalled();
 			// Session should still be removed
 			expect(useSessionStore.getState().sessions).toHaveLength(0);
 		});
@@ -1762,7 +1762,7 @@ describe('useSessionLifecycle', () => {
 		});
 
 		it('still deletes playbooks and removes session when both process kills fail', async () => {
-			(window.maestro.process.kill as ReturnType<typeof vi.fn>).mockRejectedValue(
+			(window.openwizardai.process.kill as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('Process not found')
 			);
 			const session = createMockSession({ id: 'session-1' });
@@ -1775,8 +1775,8 @@ describe('useSessionLifecycle', () => {
 			});
 
 			// Both kills failed, but cleanup should continue
-			expect(window.maestro.process.kill).toHaveBeenCalledTimes(2);
-			expect(window.maestro.playbooks.deleteAll).toHaveBeenCalledWith('session-1');
+			expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(2);
+			expect(window.openwizardai.playbooks.deleteAll).toHaveBeenCalledWith('session-1');
 			expect(useSessionStore.getState().sessions).toHaveLength(0);
 		});
 	});
@@ -1826,12 +1826,12 @@ describe('useSessionLifecycle', () => {
 			});
 
 			// Should fall back to claude-code path when toolType is falsy
-			expect(window.maestro.claude.updateSessionStarred).toHaveBeenCalledWith(
+			expect(window.openwizardai.claude.updateSessionStarred).toHaveBeenCalledWith(
 				'/projects/myapp',
 				'ag-1',
 				true
 			);
-			expect(window.maestro.agentSessions.setSessionStarred).not.toHaveBeenCalled();
+			expect(window.openwizardai.agentSessions.setSessionStarred).not.toHaveBeenCalled();
 		});
 	});
 

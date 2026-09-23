@@ -1,10 +1,10 @@
-// Send-terminal command - type into an already-open Maestro terminal tab.
+// Send-terminal command - type into an already-open OpenWizardAI terminal tab.
 //
 // `open-terminal` makes a new terminal; this one talks to a terminal that is
 // already there, which is what you want to drive a shell the user is watching:
 // run a command in it, or Ctrl-C the dev server it is running.
 
-import { withMaestroClient, resolveSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveSessionId } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 
 interface SendTerminalOptions {
@@ -81,7 +81,7 @@ export async function sendTerminal(
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<WriteResult>(
 				{ type: 'write_terminal_tab', sessionId, tabRef: options.tab, data },
 				'write_terminal_tab_result'
@@ -105,7 +105,7 @@ export async function sendTerminal(
 				} else if (options.enter === false) {
 					console.log(`Typed${where} (not run - no Enter sent)`);
 				} else {
-					console.log(`Ran in OpenWizzard terminal${where}: ${command}`);
+					console.log(`Ran in OpenWizardAI terminal${where}: ${command}`);
 				}
 			}
 		} else {

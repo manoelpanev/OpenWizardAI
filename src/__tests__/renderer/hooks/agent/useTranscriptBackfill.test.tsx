@@ -79,8 +79,8 @@ beforeEach(() => {
 		initialLoadComplete: false,
 		removedWorktreePaths: new Set(),
 	} as never);
-	(window as any).maestro = {
-		...((window as any).maestro || {}),
+	(window as any).openwizardai = {
+		...((window as any).openwizardai || {}),
 		agentSessions: { read },
 	};
 });

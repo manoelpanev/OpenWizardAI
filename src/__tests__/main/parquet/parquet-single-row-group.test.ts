@@ -44,7 +44,7 @@ let fixture: string;
 
 beforeAll(async () => {
 	const { parquetWriteBuffer } = await import('hyparquet-writer');
-	directory = await mkdtemp(path.join(tmpdir(), 'maestro-parquet-single-rg-'));
+	directory = await mkdtemp(path.join(tmpdir(), 'openwizardai-parquet-single-rg-'));
 	fixture = path.join(directory, 'single-row-group.parquet');
 
 	const ids: bigint[] = [];

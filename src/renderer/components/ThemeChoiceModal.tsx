@@ -1,7 +1,7 @@
 /**
  * ThemeChoiceModal - the first-run "pick a look" step.
  *
- * Second in the series, after typography. Typography decides how Maestro reads;
+ * Second in the series, after typography. Typography decides how OpenWizardAI reads;
  * this decides how it looks. Both are answered once, before the user has
  * settled in.
  *
@@ -213,7 +213,7 @@ export function ThemeChoiceModal({
 	return (
 		<Modal
 			theme={theme}
-			title={isReturningUser ? 'Make OpenWizzard yours' : 'Pick a theme'}
+			title={isReturningUser ? 'Make OpenWizardAI yours' : 'Pick a theme'}
 			headerIcon={<Palette className="w-4 h-4" style={{ color: theme.colors.accent }} />}
 			priority={MODAL_PRIORITIES.THEME_CHOICE}
 			onClose={handleDismiss}
@@ -256,8 +256,8 @@ export function ThemeChoiceModal({
 			<div className="space-y-4">
 				<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
 					{isReturningUser
-						? "While we're here: you've been on the default theme since you installed OpenWizzard. There are a few more, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it."
-						: 'OpenWizzard ships with a set of themes, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it.'}
+						? "While we're here: you've been on the default theme since you installed OpenWizardAI. There are a few more, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it."
+						: 'OpenWizardAI ships with a set of themes, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it.'}
 				</p>
 
 				<div className="space-y-4 max-h-[46vh] overflow-y-auto pr-1">

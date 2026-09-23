@@ -10,7 +10,7 @@ const broadcastMock = vi.fn();
 beforeEach(() => {
 	broadcastMock.mockReset();
 	useBatchStore.setState({ batchRunStates: {}, customPrompts: {} });
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		web: { broadcastAutoRunState: broadcastMock },
 	};
 });

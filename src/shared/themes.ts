@@ -1,5 +1,5 @@
 /**
- * Shared theme definitions for Maestro
+ * Shared theme definitions for OpenWizardAI
  *
  * This file contains the canonical theme definitions used across:
  * - Main process (Electron / Web server)
@@ -9,8 +9,8 @@
  * IMPORTANT: This is the single source of truth for theme colors.
  * Do NOT duplicate theme definitions elsewhere.
  *
- * DOWNSTREAM CONTRACT: RunMaestro.ai generates its theme picker from this file.
- * The website checks out RunMaestro/Maestro in CI (and on a daily cron) and fails
+ * DOWNSTREAM CONTRACT: manoelpanev.ai generates its theme picker from this file.
+ * The website checks out manoelpanev/OpenWizardAI in CI (and on a daily cron) and fails
  * its build if its generated palette drifts from this one. Renaming this file,
  * moving the THEMES export, or changing its shape will turn that repo red without
  * any signal here, so treat the export surface as public API. The website layers
@@ -326,8 +326,8 @@ const pedurpleAnsi: AnsiPalette = {
 	selection: 'rgba(145, 70, 255, 0.30)',
 };
 
-/** Maestro's Choice (vibe) - gold/dark ANSI palette */
-const maestrosChoiceAnsi: AnsiPalette = {
+/** OpenWizardAI's Choice (vibe) - gold/dark ANSI palette */
+const openwizardaisChoiceAnsi: AnsiPalette = {
 	ansiBlack: '#1a1a24',
 	ansiRed: '#e05070',
 	ansiGreen: '#66d9a0',
@@ -727,9 +727,9 @@ export const THEMES: Record<ThemeId, Theme> = {
 			...pedurpleAnsi,
 		},
 	},
-	'maestros-choice': {
-		id: 'maestros-choice',
-		name: "OpenWizzard's Choice",
+	'openwizardais-choice': {
+		id: 'openwizardais-choice',
+		name: "OpenWizardAI's Choice",
 		mode: 'vibe',
 		colors: {
 			bgMain: '#1a1a24',
@@ -746,7 +746,7 @@ export const THEMES: Record<ThemeId, Theme> = {
 			success: '#66d9a0',
 			warning: '#f4c430',
 			error: '#e05070',
-			...maestrosChoiceAnsi,
+			...openwizardaisChoiceAnsi,
 		},
 	},
 	'dre-synth': {

@@ -32,7 +32,7 @@ import {
 	resolveClaudeSpawnModeCore,
 	applyClaudeSpawnDecision,
 	buildRemoteInteractiveSpawn,
-	isMaestroPBinaryPath,
+	isOpenWizardAIPBinaryPath,
 	resolveConfigDirKeyFromEnv,
 	defaultSelectMode,
 	type ClaudeSpawnCoreDeps,
@@ -46,14 +46,14 @@ type SshSpawnWrapConfig = import('../../main/utils/ssh-spawn-wrapper').SshSpawnW
 type SshSpawnWrapResult = import('../../main/utils/ssh-spawn-wrapper').SshSpawnWrapResult;
 
 /**
- * Locate the maestro-p script shipped beside the bundled CLI. esbuild emits the
- * CLI as `dist/cli/maestro-cli.js` (CJS), so `__dirname` at runtime is
- * `dist/cli/`, where `maestro-p.js` is a sibling. Returns null when it isn't
+ * Locate the openwizardai-p script shipped beside the bundled CLI. esbuild emits the
+ * CLI as `dist/cli/openwizardai-cli.js` (CJS), so `__dirname` at runtime is
+ * `dist/cli/`, where `openwizardai-p.js` is a sibling. Returns null when it isn't
  * readable there - the resolver then falls the spawn back to API rather than
- * failing, so a CLI without maestro-p degrades safely.
+ * failing, so a CLI without openwizardai-p degrades safely.
  */
-function getCliMaestroPBinPath(): string | null {
-	const candidate = path.join(__dirname, 'maestro-p.js');
+function getCliOpenWizardAIPBinPath(): string | null {
+	const candidate = path.join(__dirname, 'openwizardai-p.js');
 	try {
 		fs.accessSync(candidate, fs.constants.R_OK);
 		return candidate;
@@ -65,14 +65,14 @@ function getCliMaestroPBinPath(): string | null {
 /**
  * CLI-side collaborators for the shared Claude spawn-mode decision core. Mirrors
  * the desktop `defaultDeps` in `resolveClaudeSpawnMode.ts`, but with lightweight,
- * native-free implementations so the `maestro-cli` bundle (no electron-store, no
+ * native-free implementations so the `openwizardai-cli` bundle (no electron-store, no
  * SQLite) can run the SAME decision every desktop surface runs. This is what
  * makes the per-agent Claude token source honored for CLI Auto Run / playbooks /
  * `send` exactly as it is for the desktop chat.
  */
 const cliSpawnCoreDeps: ClaudeSpawnCoreDeps = {
-	getMaestroPBinPath: getCliMaestroPBinPath,
-	isMaestroPBinaryPath,
+	getOpenWizardAIPBinPath: getCliOpenWizardAIPBinPath,
+	isOpenWizardAIPBinaryPath,
 	resolveConfigDirKey: resolveConfigDirKeyFromEnv,
 	// The standalone CLI has no SQLite usage store, so no dynamic usage snapshot
 	// exists. selectMode(null) resolves to interactive - i.e. Dynamic prefers the
@@ -86,10 +86,10 @@ const cliSpawnCoreDeps: ClaudeSpawnCoreDeps = {
 			return false;
 		}
 	},
-	// The CLI can't probe SSH remotes for maestro-p, so stay optimistic (undefined),
-	// matching the desktop cold-cache behavior. An absent remote maestro-p exits
-	// 127 on that turn; the user fixes it by installing maestro-p on the remote.
-	getRemoteMaestroPAvailable: () => undefined,
+	// The CLI can't probe SSH remotes for openwizardai-p, so stay optimistic (undefined),
+	// matching the desktop cold-cache behavior. An absent remote openwizardai-p exits
+	// 127 on that turn; the user fixes it by installing openwizardai-p on the remote.
+	getRemoteOpenWizardAIPAvailable: () => undefined,
 	selectMode: defaultSelectMode,
 	logger: {
 		warn: (message, context, meta) =>
@@ -224,7 +224,7 @@ function buildAppendSystemPromptArgs(
 		// `sanitizeSessionId` (shared with history file naming) collapses
 		// anything outside [A-Za-z0-9_-] to `_`.
 		const safeTag = sanitizeSessionId(sessionTag) || 'session';
-		const tempFile = path.join(os.tmpdir(), `maestro-sysprompt-${safeTag}-${Date.now()}.txt`);
+		const tempFile = path.join(os.tmpdir(), `openwizardai-sysprompt-${safeTag}-${Date.now()}.txt`);
 		try {
 			fs.writeFileSync(tempFile, content, 'utf-8');
 		} catch (writeErr) {
@@ -235,12 +235,12 @@ function buildAppendSystemPromptArgs(
 			// surface available here.
 			const reason = writeErr instanceof Error ? writeErr.message : String(writeErr);
 			console.error(
-				`[maestro-cli] system prompt tempfile write failed (${reason}); falling back to inline --append-system-prompt`
+				`[openwizardai-cli] system prompt tempfile write failed (${reason}); falling back to inline --append-system-prompt`
 			);
 			return ['--append-system-prompt', content];
 		}
 		// `.unref()` so the 30s cleanup timer doesn't keep the CLI alive after
-		// the agent already exited - without it, `maestro-cli send` would
+		// the agent already exited - without it, `openwizardai-cli send` would
 		// appear to hang on Windows until the timer fires.
 		const cleanupTimer = setTimeout(() => {
 			fs.promises.unlink(tempFile).catch((unlinkErr: NodeJS.ErrnoException) => {
@@ -250,7 +250,7 @@ function buildAppendSystemPromptArgs(
 				// on stderr so the user has a breadcrumb.
 				if (unlinkErr.code !== 'ENOENT') {
 					console.error(
-						`[maestro-cli] system prompt tempfile cleanup failed (${unlinkErr.message}) at ${tempFile}`
+						`[openwizardai-cli] system prompt tempfile cleanup failed (${unlinkErr.message}) at ${tempFile}`
 					);
 				}
 			});
@@ -403,7 +403,7 @@ export function getAgentCommand(toolType: ToolType): string {
  * `getAgentCommand()` answers from that cache and falls back to the bare
  * `binaryName` when nothing has populated it - which is every spawn that did
  * not run `detectAgent()` first, i.e. every playbook (`batch-processor.ts`),
- * every goal run (`goal-runner.ts`), and every `maestro-cli send`. A bare name
+ * every goal run (`goal-runner.ts`), and every `openwizardai-cli send`. A bare name
  * costs two things. The user's configured custom path is silently ignored,
  * because `detectAgent()` is the ONLY reader of `getAgentCustomPath()` - so a
  * CLI run executed whatever `claude` PATH happened to offer while the desktop
@@ -483,7 +483,7 @@ async function spawnClaudeAgent(
 		readOnlyMode
 	);
 
-	// Inject the Maestro system prompt via `--append-system-prompt(-file)`. The
+	// Inject the OpenWizardAI system prompt via `--append-system-prompt(-file)`. The
 	// flag rides through both the local args and the SSH-wrapped args because
 	// `wrapSpawnWithSsh` rebuilds the remote command from `baseArgs` below.
 	// Claude Code re-reads this flag every turn (not persisted in the session
@@ -526,15 +526,15 @@ async function spawnClaudeAgent(
 	// Dynamic identically.
 	//
 	// Default is API (`claude --print`): an UNCONFIGURED agent must NOT be flipped
-	// to maestro-p. That's doubly important for SSH here - the CLI can't probe the
-	// remote, and maestro-p may not be installed there, so an optimistic TUI
+	// to openwizardai-p. That's doubly important for SSH here - the CLI can't probe the
+	// remote, and openwizardai-p may not be installed there, so an optimistic TUI
 	// default would try to exec a missing binary and fail the turn. We therefore
 	// do NOT pass the `{ sshEnabled }` default-flip option (which the desktop uses
-	// only because it has a live remote maestro-p probe as a safety net). Only an
-	// EXPLICIT TUI/Dynamic selection routes through maestro-p.
+	// only because it has a live remote openwizardai-p probe as a safety net). Only an
+	// EXPLICIT TUI/Dynamic selection routes through openwizardai-p.
 	const tokenMode = getClaudeTokenMode({
-		enableMaestroP: tokenSource.enableMaestroP,
-		maestroPMode: tokenSource.maestroPMode,
+		enableOpenWizardAIP: tokenSource.enableOpenWizardAIP,
+		openwizardaiPMode: tokenSource.openwizardaiPMode,
 	});
 	const spawnDecision = resolveClaudeSpawnModeCore(
 		{
@@ -551,7 +551,7 @@ async function spawnClaudeAgent(
 			command: claudeCommand,
 			sessionCustomPath: agentCustomPath,
 			sessionCustomEnvVars: userCustomEnvVars,
-			maestroPPath: tokenSource.maestroPPath,
+			openwizardaiPPath: tokenSource.openwizardaiPPath,
 			now: new Date(),
 		},
 		cliSpawnCoreDeps
@@ -559,7 +559,7 @@ async function spawnClaudeAgent(
 
 	// Beat WakaTime for the life of the run. CLI-spawned agents never reach the
 	// desktop's ProcessManager listener, so without this their time goes
-	// unrecorded under Maestro entirely.
+	// unrecorded under OpenWizardAI entirely.
 	const wakaHeartbeat = buildCliWakaTimeHeartbeat(
 		`cli:${cwd}`,
 		cwd,
@@ -575,8 +575,8 @@ async function spawnClaudeAgent(
 	let sshStdinScript: string | undefined;
 
 	if (sshRemoteConfig?.enabled) {
-		// Remote interactive (TUI): run maestro-p on the remote host instead of
-		// `claude`, prepend its interactive flags, and point MAESTRO_CLAUDE_BIN at
+		// Remote interactive (TUI): run openwizardai-p on the remote host instead of
+		// `claude`, prepend its interactive flags, and point OPENWIZARDAI_CLAUDE_BIN at
 		// the remote claude when a custom path is set. Mirrors the desktop SSH
 		// remote-interactive path. API / Dynamic-over-SSH leave the command on
 		// `claude` (the resolver already collapses Dynamic→API for SSH).
@@ -602,9 +602,9 @@ async function spawnClaudeAgent(
 			return sshUnresolvedFailure(sshRemoteConfig);
 		}
 		({ spawnCommand, spawnArgs, spawnCwd, spawnEnv, sshStdinScript } = applySshWrapResult(wrapped));
-	} else if (spawnDecision.mode === 'interactive' && spawnDecision.maestroPBinPath) {
-		// Local TUI: wrap the spawn with maestro-p via process.execPath (node),
-		// injecting MAESTRO_CLAUDE_BIN. maestro-p strips the headless-only flags,
+	} else if (spawnDecision.mode === 'interactive' && spawnDecision.openwizardaiPBinPath) {
+		// Local TUI: wrap the spawn with openwizardai-p via process.execPath (node),
+		// injecting OPENWIZARDAI_CLAUDE_BIN. openwizardai-p strips the headless-only flags,
 		// drives the real claude TUI on the Max plan, and reads the prompt after
 		// `--`. API / direct-binary decisions leave the local spawn untouched.
 		const applied = applyClaudeSpawnDecision({
@@ -616,7 +616,7 @@ async function spawnClaudeAgent(
 		});
 		spawnCommand = applied.command;
 		spawnArgs = applied.args;
-		// Merge the maestro-p env (MAESTRO_CLAUDE_BIN, ELECTRON_RUN_AS_NODE, NODE_PATH)
+		// Merge the openwizardai-p env (OPENWIZARDAI_CLAUDE_BIN, ELECTRON_RUN_AS_NODE, NODE_PATH)
 		// over the already-layered local env so the child resolves correctly.
 		Object.assign(env, applied.customEnvVars);
 		spawnEnv = env;
@@ -1101,7 +1101,7 @@ async function spawnJsonLineAgent(
  * Options for spawning an agent via CLI.
  *
  * Session-level overrides take precedence over the agent-level config read
- * from `maestro-agent-configs.json`. Pass the session values directly here -
+ * from `openwizardai-agent-configs.json`. Pass the session values directly here -
  * the spawner merges agent + session overrides via applyAgentConfigOverrides().
  */
 export interface SpawnAgentOptions {
@@ -1124,27 +1124,27 @@ export interface SpawnAgentOptions {
 	 */
 	sshRemoteConfig?: AgentSshRemoteConfig;
 	/**
-	 * Maestro system prompt to deliver alongside the user message. Mirrors the
+	 * OpenWizardAI system prompt to deliver alongside the user message. Mirrors the
 	 * desktop `process:spawn` handler's `appendSystemPrompt` field. For agents
 	 * with `supportsAppendSystemPrompt: true` (Claude Code today) this is
 	 * passed via `--append-system-prompt`; otherwise it's embedded into the
 	 * first user turn (skipped on resume so it's not repeated). Callers should
-	 * build this via `prepareMaestroSystemPromptCli()` in `./system-prompt.ts`.
+	 * build this via `prepareOpenWizardAISystemPromptCli()` in `./system-prompt.ts`.
 	 */
 	appendSystemPrompt?: string;
 	/**
 	 * Claude token source (Claude Code only), forwarded so CLI Auto Run / batch /
 	 * `send` honor the SAME per-agent selection the desktop chat does: API
-	 * (`claude --print`), TUI (maestro-p), or Dynamic. Absent collapses to API
+	 * (`claude --print`), TUI (openwizardai-p), or Dynamic. Absent collapses to API
 	 * via getClaudeTokenMode. See {@link ClaudeTokenSourceFields}.
 	 */
-	enableMaestroP?: boolean;
-	maestroPMode?: 'interactive' | 'dynamic';
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	openwizardaiPPath?: string;
 	/**
 	 * Who asked for this turn. Stamped into the agent's env as
-	 * MAESTRO_QUERY_SOURCE so tooling downstream of the spawn can tell a
-	 * playbook or Auto Run task apart from a `maestro send` the user typed -
+	 * OPENWIZARDAI_QUERY_SOURCE so tooling downstream of the spawn can tell a
+	 * playbook or Auto Run task apart from a `openwizardai send` the user typed -
 	 * the processes are otherwise identical. Defaults to 'user'.
 	 */
 	querySource?: QuerySource;

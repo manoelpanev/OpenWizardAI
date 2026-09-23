@@ -8,7 +8,7 @@
  *
  * This hook used to pause on `visibilitychange` as well, on the theory that it
  * was measuring "active processing time". It was not. The agent is a separate
- * process: it keeps working whether or not the Maestro window is on screen, and
+ * process: it keeps working whether or not the OpenWizardAI window is on screen, and
  * in Electron on macOS `document.hidden` goes true when the window is merely
  * minimized or fully covered by another app. So the clock stopped whenever the
  * user looked at something else, which on a long unattended run is nearly all
@@ -111,7 +111,7 @@ export interface UseTimeTrackingReturn {
  * Time tracking behavior:
  * - When startTracking is called, the current timestamp is recorded
  * - Time accumulates for as long as the run is tracked, whether or not the
- *   Maestro window is on screen - see the note at the top of this file
+ *   OpenWizardAI window is on screen - see the note at the top of this file
  * - A machine sleep is subtracted by walking the active timestamp forward
  * - When stopTracking is called, the final accumulated time is returned
  *

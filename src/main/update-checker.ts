@@ -1,5 +1,5 @@
 /**
- * Update checker for Maestro
+ * Update checker for OpenWizardAI
  * Fetches release information from GitHub API to check for updates
  */
 
@@ -8,8 +8,8 @@ import { logger } from './utils/logger';
 import { UPDATES_ENABLED } from '../shared/branding';
 
 // GitHub repository information
-const GITHUB_OWNER = 'RunMaestro';
-const GITHUB_REPO = 'Maestro';
+const GITHUB_OWNER = 'manoelpanev';
+const GITHUB_REPO = 'OpenWizardAI';
 const RELEASES_URL = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/releases`;
 
 /**
@@ -107,7 +107,7 @@ async function fetchReleases(includePrerelease: boolean = false): Promise<Releas
 	const response = await fetch(RELEASES_URL, {
 		headers: {
 			Accept: 'application/vnd.github.v3+json',
-			'User-Agent': 'OpenWizzard-Update-Checker',
+			'User-Agent': 'OpenWizardAI-Update-Checker',
 		},
 	});
 

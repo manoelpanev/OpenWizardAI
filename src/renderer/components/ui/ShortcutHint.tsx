@@ -2,7 +2,7 @@
  * ShortcutHint - the small key-cap chip that advertises a keyboard shortcut
  * next to the control it fires.
  *
- * Maestro is keyboard-first, so every clickable route to an action that also
+ * OpenWizardAI is keyboard-first, so every clickable route to an action that also
  * has a chord should show that chord where the user is already looking. This
  * is the one component that draws it, in two shapes:
  *

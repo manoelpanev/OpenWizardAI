@@ -3,7 +3,7 @@
  *
  * WHY THIS EXISTS - keyboard performance:
  * The AI prompt / terminal command draft used to live in `useState` inside
- * `useInputHandlers`, which runs in `MaestroConsoleInner` (App.tsx). Every
+ * `useInputHandlers`, which runs in `OpenWizardAIConsoleInner` (App.tsx). Every
  * keystroke called that setter and re-rendered the entire app tree, which is
  * the keyboard lag users felt (characters appearing slower than typed).
  *

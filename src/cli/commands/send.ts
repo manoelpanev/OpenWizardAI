@@ -1,12 +1,12 @@
 // Send command - send a message to an agent and get a JSON response
-// Requires a Maestro agent ID. Optionally resumes an existing agent session.
+// Requires an OpenWizardAI agent ID. Optionally resumes an existing agent session.
 
 import { spawnAgent, detectAgent, type AgentResult } from '../services/agent-spawner';
 import { resolveAgentId, getSessionById } from '../services/storage';
-import { prepareMaestroSystemPromptCli } from '../services/system-prompt';
+import { prepareOpenWizardAISystemPromptCli } from '../services/system-prompt';
 import { estimateContextUsage } from '../../main/parsers/usage-aggregator';
 import { getAgentDefinition } from '../../main/agents/definitions';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import type { ToolType } from '../../shared/types';
 
 interface SendOptions {
@@ -15,7 +15,7 @@ interface SendOptions {
 	tab?: boolean;
 	// Commander auto-negates `--no-system-prompt` into `systemPrompt: false`,
 	// defaulting to true when the flag is omitted. Bots calling
-	// `maestro-cli send` get the Maestro system context by default - parity
+	// `openwizardai-cli send` get the OpenWizardAI system context by default - parity
 	// with desktop spawn sites that all pass `appendSystemPrompt`.
 	systemPrompt?: boolean;
 }
@@ -120,14 +120,14 @@ export async function send(
 	// when multiple callers (e.g. Discord threads) send concurrently.
 	const agentSessionId = options.session;
 
-	// Build the Maestro system prompt unless the caller opted out with
+	// Build the OpenWizardAI system prompt unless the caller opted out with
 	// `--no-system-prompt`. Failure to build (template missing, fs error) is
 	// non-fatal: spawn proceeds without the prompt rather than failing the
-	// whole send, matching the renderer's `prepareMaestroSystemPrompt` which
+	// whole send, matching the renderer's `prepareOpenWizardAISystemPrompt` which
 	// returns undefined on failure (`src/renderer/utils/spawnHelpers.ts:35`).
 	const includeSystemPrompt = options.systemPrompt !== false;
 	const appendSystemPrompt = includeSystemPrompt
-		? await prepareMaestroSystemPromptCli(agent)
+		? await prepareOpenWizardAISystemPromptCli(agent)
 		: undefined;
 
 	// Spawn agent - spawnAgent handles --resume vs fresh session internally
@@ -139,10 +139,10 @@ export async function send(
 		customEnvVars: agent.customEnvVars,
 		sshRemoteConfig: agent.sessionSshRemoteConfig,
 		appendSystemPrompt,
-		// Honor the agent's Claude token source for `maestro-cli send` turns.
-		enableMaestroP: agent.enableMaestroP,
-		maestroPMode: agent.maestroPMode,
-		maestroPPath: agent.maestroPPath,
+		// Honor the agent's Claude token source for `openwizardai-cli send` turns.
+		enableOpenWizardAIP: agent.enableOpenWizardAIP,
+		openwizardaiPMode: agent.openwizardaiPMode,
+		openwizardaiPPath: agent.openwizardaiPPath,
 	});
 	const response = buildResponse(agentId, agent.name, result, agent.toolType);
 
@@ -152,10 +152,10 @@ export async function send(
 		process.exit(1);
 	}
 
-	// If --tab flag is set, focus the session tab in Maestro desktop
+	// If --tab flag is set, focus the session tab in OpenWizardAI desktop
 	if (options.tab) {
 		try {
-			await withMaestroClient(async (client) => {
+			await withOpenWizardAIClient(async (client) => {
 				await client.sendCommand(
 					{ type: 'select_session', sessionId: agentId, focus: true },
 					'select_session_result'
@@ -163,7 +163,7 @@ export async function send(
 			});
 		} catch {
 			console.error(
-				'Warning: Could not focus session tab in OpenWizzard desktop (app may not be running)'
+				'Warning: Could not focus session tab in OpenWizardAI desktop (app may not be running)'
 			);
 		}
 	}

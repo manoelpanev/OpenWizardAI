@@ -37,7 +37,7 @@
  * something from the queue must not rewrite what the user already heard, and
  * picking it out of history re-queues it.
  *
- * `maestro-media://` stream URLs are minted per boot, so only paths are
+ * `openwizardai-media://` stream URLs are minted per boot, so only paths are
  * persisted; the player re-resolves the URL when an item loads.
  *
  * Float geometry is position plus a width **per kind**: the frame's height is
@@ -214,7 +214,7 @@ interface MediaPlaybackStoreState {
 }
 
 function persistFloat(float: PersistedMediaFloat): void {
-	window.maestro?.settings?.set(MEDIA_FLOAT_SETTINGS_KEY, float);
+	window.openwizardai?.settings?.set(MEDIA_FLOAT_SETTINGS_KEY, float);
 }
 
 /**
@@ -243,7 +243,7 @@ function writeQueueNow(): void {
 		resumeTimes,
 		durations: persistedDurations,
 	};
-	window.maestro?.settings?.set(MEDIA_QUEUE_SETTINGS_KEY, payload);
+	window.openwizardai?.settings?.set(MEDIA_QUEUE_SETTINGS_KEY, payload);
 }
 
 function persistQueue(): void {

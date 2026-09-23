@@ -315,7 +315,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 		async (name: string) => {
 			if (!projectPath) return;
 			try {
-				const result = await window.maestro.memory.read(projectPath, name, agentId);
+				const result = await window.openwizardai.memory.read(projectPath, name, agentId);
 				if (!result.success) {
 					setActionError(result.error || `Failed to read ${name}`);
 					return;
@@ -341,7 +341,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 			}
 			setLoading(true);
 			try {
-				const result = await window.maestro.memory.list(projectPath, agentId);
+				const result = await window.openwizardai.memory.list(projectPath, agentId);
 				if (!result.success) {
 					setLoadError(result.error || 'Failed to load memory');
 					return;
@@ -397,7 +397,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 		let cancelled = false;
 		void (async () => {
 			try {
-				const result = await window.maestro.memory.search(projectPath, query, agentId);
+				const result = await window.openwizardai.memory.search(projectPath, query, agentId);
 				if (cancelled) return;
 				if (!result.success) {
 					setActionError(result.error || 'Failed to search memory');
@@ -450,7 +450,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 		let cancelled = false;
 		void (async () => {
 			try {
-				const result = await window.maestro.memory.orphans(projectPath, agentId);
+				const result = await window.openwizardai.memory.orphans(projectPath, agentId);
 				if (cancelled || !result.success) return;
 				setOrphans(result.orphans ?? []);
 			} catch {
@@ -482,7 +482,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 		setIsSaving(true);
 		setActionError(null);
 		try {
-			const result = await window.maestro.memory.write(
+			const result = await window.openwizardai.memory.write(
 				projectPath,
 				selectedName,
 				editedContent,
@@ -508,7 +508,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 			setIsDeleting(true);
 			setActionError(null);
 			try {
-				const result = await window.maestro.memory.delete(projectPath, name, agentId);
+				const result = await window.openwizardai.memory.delete(projectPath, name, agentId);
 				if (!result.success) {
 					setActionError(result.error || `Failed to delete ${name}`);
 					return;
@@ -633,7 +633,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 		setIsCreating(true);
 		setCreateError(null);
 		try {
-			const result = await window.maestro.memory.create(
+			const result = await window.openwizardai.memory.create(
 				projectPath,
 				filename,
 				starterContentFor(filename),
@@ -904,7 +904,7 @@ export function MemoryViewer({ theme, activeSession, onClose }: MemoryViewerProp
 						successMessage={successMessage}
 						errorMessage={actionError}
 						highlightQuery={debouncedFilter.trim()}
-						listWidthStorageKey="maestro.memoryViewer.listWidth"
+						listWidthStorageKey="openwizardai.memoryViewer.listWidth"
 						onDeleteItem={requestDelete}
 						listFocusToken={listFocusToken}
 						autoFocusList

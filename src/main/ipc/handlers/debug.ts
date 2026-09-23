@@ -85,7 +85,7 @@ export function registerDebugHandlers(deps: DebugHandlerDependencies): void {
 
 			// Generate a default filename with timestamp
 			const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-			const defaultFilename = `maestro-debug-${timestamp}.zip`;
+			const defaultFilename = `openwizardai-debug-${timestamp}.zip`;
 
 			// Show save dialog
 			const result = await dialog.showSaveDialog(mainWindow, {
@@ -309,7 +309,7 @@ export function registerDebugHandlers(deps: DebugHandlerDependencies): void {
 			const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
 			// Flush the trace to a temp file first so recording (and its overhead)
 			// ends immediately, before the user fiddles with the save dialog.
-			const tracePath = path.join(app.getPath('temp'), `maestro-trace-${timestamp}.json`);
+			const tracePath = path.join(app.getPath('temp'), `openwizardai-trace-${timestamp}.json`);
 			sendProgress({ phase: 'stopping' });
 			const outcome = await stopProfiling(tracePath);
 			const { durationMs } = outcome;
@@ -317,7 +317,7 @@ export function registerDebugHandlers(deps: DebugHandlerDependencies): void {
 			sendProgress({ phase: 'awaiting-save' });
 			const result = await dialog.showSaveDialog(mainWindow, {
 				title: 'Save Performance Profile',
-				defaultPath: path.join(app.getPath('desktop'), `maestro-profile-${timestamp}.zip`),
+				defaultPath: path.join(app.getPath('desktop'), `openwizardai-profile-${timestamp}.zip`),
 				filters: [{ name: 'Zip Files', extensions: ['zip'] }],
 			});
 

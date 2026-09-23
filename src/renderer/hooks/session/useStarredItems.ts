@@ -107,7 +107,7 @@ export function useStarredItems(deps: UseStarredItemsDeps): UseStarredItemsRetur
 	const loadStarredNamedSessions = useCallback(async () => {
 		if (!showStarredSessionsSection) return;
 		try {
-			const all = await window.maestro.agentSessions.getAllNamedSessions();
+			const all = await window.openwizardai.agentSessions.getAllNamedSessions();
 			setStarredNamedSessions(
 				all
 					.filter((s) => s.starred === true)
@@ -220,7 +220,7 @@ export function useStarredItems(deps: UseStarredItemsDeps): UseStarredItemsRetur
 				showConfirmation?.(
 					`"${item.sessionName}" is no longer available. It has aged out and its conversation could not be loaded. Remove the star?`,
 					async () => {
-						await window.maestro.agentSessions.setSessionStarred(
+						await window.openwizardai.agentSessions.setSessionStarred(
 							item.agentId,
 							item.projectPath,
 							item.agentSessionId,

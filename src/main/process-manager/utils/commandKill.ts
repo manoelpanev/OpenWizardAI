@@ -27,7 +27,7 @@ export { killProcessTreeNow } from '../../utils/processTree';
  * node-pty queues the call as a *deferred* whenever the agent has not signalled
  * ready yet, and later runs the queue from a socket `data` handler - so the throw
  * surfaces on a completely different stack, escapes as an uncaught exception, and
- * takes the main process down (Sentry MAESTRO-XZ: 822 fatal events from a single
+ * takes the main process down (Sentry OPENWIZARDAI-XZ: 822 fatal events from a single
  * Windows install). Callers must therefore never hand node-pty a signal on
  * Windows, rather than trying to catch what it throws.
  *

@@ -1,4 +1,4 @@
-// Update agent command - mutate fields on an existing agent in the Maestro
+// Update agent command - mutate fields on an existing agent in the OpenWizardAI
 // desktop app (group assignment, working directory, and SSH execution config).
 //
 // `--group <id>` reuses the existing `move_session_to_group` WS message; pass
@@ -12,7 +12,7 @@
 // (like `--cwd`) are refused by the renderer while the agent process is alive.
 
 import * as path from 'path';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { resolveAgentId, resolveGroupId, getSessionById } from '../services/storage';
 import { formatError, formatSuccess } from '../output/formatter';
 import { toClaudeTokenModeSource, type ClaudeTokenMode } from '../../shared/claudeTokenMode';
@@ -43,7 +43,7 @@ interface UpdateAgentOptions {
 	effort?: string;
 	contextWindow?: string;
 	tokenSource?: string;
-	maestroPPath?: string;
+	openwizardaiPPath?: string;
 	bookmark?: string;
 	json?: boolean;
 }
@@ -91,7 +91,7 @@ function buildConfigPatch(options: UpdateAgentOptions): Record<string, unknown> 
 	strField(options.customArgs, 'customArgs');
 	strField(options.model, 'customModel');
 	strField(options.effort, 'customEffort');
-	strField(options.maestroPPath, 'maestroPPath');
+	strField(options.openwizardaiPPath, 'openwizardaiPPath');
 
 	if (options.bookmark !== undefined) {
 		patch.bookmarked = parseCliBool(options.bookmark, '--bookmark');
@@ -123,12 +123,12 @@ function buildConfigPatch(options: UpdateAgentOptions): Record<string, unknown> 
 		if (mode !== 'api' && mode !== 'tui' && mode !== 'dynamic') {
 			throw new Error(`--token-source expects api, tui, or dynamic, got "${options.tokenSource}"`);
 		}
-		// Map the friendly tri-state to the stored (enableMaestroP, maestroPMode)
+		// Map the friendly tri-state to the stored (enableOpenWizardAIP, openwizardaiPMode)
 		// pair so every spawn surface reads it consistently. tui -> interactive.
 		const canonical: ClaudeTokenMode = mode === 'tui' ? 'interactive' : mode;
 		const encoded = toClaudeTokenModeSource(canonical);
-		patch.enableMaestroP = encoded.enableMaestroP;
-		patch.maestroPMode = encoded.maestroPMode;
+		patch.enableOpenWizardAIP = encoded.enableOpenWizardAIP;
+		patch.openwizardaiPMode = encoded.openwizardaiPMode;
 	}
 
 	return Object.keys(patch).length > 0 ? patch : undefined;
@@ -157,7 +157,7 @@ export async function updateAgent(agentId: string, options: UpdateAgentOptions):
 		options.provider === undefined
 	) {
 		emitError(
-			'Specify at least one field to update (e.g. --group, --cwd, --ssh-remote, --nudge, --model, --token-source, --bookmark, --provider, --env). Run "maestro-cli update-agent --help" for the full list.',
+			'Specify at least one field to update (e.g. --group, --cwd, --ssh-remote, --nudge, --model, --token-source, --bookmark, --provider, --env). Run "openwizardai-cli update-agent --help" for the full list.',
 			options
 		);
 	}
@@ -175,7 +175,7 @@ export async function updateAgent(agentId: string, options: UpdateAgentOptions):
 	const currentToolType = session?.toolType;
 
 	// Guard: --token-source only carries meaning for Claude Code. Writing the
-	// maestro-p fields on another provider would be inert and misleading, so
+	// openwizardai-p fields on another provider would be inert and misleading, so
 	// reject loudly rather than silently no-op.
 	if (
 		options.tokenSource !== undefined &&
@@ -276,7 +276,7 @@ export async function updateAgent(agentId: string, options: UpdateAgentOptions):
 	} = {};
 
 	try {
-		await withMaestroClient(async (client) => {
+		await withOpenWizardAIClient(async (client) => {
 			if (resolvedGroupId !== undefined) {
 				const result = await client.sendCommand<{
 					type: string;
@@ -425,9 +425,9 @@ export async function updateAgent(agentId: string, options: UpdateAgentOptions):
 			customModel: 'Model',
 			customEffort: 'Effort',
 			customContextWindow: 'Context window',
-			enableMaestroP: 'Claude token source',
-			maestroPMode: 'Token mode',
-			maestroPPath: 'maestro-p path',
+			enableOpenWizardAIP: 'Claude token source',
+			openwizardaiPMode: 'Token mode',
+			openwizardaiPPath: 'openwizardai-p path',
 		};
 		for (const [key, value] of Object.entries(applied.config)) {
 			const label = labels[key] ?? key;

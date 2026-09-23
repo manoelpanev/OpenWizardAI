@@ -11,7 +11,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	mockUpdateSessionStarred.mockResolvedValue(undefined);
 	mockSetSessionStarred.mockResolvedValue(undefined);
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		claude: { updateSessionStarred: mockUpdateSessionStarred },
 		agentSessions: { setSessionStarred: mockSetSessionStarred },
 	};

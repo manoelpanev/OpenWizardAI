@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../../../renderer/utils/spawnHelpers';
+import {
+	getStdinFlags,
+	prepareOpenWizardAISystemPrompt,
+} from '../../../renderer/utils/spawnHelpers';
 
 vi.mock('../../../renderer/utils/templateVariables', () => ({
 	substituteTemplateVariables: vi.fn((content: string, vars: Record<string, any>) => {
@@ -19,7 +22,7 @@ vi.mock('../../../renderer/services/git', () => ({
 	},
 }));
 
-describe('prepareMaestroSystemPrompt', () => {
+describe('prepareOpenWizardAISystemPrompt', () => {
 	const baseSession = {
 		id: 'session-1',
 		cwd: '/test/project',
@@ -29,8 +32,8 @@ describe('prepareMaestroSystemPrompt', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(window as any).maestro = {
-			...(window as any).maestro,
+		(window as any).openwizardai = {
+			...(window as any).openwizardai,
 			prompts: {
 				get: vi.fn().mockResolvedValue({
 					success: true,
@@ -44,36 +47,38 @@ describe('prepareMaestroSystemPrompt', () => {
 	});
 
 	it('returns undefined when prompt load fails', async () => {
-		(window as any).maestro.prompts.get.mockResolvedValue({
+		(window as any).openwizardai.prompts.get.mockResolvedValue({
 			success: false,
 			error: 'not found',
 		});
-		const result = await prepareMaestroSystemPrompt({ session: baseSession });
+		const result = await prepareOpenWizardAISystemPrompt({ session: baseSession });
 		expect(result).toBeUndefined();
 	});
 
 	it('returns undefined when prompt content is empty', async () => {
-		(window as any).maestro.prompts.get.mockResolvedValue({
+		(window as any).openwizardai.prompts.get.mockResolvedValue({
 			success: true,
 			content: '',
 		});
-		const result = await prepareMaestroSystemPrompt({ session: baseSession });
+		const result = await prepareOpenWizardAISystemPrompt({ session: baseSession });
 		expect(result).toBeUndefined();
 	});
 
 	it('returns substituted prompt', async () => {
-		const result = await prepareMaestroSystemPrompt({
+		const result = await prepareOpenWizardAISystemPrompt({
 			session: baseSession,
 			activeTabId: 'tab-42',
 		});
 		expect(result).toBeDefined();
 		expect(typeof result).toBe('string');
-		expect((window as any).maestro.prompts.get).toHaveBeenCalledWith('maestro-system-prompt');
+		expect((window as any).openwizardai.prompts.get).toHaveBeenCalledWith(
+			'openwizardai-system-prompt'
+		);
 	});
 
 	it('resolves git branch when session is a git repo', async () => {
 		const { gitService } = await import('../../../renderer/services/git');
-		const result = await prepareMaestroSystemPrompt({
+		const result = await prepareOpenWizardAISystemPrompt({
 			session: { ...baseSession, isGitRepo: true },
 		});
 		expect(result).toBeDefined();
@@ -82,7 +87,7 @@ describe('prepareMaestroSystemPrompt', () => {
 
 	it('skips git branch when session is not a git repo', async () => {
 		const { gitService } = await import('../../../renderer/services/git');
-		await prepareMaestroSystemPrompt({
+		await prepareOpenWizardAISystemPrompt({
 			session: { ...baseSession, isGitRepo: false },
 		});
 		expect(gitService.getStatus).not.toHaveBeenCalled();
@@ -91,57 +96,59 @@ describe('prepareMaestroSystemPrompt', () => {
 	it('handles git status errors gracefully', async () => {
 		const { gitService } = await import('../../../renderer/services/git');
 		vi.mocked(gitService.getStatus).mockRejectedValueOnce(new Error('git failed'));
-		const result = await prepareMaestroSystemPrompt({
+		const result = await prepareOpenWizardAISystemPrompt({
 			session: { ...baseSession, isGitRepo: true },
 		});
 		expect(result).toBeDefined();
 	});
 
 	it('fetches history file path for non-SSH sessions', async () => {
-		await prepareMaestroSystemPrompt({ session: baseSession });
-		expect((window as any).maestro.history.getFilePath).toHaveBeenCalledWith('session-1');
+		await prepareOpenWizardAISystemPrompt({ session: baseSession });
+		expect((window as any).openwizardai.history.getFilePath).toHaveBeenCalledWith('session-1');
 	});
 
 	it('skips history file path for SSH sessions (sshRemoteId)', async () => {
-		await prepareMaestroSystemPrompt({
+		await prepareOpenWizardAISystemPrompt({
 			session: { ...baseSession, sshRemoteId: 'remote-1' },
 		});
-		expect((window as any).maestro.history.getFilePath).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.history.getFilePath).not.toHaveBeenCalled();
 	});
 
 	it('skips history file path for SSH sessions (sessionSshRemoteConfig)', async () => {
-		await prepareMaestroSystemPrompt({
+		await prepareOpenWizardAISystemPrompt({
 			session: { ...baseSession, sessionSshRemoteConfig: { enabled: true } },
 		});
-		expect((window as any).maestro.history.getFilePath).not.toHaveBeenCalled();
+		expect((window as any).openwizardai.history.getFilePath).not.toHaveBeenCalled();
 	});
 
 	it('handles history file path errors gracefully', async () => {
-		(window as any).maestro.history.getFilePath.mockRejectedValueOnce(new Error('history failed'));
-		const result = await prepareMaestroSystemPrompt({ session: baseSession });
+		(window as any).openwizardai.history.getFilePath.mockRejectedValueOnce(
+			new Error('history failed')
+		);
+		const result = await prepareOpenWizardAISystemPrompt({ session: baseSession });
 		expect(result).toBeDefined();
 	});
 
 	it('re-injects prompt on every call (no resume-based skip)', async () => {
 		// Regression: prior impl returned undefined when a legacy `agentSessionId`
 		// was present. Because Claude Code's --append-system-prompt is NOT persisted
-		// into the session transcript, resuming with `--resume` dropped the Maestro
+		// into the session transcript, resuming with `--resume` dropped the OpenWizardAI
 		// prompt from turn 2 onward. The prompt MUST be re-injected on every spawn.
-		const first = await prepareMaestroSystemPrompt({ session: baseSession });
-		const second = await prepareMaestroSystemPrompt({ session: baseSession });
+		const first = await prepareOpenWizardAISystemPrompt({ session: baseSession });
+		const second = await prepareOpenWizardAISystemPrompt({ session: baseSession });
 		expect(first).toBeDefined();
 		expect(second).toBeDefined();
-		expect((window as any).maestro.prompts.get).toHaveBeenCalledTimes(2);
+		expect((window as any).openwizardai.prompts.get).toHaveBeenCalledTimes(2);
 	});
 });
 
 describe('getStdinFlags', () => {
 	afterEach(() => {
-		(window as any).maestro = { platform: 'darwin' };
+		(window as any).openwizardai = { platform: 'darwin' };
 	});
 
 	it('returns both false on non-Windows platforms', () => {
-		(window as any).maestro = { platform: 'darwin' };
+		(window as any).openwizardai = { platform: 'darwin' };
 		const result = getStdinFlags({
 			isSshSession: false,
 			supportsStreamJsonInput: true,
@@ -151,7 +158,7 @@ describe('getStdinFlags', () => {
 	});
 
 	it('returns sendPromptViaStdin when Windows + stream-json + images', () => {
-		(window as any).maestro = { platform: 'win32' };
+		(window as any).openwizardai = { platform: 'win32' };
 		const result = getStdinFlags({
 			isSshSession: false,
 			supportsStreamJsonInput: true,
@@ -161,7 +168,7 @@ describe('getStdinFlags', () => {
 	});
 
 	it('returns sendPromptViaStdinRaw when Windows + stream-json + no images', () => {
-		(window as any).maestro = { platform: 'win32' };
+		(window as any).openwizardai = { platform: 'win32' };
 		const result = getStdinFlags({
 			isSshSession: false,
 			supportsStreamJsonInput: true,
@@ -171,7 +178,7 @@ describe('getStdinFlags', () => {
 	});
 
 	it('returns sendPromptViaStdinRaw when Windows + stream-json unsupported', () => {
-		(window as any).maestro = { platform: 'win32' };
+		(window as any).openwizardai = { platform: 'win32' };
 		const result = getStdinFlags({
 			isSshSession: false,
 			supportsStreamJsonInput: false,
@@ -181,7 +188,7 @@ describe('getStdinFlags', () => {
 	});
 
 	it('returns both false for SSH sessions on Windows', () => {
-		(window as any).maestro = { platform: 'win32' };
+		(window as any).openwizardai = { platform: 'win32' };
 		const result = getStdinFlags({
 			isSshSession: true,
 			supportsStreamJsonInput: true,
@@ -191,7 +198,7 @@ describe('getStdinFlags', () => {
 	});
 
 	it('returns both false for SSH sessions on Windows without stream-json', () => {
-		(window as any).maestro = { platform: 'win32' };
+		(window as any).openwizardai = { platform: 'win32' };
 		const result = getStdinFlags({
 			isSshSession: true,
 			supportsStreamJsonInput: false,

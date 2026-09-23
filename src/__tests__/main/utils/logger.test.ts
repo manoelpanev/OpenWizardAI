@@ -39,7 +39,7 @@ let originalAppData: string | undefined;
 let originalXdgConfigHome: string | undefined;
 let testConfigRoot = '';
 
-const getTestLogsDir = () => path.join(testConfigRoot, 'OpenWizzard', 'logs');
+const getTestLogsDir = () => path.join(testConfigRoot, 'OpenWizardAI', 'logs');
 
 describe('Logger', () => {
 	let logger: Awaited<ReturnType<typeof getLogger>>;
@@ -52,7 +52,7 @@ describe('Logger', () => {
 		mockIsWindows.mockReturnValue(false);
 		originalAppData = process.env.APPDATA;
 		originalXdgConfigHome = process.env.XDG_CONFIG_HOME;
-		testConfigRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-logger-test-'));
+		testConfigRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-logger-test-'));
 		process.env.XDG_CONFIG_HOME = testConfigRoot;
 		delete process.env.APPDATA;
 
@@ -761,18 +761,18 @@ describe('Logger', () => {
 			const day = String(now.getDate()).padStart(2, '0');
 			const expectedDateStr = `${year}-${month}-${day}`;
 
-			expect(logPath).toContain(`maestro-debug-${expectedDateStr}.log`);
+			expect(logPath).toContain(`openwizardai-debug-${expectedDateStr}.log`);
 		});
 
 		it('should include logs directory in the path', async () => {
 			const logPath = logger.getLogFilePath();
-			// Path should end with /logs/maestro-debug-YYYY-MM-DD.log
-			expect(logPath).toMatch(/[/\\]logs[/\\]maestro-debug-\d{4}-\d{2}-\d{2}\.log$/);
+			// Path should end with /logs/openwizardai-debug-YYYY-MM-DD.log
+			expect(logPath).toMatch(/[/\\]logs[/\\]openwizardai-debug-\d{4}-\d{2}-\d{2}\.log$/);
 		});
 
-		it('should include OpenWizzard in the path', async () => {
+		it('should include OpenWizardAI in the path', async () => {
 			const logPath = logger.getLogFilePath();
-			expect(logPath).toContain('OpenWizzard');
+			expect(logPath).toContain('OpenWizardAI');
 		});
 	});
 
@@ -786,7 +786,7 @@ describe('Logger', () => {
 			const month = String(now.getMonth() + 1).padStart(2, '0');
 			const day = String(now.getDate()).padStart(2, '0');
 			const expectedDateStr = `${year}-${month}-${day}`;
-			expect(logPath).toContain(`maestro-debug-${expectedDateStr}.log`);
+			expect(logPath).toContain(`openwizardai-debug-${expectedDateStr}.log`);
 		});
 
 		it('should not rotate when date has not changed', async () => {
@@ -841,7 +841,7 @@ describe('Logger', () => {
 				const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
 				const day = String(tomorrow.getDate()).padStart(2, '0');
 				const expectedDateStr = `${year}-${month}-${day}`;
-				expect(newPath).toContain(`maestro-debug-${expectedDateStr}.log`);
+				expect(newPath).toContain(`openwizardai-debug-${expectedDateStr}.log`);
 			} finally {
 				globalThis.Date = originalDate;
 				logger.disableFileLogging();
@@ -854,7 +854,7 @@ describe('Logger', () => {
 			logger.disableFileLogging();
 		});
 
-		it('should migrate legacy maestro-debug.log on enableFileLogging', async () => {
+		it('should migrate legacy openwizardai-debug.log on enableFileLogging', async () => {
 			const logsDir = getTestLogsDir();
 
 			if (!fs.existsSync(logsDir)) {
@@ -862,7 +862,7 @@ describe('Logger', () => {
 			}
 
 			// Create a legacy log file
-			const legacyPath = path.join(logsDir, 'maestro-debug.log');
+			const legacyPath = path.join(logsDir, 'openwizardai-debug.log');
 			fs.writeFileSync(legacyPath, 'legacy log content');
 
 			// Use a recent past date (3 days ago) so it won't be cleaned up by cleanOldLogs
@@ -874,7 +874,7 @@ describe('Logger', () => {
 			const month = String(pastDate.getMonth() + 1).padStart(2, '0');
 			const day = String(pastDate.getDate()).padStart(2, '0');
 			const expectedDateStr = `${year}-${month}-${day}`;
-			const expectedTarget = path.join(logsDir, `maestro-debug-${expectedDateStr}.log`);
+			const expectedTarget = path.join(logsDir, `openwizardai-debug-${expectedDateStr}.log`);
 
 			// Make sure target doesn't exist yet
 			try {
@@ -895,7 +895,7 @@ describe('Logger', () => {
 				// Console should log the migration
 				expect(consoleLogSpy).toHaveBeenCalledWith(
 					expect.stringContaining(
-						`[Logger] Migrated legacy log file to maestro-debug-${expectedDateStr}.log`
+						`[Logger] Migrated legacy log file to openwizardai-debug-${expectedDateStr}.log`
 					)
 				);
 
@@ -920,7 +920,7 @@ describe('Logger', () => {
 			}
 
 			// Create a legacy log file with a recent past mtime (3 days ago)
-			const legacyPath = path.join(logsDir, 'maestro-debug.log');
+			const legacyPath = path.join(logsDir, 'openwizardai-debug.log');
 			fs.writeFileSync(legacyPath, 'legacy log content');
 			const pastDate = new Date();
 			pastDate.setDate(pastDate.getDate() - 3);
@@ -929,7 +929,7 @@ describe('Logger', () => {
 			const year = pastDate.getFullYear();
 			const month = String(pastDate.getMonth() + 1).padStart(2, '0');
 			const day = String(pastDate.getDate()).padStart(2, '0');
-			const targetPath = path.join(logsDir, `maestro-debug-${year}-${month}-${day}.log`);
+			const targetPath = path.join(logsDir, `openwizardai-debug-${year}-${month}-${day}.log`);
 
 			// Pre-create the target file
 			fs.writeFileSync(targetPath, 'existing dated content');
@@ -977,7 +977,7 @@ describe('Logger', () => {
 
 			logger.enableFileLogging();
 
-			expect(logger.getLogFilePath()).toContain(`maestro-debug-${expectedDateStr}.log`);
+			expect(logger.getLogFilePath()).toContain(`openwizardai-debug-${expectedDateStr}.log`);
 
 			logger.disableFileLogging();
 		});
@@ -990,7 +990,7 @@ describe('Logger', () => {
 			}
 
 			// Create an old log file that should be cleaned up
-			const oldFile = 'maestro-debug-2020-01-01.log';
+			const oldFile = 'openwizardai-debug-2020-01-01.log';
 			const oldFilePath = path.join(logsDir, oldFile);
 			fs.writeFileSync(oldFilePath, 'old content');
 
@@ -1025,13 +1025,13 @@ describe('Logger', () => {
 			}
 
 			// Create some old log files (10 days ago) and a recent one (2 days ago)
-			const oldFile = 'maestro-debug-2020-01-01.log';
+			const oldFile = 'openwizardai-debug-2020-01-01.log';
 			const recentDate = new Date();
 			recentDate.setDate(recentDate.getDate() - 2);
 			const recentYear = recentDate.getFullYear();
 			const recentMonth = String(recentDate.getMonth() + 1).padStart(2, '0');
 			const recentDay = String(recentDate.getDate()).padStart(2, '0');
-			const recentFile = `maestro-debug-${recentYear}-${recentMonth}-${recentDay}.log`;
+			const recentFile = `openwizardai-debug-${recentYear}-${recentMonth}-${recentDay}.log`;
 			const nonMatchingFile = 'other-file.log';
 
 			const oldFilePath = path.join(logsDir, oldFile);
@@ -1108,7 +1108,7 @@ describe('Logger', () => {
 			const year = sevenDaysAgo.getFullYear();
 			const month = String(sevenDaysAgo.getMonth() + 1).padStart(2, '0');
 			const day = String(sevenDaysAgo.getDate()).padStart(2, '0');
-			const borderlineFile = `maestro-debug-${year}-${month}-${day}.log`;
+			const borderlineFile = `openwizardai-debug-${year}-${month}-${day}.log`;
 			const borderlineFilePath = path.join(logsDir, borderlineFile);
 
 			fs.writeFileSync(borderlineFilePath, 'borderline log content');

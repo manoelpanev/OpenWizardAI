@@ -36,7 +36,7 @@ import {
 	defaultExtensionFor,
 	type ExportableImage,
 } from '../utils/imageExport';
-import { DIAGRAMS_DIR } from '../../shared/maestro-paths';
+import { DIAGRAMS_DIR } from '../../shared/openwizardai-paths';
 import { notifyToast } from '../stores/notificationStore';
 
 /**

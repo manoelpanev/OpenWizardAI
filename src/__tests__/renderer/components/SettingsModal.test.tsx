@@ -211,7 +211,7 @@ vi.mock('../../../renderer/hooks/settings/useSettings', () => ({
 		setToastDuration: mockSetToastDuration,
 		idleNotificationEnabled: false,
 		setIdleNotificationEnabled: mockSetIdleNotificationEnabled,
-		idleNotificationCommand: 'say OpenWizzard is idle',
+		idleNotificationCommand: 'say OpenWizardAI is idle',
 		setIdleNotificationCommand: mockSetIdleNotificationCommand,
 		// Update settings
 		checkForUpdatesOnStartup: true,
@@ -229,7 +229,7 @@ vi.mock('../../../renderer/hooks/settings/useSettings', () => ({
 		// Conductor profile settings
 		conductorProfile: '',
 		setConductorProfile: vi.fn(),
-		// Global show-Maestro hotkey
+		// Global show-OpenWizardAI hotkey
 		globalShowHotkey: [],
 		setGlobalShowHotkey: vi.fn(),
 		// Context management settings
@@ -407,8 +407,8 @@ describe('SettingsModal', () => {
 		vi.useFakeTimers();
 		__resetLastOpenSettingsTabForTests();
 
-		// Reset window.maestro mocks
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+		// Reset window.openwizardai mocks
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 			{
 				id: 'claude-code',
 				name: 'Claude Code',
@@ -425,26 +425,26 @@ describe('SettingsModal', () => {
 			},
 			{ id: 'openai-codex', name: 'OpenAI Codex', available: false, hidden: false },
 		] as AgentConfig[]);
-		vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
-		vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.shells.detect).mockResolvedValue([
+		vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
+		vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.shells.detect).mockResolvedValue([
 			{ id: 'zsh', name: 'Zsh', path: '/bin/zsh', available: true },
 			{ id: 'bash', name: 'Bash', path: '/bin/bash', available: true },
 		] as ShellInfo[]);
 
-		// Add missing mocks to window.maestro
-		(window.maestro as any).fonts = {
+		// Add missing mocks to window.openwizardai
+		(window.openwizardai as any).fonts = {
 			detect: vi.fn().mockResolvedValue(['Menlo', 'Monaco', 'Courier New']),
 		};
-		(window.maestro as any).agents.getAllCustomPaths = vi.fn().mockResolvedValue({});
-		(window.maestro as any).agents.setCustomPath = vi.fn().mockResolvedValue(undefined);
-		(window.maestro as any).agents.setConfig = vi.fn().mockResolvedValue(undefined);
+		(window.openwizardai as any).agents.getAllCustomPaths = vi.fn().mockResolvedValue({});
+		(window.openwizardai as any).agents.setCustomPath = vi.fn().mockResolvedValue(undefined);
+		(window.openwizardai as any).agents.setConfig = vi.fn().mockResolvedValue(undefined);
 		// Generic capability-snapshot stubs so any agentStore call made from
 		// Settings stays inert in tests that don't exercise that pipeline.
-		(window.maestro as any).agents.getAllSnapshots = vi.fn().mockResolvedValue({});
-		(window.maestro as any).agents.getSnapshot = vi.fn().mockResolvedValue(null);
-		(window.maestro as any).agents.reprobe = vi.fn().mockResolvedValue(null);
-		(window.maestro as any).agents.onSnapshotUpdated = vi.fn().mockReturnValue(() => {});
+		(window.openwizardai as any).agents.getAllSnapshots = vi.fn().mockResolvedValue({});
+		(window.openwizardai as any).agents.getSnapshot = vi.fn().mockResolvedValue(null);
+		(window.openwizardai as any).agents.reprobe = vi.fn().mockResolvedValue(null);
+		(window.openwizardai as any).agents.onSnapshotUpdated = vi.fn().mockReturnValue(() => {});
 	});
 
 	afterEach(() => {
@@ -664,7 +664,7 @@ describe('SettingsModal', () => {
 	describe('keyboard tab navigation', () => {
 		// Sidebar is alphabetized by label, so the order under no LLM flag is:
 		// About, AI Commands, Display, Encore Features, Environment, General,
-		// Maestro Prompts, Notifications, Shortcuts, SSH Hosts, Themes.
+		// OpenWizardAI Prompts, Notifications, Shortcuts, SSH Hosts, Themes.
 		it('should navigate to next tab with Cmd+Shift+] from default (general)', async () => {
 			render(<SettingsModal {...createDefaultProps({ initialTab: 'general' })} />);
 
@@ -675,15 +675,15 @@ describe('SettingsModal', () => {
 			// Start on general tab
 			expect(screen.getByText('Default Terminal Shell')).toBeInTheDocument();
 
-			// Press Cmd+Shift+] - alphabetically the next tab after General is Maestro Prompts
+			// Press Cmd+Shift+] - alphabetically the next tab after General is OpenWizardAI Prompts
 			fireEvent.keyDown(window, { key: ']', metaKey: true, shiftKey: true });
 
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			// Maestro Prompts tab should now be the active sidebar entry
-			expect(screen.getByTitle('OpenWizzard Prompts')).toHaveClass('font-bold');
+			// OpenWizardAI Prompts tab should now be the active sidebar entry
+			expect(screen.getByTitle('OpenWizardAI Prompts')).toHaveClass('font-bold');
 		});
 
 		it('should navigate to previous tab with Cmd+Shift+[ from shortcuts', async () => {
@@ -811,7 +811,7 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect((window.maestro as any).fonts.detect).toHaveBeenCalled();
+			expect((window.openwizardai as any).fonts.detect).toHaveBeenCalled();
 		});
 	});
 
@@ -1038,7 +1038,7 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.shells.detect).toHaveBeenCalled();
+			expect(window.openwizardai.shells.detect).toHaveBeenCalled();
 		});
 
 		it('should call setDefaultShell when shell is selected', async () => {
@@ -1443,8 +1443,8 @@ describe('SettingsModal', () => {
 			});
 
 			fireEvent.click(screen.getByRole('button', { name: 'Test Notification' }));
-			expect(window.maestro.notification.show).toHaveBeenCalledWith(
-				'OpenWizzard',
+			expect(window.openwizardai.notification.show).toHaveBeenCalledWith(
+				'OpenWizardAI',
 				'Test notification - notifications are working!'
 			);
 		});
@@ -1516,7 +1516,7 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect(window.maestro.notification.speak).toHaveBeenCalled();
+			expect(window.openwizardai.notification.speak).toHaveBeenCalled();
 		});
 
 		it('should display toast duration setting', async () => {
@@ -1589,7 +1589,9 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('customFonts', ['My Custom Font']);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('customFonts', [
+				'My Custom Font',
+			]);
 		});
 
 		it('should add custom font on Enter key', async () => {
@@ -1607,7 +1609,9 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('customFonts', ['My Custom Font']);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('customFonts', [
+				'My Custom Font',
+			]);
 		});
 
 		it('should not add empty custom font', async () => {
@@ -1627,7 +1631,7 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect(window.maestro.settings.set).not.toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).not.toHaveBeenCalledWith(
 				'customFonts',
 				expect.anything()
 			);
@@ -1636,7 +1640,9 @@ describe('SettingsModal', () => {
 
 	describe('edge cases', () => {
 		it('should handle font detection failure gracefully', async () => {
-			(window.maestro as any).fonts.detect.mockRejectedValue(new Error('Font detection failed'));
+			(window.openwizardai as any).fonts.detect.mockRejectedValue(
+				new Error('Font detection failed')
+			);
 
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
@@ -1663,7 +1669,7 @@ describe('SettingsModal', () => {
 		});
 
 		it('should handle shell detection failure gracefully', async () => {
-			vi.mocked(window.maestro.shells.detect).mockRejectedValue(
+			vi.mocked(window.openwizardai.shells.detect).mockRejectedValue(
 				new Error('Shell detection failed')
 			);
 
@@ -1825,11 +1831,11 @@ describe('SettingsModal', () => {
 	describe('Custom notification Stop button', () => {
 		it('should show Stop button when Command Chain is running and handle click', async () => {
 			// Mock speak to return a notificationId
-			vi.mocked(window.maestro.notification.speak).mockResolvedValue({
+			vi.mocked(window.openwizardai.notification.speak).mockResolvedValue({
 				success: true,
 				notificationId: 123,
 			});
-			vi.mocked(window.maestro.notification.stopSpeak).mockResolvedValue({ success: true });
+			vi.mocked(window.openwizardai.notification.stopSpeak).mockResolvedValue({ success: true });
 
 			render(<SettingsModal {...createDefaultProps({ initialTab: 'notifications' })} />);
 
@@ -1855,15 +1861,17 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(100);
 			});
 
-			expect(window.maestro.notification.stopSpeak).toHaveBeenCalledWith(123);
+			expect(window.openwizardai.notification.stopSpeak).toHaveBeenCalledWith(123);
 		});
 
 		it('should handle stopSpeak error gracefully', async () => {
-			vi.mocked(window.maestro.notification.speak).mockResolvedValue({
+			vi.mocked(window.openwizardai.notification.speak).mockResolvedValue({
 				success: true,
 				notificationId: 456,
 			});
-			vi.mocked(window.maestro.notification.stopSpeak).mockRejectedValue(new Error('Stop failed'));
+			vi.mocked(window.openwizardai.notification.stopSpeak).mockRejectedValue(
+				new Error('Stop failed')
+			);
 
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
@@ -1893,7 +1901,9 @@ describe('SettingsModal', () => {
 		});
 
 		it('should handle speak error gracefully', async () => {
-			vi.mocked(window.maestro.notification.speak).mockRejectedValue(new Error('Speak failed'));
+			vi.mocked(window.openwizardai.notification.speak).mockRejectedValue(
+				new Error('Speak failed')
+			);
 
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
@@ -1918,13 +1928,15 @@ describe('SettingsModal', () => {
 		it('should return to Test button when command completes', async () => {
 			// Set up a mock that captures the onCommandCompleted callback
 			let capturedCallback: ((notificationId: number) => void) | null = null;
-			vi.mocked(window.maestro.notification.onCommandCompleted).mockImplementation((callback) => {
-				capturedCallback = callback;
-				return () => {
-					capturedCallback = null;
-				};
-			});
-			vi.mocked(window.maestro.notification.speak).mockResolvedValue({
+			vi.mocked(window.openwizardai.notification.onCommandCompleted).mockImplementation(
+				(callback) => {
+					capturedCallback = callback;
+					return () => {
+						capturedCallback = null;
+					};
+				}
+			);
+			vi.mocked(window.openwizardai.notification.speak).mockResolvedValue({
 				success: true,
 				notificationId: 789,
 			});
@@ -2112,7 +2124,10 @@ describe('SettingsModal', () => {
 	describe('Custom font removal', () => {
 		it('should remove custom font when X is clicked', async () => {
 			// Preload custom fonts
-			vi.mocked(window.maestro.settings.get).mockResolvedValue(['MyCustomFont', 'AnotherFont']);
+			vi.mocked(window.openwizardai.settings.get).mockResolvedValue([
+				'MyCustomFont',
+				'AnotherFont',
+			]);
 
 			render(<SettingsModal {...createDefaultProps({ initialTab: 'display' })} />);
 
@@ -2141,7 +2156,7 @@ describe('SettingsModal', () => {
 			});
 
 			// Should save updated custom fonts (without MyCustomFont)
-			expect(window.maestro.settings.set).toHaveBeenCalledWith('customFonts', ['AnotherFont']);
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith('customFonts', ['AnotherFont']);
 		});
 	});
 
@@ -2166,7 +2181,7 @@ describe('SettingsModal', () => {
 
 	describe('Font availability checking', () => {
 		it('should check font availability using normalized names', async () => {
-			(window.maestro as any).fonts.detect.mockResolvedValue(['JetBrains Mono', 'Fira Code']);
+			(window.openwizardai as any).fonts.detect.mockResolvedValue(['JetBrains Mono', 'Fira Code']);
 
 			render(<SettingsModal {...createDefaultProps({ initialTab: 'display' })} />);
 
@@ -2220,7 +2235,7 @@ describe('SettingsModal', () => {
 			});
 
 			// shells.detect should only have been called once
-			expect(window.maestro.shells.detect).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.shells.detect).toHaveBeenCalledTimes(1);
 		});
 	});
 
@@ -2266,7 +2281,7 @@ describe('SettingsModal', () => {
 			});
 
 			expect(
-				screen.getByText(/Features that extend OpenWizzard's capabilities/)
+				screen.getByText(/Features that extend OpenWizardAI's capabilities/)
 			).toBeInTheDocument();
 			expect(screen.getByText(/Contributors should gate a new feature here/)).toBeInTheDocument();
 		});

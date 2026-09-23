@@ -13,7 +13,7 @@
  *      mapping into `SessionTokenSummary`.
  *
  * Critically, the fixtures keep the two id spaces DISTINCT: `session_lifecycle`
- * rows are keyed by the Maestro agent id (`m-*`), while `AgentSessionInfo` rows
+ * rows are keyed by the OpenWizardAI agent id (`m-*`), while `AgentSessionInfo` rows
  * (what `listSessions` returns) are keyed by the provider session id (`p-*`).
  * Conflating them is the bug this accessor was rewritten to fix - using the
  * same id for both would silently pass even if the join were wrong.
@@ -142,7 +142,7 @@ describe('cue-token-accessor', () => {
 			]);
 
 			const result = await getSessionTokenSummaries([
-				{ maestroSessionId: 'm-claude', providerSessionId: 'p-claude' },
+				{ openwizardaiSessionId: 'm-claude', providerSessionId: 'p-claude' },
 			]);
 
 			expect(result.size).toBe(1);
@@ -184,7 +184,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-opencode', providerSessionId: 'p-opencode' },
+					{ openwizardaiSessionId: 'm-opencode', providerSessionId: 'p-opencode' },
 				])
 			).get('p-opencode');
 
@@ -219,7 +219,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-droid', providerSessionId: 'p-droid' },
+					{ openwizardaiSessionId: 'm-droid', providerSessionId: 'p-droid' },
 				])
 			).get('p-droid');
 
@@ -250,7 +250,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-codex', providerSessionId: 'p-codex' },
+					{ openwizardaiSessionId: 'm-codex', providerSessionId: 'p-codex' },
 				])
 			).get('p-codex');
 
@@ -282,7 +282,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-copilot', providerSessionId: 'p-copilot' },
+					{ openwizardaiSessionId: 'm-copilot', providerSessionId: 'p-copilot' },
 				])
 			).get('p-copilot');
 
@@ -293,10 +293,10 @@ describe('cue-token-accessor', () => {
 	});
 
 	describe('id-space join', () => {
-		it('resolves agent/project by Maestro agent id but matches tokens by provider session id', async () => {
-			// The whole point of the rewrite: the lookup id (Maestro agent id)
+		it('resolves agent/project by OpenWizardAI agent id but matches tokens by provider session id', async () => {
+			// The whole point of the rewrite: the lookup id (OpenWizardAI agent id)
 			// and the on-disk session id (provider session id) differ. A naive
-			// `byId.get(maestroId)` would miss and report zeros.
+			// `byId.get(openwizardaiId)` would miss and report zeros.
 			lookupRows = [
 				{
 					session_id: 'm-agent',
@@ -310,7 +310,7 @@ describe('cue-token-accessor', () => {
 			]);
 
 			const result = await getSessionTokenSummaries([
-				{ maestroSessionId: 'm-agent', providerSessionId: 'p-run' },
+				{ openwizardaiSessionId: 'm-agent', providerSessionId: 'p-run' },
 			]);
 
 			expect(result.get('p-run')?.inputTokens).toBe(4242);
@@ -331,7 +331,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-agent', providerSessionId: 'p-run' },
+					{ openwizardaiSessionId: 'm-agent', providerSessionId: 'p-run' },
 				])
 			).get('p-run');
 
@@ -354,7 +354,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-unknown', providerSessionId: 'p-unknown' },
+					{ openwizardaiSessionId: 'm-unknown', providerSessionId: 'p-unknown' },
 				])
 			).get('p-unknown');
 
@@ -372,11 +372,11 @@ describe('cue-token-accessor', () => {
 			});
 		});
 
-		it('Maestro agent absent from session_lifecycle is omitted from the result map', async () => {
+		it('OpenWizardAI agent absent from session_lifecycle is omitted from the result map', async () => {
 			lookupRows = []; // DB returns nothing.
 
 			const result = await getSessionTokenSummaries([
-				{ maestroSessionId: 'm-missing', providerSessionId: 'p-missing' },
+				{ openwizardaiSessionId: 'm-missing', providerSessionId: 'p-missing' },
 			]);
 
 			expect(result.size).toBe(0);
@@ -445,10 +445,10 @@ describe('cue-token-accessor', () => {
 			]);
 
 			const result = await getSessionTokenSummaries([
-				{ maestroSessionId: 'm-claude', providerSessionId: 'p-claude' },
-				{ maestroSessionId: 'm-codex', providerSessionId: 'p-codex' },
-				{ maestroSessionId: 'm-droid', providerSessionId: 'p-droid' },
-				{ maestroSessionId: 'm-missing', providerSessionId: 'p-missing' },
+				{ openwizardaiSessionId: 'm-claude', providerSessionId: 'p-claude' },
+				{ openwizardaiSessionId: 'm-codex', providerSessionId: 'p-codex' },
+				{ openwizardaiSessionId: 'm-droid', providerSessionId: 'p-droid' },
+				{ openwizardaiSessionId: 'm-missing', providerSessionId: 'p-missing' },
 			]);
 
 			expect(result.size).toBe(3);
@@ -519,8 +519,8 @@ describe('cue-token-accessor', () => {
 			});
 
 			const result = await getSessionTokenSummaries([
-				{ maestroSessionId: 'm-claude-1', providerSessionId: 'p-claude-1' },
-				{ maestroSessionId: 'm-claude-2', providerSessionId: 'p-claude-2' },
+				{ openwizardaiSessionId: 'm-claude-1', providerSessionId: 'p-claude-1' },
+				{ openwizardaiSessionId: 'm-claude-2', providerSessionId: 'p-claude-2' },
 			]);
 
 			expect(listSessions).toHaveBeenCalledTimes(1);
@@ -552,7 +552,7 @@ describe('cue-token-accessor', () => {
 
 			const summary = (
 				await getSessionTokenSummaries([
-					{ maestroSessionId: 'm-remote', providerSessionId: 'p-remote' },
+					{ openwizardaiSessionId: 'm-remote', providerSessionId: 'p-remote' },
 				])
 			).get('p-remote');
 
@@ -563,7 +563,7 @@ describe('cue-token-accessor', () => {
 	});
 
 	describe('getAgentTypesForSessions', () => {
-		it('resolves agent type by Maestro agent id from session_lifecycle', async () => {
+		it('resolves agent type by OpenWizardAI agent id from session_lifecycle', async () => {
 			lookupRows = [
 				{ session_id: 'm-a', agent_type: 'claude-code', project_path: '/p', is_remote: 0 },
 				{ session_id: 'm-b', agent_type: 'codex', project_path: '/p', is_remote: 0 },

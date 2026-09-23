@@ -87,7 +87,7 @@ export interface TypographySurfaceSpec {
 	inheritsFrom: readonly TypographyRoot[];
 	/** CLI alias accepted in addition to the id (`preview` for `filePreview`). */
 	aliases: string[];
-	/** One-line description for `maestro-cli display font --list` and Settings. */
+	/** One-line description for `openwizardai-cli display font --list` and Settings. */
 	description: string;
 }
 
@@ -97,8 +97,8 @@ export const TYPOGRAPHY_SURFACE_SPECS: Record<TypographySurface, TypographySurfa
 		label: 'Interface',
 		fontKey: 'fontFamily',
 		sizeKey: 'fontSize',
-		fontVar: '--maestro-font-interface',
-		sizeVar: '--maestro-size-interface',
+		fontVar: '--openwizardai-font-interface',
+		sizeVar: '--openwizardai-size-interface',
 		inheritsFrom: [],
 		aliases: ['ui', 'app'],
 		description: 'The whole app, and the proportional face other surfaces can follow.',
@@ -108,8 +108,8 @@ export const TYPOGRAPHY_SURFACE_SPECS: Record<TypographySurface, TypographySurfa
 		label: 'AI Chat',
 		fontKey: 'chatFontFamily',
 		sizeKey: 'chatFontSize',
-		fontVar: '--maestro-font-chat',
-		sizeVar: '--maestro-size-chat',
+		fontVar: '--openwizardai-font-chat',
+		sizeVar: '--openwizardai-size-chat',
 		inheritsFrom: ['interface', 'terminal'],
 		aliases: ['ai', 'transcript'],
 		description: 'The AI transcript, in the main panel and in tiled panes.',
@@ -119,8 +119,8 @@ export const TYPOGRAPHY_SURFACE_SPECS: Record<TypographySurface, TypographySurfa
 		label: 'Terminal',
 		fontKey: 'terminalFontFamily',
 		sizeKey: 'terminalFontSize',
-		fontVar: '--maestro-font-terminal',
-		sizeVar: '--maestro-size-terminal',
+		fontVar: '--openwizardai-font-terminal',
+		sizeVar: '--openwizardai-size-terminal',
 		// Only the interface. Terminal is itself a root, so letting it follow
 		// another surface is what would open the door to a cycle.
 		inheritsFrom: ['interface'],
@@ -133,8 +133,8 @@ export const TYPOGRAPHY_SURFACE_SPECS: Record<TypographySurface, TypographySurfa
 		label: 'File Preview',
 		fontKey: 'filePreviewFontFamily',
 		sizeKey: 'filePreviewFontSize',
-		fontVar: '--maestro-font-file-preview',
-		sizeVar: '--maestro-size-file-preview',
+		fontVar: '--openwizardai-font-file-preview',
+		sizeVar: '--openwizardai-size-file-preview',
 		inheritsFrom: ['interface', 'terminal'],
 		aliases: ['preview', 'reader'],
 		description: 'A file being read.',
@@ -144,8 +144,8 @@ export const TYPOGRAPHY_SURFACE_SPECS: Record<TypographySurface, TypographySurfa
 		label: 'Document Graph',
 		fontKey: 'documentGraphFontFamily',
 		sizeKey: 'documentGraphFontSize',
-		fontVar: '--maestro-font-document-graph',
-		sizeVar: '--maestro-size-document-graph',
+		fontVar: '--openwizardai-font-document-graph',
+		sizeVar: '--openwizardai-size-document-graph',
 		inheritsFrom: ['interface', 'terminal'],
 		aliases: ['graph', 'mindmap', 'docgraph'],
 		description: 'Node titles and previews in the document graph.',
@@ -155,8 +155,8 @@ export const TYPOGRAPHY_SURFACE_SPECS: Record<TypographySurface, TypographySurfa
 		label: 'File Editor',
 		fontKey: 'fileEditorFontFamily',
 		sizeKey: 'fileEditorFontSize',
-		fontVar: '--maestro-font-file-editor',
-		sizeVar: '--maestro-size-file-editor',
+		fontVar: '--openwizardai-font-file-editor',
+		sizeVar: '--openwizardai-size-file-editor',
 		inheritsFrom: ['interface', 'terminal'],
 		aliases: ['editor', 'edit'],
 		description: 'A file being edited. Monospace keeps the gutter aligned with the text.',
@@ -174,7 +174,7 @@ export const TYPOGRAPHY_SURFACE_LIST: TypographySurfaceSpec[] = TYPOGRAPHY_SURFA
  * hashes, paths, inline code. Pinning it to a hard-coded stack meant none of
  * them followed the user's chosen monospace font.
  */
-export const MONO_ACCENT_VAR = '--maestro-font-mono';
+export const MONO_ACCENT_VAR = '--openwizardai-font-mono';
 
 /** Zoom multiplier bounds. Matches the old FONT_SIZE_MIN/MAX range at 14px base. */
 export const FONT_ZOOM_MIN = 0.6;

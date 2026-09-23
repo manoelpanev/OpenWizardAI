@@ -4,7 +4,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useLiveMode } from '../../../renderer/hooks/remote/useLiveMode';
 
 describe('useLiveMode', () => {
-	const originalMaestro = (window as any).maestro;
+	const originalOpenWizardAI = (window as any).openwizardai;
 
 	const mockTunnel = {
 		stop: vi.fn(),
@@ -35,15 +35,15 @@ describe('useLiveMode', () => {
 			return unsubscribeUrlChanged;
 		});
 
-		(window as any).maestro = {
-			...originalMaestro,
+		(window as any).openwizardai = {
+			...originalOpenWizardAI,
 			tunnel: mockTunnel,
 			live: mockLive,
 		};
 	});
 
 	afterEach(() => {
-		(window as any).maestro = originalMaestro;
+		(window as any).openwizardai = originalOpenWizardAI;
 		vi.restoreAllMocks();
 	});
 
@@ -396,7 +396,7 @@ describe('useLiveMode', () => {
 	});
 
 	it('survives a preload without the address-change channel', () => {
-		(window as any).maestro.live = { ...mockLive, onUrlChanged: undefined };
+		(window as any).openwizardai.live = { ...mockLive, onUrlChanged: undefined };
 
 		expect(() => renderHook(() => useLiveMode())).not.toThrow();
 	});

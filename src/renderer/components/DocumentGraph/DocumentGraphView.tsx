@@ -980,11 +980,11 @@ export function DocumentGraphView({
 	useEffect(() => {
 		if (!isOpen || !rootPath) return;
 
-		window.maestro.documentGraph.watchFolder(rootPath).catch((err) => {
+		window.openwizardai.documentGraph.watchFolder(rootPath).catch((err) => {
 			logger.error('Failed to start document graph file watcher:', undefined, err);
 		});
 
-		const unsubscribe = window.maestro.documentGraph.onFilesChanged((data) => {
+		const unsubscribe = window.openwizardai.documentGraph.onFilesChanged((data) => {
 			if (data.rootPath === rootPath) {
 				// Invalidate cache for changed files before rebuilding graph
 				const changedPaths = data.changes.map((c: { filePath: string }) => c.filePath);
@@ -995,7 +995,7 @@ export function DocumentGraphView({
 
 		return () => {
 			unsubscribe();
-			window.maestro.documentGraph.unwatchFolder(rootPath).catch((err) => {
+			window.openwizardai.documentGraph.unwatchFolder(rootPath).catch((err) => {
 				logger.error('Failed to stop document graph file watcher:', undefined, err);
 			});
 		};
@@ -1023,7 +1023,7 @@ export function DocumentGraphView({
 		const fullPath = `${rootPath}/${selectedNode.filePath}`;
 
 		// Load file stats (created/modified dates)
-		window.maestro.fs
+		window.openwizardai.fs
 			.stat(fullPath, sshRemoteId)
 			.then((stats) => {
 				// stat returns null for a phantom target (e.g. an unresolved [[wiki]]
@@ -1042,7 +1042,7 @@ export function DocumentGraphView({
 			});
 
 		// Load file content to count tasks
-		window.maestro.fs
+		window.openwizardai.fs
 			.readFile(fullPath, sshRemoteId)
 			.then((content) => {
 				if (!content) return;
@@ -1174,7 +1174,7 @@ export function DocumentGraphView({
 	 */
 	const captureGraphImage = useCallback(async (): Promise<string | null> => {
 		const el = graphContainerRef.current;
-		const capturePage = window.maestro?.shell?.capturePage;
+		const capturePage = window.openwizardai?.shell?.capturePage;
 		if (!el || !capturePage) return null;
 
 		await new Promise<void>((resolve) =>
@@ -1406,7 +1406,7 @@ export function DocumentGraphView({
 			setPreviewError(null);
 
 			try {
-				const content = await window.maestro.fs.readFile(fullPath, sshRemoteId);
+				const content = await window.openwizardai.fs.readFile(fullPath, sshRemoteId);
 
 				if (content === null) {
 					throw new Error('Unable to read file contents.');
@@ -1659,7 +1659,7 @@ export function DocumentGraphView({
 			// C opens the screenshot chooser, matching the camera button in the
 			// footer. Gated on the same capability the button is, so the key is
 			// inert rather than opening a dialog whose actions would both fail.
-			if ((e.key === 'c' || e.key === 'C') && !!window.maestro?.shell?.capturePage) {
+			if ((e.key === 'c' || e.key === 'C') && !!window.openwizardai?.shell?.capturePage) {
 				e.preventDefault();
 				setShowScreenshotModal(true);
 				return;
@@ -2665,7 +2665,7 @@ export function DocumentGraphView({
 					    its middle track; the button inside hides when the bridge
 					    cannot capture the page, so it never offers a shot it can't take. */}
 					<div className="flex items-center justify-center">
-						{!!window.maestro?.shell?.capturePage && (
+						{!!window.openwizardai?.shell?.capturePage && (
 							<button
 								onClick={() => setShowScreenshotModal(true)}
 								className="flex items-center gap-1.5 px-2 py-1 rounded text-xs transition-colors whitespace-nowrap"

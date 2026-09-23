@@ -628,8 +628,8 @@ describe('mergePipelinesWithSavedLayout', () => {
 			const savedLayout: PipelineLayoutState = {
 				pipelines: [
 					{
-						id: 'pipeline-Maestro',
-						name: 'Maestro',
+						id: 'pipeline-OpenWizardAI',
+						name: 'OpenWizardAI',
 						color: '#06b6d4',
 						nodes: [
 							{
@@ -651,21 +651,21 @@ describe('mergePipelinesWithSavedLayout', () => {
 									eventType: 'github.pull_request',
 									label: 'PR',
 									config: {},
-									subscriptionName: 'Maestro-chain-3',
+									subscriptionName: 'OpenWizardAI-chain-3',
 								},
 							},
 						],
 						edges: [],
 					},
 				],
-				selectedPipelineId: 'pipeline-Maestro',
+				selectedPipelineId: 'pipeline-OpenWizardAI',
 			};
 			// Live pipeline: same triggers, but YAML reorder put the PR
 			// trigger FIRST. Indices are reversed vs the saved layout.
 			const livePipelines: CuePipeline[] = [
 				{
-					id: 'pipeline-Maestro',
-					name: 'Maestro',
+					id: 'pipeline-OpenWizardAI',
+					name: 'OpenWizardAI',
 					color: '#06b6d4',
 					nodes: [
 						{
@@ -676,7 +676,7 @@ describe('mergePipelinesWithSavedLayout', () => {
 								eventType: 'github.pull_request',
 								label: 'PR',
 								config: {},
-								subscriptionName: 'Maestro-chain-3',
+								subscriptionName: 'OpenWizardAI-chain-3',
 							},
 						},
 						{
@@ -696,7 +696,7 @@ describe('mergePipelinesWithSavedLayout', () => {
 			];
 			const result = mergePipelinesWithSavedLayout(livePipelines, savedLayout);
 			const prTrigger = result.pipelines[0].nodes.find(
-				(n) => (n.data as { subscriptionName?: string }).subscriptionName === 'Maestro-chain-3'
+				(n) => (n.data as { subscriptionName?: string }).subscriptionName === 'OpenWizardAI-chain-3'
 			);
 			const schedTrigger = result.pipelines[0].nodes.find(
 				(n) => (n.data as { subscriptionName?: string }).subscriptionName === 'Community Refresh'

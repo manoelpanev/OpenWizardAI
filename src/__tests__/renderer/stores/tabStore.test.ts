@@ -1027,8 +1027,10 @@ describe('closeTerminalTab', () => {
 			useTabStore.getState().closeTerminalTab('term-2');
 		});
 
-		expect(window.maestro.process.kill).toHaveBeenCalledTimes(1);
-		expect(window.maestro.process.kill).toHaveBeenCalledWith(expect.stringContaining('term-2'));
+		expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.process.kill).toHaveBeenCalledWith(
+			expect.stringContaining('term-2')
+		);
 
 		const session = useSessionStore.getState().sessions[0];
 		expect(session.terminalTabs).toHaveLength(1);
@@ -1044,8 +1046,10 @@ describe('closeTerminalTab', () => {
 		});
 
 		// PTY should be killed
-		expect(window.maestro.process.kill).toHaveBeenCalledTimes(1);
-		expect(window.maestro.process.kill).toHaveBeenCalledWith(expect.stringContaining('term-1'));
+		expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.process.kill).toHaveBeenCalledWith(
+			expect.stringContaining('term-1')
+		);
 
 		// Tab removed and inputMode reverted to 'ai'
 		const session = useSessionStore.getState().sessions[0];
@@ -1089,8 +1093,10 @@ describe('restartTerminalTab', () => {
 			useTabStore.getState().restartTerminalTab('term-1');
 		});
 
-		expect(window.maestro.process.kill).toHaveBeenCalledTimes(1);
-		expect(window.maestro.process.kill).toHaveBeenCalledWith(expect.stringContaining('term-1'));
+		expect(window.openwizardai.process.kill).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.process.kill).toHaveBeenCalledWith(
+			expect.stringContaining('term-1')
+		);
 	});
 
 	it('does nothing when the tab does not exist', () => {
@@ -1101,6 +1107,6 @@ describe('restartTerminalTab', () => {
 			useTabStore.getState().restartTerminalTab('nonexistent');
 		});
 
-		expect(window.maestro.process.kill).not.toHaveBeenCalled();
+		expect(window.openwizardai.process.kill).not.toHaveBeenCalled();
 	});
 });

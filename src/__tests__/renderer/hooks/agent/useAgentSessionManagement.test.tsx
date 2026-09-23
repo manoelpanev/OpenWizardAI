@@ -20,8 +20,8 @@ beforeEach(() => {
 		initialLoadComplete: false,
 		removedWorktreePaths: new Set(),
 	} as never);
-	(window as any).maestro = {
-		...((window as any).maestro || {}),
+	(window as any).openwizardai = {
+		...((window as any).openwizardai || {}),
 		history: { add: historyAdd },
 	};
 });
@@ -77,7 +77,7 @@ describe('useAgentSessionManagement - history token source capture', () => {
 		});
 
 		const entry = lastAddedEntry();
-		// Absent claudeInteractive means the adaptive/maestro-p machinery never
+		// Absent claudeInteractive means the adaptive/openwizardai-p machinery never
 		// engaged, so the turn ran plain `claude --print` (API). Every Claude turn
 		// gets a token-source pill; only the reason is omitted when unknown.
 		expect(entry.tokenSource).toBe('api');

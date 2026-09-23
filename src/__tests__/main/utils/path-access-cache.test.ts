@@ -153,7 +153,7 @@ describe('defaultReadableProbe', () => {
 	let tempDir: string;
 
 	beforeEach(() => {
-		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-probe-test-'));
+		tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-probe-test-'));
 	});
 
 	afterEach(() => {

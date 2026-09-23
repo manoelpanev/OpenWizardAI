@@ -100,24 +100,24 @@ describe('useInputProcessing', () => {
 	const mockOnHistoryCommand = vi.fn().mockResolvedValue(undefined);
 	const mockInputRef = { current: null } as React.RefObject<HTMLTextAreaElement | null>;
 
-	// Store original window.maestro
-	const originalMaestro = { ...window.maestro };
+	// Store original window.openwizardai
+	const originalOpenWizardAI = { ...window.openwizardai };
 
 	beforeEach(() => {
 		vi.clearAllMocks();
 		mockGetBatchState.mockReturnValue(defaultBatchState);
 
-		// Mock window.maestro.process.spawn
-		window.maestro = {
-			...window.maestro,
+		// Mock window.openwizardai.process.spawn
+		window.openwizardai = {
+			...window.openwizardai,
 			process: {
-				...window.maestro?.process,
+				...window.openwizardai?.process,
 				spawn: vi.fn().mockResolvedValue(undefined),
 				write: vi.fn().mockResolvedValue(undefined),
 				runCommand: vi.fn().mockResolvedValue(undefined),
 			},
 			agents: {
-				...window.maestro?.agents,
+				...window.openwizardai?.agents,
 				get: vi.fn().mockResolvedValue({
 					id: 'claude-code',
 					command: 'claude',
@@ -126,14 +126,14 @@ describe('useInputProcessing', () => {
 				}),
 			},
 			web: {
-				...window.maestro?.web,
+				...window.openwizardai?.web,
 				broadcastUserInput: vi.fn().mockResolvedValue(undefined),
 			},
-		} as typeof window.maestro;
+		} as typeof window.openwizardai;
 	});
 
 	afterEach(() => {
-		Object.assign(window.maestro, originalMaestro);
+		Object.assign(window.openwizardai, originalOpenWizardAI);
 	});
 
 	// Helper to create hook dependencies.
@@ -214,7 +214,7 @@ describe('useInputProcessing', () => {
 				tabId: deps.activeSession!.activeTabId,
 			});
 			expect(mockSetInputValue).toHaveBeenCalledWith('');
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('runs a command containing bangs verbatim', async () => {
@@ -258,7 +258,7 @@ describe('useInputProcessing', () => {
 			});
 
 			expect(dispatchShellCommand).not.toHaveBeenCalled();
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 
 		it('does not intercept in terminal mode', async () => {
@@ -305,7 +305,7 @@ describe('useInputProcessing', () => {
 				});
 
 				expect(dispatchShellCommand).not.toHaveBeenCalled();
-				expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+				expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 				expect(requestAiCommand).toHaveBeenCalledTimes(1);
 				expect(vi.mocked(requestAiCommand).mock.calls[0][0]).toMatchObject({
 					request: 'what is eating disk space',
@@ -342,7 +342,7 @@ describe('useInputProcessing', () => {
 				});
 
 				expect(requestAiCommand).not.toHaveBeenCalled();
-				expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+				expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 			});
 
 			it('does not intercept while the wizard is active', async () => {
@@ -1143,7 +1143,7 @@ describe('useInputProcessing', () => {
 			const session = createMockSession({ state: 'idle' });
 			const deps = createDeps({
 				activeSession: session,
-				inputValue: 'Important notice: Maestro error.',
+				inputValue: 'Important notice: OpenWizardAI error.',
 				activeBatchRunState: runningBatchState,
 			});
 			const { result } = renderHook(() => useInputProcessing(deps));
@@ -1154,7 +1154,7 @@ describe('useInputProcessing', () => {
 
 			const pending = useAutoRunSteeringStore.getState().notes[session.id] ?? [];
 			expect(pending).toHaveLength(1);
-			expect(pending[0].text).toBe('Important notice: Maestro error.');
+			expect(pending[0].text).toBe('Important notice: OpenWizardAI error.');
 			expect(pending[0].tabId).toBe(session.activeTabId);
 			// The composer is cleared and nothing lands in the execution queue.
 			expect(mockSetInputValue).toHaveBeenCalledWith('');
@@ -1363,7 +1363,7 @@ describe('useInputProcessing', () => {
 				await result.current.processInput();
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 			const updatedSessions = mockSetSessions.mock.calls[0][0]([session]);
 			expect(updatedSessions[0].state).toBe('idle');
 			expect(updatedSessions[0].executionQueue.length).toBe(1);
@@ -1394,7 +1394,7 @@ describe('useInputProcessing', () => {
 				await result.current.processInput(undefined, { forceParallel: true });
 			});
 
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 			const updatedSessions = mockSetSessions.mock.calls[0][0]([session]);
 			expect(updatedSessions[0].executionQueue.length).toBe(1);
 			expect(updatedSessions[0].executionQueue[0].text).toBe('forced message');
@@ -1487,7 +1487,7 @@ describe('useInputProcessing', () => {
 			});
 
 			// Must queue, not spawn a concurrent writer.
-			expect(window.maestro.process.spawn).not.toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).not.toHaveBeenCalled();
 			expect(mockSetSessions).toHaveBeenCalled();
 			const setSessionsCall = mockSetSessions.mock.calls[0][0];
 			const updatedSessions = setSessionsCall([session]);
@@ -1518,7 +1518,7 @@ describe('useInputProcessing', () => {
 			});
 
 			// Bypass allowed: the write spawns immediately, nothing queued.
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
 		});
 	});
 
@@ -1573,7 +1573,7 @@ describe('useInputProcessing', () => {
 			});
 
 			// Tab is idle - should send immediately, skipping cross-tab wait
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
 		it('sends immediately when forceParallel and AutoRun is active but tab is idle', async () => {
@@ -1599,7 +1599,7 @@ describe('useInputProcessing', () => {
 			});
 
 			// Tab is idle - should send immediately, skipping AutoRun wait
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
 		});
 
 		it('still queues when forceParallel is true but setting is disabled', async () => {
@@ -1683,8 +1683,8 @@ describe('useInputProcessing', () => {
 					});
 				});
 
-				expect(window.maestro.process.spawn).toHaveBeenCalled();
-				const spawnArg = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock
+				expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+				const spawnArg = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
 					.calls[0][0];
 				expect(spawnArg.images).toEqual([queuedImage]);
 				expect(spawnArg.prompt).toBe('look at this');
@@ -1719,8 +1719,8 @@ describe('useInputProcessing', () => {
 					});
 				});
 
-				expect(window.maestro.process.spawn).toHaveBeenCalled();
-				const spawnArg = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock
+				expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+				const spawnArg = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
 					.calls[0][0];
 				expect(spawnArg.images).toEqual([queuedImage]);
 			});
@@ -1755,7 +1755,7 @@ describe('useInputProcessing', () => {
 					});
 				});
 
-				const spawnArg = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock
+				const spawnArg = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
 					.calls[0][0];
 				expect(spawnArg.images).toEqual([queuedImage]);
 				expect(spawnArg.images).not.toContain('data:image/png;base64,STAGED');
@@ -1829,8 +1829,9 @@ describe('useInputProcessing', () => {
 			});
 
 			// Verify spawn was called with the read-only suffix appended
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock.calls[0][0];
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+			const spawnCall = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
+				.calls[0][0];
 			expect(spawnCall.prompt).toContain('explain this code');
 			expect(spawnCall.prompt).toContain(
 				'IMPORTANT: You are in read-only/plan mode. Do NOT write a plan file. Instead, return your plan directly to the user in beautiful markdown formatting.'
@@ -1865,8 +1866,9 @@ describe('useInputProcessing', () => {
 			});
 
 			// Verify spawn was called with read-only suffix (Auto Run without worktree forces read-only)
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock.calls[0][0];
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+			const spawnCall = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
+				.calls[0][0];
 			expect(spawnCall.prompt).toContain('what does this function do');
 			expect(spawnCall.prompt).toContain('IMPORTANT: You are in read-only/plan mode');
 			expect(spawnCall.readOnlyMode).toBe(true);
@@ -1906,8 +1908,9 @@ describe('useInputProcessing', () => {
 			});
 
 			// Auto Run normally forces read-only; Force Send must override that.
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock.calls[0][0];
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+			const spawnCall = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
+				.calls[0][0];
 			expect(spawnCall.prompt).toBe('fix the migration');
 			expect(spawnCall.prompt).not.toContain('read-only/plan mode');
 			expect(spawnCall.readOnlyMode).toBeFalsy();
@@ -1938,8 +1941,9 @@ describe('useInputProcessing', () => {
 			});
 
 			// Verify spawn was called WITHOUT the read-only suffix
-			expect(window.maestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = (window.maestro.process.spawn as ReturnType<typeof vi.fn>).mock.calls[0][0];
+			expect(window.openwizardai.process.spawn).toHaveBeenCalled();
+			const spawnCall = (window.openwizardai.process.spawn as ReturnType<typeof vi.fn>).mock
+				.calls[0][0];
 			expect(spawnCall.prompt).toBe('fix this bug');
 			expect(spawnCall.prompt).not.toContain('read-only/plan mode');
 			expect(spawnCall.readOnlyMode).toBeFalsy();
@@ -1981,13 +1985,13 @@ describe('useInputProcessing', () => {
 			mockGenerateTabName.mockResolvedValue('Generated Tab Name');
 			useSettingsStore.setState({ automaticTabNamingEnabled: true } as any);
 
-			// Add tabNaming mock to window.maestro
-			window.maestro = {
-				...window.maestro,
+			// Add tabNaming mock to window.openwizardai
+			window.openwizardai = {
+				...window.openwizardai,
 				tabNaming: {
 					generateTabName: mockGenerateTabName,
 				},
-			} as typeof window.maestro;
+			} as typeof window.openwizardai;
 		});
 
 		it('triggers tab naming for new AI session with text message', async () => {
@@ -2219,7 +2223,7 @@ describe('useInputProcessing', () => {
 			const deps = createDeps({
 				activeSession: session,
 				sessionsRef: { current: [session] },
-				inputValue: 'https://github.com/RunMaestro/Maestro/pull/380 review this PR',
+				inputValue: 'https://github.com/manoelpanev/OpenWizardAI/pull/380 review this PR',
 			});
 			const { result } = renderHook(() => useInputProcessing(deps));
 
@@ -2246,7 +2250,8 @@ describe('useInputProcessing', () => {
 			const deps = createDeps({
 				activeSession: session,
 				sessionsRef: { current: [session] },
-				inputValue: 'thoughts on this issue? https://github.com/RunMaestro/Maestro/issues/381',
+				inputValue:
+					'thoughts on this issue? https://github.com/manoelpanev/OpenWizardAI/issues/381',
 			});
 			const { result } = renderHook(() => useInputProcessing(deps));
 
@@ -2349,11 +2354,11 @@ describe('useInputProcessing', () => {
 		beforeEach(() => {
 			mockGenerateTabName.mockClear();
 			useSettingsStore.setState({ automaticTabNamingEnabled: true } as any);
-			window.maestro = {
-				...window.maestro,
+			window.openwizardai = {
+				...window.openwizardai,
 				tabNaming: { generateTabName: mockGenerateTabName },
-				logger: { ...window.maestro?.logger, log: vi.fn().mockResolvedValue(undefined) },
-			} as typeof window.maestro;
+				logger: { ...window.openwizardai?.logger, log: vi.fn().mockResolvedValue(undefined) },
+			} as typeof window.openwizardai;
 		});
 
 		it('names the tab even when the message is queued behind another busy tab', async () => {

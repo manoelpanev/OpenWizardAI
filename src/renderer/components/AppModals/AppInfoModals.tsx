@@ -7,7 +7,7 @@ import type {
 	Shortcut,
 	KeyboardMasteryStats,
 	AutoRunStats,
-	MaestroUsageStats,
+	OpenWizardAIUsageStats,
 } from '../../types';
 
 // Info/Display Modal Components
@@ -42,7 +42,7 @@ export interface AppInfoModalsProps {
 	aboutModalOpen: boolean;
 	onCloseAboutModal: () => void;
 	autoRunStats: AutoRunStats;
-	usageStats?: MaestroUsageStats | null;
+	usageStats?: OpenWizardAIUsageStats | null;
 	onSwitchToSession: (sessionId: string) => void;
 	/** Global hands-on time in milliseconds (from settings) */
 	handsOnTimeMs: number;

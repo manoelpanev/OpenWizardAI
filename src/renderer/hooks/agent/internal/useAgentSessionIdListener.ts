@@ -1,5 +1,5 @@
 /**
- * useAgentSessionIdListener - registers `window.maestro.process.onSessionId`
+ * useAgentSessionIdListener - registers `window.openwizardai.process.onSessionId`
  *
  * Captures provider session IDs at tab and (for non-claude-code agents)
  * session level. Detects resume failure when an existing tab receives a
@@ -30,7 +30,7 @@ export function useAgentSessionIdListener(deps: UseAgentSessionIdListenerDeps): 
 	useEffect(() => {
 		const setSessions = useSessionStore.getState().setSessions;
 
-		const unsubscribe = window.maestro.process.onSessionId(
+		const unsubscribe = window.openwizardai.process.onSessionId(
 			async (sessionId: string, agentSessionId: string) => {
 				if (isBatchSession(sessionId)) return;
 
@@ -44,7 +44,7 @@ export function useAgentSessionIdListener(deps: UseAgentSessionIdListenerDeps): 
 					const session = prev.find((s) => s.id === actualSessionId);
 					if (!session) return prev;
 
-					window.maestro.agentSessions
+					window.openwizardai.agentSessions
 						.registerSessionOrigin(session.projectRoot, agentSessionId, 'user')
 						.catch((err) =>
 							logger.error('[onSessionId] Failed to register session origin:', undefined, err)

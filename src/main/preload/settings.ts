@@ -1,7 +1,7 @@
 /**
  * Preload API for settings and persistence
  *
- * Provides the window.maestro.settings, sessions, and groups namespaces for:
+ * Provides the window.openwizardai.settings, sessions, and groups namespaces for:
  * - Application settings persistence
  * - Session list persistence
  * - Group list persistence
@@ -26,7 +26,7 @@ export function createSettingsApi() {
 		get: (key: string) => ipcRenderer.invoke('settings:get', key),
 		set: (key: string, value: unknown) => ipcRenderer.invoke('settings:set', key, value),
 		getAll: () => ipcRenderer.invoke('settings:getAll'),
-		/** Listen for external settings file changes (e.g., from maestro-cli) */
+		/** Listen for external settings file changes (e.g., from openwizardai-cli) */
 		onExternalChange: (handler: () => void) => {
 			const wrappedHandler = () => handler();
 			ipcRenderer.on('settings:externalChange', wrappedHandler);

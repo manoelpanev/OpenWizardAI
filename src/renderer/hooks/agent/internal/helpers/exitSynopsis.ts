@@ -46,9 +46,9 @@ export interface SynopsisData {
 		// Claude token-source selection, forwarded so the synopsis spawn honors
 		// the agent's TUI/Dynamic/API choice (it runs under a synthetic sessionId,
 		// so the spawn handler can't resolve it from the persisted session).
-		enableMaestroP?: boolean;
-		maestroPMode?: 'interactive' | 'dynamic';
-		maestroPPath?: string;
+		enableOpenWizardAIP?: boolean;
+		openwizardaiPMode?: 'interactive' | 'dynamic';
+		openwizardaiPPath?: string;
 	};
 }
 
@@ -188,13 +188,13 @@ function persistTabNameAfterSynopsis(synopsisData: SynopsisData): void {
 	const persistSessionId = synopsisData.agentSessionId;
 
 	if (persistAgentId === 'claude-code') {
-		window.maestro.claude
+		window.openwizardai.claude
 			.updateSessionName(persistProjectRoot, persistSessionId, persistName)
 			.catch((err) =>
 				logger.warn('[onProcessExit] Failed to persist synopsis tab name', undefined, err)
 			);
 	} else {
-		window.maestro.agentSessions
+		window.openwizardai.agentSessions
 			.setSessionName(persistAgentId, persistProjectRoot, persistSessionId, persistName)
 			.catch((err) =>
 				logger.warn('[onProcessExit] Failed to persist synopsis tab name', undefined, err)
@@ -239,7 +239,7 @@ export function shouldRunSynopsisOnExit(
  * use - isn't worth the cost or a History entry. We treat "ran at least one
  * tool" as the bar for meaningful work: edits, writes, file reads, searches, and
  * shell commands all surface as `source: 'tool'` log entries (including in
- * maestro-p text-stream turns), so research-only turns still qualify.
+ * openwizardai-p text-stream turns), so research-only turns still qualify.
  *
  * The "turn" is everything after the last user message in the tab's logs. A
  * custom AI command (`/commit` and friends) always counts as work - it was an

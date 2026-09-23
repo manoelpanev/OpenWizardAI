@@ -4,7 +4,7 @@
  * Single entry point for generating a support package. It exists so the Auto
  * Run snapshot is captured in one place: that state lives only in the
  * renderer's in-memory `batchStore`, so a call site that goes straight to
- * `window.maestro.debug.createPackage` silently ships a package with no Auto
+ * `window.openwizardai.debug.createPackage` silently ships a package with no Auto
  * Run diagnostics at all. Call this instead.
  */
 
@@ -58,8 +58,8 @@ export function captureAutoRunSnapshots(): AutoRunDebugSnapshot[] {
  */
 export function createDebugPackage(
 	options?: Omit<DebugPackageOptions, 'autoRunSnapshots'>
-): ReturnType<typeof window.maestro.debug.createPackage> {
-	return window.maestro.debug.createPackage({
+): ReturnType<typeof window.openwizardai.debug.createPackage> {
+	return window.openwizardai.debug.createPackage({
 		...options,
 		autoRunSnapshots: captureAutoRunSnapshots(),
 	});

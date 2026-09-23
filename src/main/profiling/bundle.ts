@@ -37,9 +37,9 @@ function completenessLine(meta: ProfileMetadata): string {
 
 function readme(meta: ProfileMetadata): string {
 	return [
-		'# OpenWizzard Performance Profile bundle',
+		'# OpenWizardAI Performance Profile bundle',
 		'',
-		`Captured ${meta.capturedAt} from OpenWizzard v${meta.appVersion} (${meta.platform} ${meta.arch}).`,
+		`Captured ${meta.capturedAt} from OpenWizardAI v${meta.appVersion} (${meta.platform} ${meta.arch}).`,
 		`Recording ran for ${(meta.profilingDurationMs / 1000).toFixed(1)}s.`,
 		'',
 		completenessLine(meta),

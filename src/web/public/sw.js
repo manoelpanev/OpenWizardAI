@@ -1,9 +1,9 @@
 /**
- * Maestro Mobile Web Service Worker
+ * OpenWizardAI Mobile Web Service Worker
  *
  * Provides offline capability for the mobile web interface.
  * When offline, displays a disconnected state to inform the user
- * that they cannot communicate with the Maestro desktop app.
+ * that they cannot communicate with the OpenWizardAI desktop app.
  *
  * Strategy:
  * - Cache essential app shell (HTML, CSS, JS, icons) on install
@@ -12,7 +12,7 @@
  * - Show offline fallback when network unavailable
  */
 
-const CACHE_NAME = 'maestro-mobile-v1';
+const CACHE_NAME = 'openwizardai-mobile-v1';
 
 // Assets to cache on install (app shell)
 const PRECACHE_ASSETS = [
@@ -56,7 +56,7 @@ self.addEventListener('activate', (event) => {
 			.then((cacheNames) => {
 				return Promise.all(
 					cacheNames
-						.filter((name) => name.startsWith('maestro-') && name !== CACHE_NAME)
+						.filter((name) => name.startsWith('openwizardai-') && name !== CACHE_NAME)
 						.map((name) => {
 							console.log('[SW] Deleting old cache:', name);
 							return caches.delete(name);
@@ -95,7 +95,7 @@ self.addEventListener('fetch', (event) => {
 				return new Response(
 					JSON.stringify({
 						error: 'offline',
-						message: 'You are offline. Please reconnect to use Maestro.',
+						message: 'You are offline. Please reconnect to use OpenWizardAI.',
 					}),
 					{
 						status: 503,

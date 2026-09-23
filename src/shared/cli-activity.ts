@@ -4,15 +4,15 @@
  * Shared module for tracking when CLI is actively running tasks on a session.
  * Used to sync state between CLI and desktop app.
  *
- * NOTE: This file has its own `getConfigDir()` implementation (lowercase "maestro")
- * which matches the electron-store default from package.json `"name": "maestro"`.
- * The CLI storage.ts uses "Maestro" (capitalized) which is inconsistent.
+ * NOTE: This file has its own `getConfigDir()` implementation (lowercase "openwizardai")
+ * which matches the electron-store default from package.json `"name": "openwizardai"`.
+ * The CLI storage.ts uses "OpenWizardAI" (capitalized) which is inconsistent.
  * This module uses lowercase to be consistent with the Electron app.
  *
  * Duplicated implementations:
- * - cli/services/storage.ts → getConfigDir() uses "Maestro" (capitalized)
+ * - cli/services/storage.ts → getConfigDir() uses "OpenWizardAI" (capitalized)
  * - main/group-chat/group-chat-storage.ts → getConfigDir() uses electron-store
- * - shared/cli-activity.ts → getConfigDir() uses "maestro" (lowercase)
+ * - shared/cli-activity.ts → getConfigDir() uses "openwizardai" (lowercase)
  *
  * These are kept separate to avoid cross-module dependencies and maintain
  * compatibility with existing data directories.
@@ -36,18 +36,18 @@ interface CliActivityFile {
 	activities: CliActivityStatus[];
 }
 
-// Get the Maestro config directory path
+// Get the OpenWizardAI config directory path
 function getConfigDir(): string {
 	const platform = os.platform();
 	const home = os.homedir();
 
 	if (platform === 'darwin') {
-		return path.join(home, 'Library', 'Application Support', 'OpenWizzard');
+		return path.join(home, 'Library', 'Application Support', 'OpenWizardAI');
 	} else if (platform === 'win32') {
-		return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'OpenWizzard');
+		return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'OpenWizardAI');
 	} else {
 		// Linux and others
-		return path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizzard');
+		return path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizardAI');
 	}
 }
 

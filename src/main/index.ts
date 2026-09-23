@@ -95,7 +95,7 @@ import {
 	registerCueHandlers,
 	registerCueBackupHandlers,
 	registerWakatimeHandlers,
-	registerMaestroCliHandlers,
+	registerOpenWizardAICliHandlers,
 	registerPromptsHandlers,
 	registerMemoryHandlers,
 	setupLoggerEventForwarding,
@@ -183,7 +183,7 @@ import { setupProcessListeners as setupProcessListenersModule } from './process-
 import { setupWakaTimeListener } from './process-listeners/wakatime-listener';
 import { WakaTimeManager } from './wakatime-manager';
 import { setWakaTimeManager } from './wakatime-instance';
-import { MaestroCliManager } from './maestro-cli-manager';
+import { OpenWizardAICliManager } from './openwizardai-cli-manager';
 import {
 	createInteractiveReplayController,
 	type InteractiveReplayController,
@@ -191,7 +191,7 @@ import {
 import { sampleUsage as sampleClaudeUsage } from './agents/claude-usage-sampler';
 import { setSnapshot as setClaudeUsageSnapshot } from './stores/claudeUsageStore';
 import { rememberQuotaAccounts } from './stores/quotaAccountsStore';
-import { getMaestroPBinPath, runStartupUsageSampling } from './agents/claude-usage-startup';
+import { getOpenWizardAIPBinPath, runStartupUsageSampling } from './agents/claude-usage-startup';
 import { UsageRefreshScheduler } from './agents/usage-refresh-scheduler';
 import type { ProcessConfig as ProcessSpawnConfig } from './process-manager/types';
 import type { TemplateContext } from '../shared/templateVariables';
@@ -209,12 +209,12 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 // scheme so static and dynamic ES module imports succeed under a normal
 // http(s)-style origin.
 const RENDERER_SCHEME = 'app';
-// Serves pasted conversation images relocated out of maestro-sessions.json by
+// Serves pasted conversation images relocated out of openwizardai-sessions.json by
 // the session image store (see src/main/storage/session-image-store.ts). Refs
-// look like `maestro-image://store/<sha256>.<ext>` and are loaded directly by
+// look like `openwizardai-image://store/<sha256>.<ext>` and are loaded directly by
 // `<img src>` in the transcript, so the image bytes never re-enter the JSON
 // blob or the IPC payload. Registered in dev AND prod so images render in both.
-const IMAGE_SCHEME = 'maestro-image';
+const IMAGE_SCHEME = 'openwizardai-image';
 {
 	const privilegedSchemes: Electron.CustomScheme[] = [
 		{
@@ -264,7 +264,7 @@ if (DEMO_MODE) {
 // This prevents database lock conflicts (e.g., Service Worker storage)
 // Set USE_PROD_DATA=1 to use the production data directory instead (requires closing production app)
 if (isDevelopment && !DEMO_MODE && !process.env.USE_PROD_DATA) {
-	const devDataPath = path.join(app.getPath('userData'), '..', 'openwizzard-dev');
+	const devDataPath = path.join(app.getPath('userData'), '..', 'openwizardai-dev');
 	app.setPath('userData', devDataPath);
 	console.log(`[DEV MODE] Using data directory: ${devDataPath}`);
 } else if (isDevelopment && process.env.USE_PROD_DATA) {
@@ -272,10 +272,10 @@ if (isDevelopment && !DEMO_MODE && !process.env.USE_PROD_DATA) {
 }
 
 // Publish the resolved userData path so shared/cli-server-discovery.ts (used by
-// both this main process and the maestro-cli) writes/reads the discovery file
+// both this main process and the openwizardai-cli) writes/reads the discovery file
 // in the same data directory the app actually uses. Without this, dev and prod
 // would clobber each other's cli-server.json at the hardcoded platform default.
-process.env.MAESTRO_USER_DATA = app.getPath('userData');
+process.env.OPENWIZARDAI_USER_DATA = app.getPath('userData');
 
 // ============================================================================
 // Store Initialization (after userData path is configured)
@@ -286,7 +286,7 @@ const { syncPath, bootstrapStore } = initializeStores({ productionDataPath });
 
 // Point the session image store at the sync path so pasted conversation images
 // live alongside the sessions file (in <syncPath>/session-images/) rather than
-// inline as base64 inside maestro-sessions.json.
+// inline as base64 inside openwizardai-sessions.json.
 configureImageStore(syncPath);
 
 // Get early settings before Sentry init (for crash reporting and GPU acceleration)
@@ -302,7 +302,7 @@ if (disableGpuAcceleration) {
 }
 
 // Generate installation ID on first run (one-time generation)
-// This creates a unique identifier per Maestro installation for telemetry differentiation
+// This creates a unique identifier per OpenWizardAI installation for telemetry differentiation
 const store = getSettingsStore();
 let installationId = store.get('installationId');
 // An installationId already on disk means this settings store existed before
@@ -328,7 +328,7 @@ const wakatimeManager = new WakaTimeManager(store, app.getVersion());
 // Publish it so Cue (which spawns agents outside the ProcessManager) shares
 // this instance's debounce and CLI-install state instead of making its own.
 setWakaTimeManager(wakatimeManager);
-const maestroCliManager = new MaestroCliManager();
+const openwizardaiCliManager = new OpenWizardAICliManager();
 
 // Auto-install WakaTime CLI on startup if enabled
 if (store.get('wakatimeEnabled', false)) {
@@ -355,7 +355,7 @@ store.onDidChange('wakatimeEnabled', (newValue) => {
 const buildProvenance = getBuildProvenance();
 if (crashReportingEnabled && !isDevelopment && !buildProvenance.sentryDsn) {
 	logger.info(
-		'Crash reporting is off: this build carries no Sentry DSN. Set MAESTRO_SENTRY_DSN to report to your own Sentry project.',
+		'Crash reporting is off: this build carries no Sentry DSN. Set OPENWIZARDAI_SENTRY_DSN to report to your own Sentry project.',
 		'Startup'
 	);
 }
@@ -401,11 +401,11 @@ if (crashReportingEnabled && !isDevelopment && buildProvenance.sentryDsn) {
 			const version = app.getVersion();
 			setTag('channel', version.includes('-RC') ? 'rc' : 'stable');
 			// Distinguish our own release builds from a fork that supplied its own DSN.
-			// Only official builds should ever reach the smash-labs/maestro project, so an
+			// Only official builds should ever reach the smash-labs/openwizardai project, so an
 			// `unofficial` event there means the provenance gate has a hole in it.
 			setTag('build', buildProvenance.official ? 'official' : 'unofficial');
 
-			// Start memory monitoring for crash diagnostics (MAESTRO-5A/4Y)
+			// Start memory monitoring for crash diagnostics (OPENWIZARDAI-5A/4Y)
 			// Records breadcrumbs with memory state every minute, warns above 1GB heap
 			import('./utils/sentry')
 				.then(({ startMemoryMonitoring }) => {
@@ -440,7 +440,7 @@ function getCustomEnvVarsForAgent(agentId: string): Record<string, string> | und
 }
 
 // Note: History storage is now handled by HistoryManager which uses per-session files
-// in the history/ directory. The legacy maestro-history.json file is migrated automatically.
+// in the history/ directory. The legacy openwizardai-history.json file is migrated automatically.
 // See src/main/history-manager.ts for details.
 
 let mainWindow: BrowserWindow | null = null;
@@ -484,7 +484,7 @@ const timeZoneWatcher = createTimeZoneWatcher({
 	},
 });
 
-// Create settings file watcher for external changes (e.g., from maestro-cli)
+// Create settings file watcher for external changes (e.g., from openwizardai-cli)
 const settingsWatcher = createSettingsWatcher({
 	getMainWindow: () => mainWindow,
 	getSettingsPath: () => syncPath,
@@ -594,7 +594,7 @@ app
 	.whenReady()
 	.then(async () => {
 		// Serve pasted conversation images relocated out of the sessions JSON by
-		// the session image store. `<img src="maestro-image://store/<sha>.<ext>">`
+		// the session image store. `<img src="openwizardai-image://store/<sha>.<ext>">`
 		// resolves here to a file on disk - the bytes never live in the JSON blob
 		// or the IPC payload. Registered in dev AND prod. Traversal is guarded by
 		// resolveToFilePath (only lowercase-hex sha256 + known image ext resolve).
@@ -718,7 +718,7 @@ app
 		const maxLogBuffer = store.get('maxLogBuffer', 1000);
 		logger.setMaxLogBuffer(maxLogBuffer);
 
-		logger.info('OpenWizzard application starting', 'Startup', {
+		logger.info('OpenWizardAI application starting', 'Startup', {
 			version: app.getVersion(),
 			platform: process.platform,
 			logLevel,
@@ -760,7 +760,7 @@ app
 			sampleUsage: async (configDirKey) => {
 				// Re-run sampleUsage for the relevant config dir so the renderer's
 				// dashboard reflects the post-fallback quota state.
-				const binPath = getMaestroPBinPath();
+				const binPath = getOpenWizardAIPBinPath();
 				if (!binPath) return;
 				const snapshot = await sampleClaudeUsage({
 					binPath,
@@ -812,7 +812,7 @@ app
 
 		// Bring up the CLI server and publish the discovery file as early as
 		// possible. Done here (before initializePrompts / Cue / history / etc.)
-		// so an unhandled error later in startup can't silently leave maestro-cli
+		// so an unhandled error later in startup can't silently leave openwizardai-cli
 		// without a discovery file - the symptom that previously forced users to
 		// toggle Live Mode on/off to coax the file into existence.
 		const cliServerDeps = {
@@ -826,7 +826,7 @@ app
 		await ensureCliServer(cliServerDeps);
 		// Defense in depth: if the initial attempt silently dropped the
 		// discovery file (or any later code deletes / clobbers it), the
-		// watchdog republishes within seconds so maestro-cli works without
+		// watchdog republishes within seconds so openwizardai-cli works without
 		// the user having to toggle Live Mode to coax it back.
 		startCliDiscoveryWatchdog(cliServerDeps);
 
@@ -901,7 +901,7 @@ app
 			logger.info(`Loaded custom agent paths: ${JSON.stringify(customPaths)}`, 'Startup');
 		}
 
-		// Fire-and-forget: sample `maestro-p --status` for every CLAUDE_CONFIG_DIR
+		// Fire-and-forget: sample `openwizardai-p --status` for every CLAUDE_CONFIG_DIR
 		// account referenced by a recent Batch Mode-enabled Claude session so the
 		// context-window popover has fresh quota data on first turn. Failures here
 		// are non-fatal - the spawner's resolver tolerates a null snapshot by
@@ -931,9 +931,9 @@ app
 		usageRefreshScheduler.start();
 
 		// Warm any provider the strict startup pass left cold (no auto-refresh
-		// interval picked, no eligible recent maestro-p session, Codex not sampled
+		// interval picked, no eligible recent openwizardai-p session, Codex not sampled
 		// on boot at all). Runs after that pass settles so the two can't spawn
-		// `maestro-p --status` for the same account at once, and no-ops when the
+		// `openwizardai-p --status` for the same account at once, and no-ops when the
 		// snapshots already hold renderable data. This is what makes the Usage
 		// Dashboard's Anthropic / OpenAI tabs show up on the first open instead of
 		// only after a close-and-reopen.
@@ -1060,7 +1060,7 @@ app
 					return notifyResult;
 				}
 
-				// `action: command` runs a shell command or maestro-cli call instead of an
+				// `action: command` runs a shell command or openwizardai-cli call instead of an
 				// AI prompt - skip agent path resolution and SSH wrapping.
 				if (action === 'command') {
 					if (!command) {
@@ -1119,10 +1119,10 @@ app
 									templateContext,
 									timeoutMs,
 									onLog: cmdLog,
-									// CLI mode intentionally stays local: `maestro-cli send`
-									// targets the local Maestro daemon (routing messages to
+									// CLI mode intentionally stays local: `openwizardai-cli send`
+									// targets the local OpenWizardAI daemon (routing messages to
 									// sessions managed by this app), so SSH wrapping would
-									// point at the wrong daemon and `maestro-cli.js` may not
+									// point at the wrong daemon and `openwizardai-cli.js` may not
 									// exist on the remote host.
 								});
 					// History reads Cue runs from `cue_events`, not the JSONL file -
@@ -1174,9 +1174,9 @@ app
 					// Claude token-source selection (TUI / API / dynamic), read from
 					// the same persisted session record that supplies customModel
 					// above, so Cue runs honor the triggering agent's choice.
-					enableMaestroP: storedSession.enableMaestroP,
-					maestroPMode: storedSession.maestroPMode,
-					maestroPPath: storedSession.maestroPPath,
+					enableOpenWizardAIP: storedSession.enableOpenWizardAIP,
+					openwizardaiPMode: storedSession.openwizardaiPMode,
+					openwizardaiPPath: storedSession.openwizardaiPPath,
 					onLog: (level, message) => {
 						if (level === 'error') {
 							logger.error(message, 'Cue');
@@ -1283,8 +1283,8 @@ app
 
 		// Start Cue engine if the Encore Feature flag is enabled
 		const encoreFeatures = store.get('encoreFeatures', {}) as Record<string, boolean>;
-		if (encoreFeatures.maestroCue && cueEngine) {
-			logger.info('OpenWizzard Cue Encore Feature enabled — starting Cue engine', 'Startup');
+		if (encoreFeatures.openwizardaiCue && cueEngine) {
+			logger.info('OpenWizardAI Cue Encore Feature enabled — starting Cue engine', 'Startup');
 			try {
 				cueEngine.start('system-boot');
 			} catch (err) {
@@ -1305,7 +1305,7 @@ app
 		logger.info('Creating main window', 'Startup');
 		createWindow();
 
-		// Wire the global "summon Maestro" hotkey. Register the saved binding (if
+		// Wire the global "summon OpenWizardAI" hotkey. Register the saved binding (if
 		// any) and re-register live when the setting changes from any source
 		// (settings UI, CLI, external file edit).
 		initGlobalHotkey(() => mainWindow);
@@ -1347,7 +1347,7 @@ app
 		// our actual port/token.
 		await ensureCliServer(cliServerDeps);
 
-		// Start settings file watcher for external changes (e.g., maestro-cli settings set)
+		// Start settings file watcher for external changes (e.g., openwizardai-cli settings set)
 		settingsWatcher.start();
 
 		// Start watching for system timezone changes (laptop crossing zones).
@@ -1532,7 +1532,7 @@ function setupIpcHandlers() {
 		getCueEngine: () => cueEngine,
 	});
 
-	// Cue Backup - snapshot / restore .maestro/cue.yaml + prompts (Cue modal Backup tab)
+	// Cue Backup - snapshot / restore .openwizardai/cue.yaml + prompts (Cue modal Backup tab)
 	registerCueBackupHandlers({
 		sessionsStore,
 	});
@@ -1604,7 +1604,7 @@ function setupIpcHandlers() {
 	initializeOutputParsers();
 
 	// Initialize session storages and register generic agent sessions handlers
-	// This provides the new window.maestro.agentSessions.* API
+	// This provides the new window.openwizardai.agentSessions.* API
 	// Pass the shared claudeSessionOriginsStore so session names/stars are consistent
 	initializeSessionStorages({ claudeSessionOriginsStore });
 	registerAgentSessionsHandlers({ getMainWindow: () => mainWindow, agentSessionOriginsStore });
@@ -1704,10 +1704,10 @@ function setupIpcHandlers() {
 				customEnvVars: s.customEnvVars,
 				customModel: s.customModel,
 				// Claude token-source selection, so group chat participants honor
-				// the same maestro-p TUI / API / dynamic choice as their agent.
-				enableMaestroP: s.enableMaestroP,
-				maestroPMode: s.maestroPMode,
-				maestroPPath: s.maestroPPath,
+				// the same openwizardai-p TUI / API / dynamic choice as their agent.
+				enableOpenWizardAIP: s.enableOpenWizardAIP,
+				openwizardaiPMode: s.openwizardaiPMode,
+				openwizardaiPPath: s.openwizardaiPPath,
 				sshRemoteName,
 				// Pass full SSH config for remote execution support
 				sshRemoteConfig: s.sessionSshRemoteConfig,
@@ -1778,8 +1778,8 @@ function setupIpcHandlers() {
 	// Register WakaTime handlers (CLI check, API key validation)
 	registerWakatimeHandlers(wakatimeManager);
 
-	// Register Maestro CLI handlers (status check + install/update)
-	registerMaestroCliHandlers(maestroCliManager);
+	// Register OpenWizardAI CLI handlers (status check + install/update)
+	registerOpenWizardAICliHandlers(openwizardaiCliManager);
 }
 
 // Handle process output streaming (set up after initialization)
@@ -1838,7 +1838,7 @@ function setupProcessListeners() {
 			getCueEngine: () => cueEngine,
 			isCueEnabled: () => {
 				const ef = store.get('encoreFeatures', {}) as Record<string, boolean>;
-				return !!ef.maestroCue;
+				return !!ef.openwizardaiCue;
 			},
 			getSshRemoteByName: (name: string) => {
 				const remotes = store.get('sshRemotes', []);

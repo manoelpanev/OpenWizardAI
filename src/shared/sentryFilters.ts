@@ -38,12 +38,12 @@ export function shouldDropSentryEvent(event: MinimalSentryEvent): boolean {
 	// orders them root-cause-first, so when we wrap a low-level failure the
 	// wrapper we actually named a rule after lands at the END of the array. That
 	// made the MarketplaceFetchError rule in section 5 dead on arrival: it only
-	// ever saw the underlying `TypeError: fetch failed` at values[0]. (MAESTRO-MR)
+	// ever saw the underlying `TypeError: fetch failed` at values[0]. (OPENWIZARDAI-MR)
 	const haystack = [...values.map((v) => `${v.type ?? ''}: ${v.value ?? ''}`), message].join('\n');
 
 	// ---- 1. OS / filesystem environment ----
 
-	// Out of disk space - user environment, never a Maestro bug.
+	// Out of disk space - user environment, never an OpenWizardAI bug.
 	if (/ENOSPC: no space left on device/i.test(haystack)) return true;
 
 	// Broken pipe writing to a closed stdout/stderr (process torn down underneath us).
@@ -96,7 +96,7 @@ export function shouldDropSentryEvent(event: MinimalSentryEvent): boolean {
 	// share, removable media), or the user lacks permission. Nothing we can do in
 	// code, and the delete is user-initiated - the caller already shows a
 	// "Failed to Erase Directory" toast carrying this message, so the user knows
-	// and can retry. The crash report on top of that is pure noise (MAESTRO-9V).
+	// and can retry. The crash report on top of that is pure noise (OPENWIZARDAI-9V).
 	if (ipcMethod === 'shell:trashItem' && /Failed to perform delete operation/i.test(haystack)) {
 		return true;
 	}

@@ -1,5 +1,5 @@
 /**
- * useSwipeGestures hook for Maestro mobile web interface
+ * useSwipeGestures hook for OpenWizardAI mobile web interface
  *
  * A comprehensive swipe gesture detection hook that supports
  * horizontal and vertical swipe gestures with configurable thresholds.

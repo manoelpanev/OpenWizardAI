@@ -6,7 +6,7 @@
  * These utilities wrap clipboard operations with proper error handling to prevent
  * unhandled exceptions from reaching Sentry.
  *
- * Fixes MAESTRO-4Z
+ * Fixes OPENWIZARDAI-4Z
  */
 
 import { isSessionImageRef } from '../../shared/sessionImageRefs';
@@ -42,7 +42,7 @@ export async function safeClipboardWriteBlob(items: ClipboardItem[]): Promise<bo
 /**
  * Copy an image to the clipboard using Electron's native clipboard API.
  * Accepts a data URL (e.g. from a canvas or pasted image) OR a
- * `maestro-image://` reference from a persisted transcript image - refs are
+ * `openwizardai-image://` reference from a persisted transcript image - refs are
  * resolved to a data URL first so copy works regardless of where the image
  * lives. Falls back to the browser Clipboard API if the Electron IPC is
  * unavailable.
@@ -51,13 +51,13 @@ export async function safeClipboardWriteImage(dataUrl: string): Promise<boolean>
 	try {
 		// Persisted transcript images are stored as refs, not data URLs; resolve
 		// to bytes before handing off to the clipboard.
-		if (isSessionImageRef(dataUrl) && window.maestro?.images?.resolve) {
-			const resolved = await window.maestro.images.resolve(dataUrl);
+		if (isSessionImageRef(dataUrl) && window.openwizardai?.images?.resolve) {
+			const resolved = await window.openwizardai.images.resolve(dataUrl);
 			if (!resolved) return false;
 			dataUrl = resolved;
 		}
-		if (window.maestro?.shell?.copyImageToClipboard) {
-			await window.maestro.shell.copyImageToClipboard(dataUrl);
+		if (window.openwizardai?.shell?.copyImageToClipboard) {
+			await window.openwizardai.shell.copyImageToClipboard(dataUrl);
 			return true;
 		}
 		// Fallback: browser Clipboard API (may not work in all Electron contexts)
@@ -77,8 +77,8 @@ export async function safeClipboardWriteImage(dataUrl: string): Promise<boolean>
  */
 export async function safeClipboardReadImage(): Promise<string | null> {
 	try {
-		if (window.maestro?.shell?.readImageFromClipboard) {
-			return await window.maestro.shell.readImageFromClipboard();
+		if (window.openwizardai?.shell?.readImageFromClipboard) {
+			return await window.openwizardai.shell.readImageFromClipboard();
 		}
 		const items = await navigator.clipboard.read();
 		for (const item of items) {

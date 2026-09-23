@@ -422,7 +422,7 @@ async function scanMarkdownFiles(
 		}
 
 		try {
-			const entries = await window.maestro.fs.readDir(currentPath, sshRemoteId);
+			const entries = await window.openwizardai.fs.readDir(currentPath, sshRemoteId);
 			directoriesScanned++;
 
 			// Report scanning progress (total unknown during scanning, so use current as estimate)
@@ -1440,7 +1440,7 @@ async function parseFileWithSsh(
 
 	try {
 		// Get file stats
-		const stat = await window.maestro.fs.stat(fullPath, sshRemoteId);
+		const stat = await window.openwizardai.fs.stat(fullPath, sshRemoteId);
 		if (!stat) {
 			// Missing target (e.g. an unresolved [[wiki]] link pointing at a note
 			// that doesn't exist yet). This is expected and benign in a vault, so
@@ -1461,7 +1461,7 @@ async function parseFileWithSsh(
 		}
 
 		// Read file content
-		const content = await window.maestro.fs.readFile(fullPath, sshRemoteId);
+		const content = await window.openwizardai.fs.readFile(fullPath, sshRemoteId);
 		if (content === null || content === undefined) {
 			logger.warn(`[DocumentGraph] parseFileWithSsh: readFile returned null for ${fullPath}`);
 			return null;
@@ -1527,7 +1527,7 @@ async function parseFileLinksOnlyWithSsh(
 
 	try {
 		// Get file stats
-		const stat = await window.maestro.fs.stat(fullPath, sshRemoteId);
+		const stat = await window.openwizardai.fs.stat(fullPath, sshRemoteId);
 		if (!stat) {
 			return null;
 		}
@@ -1547,7 +1547,7 @@ async function parseFileLinksOnlyWithSsh(
 		}
 
 		// Read file content
-		const content = await window.maestro.fs.readFile(fullPath, sshRemoteId);
+		const content = await window.openwizardai.fs.readFile(fullPath, sshRemoteId);
 		if (content === null || content === undefined) {
 			return null;
 		}

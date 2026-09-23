@@ -73,7 +73,7 @@ export function useExpandedCueGroups({
 			const groupKey = entry.cueGroup?.key;
 			if (!groupKey || !entry.sessionId) return [];
 			try {
-				return await window.maestro.history.getCueGroupRuns({
+				return await window.openwizardai.history.getCueGroupRuns({
 					sessionId: entry.sessionId,
 					groupKey,
 					projectPath: entry.projectPath || projectPath,

@@ -18,14 +18,17 @@ vi.mock('fs', () => ({
 	existsSync: vi.fn(),
 }));
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 	resolveTargetSessionId: vi.fn(),
 }));
 
 import { autoRun } from '../../../cli/commands/auto-run';
-import { withMaestroClient, resolveTargetSessionId } from '../../../cli/services/maestro-client';
+import {
+	withOpenWizardAIClient,
+	resolveTargetSessionId,
+} from '../../../cli/services/openwizardai-client';
 import { existsSync } from 'fs';
 
 describe('auto-run command', () => {
@@ -43,7 +46,7 @@ describe('auto-run command', () => {
 	it('should configure auto-run with valid document paths', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({
 					type: 'configure_auto_run_result',
@@ -96,7 +99,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -124,7 +127,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -151,7 +154,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -175,7 +178,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -211,7 +214,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -234,15 +237,17 @@ describe('auto-run command', () => {
 		expect(docs[0].resetOnCompletion).toBe(true);
 	});
 
-	it('should error gracefully when Maestro app is not running', async () => {
+	it('should error gracefully when OpenWizardAI app is not running', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('Maestro desktop app is not running'));
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(
+			new Error('OpenWizardAI desktop app is not running')
+		);
 
 		await autoRun(['/path/to/doc.md'], { agent: 'agent-123' });
 
 		expect(consoleErrorSpy).toHaveBeenCalledWith(
-			expect.stringContaining('Maestro desktop app is not running')
+			expect.stringContaining('OpenWizardAI desktop app is not running')
 		);
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
@@ -250,7 +255,7 @@ describe('auto-run command', () => {
 	it('should resolve a partial agent id via resolveTargetSessionId when --agent is provided', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(resolveTargetSessionId).mockReturnValue('full-agent-uuid-123');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({
 					type: 'configure_auto_run_result',
@@ -287,7 +292,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -326,7 +331,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -444,7 +449,7 @@ describe('auto-run command', () => {
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
 
 		let sentMessage: Record<string, unknown> | undefined;
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockImplementation((msg) => {
 					sentMessage = msg;
@@ -466,7 +471,7 @@ describe('auto-run command', () => {
 	it('should error when server returns failure', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
 		vi.mocked(resolveTargetSessionId).mockReturnValue('agent-123');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({
 					type: 'configure_auto_run_result',

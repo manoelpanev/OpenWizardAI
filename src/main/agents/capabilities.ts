@@ -1,7 +1,7 @@
 /**
  * Agent Capabilities System
  *
- * Defines what features each AI agent supports. This enables Maestro to:
+ * Defines what features each AI agent supports. This enables OpenWizardAI to:
  * - Show/hide UI features based on agent capabilities
  * - Use correct APIs and formats for each agent
  * - Handle agent differences in a consistent way
@@ -100,7 +100,7 @@ export const AGENT_CAPABILITIES: Record<string, AgentCapabilities> = {
 	 * https://github.com/openai/codex
 	 *
 	 * Verified capabilities based on CLI testing (v0.111.0+) and documentation review.
-	 * See .maestro/playbooks/Codex-Support.md for investigation details.
+	 * See .openwizardai/playbooks/Codex-Support.md for investigation details.
 	 */
 	codex: {
 		supportsResume: true, // exec resume <id> (v0.30.0+) - Verified
@@ -209,7 +209,7 @@ export const AGENT_CAPABILITIES: Record<string, AgentCapabilities> = {
 	 * https://github.com/opencode-ai/opencode
 	 *
 	 * Verified capabilities based on CLI testing and documentation review.
-	 * See .maestro/playbooks/OpenCode-Support.md for investigation details.
+	 * See .openwizardai/playbooks/OpenCode-Support.md for investigation details.
 	 */
 	opencode: {
 		supportsResume: true, // --session flag (sessionID in output) - Verified
@@ -282,10 +282,10 @@ export const AGENT_CAPABILITIES: Record<string, AgentCapabilities> = {
 	 */
 	'copilot-cli': {
 		supportsResume: true, // --continue, --resume[=sessionId]
-		supportsReadOnlyMode: true, // OpenWizzard enforces read-only via Copilot's CLI tool permission rules
+		supportsReadOnlyMode: true, // OpenWizardAI enforces read-only via Copilot's CLI tool permission rules
 		supportsJsonOutput: true, // --output-format json (JSONL)
 		supportsSessionId: true, // result event includes sessionId
-		supportsImageInput: true, // Copilot supports @file/@image mentions; OpenWizzard maps uploads to temp-file mentions
+		supportsImageInput: true, // Copilot supports @file/@image mentions; OpenWizardAI maps uploads to temp-file mentions
 		supportsImageInputOnResume: true, // Prompt-based @image mentions work for resumed sessions as well
 		supportsSlashCommands: true, // Interactive mode supports slash commands
 		supportsSessionStorage: true, // ~/.copilot/session-state/<session-id>/
@@ -297,7 +297,7 @@ export const AGENT_CAPABILITIES: Record<string, AgentCapabilities> = {
 		supportsResultMessages: true, // assistant.message with phase=final_answer
 		supportsModelSelection: true, // --model <model>
 		supportsStreamJsonInput: false, // Not verified
-		supportsThinkingDisplay: true, // assistant.reasoning events are rendered through OpenWizzard's thinking-chunk pipeline
+		supportsThinkingDisplay: true, // assistant.reasoning events are rendered through OpenWizardAI's thinking-chunk pipeline
 		supportsContextMerge: true, // Can receive merged context via prompts
 		supportsContextExport: true, // Session storage supports context export
 		supportsWizard: true, // Wizard structured output works with Copilot JSON final_answer events

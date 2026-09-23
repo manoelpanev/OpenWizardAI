@@ -1,14 +1,14 @@
 ---
 title: Themes Gallery
-description: Preview Maestro's 18 beautiful themes including Dracula, Nord, Tokyo Night, and custom Vibe themes.
+description: Preview OpenWizardAI's 18 beautiful themes including Dracula, Nord, Tokyo Night, and custom Vibe themes.
 icon: palette
 ---
 
-Maestro ships with 18 carefully crafted themes across three categories, plus a Custom theme builder. Screenshots below show each theme in action.
+OpenWizardAI ships with 18 carefully crafted themes across three categories, plus a Custom theme builder. Screenshots below show each theme in action.
 
 ## Available Themes
 
-For a screenshot example of every option, see [THEMES.md](https://github.com/RunMaestro/Maestro/blob/main/THEMES.md) on GitHub. You can also flip through the available themes at [RunMaestro.ai](https://runmaestro.ai).
+For a screenshot example of every option, see [THEMES.md](https://github.com/manoelpanev/OpenWizardAI/blob/main/THEMES.md) on GitHub. You can also flip through the available themes at [manoelpanev.ai](https://github.com/manoelpanev/OpenWizardAI).
 
 ![Themes](./screenshots/themes.png)
 
@@ -35,7 +35,7 @@ For a screenshot example of every option, see [THEMES.md](https://github.com/Run
 Custom themes with unique personality:
 
 - **Pedurple** - Slate base with a `#9146FF` accent (shown in most screenshots)
-- **Maestro's Choice** - Golden accents on midnight blue
+- **OpenWizardAI's Choice** - Golden accents on midnight blue
 - **Dre Synth** - Cyberpunk cyan and magenta
 
 ### Custom Theme

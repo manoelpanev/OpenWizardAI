@@ -1,7 +1,7 @@
 /**
  * Retry classification & backoff scheduling for Agent Resilience.
  *
- * When an agent turn fails with a recoverable upstream error, Maestro can
+ * When an agent turn fails with a recoverable upstream error, OpenWizardAI can
  * automatically resend the same prompt instead of making the user re-type it.
  * Two distinct failure modes get two distinct retry strategies:
  *
@@ -21,7 +21,7 @@
  *
  * This module is intentionally pure and dependency-free so it can run in either
  * the renderer or the main process. It classifies by MESSAGE CONTENT rather than
- * {@link AgentErrorType} because Maestro's taxonomy lumps plan-quota exhaustion
+ * {@link AgentErrorType} because OpenWizardAI's taxonomy lumps plan-quota exhaustion
  * in with rate limits under `rate_limited` (while the `token_exhaustion` type
  * actually means the *context window* is full, which retrying can't fix).
  */
@@ -68,7 +68,7 @@ export const RESET_TIME_BUFFER_MS = 5 * 1000;
 /**
  * Error types we NEVER auto-retry: these need human action (re-auth, new
  * session, granting permission) and silently retrying them either loops
- * forever or hides a real problem. `token_exhaustion` here is Maestro's
+ * forever or hides a real problem. `token_exhaustion` here is OpenWizardAI's
  * context-window-full type - resending the same oversized prompt can't help.
  */
 const NON_RETRYABLE_TYPES: ReadonlySet<AgentErrorType> = new Set<AgentErrorType>([
@@ -181,7 +181,7 @@ export interface ClassifiableError {
 	 * which reads as `'availability'` and ran a 30s backoff against a multi-hour
 	 * quota outage.
 	 *
-	 * Display keeps using `message`, so populating this changes what Maestro
+	 * Display keeps using `message`, so populating this changes what OpenWizardAI
 	 * DECIDES without changing what the user reads.
 	 */
 	raw?: { errorLine?: string };
@@ -292,7 +292,7 @@ export function tokenExhaustionResetAt(error: ClassifiableError, now: number): n
  * different account or provider, the plan can roll over early, the window named
  * in the message can be the wrong one, or the notice can simply be stale. A
  * single long sleep is blind to all of it - the observed failure was a 2h26m
- * outage that cleared "after 0 retries", meaning Maestro tried exactly once,
+ * outage that cleared "after 0 retries", meaning OpenWizardAI tried exactly once,
  * at the end, and had no idea what was true at any point in between.
  *
  * So we keep probing. Each probe is a real resend, because a real resend is the

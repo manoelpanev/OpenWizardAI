@@ -6,7 +6,7 @@
  * and document generation.
  */
 
-export { MaestroWizard } from './MaestroWizard';
+export { OpenWizardAIWizard } from './OpenWizardAIWizard';
 export { WizardProvider, useWizard } from './WizardContext';
 export { WizardResumeModal } from './WizardResumeModal';
 export { WizardExitConfirmModal } from './WizardExitConfirmModal';

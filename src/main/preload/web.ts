@@ -1,7 +1,7 @@
 /**
  * Preload API for web interface operations
  *
- * Provides the window.maestro.web, webserver, and live namespaces for:
+ * Provides the window.openwizardai.web, webserver, and live namespaces for:
  * - Broadcasting state to web clients
  * - Web server management
  * - Live session management

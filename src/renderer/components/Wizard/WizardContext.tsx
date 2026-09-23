@@ -48,7 +48,7 @@ async function setWizardResumeStateAsync(
 	functionName: string
 ): Promise<void> {
 	try {
-		await window.maestro.settings.set('wizardResumeState', value);
+		await window.openwizardai.settings.set('wizardResumeState', value);
 	} catch (error) {
 		captureException(error, {
 			extra: {
@@ -145,16 +145,16 @@ export function WizardProvider({ children }: WizardProviderProps) {
 		dispatch({ type: 'SET_CUSTOM_ENV_VARS', envVars });
 	}, []);
 
-	const setEnableMaestroP = useCallback((value: boolean | undefined) => {
-		dispatch({ type: 'SET_ENABLE_MAESTRO_P', value });
+	const setEnableOpenWizardAIP = useCallback((value: boolean | undefined) => {
+		dispatch({ type: 'SET_ENABLE_OPENWIZARDAI_P', value });
 	}, []);
 
-	const setMaestroPMode = useCallback((mode: 'interactive' | 'dynamic') => {
-		dispatch({ type: 'SET_MAESTRO_P_MODE', mode });
+	const setOpenWizardAIPMode = useCallback((mode: 'interactive' | 'dynamic') => {
+		dispatch({ type: 'SET_OPENWIZARDAI_P_MODE', mode });
 	}, []);
 
-	const setMaestroPPath = useCallback((path: string | undefined) => {
-		dispatch({ type: 'SET_MAESTRO_P_PATH', path });
+	const setOpenWizardAIPPath = useCallback((path: string | undefined) => {
+		dispatch({ type: 'SET_OPENWIZARDAI_P_PATH', path });
 	}, []);
 
 	const setPlannerModel = useCallback((model: string | undefined) => {
@@ -276,7 +276,7 @@ export function WizardProvider({ children }: WizardProviderProps) {
 
 	const hasResumeState = useCallback(async (): Promise<boolean> => {
 		try {
-			const saved = await window.maestro.settings.get('wizardResumeState');
+			const saved = await window.openwizardai.settings.get('wizardResumeState');
 			return hasSavedResumeState(saved) && isResumeStateLoadable(saved);
 		} catch (error) {
 			captureException(error, {
@@ -291,7 +291,7 @@ export function WizardProvider({ children }: WizardProviderProps) {
 
 	const loadResumeState = useCallback(async (): Promise<SerializableWizardState | null> => {
 		try {
-			const saved = await window.maestro.settings.get('wizardResumeState');
+			const saved = await window.openwizardai.settings.get('wizardResumeState');
 			return isResumeStateLoadable(saved) ? saved : null;
 		} catch (error) {
 			captureException(error, {
@@ -337,9 +337,9 @@ export function WizardProvider({ children }: WizardProviderProps) {
 			setCustomPath,
 			setCustomArgs,
 			setCustomEnvVars,
-			setEnableMaestroP,
-			setMaestroPMode,
-			setMaestroPPath,
+			setEnableOpenWizardAIP,
+			setOpenWizardAIPMode,
+			setOpenWizardAIPPath,
 			setPlannerModel,
 			setSessionSshRemoteConfig,
 			setDirectoryPath,
@@ -386,9 +386,9 @@ export function WizardProvider({ children }: WizardProviderProps) {
 			setCustomPath,
 			setCustomArgs,
 			setCustomEnvVars,
-			setEnableMaestroP,
-			setMaestroPMode,
-			setMaestroPPath,
+			setEnableOpenWizardAIP,
+			setOpenWizardAIPMode,
+			setOpenWizardAIPPath,
 			setPlannerModel,
 			setSessionSshRemoteConfig,
 			setDirectoryPath,

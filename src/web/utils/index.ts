@@ -1,5 +1,5 @@
 /**
- * Web interface utilities for Maestro
+ * Web interface utilities for OpenWizardAI
  */
 
 export {

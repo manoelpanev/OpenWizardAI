@@ -49,7 +49,7 @@ function FactContent({
 							href={segment.url}
 							onClick={(e) => {
 								e.preventDefault();
-								if (!window.maestro?.shell?.openExternal?.(segment.url)) {
+								if (!window.openwizardai?.shell?.openExternal?.(segment.url)) {
 									window.open(segment.url, '_blank');
 								}
 							}}

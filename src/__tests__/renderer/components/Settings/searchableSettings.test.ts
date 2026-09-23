@@ -215,8 +215,8 @@ describe('searchableSettings', () => {
 			['inline wizard', 'prompts-editor'],
 
 			// About tab
-			['about maestro', 'about-maestro'],
-			['version', 'about-maestro'],
+			['about openwizardai', 'about-openwizardai'],
+			['version', 'about-openwizardai'],
 		])('should find "%s" and return id %s', (query, expectedId) => {
 			const results = searchSettings(query);
 			expect(

@@ -60,9 +60,9 @@ const wizardContinuationContent = resolveDirectives(
 
 describe('wizardPrompts', () => {
 	beforeAll(async () => {
-		// Mock window.maestro.prompts.get to return actual prompt file content
-		(window as any).maestro = {
-			...(window as any).maestro,
+		// Mock window.openwizardai.prompts.get to return actual prompt file content
+		(window as any).openwizardai = {
+			...(window as any).openwizardai,
 			prompts: {
 				get: vi.fn((id: string) => {
 					if (id === 'wizard-system') {
@@ -153,11 +153,11 @@ describe('wizardPrompts', () => {
 
 			it('should handle JSON with unicode characters in message', () => {
 				const input =
-					'{"confidence": 45, "ready": false, "message": "Hello 🎼 OpenWizzard! こんにちは"}';
+					'{"confidence": 45, "ready": false, "message": "Hello 🎼 OpenWizardAI! こんにちは"}';
 				const result = parseStructuredOutput(input);
 
 				expect(result.parseSuccess).toBe(true);
-				expect(result.structured?.message).toBe('Hello 🎼 OpenWizzard! こんにちは');
+				expect(result.structured?.message).toBe('Hello 🎼 OpenWizardAI! こんにちは');
 			});
 
 			it('should parse JSON with decimal confidence', () => {
@@ -611,14 +611,14 @@ describe('wizardPrompts', () => {
 			expect(prompt).toContain(String(READY_CONFIDENCE_THRESHOLD));
 		});
 
-		it('should include OpenWizzard branding', () => {
+		it('should include OpenWizardAI branding', () => {
 			const config: SystemPromptConfig = {
 				agentName: 'Test',
 				agentPath: '/path',
 			};
 			const prompt = generateSystemPrompt(config);
 
-			expect(prompt).toContain('OpenWizzard');
+			expect(prompt).toContain('OpenWizardAI');
 		});
 
 		it('should include file access restriction instructions', () => {
@@ -642,8 +642,8 @@ describe('wizardPrompts', () => {
 			};
 			const prompt = generateSystemPrompt(config);
 
-			// Should contain default Auto Run folder path: agentPath/.maestro/playbooks
-			expect(prompt).toContain('/Users/test/project/.maestro/playbooks');
+			// Should contain default Auto Run folder path: agentPath/.openwizardai/playbooks
+			expect(prompt).toContain('/Users/test/project/.openwizardai/playbooks');
 		});
 
 		it('should use custom Auto Run folder path when provided', () => {

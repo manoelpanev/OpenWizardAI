@@ -35,29 +35,29 @@ import { parseDeepLink } from '../../main/deep-links';
 
 describe('parseDeepLink', () => {
 	describe('focus action', () => {
-		it('should parse maestro://focus', () => {
-			expect(parseDeepLink('maestro://focus')).toEqual({ action: 'focus' });
+		it('should parse openwizardai://focus', () => {
+			expect(parseDeepLink('openwizardai://focus')).toEqual({ action: 'focus' });
 		});
 
 		it('should parse empty path as focus', () => {
-			expect(parseDeepLink('maestro://')).toEqual({ action: 'focus' });
+			expect(parseDeepLink('openwizardai://')).toEqual({ action: 'focus' });
 		});
 
 		it('should parse protocol-only as focus', () => {
-			expect(parseDeepLink('maestro:')).toEqual({ action: 'focus' });
+			expect(parseDeepLink('openwizardai:')).toEqual({ action: 'focus' });
 		});
 	});
 
 	describe('session action', () => {
 		it('should parse session URL', () => {
-			expect(parseDeepLink('maestro://session/abc123')).toEqual({
+			expect(parseDeepLink('openwizardai://session/abc123')).toEqual({
 				action: 'session',
 				sessionId: 'abc123',
 			});
 		});
 
 		it('should parse session URL with tab', () => {
-			expect(parseDeepLink('maestro://session/abc123/tab/tab456')).toEqual({
+			expect(parseDeepLink('openwizardai://session/abc123/tab/tab456')).toEqual({
 				action: 'session',
 				sessionId: 'abc123',
 				tabId: 'tab456',
@@ -65,14 +65,14 @@ describe('parseDeepLink', () => {
 		});
 
 		it('should decode URI-encoded session IDs', () => {
-			expect(parseDeepLink('maestro://session/session%20with%20space')).toEqual({
+			expect(parseDeepLink('openwizardai://session/session%20with%20space')).toEqual({
 				action: 'session',
 				sessionId: 'session with space',
 			});
 		});
 
 		it('should decode URI-encoded tab IDs', () => {
-			expect(parseDeepLink('maestro://session/abc/tab/tab%2Fslash')).toEqual({
+			expect(parseDeepLink('openwizardai://session/abc/tab/tab%2Fslash')).toEqual({
 				action: 'session',
 				sessionId: 'abc',
 				tabId: 'tab/slash',
@@ -80,12 +80,12 @@ describe('parseDeepLink', () => {
 		});
 
 		it('should return null for session without ID', () => {
-			expect(parseDeepLink('maestro://session')).toBeNull();
-			expect(parseDeepLink('maestro://session/')).toBeNull();
+			expect(parseDeepLink('openwizardai://session')).toBeNull();
+			expect(parseDeepLink('openwizardai://session/')).toBeNull();
 		});
 
 		it('should ignore extra path segments after tab ID', () => {
-			const result = parseDeepLink('maestro://session/abc/tab/tab1/extra/stuff');
+			const result = parseDeepLink('openwizardai://session/abc/tab/tab1/extra/stuff');
 			expect(result).toEqual({
 				action: 'session',
 				sessionId: 'abc',
@@ -96,46 +96,46 @@ describe('parseDeepLink', () => {
 
 	describe('group action', () => {
 		it('should parse group URL', () => {
-			expect(parseDeepLink('maestro://group/grp789')).toEqual({
+			expect(parseDeepLink('openwizardai://group/grp789')).toEqual({
 				action: 'group',
 				groupId: 'grp789',
 			});
 		});
 
 		it('should decode URI-encoded group IDs', () => {
-			expect(parseDeepLink('maestro://group/group%20name')).toEqual({
+			expect(parseDeepLink('openwizardai://group/group%20name')).toEqual({
 				action: 'group',
 				groupId: 'group name',
 			});
 		});
 
 		it('should return null for group without ID', () => {
-			expect(parseDeepLink('maestro://group')).toBeNull();
-			expect(parseDeepLink('maestro://group/')).toBeNull();
+			expect(parseDeepLink('openwizardai://group')).toBeNull();
+			expect(parseDeepLink('openwizardai://group/')).toBeNull();
 		});
 	});
 
 	describe('Windows compatibility', () => {
-		it('should handle Windows maestro: prefix (no double slash)', () => {
-			expect(parseDeepLink('maestro:session/abc123')).toEqual({
+		it('should handle Windows openwizardai: prefix (no double slash)', () => {
+			expect(parseDeepLink('openwizardai:session/abc123')).toEqual({
 				action: 'session',
 				sessionId: 'abc123',
 			});
 		});
 
 		it('should handle Windows focus without double slash', () => {
-			expect(parseDeepLink('maestro:focus')).toEqual({ action: 'focus' });
+			expect(parseDeepLink('openwizardai:focus')).toEqual({ action: 'focus' });
 		});
 	});
 
 	describe('error handling', () => {
 		it('should return null for unrecognized resource', () => {
-			expect(parseDeepLink('maestro://unknown/abc')).toBeNull();
+			expect(parseDeepLink('openwizardai://unknown/abc')).toBeNull();
 		});
 
 		it('should return null for completely malformed URLs', () => {
 			// parseDeepLink is tolerant of most inputs, but unrecognized resources return null
-			expect(parseDeepLink('maestro://settings')).toBeNull();
+			expect(parseDeepLink('openwizardai://settings')).toBeNull();
 		});
 	});
 });

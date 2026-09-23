@@ -153,7 +153,7 @@ describe('filePreviewUtils', () => {
 			expect(isBinaryExtension('events.pq')).toBe(false);
 		});
 
-		it('still treats database files as binary - Maestro has no SQLite viewer', () => {
+		it('still treats database files as binary - OpenWizardAI has no SQLite viewer', () => {
 			// If a SQLite viewer ever lands, this is the assertion that will fail
 			// and point at the classifier that needs to learn about it.
 			expect(isBinaryExtension('app.db')).toBe(true);

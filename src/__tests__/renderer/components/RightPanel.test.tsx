@@ -486,7 +486,7 @@ describe('RightPanel', () => {
 			// End resize
 			fireEvent.mouseUp(document);
 
-			expect(window.maestro.settings.set).toHaveBeenCalledWith(
+			expect(window.openwizardai.settings.set).toHaveBeenCalledWith(
 				'rightPanelWidth',
 				expect.any(Number)
 			);

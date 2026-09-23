@@ -86,10 +86,10 @@ describe('watchCueConfigFile torn-flag guard', () => {
 
 		// Trigger a real change so the debounced callback is scheduled - this
 		// exercises the path the torn flag actually protects. Writing the
-		// canonical .maestro/cue.yaml is exactly what the session runtime does.
-		const maestroDir = path.join(projectRoot, '.maestro');
-		fs.mkdirSync(maestroDir, { recursive: true });
-		fs.writeFileSync(path.join(maestroDir, 'cue.yaml'), 'subscriptions: []', 'utf-8');
+		// canonical .openwizardai/cue.yaml is exactly what the session runtime does.
+		const openwizardaiDir = path.join(projectRoot, '.openwizardai');
+		fs.mkdirSync(openwizardaiDir, { recursive: true });
+		fs.writeFileSync(path.join(openwizardaiDir, 'cue.yaml'), 'subscriptions: []', 'utf-8');
 
 		// Cleanup IMMEDIATELY - the debounced setTimeout is already scheduled
 		// (or about to be). The torn flag must reject it when it fires.

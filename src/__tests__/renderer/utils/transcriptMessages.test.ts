@@ -56,12 +56,12 @@ describe('transcriptMessagesToLogEntries', () => {
 		expect(entries[0].images).toEqual(['data:image/png;base64,AAA']);
 	});
 
-	// Issue #1533: every provider but Claude Code takes Maestro's system prompt
+	// Issue #1533: every provider but Claude Code takes OpenWizardAI's system prompt
 	// embedded in the first user turn, and that turn is what lands on disk. A
 	// hydrated tab used to render the whole envelope as if the user had typed it.
 	it('unwraps the embedded system prompt from a hydrated user turn', () => {
 		const wrapped = embedSystemPromptInPrompt(
-			'# Maestro System Context\n\nYou are **Scout**, working in /repo.',
+			'# OpenWizardAI System Context\n\nYou are **Scout**, working in /repo.',
 			'run the test suite'
 		);
 
@@ -70,7 +70,7 @@ describe('transcriptMessagesToLogEntries', () => {
 		]);
 
 		expect(entries[0].text).toBe('run the test suite');
-		expect(entries[0].text).not.toContain('Maestro System Context');
+		expect(entries[0].text).not.toContain('OpenWizardAI System Context');
 	});
 
 	it('drops a turn that carried nothing but the envelope', () => {
@@ -97,7 +97,10 @@ describe('transcriptMessagesToLogEntries', () => {
 	// find its splice point, and a live tab logs the CLEAN prompt. Unwrapping is
 	// what lets those two texts line up at all.
 	it('produces a first turn that matches the entry a live tab logged', () => {
-		const wrapped = embedSystemPromptInPrompt('# Maestro System Context', 'fix the flaky test');
+		const wrapped = embedSystemPromptInPrompt(
+			'# OpenWizardAI System Context',
+			'fix the flaky test'
+		);
 		const loaded = transcriptMessagesToLogEntries([
 			message({ uuid: 'disk-1', type: 'user', content: wrapped }),
 			message({ uuid: 'disk-2', type: 'assistant', content: 'on it' }),
@@ -239,7 +242,7 @@ describe('selectOlderEntries', () => {
 	});
 
 	it('cuts on timestamp when the boundary entry never reached disk', () => {
-		// Maestro-injected system notices live only in the tab, so there is nothing
+		// OpenWizardAI-injected system notices live only in the tab, so there is nothing
 		// on disk to match. Anything strictly older than it is still safe to prepend.
 		const loaded = [entry('1', 'a', 'user', 100), entry('2', 'b', 'user', 300)];
 		const visible = [entry('sys', 'Agent reconnected', 'system', 200)];

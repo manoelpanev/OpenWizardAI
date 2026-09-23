@@ -81,7 +81,7 @@ Key behaviors:
 - Beta channels of native modules don't follow semver predictably (e.g., `1.2.0-beta.13` could ship a build-script change that breaks `electron-rebuild`), so the caret would be a stealth risk we don't want.
 - Move back to a caret range (`^1.2.0` or whatever the next stable major is) once the leak fix lands in a non-beta release.
 
-This pin was paired with the removal of `patches/node-pty+1.1.0.patch`, a local-fork of the same FD-leak fix that Maestro carried while waiting on the upstream beta. The upstream `1.2.0-beta.12` ships those fixes (rich error reporting, proper FD close on error paths, and the corrected close-low-fds loop bound) directly, so the patch became redundant. If a future bump replaces 1.2.0-beta.12 with a different node-pty version, audit `node_modules/node-pty/src/unix/pty.cc` against the deleted patch to confirm the FD-leak guards are still upstream before removing them again.
+This pin was paired with the removal of `patches/node-pty+1.1.0.patch`, a local-fork of the same FD-leak fix that OpenWizardAI carried while waiting on the upstream beta. The upstream `1.2.0-beta.12` ships those fixes (rich error reporting, proper FD close on error paths, and the corrected close-low-fds loop bound) directly, so the patch became redundant. If a future bump replaces 1.2.0-beta.12 with a different node-pty version, audit `node_modules/node-pty/src/unix/pty.cc` against the deleted patch to confirm the FD-leak guards are still upstream before removing them again.
 
 Any change to this pin must rebuild the native module against the current Electron version (`npm run postinstall` does this automatically) and validate with the targeted PTY/process-manager test set.
 
@@ -265,12 +265,12 @@ Process Listeners
 
 ### Architecture Overview
 
-The web server provides HTTP and WebSocket access to Maestro for mobile devices and remote browsers. Built on Fastify with `@fastify/websocket`, `@fastify/cors`, `@fastify/rate-limit`, and `@fastify/static`.
+The web server provides HTTP and WebSocket access to OpenWizardAI for mobile devices and remote browsers. Built on Fastify with `@fastify/websocket`, `@fastify/cors`, `@fastify/rate-limit`, and `@fastify/static`.
 
 **URL structure:**
 
 ```text
-http://IP:PORT/                          -> Redirect to runmaestro.ai
+http://IP:PORT/                          -> Redirect to github.com/manoelpanev/OpenWizardAI
 http://IP:PORT/health                    -> Health check (no auth)
 http://IP:PORT/$TOKEN/                   -> Dashboard (SPA)
 http://IP:PORT/$TOKEN/session/$UUID      -> Session view (SPA)
@@ -285,7 +285,7 @@ http://IP:PORT/$TOKEN/sw.js              -> Service worker
 
 - UUID security token required in all URLs (except `/health`)
 - Token regenerated per app restart (ephemeral mode) or persisted in settings (persistent web link mode)
-- Invalid/missing tokens redirect to `runmaestro.ai`
+- Invalid/missing tokens redirect to `github.com/manoelpanev/OpenWizardAI`
 - Token validated as UUID v4 format when loading from storage
 - Session IDs and tab IDs sanitized to alphanumeric+hyphens to prevent XSS injection in HTML responses
 
@@ -305,7 +305,7 @@ Lifecycle: `constructor()` initializes all components, `start()` registers middl
 
 **Static Routes** (`routes/staticRoutes.ts`):
 
-- `/` - Redirect to runmaestro.ai
+- `/` - Redirect to github.com/manoelpanev/OpenWizardAI
 - `/health` - Health check
 - `/$TOKEN/manifest.json`, `/$TOKEN/sw.js` - PWA files (cached after first read)
 - `/$TOKEN`, `/$TOKEN/` - Dashboard SPA

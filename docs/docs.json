@@ -1,12 +1,12 @@
 {
 	"$schema": "https://mintlify.com/docs.json",
 	"theme": "mint",
-	"name": "Maestro",
-	"description": "Maestro hones fractured attention into focused intent.",
+	"name": "OpenWizardAI",
+	"description": "OpenWizardAI hones fractured attention into focused intent.",
 	"logo": {
 		"light": "/assets/icon.png",
 		"dark": "/assets/icon.png",
-		"href": "https://runmaestro.ai"
+		"href": "https://github.com/manoelpanev/OpenWizardAI"
 	},
 	"favicon": "/assets/icon.ico",
 	"js": "/assets/theme-hint.js",
@@ -84,17 +84,17 @@
 					"usage-dashboard",
 					"symphony",
 					{
-						"group": "Maestro Cue",
+						"group": "OpenWizardAI Cue",
 						"icon": "bolt",
 						"expanded": true,
 						"pages": [
-							"maestro-cue",
-							"maestro-cue-configuration",
-							"maestro-cue-events",
-							"maestro-cue-advanced",
-							"maestro-cue-examples",
-							"maestro-cue-karpathy-loop",
-							"maestro-cue-marketing-example"
+							"openwizardai-cue",
+							"openwizardai-cue-configuration",
+							"openwizardai-cue-events",
+							"openwizardai-cue-advanced",
+							"openwizardai-cue-examples",
+							"openwizardai-cue-karpathy-loop",
+							"openwizardai-cue-marketing-example"
 						]
 					}
 				]
@@ -119,27 +119,27 @@
 		"links": [
 			{
 				"label": "Discord",
-				"href": "https://runmaestro.ai/discord"
+				"href": "https://github.com/manoelpanev/OpenWizardAI/discussions"
 			},
 			{
 				"label": "GitHub",
-				"href": "https://github.com/RunMaestro/Maestro"
+				"href": "https://github.com/manoelpanev/OpenWizardAI"
 			},
 			{
 				"label": "Homepage",
-				"href": "https://runmaestro.ai"
+				"href": "https://github.com/manoelpanev/OpenWizardAI"
 			}
 		],
 		"primary": {
 			"type": "button",
 			"label": "Download",
-			"href": "https://github.com/RunMaestro/Maestro/releases"
+			"href": "https://github.com/manoelpanev/OpenWizardAI/releases"
 		}
 	},
 	"footer": {
 		"socials": {
-			"discord": "https://runmaestro.ai/discord",
-			"github": "https://github.com/RunMaestro/Maestro"
+			"discord": "https://github.com/manoelpanev/OpenWizardAI/discussions",
+			"github": "https://github.com/manoelpanev/OpenWizardAI"
 		}
 	}
 }

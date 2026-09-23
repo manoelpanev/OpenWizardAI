@@ -11,8 +11,8 @@
  *                 earlier Codex builds keep their commands)
  *
  * Both are plain markdown with optional YAML frontmatter, so they can be read
- * without spawning the CLI. Maestro drives Codex in headless `codex exec` mode,
- * where the CLI does NOT expand `/name` itself - so Maestro carries the file
+ * without spawning the CLI. OpenWizardAI drives Codex in headless `codex exec` mode,
+ * where the CLI does NOT expand `/name` itself - so OpenWizardAI carries the file
  * body as the command's `prompt` and expands it renderer-side, the same way
  * OpenCode custom commands already work (see `opencode-config.ts`).
  */

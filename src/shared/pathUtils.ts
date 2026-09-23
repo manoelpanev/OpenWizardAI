@@ -57,13 +57,13 @@ export function expandTilde(filePath: string, homeDir?: string): string {
 /**
  * Encode a project path the same way Claude Code does.
  * Claude replaces all non-alphanumeric characters with '-'.
- * See: https://github.com/RunMaestro/Maestro/issues/348
+ * See: https://github.com/manoelpanev/OpenWizardAI/issues/348
  *
  * Trailing separators are stripped first. Claude Code encodes its own resolved
  * cwd, which never carries one, but an agent's projectRoot can be saved with a
  * trailing slash (e.g. "/path/to/repo/"). Encoding that verbatim yields a
  * "...-repo-" directory that never exists, so every lookup silently comes back
- * empty. See: https://github.com/RunMaestro/Maestro/issues/1409
+ * empty. See: https://github.com/manoelpanev/OpenWizardAI/issues/1409
  */
 export function encodeClaudeProjectPath(projectPath: string): string {
 	return stripTrailingSeparators(projectPath).replace(/[^a-zA-Z0-9]/g, '-');

@@ -40,11 +40,11 @@ describe('KeyboardMasteryCelebration', () => {
 		expect(getByText('Level Up!')).toBeInTheDocument();
 	});
 
-	it('shows OpenWizzard title at level 4', () => {
+	it('shows OpenWizardAI title at level 4', () => {
 		const { getByText } = render(
 			<KeyboardMasteryCelebration theme={mockTheme} level={4} onClose={onClose} disableConfetti />
 		);
-		expect(getByText('Keyboard OpenWizzard!')).toBeInTheDocument();
+		expect(getByText('Keyboard Wizard!')).toBeInTheDocument();
 	});
 
 	it('closes on Enter keydown', () => {

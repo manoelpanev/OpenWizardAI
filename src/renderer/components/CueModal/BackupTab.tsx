@@ -1,8 +1,8 @@
 /**
  * BackupTab - Cue modal "Backup" tab.
  *
- * Lets the user snapshot every workspace's `.maestro/cue.yaml` plus the
- * contents of `.maestro/prompts/` into a zip stored under userData. Existing
+ * Lets the user snapshot every workspace's `.openwizardai/cue.yaml` plus the
+ * contents of `.openwizardai/prompts/` into a zip stored under userData. Existing
  * backups are listed newest-first; each row expands to reveal per-workspace
  * file lists with per-file Diff (against live) and Restore actions, plus a
  * top-level Restore-All / Delete pair on each backup.
@@ -466,7 +466,8 @@ export function BackupTab({ theme }: BackupTabProps) {
 										{wsCount === 0 ? (
 											<div className="text-xs py-2" style={{ color: theme.colors.textDim }}>
 												This backup contains no workspaces - none of your agents had a{' '}
-												<code>.maestro/cue.yaml</code> or prompt files at the time it was created.
+												<code>.openwizardai/cue.yaml</code> or prompt files at the time it was
+												created.
 											</div>
 										) : (
 											(() => {

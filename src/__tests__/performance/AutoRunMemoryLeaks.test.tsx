@@ -137,9 +137,9 @@ vi.mock('../../renderer/components/TemplateAutocompleteDropdown', () => ({
 
 // Helper to create mock theme
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -156,8 +156,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Default props factory
@@ -192,10 +192,10 @@ function generateLargeContent(sizeInKB: number): string {
 }
 
 describe('AutoRun Memory Leak Detection', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -338,7 +338,7 @@ describe('AutoRun Memory Leak Detection', () => {
 		});
 
 		it('handles mount/unmount with attachments loaded', async () => {
-			mockMaestro.autorun.listImages.mockResolvedValue({
+			mockOpenWizardAI.autorun.listImages.mockResolvedValue({
 				success: true,
 				images: [
 					{ filename: 'img1.png', relativePath: 'images/img1.png' },
@@ -872,7 +872,7 @@ describe('AutoRun Memory Leak Detection', () => {
 				for (const sessionId of sessions) {
 					const props = createDefaultProps({
 						sessionId,
-						folderPath: `/projects/${sessionId}/.maestro/playbooks`,
+						folderPath: `/projects/${sessionId}/.openwizardai/playbooks`,
 						content: `# ${sessionId} Content cycle ${cycle}`,
 					});
 
@@ -884,7 +884,7 @@ describe('AutoRun Memory Leak Detection', () => {
 
 					// Add some cache entries
 					imageCache.set(
-						`/projects/${sessionId}/.maestro/playbooks:images/img${cycle}.png`,
+						`/projects/${sessionId}/.openwizardai/playbooks:images/img${cycle}.png`,
 						`data${cycle}`
 					);
 
@@ -967,7 +967,7 @@ describe('AutoRun Memory Leak Detection', () => {
 
 		it('async operations complete or cancel cleanly on unmount', async () => {
 			// Mock listImages to return with a delay
-			mockMaestro.autorun.listImages.mockImplementation(
+			mockOpenWizardAI.autorun.listImages.mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						setTimeout(() => {
@@ -993,7 +993,7 @@ describe('AutoRun Memory Leak Detection', () => {
 		it('state updates do not occur after unmount', async () => {
 			const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-			mockMaestro.autorun.listImages.mockImplementation(
+			mockOpenWizardAI.autorun.listImages.mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						setTimeout(() => {

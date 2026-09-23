@@ -172,10 +172,10 @@ function isSystemContextMessage(text: string): boolean {
 	) {
 		return true;
 	}
-	// Skip markdown-formatted system context (e.g., "# Context Your name is **Maestro Codex**...")
+	// Skip markdown-formatted system context (e.g., "# Context Your name is **OpenWizardAI Codex**...")
 	if (
 		trimmed.startsWith('# Context') ||
-		trimmed.startsWith('# OpenWizzard System Context') ||
+		trimmed.startsWith('# OpenWizardAI System Context') ||
 		trimmed.startsWith('# System Context')
 	) {
 		return true;

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Exercise the upstream update/telemetry logic; OpenWizzard ships with these switched off.
+// Exercise the upstream update/telemetry logic; OpenWizardAI ships with these switched off.
 vi.mock('../../shared/branding', () => ({
 	UPDATES_ENABLED: true,
 	UPSTREAM_TELEMETRY_ENABLED: true,
@@ -33,7 +33,7 @@ const createMockRelease = (
 	tag_name: 'v1.0.0',
 	name: 'Version 1.0.0',
 	body: 'Release notes',
-	html_url: 'https://github.com/RunMaestro/Maestro/releases/tag/v1.0.0',
+	html_url: 'https://github.com/manoelpanev/OpenWizardAI/releases/tag/v1.0.0',
 	published_at: '2024-01-15T12:00:00Z',
 	prerelease: false,
 	draft: false,

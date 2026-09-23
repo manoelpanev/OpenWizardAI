@@ -7,7 +7,7 @@
  * React, no theme) so it can be imported from renderer, main, or CLI code.
  *
  * Token source meaning:
- * - `interactive` => the turn was captured via maestro-p driving the Claude TUI
+ * - `interactive` => the turn was captured via openwizardai-p driving the Claude TUI
  *   (Max plan quota, ~$0 per token).
  * - `api` => the turn was captured via `claude --print` (per-token API billing).
  */
@@ -33,7 +33,7 @@ export interface TokenSourcePill {
 	label: string;
 	/** Tooltip describing how the turn was captured (or why it fell back). */
 	title: string;
-	/** Convenience flag: true for the maestro-p TUI source. */
+	/** Convenience flag: true for the openwizardai-p TUI source. */
 	isTui: boolean;
 }
 
@@ -51,7 +51,7 @@ export function getTokenSourcePill(input: TokenSourcePillInput): TokenSourcePill
 		// Forced fallback wording mirrors the AgentConfigPanel pill.
 		title = 'Forced fallback: Max plan 5-hour or weekly quota is exhausted.';
 	} else if (isTui) {
-		title = `Captured via maestro-p driving the Claude TUI${adaptive ? ' (Dynamic Mode enabled)' : ''}`;
+		title = `Captured via openwizardai-p driving the Claude TUI${adaptive ? ' (Dynamic Mode enabled)' : ''}`;
 	} else {
 		title = `Captured via claude --print${adaptive ? ' (Dynamic Mode enabled - fell back to API)' : ''}`;
 	}

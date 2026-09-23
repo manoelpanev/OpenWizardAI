@@ -890,7 +890,7 @@ describe('Debug Package Collectors', () => {
 			vi.mocked(app.getPath).mockReturnValue('/mock/userData');
 			vi.mocked(fs.existsSync).mockReturnValue(true);
 			vi.mocked(fs.statSync).mockImplementation((path: any) => {
-				if (path.includes('maestro-sessions.json')) {
+				if (path.includes('openwizardai-sessions.json')) {
 					return { size: 1024, isDirectory: () => false } as any;
 				}
 				return { size: 0, isDirectory: () => true } as any;

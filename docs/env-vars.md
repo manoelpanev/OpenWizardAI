@@ -16,7 +16,7 @@ related:
 
 ## Overview
 
-Maestro's global environment variables feature allows users to define environment variables once in Settings and have them automatically applied to all terminal sessions and AI agent processes. This eliminates the need to duplicate configuration across multiple agents and enables centralized management of secrets, API keys, and tool paths.
+OpenWizardAI's global environment variables feature allows users to define environment variables once in Settings and have them automatically applied to all terminal sessions and AI agent processes. This eliminates the need to duplicate configuration across multiple agents and enables centralized management of secrets, API keys, and tool paths.
 
 ### Problem This Solves
 
@@ -101,9 +101,9 @@ This feature solves all of these issues by providing a single, unified source of
 1. User opens Settings → Environment
 2. Enters environment variables: KEY=VALUE (one per line)
 3. Clicks Save or Auto-Save triggers
-4. Renderer calls: window.maestro.settings.set('shellEnvVars', {...})
+4. Renderer calls: window.openwizardai.settings.set('shellEnvVars', {...})
 5. IPC handler persists to electron-store
-6. User spawns terminal via Maestro UI
+6. User spawns terminal via OpenWizardAI UI
 7. ProcessManager.spawn() called with config
 8. PtySpawner extracts shellEnvVars from config
 9. buildPtyTerminalEnv(shellEnvVars) called
@@ -173,10 +173,10 @@ Priority 3: Process Environment
 **Example 1: Global Variable (No Override)**
 
 ```env
-Global: DEBUG=maestro:*
+Global: DEBUG=openwizardai:*
 Session: (not set)
 
-Result: DEBUG=maestro:*
+Result: DEBUG=openwizardai:*
 ```
 
 **Example 2: Session Overrides Global**
@@ -316,7 +316,7 @@ spawn path, including the SSH one.
 	'CLAUDE_CODE_ENTRYPOINT', // Claude Code extension
 	'CLAUDE_AGENT_SDK_VERSION', // SDK version flag
 	'CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING', // Checkpoint flag
-	'NODE_ENV'); // Maestro's NODE_ENV shouldn't leak
+	'NODE_ENV'); // OpenWizardAI's NODE_ENV shouldn't leak
 ```
 
 **Why**: These variables can cause agents to misidentify their execution context:
@@ -369,7 +369,7 @@ spawn(command, args, { env });
 
 ### Electron Store Path
 
-**Location**: `~/.config/Maestro/` (Linux/Mac) or `%APPDATA%\Maestro\` (Windows)
+**Location**: `~/.config/OpenWizardAI/` (Linux/Mac) or `%APPDATA%\OpenWizardAI\` (Windows)
 
 **Store Key**: `shellEnvVars`
 
@@ -382,7 +382,7 @@ electron-store
   → shellEnvVars: {
       "API_KEY": "sk-proj-xxxxx",
       "PROXY_URL": "http://proxy.local:8080",
-      "DEBUG": "maestro:*"
+      "DEBUG": "openwizardai:*"
     }
 ```
 
@@ -467,14 +467,14 @@ a real value; there is no longer a way to export one from the env editor.
 
 ### Settings & Storage
 
-| File                                        | Purpose                   |
-| ------------------------------------------- | ------------------------- |
-| `src/main/stores/types.ts`                  | MaestroSettings interface |
-| `src/main/stores/defaults.ts`               | Default settings values   |
-| `src/main/stores/instances.ts`              | Store initialization      |
-| `src/main/preload/settings.ts`              | IPC bridge for settings   |
-| `src/renderer/stores/settingsStore.ts`      | Zustand renderer store    |
-| `src/renderer/components/SettingsModal.tsx` | Settings UI component     |
+| File                                        | Purpose                        |
+| ------------------------------------------- | ------------------------------ |
+| `src/main/stores/types.ts`                  | OpenWizardAISettings interface |
+| `src/main/stores/defaults.ts`               | Default settings values        |
+| `src/main/stores/instances.ts`              | Store initialization           |
+| `src/main/preload/settings.ts`              | IPC bridge for settings        |
+| `src/renderer/stores/settingsStore.ts`      | Zustand renderer store         |
+| `src/renderer/components/SettingsModal.tsx` | Settings UI component          |
 
 ### Testing
 
@@ -507,7 +507,7 @@ a real value; there is no longer a way to export one from the env editor.
 2. Spawn terminal: `echo $TEST_VAR` → shows `hello`
 3. Spawn agent: Agent receives `TEST_VAR` in environment
 4. Override with session var: Takes precedence
-5. Restart Maestro: Settings persist
+5. Restart OpenWizardAI: Settings persist
 
 ---
 

@@ -1,17 +1,17 @@
 /**
  * Who asked for this turn: you, or an automation acting on your behalf.
  *
- * Every agent turn Maestro runs - one you typed, an Auto Run task, a Cue
+ * Every agent turn OpenWizardAI runs - one you typed, an Auto Run task, a Cue
  * subscription firing - ends up as the same thing on the machine: an ordinary
  * agent process, same binary, same arguments, same working directory, writing
- * to the same provider transcript. Nothing outside Maestro can tell them
+ * to the same provider transcript. Nothing outside OpenWizardAI can tell them
  * apart. Tooling that hangs off the agent (Claude Code hooks, wrapper scripts,
  * telemetry sidecars) sees an identical process either way, so the only signal
  * left to it is the prompt text - which is a guess, not an answer, because Cue
  * prompts are the user's own words from `cue.yaml` and read exactly like
  * something a human typed.
  *
- * So Maestro states it outright. Every spawn stamps {@link QUERY_SOURCE_ENV_VAR}
+ * So OpenWizardAI states it outright. Every spawn stamps {@link QUERY_SOURCE_ENV_VAR}
  * into the child environment, and anything downstream of the process boundary
  * can read it without guessing. The variable is a stable external contract:
  * renaming it or changing the vocabulary breaks consumers that live outside
@@ -25,11 +25,11 @@
 
 /**
  * Environment variable carrying the {@link QuerySource} of the turn being run.
- * Present on every agent process Maestro spawns, including PTY/TUI spawns and
- * the child `claude` that maestro-p drives (its env sanitizer strips only an
+ * Present on every agent process OpenWizardAI spawns, including PTY/TUI spawns and
+ * the child `claude` that openwizardai-p drives (its env sanitizer strips only an
  * explicit denylist of Claude session-identity vars, so this passes through).
  */
-export const QUERY_SOURCE_ENV_VAR = 'MAESTRO_QUERY_SOURCE';
+export const QUERY_SOURCE_ENV_VAR = 'OPENWIZARDAI_QUERY_SOURCE';
 
 /**
  * - `user` - a human sent this prompt: the composer, a slash command, the

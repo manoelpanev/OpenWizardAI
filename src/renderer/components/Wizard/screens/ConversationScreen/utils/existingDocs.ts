@@ -1,10 +1,10 @@
-import { PLAYBOOKS_DIR } from '../../../../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../../../../shared/openwizardai-paths';
 import { logger } from '../../../../../utils/logger';
 import type { ExistingDocument } from '../../../services/wizardPrompts';
 
 export async function readExistingDocuments(autoRunPath: string): Promise<ExistingDocument[]> {
 	try {
-		const listResult = await window.maestro.autorun.listDocs(autoRunPath);
+		const listResult = await window.openwizardai.autorun.listDocs(autoRunPath);
 
 		if (!listResult.success || !listResult.files || listResult.files.length === 0) {
 			return [];
@@ -13,7 +13,7 @@ export async function readExistingDocuments(autoRunPath: string): Promise<Existi
 		const docs: ExistingDocument[] = [];
 		for (const filename of listResult.files) {
 			try {
-				const readResult = await window.maestro.autorun.readDoc(autoRunPath, filename);
+				const readResult = await window.openwizardai.autorun.readDoc(autoRunPath, filename);
 				if (readResult.success && readResult.content) {
 					docs.push({
 						filename,

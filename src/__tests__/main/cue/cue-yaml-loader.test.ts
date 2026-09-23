@@ -2,7 +2,7 @@
  * Tests for the Cue YAML loader module.
  *
  * Tests cover:
- * - Loading and parsing maestro-cue.yaml files
+ * - Loading and parsing openwizardai-cue.yaml files
  * - Handling missing files
  * - Merging with default settings
  * - Validation of subscription fields per event type
@@ -66,9 +66,11 @@ describe('cue-yaml-loader', () => {
 			expect(result).toBeNull();
 		});
 
-		it('loads from canonical .maestro/cue.yaml path first', () => {
+		it('loads from canonical .openwizardai/cue.yaml path first', () => {
 			// Canonical path exists
-			mockExistsSync.mockImplementation((p: string) => String(p).includes('.maestro/cue.yaml'));
+			mockExistsSync.mockImplementation((p: string) =>
+				String(p).includes('.openwizardai/cue.yaml')
+			);
 			mockReadFileSync.mockReturnValue(`
 subscriptions:
   - name: canonical-sub
@@ -137,10 +139,11 @@ subscriptions:
 			});
 		});
 
-		it('falls back to legacy maestro-cue.yaml when canonical does not exist', () => {
+		it('falls back to legacy openwizardai-cue.yaml when canonical does not exist', () => {
 			// Only legacy path exists
 			mockExistsSync.mockImplementation(
-				(p: string) => String(p).includes('maestro-cue.yaml') && !String(p).includes('.maestro/')
+				(p: string) =>
+					String(p).includes('openwizardai-cue.yaml') && !String(p).includes('.openwizardai/')
 			);
 			mockReadFileSync.mockReturnValue(`
 subscriptions:
@@ -252,14 +255,14 @@ subscriptions:
 			mockExistsSync.mockReturnValue(true);
 			mockReadFileSync.mockImplementation((p: string) => {
 				readCallCount++;
-				if (String(p).endsWith('.maestro/prompts/worker-pipeline.md')) {
+				if (String(p).endsWith('.openwizardai/prompts/worker-pipeline.md')) {
 					return 'Prompt from external file';
 				}
 				return `
 subscriptions:
   - name: test-sub
     event: time.heartbeat
-    prompt_file: .maestro/prompts/worker-pipeline.md
+    prompt_file: .openwizardai/prompts/worker-pipeline.md
     interval_minutes: 5
 `;
 			});
@@ -279,7 +282,7 @@ subscriptions:
   - name: test-sub
     event: time.heartbeat
     prompt: Inline prompt text
-    prompt_file: .maestro/prompts/should-be-ignored.md
+    prompt_file: .openwizardai/prompts/should-be-ignored.md
     interval_minutes: 5
 `);
 
@@ -290,7 +293,7 @@ subscriptions:
 		it('resolves output_prompt_file to output_prompt content', () => {
 			mockExistsSync.mockReturnValue(true);
 			mockReadFileSync.mockImplementation((p: string) => {
-				if (String(p).endsWith('.maestro/prompts/format-output.md')) {
+				if (String(p).endsWith('.openwizardai/prompts/format-output.md')) {
 					return 'Format the output as markdown';
 				}
 				return `
@@ -298,7 +301,7 @@ subscriptions:
   - name: test-sub
     event: time.heartbeat
     prompt: Do the thing
-    output_prompt_file: .maestro/prompts/format-output.md
+    output_prompt_file: .openwizardai/prompts/format-output.md
     interval_minutes: 5
 `;
 			});
@@ -318,7 +321,7 @@ subscriptions:
     event: time.heartbeat
     prompt: Do the thing
     output_prompt: Inline output prompt
-    output_prompt_file: .maestro/prompts/should-be-ignored.md
+    output_prompt_file: .openwizardai/prompts/should-be-ignored.md
     interval_minutes: 5
 `);
 
@@ -329,7 +332,7 @@ subscriptions:
 		it('sets output_prompt to undefined when output_prompt_file is missing', () => {
 			mockExistsSync.mockReturnValue(true);
 			mockReadFileSync.mockImplementation((p: string) => {
-				if (String(p).endsWith('.maestro/prompts/missing.md')) {
+				if (String(p).endsWith('.openwizardai/prompts/missing.md')) {
 					throw new Error('ENOENT: no such file or directory');
 				}
 				return `
@@ -337,7 +340,7 @@ subscriptions:
   - name: test-sub
     event: time.heartbeat
     prompt: Do the thing
-    output_prompt_file: .maestro/prompts/missing.md
+    output_prompt_file: .openwizardai/prompts/missing.md
     interval_minutes: 5
 `;
 			});
@@ -545,14 +548,14 @@ subscriptions:
 			mockExistsSync.mockReturnValue(true);
 			mockReadFileSync.mockImplementation((p: string) => {
 				readCount++;
-				if (String(p).endsWith('.maestro/prompts/missing.md')) {
+				if (String(p).endsWith('.openwizardai/prompts/missing.md')) {
 					throw new Error('ENOENT: no such file');
 				}
 				return `
 subscriptions:
   - name: file-sub
     event: time.heartbeat
-    prompt_file: .maestro/prompts/missing.md
+    prompt_file: .openwizardai/prompts/missing.md
     interval_minutes: 5
 `;
 			});
@@ -571,7 +574,7 @@ subscriptions:
 		it('surfaces a warning when output_prompt_file references a missing file', () => {
 			mockExistsSync.mockReturnValue(true);
 			mockReadFileSync.mockImplementation((p: string) => {
-				if (String(p).endsWith('.maestro/prompts/missing-output.md')) {
+				if (String(p).endsWith('.openwizardai/prompts/missing-output.md')) {
 					throw new Error('ENOENT: no such file');
 				}
 				return `
@@ -579,7 +582,7 @@ subscriptions:
   - name: out-sub
     event: time.heartbeat
     prompt: Main prompt
-    output_prompt_file: .maestro/prompts/missing-output.md
+    output_prompt_file: .openwizardai/prompts/missing-output.md
     interval_minutes: 5
 `;
 			});
@@ -597,14 +600,14 @@ subscriptions:
 		it('returns no warnings when prompt_file resolves successfully', () => {
 			mockExistsSync.mockReturnValue(true);
 			mockReadFileSync.mockImplementation((p: string) => {
-				if (String(p).endsWith('.maestro/prompts/exists.md')) {
+				if (String(p).endsWith('.openwizardai/prompts/exists.md')) {
 					return 'Resolved prompt body';
 				}
 				return `
 subscriptions:
   - name: file-sub
     event: time.heartbeat
-    prompt_file: .maestro/prompts/exists.md
+    prompt_file: .openwizardai/prompts/exists.md
     interval_minutes: 5
 `;
 			});
@@ -622,23 +625,23 @@ subscriptions:
 	describe('watchCueYaml', () => {
 		it('watches both canonical and legacy file paths', () => {
 			watchCueYaml('/projects/test', vi.fn());
-			// Should watch both .maestro/cue.yaml (canonical) and maestro-cue.yaml (legacy)
+			// Should watch both .openwizardai/cue.yaml (canonical) and openwizardai-cue.yaml (legacy)
 			expect(chokidar.watch).toHaveBeenCalledWith(
 				expect.arrayContaining([
-					expect.stringContaining('.maestro/cue.yaml'),
-					expect.stringContaining('maestro-cue.yaml'),
+					expect.stringContaining('.openwizardai/cue.yaml'),
+					expect.stringContaining('openwizardai-cue.yaml'),
 				]),
 				expect.objectContaining({ persistent: true, ignoreInitial: true })
 			);
 		});
 
-		it('also watches `.maestro/prompts/*.md` so late prompt-file writes trigger a reload', () => {
+		it('also watches `.openwizardai/prompts/*.md` so late prompt-file writes trigger a reload', () => {
 			watchCueYaml('/projects/test', vi.fn());
 			// Without this, a "YAML written first, prompt files later" sequence
 			// strands the engine with empty cached prompts because the YAML
 			// watcher never fires again.
 			expect(chokidar.watch).toHaveBeenCalledWith(
-				expect.arrayContaining([expect.stringContaining('.maestro/prompts/*.md')]),
+				expect.arrayContaining([expect.stringContaining('.openwizardai/prompts/*.md')]),
 				expect.anything()
 			);
 		});
@@ -907,7 +910,7 @@ subscriptions:
 					{
 						name: 'test',
 						event: 'time.heartbeat',
-						prompt_file: '.maestro/prompts/test.md',
+						prompt_file: '.openwizardai/prompts/test.md',
 						interval_minutes: 5,
 					},
 				],
@@ -942,9 +945,9 @@ subscriptions:
 						event: 'app.startup',
 						fan_out: ['A', 'B', 'C'],
 						fan_out_prompt_files: [
-							'.maestro/prompts/a.md',
-							'.maestro/prompts/b.md',
-							'.maestro/prompts/c.md',
+							'.openwizardai/prompts/a.md',
+							'.openwizardai/prompts/b.md',
+							'.openwizardai/prompts/c.md',
 						],
 					},
 				],

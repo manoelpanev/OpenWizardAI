@@ -11,7 +11,7 @@
  * This is not hypothetical. Claude Code exports
  * `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=0` into the shells it runs, so the two
  * tests asserting the `'1'` default fail for anyone running the suite from a
- * Maestro terminal or an agent shell, and pass in CI. That reads as a real
+ * OpenWizardAI terminal or an agent shell, and pass in CI. That reads as a real
  * regression and blocks the pre-push hook on a phantom failure.
  *
  * Call `isolateAgentEnv()` in the body of any `describe` that asserts a DEFAULT

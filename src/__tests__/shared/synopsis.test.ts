@@ -190,36 +190,36 @@ describe('synopsis', () => {
 		describe('Details-headline rescue', () => {
 			it('should promote bolded Details headline when Summary ends with "Task complete."', () => {
 				const response =
-					'**Summary:** The playbook file is gitignored - no commit needed for that. Task complete.\n\n**Details:** **Added maestro-p session-id discovery (session-watcher.ts)** - phase 1, task 6 of the maestro-p playbook.';
+					'**Summary:** The playbook file is gitignored - no commit needed for that. Task complete.\n\n**Details:** **Added openwizardai-p session-id discovery (session-watcher.ts)** - phase 1, task 6 of the openwizardai-p playbook.';
 				const result = parseSynopsis(response);
 
 				expect(result.shortSummary).toBe(
-					'Added maestro-p session-id discovery (session-watcher.ts)'
+					'Added openwizardai-p session-id discovery (session-watcher.ts)'
 				);
 				// Body is preserved as-is so HistoryDetailModal continues to show
 				// the model's original formatting.
-				expect(result.fullSynopsis).toContain('phase 1, task 6 of the maestro-p playbook');
-				expect(result.fullSynopsis).toContain('**Added maestro-p');
+				expect(result.fullSynopsis).toContain('phase 1, task 6 of the openwizardai-p playbook');
+				expect(result.fullSynopsis).toContain('**Added openwizardai-p');
 			});
 
 			it('should promote bolded Details headline when Summary is "Checkbox flipped..."', () => {
 				const response =
-					'**Summary:** Checkbox flipped to [x]. Task done.\n\n**Details:** **Implemented the maestro-p stream-json emitter (phase 1, task 5)** with full event coverage.';
+					'**Summary:** Checkbox flipped to [x]. Task done.\n\n**Details:** **Implemented the openwizardai-p stream-json emitter (phase 1, task 5)** with full event coverage.';
 				const result = parseSynopsis(response);
 
 				expect(result.shortSummary).toBe(
-					'Implemented the maestro-p stream-json emitter (phase 1, task 5)'
+					'Implemented the openwizardai-p stream-json emitter (phase 1, task 5)'
 				);
 				expect(result.fullSynopsis).toContain('full event coverage');
 			});
 
 			it('should promote markdown heading from Details when Summary is "Pushed cleanly..."', () => {
 				const response =
-					'**Summary:** Pushed cleanly. Per playbook instructions, I exit after one task.\n\n**Details:** ## Implemented the maestro-p TUI driver core (phase 1 task 3)\nThe new TuiDriver class spawns claude via node-pty.';
+					'**Summary:** Pushed cleanly. Per playbook instructions, I exit after one task.\n\n**Details:** ## Implemented the openwizardai-p TUI driver core (phase 1 task 3)\nThe new TuiDriver class spawns claude via node-pty.';
 				const result = parseSynopsis(response);
 
 				expect(result.shortSummary).toBe(
-					'Implemented the maestro-p TUI driver core (phase 1 task 3)'
+					'Implemented the openwizardai-p TUI driver core (phase 1 task 3)'
 				);
 				expect(result.fullSynopsis).toContain('spawns claude via node-pty');
 			});

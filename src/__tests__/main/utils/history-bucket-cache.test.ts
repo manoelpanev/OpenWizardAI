@@ -26,7 +26,7 @@ import type { HistoryEntry } from '../../../shared/types';
 
 // Mock electron.app.getPath BEFORE importing the cache module so its
 // constructor uses the temp dir we control.
-const TMP_BASE = path.join(os.tmpdir(), `maestro-bucket-cache-test-${process.pid}`);
+const TMP_BASE = path.join(os.tmpdir(), `openwizardai-bucket-cache-test-${process.pid}`);
 
 vi.mock('electron', () => ({
 	app: {

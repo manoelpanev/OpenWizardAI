@@ -1,10 +1,10 @@
 ---
 title: Memories
-description: Browse and edit per-project persistent memory for Claude Code agents from a dedicated viewer in the Maestro header.
+description: Browse and edit per-project persistent memory for Claude Code agents from a dedicated viewer in the OpenWizardAI header.
 icon: brain
 ---
 
-The Memories view exposes Claude Code's per-project persistent memory - the small markdown files Claude writes about you, your preferences, the project, and external references - as a first-class panel inside Maestro. Open it, read what's been remembered, edit anything that's wrong, add new entries by hand, or delete what's stale.
+The Memories view exposes Claude Code's per-project persistent memory - the small markdown files Claude writes about you, your preferences, the project, and external references - as a first-class panel inside OpenWizardAI. Open it, read what's been remembered, edit anything that's wrong, add new entries by hand, or delete what's stale.
 
 ![Memories Viewer](./screenshots/memories.png)
 
@@ -27,7 +27,7 @@ The **Open in Finder** button (bottom right) reveals the underlying directory on
 
 ## Reading and Editing
 
-The right pane opens in **Preview**: the memory rendered as markdown, with headings, tables, task lists, and links the way you would read any other document in Maestro. That is the default because reading is the usual reason to open this panel.
+The right pane opens in **Preview**: the memory rendered as markdown, with headings, tables, task lists, and links the way you would read any other document in OpenWizardAI. That is the default because reading is the usual reason to open this panel.
 
 Switch to **Edit** for the source, in the same syntax-coloured editor the File Preview uses - line numbers, soft wrap, and markdown highlighting. Press `Cmd+E` (`Ctrl+E` on Windows/Linux) to flip between them from anywhere in the viewer; it is the same key that toggles edit and preview on a file, so there is one chord to remember. The caret lands in the editor as soon as it appears, and returns to the file list when you switch back.
 
@@ -192,7 +192,7 @@ Memory lives outside your project directory, under your Claude Code config:
 - **Linux**: `~/.claude/projects/<encoded-path>/memory/`
 - **Windows**: `%USERPROFILE%\.claude\projects\<encoded-path>\memory\`
 
-`<encoded-path>` is your project's absolute path with every non-alphanumeric character replaced by `-`. For example, `/Users/you/Projects/Maestro` becomes `-Users-you-Projects-Maestro`.
+`<encoded-path>` is your project's absolute path with every non-alphanumeric character replaced by `-`. For example, `/Users/you/Projects/OpenWizardAI` becomes `-Users-you-Projects-OpenWizardAI`.
 
 Because storage is keyed off the project path, **opening the same project from a different absolute path (e.g., a git worktree under a different directory) yields a separate memory store.** This is by design - worktrees are independent workspaces.
 
@@ -209,5 +209,5 @@ You can prompt Claude directly: "remember that I prefer X" or "forget the entry 
 
 ## Related
 
-- [Context Management](/context-management) - how Maestro shapes what reaches the agent each turn
+- [Context Management](/context-management) - how OpenWizardAI shapes what reaches the agent each turn
 - [Prompt Customization](/prompt-customization) - editing the system prompts that govern memory behavior

@@ -47,7 +47,7 @@ describe('CreatePRModal', () => {
 		createPR.mockImplementation(() => new Promise(() => {}));
 		checkGhCli.mockResolvedValue({ installed: true, authenticated: true });
 		status.mockResolvedValue({ stdout: '' });
-		(globalThis as unknown as { window: { maestro: unknown } }).window.maestro = {
+		(globalThis as unknown as { window: { openwizardai: unknown } }).window.openwizardai = {
 			git: { createPR, checkGhCli, status },
 		};
 	});

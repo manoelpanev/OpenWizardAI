@@ -5,7 +5,7 @@
  * own directory (Claude Code's `~/.claude/projects/.../<id>.jsonl`, and the
  * equivalent elsewhere) and is subject to the provider's retention, so a tab
  * that comes back in six weeks can easily find its transcript aged out from
- * under it. Maestro therefore keeps its own copy for the duration of the snooze,
+ * under it. OpenWizardAI therefore keeps its own copy for the duration of the snooze,
  * exactly as it does for starred sessions.
  *
  * These are thin fire-and-forget wrappers over the mirror IPC. Mirroring is
@@ -50,7 +50,7 @@ export function mirrorSnoozedTranscript(
 ): void {
 	const target = mirrorTarget(session, tab);
 	if (!target) return;
-	void window.maestro.agentSessions
+	void window.openwizardai.agentSessions
 		.snapshotStarredTranscript(
 			target.agentId,
 			target.projectPath,
@@ -79,7 +79,7 @@ export function releaseSnoozedTranscript(
 	if (entry.type !== 'ai') return;
 	const target = mirrorTarget(session, entry.tab);
 	if (!target) return;
-	void window.maestro.agentSessions
+	void window.openwizardai.agentSessions
 		.releaseSnoozedTranscript(target.agentId, target.projectPath, target.sessionId)
 		.catch((err) => {
 			logger.warn(`Failed to release snoozed transcript ${target.sessionId}: ${err}`);

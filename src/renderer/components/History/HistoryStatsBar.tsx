@@ -9,7 +9,7 @@ export interface HistoryStats {
 	sessionCount: number;
 	autoCount: number;
 	userCount: number;
-	/** Total CUE entries; only rendered when provided and > 0 (gated by the Maestro Cue encore feature) */
+	/** Total CUE entries; only rendered when provided and > 0 (gated by the OpenWizardAI Cue encore feature) */
 	cueCount?: number;
 	totalCount: number;
 	/** Number of agents currently in 'busy' state (live indicator) */

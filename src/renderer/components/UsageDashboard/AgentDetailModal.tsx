@@ -4,7 +4,7 @@
  * Per-agent stats sub-modal opened by double-clicking an agent card on the
  * Usage Dashboard's Agents tab. Stays scoped to stats - no recent-queries
  * list, no per-agent token/cost (those live in provider session files and
- * aren't aggregated per Maestro session yet).
+ * aren't aggregated per OpenWizardAI session yet).
  *
  * Reuses `data.bySessionByDay[session.id]` (already fetched by the dashboard)
  * for cheap aggregates and daily activity. Pulls the raw query events for the
@@ -76,7 +76,7 @@ export const AgentDetailModal = memo(function AgentDetailModal({
 		// Raw query events scoped to this session - needed for median/p95 and the
 		// user/auto source split. The aggregated `bySessionByDay` only carries
 		// daily totals, not per-event durations, so we fetch raw rows here.
-		window.maestro.stats
+		window.openwizardai.stats
 			.getStats('all', { sessionId: session.id })
 			.then((rows) => {
 				if (!cancelled) setEvents(rows as QueryEvent[]);
@@ -88,7 +88,7 @@ export const AgentDetailModal = memo(function AgentDetailModal({
 
 		// Auto Run sessions across all-time, filtered client-side. The IPC has
 		// no sessionId filter for auto runs, but the volume is small.
-		window.maestro.stats
+		window.openwizardai.stats
 			.getAutoRunSessions('all')
 			.then((rows) => {
 				if (!cancelled) {

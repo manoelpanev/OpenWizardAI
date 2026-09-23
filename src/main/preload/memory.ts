@@ -1,7 +1,7 @@
 /**
  * Preload API for per-project memory (Claude Code).
  *
- * Exposes the window.maestro.memory namespace. Backed by IPC handlers
+ * Exposes the window.openwizardai.memory namespace. Backed by IPC handlers
  * registered in src/main/ipc/handlers/memory.ts.
  */
 

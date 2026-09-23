@@ -206,7 +206,7 @@ describe('AutoRunnerHelpModal', () => {
 
 		it('should render Halt Marker section', () => {
 			expect(screen.getByText('Halt Marker (Agent Early Exit)')).toBeInTheDocument();
-			expect(screen.getByText('<!-- maestro:halt: brief reason here -->')).toBeInTheDocument();
+			expect(screen.getByText('<!-- openwizardai:halt: brief reason here -->')).toBeInTheDocument();
 			expect(screen.getByText(/A stale halt marker left in a document/)).toBeInTheDocument();
 		});
 

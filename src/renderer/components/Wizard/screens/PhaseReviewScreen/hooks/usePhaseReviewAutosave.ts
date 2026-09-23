@@ -36,7 +36,7 @@ export function usePhaseReviewAutosave({
 		async (content: string) => {
 			if (!currentDoc) return;
 
-			await window.maestro.autorun.writeDoc(folderPath, currentDoc.filename, content);
+			await window.openwizardai.autorun.writeDoc(folderPath, currentDoc.filename, content);
 			lastSavedContentRef.current = content;
 			if (currentDocumentIndex === 0) {
 				setEditedPhase1Content(content);

@@ -124,23 +124,23 @@ const mockOnExit = vi.fn();
 const mockOnSessionId = vi.fn();
 const mockOnAgentError = vi.fn();
 
-const existingWindowMaestro = (window as any).maestro;
+const existingWindowOpenWizardAI = (window as any).openwizardai;
 
 beforeEach(() => {
 	vi.clearAllMocks();
 	mockCueModalOpen = false;
 
-	(window as any).maestro = {
-		...existingWindowMaestro,
+	(window as any).openwizardai = {
+		...existingWindowOpenWizardAI,
 		cue: {
-			...existingWindowMaestro?.cue,
+			...existingWindowOpenWizardAI?.cue,
 			readYaml: mockReadYaml,
 			writeYaml: mockWriteYaml,
 			validateYaml: mockValidateYaml,
 			refreshSession: mockRefreshSession,
 		},
 		process: {
-			...existingWindowMaestro?.process,
+			...existingWindowOpenWizardAI?.process,
 			spawn: mockSpawn,
 			onData: mockOnData,
 			onExit: mockOnExit,
@@ -173,7 +173,7 @@ beforeEach(() => {
 
 afterEach(() => {
 	vi.restoreAllMocks();
-	(window as any).maestro = existingWindowMaestro;
+	(window as any).openwizardai = existingWindowOpenWizardAI;
 });
 
 const defaultProps = {
@@ -260,7 +260,7 @@ describe('CueYamlEditor', () => {
 
 			await waitFor(() => {
 				const editor = screen.getByTestId('yaml-editor') as HTMLTextAreaElement;
-				expect(editor.value).toContain('# .maestro/cue.yaml');
+				expect(editor.value).toContain('# .openwizardai/cue.yaml');
 			});
 		});
 
@@ -271,7 +271,7 @@ describe('CueYamlEditor', () => {
 
 			await waitFor(() => {
 				const editor = screen.getByTestId('yaml-editor') as HTMLTextAreaElement;
-				expect(editor.value).toContain('# .maestro/cue.yaml');
+				expect(editor.value).toContain('# .openwizardai/cue.yaml');
 			});
 		});
 	});
@@ -468,14 +468,14 @@ describe('CueYamlEditor', () => {
 			await waitFor(() => {
 				expect(mockBuildSpawnConfig).toHaveBeenCalledWith(
 					expect.objectContaining({
-						prompt: expect.stringContaining('configuring maestro-cue.yaml'),
+						prompt: expect.stringContaining('configuring openwizardai-cue.yaml'),
 					})
 				);
 			});
 
 			// Should include the file path
 			const prompt = mockBuildSpawnConfig.mock.calls[0][0].prompt;
-			expect(prompt).toContain('/test/project/.maestro/cue.yaml');
+			expect(prompt).toContain('/test/project/.openwizardai/cue.yaml');
 			expect(prompt).toContain('Run code review');
 		});
 

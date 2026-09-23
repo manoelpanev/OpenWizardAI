@@ -69,7 +69,7 @@ describe('PipelineToolbar', () => {
 		expect(typeof setAgentDrawerOpen.mock.calls[0][0]).toBe('function');
 	});
 
-	it('does not render a Settings gear button (moved to Settings → Encore Features → Maestro Cue)', () => {
+	it('does not render a Settings gear button (moved to Settings → Encore Features → OpenWizardAI Cue)', () => {
 		const props = buildProps();
 		render(<PipelineToolbar {...props} />);
 		expect(screen.queryByTitle('Global Cue settings')).not.toBeInTheDocument();

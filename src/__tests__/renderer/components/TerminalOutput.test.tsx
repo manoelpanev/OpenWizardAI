@@ -2809,7 +2809,7 @@ describe('TerminalOutput', () => {
 		});
 
 		it('shows the AI command body as raw source in markdown edit mode', () => {
-			const url = 'https://github.com/RunMaestro/Maestro/pull/738';
+			const url = 'https://github.com/manoelpanev/OpenWizardAI/pull/738';
 			const logs: LogEntry[] = [
 				createLogEntry({
 					text: `Review the open PR comments and respond.\n${url}`,
@@ -2837,7 +2837,7 @@ describe('TerminalOutput', () => {
 			expect(link).toHaveAttribute('href', url);
 
 			fireEvent.click(link);
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(url);
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(url);
 		});
 	});
 
@@ -3469,7 +3469,7 @@ describe('TerminalOutput', () => {
 			// "Adaptive Mode: switched ..." system entry just before the streamed
 			// response. `collapsedLogs` merges the consecutive non-user entries into
 			// one block; basing the merged entry only on `[0]` inherited the banner's
-			// missing renderStyle and mislabeled the maestro-p turn as "API".
+			// missing renderStyle and mislabeled the openwizardai-p turn as "API".
 			const logs: LogEntry[] = [
 				createLogEntry({ id: 'user-1', text: 'prompt', source: 'user' }),
 				createLogEntry({
@@ -3515,7 +3515,7 @@ describe('TerminalOutput', () => {
 			];
 
 			const session = createDefaultSession({
-				enableMaestroP: true,
+				enableOpenWizardAIP: true,
 				tabs: [{ id: 'tab-1', agentSessionId: 'claude-123', logs, isUnread: false }],
 				activeTabId: 'tab-1',
 			});
@@ -3528,7 +3528,7 @@ describe('TerminalOutput', () => {
 			expect(screen.queryByText('claude -p')).not.toBeInTheDocument();
 		});
 
-		it('omits the "Dynamic" prefix when the session pins maestro-p mode (forced TUI / API)', () => {
+		it('omits the "Dynamic" prefix when the session pins openwizardai-p mode (forced TUI / API)', () => {
 			const logs: LogEntry[] = [
 				createLogEntry({ id: 'user-1', text: 'first prompt', source: 'user' }),
 				createLogEntry({
@@ -3546,11 +3546,11 @@ describe('TerminalOutput', () => {
 				}),
 			];
 
-			// Forced TUI: enableMaestroP on + maestroPMode 'interactive' is NOT
+			// Forced TUI: enableOpenWizardAIP on + openwizardaiPMode 'interactive' is NOT
 			// adaptive - only Dynamic mode auto-switches, so the prefix must drop.
 			const session = createDefaultSession({
-				enableMaestroP: true,
-				maestroPMode: 'interactive',
+				enableOpenWizardAIP: true,
+				openwizardaiPMode: 'interactive',
 				tabs: [{ id: 'tab-1', agentSessionId: 'claude-123', logs, isUnread: false }],
 				activeTabId: 'tab-1',
 			});

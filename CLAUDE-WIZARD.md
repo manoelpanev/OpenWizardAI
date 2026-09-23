@@ -1,6 +1,6 @@
 # CLAUDE-WIZARD.md
 
-Wizard documentation for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+Wizard documentation for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]].
 
 ## Onboarding Wizard
 
@@ -10,7 +10,7 @@ The wizard (`src/renderer/components/Wizard/`) guides new users through first-ru
 
 ```
 src/renderer/components/Wizard/
-├── MaestroWizard.tsx           # Main orchestrator, screen transitions
+├── OpenWizardAIWizard.tsx           # Main orchestrator, screen transitions
 ├── WizardContext.tsx           # State management (useReducer pattern)
 ├── WizardResumeModal.tsx       # Resume incomplete wizard dialog
 ├── WizardExitConfirmModal.tsx  # Exit confirmation dialog
@@ -38,12 +38,12 @@ src/renderer/components/Wizard/
 3. **Conversation** → With files in the folder the AGENT opens; otherwise it asks a clarifying question. Builds a confidence score (0-100)
 4. **Phase Review** → View/edit generated Phase 1 document, choose to start tour
 
-When confidence reaches 80+ and agent signals "ready", user proceeds to Phase Review where Auto Run documents are generated and saved to `.maestro/playbooks/initiation/`. The `initiation/` subfolder keeps wizard-generated documents separate from user-created playbooks.
+When confidence reaches 80+ and agent signals "ready", user proceeds to Phase Review where Auto Run documents are generated and saved to `.openwizardai/playbooks/initiation/`. The `initiation/` subfolder keeps wizard-generated documents separate from user-created playbooks.
 
 #### Agent name vs project name (issue #1225)
 
 They used to be one string, so naming an agent put that name in the discovery
-prompt as `{{PROJECT_NAME}}` ("Hello Maestro" for a project called something
+prompt as `{{PROJECT_NAME}}` ("Hello OpenWizardAI" for a project called something
 else). `shared/projectIdentity.ts` splits them:
 
 - `projectNameFromPath()` - the PROJECT, always the folder. Every
@@ -127,7 +127,7 @@ The Wizard maintains two types of state:
    - Must be reset when opening wizard after completion
 
 2. **Persisted State** (Settings)
-   - Stored in `wizardResumeState` via `window.maestro.settings`
+   - Stored in `wizardResumeState` via `window.openwizardai.settings`
    - Enables resume functionality across app restarts
    - Automatically saved when advancing past step 1
    - Cleared on completion or when user chooses "Just Quit"
@@ -135,12 +135,12 @@ The Wizard maintains two types of state:
 **State Save Triggers:**
 
 - Auto-save: When `currentStep` changes (step > 1) - `WizardContext.tsx` useEffect with `saveResumeState()`
-- Manual save: User clicks "Save & Exit" - `MaestroWizard.tsx` `handleConfirmExit()`
+- Manual save: User clicks "Save & Exit" - `OpenWizardAIWizard.tsx` `handleConfirmExit()`
 
 **State Clear Triggers:**
 
 - Wizard completion: `App.tsx` wizard completion handler + `WizardContext.tsx` `COMPLETE_WIZARD` action
-- User quits: "Quit without saving" button - `MaestroWizard.tsx` `handleQuitWithoutSaving()`
+- User quits: "Quit without saving" button - `OpenWizardAIWizard.tsx` `handleQuitWithoutSaving()`
 - User starts fresh: "Start Fresh" in resume modal - `App.tsx` resume handlers
 
 **Opening Wizard Logic:**
@@ -225,7 +225,7 @@ The Inline Wizard creates Auto Run Playbook documents from within an existing ag
 
 - Multiple wizards can run in different tabs simultaneously
 - Wizard state is **per-tab** (`AITab.wizardState`), not per-agent
-- Documents written to unique subfolder under playbooks folder (e.g., `.maestro/playbooks/project-name/`)
+- Documents written to unique subfolder under playbooks folder (e.g., `.openwizardai/playbooks/project-name/`)
 - Tab starts on the `Wizard` placeholder, then auto-names itself `wizard: {Topic}`
   from the `/wizard <input>` argument or the first message typed into it
   (`requestWizardTabAutoName` in `src/renderer/services/tabAutoNaming.ts`). The

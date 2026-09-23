@@ -116,8 +116,8 @@ describe('XTerminal auto-copy selection', () => {
 		mockResize.mockReset();
 		mockOnData.mockReset();
 		mockOnData.mockReturnValue(() => {});
-		window.maestro.process.onData = mockOnData;
-		window.maestro.process.resize = mockResize.mockResolvedValue(undefined);
+		window.openwizardai.process.onData = mockOnData;
+		window.openwizardai.process.resize = mockResize.mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {

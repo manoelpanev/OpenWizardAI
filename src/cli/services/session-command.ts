@@ -5,7 +5,7 @@
 // non-zero on failure. Centralizing that here keeps the per-command files thin
 // and the behavior consistent across the whole CLI surface.
 
-import { withMaestroClient } from './maestro-client';
+import { withOpenWizardAIClient } from './openwizardai-client';
 import { resolveAgentId, readActiveAgentId } from './storage';
 import type { DesktopTabEntry } from '../../shared/desktopTabs';
 
@@ -24,7 +24,9 @@ export async function sendSimpleCommand(
 	payload: Record<string, unknown>,
 	responseType: string
 ): Promise<SimpleResult> {
-	return withMaestroClient((client) => client.sendCommand<SimpleResult>(payload, responseType));
+	return withOpenWizardAIClient((client) =>
+		client.sendCommand<SimpleResult>(payload, responseType)
+	);
 }
 
 /** Print an error (JSON-aware) and exit non-zero. Never returns. */
@@ -69,7 +71,7 @@ export function resolveAgentOrFail(agentId: string, json?: boolean): string {
  * ordering, so do not sort the result.
  */
 export async function listDesktopTabs(): Promise<DesktopTabEntry[]> {
-	const res = await withMaestroClient((client) =>
+	const res = await withOpenWizardAIClient((client) =>
 		client.sendCommand<{ sessions?: DesktopTabEntry[] }>(
 			{ type: 'list_desktop_sessions' },
 			'desktop_sessions_list'

@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { dragHasOsFiles, getDroppedPaths } from '../../../renderer/utils/osFileDrop';
 
 const mockGetPathForFile = vi.fn();
-(window as any).maestro = {
+(window as any).openwizardai = {
 	fs: { getPathForFile: (file: unknown) => mockGetPathForFile(file) },
 };
 
@@ -22,7 +22,9 @@ describe('osFileDrop', () => {
 		});
 
 		it('returns false for internal element drags', () => {
-			expect(dragHasOsFiles(makeDataTransfer(['application/x-maestro-file-path']))).toBe(false);
+			expect(dragHasOsFiles(makeDataTransfer(['application/x-openwizardai-file-path']))).toBe(
+				false
+			);
 		});
 
 		it('returns false for a null dataTransfer', () => {

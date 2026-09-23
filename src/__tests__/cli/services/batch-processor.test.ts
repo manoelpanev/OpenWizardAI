@@ -42,11 +42,11 @@ vi.mock('../../../cli/services/agent-spawner', () => ({
 }));
 
 // Mock the CLI system-prompt builder. Real-impl would read the bundled
-// `maestro-system-prompt` template from disk + call git - neither is
+// `openwizardai-system-prompt` template from disk + call git - neither is
 // available or interesting under unit tests. We can still observe whether
 // runPlaybook calls it and what it produces by tweaking the mock per test.
 vi.mock('../../../cli/services/system-prompt', () => ({
-	prepareMaestroSystemPromptCli: vi.fn(),
+	prepareOpenWizardAISystemPromptCli: vi.fn(),
 }));
 
 // Mock CLI prompt-loader so batch-processor can read the default Auto Run
@@ -95,7 +95,7 @@ import {
 } from '../../../cli/services/agent-spawner';
 import { addHistoryEntry, readGroups } from '../../../cli/services/storage';
 import { registerCliActivity, unregisterCliActivity } from '../../../shared/cli-activity';
-import { prepareMaestroSystemPromptCli } from '../../../cli/services/system-prompt';
+import { prepareOpenWizardAISystemPromptCli } from '../../../cli/services/system-prompt';
 import { getCliTaskSelectionBlock } from '../../../cli/services/prompt-loader';
 
 describe('batch-processor', () => {
@@ -149,7 +149,7 @@ describe('batch-processor', () => {
 		// Default: system prompt builder returns undefined (matches the
 		// non-fatal fallback when the template can't be loaded). Tests that
 		// care about positive-case wiring override this in-test.
-		vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue(undefined);
+		vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -354,8 +354,8 @@ describe('batch-processor', () => {
 			expect(taskCompleteEvents[0]?.success).toBe(true);
 		});
 
-		it('injects the Maestro system prompt into the task spawn (parity with desktop Auto Run)', async () => {
-			vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue('the maestro context');
+		it('injects the OpenWizardAI system prompt into the task spawn (parity with desktop Auto Run)', async () => {
+			vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue('the openwizardai context');
 			let callCount = 0;
 			vi.mocked(readDocAndCountTasks).mockImplementation(() => {
 				callCount++;
@@ -368,14 +368,14 @@ describe('batch-processor', () => {
 
 			await collectEvents(runPlaybook(session, playbook, '/playbooks'));
 
-			expect(prepareMaestroSystemPromptCli).toHaveBeenCalledWith(session);
+			expect(prepareOpenWizardAISystemPromptCli).toHaveBeenCalledWith(session);
 			// Spawn call #0 is the task spawn - must carry appendSystemPrompt
 			const taskSpawnOpts = vi.mocked(spawnAgent).mock.calls[0][4];
-			expect(taskSpawnOpts?.appendSystemPrompt).toBe('the maestro context');
+			expect(taskSpawnOpts?.appendSystemPrompt).toBe('the openwizardai context');
 		});
 
-		it('omits the Maestro system prompt from the synopsis spawn (resume reuses the existing transcript)', async () => {
-			vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue('the maestro context');
+		it('omits the OpenWizardAI system prompt from the synopsis spawn (resume reuses the existing transcript)', async () => {
+			vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue('the openwizardai context');
 			let callCount = 0;
 			vi.mocked(readDocAndCountTasks).mockImplementation(() => {
 				callCount++;
@@ -402,7 +402,7 @@ describe('batch-processor', () => {
 		});
 
 		it('builds the system prompt once per playbook run, not once per task', async () => {
-			vi.mocked(prepareMaestroSystemPromptCli).mockResolvedValue('the maestro context');
+			vi.mocked(prepareOpenWizardAISystemPromptCli).mockResolvedValue('the openwizardai context');
 			// Three tasks then completion: scan + processing call + after-task call
 			let callCount = 0;
 			vi.mocked(readDocAndCountTasks).mockImplementation(() => {
@@ -419,7 +419,7 @@ describe('batch-processor', () => {
 			// Called exactly once for the playbook, not per-task - important for
 			// avoiding repeated git execFile + prompt-read overhead inside the
 			// task loop.
-			expect(prepareMaestroSystemPromptCli).toHaveBeenCalledTimes(1);
+			expect(prepareOpenWizardAISystemPromptCli).toHaveBeenCalledTimes(1);
 		});
 
 		it('should call spawnAgent with combined prompt and document', async () => {
@@ -1207,28 +1207,28 @@ describe('batch-processor', () => {
 		});
 
 		it('returns halted=true with no reason for the bare marker', () => {
-			expect(detectHaltMarker('- [x] Task\n<!-- maestro:halt -->')).toEqual({
+			expect(detectHaltMarker('- [x] Task\n<!-- openwizardai:halt -->')).toEqual({
 				halted: true,
 				reason: undefined,
 			});
 		});
 
 		it('returns halted=true with reason for the colon form', () => {
-			expect(detectHaltMarker('- [x] Task\n<!-- maestro:halt: build is broken -->')).toEqual({
+			expect(detectHaltMarker('- [x] Task\n<!-- openwizardai:halt: build is broken -->')).toEqual({
 				halted: true,
 				reason: 'build is broken',
 			});
 		});
 
 		it('is case-insensitive on the marker keyword', () => {
-			expect(detectHaltMarker('<!-- MAESTRO:HALT: nope -->')).toEqual({
+			expect(detectHaltMarker('<!-- OPENWIZARDAI:HALT: nope -->')).toEqual({
 				halted: true,
 				reason: 'nope',
 			});
 		});
 
 		it('tolerates whitespace inside the marker', () => {
-			expect(detectHaltMarker('<!--   maestro:halt   :   spaced out   -->')).toEqual({
+			expect(detectHaltMarker('<!--   openwizardai:halt   :   spaced out   -->')).toEqual({
 				halted: true,
 				reason: 'spaced out',
 			});
@@ -1236,14 +1236,14 @@ describe('batch-processor', () => {
 
 		it('does not match unrelated comments', () => {
 			expect(detectHaltMarker('<!-- TODO: halt later -->')).toEqual({ halted: false });
-			expect(detectHaltMarker('<!-- maestro:something -->')).toEqual({ halted: false });
+			expect(detectHaltMarker('<!-- openwizardai:something -->')).toEqual({ halted: false });
 		});
 	});
 
 	describe('runPlaybook - halt marker pre-scan', () => {
 		it('emits HALT_MARKER_PRESENT error when a stale marker exists before any work', async () => {
 			vi.mocked(readDocAndCountTasks).mockReturnValue({
-				content: '- [ ] Task\n<!-- maestro:halt: stale from prior run -->',
+				content: '- [ ] Task\n<!-- openwizardai:halt: stale from prior run -->',
 				taskCount: 1,
 			});
 
@@ -1264,7 +1264,7 @@ describe('batch-processor', () => {
 
 		it('names the line so the user can find the invisible comment', async () => {
 			vi.mocked(readDocAndCountTasks).mockReturnValue({
-				content: '# Doc\n\n- [ ] Task\n<!-- maestro:halt: stale -->',
+				content: '# Doc\n\n- [ ] Task\n<!-- openwizardai:halt: stale -->',
 				taskCount: 1,
 			});
 
@@ -1280,10 +1280,10 @@ describe('batch-processor', () => {
 			// the run. Calls 1-4 are the scans; call 5+ is the post-spawn re-read,
 			// which reports the task done so the loop terminates.
 			const described = [
-				'If the build breaks, halt with `<!-- maestro:halt: reason -->`.',
+				'If the build breaks, halt with `<!-- openwizardai:halt: reason -->`.',
 				'',
 				'```markdown',
-				'<!-- maestro:halt: brief reason here -->',
+				'<!-- openwizardai:halt: brief reason here -->',
 				'```',
 			];
 			let callCount = 0;
@@ -1293,14 +1293,14 @@ describe('batch-processor', () => {
 					? {
 							content: [
 								...described,
-								'- [ ] Build it <!-- maestro:halt: only when unrecoverable -->',
+								'- [ ] Build it <!-- openwizardai:halt: only when unrecoverable -->',
 							].join('\n'),
 							taskCount: 1,
 						}
 					: {
 							content: [
 								...described,
-								'- [x] Build it <!-- maestro:halt: only when unrecoverable -->',
+								'- [x] Build it <!-- openwizardai:halt: only when unrecoverable -->',
 							].join('\n'),
 							taskCount: 0,
 						};
@@ -1409,7 +1409,7 @@ describe('batch-processor', () => {
 			// A batch run has no human to tick the box, so waiting is not an option.
 			vi.mocked(readDocAndCountTasks).mockReturnValue({
 				content: [
-					'<!-- MAESTRO:HITL reason="Add SENDGRID_API_KEY to .env" artifact="https://example.com" -->',
+					'<!-- OPENWIZARDAI:HITL reason="Add SENDGRID_API_KEY to .env" artifact="https://example.com" -->',
 					'- [ ] Wire the mailer',
 				].join('\n'),
 				taskCount: 1,
@@ -1436,11 +1436,13 @@ describe('batch-processor', () => {
 				call++;
 				return call <= 4
 					? {
-							content: '<!-- MAESTRO:HITL reason="Approve it" -->\n- [x] Approved\n- [ ] Do work',
+							content:
+								'<!-- OPENWIZARDAI:HITL reason="Approve it" -->\n- [x] Approved\n- [ ] Do work',
 							taskCount: 1,
 						}
 					: {
-							content: '<!-- MAESTRO:HITL reason="Approve it" -->\n- [x] Approved\n- [x] Do work',
+							content:
+								'<!-- OPENWIZARDAI:HITL reason="Approve it" -->\n- [x] Approved\n- [x] Do work',
 							taskCount: 0,
 						};
 			});
@@ -1466,7 +1468,7 @@ describe('batch-processor', () => {
 					return { content: '- [ ] Task one\n- [ ] Task two', taskCount: 2 };
 				}
 				return {
-					content: '- [x] Task one\n- [ ] Task two\n<!-- maestro:halt: missing migration -->',
+					content: '- [x] Task one\n- [ ] Task two\n<!-- openwizardai:halt: missing migration -->',
 					taskCount: 1,
 				};
 			});
@@ -1513,7 +1515,7 @@ describe('batch-processor', () => {
 				}
 				// Same task count - agent left it unchecked but wrote the marker
 				return {
-					content: '- [ ] Task one\n<!-- maestro:halt: cannot proceed -->',
+					content: '- [ ] Task one\n<!-- openwizardai:halt: cannot proceed -->',
 					taskCount: 1,
 				};
 			});
@@ -1547,7 +1549,7 @@ describe('batch-processor', () => {
 		};
 
 		it('spawns the task with the tier model and reports the resolution', async () => {
-			singleTaskDocument('<!-- MAESTRO:MODEL tier="high" effort="high" -->\n- [ ] Task one');
+			singleTaskDocument('<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->\n- [ ] Task one');
 
 			const session = mockSession({ toolType: 'claude-code', customModel: 'sonnet' });
 			const events = await collectEvents(
@@ -1567,7 +1569,7 @@ describe('batch-processor', () => {
 		});
 
 		it('falls back to the agent model AND warns when the provider has no tier mapping', async () => {
-			singleTaskDocument('<!-- MAESTRO:MODEL tier="high" -->\n- [ ] Task one');
+			singleTaskDocument('<!-- OPENWIZARDAI:MODEL tier="high" -->\n- [ ] Task one');
 
 			// OpenCode's catalogue is whatever the user configured, so a tier hint
 			// has nothing to resolve to. Running anyway is right; running silently
@@ -1602,7 +1604,7 @@ describe('batch-processor', () => {
 		});
 
 		it('runs the synopsis at the bottom of both ladders even when the task ran at the top', async () => {
-			singleTaskDocument('<!-- MAESTRO:MODEL tier="high" effort="high" -->\n- [ ] Task one');
+			singleTaskDocument('<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->\n- [ ] Task one');
 			vi.mocked(spawnAgent).mockResolvedValue({
 				success: true,
 				response: '**Summary:** ok\n**Details:** ok',

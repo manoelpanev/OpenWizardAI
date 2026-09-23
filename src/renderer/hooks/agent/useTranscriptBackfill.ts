@@ -144,7 +144,7 @@ export function useTranscriptBackfill(
 						(windowRef.current ?? Math.max(visible.length, TRANSCRIPT_RESUME_READ_LIMIT)) +
 						TRANSCRIPT_BACKFILL_PAGE;
 
-					const result = await window.maestro.agentSessions.read(
+					const result = await window.openwizardai.agentSessions.read(
 						toolType || 'claude-code',
 						projectRoot,
 						agentSessionId,

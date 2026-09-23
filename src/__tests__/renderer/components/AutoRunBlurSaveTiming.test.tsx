@@ -139,9 +139,9 @@ vi.mock('../../../renderer/components/TemplateAutocompleteDropdown', () => ({
 	TemplateAutocompleteDropdown: React.forwardRef(() => null),
 }));
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -158,8 +158,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Default props for AutoRun component
@@ -181,10 +181,10 @@ const createDefaultProps = (overrides: Partial<React.ComponentProps<typeof AutoR
 });
 
 describe('AutoRun Save Path Correctness', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -214,8 +214,8 @@ describe('AutoRun Save Path Correctness', () => {
 			});
 
 			// Verify writeDoc was called with correct path
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledTimes(1);
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledTimes(1);
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/projects/alpha/docs',
 				'Phase-1.md',
 				'Modified content for alpha',
@@ -240,7 +240,7 @@ describe('AutoRun Save Path Correctness', () => {
 			const saveButton = screen.getByText('Save');
 			fireEvent.click(saveButton);
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/projects/beta/auto-run',
 				'Tasks.md',
 				'Updated tasks list',
@@ -264,7 +264,7 @@ describe('AutoRun Save Path Correctness', () => {
 			// Press Cmd+S
 			fireEvent.keyDown(textarea, { key: 's', metaKey: true });
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/home/user/gamma-project/docs',
 				'README.md',
 				'Updated readme content',
@@ -288,7 +288,7 @@ describe('AutoRun Save Path Correctness', () => {
 			fireEvent.change(textarea, { target: { value: 'Version 2' } });
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenLastCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenLastCalledWith(
 				'/delta/path',
 				'doc1.md',
 				'Version 2',
@@ -302,14 +302,14 @@ describe('AutoRun Save Path Correctness', () => {
 			fireEvent.change(textarea, { target: { value: 'Version 3' } });
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenLastCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenLastCalledWith(
 				'/delta/path',
 				'doc1.md',
 				'Version 3',
 				undefined // sshRemoteId (undefined for local sessions)
 			);
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledTimes(2);
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledTimes(2);
 		});
 	});
 
@@ -339,7 +339,7 @@ describe('AutoRun Save Path Correctness', () => {
 			rerender(<AutoRun {...propsB} />);
 
 			// Verify NO writeDoc was called
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('dirty changes in Session A do not persist after switch to B and back', async () => {
@@ -376,7 +376,7 @@ describe('AutoRun Save Path Correctness', () => {
 			expect(textarea).toHaveValue('Original A');
 
 			// No saves should have occurred
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('switching documents within session discards unsaved changes without saving', async () => {
@@ -396,7 +396,7 @@ describe('AutoRun Save Path Correctness', () => {
 			rerender(<AutoRun {...props} selectedFile="doc2" content="Doc 2 content" />);
 
 			// No save should occur
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 
 			// New document content shown
 			expect(textarea).toHaveValue('Doc 2 content');
@@ -423,7 +423,7 @@ describe('AutoRun Save Path Correctness', () => {
 				await ref.current?.save();
 			});
 
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('typing same content as original clears dirty state', async () => {
@@ -468,7 +468,7 @@ describe('AutoRun Save Path Correctness', () => {
 				await ref.current?.save();
 			});
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledTimes(1);
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledTimes(1);
 			expect(ref.current?.isDirty()).toBe(false);
 
 			// Try to save again immediately - should not trigger since not dirty
@@ -477,7 +477,7 @@ describe('AutoRun Save Path Correctness', () => {
 			});
 
 			// Still only 1 call
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledTimes(1);
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledTimes(1);
 		});
 
 		it('revert restores savedContent without triggering save', async () => {
@@ -502,7 +502,7 @@ describe('AutoRun Save Path Correctness', () => {
 			expect(ref.current?.isDirty()).toBe(false);
 
 			// No save occurred
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 	});
 
@@ -617,7 +617,7 @@ describe('AutoRun Save Path Correctness', () => {
 			fireEvent.click(screen.getByText('Save'));
 
 			// Should save the final content
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/rapid/test',
 				'rapid-doc.md',
 				'Final typed content',
@@ -639,7 +639,7 @@ describe('AutoRun Save Path Correctness', () => {
 
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/empty/test',
 				'empty-doc.md',
 				'',
@@ -661,7 +661,7 @@ describe('AutoRun Save Path Correctness', () => {
 
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/whitespace/test',
 				'ws-doc.md',
 				'   \n\n   ',
@@ -684,7 +684,7 @@ describe('AutoRun Save Path Correctness', () => {
 
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/special/test',
 				'special-doc.md',
 				specialContent,
@@ -708,7 +708,7 @@ describe('AutoRun Save Path Correctness', () => {
 
 			fireEvent.click(screen.getByText('Save'));
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/long/test',
 				'long-doc.md',
 				longContent,
@@ -760,7 +760,7 @@ describe('AutoRun Save Path Correctness', () => {
 			}
 
 			// No save should occur
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 	});
 
@@ -781,7 +781,7 @@ describe('AutoRun Save Path Correctness', () => {
 				await ref.current?.save();
 			});
 
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('does not save when selectedFile is null', async () => {
@@ -798,16 +798,16 @@ describe('AutoRun Save Path Correctness', () => {
 				await ref.current?.save();
 			});
 
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 	});
 });
 
 describe('AutoRun savedContent state reset behavior', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 

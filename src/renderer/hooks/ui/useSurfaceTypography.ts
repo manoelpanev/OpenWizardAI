@@ -7,7 +7,7 @@
  * CSS at all:
  *
  *   - xterm.js measures glyphs and paints to a canvas, so it needs a real
- *     family string and a real number, not `var(--maestro-font-terminal)`.
+ *     family string and a real number, not `var(--openwizardai-font-terminal)`.
  *   - CodeMirror 6 compiles its theme into a StyleModule at configure time and
  *     owns `.cm-scroller`'s font, so the value has to be threaded in as a prop.
  *

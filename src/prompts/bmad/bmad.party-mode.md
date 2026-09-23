@@ -193,7 +193,7 @@ If conversation naturally concludes:
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizardAI prompt remains self-contained.
 
 ## src/core/skills/bmad-party-mode/steps/step-02-discussion-orchestration.md
 

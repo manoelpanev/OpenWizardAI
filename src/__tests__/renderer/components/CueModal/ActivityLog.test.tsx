@@ -49,7 +49,7 @@ function makeRun(overrides: Partial<CueRunResult> = {}): CueRunResult {
 	return {
 		runId: 'run-1',
 		sessionId: 'agent-1',
-		sessionName: 'Maestro',
+		sessionName: 'OpenWizardAI',
 		subscriptionName: 'nightly',
 		event: {
 			id: 'evt-1',

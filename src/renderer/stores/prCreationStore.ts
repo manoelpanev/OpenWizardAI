@@ -88,7 +88,7 @@ export const usePRCreationStore = create<PRCreationStore>()((set, get) => ({
 				return { runs: { ...state.runs, [key]: { ...current, ...patch, announced: false } } };
 			});
 
-		void window.maestro.git
+		void window.openwizardai.git
 			.createPR(target.worktreePath, target.targetBranch, target.title, target.description)
 			.then((result) => {
 				if (result.success && result.prUrl) {

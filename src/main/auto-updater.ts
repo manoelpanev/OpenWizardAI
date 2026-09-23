@@ -1,5 +1,5 @@
 /**
- * Auto-updater module for Maestro
+ * Auto-updater module for OpenWizardAI
  * Uses electron-updater to download and install updates from GitHub releases
  *
  * Note: electron-updater accesses electron.app at module load time, so we use

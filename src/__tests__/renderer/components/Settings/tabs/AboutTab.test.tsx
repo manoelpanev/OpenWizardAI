@@ -2,7 +2,7 @@
  * Tests for AboutTab - the large-format informational About panel.
  *
  * Verifies the wordmark, tagline, version, origin caption, and that the
- * Texas flag (rendered via the shared MaestroFlags component) links to
+ * Texas flag (rendered via the shared OpenWizardAIFlags component) links to
  * the San Jac Saloon.
  */
 
@@ -36,7 +36,7 @@ describe('AboutTab', () => {
 
 	it('renders the wordmark and tagline', () => {
 		render(<AboutTab theme={theme} />);
-		expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
+		expect(screen.getByText('OPENWIZARDAI')).toBeInTheDocument();
 		expect(screen.getByText('Agent Orchestration Command Center')).toBeInTheDocument();
 	});
 

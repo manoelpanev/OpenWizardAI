@@ -1960,7 +1960,7 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) =>
-						type === 'application/x-maestro-file-path' ? 'src/main/index.ts' : '',
+						type === 'application/x-openwizardai-file-path' ? 'src/main/index.ts' : '',
 					files: { length: 0 } as any,
 				},
 			} as unknown as React.DragEvent;
@@ -1981,10 +1981,10 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) => {
-						if (type === 'application/x-maestro-file-paths') return JSON.stringify(paths);
+						if (type === 'application/x-openwizardai-file-paths') return JSON.stringify(paths);
 						// Drag start also packs the grabbed row in the single MIME; the
 						// multi MIME must take precedence so every selected path lands.
-						if (type === 'application/x-maestro-file-path') return 'src/a.ts';
+						if (type === 'application/x-openwizardai-file-path') return 'src/a.ts';
 						return '';
 					},
 					files: { length: 0 } as any,
@@ -2010,7 +2010,7 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) =>
-						type === 'application/x-maestro-file-path' ? 'README.md' : '',
+						type === 'application/x-openwizardai-file-path' ? 'README.md' : '',
 					files: { length: 0 } as any,
 				},
 			} as unknown as React.DragEvent;
@@ -2035,7 +2035,7 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) =>
-						type === 'application/x-maestro-file-path' ? 'src/main/index.ts' : '',
+						type === 'application/x-openwizardai-file-path' ? 'src/main/index.ts' : '',
 					files: { length: 0 } as any,
 				},
 			} as unknown as React.DragEvent;
@@ -2224,7 +2224,7 @@ describe('useInputHandlers', () => {
 
 		it('stages an image when an image path is dragged from the Files panel', async () => {
 			const dataUrl = 'data:image/png;base64,FAKEPNG';
-			vi.mocked(window.maestro.fs.readFile).mockResolvedValueOnce(dataUrl);
+			vi.mocked(window.openwizardai.fs.readFile).mockResolvedValueOnce(dataUrl);
 
 			const deps = createMockDeps();
 			const { result } = renderHook(() => useInputHandlers(deps));
@@ -2233,7 +2233,7 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) =>
-						type === 'application/x-maestro-file-path' ? 'assets/logo.png' : '',
+						type === 'application/x-openwizardai-file-path' ? 'assets/logo.png' : '',
 					files: { length: 0 } as any,
 				},
 			} as unknown as React.DragEvent;
@@ -2244,7 +2244,10 @@ describe('useInputHandlers', () => {
 				await Promise.resolve();
 			});
 
-			expect(window.maestro.fs.readFile).toHaveBeenCalledWith('/test/assets/logo.png', undefined);
+			expect(window.openwizardai.fs.readFile).toHaveBeenCalledWith(
+				'/test/assets/logo.png',
+				undefined
+			);
 			const sessions = useSessionStore.getState().sessions;
 			const tab = sessions[0].aiTabs.find((t: any) => t.id === 'tab-1');
 			expect(tab?.stagedImages).toEqual([dataUrl]);
@@ -2253,7 +2256,7 @@ describe('useInputHandlers', () => {
 		});
 
 		it('does not stage anything when the IPC returns a non-data-url string for an image path', async () => {
-			vi.mocked(window.maestro.fs.readFile).mockResolvedValueOnce('not a data url');
+			vi.mocked(window.openwizardai.fs.readFile).mockResolvedValueOnce('not a data url');
 
 			const deps = createMockDeps();
 			const { result } = renderHook(() => useInputHandlers(deps));
@@ -2262,7 +2265,7 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) =>
-						type === 'application/x-maestro-file-path' ? 'assets/logo.png' : '',
+						type === 'application/x-openwizardai-file-path' ? 'assets/logo.png' : '',
 					files: { length: 0 } as any,
 				},
 			} as unknown as React.DragEvent;
@@ -2287,7 +2290,7 @@ describe('useInputHandlers', () => {
 				preventDefault: vi.fn(),
 				dataTransfer: {
 					getData: (type: string) =>
-						type === 'application/x-maestro-file-path' ? 'src/util.ts' : '',
+						type === 'application/x-openwizardai-file-path' ? 'src/util.ts' : '',
 					files: { length: 0 } as any,
 				},
 			} as unknown as React.DragEvent;
@@ -2297,7 +2300,7 @@ describe('useInputHandlers', () => {
 			});
 
 			expect(inputVal()).toBe('@src/util.ts ');
-			expect(window.maestro.fs.readFile).not.toHaveBeenCalled();
+			expect(window.openwizardai.fs.readFile).not.toHaveBeenCalled();
 		});
 
 		it('relativizes a Windows-style backslash path inside a Windows-style project root', () => {

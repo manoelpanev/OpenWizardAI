@@ -151,7 +151,7 @@ Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
 const originalResizeObserver = global.ResizeObserver;
 global.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
 
-// Mock maestro API
+// Mock openwizardai API
 const mockGetAggregation = vi.fn();
 const mockExportCsv = vi.fn();
 const mockOnStatsUpdate = vi.fn(() => vi.fn());
@@ -161,7 +161,7 @@ const mockGetDatabaseSize = vi.fn();
 const mockSaveFile = vi.fn();
 const mockWriteFile = vi.fn();
 
-Object.defineProperty(window, 'maestro', {
+Object.defineProperty(window, 'openwizardai', {
 	value: {
 		stats: {
 			getAggregation: mockGetAggregation,
@@ -174,7 +174,7 @@ Object.defineProperty(window, 'maestro', {
 		dialog: { saveFile: mockSaveFile },
 		fs: { writeFile: mockWriteFile },
 		// Usage snapshot samplers fired by the dashboard's quota-on-open effect.
-		// Without these the effect throws on `window.maestro.agents` and leaks an
+		// Without these the effect throws on `window.openwizardai.agents` and leaks an
 		// unhandled rejection.
 		agents: {
 			refreshClaudeUsageSnapshots: vi.fn().mockResolvedValue({ refreshed: 0 }),

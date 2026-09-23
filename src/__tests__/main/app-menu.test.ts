@@ -120,7 +120,7 @@ describe('app menu', () => {
 
 		const commands = lastTemplate()
 			.flatMap((menu) => menu.submenu ?? [])
-			.filter((item) => item.click && item.label !== 'Quit OpenWizzard');
+			.filter((item) => item.click && item.label !== 'Quit OpenWizardAI');
 
 		expect(commands.length).toBeGreaterThan(0);
 		for (const item of commands) {

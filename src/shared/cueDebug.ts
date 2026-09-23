@@ -6,12 +6,12 @@
  * Lines are prefixed with `[CueDebug]` so they can be grepped from either the
  * renderer DevTools console or the `npm run dev` terminal (main process) and
  * pasted into a debugging conversation with the user/assistant. Set
- * `MAESTRO_CUE_DEBUG=0` to silence.
+ * `OPENWIZARDAI_CUE_DEBUG=0` to silence.
  */
 
 const ENABLED = (() => {
 	try {
-		return typeof process !== 'undefined' && process.env?.MAESTRO_CUE_DEBUG !== '0';
+		return typeof process !== 'undefined' && process.env?.OPENWIZARDAI_CUE_DEBUG !== '0';
 	} catch {
 		return true;
 	}

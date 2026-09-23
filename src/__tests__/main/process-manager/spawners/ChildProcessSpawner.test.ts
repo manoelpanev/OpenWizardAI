@@ -71,7 +71,7 @@ vi.mock('../../../../main/agents', () => ({
 
 vi.mock('../../../../main/process-manager/utils/envBuilder', () => ({
 	buildChildProcessEnv: vi.fn(() => ({ PATH: '/usr/bin' })),
-	collectMaestroEnvVars: vi.fn(() => ({})),
+	collectOpenWizardAIEnvVars: vi.fn(() => ({})),
 }));
 
 vi.mock('../../../../main/process-manager/utils/imageUtils', () => ({
@@ -704,7 +704,7 @@ describe('ChildProcessSpawner', () => {
 			vi.mocked(getAgentCapabilities).mockReturnValueOnce({
 				supportsStreamJsonInput: false,
 			} as any);
-			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/maestro-image-0.png');
+			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/openwizardai-image-0.png');
 
 			const { spawner } = createTestContext();
 
@@ -721,7 +721,7 @@ describe('ChildProcessSpawner', () => {
 
 			const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
 			expect(spawnArgs).toContain('-i');
-			expect(spawnArgs).toContain('/tmp/maestro-image-0.png');
+			expect(spawnArgs).toContain('/tmp/openwizardai-image-0.png');
 			// Should NOT have --input-format since this agent doesn't support it
 			expect(spawnArgs).not.toContain('--input-format');
 		});
@@ -730,7 +730,7 @@ describe('ChildProcessSpawner', () => {
 			vi.mocked(getAgentCapabilities).mockReturnValueOnce({
 				supportsStreamJsonInput: false,
 			} as any);
-			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/maestro-image-0.png');
+			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/openwizardai-image-0.png');
 
 			const { spawner } = createTestContext();
 
@@ -750,7 +750,7 @@ describe('ChildProcessSpawner', () => {
 			const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
 			expect(spawnArgs).toContain('-p');
 			const promptArg = spawnArgs[spawnArgs.indexOf('-p') + 1];
-			expect(promptArg).toContain('@/tmp/maestro-image-0.png');
+			expect(promptArg).toContain('@/tmp/openwizardai-image-0.png');
 			expect(promptArg).toContain('describe this image');
 		});
 	});
@@ -761,7 +761,7 @@ describe('ChildProcessSpawner', () => {
 				supportsStreamJsonInput: false,
 				imageResumeMode: 'prompt-embed',
 			} as any);
-			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/maestro-image-0.png');
+			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/openwizardai-image-0.png');
 
 			const { spawner } = createTestContext();
 
@@ -783,7 +783,7 @@ describe('ChildProcessSpawner', () => {
 			expect(spawnArgs).toContain('--');
 			const promptArg = spawnArgs[spawnArgs.indexOf('--') + 1];
 			expect(promptArg).toContain('[Attached images:');
-			expect(promptArg).toContain('/tmp/maestro-image-0.png');
+			expect(promptArg).toContain('/tmp/openwizardai-image-0.png');
 			expect(promptArg).toContain('describe this image');
 		});
 
@@ -792,7 +792,7 @@ describe('ChildProcessSpawner', () => {
 				supportsStreamJsonInput: false,
 				imageResumeMode: 'prompt-embed',
 			} as any);
-			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/maestro-image-0.png');
+			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/openwizardai-image-0.png');
 
 			const { spawner } = createTestContext();
 
@@ -811,7 +811,7 @@ describe('ChildProcessSpawner', () => {
 			const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
 			// Should have -i flag (initial spawn uses it)
 			expect(spawnArgs).toContain('-i');
-			expect(spawnArgs).toContain('/tmp/maestro-image-0.png');
+			expect(spawnArgs).toContain('/tmp/openwizardai-image-0.png');
 		});
 
 		it('should send modified prompt via stdin in resume mode when promptViaStdin is true', () => {
@@ -819,7 +819,7 @@ describe('ChildProcessSpawner', () => {
 				supportsStreamJsonInput: false,
 				imageResumeMode: 'prompt-embed',
 			} as any);
-			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/maestro-image-0.png');
+			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/openwizardai-image-0.png');
 
 			const { spawner } = createTestContext();
 
@@ -844,7 +844,7 @@ describe('ChildProcessSpawner', () => {
 			// The modified prompt with image prefix should be sent via stdin
 			const writtenData = mockChildProcess.stdin.write.mock.calls[0][0];
 			expect(writtenData).toContain('[Attached images:');
-			expect(writtenData).toContain('/tmp/maestro-image-0.png');
+			expect(writtenData).toContain('/tmp/openwizardai-image-0.png');
 			expect(writtenData).toContain('describe this image');
 		});
 
@@ -854,8 +854,8 @@ describe('ChildProcessSpawner', () => {
 				imageResumeMode: 'prompt-embed',
 			} as any);
 			vi.mocked(saveImageToTempFile)
-				.mockReturnValueOnce('/tmp/maestro-image-0.png')
-				.mockReturnValueOnce('/tmp/maestro-image-1.jpg');
+				.mockReturnValueOnce('/tmp/openwizardai-image-0.png')
+				.mockReturnValueOnce('/tmp/openwizardai-image-1.jpg');
 
 			const { spawner } = createTestContext();
 
@@ -873,8 +873,8 @@ describe('ChildProcessSpawner', () => {
 			const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
 			expect(spawnArgs).not.toContain('-i');
 			const promptArg = spawnArgs[spawnArgs.indexOf('--') + 1];
-			expect(promptArg).toContain('/tmp/maestro-image-0.png');
-			expect(promptArg).toContain('/tmp/maestro-image-1.jpg');
+			expect(promptArg).toContain('/tmp/openwizardai-image-0.png');
+			expect(promptArg).toContain('/tmp/openwizardai-image-1.jpg');
 			expect(promptArg).toContain('compare these images');
 		});
 
@@ -883,7 +883,7 @@ describe('ChildProcessSpawner', () => {
 				supportsStreamJsonInput: false,
 				imageResumeMode: undefined,
 			} as any);
-			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/maestro-image-0.png');
+			vi.mocked(saveImageToTempFile).mockReturnValueOnce('/tmp/openwizardai-image-0.png');
 
 			const { spawner } = createTestContext();
 
@@ -902,18 +902,18 @@ describe('ChildProcessSpawner', () => {
 			const spawnArgs = mockSpawn.mock.calls[0][1] as string[];
 			// Should have -f flag (uses default file-based args)
 			expect(spawnArgs).toContain('-f');
-			expect(spawnArgs).toContain('/tmp/maestro-image-0.png');
+			expect(spawnArgs).toContain('/tmp/openwizardai-image-0.png');
 		});
 	});
 
 	// ----------------------------------------------------------------
-	// Windows batch-file spawning (MAESTRO-Q8)
+	// Windows batch-file spawning (OPENWIZARDAI-Q8)
 	//
 	// Node.js throws "spawn EINVAL" when asked to spawn a .cmd/.bat file
 	// without a shell. npm-installed agent CLIs resolve to such shims on
 	// Windows, so the spawner must auto-enable shell for them.
 	// ----------------------------------------------------------------
-	describe('Windows batch-file handling (MAESTRO-Q8)', () => {
+	describe('Windows batch-file handling (OPENWIZARDAI-Q8)', () => {
 		beforeEach(() => {
 			vi.mocked(isWindows).mockReturnValue(true);
 		});

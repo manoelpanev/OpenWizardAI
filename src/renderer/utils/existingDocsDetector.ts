@@ -5,7 +5,7 @@
  * Used by the inline wizard to determine whether to offer "new" or "iterate" mode.
  */
 
-import { PLAYBOOKS_DIR, LEGACY_PLAYBOOKS_DIR } from '../../shared/maestro-paths';
+import { PLAYBOOKS_DIR, LEGACY_PLAYBOOKS_DIR } from '../../shared/openwizardai-paths';
 import { logger } from './logger';
 
 /**
@@ -22,7 +22,7 @@ export interface ExistingDocument {
 
 /**
  * Build the playbooks folder path for a project.
- * Checks .maestro/playbooks first, falls back to legacy Auto Run Docs.
+ * Checks .openwizardai/playbooks first, falls back to legacy Auto Run Docs.
  *
  * @param projectPath - Root path of the project
  * @returns Full path to the playbooks folder
@@ -44,7 +44,7 @@ export async function resolvePlaybooksFolderPath(projectPath: string): Promise<s
 
 	// Check canonical first
 	try {
-		const result = await window.maestro.autorun.listDocs(canonicalPath);
+		const result = await window.openwizardai.autorun.listDocs(canonicalPath);
 		if (result.success && result.files.length > 0) return canonicalPath;
 	} catch {
 		// ignore
@@ -52,7 +52,7 @@ export async function resolvePlaybooksFolderPath(projectPath: string): Promise<s
 
 	// Check legacy
 	try {
-		const result = await window.maestro.autorun.listDocs(legacyPath);
+		const result = await window.openwizardai.autorun.listDocs(legacyPath);
 		if (result.success && result.files.length > 0) return legacyPath;
 	} catch {
 		// ignore
@@ -64,7 +64,7 @@ export async function resolvePlaybooksFolderPath(projectPath: string): Promise<s
 
 /**
  * Check if a project has existing Auto Run documents.
- * Checks both canonical (.maestro/playbooks) and legacy (Auto Run Docs) locations.
+ * Checks both canonical (.openwizardai/playbooks) and legacy (Auto Run Docs) locations.
  *
  * @param projectPath - Root path of the project (not the playbooks folder)
  * @returns True if either playbooks folder exists and contains at least one .md file
@@ -72,7 +72,7 @@ export async function resolvePlaybooksFolderPath(projectPath: string): Promise<s
 export async function hasExistingAutoRunDocs(projectPath: string): Promise<boolean> {
 	try {
 		const folderPath = await resolvePlaybooksFolderPath(projectPath);
-		const result = await window.maestro.autorun.listDocs(folderPath);
+		const result = await window.openwizardai.autorun.listDocs(folderPath);
 
 		if (!result.success) {
 			return false;
@@ -95,7 +95,7 @@ export async function hasExistingAutoRunDocs(projectPath: string): Promise<boole
 export async function getExistingAutoRunDocs(projectPath: string): Promise<ExistingDocument[]> {
 	try {
 		const folderPath = await resolvePlaybooksFolderPath(projectPath);
-		const result = await window.maestro.autorun.listDocs(folderPath);
+		const result = await window.openwizardai.autorun.listDocs(folderPath);
 
 		if (!result.success || !result.files) {
 			return [];
@@ -121,7 +121,7 @@ export async function getExistingAutoRunDocs(projectPath: string): Promise<Exist
 export async function getExistingAutoRunDocsCount(projectPath: string): Promise<number> {
 	try {
 		const folderPath = await resolvePlaybooksFolderPath(projectPath);
-		const result = await window.maestro.autorun.listDocs(folderPath);
+		const result = await window.openwizardai.autorun.listDocs(folderPath);
 
 		if (!result.success || !result.files) {
 			return 0;

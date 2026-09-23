@@ -84,7 +84,7 @@ export function isBetaAgent(agentId: AgentId | string): boolean {
 /**
  * How a provider's CLI is re-authenticated.
  *
- * `binary` + `args` form the shell command Maestro runs in the reauthentication
+ * `binary` + `args` form the shell command OpenWizardAI runs in the reauthentication
  * terminal. Some providers have no login subcommand and only expose the flow as
  * a slash command inside their TUI - those set `followUp`, which the UI shows as
  * "then type /auth" instead of pretending a one-liner exists.
@@ -166,7 +166,7 @@ export function formatAgentLoginCommand(
 }
 
 /**
- * Map a Maestro shell id to the dialect its command line is written in.
+ * Map an OpenWizardAI shell id to the dialect its command line is written in.
  *
  * Shell ids come from `shellDetector`: on Windows `powershell`, `pwsh`, `cmd`,
  * `bash` (Git Bash), and `wsl`; elsewhere the usual Unix shells. Off Windows

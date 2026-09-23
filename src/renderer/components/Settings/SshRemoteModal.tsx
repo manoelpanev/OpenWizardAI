@@ -177,7 +177,7 @@ export function SshRemoteModal({
 	useEffect(() => {
 		if (isOpen && !initialConfig) {
 			setSshConfigLoading(true);
-			window.maestro.sshRemote
+			window.openwizardai.sshRemote
 				.getSshConfigHosts()
 				.then((result) => {
 					if (result.success && result.hosts) {

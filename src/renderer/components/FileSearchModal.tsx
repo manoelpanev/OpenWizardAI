@@ -106,7 +106,7 @@ export function flattenPreviewableFiles(
 
 /**
  * Result of probing an absolute filesystem path typed into the search box.
- * Drives the "Open <file> in Maestro" affordance that replaces the file list.
+ * Drives the "Open <file> in OpenWizardAI" affordance that replaces the file list.
  */
 type AbsPathState =
 	| { status: 'checking' }
@@ -151,7 +151,7 @@ export function FileSearchModal({
 
 	// --- Absolute-path open mode ---------------------------------------------
 	// When the query is an absolute filesystem path, the file list is replaced
-	// by a single "Open <file> in Maestro" affordance. This lets the user jump
+	// by a single "Open <file> in OpenWizardAI" affordance. This lets the user jump
 	// straight to any file on disk, not just files inside the project tree.
 	const trimmedSearch = search.trim();
 	const isAbsoluteQuery = isAbsolutePath(trimmedSearch);
@@ -162,7 +162,7 @@ export function FileSearchModal({
 		if (!isAbsolutePath(debouncedPath)) return;
 		let cancelled = false;
 		setAbsPathState({ status: 'checking' });
-		window.maestro.fs
+		window.openwizardai.fs
 			.stat(debouncedPath)
 			.then((stat) => {
 				if (cancelled) return;
@@ -487,7 +487,7 @@ export function FileSearchModal({
 										<Icon className="w-10 h-10" style={{ color: theme.colors.accent }} />
 										<div className="text-base font-medium" style={{ color: theme.colors.textMain }}>
 											Open <span style={{ color: theme.colors.accent }}>{absDisplay.name}</span> in
-											OpenWizzard
+											OpenWizardAI
 										</div>
 										<span className="text-xs" style={{ color: theme.colors.textDim }}>
 											Press Enter to open in a new file preview tab

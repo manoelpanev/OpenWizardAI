@@ -1,20 +1,20 @@
-# Maestro Constitution
+# OpenWizardAI Constitution
 
-The guiding principles that shape every decision in Maestro's development.
+The guiding principles that shape every decision in OpenWizardAI's development.
 
 ---
 
 ## Core Philosophy
 
-**Maestro exists to transform fractured attention into focused productivity.**
+**OpenWizardAI exists to transform fractured attention into focused productivity.**
 
-In a world where AI agents multiply and conversations splinter, Maestro is the conductor's podium-the single point of control from which you orchestrate an entire symphony of autonomous work.
+In a world where AI agents multiply and conversations splinter, OpenWizardAI is the conductor's podium-the single point of control from which you orchestrate an entire symphony of autonomous work.
 
 ---
 
 ## The Two Modes
 
-Maestro serves two distinct modes of work, and we must excel at both:
+OpenWizardAI serves two distinct modes of work, and we must excel at both:
 
 - **Solo Mode:** Agents run unattended, executing tasks autonomously while you're away
 - **Interactive Mode:** You're at the podium, conducting your fleet in real-time
@@ -27,7 +27,7 @@ The first two tenets address these modes directly. The remaining tenets apply to
 
 ### 1. Unattended Excellence _(Solo Mode)_
 
-The measure of Maestro's success is how long agents run without intervention.
+The measure of OpenWizardAI's success is how long agents run without intervention.
 
 **What this means in practice:**
 
@@ -42,7 +42,7 @@ Every feature we build should extend the runway of unattended operation. If a fe
 
 ### 2. The Conductor's Perspective _(Interactive Mode)_
 
-You are the maestro. The agents are your orchestra. The interface is your podium. Fleet management is critical for optimal interactive experience.
+You are the openwizardai. The agents are your orchestra. The interface is your podium. Fleet management is critical for optimal interactive experience.
 
 **What this means in practice:**
 
@@ -55,7 +55,7 @@ You are the maestro. The agents are your orchestra. The interface is your podium
 - Context should persist as you move through your fleet
 
 **The Orchestra Model:**
-A conductor doesn't play every instrument-they ensure each section knows its part and plays in harmony. Maestro should make you feel powerful through delegation, not through micromanagement. The best conductors move fluidly between sections, never losing the thread of the whole performance.
+A conductor doesn't play every instrument-they ensure each section knows its part and plays in harmony. OpenWizardAI should make you feel powerful through delegation, not through micromanagement. The best conductors move fluidly between sections, never losing the thread of the whole performance.
 
 ### 3. Keyboard Sovereignty
 
@@ -100,7 +100,7 @@ We solve fleet management brilliantly. We don't solve everything.
 - Latency is a bug
 
 **The Delight Standard:**
-Users should smile when they use Maestro. Not because it's cute, but because it's _satisfying_-like a perfectly weighted keyboard or a door that closes with a solid click.
+Users should smile when they use OpenWizardAI. Not because it's cute, but because it's _satisfying_-like a perfectly weighted keyboard or a door that closes with a solid click.
 
 ### 6. Transparent Complexity
 
@@ -115,7 +115,7 @@ Power users deserve depth. New users deserve simplicity. Both get what they need
 - Complexity is opt-in, never mandatory
 
 **The Iceberg Principle:**
-90% of Maestro's power should be invisible until needed. The surface is calm and simple; the depth is available to those who dive.
+90% of OpenWizardAI's power should be invisible until needed. The surface is calm and simple; the depth is available to those who dive.
 
 ### 7. Agent Omniscience
 
@@ -127,7 +127,7 @@ Everything the conductor can see, the agents can see. Everything the conductor c
 - Agents read, write, peek, and poke the application directly-no human hands required
 - History, configuration, playbooks, and agent state are all accessible artifacts, not locked-away internals
 - Inter-agent communication is a first-class operation, not a workaround
-- The user should never leave the conversation to manipulate Maestro
+- The user should never leave the conversation to manipulate OpenWizardAI
 
 **The Shared Podium Principle:**
 The conductor and the orchestra share the same stage. An agent that can write code but can't change its own theme, inspect a peer's history, or launch a playbook is an agent working with one hand tied behind its back. Full access means full agency-the interface serves the agent as readily as it serves the conductor.
@@ -160,7 +160,7 @@ The conductor and the orchestra share the same stage. An agent that can write co
 
 ---
 
-## What Maestro Is Not
+## What OpenWizardAI Is Not
 
 - **Not an IDE:** We complement your editor, not replace it
 - **Not a single-agent wrapper:** One agent is just a small orchestra
@@ -170,7 +170,7 @@ The conductor and the orchestra share the same stage. An agent that can write co
 
 ---
 
-## The Maestro Test
+## The OpenWizardAI Test
 
 Before shipping any feature, ask:
 
@@ -188,7 +188,7 @@ If the answer to any of these is "no," reconsider.
 
 ## The Name
 
-Yes, "Maestro" is overused. But when you're conducting a dozen agents across multiple projects, watching them work in concert while you simply point and direct-there's no other word for it.
+Yes, "OpenWizardAI" is overused. But when you're conducting a dozen agents across multiple projects, watching them work in concert while you simply point and direct-there's no other word for it.
 
 You're not managing. You're not supervising. You're not multitasking.
 
@@ -196,4 +196,4 @@ You're conducting.
 
 ---
 
-_This Constitution is a living document. It evolves as Maestro evolves, but its core principles remain: keyboard-first, unattended-focused, delightfully simple, and always in service of the conductor._
+_This Constitution is a living document. It evolves as OpenWizardAI evolves, but its core principles remain: keyboard-first, unattended-focused, delightfully simple, and always in service of the conductor._

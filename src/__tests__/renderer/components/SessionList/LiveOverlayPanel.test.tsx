@@ -16,8 +16,8 @@ vi.mock('../../../../renderer/utils/clipboard', () => ({
 	safeClipboardWrite: vi.fn(),
 }));
 
-// Mock window.maestro
-(window as any).maestro = {
+// Mock window.openwizardai
+(window as any).openwizardai = {
 	shell: {
 		openExternal: vi.fn(),
 	},
@@ -65,7 +65,7 @@ function createDefaultProps(overrides: Partial<Parameters<typeof LiveOverlayPane
 describe('LiveOverlayPanel', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(window as any).maestro.tunnel.getStatus.mockResolvedValue({
+		(window as any).openwizardai.tunnel.getStatus.mockResolvedValue({
 			isRunning: false,
 			url: null,
 			error: null,
@@ -194,7 +194,7 @@ describe('LiveOverlayPanel', () => {
 		});
 
 		it('keeps connected state when tunnel status confirms process is running', () => {
-			(window as any).maestro.tunnel.getStatus.mockResolvedValue({
+			(window as any).openwizardai.tunnel.getStatus.mockResolvedValue({
 				isRunning: true,
 				url: 'https://tunnel.example.com',
 				error: null,
@@ -517,7 +517,7 @@ describe('LiveOverlayPanel', () => {
 			render(<LiveOverlayPanel {...createDefaultProps({ activeUrlTab: 'local' })} />);
 
 			fireEvent.click(screen.getByTitle('Open in Browser'));
-			expect((window as any).maestro.shell.openExternal).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.shell.openExternal).toHaveBeenCalledWith(
 				'http://192.168.1.10:3456'
 			);
 		});

@@ -1,7 +1,7 @@
 /**
  * Preload API for agent management
  *
- * Provides the window.maestro.agents namespace for:
+ * Provides the window.openwizardai.agents namespace for:
  * - Detecting available agents (Claude Code, Codex, OpenCode, etc.)
  * - Managing agent configurations and custom paths
  * - Getting agent capabilities
@@ -227,21 +227,24 @@ export function createAgentsApi() {
 		},
 
 		/**
-		 * Resolve the auto-detected maestro-p binary path bundled with the app.
+		 * Resolve the auto-detected openwizardai-p binary path bundled with the app.
 		 * Returns null when no bundled script is present (typical for dev builds
 		 * without an `npm run build` artifact).
 		 */
-		getMaestroPDetectedPath: (): Promise<string | null> =>
-			ipcRenderer.invoke('agents:getMaestroPDetectedPath'),
+		getOpenWizardAIPDetectedPath: (): Promise<string | null> =>
+			ipcRenderer.invoke('agents:getOpenWizardAIPDetectedPath'),
 
 		/**
-		 * Whether `maestro-p` is on the PATH of an SSH remote (used to disable the
+		 * Whether `openwizardai-p` is on the PATH of an SSH remote (used to disable the
 		 * TUI token-source option when the remote can't run it). Returns a fresh
 		 * cached result or probes on demand; `null` when it can't be determined.
 		 * Pass `force` to bypass the cache and re-probe immediately (Refresh button).
 		 */
-		getRemoteMaestroPAvailable: (sshRemoteId: string, force?: boolean): Promise<boolean | null> =>
-			ipcRenderer.invoke('agents:getRemoteMaestroPAvailable', sshRemoteId, force),
+		getRemoteOpenWizardAIPAvailable: (
+			sshRemoteId: string,
+			force?: boolean
+		): Promise<boolean | null> =>
+			ipcRenderer.invoke('agents:getRemoteOpenWizardAIPAvailable', sshRemoteId, force),
 
 		/**
 		 * Fetch the live Claude plan usage snapshot map keyed by canonical
@@ -272,7 +275,7 @@ export function createAgentsApi() {
 
 		/**
 		 * Trigger a fresh `runStartupUsageSampling()` pass on main so every known
-		 * `CLAUDE_CONFIG_DIR` account re-samples `maestro-p --status` and the
+		 * `CLAUDE_CONFIG_DIR` account re-samples `openwizardai-p --status` and the
 		 * snapshot store is rewritten. The dashboard / settings refresh button
 		 * calls this and then pulls the updated map back into the renderer
 		 * mirror via `claudeUsageStore.refresh()`.

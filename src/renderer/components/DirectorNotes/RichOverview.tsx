@@ -60,9 +60,9 @@ import {
 
 /** Derived from the IPC contract so this stays in sync with the bridge. */
 type SynopsisStats = NonNullable<
-	Awaited<ReturnType<typeof window.maestro.directorNotes.generateSynopsis>>['stats']
+	Awaited<ReturnType<typeof window.openwizardai.directorNotes.generateSynopsis>>['stats']
 >;
-type RichStats = Awaited<ReturnType<typeof window.maestro.directorNotes.getRichOverviewStats>>;
+type RichStats = Awaited<ReturnType<typeof window.openwizardai.directorNotes.getRichOverviewStats>>;
 
 interface RichOverviewProps {
 	theme: Theme;
@@ -113,7 +113,7 @@ export function RichOverview({
 
 		(async () => {
 			try {
-				const next = await window.maestro.directorNotes.getRichOverviewStats({
+				const next = await window.openwizardai.directorNotes.getRichOverviewStats({
 					lookbackDays,
 					bucketCount,
 				});

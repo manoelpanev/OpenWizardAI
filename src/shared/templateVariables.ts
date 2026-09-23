@@ -5,11 +5,11 @@ import { buildSessionDeepLink, buildGroupDeepLink } from './deep-link-urls';
  *
  * Available variables (case-insensitive):
  *
- * Conductor Variables (the Maestro user):
+ * Conductor Variables (the OpenWizardAI user):
  *   {{CONDUCTOR_PROFILE}} - User's About Me profile (from Settings → General)
  *
  * Agent Variables:
- *   {{AGENT_ID}}          - Agent UUID (Maestro agent identifier, for CLI commands)
+ *   {{AGENT_ID}}          - Agent UUID (OpenWizardAI agent identifier, for CLI commands)
  *   {{AGENT_NAME}}        - Agent name
  *   {{AGENT_PATH}}        - Agent home directory path (full path to project)
  *   {{AGENT_GROUP}}       - Agent's group name (if grouped)
@@ -44,15 +44,15 @@ import { buildSessionDeepLink, buildGroupDeepLink } from './deep-link-urls';
  *   {{IS_GIT_REPO}}       - "true" or "false"
  *
  * Deep Link Variables:
- *   {{AGENT_DEEP_LINK}}   - maestro:// deep link to this agent
- *   {{TAB_DEEP_LINK}}     - maestro:// deep link to this agent + active tab
- *   {{GROUP_DEEP_LINK}}   - maestro:// deep link to this agent's group (if grouped)
+ *   {{AGENT_DEEP_LINK}}   - openwizardai:// deep link to this agent
+ *   {{TAB_DEEP_LINK}}     - openwizardai:// deep link to this agent + active tab
+ *   {{GROUP_DEEP_LINK}}   - openwizardai:// deep link to this agent's group (if grouped)
  *
  * Context Variables:
  *   {{CONTEXT_USAGE}}     - Current context window usage percentage
  *
- * Maestro Variables:
- *   {{MAESTRO_CLI_PATH}}  - Platform-appropriate path to maestro-cli
+ * OpenWizardAI Variables:
+ *   {{OPENWIZARDAI_CLI_PATH}}  - Platform-appropriate path to openwizardai-cli
  *
  * Cue Variables (Cue automation only):
  *   {{CUE_EVENT_TYPE}}      - Cue event type (app.startup, time.heartbeat, time.scheduled, file.changed, agent.completed, github.*, task.pending, cli.trigger)
@@ -101,37 +101,37 @@ import { buildSessionDeepLink, buildGroupDeepLink } from './deep-link-urls';
 /**
  * Detect the current platform in both Node.js (main process / CLI) and
  * renderer (browser) contexts.  The renderer has no `process` global -
- * platform is exposed via the preload bridge at `window.maestro.platform`.
+ * platform is exposed via the preload bridge at `window.openwizardai.platform`.
  */
 function getCurrentPlatform(): string {
 	if (typeof process !== 'undefined' && process.platform) {
 		return process.platform;
 	}
 
-	if (typeof globalThis !== 'undefined' && (globalThis as any).maestro?.platform) {
-		return (globalThis as any).maestro.platform;
+	if (typeof globalThis !== 'undefined' && (globalThis as any).openwizardai?.platform) {
+		return (globalThis as any).openwizardai.platform;
 	}
 	return 'linux'; // safe fallback
 }
 
 /**
- * Returns the platform-appropriate command to run maestro-cli.
- * The CLI is bundled as a JS file inside the Maestro application package,
+ * Returns the platform-appropriate command to run openwizardai-cli.
+ * The CLI is bundled as a JS file inside the OpenWizardAI application package,
  * so the returned value includes the `node` invocation with the full path.
  */
-export function getMaestroCLIPath(): string {
+export function getOpenWizardAICLIPath(): string {
 	const platform = getCurrentPlatform();
 	switch (platform) {
 		case 'darwin':
-			return 'node "/Applications/Maestro.app/Contents/Resources/maestro-cli.js"';
+			return 'node "/Applications/OpenWizardAI.app/Contents/Resources/openwizardai-cli.js"';
 		case 'win32': {
 			const programFiles =
 				(typeof process !== 'undefined' && process.env?.ProgramFiles) || 'C:\\Program Files';
-			return `node "${programFiles}\\OpenWizzard\\resources\\maestro-cli.js"`;
+			return `node "${programFiles}\\OpenWizardAI\\resources\\openwizardai-cli.js"`;
 		}
 		default:
 			// Linux (deb/rpm installs to /opt)
-			return 'node "/opt/Maestro/resources/maestro-cli.js"';
+			return 'node "/opt/OpenWizardAI/resources/openwizardai-cli.js"';
 	}
 }
 
@@ -236,7 +236,7 @@ export interface TemplateContext {
 // Variables marked as autoRunOnly are only shown in Auto Run contexts, not in AI Commands settings
 // Variables marked as cueOnly are only shown in Cue automation contexts
 export const TEMPLATE_VARIABLES = [
-	{ variable: '{{AGENT_DEEP_LINK}}', description: 'Deep link to this agent (maestro://)' },
+	{ variable: '{{AGENT_DEEP_LINK}}', description: 'Deep link to this agent (openwizardai://)' },
 	{ variable: '{{AGENT_GROUP}}', description: 'Agent group name' },
 	{ variable: '{{AGENT_ID}}', description: 'Agent UUID (for CLI targeting)' },
 	{ variable: '{{CONDUCTOR_PROFILE}}', description: "Conductor's About Me profile" },
@@ -373,17 +373,20 @@ export const TEMPLATE_VARIABLES = [
 	{ variable: '{{DOCUMENT_NAME}}', description: 'Current document name', autoRunOnly: true },
 	{ variable: '{{DOCUMENT_PATH}}', description: 'Current document path', autoRunOnly: true },
 	{ variable: '{{GIT_BRANCH}}', description: 'Git branch name' },
-	{ variable: '{{GROUP_DEEP_LINK}}', description: 'Deep link to agent group (maestro://)' },
+	{ variable: '{{GROUP_DEEP_LINK}}', description: 'Deep link to agent group (openwizardai://)' },
 	{ variable: '{{IS_GIT_REPO}}', description: 'Is git repo (true/false)' },
-	{ variable: '{{MAESTRO_CLI_PATH}}', description: 'Path to maestro-cli' },
+	{ variable: '{{OPENWIZARDAI_CLI_PATH}}', description: 'Path to openwizardai-cli' },
 	{
 		variable: '{{LOOP_NUMBER}}',
 		description: 'Loop iteration (00001, 00002...)',
 		autoRunOnly: true,
 	},
 	{ variable: '{{MONTH}}', description: 'Month (01-12)' },
-	{ variable: '{{MAESTRO_CLI_PATH}}', description: 'Path to maestro-cli' },
-	{ variable: '{{TAB_DEEP_LINK}}', description: 'Deep link to agent + active tab (maestro://)' },
+	{ variable: '{{OPENWIZARDAI_CLI_PATH}}', description: 'Path to openwizardai-cli' },
+	{
+		variable: '{{TAB_DEEP_LINK}}',
+		description: 'Deep link to agent + active tab (openwizardai://)',
+	},
 	{ variable: '{{TIME}}', description: 'Time (HH:MM:SS)' },
 	{ variable: '{{TIMESTAMP}}', description: 'Unix timestamp (ms)' },
 	{ variable: '{{TIME_SHORT}}', description: 'Time (HH:MM)' },
@@ -418,7 +421,7 @@ export function substituteTemplateVariables(template: string, context: TemplateC
 
 	// Build replacements map
 	const replacements: Record<string, string> = {
-		// Conductor variables (the Maestro user)
+		// Conductor variables (the OpenWizardAI user)
 		CONDUCTOR_PROFILE: conductorProfile || '',
 
 		// Agent variables
@@ -436,7 +439,7 @@ export function substituteTemplateVariables(template: string, context: TemplateC
 		AUTORUN_FOLDER:
 			autoRunFolder ||
 			session.autoRunFolderPath ||
-			`${session.fullPath || session.projectRoot || session.cwd}/.maestro/playbooks`,
+			`${session.fullPath || session.projectRoot || session.cwd}/.openwizardai/playbooks`,
 
 		// Aliases (not documented in TEMPLATE_VARIABLES but still supported for internal use and backwards compatibility)
 		SESSION_ID: session.id,
@@ -479,8 +482,8 @@ export function substituteTemplateVariables(template: string, context: TemplateC
 		// Context variables
 		CONTEXT_USAGE: String(session.contextUsage || 0),
 
-		// Maestro variables
-		MAESTRO_CLI_PATH: getMaestroCLIPath(),
+		// OpenWizardAI variables
+		OPENWIZARDAI_CLI_PATH: getOpenWizardAICLIPath(),
 
 		// Cue variables
 		CUE_EVENT_TYPE: context.cue?.eventType || '',

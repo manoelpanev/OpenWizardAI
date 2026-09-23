@@ -1,5 +1,5 @@
-// Slash commands - both built-in Maestro commands and custom AI commands
-// Built-in commands are intercepted by Maestro before being sent to the agent
+// Slash commands - both built-in OpenWizardAI commands and custom AI commands
+// Built-in commands are intercepted by OpenWizardAI before being sent to the agent
 
 import type { ToolType } from './types';
 
@@ -11,8 +11,8 @@ export interface SlashCommand {
 	agentTypes?: ToolType[]; // Only show for specific agent types (if undefined, show for all)
 }
 
-// Built-in Maestro slash commands
-// These are intercepted by Maestro and handled specially (not passed to the agent)
+// Built-in OpenWizardAI slash commands
+// These are intercepted by OpenWizardAI and handled specially (not passed to the agent)
 export const slashCommands: SlashCommand[] = [
 	{
 		command: '/history',

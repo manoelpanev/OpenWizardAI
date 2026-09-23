@@ -1,7 +1,7 @@
 /**
  * @file uiSurfaces.test.ts
  * @description Tests for the openable-surface registry behind
- * `maestro-cli open <surface> [--tab]`: name/alias resolution, tab resolution,
+ * `openwizardai-cli open <surface> [--tab]`: name/alias resolution, tab resolution,
  * the discovery hint sentence, and the registry invariants that keep the CLI,
  * the main-process validator, and the renderer dispatcher agreeing.
  */
@@ -42,7 +42,7 @@ describe('UI surface registry', () => {
 describe('resolveUiSurface', () => {
 	it('resolves by id, by alias, and case-insensitively', () => {
 		expect(resolveUiSurface('cue')?.id).toBe('cue');
-		expect(resolveUiSurface('maestro-cue')?.id).toBe('cue');
+		expect(resolveUiSurface('openwizardai-cue')?.id).toBe('cue');
 		expect(resolveUiSurface('  Usage  ')?.id).toBe('usage-dashboard');
 	});
 

@@ -6,7 +6,7 @@
  * command and allows users to create or iterate on Auto Run documents within
  * their existing session context.
  *
- * Unlike the full-screen onboarding wizard (MaestroWizard.tsx), this wizard
+ * Unlike the full-screen onboarding wizard (OpenWizardAIWizard.tsx), this wizard
  * runs inline within the existing AI conversation interface.
  *
  * States managed:
@@ -63,7 +63,7 @@ interface InlineWizardProviderProps {
  *     <GroupChatProvider>
  *       <InlineWizardProvider>
  *         <InputProvider>
- *           <MaestroConsoleInner />
+ *           <OpenWizardAIConsoleInner />
  *         </InputProvider>
  *       </InlineWizardProvider>
  *     </GroupChatProvider>

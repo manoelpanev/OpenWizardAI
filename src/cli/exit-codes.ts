@@ -1,4 +1,4 @@
-// Standardized process exit codes for maestro-cli.
+// Standardized process exit codes for openwizardai-cli.
 //
 // Scripts and CI can branch on these instead of treating every failure as a
 // generic non-zero. Keep the set small and stable - each value names a class of
@@ -12,7 +12,7 @@ export enum ExitCode {
 	GeneralError = 1,
 	/** Bad invocation: unknown flag, missing/invalid argument, nothing to do. */
 	InvalidUsage = 2,
-	/** The Maestro desktop app is not running or not reachable. */
+	/** The OpenWizardAI desktop app is not running or not reachable. */
 	NotRunning = 3,
 	/** The running app does not support the requested command (older build). */
 	Unsupported = 4,

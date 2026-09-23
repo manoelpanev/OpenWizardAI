@@ -1,5 +1,5 @@
 /**
- * AutoRunSetupSheet component for Maestro mobile web interface
+ * AutoRunSetupSheet component for OpenWizardAI mobile web interface
  *
  * Bottom sheet modal for configuring Auto Run before launch.
  * Allows document selection, custom prompt, and loop settings.

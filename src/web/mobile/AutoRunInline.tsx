@@ -1,5 +1,5 @@
 /**
- * AutoRunInline component for Maestro mobile/web interface
+ * AutoRunInline component for OpenWizardAI mobile/web interface
  *
  * Single-document Auto Run editor that mirrors the desktop AutoRun panel
  * (`src/renderer/components/AutoRun/AutoRun.tsx`) for visual + feature parity:
@@ -204,7 +204,7 @@ export function AutoRunInline({
 	// run as read-only for the *currently selected* document (the desktop checks
 	// the run's locked-documents list, but the web doesn't get that detail in
 	// AutoRunState today; locking on isRunning is the conservative safe default).
-	// A paused run is the exception: an agent error or a MAESTRO:HITL gate parks
+	// A paused run is the exception: an agent error or a OPENWIZARDAI:HITL gate parks
 	// the engine until the user clicks Resume, and answering the gate usually
 	// means editing the document, so the lock lifts.
 	const isLocked = isRunning && !isErrorPaused;
@@ -756,7 +756,7 @@ export function AutoRunInline({
 								borderRadius: '3px',
 							}}
 						>
-							.maestro/playbooks/
+							.openwizardai/playbooks/
 						</code>
 					</p>
 					{/* Docs Overview CTAs - mirrors desktop's "Add Docs" surface where both

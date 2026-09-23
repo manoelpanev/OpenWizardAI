@@ -13,7 +13,7 @@ describe('WebServer web asset resolution', () => {
 	let tempRoot: string;
 
 	beforeEach(() => {
-		tempRoot = mkdtempSync(path.join(os.tmpdir(), 'maestro-web-assets-'));
+		tempRoot = mkdtempSync(path.join(os.tmpdir(), 'openwizardai-web-assets-'));
 		vi.spyOn(process, 'cwd').mockReturnValue(tempRoot);
 	});
 

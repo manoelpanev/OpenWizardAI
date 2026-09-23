@@ -1,6 +1,6 @@
 /**
  * @file cue-schedule-create.test.ts
- * @description Integration tests for `maestro-cli cue schedule` - the create
+ * @description Integration tests for `openwizardai-cli cue schedule` - the create
  * branch (Phase 03 task 1 of the time.once feature). The list/cancel branches
  * are covered in `cue-schedule-list-cancel.test.ts`; this file exercises the
  * end-to-end write path with a real temp directory so the YAML round-trip
@@ -53,7 +53,7 @@ function readCueYaml(projectRoot: string): {
 	raw: string;
 	parsed: Record<string, unknown>;
 } {
-	const filePath = path.join(projectRoot, '.maestro', 'cue.yaml');
+	const filePath = path.join(projectRoot, '.openwizardai', 'cue.yaml');
 	const raw = fs.readFileSync(filePath, 'utf-8');
 	return { raw, parsed: yaml.load(raw) as Record<string, unknown> };
 }
@@ -247,7 +247,7 @@ describe('cue schedule (create)', () => {
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 		expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('--agent'));
 		// No file should be written when validation fails before the write.
-		expect(fs.existsSync(path.join(projectRoot, '.maestro', 'cue.yaml'))).toBe(false);
+		expect(fs.existsSync(path.join(projectRoot, '.openwizardai', 'cue.yaml'))).toBe(false);
 	});
 
 	it('neither --prompt nor --notify exits 1 with a useful error', async () => {
@@ -261,7 +261,7 @@ describe('cue schedule (create)', () => {
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 		const errMsg = consoleErrorSpy.mock.calls[0]?.[0] as string;
 		expect(errMsg).toMatch(/--prompt|--notify/);
-		expect(fs.existsSync(path.join(projectRoot, '.maestro', 'cue.yaml'))).toBe(false);
+		expect(fs.existsSync(path.join(projectRoot, '.openwizardai', 'cue.yaml'))).toBe(false);
 	});
 
 	it('rejects a create whose name already exists in cue.yaml (exit 1, file unchanged)', async () => {

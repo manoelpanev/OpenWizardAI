@@ -9,7 +9,7 @@ const baseProps = (overrides: Partial<React.ComponentProps<typeof MarketplaceBro
 	const incompatible = makePlaybook({
 		id: 'incompatible',
 		title: 'Incompatible',
-		minMaestroVersion: '99.0.0',
+		minOpenWizardAIVersion: '99.0.0',
 	});
 	const filteredPlaybooks = [compatible, incompatible];
 
@@ -117,7 +117,7 @@ describe('MarketplaceBrowseTab', () => {
 		expect(getByRole('button', { name: /All\s*\(2\)/ })).toBeTruthy();
 		expect(getByText('Compatible')).toBeTruthy();
 		expect(getByText('Incompatible')).toBeTruthy();
-		expect(getByText('Requires a newer OpenWizzard')).toBeTruthy();
+		expect(getByText('Requires a newer OpenWizardAI')).toBeTruthy();
 		expect(getByText('Use arrow keys to navigate, Enter to select')).toBeTruthy();
 		expect(getByText('search')).toBeTruthy();
 	});

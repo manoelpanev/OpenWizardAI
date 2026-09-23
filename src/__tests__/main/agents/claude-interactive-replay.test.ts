@@ -157,7 +157,7 @@ describe('createInteractiveReplayController', () => {
 
 		it('re-sends (update → emit → spawn) before the backgrounded usage sample settles', async () => {
 			// The usage sample is fire-and-forget: it must NOT gate the replay spawn,
-			// because sampleUsage runs `maestro-p --status` (~30s) and awaiting it
+			// because sampleUsage runs `openwizardai-p --status` (~30s) and awaiting it
 			// stalled the user's re-sent prompt long after the mode-switch banner.
 			// So update/emit/spawn run synchronously first; 'sample' settles last.
 			const callOrder: string[] = [];

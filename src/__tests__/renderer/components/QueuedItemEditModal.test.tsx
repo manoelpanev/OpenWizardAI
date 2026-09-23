@@ -105,7 +105,7 @@ describe('QueuedItemEditModal model + effort override', () => {
 		};
 
 	function mockAgentsApi() {
-		(window as unknown as { maestro: unknown }).maestro = {
+		(window as unknown as { openwizardai: unknown }).openwizardai = {
 			agents: {
 				getModels: vi.fn((id: string) => Promise.resolve(AGENT_OPTIONS[id]?.models ?? [])),
 				getConfigOptions: vi.fn((id: string, key: string) =>

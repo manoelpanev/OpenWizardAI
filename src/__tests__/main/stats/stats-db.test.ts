@@ -50,7 +50,7 @@ vi.mock('better-sqlite3', () => {
 });
 
 // Mock electron's app module with trackable userData path
-const mockUserDataPath = path.join(os.tmpdir(), 'maestro-test-stats-db');
+const mockUserDataPath = path.join(os.tmpdir(), 'openwizardai-test-stats-db');
 vi.mock('electron', () => ({
 	app: {
 		getPath: vi.fn((name: string) => {
@@ -492,7 +492,7 @@ describe('StatsDB class (mocked)', () => {
 			expect(db.isReady()).toBe(false);
 		});
 
-		// MAESTRO-ZC: the buffer has its own `before-quit` flush listener, but
+		// OPENWIZARDAI-ZC: the buffer has its own `before-quit` flush listener, but
 		// listener order across modules is not guaranteed and the quit handler
 		// re-emits `before-quit`, so that flush could land after this close and
 		// write against a dead connection. Flushing here is what makes the last

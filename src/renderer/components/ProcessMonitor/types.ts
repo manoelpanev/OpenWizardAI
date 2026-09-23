@@ -26,8 +26,8 @@ export interface ActiveProcess {
 	cueSubscriptionName?: string;
 	cueEventType?: string;
 	childProcesses?: Array<{ pid: number; command: string }>;
-	/** Env vars Maestro is explicitly setting on this process (global + agent + session overrides). */
-	maestroEnvVars?: Record<string, string>;
+	/** Env vars OpenWizardAI is explicitly setting on this process (global + agent + session overrides). */
+	openwizardaiEnvVars?: Record<string, string>;
 	/** For SSH spawns: the agent invocation running on the remote host. */
 	sshRemoteCommand?: string;
 }
@@ -72,7 +72,7 @@ export interface ProcessNode {
 	cueSessionName?: string;
 	tabName?: string;
 	childProcesses?: Array<{ pid: number; command: string }>;
-	maestroEnvVars?: Record<string, string>;
+	openwizardaiEnvVars?: Record<string, string>;
 	/** For SSH spawns: the agent invocation running on the remote host. */
 	sshRemoteCommand?: string;
 }
@@ -95,7 +95,7 @@ export interface ProcessDetailData {
 	cueSessionName?: string;
 	tabName?: string;
 	childProcesses?: Array<{ pid: number; command: string }>;
-	maestroEnvVars?: Record<string, string>;
+	openwizardaiEnvVars?: Record<string, string>;
 	/** For SSH spawns: the agent invocation running on the remote host. */
 	sshRemoteCommand?: string;
 }

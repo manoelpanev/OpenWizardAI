@@ -75,7 +75,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 
 	// Subscribe to update status changes
 	useEffect(() => {
-		const unsubscribe = window.maestro.updates.onStatus((status) => {
+		const unsubscribe = window.openwizardai.updates.onStatus((status) => {
 			setDownloadStatus(status);
 			if (status.status === 'error' && status.error) {
 				setDownloadError(status.error);
@@ -88,7 +88,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 		setLoading(true);
 		setDownloadError(null);
 		try {
-			const updateResult = await window.maestro.updates.check(enableBetaUpdates);
+			const updateResult = await window.openwizardai.updates.check(enableBetaUpdates);
 			setResult(updateResult);
 			// Auto-expand if only 1 version behind, otherwise keep all collapsed
 			if (updateResult.updateAvailable && updateResult.releases.length === 1) {
@@ -104,7 +104,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 				assetsReady: false,
 				versionsBehind: 0,
 				releases: [],
-				releasesUrl: 'https://github.com/RunMaestro/Maestro/releases',
+				releasesUrl: 'https://github.com/manoelpanev/OpenWizardAI/releases',
 				error: error instanceof Error ? error.message : 'Failed to check for updates',
 			});
 		} finally {
@@ -151,7 +151,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 		// from GitHub's CDN asset path instead of the flaky `releases.atom` feed.
 		// `result.releases` is newest-first, so [0] is the version shown to the user.
 		const targetTag = result?.releases?.[0]?.tag_name;
-		const downloadResult = await window.maestro.updates.download(targetTag);
+		const downloadResult = await window.openwizardai.updates.download(targetTag);
 		if (!downloadResult.success && downloadResult.error) {
 			setDownloadError(downloadResult.error);
 			setDownloadStatus({ status: 'error', error: downloadResult.error });
@@ -163,13 +163,13 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 			setShowBusyWarning(true);
 			return;
 		}
-		window.maestro.updates.install();
+		window.openwizardai.updates.install();
 	};
 
 	const handleRestartNow = () => {
 		setShowBusyWarning(false);
 		setRestartPending(false);
-		window.maestro.updates.install();
+		window.openwizardai.updates.install();
 	};
 
 	const handleRestartWhenIdle = () => {
@@ -457,7 +457,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 											</div>
 											<div className="text-xs mt-0.5" style={{ color: theme.colors.textDim }}>
 												{isAppActive
-													? 'OpenWizzard will restart automatically once all agents and Auto Runs finish.'
+													? 'OpenWizardAI will restart automatically once all agents and Auto Runs finish.'
 													: 'Restarting…'}
 											</div>
 										</div>
@@ -501,7 +501,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 										/>
 										<div className="flex-1">
 											<div className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-												OpenWizzard is busy
+												OpenWizardAI is busy
 											</div>
 											<div className="text-xs mt-0.5" style={{ color: theme.colors.textDim }}>
 												{anySessionBusy && anyBatchRunning
@@ -610,12 +610,14 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 								You're up to date!
 							</div>
 							<div className="text-xs font-mono" style={{ color: theme.colors.textDim }}>
-								OpenWizzard v{result?.currentVersion || __APP_VERSION__}
+								OpenWizardAI v{result?.currentVersion || __APP_VERSION__}
 							</div>
 						</div>
 						<button
 							onClick={() =>
-								openUrl(result?.releasesUrl || 'https://github.com/RunMaestro/Maestro/releases')
+								openUrl(
+									result?.releasesUrl || 'https://github.com/manoelpanev/OpenWizardAI/releases'
+								)
 							}
 							className="flex items-center gap-2 text-xs hover:underline mt-2"
 							style={{ color: theme.colors.accent }}

@@ -3,11 +3,11 @@
  *
  * These links are what the file-link plugins emit for a path OUTSIDE the
  * project root (`remarkFileLinks`, `markdownItAdapter`); a path inside it
- * becomes a `maestro-file://` link instead. The AI can also write a literal
+ * becomes a `openwizardai-file://` link instead. The AI can also write a literal
  * `file://` link of its own, so this is not only a generated shape.
  *
  * Historically every one of them went straight to `shell.openPath`, which is
- * right for a PDF and wrong for everything Maestro renders better itself: a
+ * right for a PDF and wrong for everything OpenWizardAI renders better itself: a
  * JSON, a log, a config, a source file, or an MP3 handed to the OS pops a
  * second application over the top of the workspace to do something the file
  * preview (or the floating player) already does. Being outside the project
@@ -52,6 +52,6 @@ export function openFileUrl(href: string, onFileClick?: (path: string) => void):
 		return true;
 	}
 
-	void window.maestro.shell.openPath(path);
+	void window.openwizardai.shell.openPath(path);
 	return true;
 }

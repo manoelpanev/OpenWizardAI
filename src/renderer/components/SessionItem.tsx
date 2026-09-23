@@ -215,9 +215,9 @@ export const SessionItem = memo(function SessionItem({
 	);
 	const showGroupLabelInBookmarks = useSettingsStore((s) => s.showGroupLabelInBookmarks);
 	const showFullGroupLabelInBookmarks = useSettingsStore((s) => s.showFullGroupLabelInBookmarks);
-	const maestroCueEnabled = useSettingsStore((s) => s.encoreFeatures.maestroCue);
+	const openwizardaiCueEnabled = useSettingsStore((s) => s.encoreFeatures.openwizardaiCue);
 	const colorBlindMode = useSettingsStore((s) => s.colorBlindMode);
-	const cueIndicatorVisible = maestroCueEnabled && showLeftPanelCueIndicator;
+	const cueIndicatorVisible = openwizardaiCueEnabled && showLeftPanelCueIndicator;
 	const startupCommandTabCount =
 		session.terminalTabs?.reduce(
 			(acc, tab) => (tab.startupCommand && tab.startupCommand.trim().length > 0 ? acc + 1 : acc),
@@ -384,7 +384,7 @@ export const SessionItem = memo(function SessionItem({
 						>
 							{session.name}
 						</span>
-						{/* Maestro Cue indicator: subscriptions registered (and pulsing when running).
+						{/* OpenWizardAI Cue indicator: subscriptions registered (and pulsing when running).
 						    Hidden when the Cue Encore Feature is off, or when the user has hidden it. */}
 						{cueIndicatorVisible && (
 							<CueIndicator

@@ -9,7 +9,7 @@ function createTempDir(prefix: string): string {
 }
 
 function shouldWriteDurableScreenshots(): boolean {
-	return process.env.MAESTRO_WRITE_DURABLE_SCREENSHOTS === 'true';
+	return process.env.OPENWIZARDAI_WRITE_DURABLE_SCREENSHOTS === 'true';
 }
 
 async function writeDurableScreenshot(page: Page, fileName: string): Promise<void> {
@@ -28,7 +28,7 @@ async function writeDurableScreenshot(page: Page, fileName: string): Promise<voi
 
 test.describe('Bionify reading mode prototype', () => {
 	test('applies Bionify spans to supported reading surfaces while excluding chat and terminal surfaces', async () => {
-		const homeDir = createTempDir('maestro-bionify-home-');
+		const homeDir = createTempDir('openwizardai-bionify-home-');
 		const projectDir = path.join(homeDir, 'project');
 		const autoRunDir = path.join(projectDir, 'Auto Run Docs');
 		const previewFilePath = path.join(projectDir, 'reading-mode-demo.md');
@@ -250,7 +250,7 @@ Reading mode should emphasize this ${autoRunPhrase}.
 			HOME: homeDir,
 			ELECTRON_DISABLE_GPU: '1',
 			NODE_ENV: 'test',
-			MAESTRO_E2E_TEST: 'true',
+			OPENWIZARDAI_E2E_TEST: 'true',
 		};
 
 		const probeApp = await electron.launch({
@@ -265,12 +265,12 @@ Reading mode should emphasize this ${autoRunPhrase}.
 
 		fs.mkdirSync(userDataPath, { recursive: true });
 		fs.writeFileSync(
-			path.join(userDataPath, 'maestro-sessions.json'),
+			path.join(userDataPath, 'openwizardai-sessions.json'),
 			JSON.stringify({ sessions: [readingSession, aiChatSession, terminalSession] }, null, '\t'),
 			'utf-8'
 		);
 		fs.writeFileSync(
-			path.join(userDataPath, 'maestro-groups.json'),
+			path.join(userDataPath, 'openwizardai-groups.json'),
 			JSON.stringify({ groups: [] }, null, '\t'),
 			'utf-8'
 		);
@@ -305,8 +305,8 @@ Reading mode should emphasize this ${autoRunPhrase}.
 				.poll(async () => {
 					return await window.evaluate(async () => {
 						return {
-							intensity: await window.maestro.settings.get('bionifyIntensity'),
-							algorithm: await window.maestro.settings.get('bionifyAlgorithm'),
+							intensity: await window.openwizardai.settings.get('bionifyIntensity'),
+							algorithm: await window.openwizardai.settings.get('bionifyAlgorithm'),
 						};
 					});
 				})
@@ -484,7 +484,7 @@ Reading mode should emphasize this ${autoRunPhrase}.
 			await expect
 				.poll(async () => {
 					return await window.evaluate(async () => {
-						return await window.maestro.settings.get('bionifyReadingMode');
+						return await window.openwizardai.settings.get('bionifyReadingMode');
 					});
 				})
 				.toBe(true);

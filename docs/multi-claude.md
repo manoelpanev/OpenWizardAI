@@ -1,10 +1,10 @@
 ---
 title: Multiple Claude Accounts
-description: Run multiple Claude Code Max subscriptions simultaneously in Maestro.
+description: Run multiple Claude Code Max subscriptions simultaneously in OpenWizardAI.
 icon: users
 ---
 
-Use two or more Claude Code Max subscriptions (e.g., personal and work accounts) with Maestro by pointing each agent at a separate Claude configuration directory. This lets you spread work across multiple accounts' quotas while keeping shared settings, sessions, and plugins.
+Use two or more Claude Code Max subscriptions (e.g., personal and work accounts) with OpenWizardAI by pointing each agent at a separate Claude configuration directory. This lets you spread work across multiple accounts' quotas while keeping shared settings, sessions, and plugins.
 
 ## How It Works
 
@@ -16,7 +16,7 @@ Claude Code stores its configuration and auth credentials in `~/.claude` by defa
 
 ## One-Time Setup
 
-This setup is done once on your machine, outside of Maestro.
+This setup is done once on your machine, outside of OpenWizardAI.
 
 ### 1. Authenticate Each Account
 
@@ -87,9 +87,9 @@ ln -s ../.claude/projects     $CONFIG_DIR/projects
 | `.claude.json`                                                | Per-account | OAuth tokens and account identity         |
 | `history.jsonl`                                               | Per-account | Recent session list differs per account   |
 
-## Configuring Agents in Maestro
+## Configuring Agents in OpenWizardAI
 
-Once your config directories exist, point each Maestro agent at the right one using the `CLAUDE_CONFIG_DIR` environment variable.
+Once your config directories exist, point each OpenWizardAI agent at the right one using the `CLAUDE_CONFIG_DIR` environment variable.
 
 ### When Creating a New Agent
 

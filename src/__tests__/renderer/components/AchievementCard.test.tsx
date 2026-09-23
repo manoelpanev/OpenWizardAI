@@ -6,9 +6,9 @@ import type { Theme } from '../../../renderer/types';
 import type { AutoRunStats } from '../../../renderer/types';
 
 import { mockTheme } from '../../helpers/mockTheme';
-// Mock the MaestroSilhouette component
-vi.mock('../../../renderer/components/MaestroSilhouette', () => ({
-	MaestroSilhouette: ({
+// Mock the OpenWizardAISilhouette component
+vi.mock('../../../renderer/components/OpenWizardAISilhouette', () => ({
+	OpenWizardAISilhouette: ({
 		variant,
 		size,
 		style,
@@ -17,8 +17,13 @@ vi.mock('../../../renderer/components/MaestroSilhouette', () => ({
 		size: number;
 		style?: React.CSSProperties;
 	}) => (
-		<div data-testid="maestro-silhouette" data-variant={variant} data-size={size} style={style}>
-			OpenWizzard Silhouette
+		<div
+			data-testid="openwizardai-silhouette"
+			data-variant={variant}
+			data-size={size}
+			style={style}
+		>
+			OpenWizardAI Silhouette
 		</div>
 	),
 }));
@@ -164,7 +169,7 @@ describe('AchievementCard', () => {
 		it('renders the achievement card container', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={baseAutoRunStats} />);
 
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 
 		it('renders with correct theme colors', () => {
@@ -191,10 +196,10 @@ describe('AchievementCard', () => {
 			expect(screen.getByTestId('share-icon')).toBeInTheDocument();
 		});
 
-		it('renders OpenWizzard silhouette', () => {
+		it('renders OpenWizardAI silhouette', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={baseAutoRunStats} />);
 
-			expect(screen.getByTestId('maestro-silhouette')).toBeInTheDocument();
+			expect(screen.getByTestId('openwizardai-silhouette')).toBeInTheDocument();
 		});
 	});
 
@@ -214,7 +219,7 @@ describe('AchievementCard', () => {
 		it('renders silhouette with low opacity when no badge', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={baseAutoRunStats} />);
 
-			const silhouette = screen.getByTestId('maestro-silhouette');
+			const silhouette = screen.getByTestId('openwizardai-silhouette');
 			expect(silhouette).toHaveStyle({ opacity: '0.3' });
 		});
 
@@ -248,7 +253,7 @@ describe('AchievementCard', () => {
 		it('renders silhouette with full opacity when badge unlocked', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={firstBadgeStats} />);
 
-			const silhouette = screen.getByTestId('maestro-silhouette');
+			const silhouette = screen.getByTestId('openwizardai-silhouette');
 			expect(silhouette).toHaveStyle({ opacity: '1' });
 		});
 
@@ -420,7 +425,7 @@ describe('AchievementCard', () => {
 			const linkButton = screen.getByRole('button', { name: /Gustavo Dudamel/i });
 			fireEvent.click(linkButton);
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalled();
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalled();
 		});
 
 		it('closes tooltip when clicking outside', async () => {
@@ -705,7 +710,7 @@ describe('AchievementCard', () => {
 			);
 
 			// Should still render normally
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 
 		it('handles null globalStats', () => {
@@ -713,7 +718,7 @@ describe('AchievementCard', () => {
 				<AchievementCard theme={mockTheme} autoRunStats={firstBadgeStats} globalStats={null} />
 			);
 
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 
 		it('handles undefined globalStats', () => {
@@ -721,7 +726,7 @@ describe('AchievementCard', () => {
 				<AchievementCard theme={mockTheme} autoRunStats={firstBadgeStats} globalStats={undefined} />
 			);
 
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 	});
 
@@ -1065,7 +1070,7 @@ describe('AchievementCard', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={undefinedHistoryStats} />);
 
 			// Should not crash and should render
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 
 		it('handles light theme mode', () => {
@@ -1084,7 +1089,7 @@ describe('AchievementCard', () => {
 
 			render(<AchievementCard theme={lightTheme} autoRunStats={firstBadgeStats} />);
 
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 
 		it('handles rapid badge selection changes', async () => {
@@ -1114,7 +1119,7 @@ describe('AchievementCard', () => {
 
 			render(<AchievementCard theme={specialTheme} autoRunStats={firstBadgeStats} />);
 
-			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI Achievements')).toBeInTheDocument();
 		});
 	});
 

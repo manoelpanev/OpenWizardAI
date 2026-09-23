@@ -1,7 +1,7 @@
 /**
  * Tests for `useNarrativeGroupLookup`.
  *
- * The hook is the one place Director's Notes turns Maestro's live session and
+ * The hook is the one place Director's Notes turns OpenWizardAI's live session and
  * group state into the agent -> group mapping its bullets bucket by. The model
  * never supplies the group, so a session the store cannot resolve must fall
  * through to per-agent bucketing rather than inventing a header.
@@ -15,7 +15,13 @@ import { createMockSession } from '../../../helpers/mockSession';
 import type { Group } from '../../../../shared/types';
 
 function group(overrides: Partial<Group> = {}): Group {
-	return { id: 'g1', name: 'Maestro Core', emoji: '\u{1F3AC}', collapsed: false, ...overrides };
+	return {
+		id: 'g1',
+		name: 'OpenWizardAI Core',
+		emoji: '\u{1F3AC}',
+		collapsed: false,
+		...overrides,
+	};
 }
 
 describe('useNarrativeGroupLookup', () => {
@@ -31,21 +37,21 @@ describe('useNarrativeGroupLookup', () => {
 
 		const { result } = renderHook(() => useNarrativeGroupLookup());
 
-		expect(result.current('rc')).toEqual({ name: 'Maestro Core', emoji: '\u{1F3AC}' });
+		expect(result.current('rc')).toEqual({ name: 'OpenWizardAI Core', emoji: '\u{1F3AC}' });
 	});
 
 	it('collapses two sessions in the same group onto one entry', () => {
 		useSessionStore.setState({
 			sessions: [
 				createMockSession({ id: 's1', name: 'rc', groupId: 'g1' }),
-				createMockSession({ id: 's2', name: 'Maestro', groupId: 'g1' }),
+				createMockSession({ id: 's2', name: 'OpenWizardAI', groupId: 'g1' }),
 			],
 			groups: [group()],
 		});
 
 		const { result } = renderHook(() => useNarrativeGroupLookup());
 
-		expect(result.current('rc')).toEqual(result.current('Maestro'));
+		expect(result.current('rc')).toEqual(result.current('OpenWizardAI'));
 	});
 
 	it('returns null for an ungrouped session', () => {
@@ -82,13 +88,13 @@ describe('useNarrativeGroupLookup', () => {
 	// string that comes back rarely matches the stored name byte for byte.
 	it('matches through case and markdown punctuation', () => {
 		useSessionStore.setState({
-			sessions: [createMockSession({ id: 's1', name: '**Maestro Cue**', groupId: 'g1' })],
+			sessions: [createMockSession({ id: 's1', name: '**OpenWizardAI Cue**', groupId: 'g1' })],
 			groups: [group()],
 		});
 
 		const { result } = renderHook(() => useNarrativeGroupLookup());
 
-		expect(result.current('maestro cue')?.name).toBe('Maestro Core');
+		expect(result.current('openwizardai cue')?.name).toBe('OpenWizardAI Core');
 	});
 
 	it('keeps one identity while sessions and groups are unchanged', () => {

@@ -59,7 +59,7 @@ export function buildUnixBasePath(): string {
  * // With global environment variables from Settings
  * const globalEnvVars = {
  *   'ANTHROPIC_API_KEY': 'sk-proj-xxxxx',
- *   'DEBUG': 'maestro:*',
+ *   'DEBUG': 'openwizardai:*',
  *   'WORKSPACE': '~/projects'
  * };
  * const env = buildPtyTerminalEnv(globalEnvVars);
@@ -100,7 +100,7 @@ export function buildPtyTerminalEnv(shellEnvVars?: Record<string, string>): Node
 	}
 
 	// A Command Terminal is a shell the USER drives, not an agent turn, so it
-	// must never carry the query-source marker. It can arrive two ways: Maestro
+	// must never carry the query-source marker. It can arrive two ways: OpenWizardAI
 	// itself launched from an agent shell that had it set (the normal case in
 	// development), or the Windows branch above, which inherits process.env
 	// wholesale and strips nothing. Deleted unconditionally rather than added to
@@ -137,7 +137,7 @@ export function buildPtyTerminalEnv(shellEnvVars?: Record<string, string>): Node
  *   running inside Electron instead of standalone)
  * - **CLAUDECODE** and related: VSCode extension markers that can cause agents
  *   to use IDE-specific credentials or API endpoints instead of their configured ones
- * - **NODE_ENV**: Maestro's own NODE_ENV should not leak to agent processes,
+ * - **NODE_ENV**: OpenWizardAI's own NODE_ENV should not leak to agent processes,
  *   which may have different NODE_ENV requirements (e.g., agent needs NODE_ENV=production)
  *
  * @see buildChildProcessEnv() for where these are applied
@@ -154,17 +154,17 @@ const STRIPPED_ENV_VARS = [
 	'CLAUDE_CODE_ENTRYPOINT',
 	'CLAUDE_AGENT_SDK_VERSION',
 	'CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING',
-	// Claude session-identity markers. If Maestro itself was launched from
+	// Claude session-identity markers. If OpenWizardAI itself was launched from
 	// within a Claude session (e.g. `claude` spawned the app, or a dev shell
 	// inherited them), these leak into spawned claude-code turns and the
-	// maestro-p TUI it drives, making that child claude run as a NESTED session
-	// that never writes its own JSONL transcript. maestro-p reads only the
+	// openwizardai-p TUI it drives, making that child claude run as a NESTED session
+	// that never writes its own JSONL transcript. openwizardai-p reads only the
 	// JSONL, so the run times out with an empty result and no History entry is
-	// recorded. Strip them here so no spawn surface forwards them; maestro-p
+	// recorded. Strip them here so no spawn surface forwards them; openwizardai-p
 	// also strips them itself as a second line of defense.
 	'CLAUDE_CODE_SESSION_ID',
 	'CLAUDE_CODE_CHILD_SESSION',
-	// Maestro's own NODE_ENV should not leak to agents
+	// OpenWizardAI's own NODE_ENV should not leak to agents
 	'NODE_ENV',
 ];
 
@@ -193,16 +193,16 @@ const STRIPPED_ENV_VARS = [
  * **Safety Features**:
  * - Strips Electron internals (ELECTRON_RUN_AS_NODE, etc.)
  * - Strips IDE markers (CLAUDECODE, etc.)
- * - Strips Maestro's NODE_ENV to avoid conflicts
+ * - Strips OpenWizardAI's NODE_ENV to avoid conflicts
  * - Applies path expansion for `~/` syntax
- * - Sets MAESTRO_SESSION_RESUMED flag when resuming sessions
+ * - Sets OPENWIZARDAI_SESSION_RESUMED flag when resuming sessions
  *
  * @param {Record<string, string>} [customEnvVars] - Session-level environment variables that
  *        override global and defaults. These are typically set per-spawn for session-specific
  *        needs. Supports `~/` path expansion. Optional - if not provided, only global vars are used.
  *
  * @param {boolean} [isResuming] - Whether this process is being resumed (vs. fresh spawn).
- *        When true, sets MAESTRO_SESSION_RESUMED=1 in environment so agents can detect resumption.
+ *        When true, sets OPENWIZARDAI_SESSION_RESUMED=1 in environment so agents can detect resumption.
  *        Optional, defaults to false.
  *
  * @param {Record<string, string>} [globalShellEnvVars] - Global environment variables from
@@ -217,7 +217,7 @@ const STRIPPED_ENV_VARS = [
  * // Spawn agent with only global vars (typical use)
  * const globalVars = {
  *   'ANTHROPIC_API_KEY': 'sk-proj-xxxxx',
- *   'DEBUG': 'maestro:*'
+ *   'DEBUG': 'openwizardai:*'
  * };
  * const env = buildChildProcessEnv(undefined, false, globalVars);
  * spawn('claude-code', [], { env });
@@ -231,7 +231,7 @@ const STRIPPED_ENV_VARS = [
  * @example
  * // Spawn agent on resume with session-specific tracking
  * const env = buildChildProcessEnv(undefined, true, globalVars);
- * // Sets MAESTRO_SESSION_RESUMED=1 so agent knows session was resumed
+ * // Sets OPENWIZARDAI_SESSION_RESUMED=1 so agent knows session was resumed
  *
  * @note Path expansion is applied to all values at all levels (e.g., ~/workspace → /home/user/workspace)
  * @note Variables at higher precedence levels completely replace lower levels (no merging for same key)
@@ -241,16 +241,16 @@ const STRIPPED_ENV_VARS = [
  * @see buildPtyTerminalEnv() - Similar function for PTY terminal environments
  */
 /**
- * Collect the environment variables that Maestro is explicitly setting on a
+ * Collect the environment variables that OpenWizardAI is explicitly setting on a
  * spawned process, in the same precedence order as the build* helpers below
- * (global → session-level, with session overriding global). The MAESTRO_SESSION_RESUMED
+ * (global → session-level, with session overriding global). The OPENWIZARDAI_SESSION_RESUMED
  * marker is included when applicable. Inherited system env vars are deliberately
  * excluded - this is the set the user can act on (Settings → Shell Configuration
  * and per-agent / per-session overrides), surfaced in the Process Details modal.
  *
  * Applies `~/` path expansion the same way the build helpers do.
  */
-export function collectMaestroEnvVars(
+export function collectOpenWizardAIEnvVars(
 	globalShellEnvVars?: Record<string, string>,
 	customEnvVars?: Record<string, string>,
 	isResuming?: boolean,
@@ -273,7 +273,7 @@ export function collectMaestroEnvVars(
 		result[key] = expand(value);
 	}
 	if (isResuming) {
-		result.MAESTRO_SESSION_RESUMED = '1';
+		result.OPENWIZARDAI_SESSION_RESUMED = '1';
 	}
 	// Only present when the caller resolved one. Terminal PTYs build their env
 	// through buildPtyTerminalEnv(), which does not stamp the marker, and this
@@ -301,15 +301,15 @@ export function buildChildProcessEnv(
 		delete env[key];
 	}
 
-	// Build PATH that merges Maestro's hardcoded paths with the user's cached
+	// Build PATH that merges OpenWizardAI's hardcoded paths with the user's cached
 	// login-shell PATH and any caller-supplied dirs (typically the parent dir
 	// of the detected agent binary, so its shebang's interpreter resolves).
 	env.PATH = buildSpawnPath(extraPathDirs);
 
 	if (isResuming) {
-		env.MAESTRO_SESSION_RESUMED = '1';
+		env.OPENWIZARDAI_SESSION_RESUMED = '1';
 	} else {
-		delete env.MAESTRO_SESSION_RESUMED;
+		delete env.OPENWIZARDAI_SESSION_RESUMED;
 	}
 
 	// Apply the user-editable layers: global shell vars first, then session-level
@@ -336,7 +336,7 @@ export function buildChildProcessEnv(
 	}
 
 	// Who asked for this turn. Stamped after the user-editable layers rather than
-	// before them: this is Maestro stating a fact about the spawn, not a default
+	// before them: this is OpenWizardAI stating a fact about the spawn, not a default
 	// the user is offering an opinion on, and a stray global var of the same name
 	// would otherwise silently mislabel every turn on the machine.
 	env[QUERY_SOURCE_ENV_VAR] = querySource ?? DEFAULT_QUERY_SOURCE;

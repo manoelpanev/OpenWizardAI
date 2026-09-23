@@ -1,7 +1,7 @@
 /**
  * Agent ID Constants - Single Source of Truth
  *
- * This module defines the canonical list of all agent IDs in Maestro.
+ * This module defines the canonical list of all agent IDs in OpenWizardAI.
  * The ToolType union is derived from this array, ensuring type safety
  * and eliminating duplicate definitions.
  *
@@ -10,7 +10,7 @@
  */
 
 /**
- * All known agent IDs in Maestro.
+ * All known agent IDs in OpenWizardAI.
  * This is the single source of truth - ToolType is derived from this array.
  */
 export const AGENT_IDS = [

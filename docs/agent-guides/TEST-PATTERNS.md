@@ -2,7 +2,7 @@
 
 # Test Patterns
 
-Test infrastructure, conventions, mock setup, and patterns for the Maestro codebase.
+Test infrastructure, conventions, mock setup, and patterns for the OpenWizardAI codebase.
 
 ---
 
@@ -183,12 +183,12 @@ Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {
 });
 ```
 
-### 4. `window.maestro` Mock (IPC Bridge)
+### 4. `window.openwizardai` Mock (IPC Bridge)
 
-The complete Electron IPC bridge is mocked globally. This is the most important mock - it covers all `window.maestro.*` namespaces:
+The complete Electron IPC bridge is mocked globally. This is the most important mock - it covers all `window.openwizardai.*` namespaces:
 
 ```typescript
-const mockMaestro = {
+const mockOpenWizardAI = {
 	settings: {
 		get: vi.fn().mockResolvedValue(undefined),
 		set: vi.fn().mockResolvedValue(undefined),
@@ -219,13 +219,13 @@ const mockMaestro = {
 	platform: 'darwin',  // synchronous string
 };
 
-window.maestro = mockMaestro;
+window.openwizardai = mockOpenWizardAI;
 ```
 
 Individual tests can override specific methods:
 
 ```typescript
-vi.mocked(window.maestro.settings.get).mockResolvedValue('custom-value');
+vi.mocked(window.openwizardai.settings.get).mockResolvedValue('custom-value');
 ```
 
 ---
@@ -301,7 +301,7 @@ machine only.
 This has already bitten once: Claude Code exports
 `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=0` into the shells it runs, so the two
 `agent-spawner.test.ts` tests asserting the `'1'` default failed for anyone
-running the suite from a Maestro terminal or an agent shell, passed in CI, and
+running the suite from an OpenWizardAI terminal or an agent shell, passed in CI, and
 blocked the pre-push hook on a phantom failure.
 
 Call `isolateAgentEnv()` in the body of any `describe` that asserts a default
@@ -330,7 +330,7 @@ definition gains a new `defaultEnvVars` key, add it to
 The editor wraps CodeMirror 6, which measures DOM text to lay itself out. jsdom
 returns zeros and CM6 throws (`textRange(...).getClientRects is not a function`),
 so **every suite that renders a surface containing the editor must mock the
-module** - Auto Run, Maestro Prompts, the memory viewer, and anything that
+module** - Auto Run, OpenWizardAI Prompts, the memory viewer, and anything that
 embeds them.
 
 Use the one shared double rather than a per-suite stub:
@@ -581,7 +581,7 @@ it('locks editing during batch run', async () => {
 ```typescript
 it('syncs sessions across providers', async () => {
 	// Setup mocks for IPC communication
-	vi.mocked(window.maestro.process.spawn).mockResolvedValue({ pid: 111 });
+	vi.mocked(window.openwizardai.process.spawn).mockResolvedValue({ pid: 111 });
 
 	// Render with full provider tree
 	render(
@@ -861,7 +861,7 @@ describe('myStore', () => {
 2. **Use `vi.clearAllMocks()`** in `beforeEach` and `vi.restoreAllMocks()` in `afterEach`.
 3. **Reset Zustand stores** explicitly since they persist across tests.
 4. **Use `vi.useFakeTimers()`** when testing timeouts, intervals, or debouncing.
-5. **Mock `window.maestro`** at the setup level; override specific methods per test.
+5. **Mock `window.openwizardai`** at the setup level; override specific methods per test.
 6. **Use `data-testid`** for elements that lack accessible roles.
 7. **Prefer `screen.getByRole`** and `screen.getByText` for queries (follows Testing Library best practices).
 8. **Use `waitFor`** for async assertions and `act` for state updates.

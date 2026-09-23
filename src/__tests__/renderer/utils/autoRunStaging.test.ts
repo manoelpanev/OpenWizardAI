@@ -6,7 +6,7 @@ import {
 } from '../../../renderer/utils/autoRunStaging';
 
 describe('relativeToAutoRunFolder', () => {
-	const root = '/project/.maestro/playbooks';
+	const root = '/project/.openwizardai/playbooks';
 
 	it('returns the empty string for the Auto Run folder itself', () => {
 		expect(relativeToAutoRunFolder(root, root)).toBe('');
@@ -31,8 +31,8 @@ describe('relativeToAutoRunFolder', () => {
 	it('matches across Windows separators', () => {
 		expect(
 			relativeToAutoRunFolder(
-				'C:\\project\\.maestro\\playbooks\\RET',
-				'C:/project/.maestro/playbooks'
+				'C:\\project\\.openwizardai\\playbooks\\RET',
+				'C:/project/.openwizardai/playbooks'
 			)
 		).toBe('RET');
 	});
@@ -65,7 +65,7 @@ describe('collectAutoRunDocsInFolder', () => {
 });
 
 describe('autoRunDocIdForFile', () => {
-	const root = '/project/.maestro/playbooks';
+	const root = '/project/.openwizardai/playbooks';
 
 	it('drops the .md extension to form the document id', () => {
 		expect(autoRunDocIdForFile(`${root}/RET/RET-01.md`, root)).toBe('RET/RET-01');

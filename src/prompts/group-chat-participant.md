@@ -64,6 +64,6 @@ Your responses will be shared with the moderator and other participants.
 
 ## Do Not Prompt The User
 
-Do NOT call any tool that waits for user input (e.g. `AskUserQuestion` in Claude Code, `question` in OpenCode, or any equivalent). These block execution and are unreliable inside OpenWizzard's orchestration flow, especially in batch/Auto Run contexts.
+Do NOT call any tool that waits for user input (e.g. `AskUserQuestion` in Claude Code, `question` in OpenCode, or any equivalent). These block execution and are unreliable inside OpenWizardAI's orchestration flow, especially in batch/Auto Run contexts.
 
 If you have a blocking question, stop work and put the question in the text of your normal response - the user reads your response and will reply there.

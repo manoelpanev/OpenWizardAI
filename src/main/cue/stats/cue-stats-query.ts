@@ -494,11 +494,11 @@ export async function getCueStatsAggregation(
 
 	// Token attribution joins on the provider session id each run produced
 	// (the key the on-disk session files use); agent-type labelling joins on
-	// the Maestro agent id (what `session_lifecycle` stores, available even for
+	// the OpenWizardAI agent id (what `session_lifecycle` stores, available even for
 	// runs that never recorded a provider session id).
 	const tokenLookups = events
 		.filter((e) => e.providerSessionId)
-		.map((e) => ({ maestroSessionId: e.sessionId, providerSessionId: e.providerSessionId! }));
+		.map((e) => ({ openwizardaiSessionId: e.sessionId, providerSessionId: e.providerSessionId! }));
 	const tokensByProvider = await getSessionTokenSummaries(tokenLookups, {
 		sinceMs: windowStartMs,
 	});
@@ -582,7 +582,7 @@ export async function getCueStatsAggregation(
  * it is called today, so the caller supplies both.
  */
 export interface CueHistoryQuery {
-	/** Maestro agent id (`cue_events.session_id`). */
+	/** OpenWizardAI agent id (`cue_events.session_id`). */
 	sessionId: string;
 	/** Inclusive lower bound on `created_at`, in ms. Unbounded when omitted. */
 	since?: number;
@@ -784,7 +784,7 @@ export function getCueHistoryGroupRuns(query: CueHistoryGroupRunsQuery): History
 /** Window for {@link getCueHistoryBuckets} / {@link getCueHistoryFingerprint}. */
 export interface CueHistoryBucketQuery {
 	/**
-	 * Maestro agent id (`cue_events.session_id`). Omit for every agent - the
+	 * OpenWizardAI agent id (`cue_events.session_id`). Omit for every agent - the
 	 * fleet-wide graph Director's Notes draws.
 	 */
 	sessionId?: string;

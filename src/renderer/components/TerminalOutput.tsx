@@ -1231,7 +1231,7 @@ const LogItemComponent = memo(
 						/>
 					)}
 					{/* Turn attribution pills, centered in the message footer. The mode pill
-					    shows which CLI captured this Claude turn (TUI Wrapper = maestro-p,
+					    shows which CLI captured this Claude turn (TUI Wrapper = openwizardai-p,
 					    claude -p = claude --print; a "Dynamic " prefix means the session
 					    auto-switches between the two). The model and effort pills name the
 					    configuration the turn was SENT with, so a conversation that changed
@@ -1958,7 +1958,7 @@ export const TerminalOutput = memo(
 					// Combine all response entries into one
 					const combinedText = currentResponseGroup.map((l) => l.text).join('');
 					// The token-source pill keys off `renderStyle === 'text-stream'`
-					// (maestro-p TUI capture). A response group can lead with a
+					// (openwizardai-p TUI capture). A response group can lead with a
 					// non-stream entry - e.g. the "Adaptive Mode: switched ..." system
 					// banner - and basing the combined entry only on `[0]` would inherit
 					// that entry's missing renderStyle and mislabel an interactive turn

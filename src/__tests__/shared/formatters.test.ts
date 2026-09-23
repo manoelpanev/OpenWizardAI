@@ -543,7 +543,7 @@ describe('shared/formatters', () => {
 		});
 
 		it('should truncate long paths showing last two parts', () => {
-			expect(truncatePath('/Users/name/Projects/Maestro/src/components', 30)).toBe(
+			expect(truncatePath('/Users/name/Projects/OpenWizardAI/src/components', 30)).toBe(
 				'.../src/components'
 			);
 		});
@@ -556,11 +556,13 @@ describe('shared/formatters', () => {
 		});
 
 		it('should handle Windows paths', () => {
-			expect(truncatePath('C:\\Users\\name\\Projects\\Maestro\\src', 25)).toBe('...\\Maestro\\src');
+			expect(truncatePath('C:\\Users\\name\\Projects\\OpenWizardAI\\src', 25)).toBe(
+				'...\\OpenWizardAI\\src'
+			);
 		});
 
 		it('should respect custom maxLength parameter', () => {
-			const path = '/Users/name/Projects/Maestro/src/components/Button.tsx';
+			const path = '/Users/name/Projects/OpenWizardAI/src/components/Button.tsx';
 
 			const result40 = truncatePath(path, 40);
 			expect(result40.length).toBeLessThanOrEqual(40);
@@ -781,8 +783,8 @@ describe('shared/formatters', () => {
 		});
 
 		it('omits the user@ prefix when no username is set (no leading @)', () => {
-			expect(formatSshTarget({ host: 'maestro.gosubstrate.com', port: 22 })).toBe(
-				'maestro.gosubstrate.com:22'
+			expect(formatSshTarget({ host: 'openwizardai.gosubstrate.com', port: 22 })).toBe(
+				'openwizardai.gosubstrate.com:22'
 			);
 			expect(formatSshTarget({ host: 'host', port: 22, username: '   ' })).toBe('host:22');
 		});

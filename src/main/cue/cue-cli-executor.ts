@@ -3,13 +3,13 @@
  * `command.mode` is `'cli'`.
  *
  * Delivers a message to a target session via
- * `maestro-cli dispatch <target> <message>`. Both `target` and `message`
+ * `openwizardai-cli dispatch <target> <message>`. Both `target` and `message`
  * (default: `{{CUE_SOURCE_OUTPUT}}`) go through Cue template substitution
- * before spawning. The same low-level {@link runMaestroCliSend} helper
+ * before spawning. The same low-level {@link runOpenWizardAICliSend} helper
  * backs the legacy `cli_output` Phase 3 post-completion side effect in
  * `cue-run-manager.ts` so both paths share one implementation.
  *
- * Historically this called `maestro-cli send <target> <message> --live`;
+ * Historically this called `openwizardai-cli send <target> <message> --live`;
  * `--live` was renamed to the dedicated `dispatch` verb in PR1 of the CLI
  * surface refactor. The desktop `send_command` WebSocket message that
  * underlies the dispatch is unchanged, so behavior is identical.
@@ -25,12 +25,12 @@ import { buildCueTemplateContext } from './cue-template-context-builder';
 import { captureException } from '../utils/sentry';
 import { isWindows } from '../../shared/platformDetection';
 
-/** Timeout for a single maestro-cli send invocation. */
+/** Timeout for a single openwizardai-cli send invocation. */
 const CLI_SEND_TIMEOUT_MS = 30_000;
 /**
  * Cap on how much of the source output we forward - protects the CLI argv.
  *
- * Platform-aware because `maestro-cli send <agent-id> <message>` takes the
+ * Platform-aware because `openwizardai-cli send <agent-id> <message>` takes the
  * message as a positional argv. On Windows, `CreateProcessW` imposes a hard
  * 32,767-char ceiling on the entire command line (process path + script
  * path + all argv + quoting), so a 100K message would fail with
@@ -70,18 +70,18 @@ export interface CliSendResult {
 }
 
 /**
- * Resolve the bundled `maestro-cli.js` script path. Mirrors the candidate list
- * in `maestro-cli-manager.ts` so dev/test environments (where
+ * Resolve the bundled `openwizardai-cli.js` script path. Mirrors the candidate list
+ * in `openwizardai-cli-manager.ts` so dev/test environments (where
  * `process.resourcesPath` is undefined or points at electron's built-in
- * resources) still find the compiled script at `dist/cli/maestro-cli.js`.
+ * resources) still find the compiled script at `dist/cli/openwizardai-cli.js`.
  */
-function resolveMaestroCliScriptPath(): string {
+function resolveOpenWizardAICliScriptPath(): string {
 	const candidates: string[] = [];
 	if (process.resourcesPath) {
-		candidates.push(path.join(process.resourcesPath, 'maestro-cli.js'));
+		candidates.push(path.join(process.resourcesPath, 'openwizardai-cli.js'));
 	}
 	// Compiled dev layout: main/cue/cue-cli-executor.js lives next to cli/.
-	candidates.push(path.resolve(__dirname, '..', 'cli', 'maestro-cli.js'));
+	candidates.push(path.resolve(__dirname, '..', 'cli', 'openwizardai-cli.js'));
 
 	for (const candidate of candidates) {
 		try {
@@ -93,7 +93,7 @@ function resolveMaestroCliScriptPath(): string {
 	}
 	// Fall back to the first candidate so execFile surfaces a clear ENOENT
 	// with the attempted path rather than a bare filename.
-	return candidates[0] ?? path.resolve(__dirname, '..', 'cli', 'maestro-cli.js');
+	return candidates[0] ?? path.resolve(__dirname, '..', 'cli', 'openwizardai-cli.js');
 }
 
 const SIGKILL_DELAY_MS = 5000;
@@ -101,7 +101,7 @@ const SIGKILL_DELAY_MS = 5000;
 /**
  * Tracked, in-flight CLI child processes keyed by runId. Entries are only
  * registered when a caller passes `runId` (i.e. `executeCueCli`); the legacy
- * Phase 3 path calls {@link runMaestroCliSend} without a runId and remains
+ * Phase 3 path calls {@link runOpenWizardAICliSend} without a runId and remains
  * untracked since it's an already-completed-run side effect.
  */
 const activeCliProcesses = new Map<string, { child: ChildProcess; startTime: number }>();
@@ -142,18 +142,18 @@ function killCliProcess(child: ChildProcess, sync = false): void {
 }
 
 /**
- * Spawn `node maestro-cli.js dispatch <target> <message>`. Used by both the
+ * Spawn `node openwizardai-cli.js dispatch <target> <message>`. Used by both the
  * primary cli executor and the legacy cli_output Phase 3 path. When `runId`
  * is provided, the child is registered in {@link activeCliProcesses} so
  * {@link stopCueCliRun} can cancel it on user stop.
  */
-export async function runMaestroCliSend(
+export async function runOpenWizardAICliSend(
 	target: string,
 	message: string,
 	timeoutMs: number = CLI_SEND_TIMEOUT_MS,
 	runId?: string
 ): Promise<CliSendResult> {
-	const cliScriptPath = resolveMaestroCliScriptPath();
+	const cliScriptPath = resolveOpenWizardAICliScriptPath();
 	const truncated = message.substring(0, CLI_SEND_OUTPUT_MAX_CHARS);
 	const effectiveTimeout = timeoutMs > 0 ? timeoutMs : CLI_SEND_TIMEOUT_MS;
 
@@ -164,8 +164,8 @@ export async function runMaestroCliSend(
 				stdio: ['ignore', 'pipe', 'pipe'],
 				// In packaged Electron, `process.execPath` is the app binary, not
 				// Node - without this flag the spawn would launch the app instead
-				// of running maestro-cli.js. Mirrors the shims emitted by
-				// maestro-cli-manager.ts for user-facing invocations.
+				// of running openwizardai-cli.js. Mirrors the shims emitted by
+				// openwizardai-cli-manager.ts for user-facing invocations.
 				env: {
 					...process.env,
 					ELECTRON_RUN_AS_NODE: '1',
@@ -278,7 +278,7 @@ export function stopAllCueCliRuns(): void {
 
 /**
  * Execute a Cue-triggered cli command (currently always `send`). Substitutes
- * `target` + `message` with template variables then invokes maestro-cli.
+ * `target` + `message` with template variables then invokes openwizardai-cli.
  */
 export async function executeCueCli(config: CueCliExecutionConfig): Promise<CueRunResult> {
 	const { runId, session, subscription, event, cli, templateContext, timeoutMs, onLog } = config;
@@ -326,7 +326,7 @@ export async function executeCueCli(config: CueCliExecutionConfig): Promise<CueR
 
 	onLog(
 		'cue',
-		`[CUE] Executing cli run ${runId}: "${subscription.name}" → maestro-cli dispatch ${resolvedTarget} (message length=${resolvedMessage.length})`
+		`[CUE] Executing cli run ${runId}: "${subscription.name}" → openwizardai-cli dispatch ${resolvedTarget} (message length=${resolvedMessage.length})`
 	);
 
 	try {
@@ -342,7 +342,12 @@ export async function executeCueCli(config: CueCliExecutionConfig): Promise<CueR
 		}
 		const clampedTimeout =
 			timeoutMs > 0 ? Math.min(timeoutMs, CLI_SEND_TIMEOUT_MS) : CLI_SEND_TIMEOUT_MS;
-		const result = await runMaestroCliSend(resolvedTarget, resolvedMessage, clampedTimeout, runId);
+		const result = await runOpenWizardAICliSend(
+			resolvedTarget,
+			resolvedMessage,
+			clampedTimeout,
+			runId
+		);
 		const status = result.timedOut ? 'timeout' : result.ok ? 'completed' : 'failed';
 		if (result.timedOut) {
 			onLog(

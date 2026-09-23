@@ -1,6 +1,6 @@
 /**
  * TODO: These tests need to be updated to match the current service implementation.
- * The IPC API changed from window.maestro.context.* to a different approach.
+ * The IPC API changed from window.openwizardai.context.* to a different approach.
  */
 import { describe, it, expect, vi, beforeEach, afterEach, beforeAll } from 'vitest';
 import {
@@ -20,13 +20,13 @@ import type {
 import type { LogEntry } from '../../../renderer/types';
 import type { ToolType } from '../../../shared/types';
 
-// Mock window.maestro for IPC calls
+// Mock window.openwizardai for IPC calls
 const mockCreateGroomingSession = vi.fn();
 const mockSendGroomingPrompt = vi.fn();
 const mockCleanupGroomingSession = vi.fn();
 
 vi.stubGlobal('window', {
-	maestro: {
+	openwizardai: {
 		context: {
 			createGroomingSession: mockCreateGroomingSession,
 			sendGroomingPrompt: mockSendGroomingPrompt,

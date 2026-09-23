@@ -1322,7 +1322,7 @@ describe('WebSocketMessageHandler', () => {
 			const createdPaths: string[] = [];
 
 			beforeEach(() => {
-				const tmpBase = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-openterm-'));
+				const tmpBase = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-openterm-'));
 				sessionRoot = fs.mkdtempSync(path.join(tmpBase, 'root-'));
 				outside = fs.mkdtempSync(path.join(tmpBase, 'outside-'));
 				fs.mkdirSync(path.join(sessionRoot, 'sub'));
@@ -3139,8 +3139,8 @@ describe('WebSocketMessageHandler', () => {
 	});
 
 	// PR2 of the CLI surface refactor: read-only session inspection used by
-	// `maestro-cli session list` and `session show <tabId>`. The handlers here
-	// are deliberately stateless so external pollers (Maestro-Discord, Cue
+	// `openwizardai-cli session list` and `session show <tabId>`. The handlers here
+	// are deliberately stateless so external pollers (OpenWizardAI-Discord, Cue
 	// follow-ups) can call them at arbitrary cadence.
 	describe('List Desktop Sessions (CLI → Desktop)', () => {
 		it('returns the desktop_sessions_list payload from the callback', () => {
@@ -3171,7 +3171,7 @@ describe('WebSocketMessageHandler', () => {
 
 		it('returns an empty list when the callback is unconfigured rather than echoing', () => {
 			// Unknown-type echo would confuse the CLI's request/response pairing
-			// (`MaestroClient` matches by responseType). Returning the empty
+			// (`OpenWizardAIClient` matches by responseType). Returning the empty
 			// success shape keeps the wire contract intact even when the desktop
 			// hasn't wired up the callback yet - older builds on a newer CLI.
 			callbacks.listDesktopSessions = undefined;

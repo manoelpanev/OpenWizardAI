@@ -165,14 +165,14 @@ describe('walkLocalFileTree', () => {
 		expect(result.tree.map((n) => n.name)).toEqual(['src']);
 	});
 
-	it('keeps .maestro visible even when the ignore patterns match it', async () => {
+	it('keeps .openwizardai visible even when the ignore patterns match it', async () => {
 		mockTree({
 			'/project': [
-				{ name: '.maestro', kind: 'dir' },
+				{ name: '.openwizardai', kind: 'dir' },
 				{ name: '.env', kind: 'file' },
 				{ name: 'src', kind: 'dir' },
 			],
-			'/project/.maestro': [],
+			'/project/.openwizardai': [],
 			'/project/src': [],
 		});
 
@@ -181,7 +181,7 @@ describe('walkLocalFileTree', () => {
 			ignorePatterns: ['.*'],
 		});
 
-		expect(result.tree.map((n) => n.name)).toEqual(['.maestro', 'src']);
+		expect(result.tree.map((n) => n.name)).toEqual(['.openwizardai', 'src']);
 	});
 
 	it('classifies a symlink by its target', async () => {
@@ -316,31 +316,31 @@ describe('walkLocalFileTree', () => {
 	});
 
 	describe('always-visible directories', () => {
-		it('reads .maestro before its siblings', async () => {
+		it('reads .openwizardai before its siblings', async () => {
 			mockTree({
 				'/project': [
 					{ name: 'src', kind: 'dir' },
-					{ name: '.maestro', kind: 'dir' },
+					{ name: '.openwizardai', kind: 'dir' },
 				],
-				'/project/.maestro': [],
+				'/project/.openwizardai': [],
 				'/project/src': [],
 			});
 
 			await walkLocalFileTree('/project', { maxDepth: 5 });
 
 			const paths = vi.mocked(fs.readdir).mock.calls.map((c) => c[0]);
-			expect(paths).toEqual(['/project', '/project/.maestro', '/project/src']);
+			expect(paths).toEqual(['/project', '/project/.openwizardai', '/project/src']);
 		});
 
-		it('loads .maestro in full even past the entry cap', async () => {
+		it('loads .openwizardai in full even past the entry cap', async () => {
 			mockTree({
 				'/project': [
-					{ name: '.maestro', kind: 'dir' },
+					{ name: '.openwizardai', kind: 'dir' },
 					{ name: 'a.txt', kind: 'file' },
 					{ name: 'b.txt', kind: 'file' },
 					{ name: 'c.txt', kind: 'file' },
 				],
-				'/project/.maestro': [
+				'/project/.openwizardai': [
 					{ name: 'cue.yaml', kind: 'file' },
 					{ name: 'p1.md', kind: 'file' },
 					{ name: 'p2.md', kind: 'file' },
@@ -350,18 +350,18 @@ describe('walkLocalFileTree', () => {
 
 			const result = await walkLocalFileTree('/project', { maxDepth: 5, maxEntries: 2 });
 
-			expect(result.tree.find((n) => n.name === '.maestro')?.children).toHaveLength(4);
+			expect(result.tree.find((n) => n.name === '.openwizardai')?.children).toHaveLength(4);
 			expect(result.tree.filter((n) => n.type === 'file')).toHaveLength(2);
 			expect(result.truncated).toBe(true);
 		});
 
-		it('does not let .maestro spend a sibling directory budget', async () => {
+		it('does not let .openwizardai spend a sibling directory budget', async () => {
 			mockTree({
 				'/project': [
-					{ name: '.maestro', kind: 'dir' },
+					{ name: '.openwizardai', kind: 'dir' },
 					{ name: 'src', kind: 'dir' },
 				],
-				'/project/.maestro': [
+				'/project/.openwizardai': [
 					{ name: 'a.md', kind: 'file' },
 					{ name: 'b.md', kind: 'file' },
 					{ name: 'c.md', kind: 'file' },
@@ -377,14 +377,14 @@ describe('walkLocalFileTree', () => {
 			const result = await walkLocalFileTree('/project', { maxDepth: 5, maxEntries: 3 });
 
 			expect(result.tree.find((n) => n.name === 'src')?.children).toHaveLength(2);
-			expect(result.tree.find((n) => n.name === '.maestro')?.children).toHaveLength(5);
+			expect(result.tree.find((n) => n.name === '.openwizardai')?.children).toHaveLength(5);
 		});
 
-		it('propagates the unlimited budget through nested .maestro descendants', async () => {
+		it('propagates the unlimited budget through nested .openwizardai descendants', async () => {
 			mockTree({
-				'/project': [{ name: '.maestro', kind: 'dir' }],
-				'/project/.maestro': [{ name: 'playbooks', kind: 'dir' }],
-				'/project/.maestro/playbooks': [
+				'/project': [{ name: '.openwizardai', kind: 'dir' }],
+				'/project/.openwizardai': [{ name: 'playbooks', kind: 'dir' }],
+				'/project/.openwizardai/playbooks': [
 					{ name: 'one.md', kind: 'file' },
 					{ name: 'two.md', kind: 'file' },
 					{ name: 'three.md', kind: 'file' },
@@ -393,8 +393,8 @@ describe('walkLocalFileTree', () => {
 
 			const result = await walkLocalFileTree('/project', { maxDepth: 5, maxEntries: 1 });
 
-			const maestro = result.tree.find((n) => n.name === '.maestro');
-			expect(maestro?.children?.find((n) => n.name === 'playbooks')?.children).toHaveLength(3);
+			const openwizardai = result.tree.find((n) => n.name === '.openwizardai');
+			expect(openwizardai?.children?.find((n) => n.name === 'playbooks')?.children).toHaveLength(3);
 		});
 	});
 });

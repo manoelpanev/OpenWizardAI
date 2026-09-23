@@ -34,7 +34,7 @@ vi.mock('../../../main/cue/pipeline-layout-store', () => ({
 }));
 
 function writeConfig(projectRoot: string, contents: string): string {
-	const dir = path.join(projectRoot, '.maestro');
+	const dir = path.join(projectRoot, '.openwizardai');
 	fs.mkdirSync(dir, { recursive: true });
 	const filePath = path.join(dir, 'cue.yaml');
 	fs.writeFileSync(filePath, contents, 'utf-8');
@@ -42,13 +42,13 @@ function writeConfig(projectRoot: string, contents: string): string {
 }
 
 function readSubs(projectRoot: string): Record<string, unknown>[] {
-	const filePath = path.join(projectRoot, '.maestro', 'cue.yaml');
+	const filePath = path.join(projectRoot, '.openwizardai', 'cue.yaml');
 	const parsed = yaml.load(fs.readFileSync(filePath, 'utf-8')) as Record<string, unknown>;
 	return (parsed.subscriptions ?? []) as Record<string, unknown>[];
 }
 
 function readRaw(projectRoot: string): string {
-	return fs.readFileSync(path.join(projectRoot, '.maestro', 'cue.yaml'), 'utf-8');
+	return fs.readFileSync(path.join(projectRoot, '.openwizardai', 'cue.yaml'), 'utf-8');
 }
 
 describe('cue-pipeline-rename', () => {
@@ -378,7 +378,7 @@ describe('cue-pipeline-rename', () => {
 			const root = makeRoot();
 			writeConfig(
 				root,
-				`# Maestro Cue config\n# Pipeline: Old (color: #06b6d4)\n\n${yaml.dump({
+				`# OpenWizardAI Cue config\n# Pipeline: Old (color: #06b6d4)\n\n${yaml.dump({
 					subscriptions: [{ name: 'Old', event: 'time.scheduled', pipeline_name: 'Old' }],
 				})}`
 			);
@@ -386,7 +386,7 @@ describe('cue-pipeline-rename', () => {
 			renamePipelineOnDisk([root], 'Old', 'New');
 
 			const raw = readRaw(root);
-			expect(raw).toContain('# Maestro Cue config');
+			expect(raw).toContain('# OpenWizardAI Cue config');
 			// The header names the pipeline, so it has to move with the rename.
 			expect(raw).toContain('# Pipeline: New (color: #06b6d4)');
 			expect(raw).not.toContain('# Pipeline: Old');

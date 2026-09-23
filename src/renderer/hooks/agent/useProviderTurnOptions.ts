@@ -39,7 +39,7 @@ export function useProviderTurnOptions(toolType: ToolType | undefined): Provider
 		let stale = false;
 		const agentId = toolType;
 
-		window.maestro.agents
+		window.openwizardai.agents
 			.getModels(agentId)
 			.then((next) => {
 				if (!stale) setModels(next);
@@ -49,8 +49,8 @@ export function useProviderTurnOptions(toolType: ToolType | undefined): Provider
 			});
 
 		Promise.all([
-			window.maestro.agents.getConfigOptions(agentId, 'effort').catch(() => [] as string[]),
-			window.maestro.agents
+			window.openwizardai.agents.getConfigOptions(agentId, 'effort').catch(() => [] as string[]),
+			window.openwizardai.agents
 				.getConfigOptions(agentId, 'reasoningEffort')
 				.catch(() => [] as string[]),
 		])
@@ -62,7 +62,7 @@ export function useProviderTurnOptions(toolType: ToolType | undefined): Provider
 				if (!stale) setEfforts([]);
 			});
 
-		window.maestro.agents
+		window.openwizardai.agents
 			.getConfig(agentId)
 			.then((config) => {
 				if (stale) return;

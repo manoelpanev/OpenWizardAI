@@ -14,7 +14,7 @@ import type { Theme } from '../../../types';
 import { screenshotReferenceLabel } from '../../../utils/stagedImageOrder';
 
 /** Payload MIME: the value is the dragged image's 0-based index, as a string. */
-export const STAGED_IMAGE_MIME = 'application/x-maestro-staged-image';
+export const STAGED_IMAGE_MIME = 'application/x-openwizardai-staged-image';
 
 /** True when a drag carries a staged thumbnail (readable during dragover). */
 export function dragCarriesStagedImage(dataTransfer: DataTransfer | null): boolean {
@@ -97,7 +97,7 @@ export function useStagedImageDnd(
 			draggable: true,
 			onDragStart: (e) => {
 				e.dataTransfer.setData(STAGED_IMAGE_MIME, String(index));
-				// The plain-text flavor is what a drop outside Maestro (or on a
+				// The plain-text flavor is what a drop outside OpenWizardAI (or on a
 				// plain text field) receives, and it matches what handleDrop
 				// inserts into the composer.
 				e.dataTransfer.setData('text/plain', screenshotReferenceLabel(index));

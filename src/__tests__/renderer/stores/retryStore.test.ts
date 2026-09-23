@@ -531,7 +531,7 @@ describe('clearing the error banner on recovery', () => {
 // resolveOutage, so all three paths are asserted through the public API.
 describe('resilience event recording', () => {
 	const recordMock = () =>
-		(window as any).maestro.stats.recordResilience as ReturnType<typeof vi.fn>;
+		(window as any).openwizardai.stats.recordResilience as ReturnType<typeof vi.fn>;
 
 	beforeEach(() => recordMock().mockClear());
 

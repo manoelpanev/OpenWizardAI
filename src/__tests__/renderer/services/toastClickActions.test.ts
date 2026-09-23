@@ -82,7 +82,7 @@ describe('dispatchToastClickAction', () => {
 
 	it('open-file dispatches the shared file-open event', () => {
 		dispatchToastClickAction({ kind: 'open-file', sessionId: 's1', path: '/tmp/a.ts' });
-		expect(dispatchedEvent('maestro:openFileTab')?.detail).toEqual({
+		expect(dispatchedEvent('openwizardai:openFileTab')?.detail).toEqual({
 			sessionId: 's1',
 			filePath: '/tmp/a.ts',
 		});
@@ -174,7 +174,7 @@ describe('dispatchToastClickAction', () => {
 				url: 'https://example.com/build',
 			});
 
-			expect(dispatchedEvent('maestro:openBrowserTab')?.detail).toEqual({
+			expect(dispatchedEvent('openwizardai:openBrowserTab')?.detail).toEqual({
 				sessionId: 's1',
 				url: 'https://example.com/build',
 			});
@@ -190,7 +190,7 @@ describe('dispatchToastClickAction', () => {
 				url: 'https://example.com/build',
 			});
 
-			expect(dispatchedEvent('maestro:openBrowserTab')?.detail).toEqual({
+			expect(dispatchedEvent('openwizardai:openBrowserTab')?.detail).toEqual({
 				sessionId: 's1',
 				url: 'https://example.com/build',
 			});
@@ -208,7 +208,7 @@ describe('dispatchToastClickAction', () => {
 
 	it('open-url hands off to the system browser', () => {
 		dispatchToastClickAction({ kind: 'open-url', url: 'https://example.com/logs' });
-		expect(globalThis.window.maestro.shell.openExternal).toHaveBeenCalledWith(
+		expect(globalThis.window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
 			'https://example.com/logs'
 		);
 	});

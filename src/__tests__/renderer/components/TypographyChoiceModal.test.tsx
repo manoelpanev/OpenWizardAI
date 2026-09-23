@@ -61,7 +61,7 @@ describe('TypographyChoiceModal', () => {
 			// New-user copy would read to an existing user as if their preference
 			// were being ignored, so the same modal changes what it says.
 			renderModal({ isReturningUser: true });
-			expect(screen.getByText('OpenWizzard has new typography')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI has new typography')).toBeInTheDocument();
 			expect(screen.getByText(/You've been using Hacker/)).toBeInTheDocument();
 		});
 	});

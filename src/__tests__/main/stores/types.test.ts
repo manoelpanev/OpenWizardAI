@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 import type {
 	BootstrapSettings,
-	MaestroSettings,
+	OpenWizardAISettings,
 	SessionsData,
 	GroupsData,
 	AgentConfigsData,
@@ -27,9 +27,9 @@ describe('stores/types', () => {
 
 		it('should allow customSyncPath string', () => {
 			const settings: BootstrapSettings = {
-				customSyncPath: '/Users/test/iCloud/Maestro',
+				customSyncPath: '/Users/test/iCloud/OpenWizardAI',
 			};
-			expect(settings.customSyncPath).toBe('/Users/test/iCloud/Maestro');
+			expect(settings.customSyncPath).toBe('/Users/test/iCloud/OpenWizardAI');
 		});
 
 		it('should allow legacy iCloudSyncEnabled', () => {
@@ -40,9 +40,9 @@ describe('stores/types', () => {
 		});
 	});
 
-	describe('MaestroSettings', () => {
+	describe('OpenWizardAISettings', () => {
 		it('should have all required fields', () => {
-			const settings: MaestroSettings = {
+			const settings: OpenWizardAISettings = {
 				activeThemeId: 'dracula',
 				shortcuts: { 'ctrl+s': 'save' },
 				fontSize: 14,
@@ -72,7 +72,7 @@ describe('stores/types', () => {
 			];
 
 			logLevels.forEach((level) => {
-				const settings: Partial<MaestroSettings> = { logLevel: level };
+				const settings: Partial<OpenWizardAISettings> = { logLevel: level };
 				expect(settings.logLevel).toBe(level);
 			});
 		});

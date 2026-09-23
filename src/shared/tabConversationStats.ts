@@ -5,7 +5,7 @@
  * The HTML export has always printed these figures at the top of the document.
  * They are just as useful without exporting, so the numbers live here and every
  * surface reads them from the same place: the Context Details popover in the
- * main panel header, `generateTabExportHtml()`, and `maestro-cli list-sessions`
+ * main panel header, `generateTabExportHtml()`, and `openwizardai-cli list-sessions`
  * can never disagree about how big a conversation is or how long it ran.
  *
  * Lives in `shared/` rather than `renderer/utils/` because the CLI is one of

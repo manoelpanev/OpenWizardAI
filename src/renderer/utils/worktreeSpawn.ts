@@ -79,7 +79,7 @@ export async function spawnWorktreeAgentAndDispatch(
 		// dropdown only affected PR target.
 		let result;
 		try {
-			result = await window.maestro.git.worktreeSetup(
+			result = await window.openwizardai.git.worktreeSetup(
 				parentSession.cwd,
 				worktreePath,
 				branchName,
@@ -131,7 +131,7 @@ export async function spawnWorktreeAgentAndDispatch(
 	}
 
 	// If a session for this worktree path already exists (e.g., the resolved
-	// existing worktree is already open in Maestro), reuse it instead of
+	// existing worktree is already open in OpenWizardAI), reuse it instead of
 	// building a duplicate. We still fall through to populate config.worktree
 	// below so PR creation continues to work.
 	const normalizedWorktreePath = normalizePath(worktreePath);

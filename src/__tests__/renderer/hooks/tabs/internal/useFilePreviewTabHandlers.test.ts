@@ -35,7 +35,7 @@ describe('useFilePreviewTabHandlers', () => {
 		// Media is not a document. It never gets a tab, a main panel view, or any
 		// other placement: opening an audio or video file hands it to the floating
 		// player and nothing else.
-		const STREAM = 'maestro-media://stream/tok3n/2f66696c65732f612e6d7033';
+		const STREAM = 'openwizardai-media://stream/tok3n/2f66696c65732f612e6d7033';
 
 		it('opens a media file in the player without creating a tab', () => {
 			setupSession({ aiTabs: [createMockAITab({ id: 'ai-1' })] });
@@ -146,7 +146,7 @@ describe('useFilePreviewTabHandlers', () => {
 		});
 
 		it('still opens a tab for remote media, which has no playable stream', () => {
-			// Only local files get a maestro-media:// URL, so a remote .mp3 keeps the
+			// Only local files get a openwizardai-media:// URL, so a remote .mp3 keeps the
 			// binary "download and open externally" preview.
 			setupSession({ aiTabs: [createMockAITab({ id: 'ai-1' })] });
 			const { result } = renderHook(() => useFilePreviewTabHandlers());
@@ -344,7 +344,7 @@ describe('useFilePreviewTabHandlers', () => {
 			modal?.data?.onConfirm();
 		});
 
-		expect(window.maestro.fs.cancelReadFile).toHaveBeenCalledWith('load-1');
+		expect(window.openwizardai.fs.cancelReadFile).toHaveBeenCalledWith('load-1');
 		expect(getSession().filePreviewTabs).toHaveLength(0);
 	});
 
@@ -357,17 +357,17 @@ describe('useFilePreviewTabHandlers', () => {
 		});
 		setupSession({ filePreviewTabs: [fileTab] });
 		useSettingsStore.setState({ fileTabAutoRefreshEnabled: true } as any);
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			modifiedAt: new Date(5000).toISOString(),
 		} as any);
-		vi.mocked(window.maestro.fs.readFile).mockResolvedValue('fresh');
+		vi.mocked(window.openwizardai.fs.readFile).mockResolvedValue('fresh');
 		const { result } = renderHook(() => useFilePreviewTabHandlers());
 
 		await act(async () => {
 			await result.current.handleSelectFileTab('file-1');
 		});
 
-		expect(window.maestro.fs.readFile).toHaveBeenCalledWith('/repo/app.ts', undefined);
+		expect(window.openwizardai.fs.readFile).toHaveBeenCalledWith('/repo/app.ts', undefined);
 		expect(getSession().activeFileTabId).toBe('file-1');
 		expect(getSession().filePreviewTabs[0].content).toBe('fresh');
 	});
@@ -383,14 +383,14 @@ describe('useFilePreviewTabHandlers', () => {
 			navigationIndex: 0,
 		});
 		setupSession({ filePreviewTabs: [fileTab], activeFileTabId: 'file-1' });
-		vi.mocked(window.maestro.fs.readFile).mockResolvedValue('b-content');
+		vi.mocked(window.openwizardai.fs.readFile).mockResolvedValue('b-content');
 		const { result } = renderHook(() => useFilePreviewTabHandlers());
 
 		await act(async () => {
 			await result.current.handleFileTabNavigateToIndex(1);
 		});
 
-		expect(window.maestro.fs.readFile).toHaveBeenCalledWith('/repo/b.ts', 'remote-1');
+		expect(window.openwizardai.fs.readFile).toHaveBeenCalledWith('/repo/b.ts', 'remote-1');
 		expect(getSession().filePreviewTabs[0]).toMatchObject({
 			path: '/repo/b.ts',
 			content: 'b-content',

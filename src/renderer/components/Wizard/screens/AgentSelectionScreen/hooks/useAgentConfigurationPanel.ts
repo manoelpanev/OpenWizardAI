@@ -59,16 +59,18 @@ export function useAgentConfigurationPanel({
 	const [availableModels, setAvailableModels] = useState<string[]>([]);
 	const [loadingModels, setLoadingModels] = useState(false);
 	const [refreshingAgent, setRefreshingAgent] = useState(false);
-	// Auto-detected maestro-p path, shown as helper text under the Claude Token
+	// Auto-detected openwizardai-p path, shown as helper text under the Claude Token
 	// Source path override (mirrors EditAgentModal). Local-only; the override is
-	// hidden over SSH where maestro-p is resolved on the remote PATH.
-	const [detectedMaestroPPath, setDetectedMaestroPPath] = useState<string | undefined>(undefined);
+	// hidden over SSH where openwizardai-p is resolved on the remote PATH.
+	const [detectedOpenWizardAIPPath, setDetectedOpenWizardAIPPath] = useState<string | undefined>(
+		undefined
+	);
 
 	useEffect(() => {
-		void window.maestro.agents
-			.getMaestroPDetectedPath()
-			.then((p) => setDetectedMaestroPPath(p ?? undefined))
-			.catch(() => setDetectedMaestroPPath(undefined));
+		void window.openwizardai.agents
+			.getOpenWizardAIPDetectedPath()
+			.then((p) => setDetectedOpenWizardAIPPath(p ?? undefined))
+			.catch(() => setDetectedOpenWizardAIPPath(undefined));
 	}, []);
 
 	const setCustomPath = useCallback(
@@ -88,7 +90,7 @@ export function useAgentConfigurationPanel({
 
 	const handleOpenConfig = useCallback(
 		async (agentId: string) => {
-			const config = await window.maestro.agents.getConfig(agentId);
+			const config = await window.openwizardai.agents.getConfig(agentId);
 			agentConfigRef.current = config || {};
 			setAgentConfig(config || {});
 			setConfiguringAgentId(agentId);
@@ -98,7 +100,7 @@ export function useAgentConfigurationPanel({
 				setLoadingModels(true);
 				const sshRemoteId = getSshRemoteIdForDetection(sshRemoteConfig);
 				try {
-					const models = await window.maestro.agents.getModels(agentId, false, sshRemoteId);
+					const models = await window.openwizardai.agents.getModels(agentId, false, sshRemoteId);
 					setAvailableModels(models);
 				} catch (error) {
 					logger.error('Failed to load models:', undefined, error);
@@ -157,7 +159,11 @@ export function useAgentConfigurationPanel({
 		setLoadingModels(true);
 		const sshRemoteId = getSshRemoteIdForDetection(sshRemoteConfig);
 		try {
-			const models = await window.maestro.agents.getModels(configuringAgentId, true, sshRemoteId);
+			const models = await window.openwizardai.agents.getModels(
+				configuringAgentId,
+				true,
+				sshRemoteId
+			);
 			setAvailableModels(models);
 		} catch (error) {
 			logger.error('Failed to refresh models:', undefined, error);
@@ -180,7 +186,7 @@ export function useAgentConfigurationPanel({
 		async (value?: string) => {
 			if (configuringAgentId) {
 				const pathToSet = (value ?? customPath).trim() || null;
-				await window.maestro.agents.setCustomPath(configuringAgentId, pathToSet);
+				await window.openwizardai.agents.setCustomPath(configuringAgentId, pathToSet);
 			}
 			await refreshAgentDetection();
 		},
@@ -199,7 +205,7 @@ export function useAgentConfigurationPanel({
 			const updatedConfig = { ...agentConfigRef.current, [key]: value };
 			agentConfigRef.current = updatedConfig;
 			setAgentConfig(updatedConfig);
-			await window.maestro.agents.setConfig(configuringAgentId, updatedConfig);
+			await window.openwizardai.agents.setConfig(configuringAgentId, updatedConfig);
 		},
 		[configuringAgentId]
 	);
@@ -239,7 +245,7 @@ export function useAgentConfigurationPanel({
 		availableModels,
 		loadingModels,
 		refreshingAgent,
-		detectedMaestroPPath,
+		detectedOpenWizardAIPPath,
 		configuringTile,
 		detectedConfigAgent,
 		setCustomPath,

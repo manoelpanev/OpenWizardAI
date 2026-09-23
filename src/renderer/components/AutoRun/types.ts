@@ -4,7 +4,7 @@ import type { FileNode } from '../../types/fileTree';
 
 export interface AutoRunProps {
 	theme: Theme;
-	sessionId: string; // OpenWizzard session ID for per-session attachment storage
+	sessionId: string; // OpenWizardAI session ID for per-session attachment storage
 
 	// SSH Remote context (for remote sessions)
 	sshRemoteId?: string; // SSH remote config ID - when set, all fs/autorun operations use SSH

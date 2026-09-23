@@ -16,7 +16,7 @@ import type {
 
 // The renderer sentry module only exports these two helpers, so a full mock is
 // safe and avoids pulling @sentry/electron/renderer into jsdom. Lets us assert
-// what does / doesn't reach Sentry on a failed flush (MAESTRO-QF).
+// what does / doesn't reach Sentry on a failed flush (OPENWIZARDAI-QF).
 const { captureExceptionMock } = vi.hoisted(() => ({ captureExceptionMock: vi.fn() }));
 vi.mock('../../../../renderer/utils/sentry', () => ({
 	captureException: captureExceptionMock,
@@ -174,7 +174,7 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const calls = vi.mocked(window.maestro.sessions.setAll).mock.calls;
+				const calls = vi.mocked(window.openwizardai.sessions.setAll).mock.calls;
 				expect(calls.length).toBe(1);
 				const persisted = calls[0][0] as Session[];
 				expect(persisted[0].aiTabs).toHaveLength(1);
@@ -208,7 +208,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs).toHaveLength(1);
 				expect(persisted[0].aiTabs[0].id).toBe('completed-wizard');
 			});
@@ -227,7 +228,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs).toHaveLength(1);
 				expect(persisted[0].aiTabs[0].id).toBe('plain');
 			});
@@ -273,7 +275,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs).toHaveLength(1);
 				// Fresh tab keeps the first tab's ID for consistency
 				expect(persisted[0].aiTabs[0].id).toBe('w1');
@@ -291,7 +294,7 @@ describe('useDebouncedPersistence', () => {
 					id: 'browser-1',
 					url: 'localhost:5173/docs',
 					title: 'Local Docs',
-					partition: 'persist:maestro-browser-session-session-browser',
+					partition: 'persist:openwizardai-browser-session-session-browser',
 					canGoBack: true,
 					canGoForward: true,
 					isLoading: true,
@@ -315,14 +318,14 @@ describe('useDebouncedPersistence', () => {
 				});
 
 				const persisted = vi
-					.mocked(window.maestro.sessions.setAll)
+					.mocked(window.openwizardai.sessions.setAll)
 					.mock.calls.at(-1)?.[0] as Session[];
 				expect(persisted[0].browserTabs).toHaveLength(1);
 				expect(persisted[0].browserTabs[0]).toMatchObject({
 					id: 'browser-1',
 					url: 'http://localhost:5173/docs',
 					title: 'Local Docs',
-					partition: 'persist:maestro-browser-session-session-browser',
+					partition: 'persist:openwizardai-browser-session-session-browser',
 					canGoBack: false,
 					canGoForward: false,
 					isLoading: false,
@@ -362,12 +365,12 @@ describe('useDebouncedPersistence', () => {
 				});
 
 				const persisted = vi
-					.mocked(window.maestro.sessions.setAll)
+					.mocked(window.openwizardai.sessions.setAll)
 					.mock.calls.at(-1)?.[0] as Session[];
 				expect(persisted[0].browserTabs[0]).toMatchObject({
 					url: 'about:blank',
 					title: 'New Tab',
-					partition: 'persist:maestro-browser-session-session-safe',
+					partition: 'persist:openwizardai-browser-session-session-safe',
 				});
 				expect(persisted[0].activeBrowserTabId).toBeNull();
 			});
@@ -398,12 +401,12 @@ describe('useDebouncedPersistence', () => {
 				});
 
 				const persisted = vi
-					.mocked(window.maestro.sessions.setAll)
+					.mocked(window.openwizardai.sessions.setAll)
 					.mock.calls.at(-1)?.[0] as Session[];
 				expect(persisted[0].browserTabs[0]).toMatchObject({
 					url: 'about:blank',
 					title: 'New Tab',
-					partition: 'persist:maestro-browser-session-session-legacy-browser',
+					partition: 'persist:openwizardai-browser-session-session-legacy-browser',
 					favicon: null,
 				});
 				expect(persisted[0].activeBrowserTabId).toBe('browser-legacy');
@@ -426,7 +429,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].logs).toHaveLength(100);
 			});
 
@@ -445,7 +449,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				// The last entry should be log-149
 				expect(persisted[0].aiTabs[0].logs[99].id).toBe('log-149');
 				// The first entry should be log-50 (150 - 100 = 50)
@@ -467,7 +472,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].logs).toHaveLength(100);
 				expect(persisted[0].aiTabs[0].logs[0].id).toBe('log-0');
 			});
@@ -487,7 +493,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].logs).toHaveLength(50);
 			});
 		});
@@ -507,7 +514,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].state).toBe('idle');
 			});
 
@@ -525,7 +533,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].thinkingStartTime).toBeUndefined();
 			});
 
@@ -551,7 +560,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].agentError).toBeUndefined();
 			});
 
@@ -583,7 +593,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].aiTabs[0].wizardState).toBeUndefined();
 			});
 		});
@@ -602,7 +613,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].closedTabHistory).toBeUndefined();
 			});
 
@@ -623,7 +635,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].agentError).toBeUndefined();
 			});
 
@@ -639,7 +652,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].agentErrorPaused).toBeUndefined();
 			});
 
@@ -655,7 +669,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].agentErrorTabId).toBeUndefined();
 			});
 
@@ -671,7 +686,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].sshConnectionFailed).toBeUndefined();
 			});
 
@@ -690,7 +706,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewHistory).toBeUndefined();
 				expect(persisted[0].filePreviewHistoryIndex).toBeUndefined();
 			});
@@ -713,7 +730,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].fileTree).toEqual([]);
 				expect(persisted[0].fileTreeStats).toBeUndefined();
 				expect(persisted[0].fileTreeLoading).toBeUndefined();
@@ -738,7 +756,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].fileTreeError).toBeUndefined();
 				expect(persisted[0].fileTreeRetryAt).toBeUndefined();
 			});
@@ -755,7 +774,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].state).toBe('idle');
 			});
 
@@ -769,7 +789,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].busySource).toBeUndefined();
 			});
 
@@ -783,7 +804,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].thinkingStartTime).toBeUndefined();
 			});
 
@@ -797,7 +819,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].currentCycleTokens).toBeUndefined();
 			});
 
@@ -811,7 +834,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].currentCycleBytes).toBeUndefined();
 			});
 
@@ -825,7 +849,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].statusMessage).toBeUndefined();
 			});
 		});
@@ -843,7 +868,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].sshRemote).toBeUndefined();
 			});
 
@@ -857,7 +883,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].sshRemoteId).toBeUndefined();
 			});
 
@@ -871,7 +898,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].remoteCwd).toBeUndefined();
 			});
 		});
@@ -905,7 +933,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				// activeTabId should now point to the first remaining tab
 				expect(persisted[0].activeTabId).toBe('regular');
 			});
@@ -925,7 +954,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].activeTabId).toBe('tab-2');
 			});
 
@@ -956,7 +986,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				// The fresh tab reuses the first tab's ID
 				expect(persisted[0].activeTabId).toBe('wizard-only');
 				expect(persisted[0].aiTabs[0].id).toBe('wizard-only');
@@ -979,7 +1010,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				// aiTabs stays empty, but runtime state is reset so a stuck
 				// busy state can't survive a restart with no process backing it.
 				expect(persisted[0].aiTabs).toEqual([]);
@@ -1007,7 +1039,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].id).toBe('my-session');
 				expect(persisted[0].name).toBe('Important Session');
 				expect(persisted[0].cwd).toBe('/projects/test');
@@ -1036,7 +1069,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				const persistedTab = persisted[0].aiTabs[0];
 				expect(persistedTab.agentSessionId).toBe('session-uuid-123');
 				expect(persistedTab.name).toBe('My Conversation');
@@ -1070,7 +1104,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted).toHaveLength(2);
 
 				// Session 1 should be reset
@@ -1102,7 +1137,7 @@ describe('useDebouncedPersistence', () => {
 					vi.advanceTimersByTime(5000);
 				});
 
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 			});
 
 			it('should persist after initialLoadComplete becomes true', () => {
@@ -1120,7 +1155,7 @@ describe('useDebouncedPersistence', () => {
 				act(() => {
 					vi.advanceTimersByTime(3000);
 				});
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 
 				// Mark initial load as complete and trigger re-render with new sessions array
 				initialLoadRef.current = true;
@@ -1132,7 +1167,7 @@ describe('useDebouncedPersistence', () => {
 					vi.advanceTimersByTime(2000);
 				});
 
-				expect(window.maestro.sessions.setAll).toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalled();
 			});
 		});
 
@@ -1144,7 +1179,7 @@ describe('useDebouncedPersistence', () => {
 				renderHook(() => useDebouncedPersistence([session], initialLoadRef));
 
 				// Don't advance timers - it should not have been called yet
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 			});
 
 			it('should call setAll after debounce delay', () => {
@@ -1157,7 +1192,7 @@ describe('useDebouncedPersistence', () => {
 					vi.advanceTimersByTime(2000);
 				});
 
-				expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
 			});
 
 			it('should reset debounce timer on rapid session changes', () => {
@@ -1173,7 +1208,7 @@ describe('useDebouncedPersistence', () => {
 				act(() => {
 					vi.advanceTimersByTime(1500);
 				});
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 
 				// Trigger a new session change which resets the timer
 				const session2 = makeSession({ id: 's1', name: 'Second' });
@@ -1183,13 +1218,13 @@ describe('useDebouncedPersistence', () => {
 				act(() => {
 					vi.advanceTimersByTime(1500);
 				});
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 
 				// Advance the remaining 500ms
 				act(() => {
 					vi.advanceTimersByTime(500);
 				});
-				expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
 			});
 
 			it('should respect custom delay parameter', () => {
@@ -1201,12 +1236,12 @@ describe('useDebouncedPersistence', () => {
 				act(() => {
 					vi.advanceTimersByTime(499);
 				});
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 
 				act(() => {
 					vi.advanceTimersByTime(1);
 				});
-				expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
 			});
 		});
 
@@ -1229,7 +1264,7 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
 			});
 
 			it('should cancel pending debounce timer when flushing', () => {
@@ -1255,7 +1290,7 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
 				vi.clearAllMocks();
 
 				// Advance past the original debounce delay - the timer was cleared
@@ -1264,7 +1299,7 @@ describe('useDebouncedPersistence', () => {
 					vi.advanceTimersByTime(3000);
 				});
 
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 			});
 
 			it('should persist a snapshot passed to flushNow even when nothing is pending', async () => {
@@ -1293,8 +1328,9 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow(mutated);
 				});
 
-				expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
-				const persisted = vi.mocked(window.maestro.sessions.setMany).mock.calls[0][0] as Session[];
+				expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
+				const persisted = vi.mocked(window.openwizardai.sessions.setMany).mock
+					.calls[0][0] as Session[];
 				expect(persisted).toHaveLength(1);
 				expect(persisted[0].name).toBe('Renamed Via Snapshot');
 			});
@@ -1321,7 +1357,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow(fresh);
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setMany).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setMany).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].name).toBe('Fresh Snapshot');
 			});
 		});
@@ -1399,7 +1436,7 @@ describe('useDebouncedPersistence', () => {
 				unmount();
 
 				// Should have called setAll on unmount
-				expect(window.maestro.sessions.setAll).toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).toHaveBeenCalled();
 			});
 
 			it('should not persist on unmount when initialLoadComplete is false', () => {
@@ -1410,7 +1447,7 @@ describe('useDebouncedPersistence', () => {
 
 				unmount();
 
-				expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+				expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 			});
 		});
 	});
@@ -1444,7 +1481,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs).toHaveLength(1);
 				const persistedTab = persisted[0].filePreviewTabs![0];
 				expect(persistedTab.id).toBe('file-1');
@@ -1471,7 +1509,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs![0].scrollTop).toBe(1200);
 			});
 
@@ -1492,7 +1531,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs![0].searchQuery).toBe('function calculateTotal');
 			});
 
@@ -1515,7 +1555,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				const persistedTab = persisted[0].filePreviewTabs![0];
 				expect(persistedTab.editMode).toBe(true);
 				expect(persistedTab.editContent).toBe('modified content with changes');
@@ -1537,7 +1578,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].activeFileTabId).toBe('file-2');
 			});
 		});
@@ -1561,7 +1603,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs).toHaveLength(3);
 				expect(persisted[0].filePreviewTabs![0].scrollTop).toBe(100);
 				expect(persisted[0].filePreviewTabs![1].scrollTop).toBe(200);
@@ -1589,7 +1632,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs![0].scrollTop).toBe(500);
 				expect(persisted[1].filePreviewTabs![0].scrollTop).toBe(1000);
 			});
@@ -1618,7 +1662,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].unifiedTabOrder).toEqual([
 					{ type: 'ai', id: 'ai-1' },
 					{ type: 'file', id: 'file-1' },
@@ -1640,7 +1685,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs).toEqual([]);
 				expect(persisted[0].activeFileTabId).toBeNull();
 			});
@@ -1657,7 +1703,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				// Should pass through without error
 				expect(persisted).toHaveLength(1);
 			});
@@ -1681,7 +1728,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs![0].sshRemoteId).toBe('my-remote-server');
 			});
 
@@ -1702,7 +1750,8 @@ describe('useDebouncedPersistence', () => {
 					result.current.flushNow();
 				});
 
-				const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+				const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+					.calls[0][0] as Session[];
 				expect(persisted[0].filePreviewTabs![0].scrollTop).toBe(150000);
 			});
 		});
@@ -1745,7 +1794,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			const persistedTab = persisted[0].terminalTabs![0];
 			expect(persistedTab.pid).toBe(0);
 			expect(persistedTab.state).toBe('idle');
@@ -1776,7 +1826,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			const persistedTab = persisted[0].terminalTabs![0];
 			expect(persistedTab.id).toBe('term-1');
 			expect(persistedTab.name).toBe('My Terminal');
@@ -1803,7 +1854,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			const persistedTab = persisted[0].terminalTabs![0];
 			expect(persistedTab.scrollTop).toBe(5000);
 			expect(persistedTab.searchQuery).toBe('error');
@@ -1821,7 +1873,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			expect(persisted[0].terminalTabs).toEqual([]);
 		});
 
@@ -1836,7 +1889,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			expect(persisted[0].terminalTabs).toEqual([]);
 		});
 
@@ -1853,7 +1907,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			expect(persisted[0].activeTerminalTabId).toBe('term-2');
 		});
 
@@ -1870,7 +1925,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			expect(persisted[0].activeTerminalTabId).toBe('term-1');
 		});
 
@@ -1887,7 +1943,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			expect(persisted[0].activeTerminalTabId).toBeNull();
 		});
 
@@ -1907,7 +1964,8 @@ describe('useDebouncedPersistence', () => {
 				result.current.flushNow();
 			});
 
-			const persisted = vi.mocked(window.maestro.sessions.setAll).mock.calls[0][0] as Session[];
+			const persisted = vi.mocked(window.openwizardai.sessions.setAll).mock
+				.calls[0][0] as Session[];
 			const tab1 = persisted[0].terminalTabs![0];
 			const tab2 = persisted[0].terminalTabs![1];
 
@@ -1939,8 +1997,8 @@ describe('useDebouncedPersistence', () => {
 				vi.advanceTimersByTime(2000);
 			});
 
-			expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
-			expect(window.maestro.sessions.setMany).not.toHaveBeenCalled();
+			expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.sessions.setMany).not.toHaveBeenCalled();
 		});
 
 		it('second flush with one mutated session ships only that session via setMany', async () => {
@@ -1958,7 +2016,7 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			expect(window.maestro.sessions.setAll).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.sessions.setAll).toHaveBeenCalledTimes(1);
 
 			// Mutate s1 only - Zustand pattern produces a new session object
 			const s1Updated = { ...s1, name: 'One Updated' };
@@ -1967,11 +2025,9 @@ describe('useDebouncedPersistence', () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 
-			expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
-			const [updates, removeIds] = vi.mocked(window.maestro.sessions.setMany).mock.calls[0] as [
-				Session[],
-				string[],
-			];
+			expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
+			const [updates, removeIds] = vi.mocked(window.openwizardai.sessions.setMany).mock
+				.calls[0] as [Session[], string[]];
 			expect(updates).toHaveLength(1);
 			expect(updates[0].id).toBe('s1');
 			expect(updates[0].name).toBe('One Updated');
@@ -1989,8 +2045,8 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setAll).mockClear();
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setAll).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			// Same array reference - re-render forces effect to re-run but the
 			// diff finds nothing changed.
@@ -1999,8 +2055,8 @@ describe('useDebouncedPersistence', () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 
-			expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
-			expect(window.maestro.sessions.setMany).not.toHaveBeenCalled();
+			expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
+			expect(window.openwizardai.sessions.setMany).not.toHaveBeenCalled();
 		});
 
 		it('second flush with one removed session ships empty updates + tombstone id', async () => {
@@ -2015,18 +2071,16 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			rerender({ sessions: [s1] });
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 
-			expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
-			const [updates, removeIds] = vi.mocked(window.maestro.sessions.setMany).mock.calls[0] as [
-				Session[],
-				string[],
-			];
+			expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
+			const [updates, removeIds] = vi.mocked(window.openwizardai.sessions.setMany).mock
+				.calls[0] as [Session[], string[]];
 			expect(updates).toEqual([]);
 			expect(removeIds).toEqual(['s2']);
 		});
@@ -2043,17 +2097,15 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			rerender({ sessions: [s1, s2] });
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 
-			const [updates, removeIds] = vi.mocked(window.maestro.sessions.setMany).mock.calls[0] as [
-				Session[],
-				string[],
-			];
+			const [updates, removeIds] = vi.mocked(window.openwizardai.sessions.setMany).mock
+				.calls[0] as [Session[], string[]];
 			expect(updates).toHaveLength(1);
 			expect(updates[0].id).toBe('s2');
 			expect(removeIds).toEqual([]);
@@ -2072,7 +2124,7 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			const s2Updated = { ...s2, name: 'Mutated' };
 			const s4 = makeSession({ id: 's4', name: 'New' });
@@ -2081,10 +2133,8 @@ describe('useDebouncedPersistence', () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 
-			const [updates, removeIds] = vi.mocked(window.maestro.sessions.setMany).mock.calls[0] as [
-				Session[],
-				string[],
-			];
+			const [updates, removeIds] = vi.mocked(window.openwizardai.sessions.setMany).mock
+				.calls[0] as [Session[], string[]];
 			expect(updates.map((s) => s.id).sort()).toEqual(['s2', 's4']);
 			expect(removeIds).toEqual(['s3']);
 		});
@@ -2100,7 +2150,7 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			// Three rapid mutations within the debounce window
 			rerender({ sessions: [{ ...s1, name: 'B' }] });
@@ -2116,8 +2166,8 @@ describe('useDebouncedPersistence', () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 
-			expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
-			const [updates] = vi.mocked(window.maestro.sessions.setMany).mock.calls[0] as [
+			expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
+			const [updates] = vi.mocked(window.openwizardai.sessions.setMany).mock.calls[0] as [
 				Session[],
 				string[],
 			];
@@ -2135,7 +2185,7 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			rerender({ sessions: [{ ...s1, name: 'B' }] });
 			await act(async () => {
@@ -2143,7 +2193,7 @@ describe('useDebouncedPersistence', () => {
 				await vi.advanceTimersByTimeAsync(0);
 			});
 
-			expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
 		});
 
 		it('unmount after first flush uses setMany when dirty', async () => {
@@ -2157,14 +2207,14 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setAll).mockClear();
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setAll).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			rerender({ sessions: [{ ...s1, name: 'B' }] });
 			unmount();
 
-			expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
-			expect(window.maestro.sessions.setAll).not.toHaveBeenCalled();
+			expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.sessions.setAll).not.toHaveBeenCalled();
 		});
 
 		// Retry contract: when the IPC reports a recoverable failure, the
@@ -2184,11 +2234,11 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 			expect(result.current.isPending).toBe(false);
 
 			// Next flush hits a recoverable disk error.
-			vi.mocked(window.maestro.sessions.setMany).mockResolvedValueOnce(false);
+			vi.mocked(window.openwizardai.sessions.setMany).mockResolvedValueOnce(false);
 			rerender({ sessions: [{ ...s1, name: 'Two' }] });
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
@@ -2196,19 +2246,19 @@ describe('useDebouncedPersistence', () => {
 
 			// setMany was called and returned false. isPending stays true so
 			// the next mutation OR beforeunload will retry.
-			expect(window.maestro.sessions.setMany).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.sessions.setMany).toHaveBeenCalledTimes(1);
 			expect(result.current.isPending).toBe(true);
 
 			// Recovery: next flush should re-ship the same dirty session
 			// because the baseline didn't advance on the previous failure.
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 			rerender({ sessions: [{ ...s1, name: 'Two' }] });
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
 			// The same session is dirty again because previouslyPersistedRef
 			// was preserved at the pre-failure baseline.
-			const [updates] = vi.mocked(window.maestro.sessions.setMany).mock.calls[0] as [
+			const [updates] = vi.mocked(window.openwizardai.sessions.setMany).mock.calls[0] as [
 				Session[],
 				string[],
 			];
@@ -2228,9 +2278,9 @@ describe('useDebouncedPersistence', () => {
 			await act(async () => {
 				await vi.advanceTimersByTimeAsync(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
-			vi.mocked(window.maestro.sessions.setMany).mockRejectedValueOnce(
+			vi.mocked(window.openwizardai.sessions.setMany).mockRejectedValueOnce(
 				new Error('IPC channel closed')
 			);
 			rerender({ sessions: [{ ...s1, name: 'Two' }] });
@@ -2252,7 +2302,7 @@ describe('useDebouncedPersistence', () => {
 			act(() => {
 				vi.advanceTimersByTime(2000);
 			});
-			vi.mocked(window.maestro.sessions.setMany).mockClear();
+			vi.mocked(window.openwizardai.sessions.setMany).mockClear();
 
 			// Same s1 reference inside a new array - the diff sees no per-session change
 			rerender({ sessions: [s1] });
@@ -2260,17 +2310,17 @@ describe('useDebouncedPersistence', () => {
 				vi.advanceTimersByTime(2000);
 			});
 
-			expect(window.maestro.sessions.setMany).not.toHaveBeenCalled();
+			expect(window.openwizardai.sessions.setMany).not.toHaveBeenCalled();
 		});
 	});
 
-	describe('failed-flush Sentry reporting (MAESTRO-QF)', () => {
+	describe('failed-flush Sentry reporting (OPENWIZARDAI-QF)', () => {
 		it('does not report a recoverable disk error to Sentry', async () => {
 			// `setAll` returning false is the main process deliberately signalling a
 			// recoverable disk error (e.g. transient ENOSPC). persistInternal throws
 			// only to preserve `isPending` for retry - it's an expected user-env
-			// condition, not a Maestro bug, so it must stay out of Sentry.
-			vi.mocked(window.maestro.sessions.setAll).mockResolvedValueOnce(false);
+			// condition, not an OpenWizardAI bug, so it must stay out of Sentry.
+			vi.mocked(window.openwizardai.sessions.setAll).mockResolvedValueOnce(false);
 			const session = makeSession({ id: 'session-qf' });
 			const initialLoadRef = makeInitialLoadRef(true);
 			const { result } = renderHook(() => useDebouncedPersistence([session], initialLoadRef));
@@ -2280,12 +2330,12 @@ describe('useDebouncedPersistence', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.sessions.setAll).toHaveBeenCalled();
+			expect(window.openwizardai.sessions.setAll).toHaveBeenCalled();
 			expect(captureExceptionMock).not.toHaveBeenCalled();
 		});
 
 		it('reports a genuine flush failure to Sentry', async () => {
-			vi.mocked(window.maestro.sessions.setAll).mockRejectedValueOnce(new Error('boom'));
+			vi.mocked(window.openwizardai.sessions.setAll).mockRejectedValueOnce(new Error('boom'));
 			const session = makeSession({ id: 'session-qf-2' });
 			const initialLoadRef = makeInitialLoadRef(true);
 			const { result } = renderHook(() => useDebouncedPersistence([session], initialLoadRef));

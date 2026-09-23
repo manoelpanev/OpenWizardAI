@@ -677,7 +677,7 @@ export function useMergeSessionWithSessions(
 						].filter((name, i, arr) => arr.indexOf(name) === i); // Dedupe if same session
 
 						try {
-							await window.maestro.history.add({
+							await window.openwizardai.history.add({
 								id: generateId(),
 								type: 'AUTO',
 								timestamp: Date.now(),
@@ -770,7 +770,7 @@ export function useMergeSessionWithSessions(
 
 					// Log merge operation to history
 					try {
-						await window.maestro.history.add({
+						await window.openwizardai.history.add({
 							id: generateId(),
 							type: 'AUTO',
 							timestamp: Date.now(),

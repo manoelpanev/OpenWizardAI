@@ -44,9 +44,9 @@ export interface AppSessionModalsProps {
 		},
 		customEffort?: string,
 		groupId?: string,
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic',
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic',
 		retryOnAvailabilityErrors?: boolean,
 		retryOnTokenExhaustion?: boolean
 	) => void;
@@ -73,9 +73,9 @@ export interface AppSessionModalsProps {
 			remoteId: string | null;
 			workingDirOverride?: string;
 		},
-		enableMaestroP?: boolean,
-		maestroPPath?: string,
-		maestroPMode?: 'interactive' | 'dynamic',
+		enableOpenWizardAIP?: boolean,
+		openwizardaiPPath?: string,
+		openwizardaiPMode?: 'interactive' | 'dynamic',
 		retryOnAvailabilityErrors?: boolean,
 		retryOnTokenExhaustion?: boolean,
 		customEnvVarsDisabled?: Record<string, string>,

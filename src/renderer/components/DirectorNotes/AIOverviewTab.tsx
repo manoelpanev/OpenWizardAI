@@ -27,7 +27,7 @@ import {
 } from '../../../shared/directorNotesNarrative';
 
 type SynopsisStats = NonNullable<
-	Awaited<ReturnType<typeof window.maestro.directorNotes.generateSynopsis>>['stats']
+	Awaited<ReturnType<typeof window.openwizardai.directorNotes.generateSynopsis>>['stats']
 >;
 
 interface AIOverviewTabProps {
@@ -90,7 +90,9 @@ export function hasCachedSynopsis(): boolean {
 // Module-level: tracks the in-flight synopsis IPC promise.
 // Prevents duplicate generation when the modal is closed and reopened
 // while a generation is still running in the main process.
-type SynopsisResult = Awaited<ReturnType<typeof window.maestro.directorNotes.generateSynopsis>>;
+type SynopsisResult = Awaited<
+	ReturnType<typeof window.openwizardai.directorNotes.generateSynopsis>
+>;
 let activeGenerationPromise: Promise<SynopsisResult> | null = null;
 
 /** Fire a toast when synopsis completes while the modal is closed */
@@ -281,7 +283,7 @@ export function AIOverviewTab({
 		// different binary is worse than sending nothing.
 		const providerChoice = synopsisProviderChoice(directorNotesSettings);
 		const useCustomConfig = !isAutoSynopsisProvider(providerChoice);
-		const ipcPromise = window.maestro.directorNotes.generateSynopsis({
+		const ipcPromise = window.openwizardai.directorNotes.generateSynopsis({
 			lookbackDays,
 			provider: providerChoice,
 			customPath: useCustomConfig ? directorNotesSettings.customPath : undefined,

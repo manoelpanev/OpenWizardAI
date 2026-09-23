@@ -1,7 +1,7 @@
 /**
  * Preload API for Director's Notes operations
  *
- * Provides the window.maestro.directorNotes namespace for:
+ * Provides the window.openwizardai.directorNotes namespace for:
  * - Unified history aggregation across all sessions
  * - AI synopsis generation
  */
@@ -13,7 +13,7 @@ import type { SynopsisProviderChoice } from '../../shared/directorNotesProvider'
 
 /** Aggregate stats returned alongside unified history */
 export interface UnifiedHistoryStats {
-	agentCount: number; // Distinct OpenWizzard agents with history
+	agentCount: number; // Distinct OpenWizardAI agents with history
 	sessionCount: number; // Distinct provider sessions across all agents
 	autoCount: number; // Total AUTO entries
 	userCount: number; // Total USER entries
@@ -95,7 +95,7 @@ export interface SynopsisOptions {
  * Stats about the synopsis generation
  */
 export interface SynopsisStats {
-	agentCount: number; // OpenWizzard agents with history in the lookback window
+	agentCount: number; // OpenWizardAI agents with history in the lookback window
 	entryCount: number; // Total history entries in the lookback window
 	durationMs: number; // Time taken for AI generation
 }

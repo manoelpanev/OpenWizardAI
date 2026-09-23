@@ -1,7 +1,7 @@
 /**
  * Cue backup IPC service.
  *
- * Wraps window.maestro.cueBackup.* with consistent error handling. Read
+ * Wraps window.openwizardai.cueBackup.* with consistent error handling. Read
  * methods return safe defaults on failure; write methods rethrow so the UI
  * can surface failures via toast.
  */
@@ -17,7 +17,7 @@ import { createIpcMethod } from './ipcWrapper';
 export const cueBackupService = {
 	create(): Promise<CueBackupSummary> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.create(),
+			call: () => window.openwizardai.cueBackup.create(),
 			errorContext: 'CueBackup create',
 			rethrow: true,
 		});
@@ -25,7 +25,7 @@ export const cueBackupService = {
 
 	list(): Promise<CueBackupSummary[]> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.list(),
+			call: () => window.openwizardai.cueBackup.list(),
 			errorContext: 'CueBackup list',
 			defaultValue: [] as CueBackupSummary[],
 		});
@@ -33,7 +33,7 @@ export const cueBackupService = {
 
 	inspect(filePath: string): Promise<CueBackupManifest | null> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.inspect(filePath),
+			call: () => window.openwizardai.cueBackup.inspect(filePath),
 			errorContext: 'CueBackup inspect',
 			defaultValue: null as CueBackupManifest | null,
 		});
@@ -41,7 +41,7 @@ export const cueBackupService = {
 
 	readFile(filePath: string, workspaceId: string, relativePath: string): Promise<string | null> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.readFile(filePath, workspaceId, relativePath),
+			call: () => window.openwizardai.cueBackup.readFile(filePath, workspaceId, relativePath),
 			errorContext: 'CueBackup readFile',
 			defaultValue: null,
 		});
@@ -49,7 +49,7 @@ export const cueBackupService = {
 
 	readLive(cwd: string, relativePath: string): Promise<string | null> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.readLive(cwd, relativePath),
+			call: () => window.openwizardai.cueBackup.readLive(cwd, relativePath),
 			errorContext: 'CueBackup readLive',
 			defaultValue: null,
 		});
@@ -57,7 +57,7 @@ export const cueBackupService = {
 
 	restoreFile(filePath: string, workspaceId: string, relativePath: string): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.restoreFile(filePath, workspaceId, relativePath),
+			call: () => window.openwizardai.cueBackup.restoreFile(filePath, workspaceId, relativePath),
 			errorContext: 'CueBackup restoreFile',
 			rethrow: true,
 		});
@@ -65,7 +65,7 @@ export const cueBackupService = {
 
 	restoreAll(filePath: string): Promise<CueBackupRestoreResult> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.restoreAll(filePath),
+			call: () => window.openwizardai.cueBackup.restoreAll(filePath),
 			errorContext: 'CueBackup restoreAll',
 			rethrow: true,
 		});
@@ -73,7 +73,7 @@ export const cueBackupService = {
 
 	getDiffStatus(filePath: string): Promise<CueBackupDiffStatusMap> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.getDiffStatus(filePath),
+			call: () => window.openwizardai.cueBackup.getDiffStatus(filePath),
 			errorContext: 'CueBackup getDiffStatus',
 			defaultValue: {} as CueBackupDiffStatusMap,
 		});
@@ -81,7 +81,7 @@ export const cueBackupService = {
 
 	delete(filePath: string): Promise<void> {
 		return createIpcMethod({
-			call: () => window.maestro.cueBackup.delete(filePath),
+			call: () => window.openwizardai.cueBackup.delete(filePath),
 			errorContext: 'CueBackup delete',
 			rethrow: true,
 		});

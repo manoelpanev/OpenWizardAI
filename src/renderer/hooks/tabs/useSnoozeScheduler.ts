@@ -7,7 +7,7 @@
  *
  * Two properties worth keeping:
  *  - The first sweep runs on mount, and `getDueSnoozes` treats overdue entries
- *    as due, so a wake that came and went while Maestro was closed still fires
+ *    as due, so a wake that came and went while OpenWizardAI was closed still fires
  *    on next launch instead of being silently dropped.
  *  - All due wakes across all agents are applied in ONE setSessions call, so a
  *    batch of simultaneous wakes costs a single re-render and a single

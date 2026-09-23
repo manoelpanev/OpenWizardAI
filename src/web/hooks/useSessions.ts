@@ -1,5 +1,5 @@
 /**
- * useSessions hook for Maestro web interface
+ * useSessions hook for OpenWizardAI web interface
  *
  * Provides real-time session state management for the web interface.
  * Uses the WebSocket connection to receive session updates and provides
@@ -141,7 +141,7 @@ export interface UseSessionsReturn {
 }
 
 /**
- * useSessions hook for managing sessions in the Maestro web interface
+ * useSessions hook for managing sessions in the OpenWizardAI web interface
  *
  * @example
  * ```tsx

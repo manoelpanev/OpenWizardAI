@@ -7,8 +7,8 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	agents: {
 		get: vi.fn(),
 	},
@@ -21,7 +21,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import {
@@ -67,8 +67,8 @@ describe('inlineWizardConversation - Session Overrides', () => {
 				command: 'opencode',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			// Start a conversation with overrides
 			const session = await startInlineWizardConversation({
@@ -89,8 +89,8 @@ describe('inlineWizardConversation - Session Overrides', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify spawn was called with correct overrides
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			expect(spawnCall.sessionCustomPath).toBe('/custom/path/opencode');
 			expect(spawnCall.sessionCustomArgs).toBe('--custom');
@@ -98,7 +98,7 @@ describe('inlineWizardConversation - Session Overrides', () => {
 			expect(spawnCall.sessionCustomModel).toBe('test-model');
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;
@@ -112,8 +112,8 @@ describe('inlineWizardConversation - Session Overrides', () => {
 				command: 'opencode',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
-			mockMaestro.process.spawn.mockResolvedValue(undefined);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.process.spawn.mockResolvedValue(undefined);
 
 			// Start a conversation WITHOUT overrides
 			const session = await startInlineWizardConversation({
@@ -130,8 +130,8 @@ describe('inlineWizardConversation - Session Overrides', () => {
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
 			// Verify spawn was called without overrides
-			expect(mockMaestro.process.spawn).toHaveBeenCalled();
-			const spawnCall = mockMaestro.process.spawn.mock.calls[0][0];
+			expect(mockOpenWizardAI.process.spawn).toHaveBeenCalled();
+			const spawnCall = mockOpenWizardAI.process.spawn.mock.calls[0][0];
 
 			expect(spawnCall.sessionCustomPath).toBeUndefined();
 			expect(spawnCall.sessionCustomArgs).toBeUndefined();
@@ -139,7 +139,7 @@ describe('inlineWizardConversation - Session Overrides', () => {
 			expect(spawnCall.sessionCustomModel).toBeUndefined();
 
 			// Clean up
-			const exitCallback = mockMaestro.process.onExit.mock.calls[0][0];
+			const exitCallback = mockOpenWizardAI.process.onExit.mock.calls[0][0];
 			exitCallback(session.sessionId, 0);
 
 			await messagePromise;

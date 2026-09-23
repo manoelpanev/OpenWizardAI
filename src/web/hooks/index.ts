@@ -1,5 +1,5 @@
 /**
- * Web interface hooks for Maestro
+ * Web interface hooks for OpenWizardAI
  *
  * Custom React hooks for the web interface, including WebSocket
  * connection management and real-time state synchronization.

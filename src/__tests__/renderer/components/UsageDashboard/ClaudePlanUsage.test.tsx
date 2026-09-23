@@ -33,7 +33,7 @@ beforeEach(() => {
 	getCustomEnvVarsMock.mockReset().mockResolvedValue({});
 
 	(global as any).window = (global as any).window ?? {};
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		agents: {
 			getClaudeUsageSnapshots: getClaudeUsageSnapshotsMock,
 			refreshClaudeUsageSnapshots: refreshClaudeUsageSnapshotsMock,

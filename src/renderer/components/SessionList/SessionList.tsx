@@ -86,7 +86,7 @@ const NOW_PLAYING_LABEL_MIN_WIDTH = 401;
  */
 const HEADER_BADGE_WIDTH = 39;
 /**
- * Width the header's left cluster needs before the MAESTRO wordmark is drawn:
+ * Width the header's left cluster needs before the OPENWIZARDAI wordmark is drawn:
  * the wand, the wordmark itself, the hamburger, and the row's own padding.
  * Excludes the LIVE pill and the now-playing pill, which are added below.
  *
@@ -171,7 +171,7 @@ interface SessionListProps {
 	// Tour props
 	startTour?: () => void;
 
-	// Maestro Cue
+	// OpenWizardAI Cue
 	onConfigureCue?: (session: Session) => void;
 
 	// Starred sessions cross-agent jump. Resolves to `false` when the session can
@@ -319,7 +319,7 @@ function SessionListInner(props: SessionListProps) {
 	}, [wizardActiveSessions, sessions]);
 
 	// Cue session status map: sessionId → { count, active }
-	// Always fetched - the indicator shows whenever a .maestro/cue.yaml has subscriptions,
+	// Always fetched - the indicator shows whenever a .openwizardai/cue.yaml has subscriptions,
 	// regardless of whether the Cue Encore Feature is enabled (that only gates execution).
 	const [cueSessionMap, setCueSessionMap] = useState<
 		Map<string, { count: number; active: boolean }>
@@ -1188,7 +1188,7 @@ function SessionListInner(props: SessionListProps) {
 										fontFamily: WORDMARK_FONT_STACK,
 									}}
 								>
-									OPENWIZZARD
+									OPENWIZARDAI
 								</h1>
 							)}
 						</div>
@@ -1217,7 +1217,7 @@ function SessionListInner(props: SessionListProps) {
 								</button>
 							)}
 							{/* Now playing - only while the floating player is hidden, so the
-							    user can always see that audio is coming from OpenWizzard and get
+							    user can always see that audio is coming from OpenWizardAI and get
 							    the widget back with one click. Sheds its label on a narrow
 							    sidebar, the same way the LIVE pill below does. */}
 							<NowPlayingIndicator theme={theme} compact={nowPlayingCompact} />

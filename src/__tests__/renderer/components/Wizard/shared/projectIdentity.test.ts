@@ -6,15 +6,15 @@ import {
 
 describe('projectNameFromPath', () => {
 	it('names the project after its folder', () => {
-		expect(projectNameFromPath('/Users/pedram/Projects/Maestro')).toBe('Maestro');
+		expect(projectNameFromPath('/Users/pedram/Projects/OpenWizardAI')).toBe('OpenWizardAI');
 	});
 
 	it('ignores a trailing separator', () => {
-		expect(projectNameFromPath('/Users/pedram/Projects/Maestro/')).toBe('Maestro');
+		expect(projectNameFromPath('/Users/pedram/Projects/OpenWizardAI/')).toBe('OpenWizardAI');
 	});
 
 	it('reads a Windows path', () => {
-		expect(projectNameFromPath('C:\\Users\\pedram\\Projects\\Maestro')).toBe('Maestro');
+		expect(projectNameFromPath('C:\\Users\\pedram\\Projects\\OpenWizardAI')).toBe('OpenWizardAI');
 	});
 
 	it('falls back when there is no folder name', () => {
@@ -25,17 +25,21 @@ describe('projectNameFromPath', () => {
 
 describe('defaultAgentNameForPath', () => {
 	it('suggests the folder name when it is free', () => {
-		expect(defaultAgentNameForPath('/Projects/Maestro', ['Something Else'])).toBe('Maestro');
+		expect(defaultAgentNameForPath('/Projects/OpenWizardAI', ['Something Else'])).toBe(
+			'OpenWizardAI'
+		);
 	});
 
 	it('avoids a name already in use, case-insensitively', () => {
-		expect(defaultAgentNameForPath('/Projects/Maestro', ['maestro'])).toBe('Maestro 2');
+		expect(defaultAgentNameForPath('/Projects/OpenWizardAI', ['openwizardai'])).toBe(
+			'OpenWizardAI 2'
+		);
 	});
 
 	it('keeps counting past the first collision', () => {
-		expect(defaultAgentNameForPath('/Projects/Maestro', ['Maestro', 'Maestro 2'])).toBe(
-			'Maestro 3'
-		);
+		expect(
+			defaultAgentNameForPath('/Projects/OpenWizardAI', ['OpenWizardAI', 'OpenWizardAI 2'])
+		).toBe('OpenWizardAI 3');
 	});
 
 	it('returns an empty string when the path yields no name', () => {

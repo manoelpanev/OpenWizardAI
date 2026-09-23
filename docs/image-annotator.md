@@ -6,11 +6,11 @@ icon: pen-line
 
 The Image Annotator is a full-screen modal for drawing on top of images you're about to attach to a prompt. Circle the bug, point an arrow at the misaligned button, scribble a quick note - then save back into the message and send.
 
-It works on every image surface in Maestro: staged attachments in the input area, attachments inside Group Chat, the lightbox preview, inline images in Auto Run documents, image files open in the File Preview pane, and the image currently on your system clipboard.
+It works on every image surface in OpenWizardAI: staged attachments in the input area, attachments inside Group Chat, the lightbox preview, inline images in Auto Run documents, image files open in the File Preview pane, and the image currently on your system clipboard.
 
 ## Opening the Annotator
 
-A pencil button appears on every image thumbnail Maestro renders:
+A pencil button appears on every image thumbnail OpenWizardAI renders:
 
 - **Input area** - Hover any staged image thumbnail and click the pencil overlay in the corner. Saving replaces the staged image in place; the next send will use the annotated version.
 - **Group Chat input** - Same hover-overlay pattern on staged thumbnails.
@@ -117,5 +117,5 @@ The annotator's shortcuts are bound at the modal layer with capture-phase priori
 - Pair with the **Image Carousel** (`Cmd+Y` / `Ctrl+Y`) to flip through staged images and annotate each in turn.
 - For long-form markup (mockups, design feedback), draw with **Streamline** turned up to ~0.7 - it gives surprisingly clean lines from a regular trackpad.
 - Hold `Shift` while drawing with the **Pen** to snap the stroke to a straight line - handy for underlines, crop guides, or connecting two points cleanly.
-- The clipboard copy flow is the fastest way to share an annotated screenshot outside Maestro: open the lightbox on any past attachment, press `Cmd+E`, mark it up, then click the copy icon and paste anywhere.
+- The clipboard copy flow is the fastest way to share an annotated screenshot outside OpenWizardAI: open the lightbox on any past attachment, press `Cmd+E`, mark it up, then click the copy icon and paste anywhere.
 - To mark up a screenshot you just captured (without attaching it to a prompt first), copy it to the clipboard and press `Opt+Cmd+E` / `Alt+Ctrl+E`. Edit, save, and the result lands right back on the clipboard to paste wherever you need it.

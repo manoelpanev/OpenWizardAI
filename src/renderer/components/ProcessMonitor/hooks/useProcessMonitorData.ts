@@ -31,7 +31,7 @@ export function useProcessMonitorData(): UseProcessMonitorDataResult {
 			setIsRefreshing(true);
 		}
 		try {
-			const processes = await window.maestro.process.getActiveProcesses();
+			const processes = await window.openwizardai.process.getActiveProcesses();
 			setActiveProcesses(processes);
 		} catch (error) {
 			logger.error('Failed to fetch active processes:', undefined, error);

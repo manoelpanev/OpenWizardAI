@@ -131,19 +131,23 @@ export function resetTabHandlerStores(): void {
 	clearLiveDraft('ai-2');
 	clearLiveDraft('ai-3');
 	vi.clearAllMocks();
-	vi.mocked(window.maestro.fs.readFile).mockResolvedValue('file content');
-	vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+	vi.mocked(window.openwizardai.fs.readFile).mockResolvedValue('file content');
+	vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 		size: 100,
 		createdAt: new Date().toISOString(),
 		modifiedAt: new Date().toISOString(),
 	} as any);
-	if (!(window.maestro.fs as any).cancelReadFile) {
-		(window.maestro.fs as any).cancelReadFile = vi.fn().mockResolvedValue(undefined);
+	if (!(window.openwizardai.fs as any).cancelReadFile) {
+		(window.openwizardai.fs as any).cancelReadFile = vi.fn().mockResolvedValue(undefined);
 	}
-	if (!(window.maestro.claude as any).deleteMessagePair) {
-		(window.maestro.claude as any).deleteMessagePair = vi.fn().mockResolvedValue({ success: true });
+	if (!(window.openwizardai.claude as any).deleteMessagePair) {
+		(window.openwizardai.claude as any).deleteMessagePair = vi
+			.fn()
+			.mockResolvedValue({ success: true });
 	}
-	if (!(window.maestro.agentSessions as any).setSessionStarred) {
-		(window.maestro.agentSessions as any).setSessionStarred = vi.fn().mockResolvedValue(undefined);
+	if (!(window.openwizardai.agentSessions as any).setSessionStarred) {
+		(window.openwizardai.agentSessions as any).setSessionStarred = vi
+			.fn()
+			.mockResolvedValue(undefined);
 	}
 }

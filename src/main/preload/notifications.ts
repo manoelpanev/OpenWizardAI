@@ -1,7 +1,7 @@
 /**
  * Preload API for notifications
  *
- * Provides the window.maestro.notification namespace for:
+ * Provides the window.openwizardai.notification namespace for:
  * - Showing OS notifications
  * - Custom notification commands (e.g., TTS, logging, etc.)
  * - Notification command completion events
@@ -27,20 +27,20 @@ export interface NotificationCommandResponse {
 }
 
 /**
- * Optional Maestro context forwarded to the custom notification command as
+ * Optional OpenWizardAI context forwarded to the custom notification command as
  * environment variables. Lets a user's command reference which agent/tab
  * finished (e.g. to include it in a message). Passing metadata via env instead
  * of string interpolation keeps it safe from shell injection, and unset fields
  * simply don't appear in the child's environment.
  */
 export interface NotificationCommandVars {
-	/** Agent name (the Left Bar entity / session name) -> MAESTRO_NOTIFY_AGENT */
+	/** Agent name (the Left Bar entity / session name) -> OPENWIZARDAI_NOTIFY_AGENT */
 	agent?: string;
-	/** AI tab name within the agent -> MAESTRO_NOTIFY_TAB */
+	/** AI tab name within the agent -> OPENWIZARDAI_NOTIFY_TAB */
 	tab?: string;
-	/** Group the agent belongs to -> MAESTRO_NOTIFY_GROUP */
+	/** Group the agent belongs to -> OPENWIZARDAI_NOTIFY_GROUP */
 	group?: string;
-	/** Originating task/prompt title -> MAESTRO_NOTIFY_TASK */
+	/** Originating task/prompt title -> OPENWIZARDAI_NOTIFY_TASK */
 	task?: string;
 }
 
@@ -68,8 +68,8 @@ export function createNotificationApi() {
 		 * Execute a custom notification command (e.g., TTS, logging)
 		 * @param text - Text to pass to the command via stdin
 		 * @param command - Command to execute (default: 'say' on macOS)
-		 * @param vars - Optional Maestro context exposed to the command as
-		 *   MAESTRO_NOTIFY_* environment variables (agent, tab, group, task)
+		 * @param vars - Optional OpenWizardAI context exposed to the command as
+		 *   OPENWIZARDAI_NOTIFY_* environment variables (agent, tab, group, task)
 		 */
 		speak: (
 			text: string,

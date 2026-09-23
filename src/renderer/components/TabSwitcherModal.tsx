@@ -275,13 +275,13 @@ export function TabSwitcherModal({
 			await Promise.all(
 				namedTabs.map((tab) => {
 					if (effectiveAgentId === 'claude-code') {
-						return window.maestro.claude
+						return window.openwizardai.claude
 							.updateSessionName(projectRoot, tab.agentSessionId!, tab.name!)
 							.catch((err) =>
 								logger.warn('[TabSwitcher] Failed to sync tab name:', undefined, err)
 							);
 					} else {
-						return window.maestro.agentSessions
+						return window.openwizardai.agentSessions
 							.setSessionName(effectiveAgentId, projectRoot, tab.agentSessionId!, tab.name!)
 							.catch((err) =>
 								logger.warn('[TabSwitcher] Failed to sync tab name:', undefined, err)
@@ -290,7 +290,7 @@ export function TabSwitcherModal({
 				})
 			);
 			// Then load all named sessions (including the ones we just synced)
-			const sessions = await window.maestro.agentSessions.getAllNamedSessions();
+			const sessions = await window.openwizardai.agentSessions.getAllNamedSessions();
 			setNamedSessions(sessions.filter((session) => session.agentId === effectiveAgentId));
 			setNamedSessionsLoaded(true);
 		};

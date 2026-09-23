@@ -2,7 +2,6 @@ import { forwardRef } from 'react';
 import { Github, HelpCircle, LayoutGrid, RefreshCw, X } from 'lucide-react';
 import { formatCacheAge } from '../../../../shared/formatters';
 import { GhostIconButton } from '../../ui/GhostIconButton';
-import { buildMaestroUrl } from '../../../utils/buildMaestroUrl';
 import { openUrl } from '../../../utils/openUrl';
 import type { MarketplaceHeaderProps } from '../types';
 
@@ -74,27 +73,29 @@ export const MarketplaceHeader = forwardRef<HTMLButtonElement, MarketplaceHeader
 								</h4>
 								<p className="text-xs mb-2" style={{ color: theme.colors.textDim }}>
 									Want to share your playbook with the community? Submit a pull request to the
-									Maestro-Playbooks repository:
+									OpenWizardAI-Playbooks repository:
 								</p>
 								<button
 									onClick={() => {
-										openUrl('https://github.com/RunMaestro/Maestro-Playbooks');
+										openUrl('https://github.com/manoelpanev/OpenWizardAI-Playbooks');
 										onCloseHelp();
 									}}
 									className="text-xs hover:opacity-80 transition-colors"
 									style={{ color: theme.colors.accent }}
 								>
-									github.com/RunMaestro/Maestro-Playbooks
+									github.com/manoelpanev/OpenWizardAI-Playbooks
 								</button>
 								<button
 									onClick={() => {
-										openUrl(buildMaestroUrl('https://docs.runmaestro.ai/playbook-exchange'));
+										openUrl(
+											'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/playbook-exchange.md'
+										);
 										onCloseHelp();
 									}}
 									className="text-xs hover:opacity-80 transition-colors mt-2 block"
 									style={{ color: theme.colors.accent }}
 								>
-									Read more at docs.runmaestro.ai/playbook-exchange
+									Read the Playbook Exchange docs
 								</button>
 								<div className="mt-3 pt-3 border-t" style={{ borderColor: theme.colors.border }}>
 									<button
@@ -110,7 +111,7 @@ export const MarketplaceHeader = forwardRef<HTMLButtonElement, MarketplaceHeader
 					</div>
 					<button
 						onClick={() => {
-							openUrl('https://github.com/RunMaestro/Maestro-Playbooks');
+							openUrl('https://github.com/manoelpanev/OpenWizardAI-Playbooks');
 						}}
 						className="px-2 py-1 rounded hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs"
 						title="Submit your playbook to the community"

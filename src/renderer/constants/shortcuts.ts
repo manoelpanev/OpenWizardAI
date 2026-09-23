@@ -1,5 +1,5 @@
 // Import from the shared type module rather than `../types`: the CLI reads
-// these defaults (to print a surface's hotkey in `maestro-cli open`), and
+// these defaults (to print a surface's hotkey in `openwizardai-cli open`), and
 // `../types` drags renderer-only, DOM-dependent modules into that build.
 import type { Shortcut } from '../../shared/shortcut-types';
 
@@ -158,7 +158,7 @@ export const DEFAULT_SHORTCUTS: Record<string, Shortcut> = {
 	},
 	openCue: {
 		id: 'openCue',
-		label: 'OpenWizzard Cue',
+		label: 'OpenWizardAI Cue',
 		keys: ['Alt', 'q'],
 	},
 	filterUnreadAgents: {

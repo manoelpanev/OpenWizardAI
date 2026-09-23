@@ -1,5 +1,5 @@
 /**
- * CueModal - Main modal for Maestro Cue dashboard and pipeline editor.
+ * CueModal - Main modal for OpenWizardAI Cue dashboard and pipeline editor.
  *
  * Thin shell: layer stack, tab switching, help overlay, unsaved changes
  * confirmation. Delegates:
@@ -42,7 +42,7 @@ import { ResizeHandles } from '../ui/ResizeHandles';
 // In-memory only - last tab the user was on. Reopening the modal lands here
 // instead of snapping back to Dashboard, matching how the Settings modal
 // behaves. Resets on app restart by design, and an explicit `initialTab`
-// (a deep link, `maestro-cli open cue --tab ...`) always wins over it.
+// (a deep link, `openwizardai-cli open cue --tab ...`) always wins over it.
 let lastOpenCueTab: CueModalTab | null = null;
 
 /** Test-only: clear the remembered tab so suites that assume a fresh open
@@ -348,7 +348,7 @@ export function CueModal({ theme, onClose, cueShortcutKeys }: CueModalProps) {
 						ref={resizableModal.modalRef}
 						role="dialog"
 						aria-modal="true"
-						aria-label="OpenWizzard Cue"
+						aria-label="OpenWizardAI Cue"
 						className="relative rounded-xl shadow-2xl flex flex-col select-none"
 						style={{
 							...resizableModal.style,

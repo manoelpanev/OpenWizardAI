@@ -23,8 +23,8 @@ import {
 import type { NarrativeItem } from '../../shared/directorNotesNarrative';
 
 const CORE_LOOKUP = buildNarrativeGroupLookup([
-	{ agent: 'Maestro', group: 'Maestro Core', emoji: '🎬' },
-	{ agent: 'rc', group: 'Maestro Core', emoji: '🎬' },
+	{ agent: 'OpenWizardAI', group: 'OpenWizardAI Core', emoji: '🎬' },
+	{ agent: 'rc', group: 'OpenWizardAI Core', emoji: '🎬' },
 	{ agent: 'acappella', group: 'Voice' },
 	// Ungrouped agents are legal input and simply never match.
 	{ agent: 'scratch' },
@@ -35,12 +35,12 @@ const item = (text: string, agent?: string): NarrativeItem => (agent ? { text, a
 describe('bucketNarrativeItems', () => {
 	it('collapses agents that share a group into one bucket', () => {
 		const buckets = bucketNarrativeItems(
-			[item('a', 'Maestro'), item('b', 'rc'), item('c', 'acappella')],
+			[item('a', 'OpenWizardAI'), item('b', 'rc'), item('c', 'acappella')],
 			CORE_LOOKUP
 		);
 
 		expect(buckets).toHaveLength(2);
-		expect(buckets[0]).toMatchObject({ label: 'Maestro Core', emoji: '🎬', isGroup: true });
+		expect(buckets[0]).toMatchObject({ label: 'OpenWizardAI Core', emoji: '🎬', isGroup: true });
 		expect(buckets[0].items.map((i) => i.text)).toEqual(['a', 'b']);
 		expect(buckets[1]).toMatchObject({ label: 'Voice', isGroup: true });
 	});
@@ -53,21 +53,21 @@ describe('bucketNarrativeItems', () => {
 	});
 
 	it('buckets by agent when no lookup is supplied at all', () => {
-		const buckets = bucketNarrativeItems([item('a', 'Maestro'), item('b', 'rc')]);
+		const buckets = bucketNarrativeItems([item('a', 'OpenWizardAI'), item('b', 'rc')]);
 
-		expect(buckets.map((b) => b.label)).toEqual(['Maestro', 'rc']);
+		expect(buckets.map((b) => b.label)).toEqual(['OpenWizardAI', 'rc']);
 		expect(buckets.every((b) => !b.isGroup)).toBe(true);
 	});
 
 	it('preserves first-appearance order but sinks the unattributed bucket last', () => {
 		const buckets = bucketNarrativeItems(
-			[item('a'), item('b', 'acappella'), item('c', 'Maestro'), item('d')],
+			[item('a'), item('b', 'acappella'), item('c', 'OpenWizardAI'), item('d')],
 			CORE_LOOKUP
 		);
 
 		expect(buckets.map((b) => b.label)).toEqual([
 			'Voice',
-			'Maestro Core',
+			'OpenWizardAI Core',
 			UNATTRIBUTED_BUCKET_LABEL,
 		]);
 		expect(buckets[2].isUnattributed).toBe(true);
@@ -87,12 +87,12 @@ describe('bucketNarrativeItems', () => {
 		// The manifest hands the model a sanitized display name, so what comes
 		// back rarely matches the stored name byte for byte.
 		const buckets = bucketNarrativeItems(
-			[item('a', '  MAESTRO  '), item('b', '*rc*')],
+			[item('a', '  OPENWIZARDAI  '), item('b', '*rc*')],
 			CORE_LOOKUP
 		);
 
 		expect(buckets).toHaveLength(1);
-		expect(buckets[0].label).toBe('Maestro Core');
+		expect(buckets[0].label).toBe('OpenWizardAI Core');
 	});
 
 	it('returns nothing for an empty section', () => {
@@ -126,6 +126,6 @@ describe('buildNarrativeGroupLookup', () => {
 
 describe('normalizeAgentKey', () => {
 	it('folds case, collapses whitespace, and strips markdown punctuation', () => {
-		expect(normalizeAgentKey('  **Maestro   Cue**  Main ')).toBe('maestro cue main');
+		expect(normalizeAgentKey('  **OpenWizardAI   Cue**  Main ')).toBe('openwizardai cue main');
 	});
 });

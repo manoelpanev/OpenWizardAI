@@ -130,7 +130,7 @@ interface RightPanelProps {
 	// Document Graph handlers
 	onFocusFileInGraph?: (relativePath: string) => void;
 
-	// Browser tab handler - used by file-tree "Open in Maestro Browser"
+	// Browser tab handler - used by file-tree "Open in OpenWizardAI Browser"
 	onOpenBrowserTabAt?: (url: string, options?: { title?: string }) => void;
 }
 

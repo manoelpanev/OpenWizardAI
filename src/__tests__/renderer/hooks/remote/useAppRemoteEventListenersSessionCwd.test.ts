@@ -1,6 +1,6 @@
 /**
- * Covers `maestro:remoteUpdateSessionCwd` in useAppRemoteEventListeners - the
- * renderer side of `maestro-cli update-agent --cwd`.
+ * Covers `openwizardai:remoteUpdateSessionCwd` in useAppRemoteEventListeners - the
+ * renderer side of `openwizardai-cli update-agent --cwd`.
  *
  * The invariant under test (#1565): every path field moves together. Moving
  * only `cwd` left `projectRoot` and `autoRunFolderPath` on the old directory,
@@ -64,7 +64,7 @@ function applyUpdate(setSessions: Mock, sessions: Session[]): Session[] {
 
 function dispatchCwd(sessionId: string, newCwd: string) {
 	window.dispatchEvent(
-		new CustomEvent('maestro:remoteUpdateSessionCwd', {
+		new CustomEvent('openwizardai:remoteUpdateSessionCwd', {
 			detail: { sessionId, newCwd, responseChannel: 'ch' },
 		})
 	);
@@ -78,17 +78,17 @@ const oldLocation = () =>
 		fullPath: '/projects/old',
 		shellCwd: '/projects/old',
 		projectRoot: '/projects/old',
-		autoRunFolderPath: '/projects/old/.maestro/playbooks',
+		autoRunFolderPath: '/projects/old/.openwizardai/playbooks',
 	});
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		process: { sendRemoteUpdateSessionCwdResponse: ack },
 	};
 });
 
-describe('maestro:remoteUpdateSessionCwd', () => {
+describe('openwizardai:remoteUpdateSessionCwd', () => {
 	it('moves projectRoot and the Auto Run folder along with cwd', () => {
 		const sessions = [oldLocation()];
 		const { setSessions } = setup(sessions);
@@ -100,7 +100,7 @@ describe('maestro:remoteUpdateSessionCwd', () => {
 		expect(updated.fullPath).toBe('/projects/new');
 		expect(updated.shellCwd).toBe('/projects/new');
 		expect(updated.projectRoot).toBe('/projects/new');
-		expect(updated.autoRunFolderPath).toBe('/projects/new/.maestro/playbooks');
+		expect(updated.autoRunFolderPath).toBe('/projects/new/.openwizardai/playbooks');
 		expect(ack).toHaveBeenCalledWith('ch', { success: true });
 	});
 

@@ -1,7 +1,7 @@
 /**
  * Tests for useSessions hook
  *
- * Tests the session management hook for the Maestro web interface.
+ * Tests the session management hook for the OpenWizardAI web interface.
  * Covers session state management, WebSocket event handling, API operations,
  * and various edge cases.
  */
@@ -1237,7 +1237,7 @@ describe('useSessions', () => {
 				writable: true,
 				value: {
 					protocol: 'https:',
-					host: 'maestro.example.com:8443',
+					host: 'openwizardai.example.com:8443',
 				},
 			});
 
@@ -1259,7 +1259,7 @@ describe('useSessions', () => {
 			});
 
 			expect(global.fetch).toHaveBeenCalledWith(
-				'https://maestro.example.com:8443/api/session/session-1/send',
+				'https://openwizardai.example.com:8443/api/session/session-1/send',
 				expect.any(Object)
 			);
 		});

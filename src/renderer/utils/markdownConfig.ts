@@ -61,7 +61,7 @@ export interface MarkdownComponentsOptions {
 	imageRenderer?: React.ComponentType<{ src?: string; alt?: string }>;
 	/** Custom code block renderer for specific languages (e.g., mermaid) */
 	customLanguageRenderers?: Record<string, React.ComponentType<{ code: string; theme: Theme }>>;
-	/** Callback when internal file link is clicked (maestro-file:// protocol) */
+	/** Callback when internal file link is clicked (openwizardai-file:// protocol) */
 	onFileClick?: (filePath: string, options?: { openInNewTab?: boolean }) => void;
 	/** Callback when external link is clicked - if not provided, uses default browser behavior */
 	onExternalLinkClick?: (href: string, options?: { ctrlKey?: boolean }) => void;
@@ -527,11 +527,11 @@ export function createMarkdownComponents(options: MarkdownComponentsOptions): Pa
 
 	// Strip event handler attributes (e.g. onToggle) that rehype-raw may
 	// pass through as strings from AI-generated HTML, which React rejects.
-	// Fixes MAESTRO-8Q
+	// Fixes OPENWIZARDAI-8Q
 	components.details = ({ node: _node, onToggle: _onToggle, ...props }: any) =>
 		React.createElement('details', props);
 
-	// Auto Run markers, tagged by `remarkMaestroMarkers` (block markers become a
+	// Auto Run markers, tagged by `remarkOpenWizardAIMarkers` (block markers become a
 	// div, inline ones a span). Only this DOCUMENT component map gets them: chat
 	// builds its own map, so an agent explaining the marker syntax in a message
 	// keeps rendering as prose rather than claiming something is configured.
@@ -540,16 +540,16 @@ export function createMarkdownComponents(options: MarkdownComponentsOptions): Pa
 	// absent, so they are inert on any surface that does not run the plugin.
 	const renderMarker = (tag: 'div' | 'span') => {
 		return ({ node: _node, children, ...props }: any) => {
-			const kind = props['data-maestro-marker'];
+			const kind = props['data-openwizardai-marker'];
 			if (!kind) return React.createElement(tag, props, children);
 			return React.createElement(MarkerPill, {
 				kind,
-				status: props['data-maestro-marker-status'],
-				scope: props['data-maestro-marker-scope'],
-				label: props['data-maestro-marker-label'],
-				detail: props['data-maestro-marker-detail'],
-				artifact: props['data-maestro-marker-artifact'],
-				reason: props['data-maestro-marker-reason'],
+				status: props['data-openwizardai-marker-status'],
+				scope: props['data-openwizardai-marker-scope'],
+				label: props['data-openwizardai-marker-label'],
+				detail: props['data-openwizardai-marker-detail'],
+				artifact: props['data-openwizardai-marker-artifact'],
+				reason: props['data-openwizardai-marker-reason'],
 				theme,
 			});
 		};

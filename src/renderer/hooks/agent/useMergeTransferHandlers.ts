@@ -26,7 +26,7 @@ import { useMergeSessionWithSessions } from './useMergeSession';
 import { useSendToAgentWithSessions } from './useSendToAgent';
 import { captureException } from '../../utils/sentry';
 import { aiTabFocusFields } from '../../utils/tabHelpers';
-import { getStdinFlags, prepareMaestroSystemPrompt } from '../../utils/spawnHelpers';
+import { getStdinFlags, prepareOpenWizardAISystemPrompt } from '../../utils/spawnHelpers';
 
 // ============================================================================
 // Dependencies interface
@@ -143,7 +143,7 @@ export function useMergeTransferHandlers(
 			});
 
 			// Show desktop notification for visibility when app is not focused
-			window.maestro.notification.show(
+			window.openwizardai.notification.show(
 				'Session Merged',
 				`Created "${info.sessionName}" with merged context`
 			);
@@ -225,7 +225,7 @@ export function useMergeTransferHandlers(
 			});
 
 			// Show desktop notification for visibility when app is not focused
-			window.maestro.notification.show(
+			window.openwizardai.notification.show(
 				'Context Transferred',
 				`Created "${sessionName}" with transferred context`
 			);
@@ -472,7 +472,7 @@ You are taking over this conversation. Based on the context above, provide a bri
 			(async () => {
 				try {
 					// Get agent configuration
-					const agent = await window.maestro.agents.get(targetSession.toolType);
+					const agent = await window.openwizardai.agents.get(targetSession.toolType);
 					if (!agent) throw new Error(`${targetSession.toolType} agent not found`);
 
 					const baseArgs = agent.args ?? [];
@@ -493,14 +493,14 @@ You are taking over this conversation. Based on the context above, provide a bri
 
 					const effectivePrompt = contextMessage;
 
-					const appendSystemPrompt = await prepareMaestroSystemPrompt({
+					const appendSystemPrompt = await prepareOpenWizardAISystemPrompt({
 						session: targetSession,
 						activeTabId: newTabId,
 					});
 
 					// Spawn agent
 					const spawnSessionId = `${targetSessionId}-ai-${newTabId}`;
-					await window.maestro.process.spawn({
+					await window.openwizardai.process.spawn({
 						sessionId: spawnSessionId,
 						toolType: targetSession.toolType,
 						cwd: targetSession.cwd,

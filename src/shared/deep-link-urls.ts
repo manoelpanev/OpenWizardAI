@@ -1,7 +1,7 @@
 /**
  * Deep Link URL Builders & Parser
  *
- * Shared utilities for constructing and parsing maestro:// URLs with proper
+ * Shared utilities for constructing and parsing openwizardai:// URLs with proper
  * URI encoding. Used by main process (protocol handler + notification click
  * handlers), renderer (in-app markdown link clicks), and shared modules
  * (template variable substitution).
@@ -10,7 +10,7 @@
 import type { ParsedDeepLink } from './types';
 import { safeDecodeURIComponent } from './stringUtils';
 
-const PROTOCOL = 'maestro://';
+const PROTOCOL = 'openwizardai://';
 
 /**
  * Build a deep link URL for a session, optionally targeting a specific tab.
@@ -42,14 +42,14 @@ export function buildFileDeepLink(sessionId: string, filePath: string, line?: nu
 }
 
 /**
- * Pure parser for `maestro://` URLs. Returns null for malformed or
+ * Pure parser for `openwizardai://` URLs. Returns null for malformed or
  * unrecognized inputs. Free of side effects (no logging, no IPC) so it can
  * run in any process - main, renderer, or web/mobile.
  */
-export function parseMaestroDeepLink(url: string): ParsedDeepLink | null {
+export function parseOpenWizardAIDeepLink(url: string): ParsedDeepLink | null {
 	try {
-		// Normalize: strip protocol prefix (handles both maestro:// and maestro: on Windows)
-		const normalized = url.replace(/^maestro:\/\//, '').replace(/^maestro:/, '');
+		// Normalize: strip protocol prefix (handles both openwizardai:// and openwizardai: on Windows)
+		const normalized = url.replace(/^openwizardai:\/\//, '').replace(/^openwizardai:/, '');
 		// Strip and remember any `#fragment` (used for line numbers on files).
 		const hashIdx = normalized.indexOf('#');
 		const pathPart = hashIdx >= 0 ? normalized.slice(0, hashIdx) : normalized;

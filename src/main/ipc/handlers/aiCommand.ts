@@ -3,7 +3,7 @@
  *
  * AI command mode is the second rung of the composer's bang ladder: the user
  * describes what they want in plain English and the tab's own model returns ONE
- * shell command line, which Maestro shows for a yes/no before running it.
+ * shell command line, which OpenWizardAI shows for a yes/no before running it.
  *
  * This handler is only the model round trip. It never executes anything - the
  * accepted command goes back through the renderer's ordinary command-mode path
@@ -11,7 +11,7 @@
  * exactly the same code, in the same directory, on the same SSH remote.
  *
  * Usage:
- * - window.maestro.aiCommand.suggest(request)
+ * - window.openwizardai.aiCommand.suggest(request)
  */
 
 import { ipcMain } from 'electron';
@@ -36,7 +36,7 @@ import {
 import type { AgentConfigsData } from '../../stores/types';
 import type { ProcessManager } from '../../process-manager';
 import type { AgentDetector } from '../../agents';
-import type { MaestroSettings } from './persistence';
+import type { OpenWizardAISettings } from './persistence';
 
 const LOG_CONTEXT = '[AICommand]';
 
@@ -54,7 +54,7 @@ export interface AiCommandHandlerDependencies {
 	getProcessManager: () => ProcessManager | null;
 	getAgentDetector: () => AgentDetector | null;
 	agentConfigsStore: Store<AgentConfigsData>;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 }
 
 /** What the renderer sends. Mirrors the agent config a chat spawn would use. */

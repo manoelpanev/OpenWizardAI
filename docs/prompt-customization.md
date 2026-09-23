@@ -1,21 +1,21 @@
 ---
 title: Prompt Customization
-description: Customize the system prompts that control how Maestro's AI features behave.
+description: Customize the system prompts that control how OpenWizardAI's AI features behave.
 icon: wand-magic-sparkles
 ---
 
-Maestro ships with 23 core system prompts that control wizard conversations, Auto Run behavior, group chat moderation, context management, and more - plus a library of reusable **include** fragments (Auto Run spec, CLI reference, Cue model, file-access rules, etc.) that other prompts reference. Every prompt is a Markdown template you can edit, and changes take effect immediately - no restart required.
+OpenWizardAI ships with 23 core system prompts that control wizard conversations, Auto Run behavior, group chat moderation, context management, and more - plus a library of reusable **include** fragments (Auto Run spec, CLI reference, Cue model, file-access rules, etc.) that other prompts reference. Every prompt is a Markdown template you can edit, and changes take effect immediately - no restart required.
 
 ## Opening the Prompt Editor
 
-![Maestro Prompts settings tab](./screenshots/settings-prompts.png)
+![OpenWizardAI Prompts settings tab](./screenshots/settings-prompts.png)
 
 1. Open **Settings** (`Cmd+,` / `Ctrl+,`)
-2. Select the **Maestro Prompts** tab
+2. Select the **OpenWizardAI Prompts** tab
 3. Browse prompts by category in the left sidebar - each row shows an estimated token count so you can spot heavy prompts at a glance
 4. Edit in the right-side editor, then click **Save**. A live token estimate next to the prompt title updates as you type.
 
-You can also jump to the four most commonly edited prompts from **Quick Actions** (`Cmd+K` / `Ctrl+K`): Maestro System Prompt, Auto Run Default, Commit Command, and Group Chat Moderator.
+You can also jump to the four most commonly edited prompts from **Quick Actions** (`Cmd+K` / `Ctrl+K`): OpenWizardAI System Prompt, Auto Run Default, Commit Command, and Group Chat Moderator.
 
 <Tip>
 Click the expand button (top-right of the editor) to give the editor the full width of the settings panel. Click the help button for an inline reference of all categories and template variables.
@@ -26,9 +26,9 @@ Click the expand button (top-right of the editor) to give the editor the full wi
 The toolbar above the list carries everything the pane offers:
 
 - **Filter** - narrows the list by prompt name, description, **and body**, so you can find a prompt by a phrase you remember from inside it. Press `/` to jump into the box from anywhere outside a text field. Matches are marked in the list and in the editor.
-- **Preview / Edit** - `Preview` renders the prompt as Markdown with its `{{TEMPLATE}}` variables resolved against the active agent, so you see what the agent actually receives. `Edit` is the syntax-highlighted source, the same editor Maestro uses for file previews and memories. `Cmd+E` / `Ctrl+E` flips between them.
+- **Preview / Edit** - `Preview` renders the prompt as Markdown with its `{{TEMPLATE}}` variables resolved against the active agent, so you see what the agent actually receives. `Edit` is the syntax-highlighted source, the same editor OpenWizardAI uses for file previews and memories. `Cmd+E` / `Ctrl+E` flips between them.
 
-The keyboard works the way it does in the Memories viewer: `Up`/`Down` walk the prompt list, and `Esc` steps back out one rung at a time (autocomplete popup, then the filter box, then the filter text, then the help panel or the expanded editor) before it closes Settings. See [Keyboard Shortcuts](./keyboard-shortcuts#maestro-prompts-settings) for the full table.
+The keyboard works the way it does in the Memories viewer: `Up`/`Down` walk the prompt list, and `Esc` steps back out one rung at a time (autocomplete popup, then the filter box, then the filter text, then the help panel or the expanded editor) before it closes Settings. See [Keyboard Shortcuts](./keyboard-shortcuts#openwizardai-prompts-settings) for the full table.
 
 ## Prompt Categories
 
@@ -42,7 +42,7 @@ Prompts are organized by the feature they control:
 | **Group Chat**    | Group chat sessions - moderator system/synthesis prompts, participant behavior, and participant request formatting                                         |
 | **Context**       | Context window management - grooming (trimming), transferring between sessions, and summarization                                                          |
 | **Commands**      | Built-in commands - image-only message handling, git commit message generation, and AI command mode                                                        |
-| **System**        | Core system behavior - the Maestro system prompt injected into agents, tab naming, Director's Notes, and feedback                                          |
+| **System**        | Core system behavior - the OpenWizardAI system prompt injected into agents, tab naming, Director's Notes, and feedback                                     |
 | **Includes**      | Reusable fragments (filenames begin with `_`) referenced from other prompts via `{{INCLUDE:name}}` or `{{REF:name}}` - never sent to an agent on their own |
 
 ## Template Variables
@@ -57,20 +57,20 @@ Type `{{` in the prompt editor to trigger autocomplete. Use arrow keys to naviga
 
 Available in all prompts:
 
-| Variable                 | Description                                              |
-| ------------------------ | -------------------------------------------------------- |
-| `{{CONDUCTOR_PROFILE}}`  | Your About Me profile from Settings → General            |
-| `{{AGENT_NAME}}`         | Agent name                                               |
-| `{{AGENT_ID}}`           | Agent UUID (for CLI targeting)                           |
-| `{{AGENT_PATH}}`         | Agent home directory path                                |
-| `{{AGENT_GROUP}}`        | Agent's group name (if grouped)                          |
-| `{{AGENT_SESSION_ID}}`   | Agent session ID                                         |
-| `{{AGENT_HISTORY_PATH}}` | Path to agent's history JSON file                        |
-| `{{TAB_NAME}}`           | Custom tab name                                          |
-| `{{TOOL_TYPE}}`          | Agent type (claude-code, codex, opencode, factory-droid) |
-| `{{CWD}}`                | Working directory                                        |
-| `{{CONTEXT_USAGE}}`      | Context window usage percentage                          |
-| `{{MAESTRO_CLI_PATH}}`   | Path to the maestro-cli binary                           |
+| Variable                    | Description                                              |
+| --------------------------- | -------------------------------------------------------- |
+| `{{CONDUCTOR_PROFILE}}`     | Your About Me profile from Settings → General            |
+| `{{AGENT_NAME}}`            | Agent name                                               |
+| `{{AGENT_ID}}`              | Agent UUID (for CLI targeting)                           |
+| `{{AGENT_PATH}}`            | Agent home directory path                                |
+| `{{AGENT_GROUP}}`           | Agent's group name (if grouped)                          |
+| `{{AGENT_SESSION_ID}}`      | Agent session ID                                         |
+| `{{AGENT_HISTORY_PATH}}`    | Path to agent's history JSON file                        |
+| `{{TAB_NAME}}`              | Custom tab name                                          |
+| `{{TOOL_TYPE}}`             | Agent type (claude-code, codex, opencode, factory-droid) |
+| `{{CWD}}`                   | Working directory                                        |
+| `{{CONTEXT_USAGE}}`         | Context window usage percentage                          |
+| `{{OPENWIZARDAI_CLI_PATH}}` | Path to the openwizardai-cli binary                      |
 
 ### Date & Time Variables
 
@@ -96,11 +96,11 @@ Available in all prompts:
 
 ### Deep Link Variables
 
-| Variable              | Description                                  |
-| --------------------- | -------------------------------------------- |
-| `{{AGENT_DEEP_LINK}}` | `maestro://` deep link to this agent         |
-| `{{TAB_DEEP_LINK}}`   | `maestro://` deep link to agent + active tab |
-| `{{GROUP_DEEP_LINK}}` | `maestro://` deep link to agent's group      |
+| Variable              | Description                                       |
+| --------------------- | ------------------------------------------------- |
+| `{{AGENT_DEEP_LINK}}` | `openwizardai://` deep link to this agent         |
+| `{{TAB_DEEP_LINK}}`   | `openwizardai://` deep link to agent + active tab |
+| `{{GROUP_DEEP_LINK}}` | `openwizardai://` deep link to agent's group      |
 
 ### Auto Run Variables
 
@@ -115,7 +115,7 @@ Only available in Auto Run context:
 
 ### Cue Automation Variables
 
-Only available in [Cue](/maestro-cue)-triggered prompts. See [Cue Events](/maestro-cue-events) for event-specific variables.
+Only available in [Cue](/openwizardai-cue)-triggered prompts. See [Cue Events](/openwizardai-cue-events) for event-specific variables.
 
 | Variable                      | Description                                      |
 | ----------------------------- | ------------------------------------------------ |
@@ -157,7 +157,7 @@ Only available in [Cue](/maestro-cue)-triggered prompts. See [Cue Events](/maest
 
 ## Include Directives
 
-Maestro composes prompts at assembly time using two directives. Both reference the same library of fragments - the difference is whether the content is delivered up-front or fetched on demand.
+OpenWizardAI composes prompts at assembly time using two directives. Both reference the same library of fragments - the difference is whether the content is delivered up-front or fetched on demand.
 
 ### `{{INCLUDE:name}}` - full inlining
 
@@ -168,7 +168,7 @@ Embeds the contents of another prompt file directly into the parent. Use this fo
 
 You are an expert code reviewer.
 
-{{INCLUDE:maestro-system-prompt}}
+{{INCLUDE:openwizardai-system-prompt}}
 
 ## Task-Specific Instructions
 
@@ -180,10 +180,10 @@ Review the code changes below...
 Replaces the directive with a single-line bullet that names the include, summarizes its content, and tells the agent how to fetch it on demand:
 
 ```markdown
-- **`_maestro-cue`** - Cue event types, YAML config, template variables, and CLI hooks. Fetch with `maestro-cli prompts get _maestro-cue`.
+- **`_openwizardai-cue`** - Cue event types, YAML config, template variables, and CLI hooks. Fetch with `openwizardai-cli prompts get _openwizardai-cue`.
 ```
 
-The agent then runs `maestro-cli prompts get _maestro-cue` only if the task actually needs that detail. This keeps the parent prompt small and pushes heavy reference material out of the default context.
+The agent then runs `openwizardai-cli prompts get _openwizardai-cue` only if the task actually needs that detail. This keeps the parent prompt small and pushes heavy reference material out of the default context.
 
 Use `{{REF:}}` for bulky reference material (CLI surface, Cue model, playbook spec, doc index) that only some sessions need, and `{{INCLUDE:}}` for short, must-always-have content.
 
@@ -191,11 +191,11 @@ Use `{{REF:}}` for bulky reference material (CLI surface, Cue model, playbook sp
 
 ```bash
 # List every available prompt id with description and category
-maestro-cli prompts list
+openwizardai-cli prompts list
 
 # Fetch a single prompt's content (honors any user customizations)
-maestro-cli prompts get _maestro-cli
-maestro-cli prompts get _maestro-cue --json   # adds metadata
+openwizardai-cli prompts get _openwizardai-cli
+openwizardai-cli prompts get _openwizardai-cue --json   # adds metadata
 ```
 
 The `prompts get` command returns the same content the desktop app would deliver, so an agent following a `{{REF:}}` pointer always sees your latest customizations.
@@ -206,8 +206,8 @@ The two directives use slightly different lookup paths.
 
 **`{{INCLUDE:name}}`** resolves in this order:
 
-1. Maestro first checks the **prompt cache** - any core prompt (bundled or customized) can be referenced by its id (e.g., `maestro-system-prompt`, `_maestro-cli`).
-2. If not found in cache, Maestro looks for a **file on disk** at `<prompts-directory>/<name>.md`.
+1. OpenWizardAI first checks the **prompt cache** - any core prompt (bundled or customized) can be referenced by its id (e.g., `openwizardai-system-prompt`, `_openwizardai-cli`).
+2. If not found in cache, OpenWizardAI looks for a **file on disk** at `<prompts-directory>/<name>.md`.
 
 This means you can create your own reusable prompt fragments by placing `.md` files in the prompts directory (click **Open Folder** in the editor to find it), then reference them from any core prompt with `{{INCLUDE:name}}`.
 
@@ -215,7 +215,7 @@ This means you can create your own reusable prompt fragments by placing `.md` fi
 
 ### Rules
 
-- **Naming convention**: Bundled include fragments use a leading underscore (e.g., `_maestro-cli.md`, `_history-format.md`). Your own fragments can use any name; the underscore is purely a visual signal that the file is meant to be referenced rather than used standalone.
+- **Naming convention**: Bundled include fragments use a leading underscore (e.g., `_openwizardai-cli.md`, `_history-format.md`). Your own fragments can use any name; the underscore is purely a visual signal that the file is meant to be referenced rather than used standalone.
 - **Resolution order**: `{{REF:}}` directives are expanded first (they consult the in-memory prompt registry only), then `{{INCLUDE:}}` directives are inlined recursively against cache + disk.
 - **Max depth**: `{{INCLUDE:}}` nests up to 3 levels deep. Beyond that, the directive is left as-is.
 - **Circular references**: If prompt A includes B which includes A, the cycle is detected and the second inclusion is skipped.
@@ -242,13 +242,13 @@ Custom fragment files in the prompts directory are not shown in the editor's cat
 
 Click **Reset to Default** on any prompt to restore the bundled version. This removes your customization and takes effect immediately.
 
-Customizations are stored in a separate file (`core-prompts-customizations.json` in your Maestro data directory) and survive app updates. Only prompts you've explicitly edited are stored - everything else uses the bundled defaults.
+Customizations are stored in a separate file (`core-prompts-customizations.json` in your OpenWizardAI data directory) and survive app updates. Only prompts you've explicitly edited are stored - everything else uses the bundled defaults.
 
 ## Tips
 
-- **Start small**: Try editing the `maestro-system-prompt` first - it's the system context injected into every agent session and has the highest impact.
+- **Start small**: Try editing the `openwizardai-system-prompt` first - it's the system context injected into every agent session and has the highest impact.
 - **Use includes for shared context**: If you want the same instructions in multiple prompts, create a fragment file and use `{{INCLUDE:name}}` rather than duplicating text.
-- **Use refs for big optional context**: When the shared content is bulky and only some sessions need it (CLI reference, Cue model, playbook spec), use `{{REF:name}}` instead of `{{INCLUDE:name}}` so the parent prompt stays small and the agent can self-fetch via `maestro-cli prompts get <name>`.
+- **Use refs for big optional context**: When the shared content is bulky and only some sessions need it (CLI reference, Cue model, playbook spec), use `{{REF:name}}` instead of `{{INCLUDE:name}}` so the parent prompt stays small and the agent can self-fetch via `openwizardai-cli prompts get <name>`.
 - **Test with Quick Actions**: The four most common prompts are accessible from `Cmd+K` / `Ctrl+K` for fast iteration.
 - **Variables are case-insensitive**: `{{date}}` and `{{DATE}}` both work, but uppercase is conventional.
 - **Autocomplete helps**: Type `{{` in the editor and browse all available variables with descriptions. No need to memorize them.

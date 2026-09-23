@@ -76,7 +76,7 @@ function validateCommandField(value: unknown, prefix: string, errors: string[]):
 		const cliRecord = cli as Record<string, unknown>;
 		if (cliRecord.command !== 'send') {
 			errors.push(
-				`${prefix}: "command.cli.command" must be "send" (only supported maestro-cli sub-command for now)`
+				`${prefix}: "command.cli.command" must be "send" (only supported openwizardai-cli sub-command for now)`
 			);
 		}
 		if (typeof cliRecord.target !== 'string' || cliRecord.target.trim().length === 0) {
@@ -584,7 +584,7 @@ function validateEventSpecificFields(
 	} else if (event === 'app.startup') {
 		// No additional required fields for the startup trigger.
 	} else if (event === 'cli.trigger') {
-		// No additional required fields - triggered manually via maestro-cli.
+		// No additional required fields - triggered manually via openwizardai-cli.
 	} else if (
 		sub.event &&
 		typeof sub.event === 'string' &&

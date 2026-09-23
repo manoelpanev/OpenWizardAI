@@ -53,7 +53,7 @@ interface FileTreeContextMenuProps {
 	onCopyFileName: () => void;
 	onDownloadFile: () => void;
 	onOpenInDefaultApp: () => void;
-	onOpenInMaestroBrowser: () => void;
+	onOpenInOpenWizardAIBrowser: () => void;
 	onOpenInExplorer: () => void;
 	onOpenNewFile: () => void;
 	onOpenNewFolder: () => void;
@@ -89,7 +89,7 @@ export function FileTreeContextMenu({
 	onCopyFileName,
 	onDownloadFile,
 	onOpenInDefaultApp,
-	onOpenInMaestroBrowser,
+	onOpenInOpenWizardAIBrowser,
 	onOpenInExplorer,
 	onOpenNewFile,
 	onOpenNewFolder,
@@ -120,7 +120,7 @@ export function FileTreeContextMenu({
 			node && node.type === 'folder' ? collectPreviewableFiles(node, contextMenu.path).length : 0,
 		[node, contextMenu.path]
 	);
-	const platform = window.maestro?.platform ?? 'unknown';
+	const platform = window.openwizardai?.platform ?? 'unknown';
 	const isHtml = isFile && (nodeName.endsWith('.html') || nodeName.endsWith('.htm'));
 	const isMarkdown = isFile && (nodeName.endsWith('.md') || nodeName.endsWith('.markdown'));
 	// Media plays in the floating player, which only serves local files - over
@@ -359,15 +359,15 @@ export function FileTreeContextMenu({
 							</button>
 						)}
 
-						{/* Open in Maestro Browser - HTML files only, not over SSH */}
+						{/* Open in OpenWizardAI Browser - HTML files only, not over SSH */}
 						{isHtml && !sshRemoteId && onOpenBrowserTabAt && (
 							<button
-								onClick={onOpenInMaestroBrowser}
+								onClick={onOpenInOpenWizardAIBrowser}
 								className="w-full flex items-center gap-2 px-2 py-1.5 rounded text-xs hover:bg-white/10 transition-colors"
 								style={{ color: theme.colors.textMain }}
 							>
 								<Globe className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
-								<span>Open in OpenWizzard Browser</span>
+								<span>Open in OpenWizardAI Browser</span>
 							</button>
 						)}
 

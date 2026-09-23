@@ -1,7 +1,7 @@
 /**
  * Preload API for debug and document graph operations
  *
- * Provides the window.maestro.debug and window.maestro.documentGraph namespaces for:
+ * Provides the window.openwizardai.debug and window.openwizardai.documentGraph namespaces for:
  * - Debug package generation
  * - Document graph file watching
  */

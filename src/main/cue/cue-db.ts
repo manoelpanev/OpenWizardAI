@@ -34,7 +34,7 @@ export interface CueEventRecord {
 	/**
 	 * Provider session id (e.g. Claude's `session_id`) the run produced, parsed
 	 * from agent stdout and written on completion. Distinct from `sessionId`
-	 * (the Maestro agent id). Token attribution in the stats dashboard joins on
+	 * (the OpenWizardAI agent id). Token attribution in the stats dashboard joins on
 	 * this - the agents' on-disk session files are keyed by it. NULL until the
 	 * run finishes, for command/shell runs, or when stdout carried no id.
 	 */
@@ -44,12 +44,12 @@ export interface CueEventRecord {
 	 * envelope). NULL for successful runs and for rows that never finished.
 	 * Written on run completion so the activity log can explain WHY a dispatch
 	 * failed without a DB dig - previously only `status` + the trigger payload
-	 * were stored, which is what made the maestro-p 300s-timeout bug opaque.
+	 * were stored, which is what made the openwizardai-p 300s-timeout bug opaque.
 	 */
 	errorMessage?: string | null;
 	/**
 	 * Process exit code the run terminated with. For agent runs through
-	 * maestro-p this is the distinguishing signal (3 = idle timeout, 4 =
+	 * openwizardai-p this is the distinguishing signal (3 = idle timeout, 4 =
 	 * ready_timeout, 5 = first_byte_timeout, 6 = prompt_truncated, 1 =
 	 * tui_exited, 2 = limit, 0 = success). NULL when the run never produced an exit code (spawn error,
 	 * still running) or for status flips that aren't run completions.
@@ -196,7 +196,7 @@ const CREATE_CUE_EVENT_QUEUE_INDEXES_SQL = `
 
 // Telemetry outbox - buffers telemetry events between flushes. Rows are
 // inserted from the dispatch / run-completion hot paths, read in batches by
-// the submitter, and deleted only after a successful POST to runmaestro.ai.
+// the submitter, and deleted only after a successful POST to github.com/manoelpanev/OpenWizardAI.
 // Failed flushes leave rows in place so the next flush retries them. Bounded
 // in practice by the outbox-threshold flush trigger.
 const CREATE_CUE_TELEMETRY_OUTBOX_SQL = `

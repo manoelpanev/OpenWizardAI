@@ -37,7 +37,7 @@ import type { SshRemoteConfig } from '../../shared/types';
 const execAsync = promisify(exec);
 
 // Path to test image fixture
-const TEST_IMAGE_PATH = path.join(__dirname, '../fixtures/maestro-test-image.png');
+const TEST_IMAGE_PATH = path.join(__dirname, '../fixtures/openwizardai-test-image.png');
 
 // Skip integration tests by default - they make real API calls and may incur costs.
 // Set RUN_INTEGRATION_TESTS=true to enable them.
@@ -1915,7 +1915,7 @@ describe.skipIf(SKIP_INTEGRATION)('Provider Integration Tests', () => {
 				'should process image and identify text content',
 				async () => {
 					// This test verifies that images are properly passed to the provider and processed.
-					// It uses a test image containing the word "Maestro" and asks the provider to
+					// It uses a test image containing the word "OpenWizardAI" and asks the provider to
 					// identify the text. This validates the full image processing pipeline.
 					//
 					// For agents that support image input (supportsImageInput: true):
@@ -1986,16 +1986,16 @@ describe.skipIf(SKIP_INTEGRATION)('Provider Integration Tests', () => {
 						`${provider.name} image processing should complete successfully`
 					).toBe(true);
 
-					// Parse and verify response contains "Maestro"
+					// Parse and verify response contains "OpenWizardAI"
 					const response = provider.parseResponse(result.stdout);
 					console.log(`💬 Response: ${response}`);
 					expect(response, `${provider.name} should return a response`).toBeTruthy();
 
-					// The response should contain "Maestro" (case-insensitive)
-					const responseContainsMaestro = response?.toLowerCase().includes('maestro');
+					// The response should contain "OpenWizardAI" (case-insensitive)
+					const responseContainsOpenWizardAI = response?.toLowerCase().includes('openwizardai');
 					expect(
-						responseContainsMaestro,
-						`${provider.name} should identify "Maestro" in the image. Got: "${response}"`
+						responseContainsOpenWizardAI,
+						`${provider.name} should identify "OpenWizardAI" in the image. Got: "${response}"`
 					).toBe(true);
 				},
 				PROVIDER_TIMEOUT
@@ -2071,7 +2071,7 @@ describe.skipIf(SKIP_INTEGRATION)('Provider Integration Tests', () => {
 				'should emit tool execution events when using tools',
 				async () => {
 					// This test verifies that when an agent uses a tool (like reading a file),
-					// the output contains parseable tool execution events that Maestro can
+					// the output contains parseable tool execution events that OpenWizardAI can
 					// use to show tool activity in the UI.
 					//
 					// We ask the agent to read a known file (package.json) which should trigger
@@ -2112,11 +2112,11 @@ describe.skipIf(SKIP_INTEGRATION)('Provider Integration Tests', () => {
 						console.log(`   - ${exec.name} (${exec.status || 'unknown status'})`);
 					}
 
-					// Also check for result containing project name (maestro)
+					// Also check for result containing project name (openwizardai)
 					const response = provider.parseResponse(result.stdout);
 					console.log(`💬 Response: ${response?.substring(0, 200)}`);
 
-					const responseHasProjectName = response?.toLowerCase().includes('maestro');
+					const responseHasProjectName = response?.toLowerCase().includes('openwizardai');
 					expect(
 						responseHasProjectName,
 						`${provider.name} should have read package.json and found project name. Got: "${response?.substring(0, 100)}"`
@@ -2163,7 +2163,7 @@ describe.skipIf(SKIP_INTEGRATION)('Provider Integration Tests', () => {
 				'should track tool execution state transitions',
 				async () => {
 					// This test verifies that tool execution events include state information
-					// (running, complete, error) that Maestro can use to show tool progress.
+					// (running, complete, error) that OpenWizardAI can use to show tool progress.
 					//
 					// We ask the agent to perform multiple tool operations and verify
 					// that we can parse the state of each tool execution.
@@ -2260,7 +2260,7 @@ describe.skipIf(SKIP_INTEGRATION)('Provider Integration Tests', () => {
  * SSH Provider Integration Tests
  *
  * These tests verify that AI providers work correctly when executed via SSH.
- * This is critical functionality for Maestro's remote execution feature.
+ * This is critical functionality for OpenWizardAI's remote execution feature.
  *
  * To run these tests, configure the following environment variables:
  *
@@ -2851,16 +2851,16 @@ Reply with just the two numbers separated by a comma.`;
 						`${provider.name} image processing via SSH should complete successfully`
 					).toBe(true);
 
-					// Parse and verify response contains "Maestro"
+					// Parse and verify response contains "OpenWizardAI"
 					const response = provider.parseResponse(result.stdout);
 					console.log(`💬 Response: ${response}`);
 					expect(response, `${provider.name} should return a response`).toBeTruthy();
 
-					// The response should contain "Maestro" (case-insensitive)
-					const responseContainsMaestro = response?.toLowerCase().includes('maestro');
+					// The response should contain "OpenWizardAI" (case-insensitive)
+					const responseContainsOpenWizardAI = response?.toLowerCase().includes('openwizardai');
 					expect(
-						responseContainsMaestro,
-						`${provider.name} should identify "Maestro" in the image via SSH. Got: "${response}"`
+						responseContainsOpenWizardAI,
+						`${provider.name} should identify "OpenWizardAI" in the image via SSH. Got: "${response}"`
 					).toBe(true);
 				},
 				SSH_PROVIDER_TIMEOUT

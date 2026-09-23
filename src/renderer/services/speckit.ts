@@ -13,7 +13,7 @@ import { logger } from '../utils/logger';
  */
 export async function getSpeckitCommands(): Promise<SpecKitCommand[]> {
 	try {
-		const result = await window.maestro.speckit.getPrompts();
+		const result = await window.openwizardai.speckit.getPrompts();
 		if (result.success && result.commands) {
 			return result.commands;
 		}
@@ -29,7 +29,7 @@ export async function getSpeckitCommands(): Promise<SpecKitCommand[]> {
  */
 export async function getSpeckitMetadata(): Promise<SpecKitMetadata | null> {
 	try {
-		const result = await window.maestro.speckit.getMetadata();
+		const result = await window.openwizardai.speckit.getMetadata();
 		if (result.success && result.metadata) {
 			return result.metadata;
 		}
@@ -45,7 +45,7 @@ export async function getSpeckitMetadata(): Promise<SpecKitMetadata | null> {
  */
 export async function getSpeckitCommand(slashCommand: string): Promise<SpecKitCommand | null> {
 	try {
-		const result = await window.maestro.speckit.getCommand(slashCommand);
+		const result = await window.openwizardai.speckit.getCommand(slashCommand);
 		if (result.success && result.command) {
 			return result.command;
 		}

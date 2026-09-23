@@ -333,7 +333,7 @@ export function useGitStatusPolling(
 						// Use git:info for branch/remote/ahead/behind (single IPC call, 4 parallel git commands)
 						// Plus get detailed file changes with numstat
 						const [gitInfo, status, numstat] = await Promise.all([
-							window.maestro.git.info(cwd, sshRemoteId),
+							window.openwizardai.git.info(cwd, sshRemoteId),
 							gitService.getStatus(cwd, sshRemoteId),
 							gitService.getNumstat(cwd, sshRemoteId),
 						]);

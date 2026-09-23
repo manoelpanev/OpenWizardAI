@@ -28,7 +28,7 @@ vi.mock('electron', () => ({
 		removeHandler: vi.fn(),
 	},
 	app: {
-		getPath: vi.fn(() => '/tmp/maestro-test-userdata'),
+		getPath: vi.fn(() => '/tmp/openwizardai-test-userdata'),
 	},
 	BrowserWindow: {
 		getAllWindows: vi.fn(() => []),
@@ -41,7 +41,7 @@ vi.mock('../../../../main/history-manager', () => ({
 }));
 
 // Mock the shared-history-manager module. Director's Notes reaches it through
-// `director-notes-shared-history` to fold in runs performed by OTHER Maestro
+// `director-notes-shared-history` to fold in runs performed by OTHER OpenWizardAI
 // instances against the same project. Defaults to "nothing shared" so the
 // existing local-only assertions are untouched; the cross-host suite overrides
 // these per case.
@@ -274,7 +274,7 @@ describe('director-notes IPC handlers', () => {
 			const result = await handler!({} as any, { lookbackDays: 7 });
 
 			expect(result.stats).toBeDefined();
-			expect(result.stats.agentCount).toBe(2); // 2 Maestro sessions
+			expect(result.stats.agentCount).toBe(2); // 2 OpenWizardAI sessions
 			expect(result.stats.sessionCount).toBe(3); // 3 unique provider sessions (as-1, as-2, as-3)
 			expect(result.stats.autoCount).toBe(2);
 			expect(result.stats.userCount).toBe(2);
@@ -423,7 +423,7 @@ describe('director-notes IPC handlers', () => {
 			expect(result.entries[2].id).toBe('oldest');
 		});
 
-		it('should use Maestro session name when available in sessions store', async () => {
+		it('should use OpenWizardAI session name when available in sessions store', async () => {
 			const now = Date.now();
 			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
 			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
@@ -446,11 +446,11 @@ describe('director-notes IPC handlers', () => {
 			const handler = handlers.get('director-notes:getUnifiedHistory');
 			const result = await handler!({} as any, { lookbackDays: 7 });
 
-			// Should use Maestro session name, not tab name
+			// Should use OpenWizardAI session name, not tab name
 			expect(result.entries[0].agentName).toBe('🚧 my-feature');
 		});
 
-		it('should set agentName to undefined when Maestro session not found in store', async () => {
+		it('should set agentName to undefined when OpenWizardAI session not found in store', async () => {
 			const now = Date.now();
 			vi.mocked(mockHistoryManager.listSessionsWithHistory).mockReturnValue(['session-1']);
 			vi.mocked(mockHistoryManager.getEntries).mockReturnValue([
@@ -473,7 +473,7 @@ describe('director-notes IPC handlers', () => {
 			const handler = handlers.get('director-notes:getUnifiedHistory');
 			const result = await handler!({} as any, { lookbackDays: 7 });
 
-			// agentName is only the Maestro session name; undefined when not found
+			// agentName is only the OpenWizardAI session name; undefined when not found
 			expect(result.entries[0].agentName).toBeUndefined();
 			// sessionName is still preserved on the entry
 			expect(result.entries[0].sessionName).toBe('My Agent');
@@ -489,7 +489,7 @@ describe('director-notes IPC handlers', () => {
 			const handler = handlers.get('director-notes:getUnifiedHistory');
 			const result = await handler!({} as any, { lookbackDays: 7 });
 
-			// No Maestro session name available
+			// No OpenWizardAI session name available
 			expect(result.entries[0].agentName).toBeUndefined();
 		});
 
@@ -694,7 +694,7 @@ describe('director-notes IPC handlers', () => {
 	// database read below a fleet doing thousands of runs a day reports zero.
 	describe('Cue runs sourced from cue_events', () => {
 		/** Temp dir for the activity-graph bucket cache. */
-		const GRAPH_CACHE_DIR = path.join(os.tmpdir(), `maestro-dn-cue-test-${process.pid}`);
+		const GRAPH_CACHE_DIR = path.join(os.tmpdir(), `openwizardai-dn-cue-test-${process.pid}`);
 		let cacheRun = 0;
 
 		/** A Cue run as `getCueHistoryEntries()` shapes it. */
@@ -756,7 +756,9 @@ describe('director-notes IPC handlers', () => {
 			mockGetSessionsStore.mockReturnValue({
 				get: vi
 					.fn()
-					.mockReturnValue([{ id: 'session-1', name: 'Sweeper', projectRoot: '/repo/maestro' }]),
+					.mockReturnValue([
+						{ id: 'session-1', name: 'Sweeper', projectRoot: '/repo/openwizardai' },
+					]),
 			});
 			const getCueHistoryEntries = vi.fn(() => []);
 
@@ -767,7 +769,7 @@ describe('director-notes IPC handlers', () => {
 			const query = getCueHistoryEntries.mock.calls[0][0] as any;
 			expect(query.sessionId).toBe('session-1');
 			expect(query.sessionName).toBe('Sweeper');
-			expect(query.projectPath).toBe('/repo/maestro');
+			expect(query.projectPath).toBe('/repo/openwizardai');
 			expect(query.since).toBeGreaterThan(Date.now() - 8 * 24 * 60 * 60 * 1000);
 
 			// "All time" must not smuggle in a cutoff.
@@ -993,14 +995,14 @@ describe('director-notes IPC handlers', () => {
 		});
 	});
 
-	// Work performed by ANOTHER Maestro instance against the same project (an
+	// Work performed by ANOTHER OpenWizardAI instance against the same project (an
 	// agent living on the remote box, rather than one this machine drives over
-	// SSH) is mirrored into `<project>/.maestro/history/history-<host>.jsonl`.
+	// SSH) is mirrored into `<project>/.openwizardai/history/history-<host>.jsonl`.
 	// The per-agent History panel already merged those files; Director's Notes
 	// did not, so the same runs were visible in one surface and absent from the
 	// other. These cover the merge in every Director's Notes surface.
 	describe('cross-host shared history', () => {
-		/** An entry authored by a peer Maestro on another machine. */
+		/** An entry authored by a peer OpenWizardAI on another machine. */
 		const foreignEntry = (overrides: Partial<HistoryEntry> = {}): HistoryEntry =>
 			createMockEntry({
 				id: 'foreign-1',
@@ -1384,7 +1386,7 @@ describe('director-notes IPC handlers', () => {
 			);
 		});
 
-		it('should use Maestro session name in file-path manifest', async () => {
+		it('should use OpenWizardAI session name in file-path manifest', async () => {
 			const { groomContext } = await import('../../../../main/utils/context-groomer');
 			vi.mocked(groomContext).mockResolvedValue({
 				response: '# Synopsis',
@@ -1397,7 +1399,7 @@ describe('director-notes IPC handlers', () => {
 				'/data/history/session-1.json'
 			);
 
-			// Mock sessions store with Maestro session name
+			// Mock sessions store with OpenWizardAI session name
 			mockGetSessionsStore.mockReturnValue({
 				get: vi.fn().mockReturnValue([
 					{
@@ -1413,13 +1415,13 @@ describe('director-notes IPC handlers', () => {
 			const handler = handlers.get('director-notes:generateSynopsis');
 			await handler!({} as any, { lookbackDays: 7, provider: 'claude-code' });
 
-			// The prompt should contain the Maestro session name alongside the file path
+			// The prompt should contain the OpenWizardAI session name alongside the file path
 			const promptArg = vi.mocked(groomContext).mock.calls[0][0].prompt;
 			expect(promptArg).toContain('🚧 feature-branch');
 			expect(promptArg).toContain('/data/history/session-1.json');
 		});
 
-		it('should fall back to session ID when no Maestro session name is available', async () => {
+		it('should fall back to session ID when no OpenWizardAI session name is available', async () => {
 			const { groomContext } = await import('../../../../main/utils/context-groomer');
 			vi.mocked(groomContext).mockResolvedValue({
 				response: '# Synopsis',

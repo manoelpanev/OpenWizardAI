@@ -1,6 +1,6 @@
 {
-	"name": "Maestro Remote",
-	"short_name": "Maestro",
+	"name": "OpenWizardAI Remote",
+	"short_name": "OpenWizardAI",
 	"description": "Remote control for your AI coding assistants",
 	"start_url": "./",
 	"display": "standalone",
@@ -63,7 +63,7 @@
 		{
 			"name": "Send Command",
 			"short_name": "Send",
-			"description": "Open Maestro to send a command",
+			"description": "Open OpenWizardAI to send a command",
 			"url": "./",
 			"icons": [
 				{

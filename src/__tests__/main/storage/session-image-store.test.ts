@@ -31,7 +31,7 @@ describe('session-image-store', () => {
 	let tmpDir: string;
 
 	beforeEach(() => {
-		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-img-test-'));
+		tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-img-test-'));
 		configureImageStore(tmpDir);
 	});
 
@@ -40,24 +40,24 @@ describe('session-image-store', () => {
 		fs.rmSync(tmpDir, { recursive: true, force: true });
 	});
 
-	// Regression guard: relocated images render as `<img src="maestro-image://...">`,
+	// Regression guard: relocated images render as `<img src="openwizardai-image://...">`,
 	// which the renderer's Content-Security-Policy must explicitly allow in
 	// img-src. Omitting it silently blocks every historical image (they show as
 	// broken placeholders) even though the bytes are safe on disk - the exact bug
 	// that shipped when the CSP wasn't updated alongside the store. `data:` alone
 	// is NOT enough once images are refs.
 	describe('renderer CSP allows the image scheme', () => {
-		it('has maestro-image: in img-src', () => {
+		it('has openwizardai-image: in img-src', () => {
 			const html = fs.readFileSync(path.resolve('src/renderer/index.html'), 'utf-8');
 			const imgSrc = html.match(/img-src([^;"]*)/)?.[1] ?? '';
-			expect(imgSrc).toContain('maestro-image:');
+			expect(imgSrc).toContain('openwizardai-image:');
 		});
 	});
 
 	describe('predicates', () => {
 		it('recognizes data URLs and refs', () => {
 			expect(isInlineImageDataUrl(IMG_A)).toBe(true);
-			expect(isInlineImageDataUrl('maestro-image://store/abc.png')).toBe(false);
+			expect(isInlineImageDataUrl('openwizardai-image://store/abc.png')).toBe(false);
 			expect(isImageRef(`${IMAGE_REF_PREFIX}abc.png`)).toBe(true);
 			expect(isImageRef(IMG_A)).toBe(false);
 			expect(isImageRef('/some/path.png')).toBe(false);
@@ -68,7 +68,7 @@ describe('session-image-store', () => {
 		it('stores a data URL as a content-addressed file and returns a ref', async () => {
 			const ref = await storeInlineImage(IMG_A);
 			expect(ref.startsWith(IMAGE_REF_PREFIX)).toBe(true);
-			expect(ref).toMatch(/^maestro-image:\/\/store\/[0-9a-f]{64}\.png$/);
+			expect(ref).toMatch(/^openwizardai-image:\/\/store\/[0-9a-f]{64}\.png$/);
 			const filePath = resolveToFilePath(ref)!;
 			expect(fs.existsSync(filePath)).toBe(true);
 			expect(fs.readFileSync(filePath).toString()).toBe('image-bytes-A');
@@ -82,7 +82,7 @@ describe('session-image-store', () => {
 			const payload = Buffer.from('image-bytes-A').toString('base64');
 			const wrapped = `data:image/png;base64,${payload.slice(0, 4)}\n${payload.slice(4)}`;
 			const ref = await storeInlineImage(wrapped);
-			expect(ref).toMatch(/^maestro-image:\/\/store\/[0-9a-f]{64}\.png$/);
+			expect(ref).toMatch(/^openwizardai-image:\/\/store\/[0-9a-f]{64}\.png$/);
 			expect(fs.readFileSync(resolveToFilePath(ref)!).toString()).toBe('image-bytes-A');
 		});
 

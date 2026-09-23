@@ -71,7 +71,7 @@ describe('WindowsWarningModal', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// Mock shell.openExternal for this test suite
-		vi.mocked(window.maestro.shell.openExternal).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.shell.openExternal).mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -97,7 +97,7 @@ describe('WindowsWarningModal', () => {
 			expect(screen.getByText('Recommendations')).toBeInTheDocument();
 			expect(screen.getByText('Enable Beta Updates')).toBeInTheDocument();
 			expect(screen.getByText('Report Issues')).toBeInTheDocument();
-			expect(screen.getByText('Join Discord')).toBeInTheDocument();
+			expect(screen.getByText('Community Discussions')).toBeInTheDocument();
 			expect(screen.getByText('Create Debug Package')).toBeInTheDocument();
 		});
 
@@ -175,17 +175,17 @@ describe('WindowsWarningModal', () => {
 			renderWithLayerStack(<WindowsWarningModal {...defaultProps} />);
 
 			fireEvent.click(screen.getByText('Report Issues'));
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://github.com/RunMaestro/Maestro/issues'
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI/issues'
 			);
 		});
 
-		it('opens Discord when Join Discord is clicked', () => {
+		it('opens Discord when Community Discussions is clicked', () => {
 			renderWithLayerStack(<WindowsWarningModal {...defaultProps} />);
 
-			fireEvent.click(screen.getByText('Join Discord'));
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://discord.gg/FCAh4EWzfD'
+			fireEvent.click(screen.getByText('Community Discussions'));
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI/discussions'
 			);
 		});
 

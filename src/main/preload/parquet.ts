@@ -1,7 +1,7 @@
 /**
  * Preload API for parquet previews
  *
- * Exposes window.maestro.parquet: open a file, query windows of rows, export
+ * Exposes window.openwizardai.parquet: open a file, query windows of rows, export
  * the matched set, close the handle.
  */
 

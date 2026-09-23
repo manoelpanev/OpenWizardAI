@@ -6,11 +6,11 @@
  * document say so, at whichever scope fits:
  *
  * ```markdown
- * <!-- MAESTRO:MODEL tier="low" effort="low" -->
+ * <!-- OPENWIZARDAI:MODEL tier="low" effort="low" -->
  *
  * - [ ] Catalogue every call site of the auth middleware
  * - [ ] Summarize the current request flow
- * - [ ] Design the migration <!-- MAESTRO:MODEL tier="high" effort="high" -->
+ * - [ ] Design the migration <!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->
  * - [ ] Apply the mechanical renames
  * ```
  *
@@ -39,7 +39,7 @@
  * runs and exists purely so the choice can be audited later:
  *
  * ```markdown
- * <!-- MAESTRO:MODEL tier="high" effort="high" reason="Lock ordering across three services; getting it wrong corrupts data." -->
+ * <!-- OPENWIZARDAI:MODEL tier="high" effort="high" reason="Lock ordering across three services; getting it wrong corrupts data." -->
  * ```
  *
  * Markers inside fenced code blocks are ignored, so a playbook can document
@@ -56,13 +56,13 @@ import { asTierLevel, resolveTierModel, resolveEffortLevel, type ModelTier } fro
 import type { ToolType } from './types';
 
 /**
- * `<!-- MAESTRO:MODEL tier="high" effort="high" -->`
+ * `<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->`
  *
  * Matched case-insensitively on the attributes but requiring the literal
- * `MAESTRO:MODEL` token, which keeps false positives at effectively zero in
+ * `OPENWIZARDAI:MODEL` token, which keeps false positives at effectively zero in
  * prose that happens to mention models.
  */
-const MODEL_MARKER_REGEX = /<!--\s*MAESTRO:MODEL\b([^]*?)-->/i;
+const MODEL_MARKER_REGEX = /<!--\s*OPENWIZARDAI:MODEL\b([^]*?)-->/i;
 
 /** The word that pushes one axis back to the agent's own configuration. */
 const INHERIT_KEYWORD = 'default';

@@ -1,5 +1,5 @@
 /**
- * Resolve which `.maestro/cue.yaml` files a pipeline writes to.
+ * Resolve which `.openwizardai/cue.yaml` files a pipeline writes to.
  *
  * Per-agent-cwd model: each agent's own cwd holds the subscriptions IT owns.
  * A cross-agent pipeline writes to N yaml files (one per participating

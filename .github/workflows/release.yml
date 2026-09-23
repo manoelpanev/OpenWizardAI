@@ -1,4 +1,4 @@
-name: Release Maestro
+name: Release OpenWizardAI
 
 # This workflow is triggered only by git tags (trusted input)
 # No user-controlled data is executed in shell commands
@@ -229,18 +229,18 @@ jobs:
           VITE_APP_VERSION: ${{ steps.version.outputs.VERSION }}
           # Crash-reporting address. Deliberately a secret rather than a source
           # literal: when the DSN sat in src/main/index.ts every fork inherited it and
-          # reported into smash-labs/maestro, which both drowned our issue stream and
+          # reported into smash-labs/openwizardai, which both drowned our issue stream and
           # shipped fork users' telemetry to a project they never chose. Forks do not
           # inherit secrets, so a fork build gets no DSN and reports nowhere.
           # See src/shared/buildProvenance.ts.
-          MAESTRO_SENTRY_DSN: ${{ secrets.MAESTRO_SENTRY_DSN }}
-          MAESTRO_OFFICIAL_BUILD: '1'
+          OPENWIZARDAI_SENTRY_DSN: ${{ secrets.OPENWIZARDAI_SENTRY_DSN }}
+          OPENWIZARDAI_OFFICIAL_BUILD: '1'
 
       # Fail loudly rather than shipping a release with crash reporting silently off.
       - name: Verify crash reporting was provisioned
         run: npm run verify:provenance
         env:
-          MAESTRO_SENTRY_DSN: ${{ secrets.MAESTRO_SENTRY_DSN }}
+          OPENWIZARDAI_SENTRY_DSN: ${{ secrets.OPENWIZARDAI_SENTRY_DSN }}
 
       # List release directory before packaging for debugging
       - name: Create release directory
@@ -470,7 +470,7 @@ jobs:
         if: matrix.platform == 'mac'
         uses: actions/upload-artifact@v6
         with:
-          name: maestro-macos
+          name: openwizardai-macos
           path: |
             release/*.dmg
             release/*.zip
@@ -484,7 +484,7 @@ jobs:
         if: matrix.platform == 'win'
         uses: actions/upload-artifact@v6
         with:
-          name: maestro-windows
+          name: openwizardai-windows
           path: |
             release/*.exe
             release/latest.yml
@@ -495,7 +495,7 @@ jobs:
         if: matrix.platform == 'linux'
         uses: actions/upload-artifact@v6
         with:
-          name: maestro-linux-x64
+          name: openwizardai-linux-x64
           path: |
             release/*.AppImage
             release/*.deb
@@ -509,7 +509,7 @@ jobs:
         if: matrix.platform == 'linux-arm64'
         uses: actions/upload-artifact@v6
         with:
-          name: maestro-linux-arm64
+          name: openwizardai-linux-arm64
           path: |
             release/*.AppImage
             release/*.deb
@@ -531,29 +531,29 @@ jobs:
         uses: actions/download-artifact@v7
         continue-on-error: true
         with:
-          name: maestro-macos
-          path: artifacts/maestro-macos
+          name: openwizardai-macos
+          path: artifacts/openwizardai-macos
 
       - name: Download Windows artifacts
         uses: actions/download-artifact@v7
         continue-on-error: true
         with:
-          name: maestro-windows
-          path: artifacts/maestro-windows
+          name: openwizardai-windows
+          path: artifacts/openwizardai-windows
 
       - name: Download Linux x64 artifacts
         uses: actions/download-artifact@v7
         continue-on-error: true
         with:
-          name: maestro-linux-x64
-          path: artifacts/maestro-linux-x64
+          name: openwizardai-linux-x64
+          path: artifacts/openwizardai-linux-x64
 
       - name: Download Linux ARM64 artifacts
         uses: actions/download-artifact@v7
         continue-on-error: true
         with:
-          name: maestro-linux-arm64
-          path: artifacts/maestro-linux-arm64
+          name: openwizardai-linux-arm64
+          path: artifacts/openwizardai-linux-arm64
 
       - name: List downloaded artifacts
         run: |
@@ -568,7 +568,7 @@ jobs:
 
           # Copy all artifacts to a single directory, letting later copies overwrite
           # This handles cases where both Linux builds produce the same file
-          for dir in artifacts/maestro-macos artifacts/maestro-windows artifacts/maestro-linux-x64 artifacts/maestro-linux-arm64; do
+          for dir in artifacts/openwizardai-macos artifacts/openwizardai-windows artifacts/openwizardai-linux-x64 artifacts/openwizardai-linux-arm64; do
             if [ -d "$dir" ]; then
               echo "Processing $dir..."
               cp -v "$dir"/* artifacts/release/ 2>/dev/null || true
@@ -634,7 +634,7 @@ jobs:
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
           nodetail: true
-          title: '🎉 Maestro ${{ github.ref_name }} Released!'
+          title: '🎉 OpenWizardAI ${{ github.ref_name }} Released!'
           description: |
             ${{ steps.release_notes.outputs.notes }}
 

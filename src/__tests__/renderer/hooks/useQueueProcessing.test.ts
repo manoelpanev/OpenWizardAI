@@ -204,7 +204,7 @@ function createSession(overrides: Partial<Session> = {}): Session {
 		activeFileTabId: null,
 		unifiedTabOrder: [{ type: 'ai' as const, id: tab.id }],
 		unifiedClosedTabHistory: [],
-		autoRunFolderPath: '/test/project/.maestro-autorun',
+		autoRunFolderPath: '/test/project/.openwizardai-autorun',
 		terminalTabs: [],
 		activeTerminalTabId: null,
 		...overrides,

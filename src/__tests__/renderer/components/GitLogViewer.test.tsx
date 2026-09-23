@@ -88,9 +88,9 @@ describe('GitLogViewer', () => {
 		...overrides,
 	});
 
-	const gitLogMock = () => vi.mocked(window.maestro.git.log);
-	const gitShowMock = () => vi.mocked(window.maestro.git.show);
-	const gitCommitCountMock = () => vi.mocked(window.maestro.git.commitCount);
+	const gitLogMock = () => vi.mocked(window.openwizardai.git.log);
+	const gitShowMock = () => vi.mocked(window.openwizardai.git.show);
+	const gitCommitCountMock = () => vi.mocked(window.openwizardai.git.commitCount);
 
 	beforeEach(() => {
 		vi.clearAllMocks();

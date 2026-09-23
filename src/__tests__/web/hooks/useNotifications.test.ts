@@ -2,7 +2,7 @@
  * Tests for useNotifications hook
  *
  * Tests browser notification permission management and notification display
- * for the Maestro mobile web interface.
+ * for the OpenWizardAI mobile web interface.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -29,8 +29,8 @@ vi.mock('../../../web/utils/logger', () => ({
 import { webLogger } from '../../../web/utils/logger';
 
 // Storage keys (must match source)
-const NOTIFICATION_PROMPT_KEY = 'maestro_notification_prompted';
-const NOTIFICATION_DECLINED_KEY = 'maestro_notification_declined';
+const NOTIFICATION_PROMPT_KEY = 'openwizardai_notification_prompted';
+const NOTIFICATION_DECLINED_KEY = 'openwizardai_notification_declined';
 
 // Helper to create mock Notification class
 function createMockNotification(permission: NotificationPermission = 'default') {
@@ -611,7 +611,7 @@ describe('useNotifications', () => {
 			expect((window as any).Notification).toHaveBeenCalledWith(
 				'Test',
 				expect.objectContaining({
-					icon: '/maestro-icon-192.png',
+					icon: '/openwizardai-icon-192.png',
 				})
 			);
 		});
@@ -625,7 +625,7 @@ describe('useNotifications', () => {
 			expect((window as any).Notification).toHaveBeenCalledWith(
 				'Test',
 				expect.objectContaining({
-					badge: '/maestro-icon-192.png',
+					badge: '/openwizardai-icon-192.png',
 				})
 			);
 		});
@@ -642,8 +642,8 @@ describe('useNotifications', () => {
 			expect((window as any).Notification).toHaveBeenCalledWith(
 				'Test',
 				expect.objectContaining({
-					icon: '/maestro-icon-192.png',
-					badge: '/maestro-icon-192.png',
+					icon: '/openwizardai-icon-192.png',
+					badge: '/openwizardai-icon-192.png',
 					body: 'Custom body',
 					tag: 'custom-tag',
 				})

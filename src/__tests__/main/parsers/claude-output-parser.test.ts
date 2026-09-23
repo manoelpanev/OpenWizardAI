@@ -819,7 +819,7 @@ describe('ClaudeOutputParser', () => {
 		it('does NOT flag a normal answer that merely discusses limits', () => {
 			const chatty =
 				'Here is what happens when you hit your usage limit: the CLI prints a notice and ' +
-				'Maestro schedules a retry. Rate limit handling lives in retryClassification.ts.';
+				'OpenWizardAI schedules a retry. Rate limit handling lives in retryClassification.ts.';
 			expect(parser.detectErrorFromParsed({ type: 'result', result: chatty })).toBeNull();
 			expect(
 				parser.detectErrorFromParsed({ type: 'result', result: 'All done - tests pass.' })
@@ -893,11 +893,11 @@ describe('ClaudeOutputParser', () => {
 		});
 
 		it('does NOT flag a real reply that merely discusses the banner', () => {
-			// Maestro's own agents write about this constantly. The banner has to BE
+			// OpenWizardAI's own agents write about this constantly. The banner has to BE
 			// the message, not appear inside it.
 			for (const text of [
 				'The CLI prints "You\'ve hit your session limit" and then just sits there.',
-				"When you've hit your session limit, Maestro schedules a retry for you.",
+				"When you've hit your session limit, OpenWizardAI schedules a retry for you.",
 				"Fixed. You've hit your session limit · resets 11:40am (America/Chicago) now classifies as rate_limited, so resilience picks it up.",
 			]) {
 				expect(

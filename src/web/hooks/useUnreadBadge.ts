@@ -1,5 +1,5 @@
 /**
- * Unread Badge Hook for Maestro Mobile Web
+ * Unread Badge Hook for OpenWizardAI Mobile Web
  *
  * Manages unread response counts and updates the app badge
  * using the Navigator Badge API (PWA feature).
@@ -17,7 +17,7 @@ import { webLogger } from '../utils/logger';
 /**
  * Storage key for persisting unread response IDs
  */
-const UNREAD_RESPONSES_KEY = 'maestro_unread_responses';
+const UNREAD_RESPONSES_KEY = 'openwizardai_unread_responses';
 
 /**
  * Configuration options for the useUnreadBadge hook

@@ -2,7 +2,7 @@
 /**
  * Repair Auto Run durations that the old visibility-gated clock under-recorded.
  *
- * `useTimeTracking` used to stop counting whenever the Maestro window was
+ * `useTimeTracking` used to stop counting whenever the OpenWizardAI window was
  * hidden, which in Electron on macOS includes "minimized" and "fully covered by
  * another app". The agent runs in its own process and keeps working, so what
  * got written into `auto_run_sessions.duration` was the user's attention rather
@@ -39,7 +39,7 @@
  *   node scripts/repair-autorun-durations.mjs --apply     # writes, after a backup
  *   node scripts/repair-autorun-durations.mjs --db <path> # non-default location
  *
- * Quit Maestro before `--apply`. The app holds the database open and caches
+ * Quit OpenWizardAI before `--apply`. The app holds the database open and caches
  * aggregates; repairing underneath a live process means the running app keeps
  * serving the old numbers until it is restarted anyway.
  */
@@ -54,7 +54,7 @@ const dbFlag = process.argv.indexOf('--db');
 const DB =
 	dbFlag !== -1 && process.argv[dbFlag + 1]
 		? process.argv[dbFlag + 1]
-		: path.join(homedir(), 'Library', 'Application Support', 'maestro', 'stats.db');
+		: path.join(homedir(), 'Library', 'Application Support', 'openwizardai', 'stats.db');
 
 /** Run one statement through the sqlite3 CLI and return stdout. */
 function sql(query, { readonly = true } = {}) {

@@ -5,9 +5,9 @@
 // flags appear in completions the next time the user regenerates the script.
 //
 // Usage:
-//   maestro-cli completions zsh  >> ~/.zshrc            (or a fpath file)
-//   maestro-cli completions bash >> ~/.bashrc
-//   maestro-cli completions fish >  ~/.config/fish/completions/maestro-cli.fish
+//   openwizardai-cli completions zsh  >> ~/.zshrc            (or a fpath file)
+//   openwizardai-cli completions bash >> ~/.bashrc
+//   openwizardai-cli completions fish >  ~/.config/fish/completions/openwizardai-cli.fish
 
 import type { Command } from 'commander';
 import { formatError } from '../output/formatter';
@@ -55,8 +55,8 @@ function bashScript(root: CommandNode): string {
 		subCases.push(`    ${sub.name}) words="${completions}" ;;`);
 	}
 
-	lines.push(`# bash completion for maestro-cli`);
-	lines.push(`_maestro_cli() {`);
+	lines.push(`# bash completion for openwizardai-cli`);
+	lines.push(`_openwizardai_cli() {`);
 	lines.push(`  local cur prev words cword`);
 	lines.push(`  COMPREPLY=()`);
 	lines.push(`  cur="\${COMP_WORDS[COMP_CWORD]}"`);
@@ -71,7 +71,7 @@ function bashScript(root: CommandNode): string {
 	lines.push(`  esac`);
 	lines.push(`  COMPREPLY=( $(compgen -W "$words" -- "$cur") )`);
 	lines.push(`}`);
-	lines.push(`complete -F _maestro_cli maestro-cli`);
+	lines.push(`complete -F _openwizardai_cli openwizardai-cli`);
 	return lines.join('\n');
 }
 
@@ -87,8 +87,8 @@ function zshScript(root: CommandNode): string {
 		subCases.push(`      ${sub.name}) compadd ${items} ;;`);
 	}
 
-	lines.push(`#compdef maestro-cli`);
-	lines.push(`_maestro_cli() {`);
+	lines.push(`#compdef openwizardai-cli`);
+	lines.push(`_openwizardai_cli() {`);
 	lines.push(`  local -a top`);
 	lines.push(`  top=(${topPairs})`);
 	lines.push(`  if (( CURRENT == 2 )); then`);
@@ -101,34 +101,36 @@ function zshScript(root: CommandNode): string {
 	lines.push(`      *) compadd ${root.flags.join(' ')} ;;`);
 	lines.push(`  esac`);
 	lines.push(`}`);
-	lines.push(`_maestro_cli "$@"`);
+	lines.push(`_openwizardai_cli "$@"`);
 	return lines.join('\n');
 }
 
 function fishScript(root: CommandNode): string {
 	const lines: string[] = [];
-	lines.push(`# fish completion for maestro-cli`);
+	lines.push(`# fish completion for openwizardai-cli`);
 	// Top-level commands: only when no subcommand seen yet.
-	lines.push(`function __maestro_cli_no_subcommand`);
+	lines.push(`function __openwizardai_cli_no_subcommand`);
 	lines.push(`  set -l cmd (commandline -opc)`);
 	lines.push(`  test (count $cmd) -eq 1`);
 	lines.push(`end`);
 	for (const sub of root.subcommands) {
 		const desc = sub.subcommands.length ? 'command group' : 'command';
 		lines.push(
-			`complete -c maestro-cli -n __maestro_cli_no_subcommand -a ${sub.name} -d '${desc}'`
+			`complete -c openwizardai-cli -n __openwizardai_cli_no_subcommand -a ${sub.name} -d '${desc}'`
 		);
 	}
 	// Per-subcommand: complete that command's subcommands and flags.
 	for (const sub of root.subcommands) {
 		for (const ss of sub.subcommands) {
 			lines.push(
-				`complete -c maestro-cli -n "__fish_seen_subcommand_from ${sub.name}" -a ${ss.name} -d 'subcommand'`
+				`complete -c openwizardai-cli -n "__fish_seen_subcommand_from ${sub.name}" -a ${ss.name} -d 'subcommand'`
 			);
 		}
 		for (const flag of sub.flags) {
 			const long = flag.replace(/^--/, '');
-			lines.push(`complete -c maestro-cli -n "__fish_seen_subcommand_from ${sub.name}" -l ${long}`);
+			lines.push(
+				`complete -c openwizardai-cli -n "__fish_seen_subcommand_from ${sub.name}" -l ${long}`
+			);
 		}
 	}
 	return lines.join('\n');

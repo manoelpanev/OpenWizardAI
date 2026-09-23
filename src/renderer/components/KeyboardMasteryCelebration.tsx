@@ -21,7 +21,7 @@ import { Z_LAYERS } from '../constants/zLayers';
 
 interface KeyboardMasteryCelebrationProps {
 	theme: Theme;
-	level: number; // 0-4 (Beginner, Student, Performer, Virtuoso, OpenWizzard)
+	level: number; // 0-4 (Beginner, Student, Performer, Virtuoso, OpenWizardAI)
 	onClose: () => void;
 	shortcuts?: Record<string, Shortcut>;
 	/** Whether confetti animations are disabled by user preference */
@@ -38,7 +38,7 @@ const confettiIntensity: Record<number, { particleCount: number; spread: number 
 	1: { particleCount: 100, spread: 60 }, // Student
 	2: { particleCount: 200, spread: 80 }, // Performer
 	3: { particleCount: 300, spread: 100 }, // Virtuoso
-	4: { particleCount: 500, spread: 120 }, // OpenWizzard - big celebration!
+	4: { particleCount: 500, spread: 120 }, // OpenWizardAI - big celebration!
 };
 
 /**
@@ -64,7 +64,7 @@ export function KeyboardMasteryCelebration({
 
 	// Determine level info
 	const levelInfo = KEYBOARD_MASTERY_LEVELS[level] || KEYBOARD_MASTERY_LEVELS[0];
-	const isMaestro = level === 4;
+	const isOpenWizardAI = level === 4;
 
 	// Get help shortcut for display. macOS symbols read fine unseparated (⌘/);
 	// the spelled-out Windows/Linux names need the '+' joiner (Ctrl+/).
@@ -87,8 +87,8 @@ export function KeyboardMasteryCelebration({
 		const intensity = confettiIntensity[level] || confettiIntensity[0];
 
 		// Musical note-inspired colors
-		const colors = isMaestro
-			? ['#FFD700', '#FFA500', '#9B59B6', '#E91E63', '#00BCD4'] // Gold-heavy for OpenWizzard
+		const colors = isOpenWizardAI
+			? ['#FFD700', '#FFA500', '#9B59B6', '#E91E63', '#00BCD4'] // Gold-heavy for OpenWizardAI
 			: ['#9B59B6', '#E91E63', '#00BCD4', '#4CAF50', '#FF9800']; // Purple-heavy for others
 
 		confetti({
@@ -102,8 +102,8 @@ export function KeyboardMasteryCelebration({
 			disableForReducedMotion: true,
 		});
 
-		// Extra burst for Maestro - track timeout for cleanup
-		if (isMaestro) {
+		// Extra burst for OpenWizardAI - track timeout for cleanup
+		if (isOpenWizardAI) {
 			const burstTimeout = setTimeout(() => {
 				confetti({
 					particleCount: 100,
@@ -118,7 +118,7 @@ export function KeyboardMasteryCelebration({
 			}, 300);
 			timeoutsRef.current.push(burstTimeout);
 		}
-	}, [level, isMaestro, disableConfetti]);
+	}, [level, isOpenWizardAI, disableConfetti]);
 
 	// Fire confetti on mount with cleanup
 	useEffect(() => {
@@ -199,15 +199,15 @@ export function KeyboardMasteryCelebration({
 					onClick={(e) => e.stopPropagation()}
 					style={{
 						backgroundColor: theme.colors.bgSidebar,
-						border: `2px solid ${isMaestro ? goldColor : musicPurple}`,
-						boxShadow: `0 0 40px ${isMaestro ? goldColor : musicPurple}40`,
+						border: `2px solid ${isOpenWizardAI ? goldColor : musicPurple}`,
+						boxShadow: `0 0 40px ${isOpenWizardAI ? goldColor : musicPurple}40`,
 					}}
 				>
 					{/* Header */}
 					<div
 						className="relative px-6 pt-6 pb-4 text-center"
 						style={{
-							background: `linear-gradient(180deg, ${isMaestro ? goldColor : musicPurple}20 0%, transparent 100%)`,
+							background: `linear-gradient(180deg, ${isOpenWizardAI ? goldColor : musicPurple}20 0%, transparent 100%)`,
 						}}
 					>
 						{/* Icon */}
@@ -215,13 +215,13 @@ export function KeyboardMasteryCelebration({
 							<div
 								className="relative p-4 rounded-full animate-bounce"
 								style={{
-									background: isMaestro
+									background: isOpenWizardAI
 										? `linear-gradient(135deg, ${goldColor} 0%, #FFA500 100%)`
 										: `linear-gradient(135deg, ${musicPurple} 0%, #E91E63 100%)`,
-									boxShadow: `0 0 30px ${isMaestro ? goldColor : musicPurple}60`,
+									boxShadow: `0 0 30px ${isOpenWizardAI ? goldColor : musicPurple}60`,
 								}}
 							>
-								{isMaestro ? (
+								{isOpenWizardAI ? (
 									<Trophy className="w-8 h-8 text-white" />
 								) : (
 									<Keyboard className="w-8 h-8 text-white" />
@@ -233,17 +233,17 @@ export function KeyboardMasteryCelebration({
 						<h1
 							className="text-2xl font-bold mb-1"
 							style={{
-								color: isMaestro ? goldColor : theme.colors.textMain,
-								textShadow: isMaestro ? `0 0 20px ${goldColor}60` : undefined,
+								color: isOpenWizardAI ? goldColor : theme.colors.textMain,
+								textShadow: isOpenWizardAI ? `0 0 20px ${goldColor}60` : undefined,
 							}}
 						>
-							{isMaestro ? 'Keyboard OpenWizzard!' : 'Level Up!'}
+							{isOpenWizardAI ? 'Keyboard Wizard!' : 'Level Up!'}
 						</h1>
 
 						<p className="text-lg" style={{ color: theme.colors.textMain }}>
 							You've reached{' '}
-							<span style={{ color: isMaestro ? goldColor : musicPurple, fontWeight: 600 }}>
-								{isMaestro ? 'the highest level' : levelInfo.name}
+							<span style={{ color: isOpenWizardAI ? goldColor : musicPurple, fontWeight: 600 }}>
+								{isOpenWizardAI ? 'the highest level' : levelInfo.name}
 							</span>
 						</p>
 					</div>
@@ -277,7 +277,7 @@ export function KeyboardMasteryCelebration({
 
 						{/* Encouragement message */}
 						<p className="text-xs text-center mb-2" style={{ color: theme.colors.textDim }}>
-							{isMaestro
+							{isOpenWizardAI
 								? "You've mastered all keyboard shortcuts!"
 								: `Keep using shortcuts to reach ${nextLevel?.name || 'the next level'}!`}
 						</p>
@@ -300,7 +300,7 @@ export function KeyboardMasteryCelebration({
 							disabled={isClosing}
 							className="w-full py-2.5 rounded-lg font-medium transition-all hover:scale-[1.02] disabled:opacity-70"
 							style={{
-								background: isMaestro
+								background: isOpenWizardAI
 									? `linear-gradient(135deg, ${musicPurple} 0%, ${goldColor} 100%)`
 									: `linear-gradient(135deg, ${musicPurple} 0%, #E91E63 100%)`,
 								color: '#FFFFFF',

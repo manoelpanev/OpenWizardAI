@@ -1,7 +1,7 @@
 /**
  * Preload API for agent sessions
  *
- * Provides the window.maestro.claude and window.maestro.agentSessions namespaces for:
+ * Provides the window.openwizardai.claude and window.openwizardai.agentSessions namespaces for:
  * - Claude Code session storage (deprecated)
  * - Generic multi-agent session storage
  */
@@ -11,8 +11,8 @@ import { ipcRenderer } from 'electron';
 // Helper to log deprecation warnings
 const logDeprecationWarning = (method: string, replacement?: string) => {
 	const message = replacement
-		? `[Deprecation Warning] window.maestro.claude.${method}() is deprecated. Use window.maestro.agentSessions.${replacement}() instead.`
-		: `[Deprecation Warning] window.maestro.claude.${method}() is deprecated. Use the agentSessions API instead.`;
+		? `[Deprecation Warning] window.openwizardai.claude.${method}() is deprecated. Use window.openwizardai.agentSessions.${replacement}() instead.`
+		: `[Deprecation Warning] window.openwizardai.claude.${method}() is deprecated. Use the agentSessions API instead.`;
 	console.warn(message);
 };
 

@@ -55,7 +55,7 @@ describe('useScrollLogHandlers', () => {
 			cwd: '/repo',
 			aiCommandHistory: ['run tests', 'next'],
 		});
-		vi.mocked(window.maestro.claude.deleteMessagePair).mockResolvedValue({ success: true });
+		vi.mocked(window.openwizardai.claude.deleteMessagePair).mockResolvedValue({ success: true });
 		const { result } = renderHook(() => useScrollLogHandlers());
 
 		let nextIndex: number | null = null;
@@ -67,7 +67,7 @@ describe('useScrollLogHandlers', () => {
 		expect(getSession().aiTabs[0].logs.map((log) => log.id)).toEqual(['u2']);
 		expect(getSession().aiCommandHistory).toEqual(['next']);
 		await vi.waitFor(() => {
-			expect(window.maestro.claude.deleteMessagePair).toHaveBeenCalledWith(
+			expect(window.openwizardai.claude.deleteMessagePair).toHaveBeenCalledWith(
 				'/repo',
 				'agent-1',
 				'u1',
@@ -126,7 +126,7 @@ describe('useScrollLogHandlers', () => {
 				result.current.handleDeleteLog('c1');
 			});
 
-			expect(window.maestro.claude.deleteMessagePair).not.toHaveBeenCalled();
+			expect(window.openwizardai.claude.deleteMessagePair).not.toHaveBeenCalled();
 		});
 
 		it('keeps the recall entry while another card still shows that command', () => {

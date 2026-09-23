@@ -5,7 +5,7 @@
  *
  * 1. A DEAD LOOKUP. The palette reads its chords out of `shortcuts` /
  *    `tabShortcuts`, which are `Record<string, Shortcut>` - so `shortcuts.
- *    maestroCue` type-checks perfectly and evaluates to `undefined`, and the
+ *    openwizardaiCue` type-checks perfectly and evaluates to `undefined`, and the
  *    entry renders with no chord beside it. The real id was `openCue`. Three
  *    more (`mergeSession`, `sendToAgent`, `summarizeAndContinue`) named
  *    shortcuts that never existed at all.

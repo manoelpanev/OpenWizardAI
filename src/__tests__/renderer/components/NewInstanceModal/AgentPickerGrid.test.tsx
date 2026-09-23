@@ -304,7 +304,7 @@ describe('AgentPickerGrid', () => {
 	it('should render hook behavior note', () => {
 		render(<AgentPickerGrid {...createDefaultProps()} />);
 		expect(screen.getByText(/Agent hooks run per-message/)).toBeInTheDocument();
-		expect(screen.getByText('MAESTRO_SESSION_RESUMED')).toBeInTheDocument();
+		expect(screen.getByText('OPENWIZARDAI_SESSION_RESUMED')).toBeInTheDocument();
 	});
 
 	it('should set tabIndex=0 for supported agents and tabIndex=-1 for unsupported', () => {

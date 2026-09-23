@@ -47,12 +47,12 @@ export interface CueExecutionConfig {
 	customEnvVars?: Record<string, string>;
 	customModel?: string;
 	customEffort?: string;
-	/** Legacy Adaptive Mode opt-in (maestro-p TUI). Off/absent means pure API. */
-	enableMaestroP?: boolean;
+	/** Legacy Adaptive Mode opt-in (openwizardai-p TUI). Off/absent means pure API. */
+	enableOpenWizardAIP?: boolean;
 	/** Refinement of the opt-in. Absent defaults to `dynamic` (legacy behavior). */
-	maestroPMode?: 'interactive' | 'dynamic';
-	/** Per-session maestro-p script override. Empty falls back to the bundled script. */
-	maestroPPath?: string;
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	/** Per-session openwizardai-p script override. Empty falls back to the bundled script. */
+	openwizardaiPPath?: string;
 	onLog: (level: string, message: string) => void;
 	/** Optional SSH settings store for SSH remote execution */
 	sshStore?: SshRemoteSettingsStore;
@@ -150,7 +150,7 @@ function extractCleanStdout(rawStdout: string, toolType: string): string {
  * for plain-text agents, command runs with no parser, or output that never
  * carried a session id. This is what lets the Cue stats dashboard attribute
  * token usage - the on-disk session files are keyed by this id, not by the
- * Maestro agent id stored on the event row.
+ * OpenWizardAI agent id stored on the event row.
  */
 function extractProviderSessionId(rawStdout: string, toolType: string): string | null {
 	if (!rawStdout.trim()) return null;

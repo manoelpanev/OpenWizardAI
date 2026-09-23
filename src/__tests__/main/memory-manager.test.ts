@@ -25,7 +25,7 @@ let tempHome: string;
 
 describe('memory-manager', () => {
 	beforeEach(() => {
-		tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-memory-test-'));
+		tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-memory-test-'));
 	});
 
 	afterEach(() => {

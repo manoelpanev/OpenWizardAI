@@ -197,7 +197,7 @@ const MIN_GRAPH_FONT_PX = 8;
  * Settings actually changes what paints instead of only the family. Canvas
  * text has no cascade to inherit a size from, so every ctx.font call must run
  * its literal px through this rather than the CSS surfaces, which pick the
- * size up for free via `--maestro-size-document-graph`.
+ * size up for free via `--openwizardai-size-document-graph`.
  */
 function graphFontPx(basePx: number, resolvedFontSize: number): number {
 	return Math.max(

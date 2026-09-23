@@ -89,7 +89,7 @@ export function FileContextMenu({
 	}, [menu.filePath, projectRoot, onDismiss]);
 
 	const handleOpenInDefaultApp = useCallback(() => {
-		window.maestro?.shell?.openPath(menu.filePath);
+		window.openwizardai?.shell?.openPath(menu.filePath);
 		onDismiss();
 	}, [menu.filePath, onDismiss]);
 
@@ -104,7 +104,7 @@ export function FileContextMenu({
 	}, [menu.fileName, onDismiss]);
 
 	const handleRevealInFinder = useCallback(() => {
-		window.maestro?.shell?.showItemInFolder(menu.filePath);
+		window.openwizardai?.shell?.showItemInFolder(menu.filePath);
 		onDismiss();
 	}, [menu.filePath, onDismiss]);
 
@@ -194,7 +194,7 @@ export function FileContextMenu({
 						style={{ color: theme.colors.textMain }}
 					>
 						<FolderOpen className="w-3.5 h-3.5" style={{ color: theme.colors.textDim }} />
-						<span>{getRevealLabel(window.maestro?.platform ?? '')}</span>
+						<span>{getRevealLabel(window.openwizardai?.platform ?? '')}</span>
 					</button>
 				)}
 			</div>

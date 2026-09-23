@@ -1,5 +1,5 @@
 /**
- * Write-side helpers for Maestro Cue configuration files (sibling to the
+ * Write-side helpers for OpenWizardAI Cue configuration files (sibling to the
  * read-side `cue-yaml-loader`). These are shared by every surface that rewrites
  * `cue.yaml` - the engine's self-destruct path (`cue-self-destruct.ts`) and the
  * CLI scheduler (`cli/commands/cue-schedule.ts`) - so the comment-preservation

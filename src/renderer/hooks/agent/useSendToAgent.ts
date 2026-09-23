@@ -257,7 +257,7 @@ export function useSendToAgent(): UseSendToAgentResult {
 			// Edge case: Check if target agent is available
 			// This is done at the modal level, but we do a final check here
 			try {
-				const agentStatus = await window.maestro.agents.get(targetAgent);
+				const agentStatus = await window.openwizardai.agents.get(targetAgent);
 				if (!agentStatus?.available) {
 					throw new Error(
 						`${getAgentDisplayName(targetAgent)} is not available. Please install and configure it first.`
@@ -670,7 +670,7 @@ Please confirm you've reviewed this context and let me know you're ready to cont
 				const targetAgentName = getAgentDisplayName(targetAgent);
 
 				try {
-					await window.maestro.history.add({
+					await window.openwizardai.history.add({
 						id: generateId(),
 						type: 'AUTO',
 						timestamp: Date.now(),

@@ -9,7 +9,7 @@ const stubReadDoc = vi.fn();
 beforeEach(() => {
 	vi.useFakeTimers();
 	stubReadDoc.mockReset();
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		autorun: {
 			readDoc: vi.fn(async () => ({ success: true, content: '' })),
 		},
@@ -169,7 +169,7 @@ describe('createProgressPoll', () => {
 			autoRunContentVersion: 0,
 		} as unknown as Session;
 		const readDoc = vi.fn(async () => ({ success: true, content: 'fresh' }));
-		(window as unknown as { maestro: unknown }).maestro = { autorun: { readDoc } };
+		(window as unknown as { openwizardai: unknown }).openwizardai = { autorun: { readDoc } };
 
 		const { poll, onUpdateSession } = makePoll({ getSessions: () => [session] });
 
@@ -192,7 +192,7 @@ describe('createProgressPoll', () => {
 			autoRunContentVersion: 1,
 		} as unknown as Session;
 		const readDoc = vi.fn(async () => ({ success: true, content: 'same' }));
-		(window as unknown as { maestro: unknown }).maestro = { autorun: { readDoc } };
+		(window as unknown as { openwizardai: unknown }).openwizardai = { autorun: { readDoc } };
 
 		const { poll, onUpdateSession } = makePoll({ getSessions: () => [session] });
 

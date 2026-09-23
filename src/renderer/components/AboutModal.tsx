@@ -12,21 +12,20 @@ import {
 } from 'lucide-react';
 import { Spinner } from './ui/Spinner';
 import { GhostIconButton } from './ui/GhostIconButton';
-import type { Theme, AutoRunStats, MaestroUsageStats } from '../types';
+import type { Theme, AutoRunStats, OpenWizardAIUsageStats } from '../types';
 import { MODAL_PRIORITIES } from '../constants/modalPriorities';
 import { AchievementCard } from './AchievementCard';
 import { formatTokensCompact } from '../utils/formatters';
 import { formatDurationHuman } from '../../shared/formatters';
 import { Modal } from './ui/Modal';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 import { openUrl } from '../utils/openUrl';
 import { useGlobalAgentStats } from '../hooks/stats/useGlobalAgentStats';
-import { MaestroFlags } from './ui/MaestroFlags';
+import { OpenWizardAIFlags } from './ui/OpenWizardAIFlags';
 
 interface AboutModalProps {
 	theme: Theme;
 	autoRunStats: AutoRunStats;
-	usageStats?: MaestroUsageStats | null;
+	usageStats?: OpenWizardAIUsageStats | null;
 	/** Global hands-on time in milliseconds (from settings, persists across sessions) */
 	handsOnTimeMs: number;
 	onClose: () => void;
@@ -62,7 +61,7 @@ export function AboutModal({
 		onCloseRef.current();
 	}, []);
 
-	// Custom header with Globe and Discord buttons (includes close button)
+	// Custom header with project, discussions and docs buttons (includes close button)
 	const customHeader = (
 		<div
 			className="p-4 border-b flex items-center justify-between shrink-0"
@@ -70,20 +69,20 @@ export function AboutModal({
 		>
 			<div className="flex items-center gap-2">
 				<h2 className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-					About OpenWizzard
+					About OpenWizardAI
 				</h2>
 				<GhostIconButton
-					onClick={() => openUrl(buildMaestroUrl('https://runmaestro.ai'))}
-					title="Visit runmaestro.ai"
-					ariaLabel="Visit runmaestro.ai"
+					onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI')}
+					title="OpenWizardAI on GitHub"
+					ariaLabel="OpenWizardAI on GitHub"
 					color={theme.colors.accent}
 				>
 					<Globe className="w-4 h-4" />
 				</GhostIconButton>
 				<GhostIconButton
-					onClick={() => openUrl(buildMaestroUrl('https://runmaestro.ai/discord'))}
-					title="Join our Discord"
-					ariaLabel="Join our Discord"
+					onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI/discussions')}
+					title="Community discussions"
+					ariaLabel="Community discussions"
 					color={theme.colors.accent}
 				>
 					<svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -91,7 +90,7 @@ export function AboutModal({
 					</svg>
 				</GhostIconButton>
 				<GhostIconButton
-					onClick={() => openUrl(buildMaestroUrl('https://docs.runmaestro.ai/'))}
+					onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI/tree/main/docs')}
 					title="Documentation"
 					ariaLabel="Documentation"
 					color={theme.colors.accent}
@@ -108,7 +107,7 @@ export function AboutModal({
 	return (
 		<Modal
 			theme={theme}
-			title="About OpenWizzard"
+			title="About OpenWizardAI"
 			priority={MODAL_PRIORITIES.ABOUT}
 			onClose={handleEscape}
 			// Sized to fit the whole card without scrolling at the default font
@@ -134,7 +133,7 @@ export function AboutModal({
 								className="text-2xl font-bold tracking-widest"
 								style={{ color: theme.colors.textMain }}
 							>
-								OPENWIZZARD
+								OPENWIZARDAI
 							</h1>
 							<span className="text-xs font-mono" style={{ color: theme.colors.textDim }}>
 								v{__APP_VERSION__}
@@ -279,14 +278,14 @@ export function AboutModal({
 				<div className="flex gap-2">
 					{/* Project Link */}
 					<button
-						onClick={() => openUrl('https://github.com/RunMaestro/Maestro')}
+						onClick={() => openUrl('https://github.com/manoelpanev/OpenWizardAI')}
 						className="flex-1 flex items-center justify-between p-3 rounded border hover:bg-white/5 transition-colors"
 						style={{ borderColor: theme.colors.border }}
 					>
 						<div className="flex items-center gap-2">
 							<FileCode className="w-4 h-4" style={{ color: theme.colors.accent }} />
 							<span className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-								Maestro on GitHub
+								OpenWizardAI on GitHub
 							</span>
 						</div>
 						<ExternalLink className="w-4 h-4" style={{ color: theme.colors.textDim }} />
@@ -301,7 +300,7 @@ export function AboutModal({
 					<span className="text-xs" style={{ color: theme.colors.textMain }}>
 						Born in Austin, TX
 					</span>
-					<MaestroFlags width={40} />
+					<OpenWizardAIFlags width={40} />
 				</div>
 			</div>
 		</Modal>

@@ -89,7 +89,7 @@ function getMigrations(): Migration[] {
 			// these numbers (rc's v8 is multi_window_usage_daily). An install that
 			// last ran an rc build can already sit at user_version 8+ without ever
 			// running main's bodies, so runMigrations re-applies any whose schema is
-			// missing (MAESTRO-113/114).
+			// missing (OPENWIZARDAI-113/114).
 			version: 8,
 			description: 'Add per-turn token and cost columns to query_events for cost attribution',
 			up: (db) => migrateV8(db),
@@ -171,7 +171,7 @@ export function runMigrations(db: Database.Database): void {
  * so a database last opened by an rc build can report a version that covers a
  * main migration it never ran. Every write that touches the missing schema then
  * fails, e.g. `table query_events has no column named input_tokens` on each
- * query event (MAESTRO-113/114). Only migrations that declare `isApplied` are
+ * query event (OPENWIZARDAI-113/114). Only migrations that declare `isApplied` are
  * checked, and their bodies are idempotent. user_version is left alone.
  */
 function repairSkippedMigrations(

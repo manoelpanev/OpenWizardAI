@@ -1,5 +1,5 @@
 /**
- * Card component for Maestro web interface
+ * Card component for OpenWizardAI web interface
  *
  * A reusable card container component that supports multiple variants, padding options,
  * and interactive states. Ideal for session cards, information panels, and grouped content.
@@ -70,7 +70,7 @@ const radiusStyles: Record<CardRadius, string> = {
 };
 
 /**
- * Card component for the Maestro web interface
+ * Card component for the OpenWizardAI web interface
  *
  * @example
  * ```tsx

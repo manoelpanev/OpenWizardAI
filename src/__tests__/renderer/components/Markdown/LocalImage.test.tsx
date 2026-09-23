@@ -12,7 +12,7 @@ const readFile = vi.fn().mockResolvedValue(PNG);
 
 beforeEach(() => {
 	readFile.mockClear();
-	(globalThis as any).window.maestro = { fs: { readFile } };
+	(globalThis as any).window.openwizardai = { fs: { readFile } };
 });
 
 describe('resolveLocalImagePath', () => {

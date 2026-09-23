@@ -69,7 +69,7 @@ export interface PowerStatus {
 }
 
 /**
- * Centralized power management for Maestro.
+ * Centralized power management for OpenWizardAI.
  *
  * Sleep prevention is only active when:
  * 1. The user has enabled the feature (setEnabled(true))

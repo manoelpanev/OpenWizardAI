@@ -2,13 +2,13 @@
 
 # State Patterns Reference
 
-Complete reference for Maestro's frontend state management: all Zustand stores, the Session data model, common patterns, and hook conventions.
+Complete reference for OpenWizardAI's frontend state management: all Zustand stores, the Session data model, common patterns, and hook conventions.
 
 ---
 
 ## Store Architecture
 
-Maestro uses Zustand stores to replace React Context providers. Each store:
+OpenWizardAI uses Zustand stores to replace React Context providers. Each store:
 
 - Uses **selector-based subscriptions** (components only re-render when their slice changes)
 - Supports **non-React access** via `useStore.getState()` and `getState()/getActions()` helpers
@@ -291,7 +291,7 @@ dead keystroke.
 
 **When you add a modal, decide which kind it is.** Membership test: does it fill the window,
 own its own header/tabs, and is it reachable on its own from a hotkey, the command palette,
-the Left Bar footer, or `maestro-cli open`? Dialogs that answer a question _about_ the
+the Left Bar footer, or `openwizardai-cli open`? Dialogs that answer a question _about_ the
 surface beneath them are not members and are meant to layer - confirmations, rename prompts,
 `cueYamlEditor`, the Usage Dashboard's per-agent detail, the Symphony agent picker.
 

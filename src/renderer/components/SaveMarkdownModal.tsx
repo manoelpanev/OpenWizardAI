@@ -54,7 +54,7 @@ export function SaveMarkdownModal({
 
 	const handleBrowseFolder = async () => {
 		try {
-			const selectedFolder = await window.maestro.dialog.selectFolder();
+			const selectedFolder = await window.openwizardai.dialog.selectFolder();
 			if (selectedFolder) {
 				setFolder(selectedFolder);
 				setError(null);
@@ -89,7 +89,7 @@ export function SaveMarkdownModal({
 			const fullPath = `${folder}${folder.endsWith(separator) ? '' : separator}${finalFilename}`;
 
 			// Write the file (local or remote via SSH)
-			const result = await window.maestro.fs.writeFile(fullPath, content, sshRemoteId);
+			const result = await window.openwizardai.fs.writeFile(fullPath, content, sshRemoteId);
 			if (result.success) {
 				onFileSaved?.();
 				if (openInTab && onOpenInTab) {

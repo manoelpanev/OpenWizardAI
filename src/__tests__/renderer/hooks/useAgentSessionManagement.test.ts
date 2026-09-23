@@ -8,11 +8,11 @@ import { createMockSession as baseCreateMockSession } from '../../helpers/mockSe
 import type { RightPanelHandle } from '../../../renderer/components/RightPanel';
 import { createMockAITab } from '../../helpers/mockTab';
 
-type MaestroHistoryApi = typeof window.maestro.history;
+type OpenWizardAIHistoryApi = typeof window.openwizardai.history;
 
-type MaestroAgentSessionsApi = typeof window.maestro.agentSessions;
+type OpenWizardAIAgentSessionsApi = typeof window.openwizardai.agentSessions;
 
-type MaestroClaudeApi = typeof window.maestro.claude;
+type OpenWizardAIClaudeApi = typeof window.openwizardai.claude;
 
 const createMockTab = (overrides: Partial<AITab> = {}): AITab =>
 	createMockAITab({
@@ -34,7 +34,7 @@ const createMockSession = (overrides: Partial<Session> = {}): Session => {
 };
 
 describe('useAgentSessionManagement', () => {
-	const originalMaestro = { ...window.maestro };
+	const originalOpenWizardAI = { ...window.openwizardai };
 
 	const createRightPanelRef = (): RefObject<RightPanelHandle | null> =>
 		({ current: { refreshHistoryPanel: vi.fn() } }) as RefObject<RightPanelHandle | null>;
@@ -42,8 +42,8 @@ describe('useAgentSessionManagement', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 
-		window.maestro = {
-			...window.maestro,
+		window.openwizardai = {
+			...window.openwizardai,
 			history: {
 				add: vi.fn().mockResolvedValue(true),
 				getAll: vi.fn().mockResolvedValue([]),
@@ -54,20 +54,20 @@ describe('useAgentSessionManagement', () => {
 				listSessions: vi.fn().mockResolvedValue([]),
 				onExternalChange: vi.fn().mockReturnValue(() => {}),
 				reload: vi.fn().mockResolvedValue(true),
-			} satisfies MaestroHistoryApi,
+			} satisfies OpenWizardAIHistoryApi,
 			agentSessions: {
-				...window.maestro.agentSessions,
+				...window.openwizardai.agentSessions,
 				read: vi.fn().mockResolvedValue({ messages: [], total: 0, hasMore: false }),
-			} satisfies MaestroAgentSessionsApi,
+			} satisfies OpenWizardAIAgentSessionsApi,
 			claude: {
-				...window.maestro.claude,
+				...window.openwizardai.claude,
 				getSessionOrigins: vi.fn().mockResolvedValue({}),
-			} satisfies MaestroClaudeApi,
+			} satisfies OpenWizardAIClaudeApi,
 		};
 	});
 
 	afterEach(() => {
-		Object.assign(window.maestro, originalMaestro);
+		Object.assign(window.openwizardai, originalOpenWizardAI);
 	});
 
 	it('adds history entries using active session metadata', async () => {
@@ -100,7 +100,7 @@ describe('useAgentSessionManagement', () => {
 			});
 		});
 
-		const historyAdd = vi.mocked(window.maestro.history.add);
+		const historyAdd = vi.mocked(window.openwizardai.history.add);
 
 		expect(historyAdd).toHaveBeenCalledOnce();
 		const payload = historyAdd.mock.calls[0][0];
@@ -153,7 +153,7 @@ describe('useAgentSessionManagement', () => {
 			});
 		});
 
-		const payload = vi.mocked(window.maestro.history.add).mock.calls[0][0];
+		const payload = vi.mocked(window.openwizardai.history.add).mock.calls[0][0];
 
 		expect(payload).toMatchObject({
 			type: 'AUTO',
@@ -196,7 +196,7 @@ describe('useAgentSessionManagement', () => {
 			});
 		});
 
-		const payload = vi.mocked(window.maestro.history.add).mock.calls[0][0];
+		const payload = vi.mocked(window.openwizardai.history.add).mock.calls[0][0];
 
 		// Should use entry's contextUsage (75), not active session's (99)
 		expect(payload.contextUsage).toBe(75);
@@ -231,7 +231,7 @@ describe('useAgentSessionManagement', () => {
 			await result.current.handleResumeSession('agent-123');
 		});
 
-		expect(window.maestro.agentSessions.read).not.toHaveBeenCalled();
+		expect(window.openwizardai.agentSessions.read).not.toHaveBeenCalled();
 		expect(setSessions).toHaveBeenCalledOnce();
 		expect(setActiveAgentSessionId).toHaveBeenCalledWith('agent-123');
 
@@ -294,7 +294,7 @@ describe('useAgentSessionManagement', () => {
 		const setSessions = vi.fn();
 		const setActiveAgentSessionId = vi.fn();
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages: [
 				{
 					type: 'user',
@@ -329,7 +329,7 @@ describe('useAgentSessionManagement', () => {
 		});
 
 		// Should have loaded messages from disk since existing tab had empty logs
-		expect(window.maestro.agentSessions.read).toHaveBeenCalled();
+		expect(window.openwizardai.agentSessions.read).toHaveBeenCalled();
 		expect(setSessions).toHaveBeenCalledOnce();
 		expect(setActiveAgentSessionId).toHaveBeenCalledWith('agent-123');
 
@@ -357,7 +357,7 @@ describe('useAgentSessionManagement', () => {
 		});
 		const setSessions = vi.fn();
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages: [
 				{ type: 'user', content: 'Hello', timestamp: '2024-01-01T00:00:00.000Z', uuid: 'msg-1' },
 			],
@@ -407,7 +407,7 @@ describe('useAgentSessionManagement', () => {
 		});
 		const setSessions = vi.fn();
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages: [
 				{ type: 'user', content: 'Hello', timestamp: '2024-01-01T00:00:00.000Z', uuid: 'msg-1' },
 			],
@@ -454,13 +454,13 @@ describe('useAgentSessionManagement', () => {
 			},
 		];
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages,
 			total: messages.length,
 			hasMore: false,
 		});
 
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({
 			'agent-456': { sessionName: 'Loaded Session', starred: true },
 		});
 
@@ -479,14 +479,14 @@ describe('useAgentSessionManagement', () => {
 			await result.current.handleResumeSession('agent-456');
 		});
 
-		expect(window.maestro.agentSessions.read).toHaveBeenCalledWith(
+		expect(window.openwizardai.agentSessions.read).toHaveBeenCalledWith(
 			'claude-code',
 			'/test/project',
 			'agent-456',
 			{ offset: 0, limit: 500 },
 			undefined
 		);
-		expect(window.maestro.claude.getSessionOrigins).toHaveBeenCalledOnce();
+		expect(window.openwizardai.claude.getSessionOrigins).toHaveBeenCalledOnce();
 		expect(setActiveAgentSessionId).toHaveBeenCalledWith('agent-456');
 
 		const updateFn = setSessions.mock.calls[0][0];
@@ -543,13 +543,13 @@ describe('useAgentSessionManagement', () => {
 			},
 		];
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages,
 			total: messages.length,
 			hasMore: false,
 		});
 
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		const { result } = renderHook(() =>
 			useAgentSessionManagement({
@@ -613,9 +613,9 @@ describe('useAgentSessionManagement', () => {
 		});
 
 		// Origin lookup is still called to get contextUsage for context window persistence
-		expect(window.maestro.claude.getSessionOrigins).toHaveBeenCalled();
+		expect(window.openwizardai.claude.getSessionOrigins).toHaveBeenCalled();
 		// But message fetch should be skipped since messages were provided
-		expect(window.maestro.agentSessions.read).not.toHaveBeenCalled();
+		expect(window.openwizardai.agentSessions.read).not.toHaveBeenCalled();
 	});
 
 	it('filters out tool-use-only messages with empty text content', async () => {
@@ -647,12 +647,12 @@ describe('useAgentSessionManagement', () => {
 			},
 		];
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages,
 			total: messages.length,
 			hasMore: false,
 		});
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		const { result } = renderHook(() =>
 			useAgentSessionManagement({
@@ -688,10 +688,10 @@ describe('useAgentSessionManagement', () => {
 		const setSessions = vi.fn();
 		const showFlash = vi.fn();
 
-		window.maestro.agentSessions.read = vi
+		window.openwizardai.agentSessions.read = vi
 			.fn()
 			.mockRejectedValue(new Error('ENOENT: no such file or directory'));
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		const { result } = renderHook(() =>
 			useAgentSessionManagement({
@@ -738,12 +738,12 @@ describe('useAgentSessionManagement', () => {
 			},
 		];
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages,
 			total: messages.length,
 			hasMore: false,
 		});
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		const { result } = renderHook(() =>
 			useAgentSessionManagement({
@@ -768,14 +768,14 @@ describe('useAgentSessionManagement', () => {
 	it('returns true when a session resumes successfully', async () => {
 		const activeSession = createMockSession({ projectRoot: '/test/project' });
 
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages: [
 				{ type: 'user', content: 'Hello', timestamp: '2024-01-01T00:00:00.000Z', uuid: 'msg-1' },
 			],
 			total: 1,
 			hasMore: false,
 		});
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		const { result } = renderHook(() =>
 			useAgentSessionManagement({
@@ -801,10 +801,10 @@ describe('useAgentSessionManagement', () => {
 		const showFlash = vi.fn();
 
 		// Aged-out session: read resolves with no messages.
-		window.maestro.agentSessions.read = vi
+		window.openwizardai.agentSessions.read = vi
 			.fn()
 			.mockResolvedValue({ messages: [], total: 0, hasMore: false });
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		const { result } = renderHook(() =>
 			useAgentSessionManagement({
@@ -853,14 +853,14 @@ describe('useAgentSessionManagement', () => {
 		useSessionStore.setState({ sessions: [activeSession, targetSession] });
 
 		const setActiveAgentSessionId = vi.fn();
-		window.maestro.agentSessions.read = vi.fn().mockResolvedValue({
+		window.openwizardai.agentSessions.read = vi.fn().mockResolvedValue({
 			messages: [
 				{ type: 'user', content: 'Hi', timestamp: '2024-01-01T00:00:00.000Z', uuid: 'msg-1' },
 			],
 			total: 1,
 			hasMore: false,
 		});
-		window.maestro.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
+		window.openwizardai.claude.getSessionOrigins = vi.fn().mockResolvedValue({});
 
 		try {
 			const { result } = renderHook(() =>
@@ -889,7 +889,7 @@ describe('useAgentSessionManagement', () => {
 
 			expect(resumed).toBe(true);
 			// Reads against the target's agent + projectRoot, not the active session's.
-			expect(window.maestro.agentSessions.read).toHaveBeenCalledWith(
+			expect(window.openwizardai.agentSessions.read).toHaveBeenCalledWith(
 				'codex',
 				'/target/project',
 				'agent-x',

@@ -75,7 +75,7 @@ function expectedRows(
 
 beforeAll(async () => {
 	const { parquetWriteBuffer } = await import('hyparquet-writer');
-	directory = await mkdtemp(path.join(tmpdir(), 'maestro-parquet-test-'));
+	directory = await mkdtemp(path.join(tmpdir(), 'openwizardai-parquet-test-'));
 	fixture = path.join(directory, 'fixture.parquet');
 
 	const ids: bigint[] = [];

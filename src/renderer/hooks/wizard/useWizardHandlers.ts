@@ -47,7 +47,7 @@ let wizardHandlersPromptsLoaded = false;
 export async function loadWizardHandlersPrompts(force = false): Promise<void> {
 	if (wizardHandlersPromptsLoaded && !force) return;
 
-	const result = await window.maestro.prompts.get('autorun-synopsis');
+	const result = await window.openwizardai.prompts.get('autorun-synopsis');
 	if (!result.success) {
 		throw new Error(`Failed to load autorun-synopsis prompt: ${result.error}`);
 	}
@@ -63,7 +63,7 @@ function getAutorunSynopsisPrompt(): string {
 }
 import { formatRelativeTime } from '../../../shared/formatters';
 import { gitService } from '../../services/git';
-import { PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 import { isAdaptiveModeDefaultOn } from '../../../shared/agentConstants';
 import { DEFAULT_BATCH_PROMPT } from '../../components/BatchRunnerModal';
 import type { PreviousUIState, UseInlineWizardReturn } from '../batch/useInlineWizard';
@@ -236,7 +236,9 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 
 		const fetchCustomCommands = async () => {
 			try {
-				const customClaudeCommands = await (window as any).maestro.claude.getCommands(projectRoot);
+				const customClaudeCommands = await (window as any).openwizardai.claude.getCommands(
+					projectRoot
+				);
 				if (cancelled) return;
 
 				const customCommandObjects = (customClaudeCommands || []).map(
@@ -271,7 +273,7 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 
 		const discoverAgentCommands = async () => {
 			try {
-				const agentSlashCommands = await window.maestro.agents.discoverSlashCommands(
+				const agentSlashCommands = await window.openwizardai.agents.discoverSlashCommands(
 					currentSession.toolType,
 					currentSession.cwd,
 					currentSession.customPath,
@@ -818,7 +820,9 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 			};
 			addLogToTab(currentSession.id, userLog);
 
-			const skills = await (window as any).maestro.claude.getSkills(currentSession.projectRoot);
+			const skills = await (window as any).openwizardai.claude.getSkills(
+				currentSession.projectRoot
+			);
 
 			let skillsMessage: string;
 			if (skills.length === 0) {
@@ -1276,9 +1280,9 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 				customPath,
 				customArgs,
 				customEnvVars,
-				enableMaestroP,
-				maestroPMode,
-				maestroPPath,
+				enableOpenWizardAIP,
+				openwizardaiPMode,
+				openwizardaiPPath,
 				sessionSshRemoteConfig,
 				autoRunMode,
 			} = wizardState;
@@ -1309,7 +1313,7 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 				throw new Error(validation.error || 'Session validation failed');
 			}
 
-			const agent = await (window as any).maestro.agents.get(selectedAgent);
+			const agent = await (window as any).openwizardai.agents.get(selectedAgent);
 			if (!agent) {
 				throw new Error(`Agent not found: ${selectedAgent}`);
 			}
@@ -1349,11 +1353,11 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 			const autoRunSelectedFile = firstDoc ? firstDoc.filename.replace(/\.md$/, '') : undefined;
 
 			// Claude Token Source: honor the wizard's explicit pick when the user
-			// touched the selector (enableMaestroP defined), otherwise fall back to
-			// the per-agent default. maestroPMode/maestroPPath only matter when the
+			// touched the selector (enableOpenWizardAIP defined), otherwise fall back to
+			// the per-agent default. openwizardaiPMode/openwizardaiPPath only matter when the
 			// source isn't pure API, mirroring EditAgentModal's save logic.
-			const resolvedEnableMaestroP =
-				enableMaestroP ?? (isAdaptiveModeDefaultOn(selectedAgent) || undefined);
+			const resolvedEnableOpenWizardAIP =
+				enableOpenWizardAIP ?? (isAdaptiveModeDefaultOn(selectedAgent) || undefined);
 
 			const newSession: Session = {
 				id: newId,
@@ -1411,17 +1415,19 @@ export function useWizardHandlers(deps: UseWizardHandlersDeps): UseWizardHandler
 				customArgs,
 				customEnvVars,
 				sessionSshRemoteConfig,
-				enableMaestroP: resolvedEnableMaestroP,
-				maestroPMode: resolvedEnableMaestroP ? maestroPMode : undefined,
-				maestroPPath:
-					resolvedEnableMaestroP && maestroPPath?.trim() ? maestroPPath.trim() : undefined,
+				enableOpenWizardAIP: resolvedEnableOpenWizardAIP,
+				openwizardaiPMode: resolvedEnableOpenWizardAIP ? openwizardaiPMode : undefined,
+				openwizardaiPPath:
+					resolvedEnableOpenWizardAIP && openwizardaiPPath?.trim()
+						? openwizardaiPPath.trim()
+						: undefined,
 				claudeInteractive:
 					selectedAgent === 'claude-code' ? { mode: 'api', modeReason: 'auto' } : undefined,
 			};
 
 			setSessions((prev) => [...prev, newSession]);
 			setActiveSessionId(newId);
-			(window as any).maestro.stats.recordSessionCreated({
+			(window as any).openwizardai.stats.recordSessionCreated({
 				sessionId: newId,
 				agentType: selectedAgent,
 				projectPath: directoryPath,

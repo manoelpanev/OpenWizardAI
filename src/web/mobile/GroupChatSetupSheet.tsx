@@ -1,5 +1,5 @@
 /**
- * GroupChatSetupSheet component for Maestro mobile web interface
+ * GroupChatSetupSheet component for OpenWizardAI mobile web interface
  *
  * Bottom sheet modal for starting a new group chat.
  * Allows selecting a topic and choosing participants from available agents.

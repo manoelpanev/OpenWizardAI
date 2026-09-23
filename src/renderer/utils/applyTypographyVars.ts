@@ -14,7 +14,7 @@
  *   - Tailwind's `font-mono` utility, used in ~200 places for chips, hashes,
  *     paths, and inline code. It compiled to a hard-coded stack, so none of
  *     them followed the user's chosen monospace font. It now compiles to
- *     `var(--maestro-font-mono)`.
+ *     `var(--openwizardai-font-mono)`.
  *
  * Custom properties inherit through the document, so a portal at `body` level
  * resolves them exactly like an in-tree node. Every variable also carries a CSS

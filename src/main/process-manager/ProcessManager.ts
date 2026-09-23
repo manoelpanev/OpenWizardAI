@@ -272,7 +272,7 @@ export class ProcessManager extends EventEmitter {
 	 * thread is still posting via napi_threadsafe_function while Electron
 	 * begins tearing down the Node environment - that race aborts inside
 	 * `ThreadSafeFunction::~ThreadSafeFunction → uv_mutex_lock` on macOS
-	 * (Sentry MAESTRO-3B). A SIGTERM grace period serves no purpose during
+	 * (Sentry OPENWIZARDAI-3B). A SIGTERM grace period serves no purpose during
 	 * shutdown anyway since the user has already confirmed quit.
 	 */
 	kill(

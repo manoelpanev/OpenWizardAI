@@ -3,13 +3,13 @@
  *
  * The desktop app beats via a ProcessManager listener, but the CLI spawns
  * agents itself and so was invisible to WakaTime: Auto Run and playbook time
- * simply never got recorded under Maestro.
+ * simply never got recorded under OpenWizardAI.
  *
  * This reuses the single {@link WakaTimeManager} implementation rather than
  * reimplementing heartbeat logic. Two constraints shape the wiring:
  *
- *  - `maestro-cli` is an esbuild bundle with no native modules, so the manager
- *    is constructed with a plain settings adapter over `maestro-settings.json`
+ *  - `openwizardai-cli` is an esbuild bundle with no native modules, so the manager
+ *    is constructed with a plain settings adapter over `openwizardai-settings.json`
  *    (`readSettings()`), not electron-store.
  *  - The CLI is short-lived and heartbeats are fire-and-forget, so a beat must
  *    never delay or fail the agent run it is describing.
@@ -23,14 +23,16 @@ import { readSettings } from './storage';
 let cached: WakaTimeManager | null | undefined;
 
 /**
- * CLI build version. `__MAESTRO_CLI_VERSION__` is substituted by esbuild at
+ * CLI build version. `__OPENWIZARDAI_CLI_VERSION__` is substituted by esbuild at
  * build time and is genuinely absent when running from source (tests, ts-node),
  * hence the `typeof` guard - referencing it directly would throw a
  * ReferenceError. Same mechanism `src/cli/index.ts` uses for `--version`.
  */
-declare const __MAESTRO_CLI_VERSION__: string;
+declare const __OPENWIZARDAI_CLI_VERSION__: string;
 function getCliVersion(): string {
-	return typeof __MAESTRO_CLI_VERSION__ !== 'undefined' ? __MAESTRO_CLI_VERSION__ : '0.0.0-dev';
+	return typeof __OPENWIZARDAI_CLI_VERSION__ !== 'undefined'
+		? __OPENWIZARDAI_CLI_VERSION__
+		: '0.0.0-dev';
 }
 
 /**

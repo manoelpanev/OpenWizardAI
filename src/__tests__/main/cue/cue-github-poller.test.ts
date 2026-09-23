@@ -958,7 +958,7 @@ describe('cue-github-poller', () => {
 		});
 	});
 
-	// MAESTRO-KE: a single install whose `gh` token had gone stale filed 924
+	// OPENWIZARDAI-KE: a single install whose `gh` token had gone stale filed 924
 	// events - one per poll tick - because no predicate claimed HTTP 401.
 	describe('auth detection (isGitHubAuthError)', () => {
 		it('matches the field message verbatim', () => {
@@ -1042,7 +1042,7 @@ describe('cue-github-poller', () => {
 			cleanup();
 		});
 
-		it('does not report GitHub-side 5xx responses to Sentry (MAESTRO-KE)', async () => {
+		it('does not report GitHub-side 5xx responses to Sentry (OPENWIZARDAI-KE)', async () => {
 			const config = makeConfig();
 			// `gh` surfaces a degraded GitHub as an HTTP 5xx on stderr. The poller
 			// retries on its own schedule, so paging Sentry once per tick for the
@@ -1069,7 +1069,7 @@ describe('cue-github-poller', () => {
 			cleanup();
 		});
 
-		it('does not report a GitHub-side 5xx during repo auto-detection (MAESTRO-KE)', async () => {
+		it('does not report a GitHub-side 5xx during repo auto-detection (OPENWIZARDAI-KE)', async () => {
 			// Repo auto-detection runs before the poll, so a `gh repo view` failure
 			// short-circuits doPoll entirely and has to suppress on its own.
 			const config = makeConfig({ repo: undefined });
@@ -1089,7 +1089,7 @@ describe('cue-github-poller', () => {
 			cleanup();
 		});
 
-		it('does not report an unauthenticated gh CLI to Sentry (MAESTRO-KE)', async () => {
+		it('does not report an unauthenticated gh CLI to Sentry (OPENWIZARDAI-KE)', async () => {
 			// A stale/revoked `gh` token is only fixable by the user, and the poller
 			// keeps ticking - so without a carve-out one install files an event
 			// every poll interval, indefinitely.
@@ -1133,7 +1133,7 @@ describe('cue-github-poller', () => {
 			cleanup();
 		});
 
-		it('does not report an unauthenticated gh CLI during repo auto-detection (MAESTRO-KE)', async () => {
+		it('does not report an unauthenticated gh CLI during repo auto-detection (OPENWIZARDAI-KE)', async () => {
 			const config = makeConfig({ repo: undefined });
 			mockExecFile.mockImplementation((_c, args, _o, cb) => {
 				if ((args as string[]).includes('--version')) return cb(null, '2.0.0', '');
@@ -1165,7 +1165,7 @@ describe('cue-github-poller', () => {
 			// Fixture is a 422: GitHub rejected a query *we* built, which is a real
 			// bug on our side and must keep paging. (This case used to use
 			// `gh auth login required`, which is now classified as an expected auth
-			// failure - see isGitHubAuthError / MAESTRO-KE.)
+			// failure - see isGitHubAuthError / OPENWIZARDAI-KE.)
 			const config = makeConfig();
 			setupExecFileReject(
 				'pr list',

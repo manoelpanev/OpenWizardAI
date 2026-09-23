@@ -24,7 +24,7 @@ import { useUIStore } from '../../stores/uiStore';
 
 export function useProfilingAutoStop(): void {
 	useEffect(() => {
-		const unsubscribe = window.maestro?.debug?.onProfilingAutoStopped?.((event) => {
+		const unsubscribe = window.openwizardai?.debug?.onProfilingAutoStopped?.((event) => {
 			useUIStore.getState().setProfilingBufferPercent(event.bufferPercent ?? 0);
 
 			const seconds = Math.round((event.elapsedMs ?? 0) / 1000);

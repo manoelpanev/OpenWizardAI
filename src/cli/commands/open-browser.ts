@@ -1,11 +1,11 @@
-// Open/close browser commands - manage browser tabs in the Maestro desktop app.
+// Open/close browser commands - manage browser tabs in the OpenWizardAI desktop app.
 //
 // `--background` creates the tab without moving the user: the active agent is
 // left alone and the new tab does not become the visible one. This verb has had
 // the flag since it shipped and is the model the others now follow. Agents doing
 // research should always pass it, then `close-browser <tab-id>` when done.
 
-import { withMaestroClient, resolveSessionId } from '../services/maestro-client';
+import { withOpenWizardAIClient, resolveSessionId } from '../services/openwizardai-client';
 import { resolveAgentId } from '../services/storage';
 import { resolveBackgroundFlag } from '../../shared/focusPlacement';
 
@@ -69,7 +69,7 @@ export async function openBrowser(url: string, options: OpenBrowserOptions): Pro
 	const background = resolveBackgroundFlag(options, 'open-browser');
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;
@@ -94,7 +94,7 @@ export async function openBrowser(url: string, options: OpenBrowserOptions): Pro
 				);
 			} else {
 				console.log(
-					`Opened ${parsed.toString()} in OpenWizzard${background ? ' (background tab)' : ''}`
+					`Opened ${parsed.toString()} in OpenWizardAI${background ? ' (background tab)' : ''}`
 				);
 				// Surface the id in plain output too - it's the handle for
 				// `close-browser`, and agents shouldn't need --json just to clean up.
@@ -126,7 +126,7 @@ export async function closeBrowser(tabId: string, options: CloseBrowserOptions):
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{ type: 'close_browser_tab', tabId: trimmed },
 				'close_browser_tab_result'

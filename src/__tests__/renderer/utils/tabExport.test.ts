@@ -78,7 +78,7 @@ describe('tabExport', () => {
 				const tab = createMockTab({ name: 'My Custom Tab' });
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
-				expect(html).toContain('<title>My Custom Tab - OpenWizzard Tab Export</title>');
+				expect(html).toContain('<title>My Custom Tab - OpenWizardAI Tab Export</title>');
 				// Also check the header h1
 				expect(html).toContain('My Custom Tab');
 			});
@@ -91,7 +91,7 @@ describe('tabExport', () => {
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
 				expect(html).toContain('ABC12345');
-				expect(html).toContain('<title>ABC12345 - OpenWizzard Tab Export</title>');
+				expect(html).toContain('<title>ABC12345 - OpenWizardAI Tab Export</title>');
 			});
 
 			it('falls back to "New Session" when no name or session ID', () => {
@@ -100,7 +100,7 @@ describe('tabExport', () => {
 
 				// getTabDisplayName returns 'New Session' for unnamed tabs without agentSessionId
 				expect(html).toContain('New Session');
-				expect(html).toContain('<title>New Session - OpenWizzard Tab Export</title>');
+				expect(html).toContain('<title>New Session - OpenWizardAI Tab Export</title>');
 			});
 		});
 
@@ -690,12 +690,12 @@ describe('tabExport', () => {
 		});
 
 		describe('branding section', () => {
-			it('includes OpenWizzard branding section', () => {
+			it('includes OpenWizardAI branding section', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
 				expect(html).toContain('class="branding"');
-				expect(html).toContain('OpenWizzard');
+				expect(html).toContain('OpenWizardAI');
 			});
 
 			it('includes tagline about multi-agent orchestration', () => {
@@ -705,23 +705,23 @@ describe('tabExport', () => {
 				expect(html).toContain('Multi-agent orchestration');
 			});
 
-			it('includes runmaestro.ai link', () => {
+			it('includes github.com/manoelpanev/OpenWizardAI link', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
-				expect(html).toContain('href="https://runmaestro.ai"');
-				expect(html).toContain('runmaestro.ai');
+				expect(html).toContain('href="https://github.com/manoelpanev/OpenWizardAI"');
+				expect(html).toContain('github.com/manoelpanev/OpenWizardAI');
 			});
 
 			it('includes GitHub link', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
-				expect(html).toContain('href="https://github.com/RunMaestro/Maestro"');
+				expect(html).toContain('href="https://github.com/manoelpanev/OpenWizardAI"');
 				expect(html).toContain('GitHub');
 			});
 
-			it('includes OpenWizzard logo image', () => {
+			it('includes OpenWizardAI logo image', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
@@ -731,13 +731,13 @@ describe('tabExport', () => {
 		});
 
 		describe('footer', () => {
-			it('includes OpenWizzard attribution with runmaestro.ai link', () => {
+			it('includes OpenWizardAI attribution with github.com/manoelpanev/OpenWizardAI link', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
 				expect(html).toContain('class="footer"');
 				expect(html).toContain('Exported from');
-				expect(html).toContain('href="https://runmaestro.ai"');
+				expect(html).toContain('href="https://github.com/manoelpanev/OpenWizardAI"');
 			});
 
 			it('includes theme name in footer', () => {

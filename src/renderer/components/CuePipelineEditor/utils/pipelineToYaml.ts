@@ -18,7 +18,7 @@ import type {
 } from '../../../../shared/cue-pipeline-types';
 import { commandNodeDataToCueCommand } from '../../../../shared/cue-pipeline-types';
 import type { CueSubscription, CueSettings } from '../../../../shared/cue';
-import { cuePromptFilePath } from '../../../../shared/maestro-paths';
+import { cuePromptFilePath } from '../../../../shared/openwizardai-paths';
 
 /**
  * Pad single-digit hours to `HH:MM` so the on-disk YAML is canonical. The
@@ -168,7 +168,7 @@ function applyTriggerEventConfig(sub: CueSubscription, triggerData: TriggerNodeD
 			break;
 		case 'time.once':
 			// Carry-through only - the editor has no one-shot config UI. These
-			// arrive from `maestro-cli cue schedule --at` / the Scheduled Tasks
+			// arrive from `openwizardai-cli cue schedule --at` / the Scheduled Tasks
 			// tab and must survive a graph save untouched; without `fire_at`
 			// the sub has no instant and the engine can never fire it.
 			if (triggerData.config.fire_at) sub.fire_at = triggerData.config.fire_at;
@@ -230,7 +230,7 @@ function applyTriggerEventConfig(sub: CueSubscription, triggerData: TriggerNodeD
  * `edge` is the specific trigger->target edge being serialized, not "some edge
  * that happens to reach this target": one trigger can feed the same agent over
  * two edges (a prompt run plus a notify toast, which is what
- * `maestro-cli cue schedule --prompt --notify` writes), and those two edges
+ * `openwizardai-cli cue schedule --prompt --notify` writes), and those two edges
  * produce two different subscriptions.
  */
 function populateTargetWork(
@@ -498,7 +498,7 @@ export function pipelineToYamlSubscriptions(
 				// may have multiple triggers that each fan-out to the same
 				// agents (e.g. a GitHub-PR trigger and a heartbeat trigger
 				// both fanning out to [Codex, OpenCode]); both subs would
-				// otherwise write to the same `.maestro/prompts/codex-pipeline.md`
+				// otherwise write to the same `.openwizardai/prompts/codex-pipeline.md`
 				// and the SECOND write would silently overwrite the FIRST.
 				// Using the subscription name keeps each sub's prompts
 				// isolated on disk, mirroring how single-prompt subs are
@@ -785,7 +785,7 @@ function buildChain(
 		// source_session: fan-in emits the full source list, single-source emits one name.
 		// Emit names (legacy) AND ids (new). IDs are authoritative on load;
 		// names remain for human readability and for downgrading to older
-		// versions of Maestro that don't know the new field.
+		// versions of OpenWizardAI that don't know the new field.
 		if (incomingWorkEdges.length > 1) {
 			const sourceNames = incomingWorkEdges
 				.map((e) => {
@@ -1125,7 +1125,7 @@ interface SessionRootRef {
 
 /**
  * Result entry for {@link pipelinesToYamlByOwnerCwd}: the YAML string and
- * the prompt files that should be written under that cwd's `.maestro/`.
+ * the prompt files that should be written under that cwd's `.openwizardai/`.
  */
 export interface CwdYamlEntry extends PipelineYamlResult {
 	/**
@@ -1141,7 +1141,7 @@ export interface CwdYamlEntry extends PipelineYamlResult {
  * YAML per cwd containing only that cwd's subs.
  *
  * This is the writer counterpart to the loader's per-cwd read model: each
- * agent's `.maestro/cue.yaml` is the sole source of truth for that agent's
+ * agent's `.openwizardai/cue.yaml` is the sole source of truth for that agent's
  * subscriptions. A pipeline that spans N agents writes to N yaml files;
  * cross-agent chains are stitched at runtime via `agent_id` references in
  * `source_session_ids` / `fan_out_ids`.

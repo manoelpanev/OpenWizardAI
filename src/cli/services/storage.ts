@@ -18,22 +18,22 @@ import {
 	sortEntriesByTimestamp,
 } from '../../shared/history';
 
-// Get the Maestro config directory path
+// Get the OpenWizardAI config directory path
 export function getConfigDir(): string {
-	// Allow overriding the data directory (e.g. for dev mode: maestro-dev)
-	if (process.env.MAESTRO_USER_DATA) {
-		return path.resolve(process.env.MAESTRO_USER_DATA);
+	// Allow overriding the data directory (e.g. for dev mode: openwizardai-dev)
+	if (process.env.OPENWIZARDAI_USER_DATA) {
+		return path.resolve(process.env.OPENWIZARDAI_USER_DATA);
 	}
 	const platform = os.platform();
 	const home = os.homedir();
 
 	if (platform === 'darwin') {
-		return path.join(home, 'Library', 'Application Support', 'OpenWizzard');
+		return path.join(home, 'Library', 'Application Support', 'OpenWizardAI');
 	} else if (platform === 'win32') {
-		return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'OpenWizzard');
+		return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'OpenWizardAI');
 	} else {
 		// Linux and others
-		return path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizzard');
+		return path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizardAI');
 	}
 }
 
@@ -96,7 +96,7 @@ interface AgentConfigsStore {
  * Read all sessions from storage
  */
 export function readSessions(): SessionInfo[] {
-	const data = readStoreFile<SessionsStore>('maestro-sessions.json');
+	const data = readStoreFile<SessionsStore>('openwizardai-sessions.json');
 	return data?.sessions || [];
 }
 
@@ -106,7 +106,7 @@ export function readSessions(): SessionInfo[] {
  * themselves, so this is the same read `readSessions` already does.
  */
 export function readActiveAgentId(): string | null {
-	const data = readStoreFile<SessionsStore>('maestro-sessions.json');
+	const data = readStoreFile<SessionsStore>('openwizardai-sessions.json');
 	const id = data?.activeSessionId;
 	return typeof id === 'string' && id.length > 0 ? id : null;
 }
@@ -115,7 +115,7 @@ export function readActiveAgentId(): string | null {
  * Read all groups from storage
  */
 export function readGroups(): Group[] {
-	const data = readStoreFile<GroupsStore>('maestro-groups.json');
+	const data = readStoreFile<GroupsStore>('openwizardai-groups.json');
 	return data?.groups || [];
 }
 
@@ -242,7 +242,7 @@ export function readHistory(projectPath?: string, sessionId?: string): HistoryEn
 	}
 
 	// Fall back to legacy format
-	const data = readStoreFile<HistoryStore>('maestro-history.json');
+	const data = readStoreFile<HistoryStore>('openwizardai-history.json');
 	let entries = data?.entries || [];
 
 	if (projectPath) {
@@ -275,7 +275,7 @@ export function readHistoryPaginated(options?: {
  * Read settings from storage
  */
 export function readSettings(): SettingsStore {
-	const data = readStoreFile<SettingsStore>('maestro-settings.json');
+	const data = readStoreFile<SettingsStore>('openwizardai-settings.json');
 	return data || {};
 }
 
@@ -296,7 +296,7 @@ export function readSettingValue(key: string): unknown {
 export function writeSettingValue(key: string, value: unknown): boolean {
 	const settings = readSettings();
 	setNestedValue(settings, key, value);
-	writeStoreFile('maestro-settings.json', settings);
+	writeStoreFile('openwizardai-settings.json', settings);
 	return true;
 }
 
@@ -309,7 +309,7 @@ export function deleteSettingValue(key: string): boolean {
 	const settings = readSettings();
 	const removed = deleteNestedValue(settings, key);
 	if (removed) {
-		writeStoreFile('maestro-settings.json', settings);
+		writeStoreFile('openwizardai-settings.json', settings);
 	}
 	return removed;
 }
@@ -368,7 +368,7 @@ function deleteNestedValue(obj: Record<string, unknown>, path: string): boolean 
  * This includes custom paths set by the user in the desktop app
  */
 export function readAgentConfigs(): Record<string, Record<string, unknown>> {
-	const data = readStoreFile<AgentConfigsStore>('maestro-agent-configs.json');
+	const data = readStoreFile<AgentConfigsStore>('openwizardai-agent-configs.json');
 	return data?.configs || {};
 }
 
@@ -406,12 +406,14 @@ export function readAgentConfigValue(agentId: string, key: string): unknown {
  * Write a single agent config value.
  */
 export function writeAgentConfigValue(agentId: string, key: string, value: unknown): boolean {
-	const data = readStoreFile<AgentConfigsStore>('maestro-agent-configs.json') || { configs: {} };
+	const data = readStoreFile<AgentConfigsStore>('openwizardai-agent-configs.json') || {
+		configs: {},
+	};
 	if (!data.configs[agentId]) {
 		data.configs[agentId] = {};
 	}
 	data.configs[agentId][key] = value;
-	writeStoreFile('maestro-agent-configs.json', data);
+	writeStoreFile('openwizardai-agent-configs.json', data);
 	return true;
 }
 
@@ -420,7 +422,7 @@ export function writeAgentConfigValue(agentId: string, key: string, value: unkno
  * Returns true if the key existed and was removed.
  */
 export function deleteAgentConfigValue(agentId: string, key: string): boolean {
-	const data = readStoreFile<AgentConfigsStore>('maestro-agent-configs.json');
+	const data = readStoreFile<AgentConfigsStore>('openwizardai-agent-configs.json');
 	if (!data?.configs?.[agentId] || !(key in data.configs[agentId])) {
 		return false;
 	}
@@ -429,7 +431,7 @@ export function deleteAgentConfigValue(agentId: string, key: string): boolean {
 	if (Object.keys(data.configs[agentId]).length === 0) {
 		delete data.configs[agentId];
 	}
-	writeStoreFile('maestro-agent-configs.json', data);
+	writeStoreFile('openwizardai-agent-configs.json', data);
 	return true;
 }
 
@@ -633,8 +635,8 @@ export function addHistoryEntry(entry: HistoryEntry): void {
 			);
 		} else {
 			// Use legacy format
-			const filePath = path.posix.join(getConfigDir(), 'maestro-history.json');
-			const data = readStoreFile<HistoryStore>('maestro-history.json') || { entries: [] };
+			const filePath = path.posix.join(getConfigDir(), 'openwizardai-history.json');
+			const data = readStoreFile<HistoryStore>('openwizardai-history.json') || { entries: [] };
 
 			data.entries.unshift(entry); // Add to beginning (most recent first)
 

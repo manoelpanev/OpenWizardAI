@@ -12,7 +12,7 @@ describe('BatonView', () => {
 		expect(screen.getByText('Expanded:')).toBeInTheDocument();
 		expect(screen.getByText('Collapsed:')).toBeInTheDocument();
 		expect(screen.getByText('Sizes:')).toBeInTheDocument();
-		expect(screen.getAllByText('MAESTRO').length).toBeGreaterThanOrEqual(1);
+		expect(screen.getAllByText('OPENWIZARDAI').length).toBeGreaterThanOrEqual(1);
 	});
 
 	it('renders active and paused animation states', () => {

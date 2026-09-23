@@ -1,7 +1,7 @@
 /**
  * @file scheduled-tasks-describe.test.ts
  * @description Tests for the display formatters behind the Scheduled Tasks
- * table and `maestro-cli cue schedule --list`: day-set collapsing, interval
+ * table and `openwizardai-cli cue schedule --list`: day-set collapsing, interval
  * humanizing, and the one-shot fire time.
  */
 

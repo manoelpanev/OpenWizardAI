@@ -3,7 +3,7 @@
  *
  * AI command mode is the second rung of the composer's bang ladder (see
  * `renderer/utils/shellCommandInput.ts`). The user describes what they want,
- * the tab's own model returns ONE command line, and Maestro shows it for a
+ * the tab's own model returns ONE command line, and OpenWizardAI shows it for a
  * yes/no before running it exactly like a typed `!` command.
  *
  * The two jobs here - describing the host the command will run on, and pulling

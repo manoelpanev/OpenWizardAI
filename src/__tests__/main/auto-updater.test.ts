@@ -176,7 +176,7 @@ describe('main/auto-updater', () => {
 		// The raw blob electron-updater throws on a GitHub 504: an HTTP status,
 		// an HTML error page, and a dump of response headers + cookies.
 		const raw504 =
-			'504 "method: GET url: https://github.com/RunMaestro/Maestro/releases.atom\n\n' +
+			'504 "method: GET url: https://github.com/manoelpanev/OpenWizardAI/releases.atom\n\n' +
 			' Data:\n <html><body><h1>504 Gateway Time-out</h1>\nThe server didn\'t respond in time.\n</body></html>\n\n " ' +
 			'Headers: { "set-cookie": [ "_gh_sess=secret-cookie-value", "logged_in=no" ] }';
 
@@ -252,7 +252,7 @@ describe('main/auto-updater', () => {
 			// bypassing releases.atom entirely.
 			expect(mockAutoUpdater.setFeedURL).toHaveBeenCalledWith({
 				provider: 'generic',
-				url: 'https://github.com/RunMaestro/Maestro/releases/download/v1.2.3/',
+				url: 'https://github.com/manoelpanev/OpenWizardAI/releases/download/v1.2.3/',
 			});
 		});
 

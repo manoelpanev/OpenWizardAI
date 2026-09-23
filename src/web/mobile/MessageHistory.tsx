@@ -1,5 +1,5 @@
 /**
- * MessageHistory component for Maestro mobile web interface
+ * MessageHistory component for OpenWizardAI mobile web interface
  *
  * Displays the conversation history (AI logs and shell logs) for the active session.
  * Shows messages in a scrollable container with user/AI differentiation.

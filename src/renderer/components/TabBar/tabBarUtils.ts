@@ -98,7 +98,7 @@ export function isUnifiedTabActive(
 /**
  * Compute shortcut hint for a tab at a given position.
  *
- * When useCmd0AsLastTab is true (Maestro default): returns 1-9 for the first 9 tabs,
+ * When useCmd0AsLastTab is true (OpenWizardAI default): returns 1-9 for the first 9 tabs,
  * 0 for the last tab (Cmd+0), null for others.
  *
  * When useCmd0AsLastTab is false (browser-style): returns 1-8 for the first 8 tabs,

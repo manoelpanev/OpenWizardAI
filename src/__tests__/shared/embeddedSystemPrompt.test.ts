@@ -1,5 +1,5 @@
 /**
- * Tests for the system-prompt envelope Maestro wraps a first user turn in when
+ * Tests for the system-prompt envelope OpenWizardAI wraps a first user turn in when
  * the provider has no `--append-system-prompt` flag (issue #1533).
  *
  * The producer and the reader have to agree exactly: the envelope is written
@@ -15,7 +15,7 @@ import {
 	stripEmbeddedSystemPrompt,
 } from '../../shared/embeddedSystemPrompt';
 
-const SYSTEM_PROMPT = '# Maestro System Context\n\nYou are **Scout**, powered by **codex**.';
+const SYSTEM_PROMPT = '# OpenWizardAI System Context\n\nYou are **Scout**, powered by **codex**.';
 
 describe('embedSystemPromptInPrompt', () => {
 	it('round-trips: the strip recovers exactly what was embedded', () => {

@@ -5,9 +5,9 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 // Mock storage
@@ -22,7 +22,7 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { removeAgent } from '../../../cli/commands/remove-agent';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveAgentId } from '../../../cli/services/storage';
 import { formatError, formatSuccess } from '../../../cli/output/formatter';
 
@@ -40,7 +40,7 @@ describe('remove-agent command', () => {
 
 	it('should remove an agent successfully', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('full-session-id');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({
 					type: 'delete_session_result',
@@ -58,7 +58,7 @@ describe('remove-agent command', () => {
 
 	it('should output JSON on success', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-123');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({ type: 'delete_session_result', success: true }),
 			};
@@ -86,7 +86,7 @@ describe('remove-agent command', () => {
 
 	it('should handle server failure', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-id');
-		vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 			const mockClient = {
 				sendCommand: vi.fn().mockResolvedValue({
 					type: 'delete_session_result',
@@ -105,7 +105,7 @@ describe('remove-agent command', () => {
 
 	it('should handle connection error', async () => {
 		vi.mocked(resolveAgentId).mockReturnValue('agent-id');
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('App not running'));
+		vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('App not running'));
 
 		await removeAgent('agent-id', {});
 

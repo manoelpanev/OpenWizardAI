@@ -4,7 +4,7 @@
  * Verifies:
  * - Query events group per tab, with duration / auto% / recency aggregates
  * - Tab names resolve from open, snoozed, and recently-closed tabs, falling
- *   back to the id octet for tabs Maestro can no longer name
+ *   back to the id octet for tabs OpenWizardAI can no longer name
  * - Open tabs with no recorded queries still get a tile
  * - The Open / Last 10 / Last 25 / All filters and the four sort modes
  * - Sparklines are omitted (not flat-lined) for tabs idle beyond the window

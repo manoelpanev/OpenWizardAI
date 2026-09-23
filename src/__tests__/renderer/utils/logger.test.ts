@@ -3,17 +3,17 @@ import { logger, LogLevel } from '../../../renderer/utils/logger';
 
 describe('logger', () => {
 	let logSpy: ReturnType<typeof vi.fn>;
-	let originalMaestro: typeof window.maestro;
+	let originalOpenWizardAI: typeof window.openwizardai;
 
 	beforeEach(() => {
-		// Save original maestro
-		originalMaestro = window.maestro;
+		// Save original openwizardai
+		originalOpenWizardAI = window.openwizardai;
 
 		// Create mock log function
 		logSpy = vi.fn();
 
-		// Set up window.maestro mock with logger
-		(window as any).maestro = {
+		// Set up window.openwizardai mock with logger
+		(window as any).openwizardai = {
 			logger: {
 				log: logSpy,
 			},
@@ -21,8 +21,8 @@ describe('logger', () => {
 	});
 
 	afterEach(() => {
-		// Restore original maestro
-		(window as any).maestro = originalMaestro;
+		// Restore original openwizardai
+		(window as any).openwizardai = originalOpenWizardAI;
 	});
 
 	describe('LogLevel type', () => {
@@ -55,7 +55,7 @@ describe('logger', () => {
 	});
 
 	describe('debug', () => {
-		it('should call window.maestro.logger.log with debug level', () => {
+		it('should call window.openwizardai.logger.log with debug level', () => {
 			logger.debug('test message');
 			expect(logSpy).toHaveBeenCalledWith('debug', 'test message', undefined, undefined);
 		});
@@ -88,7 +88,7 @@ describe('logger', () => {
 	});
 
 	describe('info', () => {
-		it('should call window.maestro.logger.log with info level', () => {
+		it('should call window.openwizardai.logger.log with info level', () => {
 			logger.info('info message');
 			expect(logSpy).toHaveBeenCalledWith('info', 'info message', undefined, undefined);
 		});
@@ -106,7 +106,7 @@ describe('logger', () => {
 	});
 
 	describe('warn', () => {
-		it('should call window.maestro.logger.log with warn level', () => {
+		it('should call window.openwizardai.logger.log with warn level', () => {
 			logger.warn('warning message');
 			expect(logSpy).toHaveBeenCalledWith('warn', 'warning message', undefined, undefined);
 		});
@@ -124,7 +124,7 @@ describe('logger', () => {
 	});
 
 	describe('error', () => {
-		it('should call window.maestro.logger.log with error level', () => {
+		it('should call window.openwizardai.logger.log with error level', () => {
 			logger.error('error message');
 			expect(logSpy).toHaveBeenCalledWith('error', 'error message', undefined, undefined);
 		});
@@ -147,9 +147,9 @@ describe('logger', () => {
 		});
 	});
 
-	describe('window.maestro unavailable', () => {
-		it('should handle undefined window.maestro gracefully', () => {
-			(window as any).maestro = undefined;
+	describe('window.openwizardai unavailable', () => {
+		it('should handle undefined window.openwizardai gracefully', () => {
+			(window as any).openwizardai = undefined;
 
 			// Should not throw
 			expect(() => logger.debug('test')).not.toThrow();
@@ -158,8 +158,8 @@ describe('logger', () => {
 			expect(() => logger.error('test')).not.toThrow();
 		});
 
-		it('should handle null window.maestro gracefully', () => {
-			(window as any).maestro = null;
+		it('should handle null window.openwizardai gracefully', () => {
+			(window as any).openwizardai = null;
 
 			expect(() => logger.debug('test')).not.toThrow();
 			expect(() => logger.info('test')).not.toThrow();
@@ -168,7 +168,7 @@ describe('logger', () => {
 		});
 
 		it('should handle undefined logger gracefully', () => {
-			(window as any).maestro = { logger: undefined };
+			(window as any).openwizardai = { logger: undefined };
 
 			expect(() => logger.debug('test')).not.toThrow();
 			expect(() => logger.info('test')).not.toThrow();
@@ -177,7 +177,7 @@ describe('logger', () => {
 		});
 
 		it('should handle null logger gracefully', () => {
-			(window as any).maestro = { logger: null };
+			(window as any).openwizardai = { logger: null };
 
 			expect(() => logger.debug('test')).not.toThrow();
 			expect(() => logger.info('test')).not.toThrow();

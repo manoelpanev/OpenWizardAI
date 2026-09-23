@@ -108,12 +108,12 @@ describe('wrapSpawnWithSsh', () => {
 			// The marker is not a user value, so stripping must not reach it, and an
 			// agent override must not be able to relabel a Cue run as interactive.
 			await wrapSpawnWithSsh(
-				{ ...baseConfig, customEnvVars: { MAESTRO_QUERY_SOURCE: 'user' }, querySource: 'cue' },
+				{ ...baseConfig, customEnvVars: { OPENWIZARDAI_QUERY_SOURCE: 'user' }, querySource: 'cue' },
 				{ enabled: true, remoteId: 'jennifer-box' },
 				sshStore
 			);
 
-			expect(envPassedToBuilder(mockBuildSshCommand).MAESTRO_QUERY_SOURCE).toBe('cue');
+			expect(envPassedToBuilder(mockBuildSshCommand).OPENWIZARDAI_QUERY_SOURCE).toBe('cue');
 		});
 	});
 

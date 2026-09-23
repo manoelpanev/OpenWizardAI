@@ -28,7 +28,7 @@ import { setAllowPrerelease } from '../../auto-updater';
 import { WebServer } from '../../web-server';
 import { powerManager } from '../../power-manager';
 import { setMenuShortcutKeys } from '../../app-menu';
-import { MaestroSettings } from './persistence';
+import { OpenWizardAISettings } from './persistence';
 import { captureException } from '../../utils/sentry';
 import type { BootstrapSettings } from '../../stores/types';
 
@@ -41,7 +41,7 @@ type TunnelManagerType = typeof tunnelManagerInstance;
 export interface SystemHandlerDependencies {
 	getMainWindow: () => BrowserWindow | null;
 	app: App;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	tunnelManager: TunnelManagerType;
 	getWebServer: () => WebServer | null;
 	bootstrapStore?: Store<BootstrapSettings>;
@@ -84,7 +84,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 	// Folder selection dialog
 	// Wrapped in try-catch to ensure a reply is always sent, even if the window
 	// is closed while the dialog is open or other unexpected errors occur.
-	// Fixes MAESTRO-58: "reply was never sent"
+	// Fixes OPENWIZARDAI-58: "reply was never sent"
 	ipcMain.handle('dialog:selectFolder', async () => {
 		try {
 			const mainWindow = getMainWindow();
@@ -225,7 +225,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 	// The vectors this list exists to stop, `javascript:` and `data:`, remain blocked.
 	const ALLOWED_PROTOCOLS = ['http:', 'https:', 'mailto:', 'clickup:'];
 	ipcMain.handle('shell:openExternal', async (_event, url: string) => {
-		// Validate URL before opening - Fixes MAESTRO-1S
+		// Validate URL before opening - Fixes OPENWIZARDAI-1S
 		if (!url || typeof url !== 'string') {
 			throw new Error('Invalid URL: URL must be a non-empty string');
 		}
@@ -233,7 +233,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 		try {
 			parsed = new URL(url);
 		} catch {
-			// Detect absolute file paths and redirect to openPath - Fixes MAESTRO-FN/FA/F4
+			// Detect absolute file paths and redirect to openPath - Fixes OPENWIZARDAI-FN/FA/F4
 			if (path.isAbsolute(url)) {
 				if (fsSync.existsSync(url)) {
 					const errorMessage = await shell.openPath(url);
@@ -248,7 +248,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 			logger.warn(`Ignored non-URL string passed to openExternal: "${url}"`, 'Shell');
 			return;
 		}
-		// Redirect file:// URLs to shell.openPath instead of rejecting - Fixes MAESTRO-9M
+		// Redirect file:// URLs to shell.openPath instead of rejecting - Fixes OPENWIZARDAI-9M
 		if (parsed.protocol === 'file:') {
 			const filePath = decodeURIComponent(parsed.pathname);
 			if (!fsSync.existsSync(filePath)) {
@@ -268,7 +268,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			if (message.includes('Launch Services') || message.includes('No application')) {
-				// Fixes MAESTRO-3Q: macOS has no handler for this URL scheme/file type.
+				// Fixes OPENWIZARDAI-3Q: macOS has no handler for this URL scheme/file type.
 				logger.warn(`No application found to open "${url}"`, 'Shell', { error: message });
 				return;
 			}
@@ -285,7 +285,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 		const absolutePath = path.resolve(itemPath);
 		// Path missing → user's intent (delete) is already satisfied; no-op gracefully
 		// rather than rejecting the IPC promise, which surfaces as an unhandled
-		// rejection in the renderer. Fixes MAESTRO-JD/JC.
+		// rejection in the renderer. Fixes OPENWIZARDAI-JD/JC.
 		if (!fsSync.existsSync(absolutePath)) {
 			logger.warn(`shell:trashItem - path does not exist: ${absolutePath}`, 'Shell');
 			return;
@@ -295,7 +295,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
 			// User or system cancelled the trash operation - not a real error
-			// Fixes MAESTRO-A4
+			// Fixes OPENWIZARDAI-A4
 			if (
 				message.includes('aborted') ||
 				message.includes('cancelled') ||
@@ -317,7 +317,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 		const absolutePath = path.resolve(itemPath);
 		// Stale path → log + return rather than rejecting the IPC, which produces
 		// noisy unhandled rejections from fire-and-forget callers in the renderer.
-		// Mirrors the shell:openPath fix (MAESTRO-B3). Fixes MAESTRO-K1/HN/HS.
+		// Mirrors the shell:openPath fix (OPENWIZARDAI-B3). Fixes OPENWIZARDAI-K1/HN/HS.
 		if (!fsSync.existsSync(absolutePath)) {
 			logger.warn(`shell:showItemInFolder - path does not exist: ${absolutePath}`, 'Shell');
 			return;
@@ -333,7 +333,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 		const absolutePath = path.resolve(itemPath);
 		if (!fsSync.existsSync(absolutePath)) {
 			// Path doesn't exist - log and return gracefully since many callers
-			// fire-and-forget without catching. Fixes MAESTRO-B3
+			// fire-and-forget without catching. Fixes OPENWIZARDAI-B3
 			logger.warn(`shell:openPath - path does not exist: ${absolutePath}`, 'Shell');
 			return;
 		}
@@ -603,11 +603,11 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 
 	// List of settings files that should be migrated
 	const SETTINGS_FILES = [
-		'maestro-settings.json',
-		'maestro-sessions.json',
-		'maestro-groups.json',
-		'maestro-agent-configs.json',
-		'maestro-claude-session-origins.json',
+		'openwizardai-settings.json',
+		'openwizardai-sessions.json',
+		'openwizardai-groups.json',
+		'openwizardai-agent-configs.json',
+		'openwizardai-claude-session-origins.json',
 	];
 
 	// Get the default storage path
@@ -643,7 +643,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 			properties: ['openDirectory', 'createDirectory'],
 			title: 'Select Settings Folder',
 			message:
-				'Choose a folder for OpenWizzard settings. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share settings across devices.',
+				'Choose a folder for OpenWizardAI settings. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share settings across devices.',
 		});
 
 		if (result.canceled || result.filePaths.length === 0) {
@@ -742,14 +742,14 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 	// ============ Power Management Handlers ============
 
 	// Load saved preference and enable power manager if it was enabled
-	const savedPreventSleep = settingsStore.get('preventSleepEnabled' as keyof MaestroSettings);
+	const savedPreventSleep = settingsStore.get('preventSleepEnabled' as keyof OpenWizardAISettings);
 	if (savedPreventSleep === true) {
 		powerManager.setEnabled(true);
 		logger.info('Sleep prevention restored from settings', 'PowerManager');
 	}
 
 	const savedKeepDisplayAwake = settingsStore.get(
-		'preventDisplaySleepEnabled' as keyof MaestroSettings
+		'preventDisplaySleepEnabled' as keyof OpenWizardAISettings
 	);
 	if (savedKeepDisplayAwake === true) {
 		powerManager.setKeepDisplayAwake(true);
@@ -759,7 +759,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 	// Set whether sleep prevention is enabled
 	ipcMain.handle('power:setEnabled', async (_event, enabled: boolean) => {
 		powerManager.setEnabled(enabled);
-		settingsStore.set('preventSleepEnabled' as keyof MaestroSettings, enabled);
+		settingsStore.set('preventSleepEnabled' as keyof OpenWizardAISettings, enabled);
 	});
 
 	// Check if sleep prevention is enabled
@@ -770,7 +770,7 @@ export function registerSystemHandlers(deps: SystemHandlerDependencies): void {
 	// Lift blockers to prevent-display-sleep (screen saver / lock / idle logout)
 	ipcMain.handle('power:setKeepDisplayAwake', async (_event, keepAwake: boolean) => {
 		powerManager.setKeepDisplayAwake(keepAwake);
-		settingsStore.set('preventDisplaySleepEnabled' as keyof MaestroSettings, keepAwake);
+		settingsStore.set('preventDisplaySleepEnabled' as keyof OpenWizardAISettings, keepAwake);
 	});
 
 	// Get current power management status

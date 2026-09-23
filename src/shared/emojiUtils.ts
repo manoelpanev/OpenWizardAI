@@ -1,5 +1,5 @@
 /**
- * Emoji utilities for Maestro
+ * Emoji utilities for OpenWizardAI
  *
  * Shared functions for handling emojis in session/group names,
  * particularly for alphabetical sorting that ignores leading emojis.

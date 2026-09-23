@@ -2,9 +2,9 @@
  * Filesystem layer for Scheduled Tasks (the clock-driven Cue subscriptions).
  *
  * Every surface that lists, creates, edits, or cancels a scheduled task goes
- * through this module: the `maestro-cli cue schedule` command, the Cue modal's
+ * through this module: the `openwizardai-cli cue schedule` command, the Cue modal's
  * Scheduled Tasks tab (via `cue:*ScheduledTask*` IPC), and anything added
- * later. Writes go straight to `<projectRoot>/.maestro/cue.yaml`, so the CLI
+ * later. Writes go straight to `<projectRoot>/.openwizardai/cue.yaml`, so the CLI
  * keeps working with the desktop app closed; the engine's YAML watcher picks
  * up the change on its own and callers must NOT force a reload.
  *
@@ -16,7 +16,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { generateUUID } from '../../shared/uuid';
-import { CUE_CONFIG_PATH, LEGACY_CUE_CONFIG_PATH, MAESTRO_DIR } from '../../shared/maestro-paths';
+import {
+	CUE_CONFIG_PATH,
+	LEGACY_CUE_CONFIG_PATH,
+	OPENWIZARDAI_DIR,
+} from '../../shared/openwizardai-paths';
 import {
 	DEFAULT_SCHEDULED_TASK_PIPELINE,
 	MAX_SCHEDULE_MINUTES,
@@ -91,8 +95,8 @@ function existingCueConfigPath(projectRoot: string): string | null {
 }
 
 /**
- * Append `newSubs` to `<projectRoot>/.maestro/cue.yaml`, creating the file and
- * `.maestro/` directory when either is missing. A legacy `maestro-cue.yaml` is
+ * Append `newSubs` to `<projectRoot>/.openwizardai/cue.yaml`, creating the file and
+ * `.openwizardai/` directory when either is missing. A legacy `openwizardai-cue.yaml` is
  * migrated to the canonical path on the same write, mirroring what the engine's
  * own writers do.
  *
@@ -141,9 +145,9 @@ export function appendSubscriptionsToYaml(
 	const dumped = yaml.dump(parsed, { lineWidth: -1, noRefs: true, sortKeys: false });
 	const output = header + dumped;
 
-	const maestroDir = path.join(projectRoot, MAESTRO_DIR);
-	if (!fs.existsSync(maestroDir)) {
-		fs.mkdirSync(maestroDir, { recursive: true });
+	const openwizardaiDir = path.join(projectRoot, OPENWIZARDAI_DIR);
+	if (!fs.existsSync(openwizardaiDir)) {
+		fs.mkdirSync(openwizardaiDir, { recursive: true });
 	}
 	writeCueYamlAtomicSync(canonicalPath, output);
 

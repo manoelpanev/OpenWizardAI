@@ -90,7 +90,7 @@ export function useBatchKillAction({
 				const completedTasks = flushState.getCompletedTasks();
 				if (flushState.statsAutoRunId) {
 					try {
-						await window.maestro.stats.endAutoRun(
+						await window.openwizardai.stats.endAutoRun(
 							flushState.statsAutoRunId,
 							elapsedMs,
 							completedTasks
@@ -161,7 +161,7 @@ export function useBatchKillAction({
 			// 1. Kill all active batch processes for this session and wait for termination before cleanup.
 			// Batch process session IDs are generated as: `${sessionId}-batch-${timestamp}`.
 			try {
-				const activeProcesses = await window.maestro.process.getActiveProcesses();
+				const activeProcesses = await window.openwizardai.process.getActiveProcesses();
 				const batchProcessIds = activeProcesses
 					.filter(
 						// Intentional scope: kill the root session process and any descendant
@@ -176,7 +176,7 @@ export function useBatchKillAction({
 					batchProcessIds.push(sessionId);
 				}
 
-				await Promise.allSettled(batchProcessIds.map((id) => window.maestro.process.kill(id)));
+				await Promise.allSettled(batchProcessIds.map((id) => window.openwizardai.process.kill(id)));
 			} catch (error) {
 				logger.error('[BatchProcessor:killBatchRun] Failed to kill process:', undefined, error);
 			}
@@ -215,7 +215,7 @@ export function useBatchKillAction({
 			// handles the delete once it has actually exited.
 			//
 			// 8. Allow system to sleep
-			window.maestro.power.removeReason(`autorun:${sessionId}`);
+			window.openwizardai.power.removeReason(`autorun:${sessionId}`);
 		},
 		[
 			autoRunFlushStateRefs,

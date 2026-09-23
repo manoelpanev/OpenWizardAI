@@ -1,8 +1,8 @@
 /**
- * Maestro Web Interface
+ * OpenWizardAI Web Interface
  *
  * This module contains shared components, hooks, and utilities
- * for the Maestro web interface (both mobile and desktop web).
+ * for the OpenWizardAI web interface (both mobile and desktop web).
  */
 
 // Components

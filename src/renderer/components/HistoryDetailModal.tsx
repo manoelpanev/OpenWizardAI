@@ -156,7 +156,7 @@ export function HistoryDetailModal({
 	const colors = getPillColor(entry.type, theme);
 	const Icon = getEntryIcon(entry.type);
 
-	// Claude-only per-turn token source pill (TUI = maestro-p / Max plan, API =
+	// Claude-only per-turn token source pill (TUI = openwizardai-p / Max plan, API =
 	// claude --print). Absent on non-Claude and older entries, and hidden entirely
 	// when the "Provider Mode Pill" display setting is off. Shares its label and
 	// tooltip with the live chat pill so the two can never drift.

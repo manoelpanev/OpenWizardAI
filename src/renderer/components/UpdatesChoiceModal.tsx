@@ -1,11 +1,11 @@
 /**
- * UpdatesChoiceModal - the first-run step for how Maestro stays current.
+ * UpdatesChoiceModal - the first-run step for how OpenWizardAI stays current.
  *
  * Three switches and one install that already exist in Settings -> General,
  * where they sit among dozens of other controls and nobody finds them. The one
  * worth interrupting a first run for is the release candidate channel: a user
  * who wants new features early has to learn the channel exists before they can
- * opt into it. Crash reporting and the Maestro CLI ride along because both pay
+ * opt into it. Crash reporting and the OpenWizardAI CLI ride along because both pay
  * off most when they are on from day one.
  *
  * Every switch writes straight to the setting it shows, and the modal reads the
@@ -22,7 +22,7 @@ import { MODAL_PRIORITIES } from '../constants/modalPriorities';
 import { Modal } from './ui/Modal';
 import { ModalBackButton } from './ui/ModalBackButton';
 import { ToggleSwitch } from './ui/ToggleSwitch';
-import { useMaestroCliState } from './Settings/tabs/GeneralTab/hooks';
+import { useOpenWizardAICliState } from './Settings/tabs/GeneralTab/hooks';
 
 export interface UpdatesChoiceModalProps {
 	theme: Theme;
@@ -128,10 +128,10 @@ export function UpdatesChoiceModal({
 
 	// Hidden when the bridge exposes no CLI namespace, where an install button
 	// could only fail.
-	const cliAvailable = Boolean(window.maestro?.maestroCli);
+	const cliAvailable = Boolean(window.openwizardai?.openwizardaiCli);
 	// The same state the Settings pane uses, so the two cannot disagree about
 	// whether the CLI is installed or what an install reported.
-	const cli = useMaestroCliState({ isOpen: isOpen && cliAvailable });
+	const cli = useOpenWizardAICliState({ isOpen: isOpen && cliAvailable });
 	const cliInstalled = cli.status?.needsInstallOrUpdate === false;
 	const cliBusy = cli.checking || cli.installing;
 
@@ -180,7 +180,7 @@ export function UpdatesChoiceModal({
 						theme={theme}
 						icon={Download}
 						title="Check for updates automatically"
-						description="Check for new OpenWizzard versions on startup and once per day while the app is running."
+						description="Check for new OpenWizardAI versions on startup and once per day while the app is running."
 						checked={checkForUpdatesOnStartup}
 						onChange={onCheckForUpdatesOnStartupChange}
 						testId="updates-choice-auto-check"
@@ -219,15 +219,15 @@ export function UpdatesChoiceModal({
 									className="text-sm font-medium flex items-center gap-2"
 									style={{ color: theme.colors.textMain }}
 								>
-									OpenWizzard CLI
+									OpenWizardAI CLI
 									{!cliInstalled && <RecommendedBadge theme={theme} />}
 								</div>
 								<div
 									className="text-xs leading-snug mt-0.5"
 									style={{ color: theme.colors.textDim }}
 								>
-									The OpenWizzard CLI can be used by humans, but it is really intended for your
-									agents, so they can automate everything OpenWizzard can do. We highly recommend
+									The OpenWizardAI CLI can be used by humans, but it is really intended for your
+									agents, so they can automate everything OpenWizardAI can do. We highly recommend
 									installing it.
 								</div>
 							</div>
@@ -258,8 +258,8 @@ export function UpdatesChoiceModal({
 										: cli.checking
 											? 'Checking...'
 											: cli.status?.installed
-												? 'Update OpenWizzard CLI'
-												: 'Install OpenWizzard CLI'}
+												? 'Update OpenWizardAI CLI'
+												: 'Install OpenWizardAI CLI'}
 								</button>
 							)}
 						</div>

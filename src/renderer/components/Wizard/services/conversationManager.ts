@@ -245,7 +245,7 @@ class ConversationManager {
 
 		try {
 			// Get the agent configuration
-			const agent = await window.maestro.agents.get(this.session.agentType);
+			const agent = await window.openwizardai.agents.get(this.session.agentType);
 
 			// For SSH remote sessions, skip the availability check since we're executing remotely
 			// The agent detector checks for binaries locally, but we need to execute on the remote host
@@ -430,7 +430,7 @@ class ConversationManager {
 			}
 
 			// Set up data listener
-			this.session!.dataListenerCleanup = window.maestro.process.onData(
+			this.session!.dataListenerCleanup = window.openwizardai.process.onData(
 				(sessionId: string, data: string) => {
 					if (sessionId === this.session?.sessionId) {
 						this.session.outputBuffer += data;
@@ -443,7 +443,7 @@ class ConversationManager {
 			// Set up thinking chunk listener - uses the dedicated event from process-manager
 			// This receives parsed thinking content (isPartial text) that's already extracted
 			if (this.session!.callbacks?.onThinkingChunk) {
-				this.session!.thinkingListenerCleanup = window.maestro.process.onThinkingChunk?.(
+				this.session!.thinkingListenerCleanup = window.openwizardai.process.onThinkingChunk?.(
 					(sessionId: string, content: string) => {
 						if (sessionId === this.session?.sessionId && content) {
 							this.session.resetResponseTimeout?.();
@@ -457,7 +457,7 @@ class ConversationManager {
 			// This is important because in batch mode, we don't get streaming assistant messages,
 			// but we DO get tool execution events which show what the agent is doing
 			if (this.session!.callbacks?.onToolExecution) {
-				this.session!.toolExecutionListenerCleanup = window.maestro.process.onToolExecution?.(
+				this.session!.toolExecutionListenerCleanup = window.openwizardai.process.onToolExecution?.(
 					(
 						sessionId: string,
 						toolEvent: { toolName: string; state?: unknown; timestamp: number }
@@ -471,7 +471,7 @@ class ConversationManager {
 			}
 
 			// Set up exit listener
-			this.session!.exitListenerCleanup = window.maestro.process.onExit(
+			this.session!.exitListenerCleanup = window.openwizardai.process.onExit(
 				(sessionId: string, code: number) => {
 					wizardDebugLogger.log('exit', 'Exit event received', {
 						receivedId: sessionId,
@@ -637,7 +637,7 @@ class ConversationManager {
 				});
 			}
 
-			window.maestro.process
+			window.openwizardai.process
 				.spawn({
 					sessionId: this.session!.sessionId,
 					toolType: this.session!.agentType,
@@ -939,7 +939,7 @@ class ConversationManager {
 
 		// Kill any running process
 		try {
-			await window.maestro.process.kill(this.session.sessionId);
+			await window.openwizardai.process.kill(this.session.sessionId);
 		} catch {
 			// Process may already be dead
 		}

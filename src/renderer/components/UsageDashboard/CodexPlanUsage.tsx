@@ -234,9 +234,9 @@ export const CodexPlanUsage = memo(function CodexPlanUsage({
 			snapshots,
 			normalizeKey,
 			deriveShortName,
-			fetchAgentEnvVars: () => window.maestro.agents.getCustomEnvVars('codex'),
+			fetchAgentEnvVars: () => window.openwizardai.agents.getCustomEnvVars('codex'),
 			fetchAccountKeys: () => {
-				const fn = window.maestro.agents.getCodexUsageAccountKeys;
+				const fn = window.openwizardai.agents.getCodexUsageAccountKeys;
 				return typeof fn === 'function' ? fn() : undefined;
 			},
 		});
@@ -297,7 +297,7 @@ export const CodexPlanUsage = memo(function CodexPlanUsage({
 	// even when the sampler IPC throws so the dashboard reflects the latest cache.
 	const doRefresh = useCallback(async () => {
 		try {
-			await window.maestro.agents.refreshCodexUsageSnapshots();
+			await window.openwizardai.agents.refreshCodexUsageSnapshots();
 		} catch {
 			// Main logs carry the detailed failure.
 		}

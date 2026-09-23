@@ -19,7 +19,7 @@ import { registerProcessHandlers, ProcessHandlerDependencies } from './process';
 import {
 	registerPersistenceHandlers,
 	PersistenceHandlerDependencies,
-	MaestroSettings,
+	OpenWizardAISettings,
 	SessionsData,
 	GroupsData,
 } from './persistence';
@@ -71,7 +71,7 @@ import { registerDirectorNotesHandlers, DirectorNotesHandlerDependencies } from 
 import { registerCueHandlers, CueHandlerDependencies } from './cue';
 import { registerCueBackupHandlers } from './cue-backup';
 import { registerWakatimeHandlers } from './wakatime';
-import { registerMaestroCliHandlers } from './maestro-cli';
+import { registerOpenWizardAICliHandlers } from './openwizardai-cli';
 import { registerPromptsHandlers } from './prompts';
 import { registerMemoryHandlers } from './memory';
 import { AgentDetector } from '../../agents';
@@ -131,7 +131,7 @@ export { registerCueHandlers };
 export type { CueHandlerDependencies };
 export { registerCueBackupHandlers };
 export { registerWakatimeHandlers };
-export { registerMaestroCliHandlers };
+export { registerOpenWizardAICliHandlers };
 export { registerPromptsHandlers };
 export { registerMemoryHandlers };
 export type { AgentsHandlerDependencies };
@@ -147,7 +147,7 @@ export type { StatsHandlerDependencies };
 export type { DocumentGraphHandlerDependencies };
 export type { SshRemoteHandlerDependencies };
 export type { GitHandlerDependencies };
-export type { MaestroSettings, SessionsData, GroupsData };
+export type { OpenWizardAISettings, SessionsData, GroupsData };
 
 // AgentConfigsData imported from stores/types
 
@@ -165,7 +165,7 @@ export interface HandlerDependencies {
 	agentConfigsStore: Store<AgentConfigsData>;
 	// Process-specific dependencies
 	getProcessManager: () => ProcessManager | null;
-	settingsStore: Store<MaestroSettings>;
+	settingsStore: Store<OpenWizardAISettings>;
 	// Persistence-specific dependencies
 	sessionsStore: Store<SessionsData>;
 	/** Flush the writer that owns `sessionsStore` before acknowledging persistence. */

@@ -16,7 +16,7 @@ let bundledPromptsDir: string | null = null;
 
 function getBundledPromptCandidates(filename: string): string[] {
 	// The CLI runs in three contexts: dev (ts-node from src), packaged Electron
-	// (process.resourcesPath), and standalone bundled CLI (Resources/maestro-cli.js).
+	// (process.resourcesPath), and standalone bundled CLI (Resources/openwizardai-cli.js).
 	const projectRoot = path.resolve(__dirname, '..', '..', '..');
 	const candidates = [path.join(projectRoot, 'src', 'prompts', filename)];
 
@@ -63,7 +63,7 @@ function getBundledPromptsDir(): string | null {
  * Expand `{{REF:name}}` directives to the absolute on-disk path of the bundled
  * `.md` for that prompt id. Matches the renderer-facing behavior in
  * `src/main/prompt-manager.ts:resolveRefs` so agents launched via the CLI see
- * the same paths Settings → Maestro Prompts hands to desktop-spawned agents.
+ * the same paths Settings → OpenWizardAI Prompts hands to desktop-spawned agents.
  * Unresolvable refs (unknown id or no bundled dir found) are left as-is so the
  * agent at least has a chance to surface the problem rather than seeing an
  * empty path.

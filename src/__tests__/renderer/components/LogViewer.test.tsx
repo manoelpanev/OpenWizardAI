@@ -1,7 +1,7 @@
 /**
  * LogViewer.tsx Test Suite
  *
- * Tests for the LogViewer component which displays Maestro system logs with:
+ * Tests for the LogViewer component which displays OpenWizardAI system logs with:
  * - Log level filtering (debug, info, warn, error, toast, autorun, cue)
  * - Search functionality
  * - Expand/collapse log details
@@ -102,17 +102,19 @@ vi.mock('../../../renderer/stores/sessionStore', () => ({
 	},
 }));
 
-// Add getLogs, clearLogs, and onNewLog to the existing window.maestro.logger mock
+// Add getLogs, clearLogs, and onNewLog to the existing window.openwizardai.logger mock
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	// Extend window.maestro.logger with getLogs, clearLogs, and onNewLog methods
-	(window.maestro.logger as Record<string, unknown>).getLogs = vi.fn().mockResolvedValue([]);
-	(window.maestro.logger as Record<string, unknown>).clearLogs = vi
+	// Extend window.openwizardai.logger with getLogs, clearLogs, and onNewLog methods
+	(window.openwizardai.logger as Record<string, unknown>).getLogs = vi.fn().mockResolvedValue([]);
+	(window.openwizardai.logger as Record<string, unknown>).clearLogs = vi
 		.fn()
 		.mockResolvedValue(undefined);
-	(window.maestro.logger as Record<string, unknown>).onNewLog = vi.fn().mockReturnValue(() => {});
-	(window.maestro.logger as Record<string, unknown>).getMaxLogBuffer = vi.fn(() => ({
+	(window.openwizardai.logger as Record<string, unknown>).onNewLog = vi
+		.fn()
+		.mockReturnValue(() => {});
+	(window.openwizardai.logger as Record<string, unknown>).getMaxLogBuffer = vi.fn(() => ({
 		then: (cb: (value: number) => void) => {
 			cb(1000);
 			return Promise.resolve(1000);
@@ -125,8 +127,8 @@ afterEach(() => {
 });
 
 // Helper to get the mock functions
-const getMockGetLogs = () => window.maestro.logger.getLogs as ReturnType<typeof vi.fn>;
-const getMockClearLogs = () => window.maestro.logger.clearLogs as ReturnType<typeof vi.fn>;
+const getMockGetLogs = () => window.openwizardai.logger.getLogs as ReturnType<typeof vi.fn>;
+const getMockClearLogs = () => window.openwizardai.logger.clearLogs as ReturnType<typeof vi.fn>;
 
 describe('LogViewer', () => {
 	describe('Initial render', () => {
@@ -142,7 +144,7 @@ describe('LogViewer', () => {
 		it('should render header with title', async () => {
 			render(<LogViewer theme={mockTheme} onClose={vi.fn()} />);
 
-			expect(screen.getByText('OpenWizzard System Logs')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizardAI System Logs')).toBeInTheDocument();
 		});
 
 		it('should display entry count', async () => {

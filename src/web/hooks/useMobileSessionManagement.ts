@@ -36,7 +36,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import type { Session } from './useSessions';
 import type { WebSocketState, AITabData, AutoRunState, CustomCommand } from './useWebSocket';
-import { buildApiUrl, getMaestroConfig, updateUrlForSessionTab } from '../utils/config';
+import { buildApiUrl, getOpenWizardAIConfig, updateUrlForSessionTab } from '../utils/config';
 import { webLogger } from '../utils/logger';
 import type { Theme } from '../../shared/theme-types';
 
@@ -227,7 +227,7 @@ export function useMobileSessionManagement(
 	} = deps;
 
 	// Get URL-based session/tab from config (takes precedence over localStorage)
-	const config = getMaestroConfig();
+	const config = getOpenWizardAIConfig();
 	const urlSessionId = config.sessionId;
 	const urlTabId = config.tabId;
 

@@ -1,8 +1,8 @@
 /**
- * The first-run modal series - what Maestro shows a user once, and to whom.
+ * The first-run modal series - what OpenWizardAI shows a user once, and to whom.
  *
  * Four steps run back to back: pick your typography, pick your theme, choose
- * how Maestro stays current (release channel, crash reports, the CLI), then
+ * how OpenWizardAI stays current (release channel, crash reports, the CLI), then
  * learn that your agents can drive all of it themselves. Each is a decision or
  * a disclosure that only makes sense before the user has settled in, so each is
  * shown at most once.
@@ -21,7 +21,7 @@ export const ONBOARDING_STEPS = ['typography', 'theme', 'updates', 'agentPowers'
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 /**
- * Who we are talking to. A returning user was already using Maestro before
+ * Who we are talking to. A returning user was already using OpenWizardAI before
  * these steps existed, so their copy names the look they ALREADY have rather
  * than reading as if their preference were being ignored.
  */

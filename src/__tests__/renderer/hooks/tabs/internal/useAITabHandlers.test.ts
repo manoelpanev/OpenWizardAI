@@ -117,7 +117,7 @@ describe('useAITabHandlers', () => {
 			result.current.handleTabStar('ai-1', true);
 		});
 
-		expect(window.maestro.agentSessions.setSessionStarred).toHaveBeenCalledWith(
+		expect(window.openwizardai.agentSessions.setSessionStarred).toHaveBeenCalledWith(
 			'codex',
 			'/repo',
 			'agent-1',

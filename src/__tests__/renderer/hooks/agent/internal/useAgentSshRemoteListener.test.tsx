@@ -36,7 +36,7 @@ beforeEach(() => {
 		initialLoadComplete: false,
 		removedWorktreePaths: new Set(),
 	});
-	(window as any).maestro = { ...((window as any).maestro || {}), process: mockProcess };
+	(window as any).openwizardai = { ...((window as any).openwizardai || {}), process: mockProcess };
 });
 
 describe('useAgentSshRemoteListener', () => {

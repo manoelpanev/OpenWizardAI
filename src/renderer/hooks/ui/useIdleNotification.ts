@@ -49,8 +49,8 @@ export function useIdleNotification(): void {
 			wasActiveRef.current = false;
 
 			if (idleNotificationEnabled && idleNotificationCommand) {
-				window.maestro.notification
-					.speak('OpenWizzard is idle', idleNotificationCommand)
+				window.openwizardai.notification
+					.speak('OpenWizardAI is idle', idleNotificationCommand)
 					.catch((err) => {
 						console.error('[IdleNotification] Failed to execute idle command:', err);
 					});

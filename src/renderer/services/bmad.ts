@@ -13,7 +13,7 @@ import { logger } from '../utils/logger';
  */
 export async function getBmadCommands(): Promise<BmadCommand[]> {
 	try {
-		const api = window.maestro?.bmad;
+		const api = window.openwizardai?.bmad;
 		if (!api) {
 			return [];
 		}
@@ -33,7 +33,7 @@ export async function getBmadCommands(): Promise<BmadCommand[]> {
  */
 export async function getBmadMetadata(): Promise<BmadMetadata | null> {
 	try {
-		const api = window.maestro?.bmad;
+		const api = window.openwizardai?.bmad;
 		if (!api) {
 			return null;
 		}
@@ -53,7 +53,7 @@ export async function getBmadMetadata(): Promise<BmadMetadata | null> {
  */
 export async function getBmadCommand(slashCommand: string): Promise<BmadCommand | null> {
 	try {
-		const api = window.maestro?.bmad;
+		const api = window.openwizardai?.bmad;
 		if (!api) {
 			return null;
 		}

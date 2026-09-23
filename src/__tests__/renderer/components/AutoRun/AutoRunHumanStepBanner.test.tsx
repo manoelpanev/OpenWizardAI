@@ -62,7 +62,7 @@ describe('AutoRunHumanStepBanner', () => {
 		expect(toggle).toHaveAttribute('aria-expanded', 'false');
 		expect(screen.getByText('2 tasks look like human steps')).toBeInTheDocument();
 		expect(screen.queryByText(/Line 129:/)).not.toBeInTheDocument();
-		expect(screen.queryByText(/MAESTRO:HITL/)).not.toBeInTheDocument();
+		expect(screen.queryByText(/OPENWIZARDAI:HITL/)).not.toBeInTheDocument();
 	});
 
 	it('re-expands on a second click', () => {

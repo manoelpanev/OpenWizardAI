@@ -1185,7 +1185,7 @@ describe('group-chat-router', () => {
 			expect(participantSpawnsFor(chat.id)).toHaveLength(1);
 		});
 
-		it('still delegates when the agent has no matching Maestro agent to probe', async () => {
+		it('still delegates when the agent has no matching OpenWizardAI agent to probe', async () => {
 			// Unknown must not read as busy - a participant whose agent was renamed
 			// would otherwise become permanently unreachable.
 			const chat = await createTestChatWithModerator('Unknown Agent Test');
@@ -1214,7 +1214,7 @@ describe('group-chat-router', () => {
 					{
 						...busyClientSession,
 						isBusy: busy,
-						autoRunFolderPath: '/tmp/project/.maestro/playbooks',
+						autoRunFolderPath: '/tmp/project/.openwizardai/playbooks',
 					},
 				]);
 				groupChatEmitters.emitAutoRunTriggered = emitAutoRunTriggered;

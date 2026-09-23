@@ -1,5 +1,5 @@
 /**
- * Shared types and utilities for Maestro
+ * Shared types and utilities for OpenWizardAI
  *
  * This module exports types that are used across multiple parts of the application:
  * - Main process (Electron)

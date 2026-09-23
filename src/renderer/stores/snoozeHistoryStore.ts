@@ -40,7 +40,7 @@ interface SnoozeHistoryState {
 
 function persist(entries: SnoozeHistoryEntry[]): void {
 	try {
-		window.maestro?.settings?.set(SNOOZE_HISTORY_SETTINGS_KEY, entries);
+		window.openwizardai?.settings?.set(SNOOZE_HISTORY_SETTINGS_KEY, entries);
 	} catch (err) {
 		// History is a convenience, never worth breaking a wake or dismiss over.
 		logger.warn(`Failed to persist snooze history: ${err}`);

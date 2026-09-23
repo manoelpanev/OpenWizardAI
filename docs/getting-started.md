@@ -1,18 +1,18 @@
 ---
 title: Getting Started
-description: Get from install to your first productive session with Maestro in minutes.
+description: Get from install to your first productive session with OpenWizardAI in minutes.
 icon: rocket
 ---
 
-This guide gets you from install to a first productive session with Maestro.
+This guide gets you from install to a first productive session with OpenWizardAI.
 
 ## 1. Install and launch
 
-Follow the [Installation](./installation) instructions for your platform, then launch Maestro.
+Follow the [Installation](./installation) instructions for your platform, then launch OpenWizardAI.
 
 ### First run
 
-The first time Maestro opens, it asks four short questions before getting out of the way. Every answer is an ordinary setting you can change later, and **Back** steps you through the series in either direction.
+The first time OpenWizardAI opens, it asks four short questions before getting out of the way. Every answer is an ordinary setting you can change later, and **Back** steps you through the series in either direction.
 
 **Choose your typography.** Two presets, previewed side by side on real sample text:
 
@@ -30,13 +30,13 @@ Pick either, or **Fine-tune in Settings** to set a font per surface right away. 
 - **Check for updates automatically** - on by default.
 - **Include beta and release candidate updates** - off by default. If you want new features as soon as they ship, turn this on.
 - **Send anonymous crash reports** - on by default. Leave it on: crash reports let problems get fixed as soon as they are discovered.
-- **Install the Maestro CLI** - one click. Humans can use [`maestro-cli`](./cli), but it is built for your agents, so they can automate everything Maestro can do.
+- **Install the OpenWizardAI CLI** - one click. Humans can use [`openwizardai-cli`](./cli), but it is built for your agents, so they can automate everything OpenWizardAI can do.
 
 Existing users see this screen once, after the update that adds it, with whatever they had already set. All of it also lives in **Settings > General**.
 
-**Your Agents Can Drive Maestro.** The closing screen makes a point worth reading, because it is the part people miss: you just set your typography and theme by hand, and you did not have to. Agents running inside Maestro reach the same controls the interface does, so you can ask for what you want in plain language instead of finding the screen.
+**Your Agents Can Drive OpenWizardAI.** The closing screen makes a point worth reading, because it is the part people miss: you just set your typography and theme by hand, and you did not have to. Agents running inside OpenWizardAI reach the same controls the interface does, so you can ask for what you want in plain language instead of finding the screen.
 
-![The first-run screen explaining that agents can drive Maestro](./screenshots/onboarding-agent-powers.png)
+![The first-run screen explaining that agents can drive OpenWizardAI](./screenshots/onboarding-agent-powers.png)
 
 Examples it offers, all of which work:
 
@@ -45,14 +45,14 @@ Examples it offers, all of which work:
 - "Every weekday at 9am, summarize what changed in this repo overnight."
 - "Whenever a pull request opens on this repo, have an agent review it and report back."
 
-Maestro is a keyboard-first power tool, and it rewards learning the shortcuts. It does not require it.
+OpenWizardAI is a keyboard-first power tool, and it rewards learning the shortcuts. It does not require it.
 
 ## 2. Create an agent
 
-Maestro supports **Claude Code**, **Codex** (OpenAI), **OpenCode**, and **Factory Droid** as providers. Make sure at least one is installed and authenticated.
+OpenWizardAI supports **Claude Code**, **Codex** (OpenAI), **OpenCode**, and **Factory Droid** as providers. Make sure at least one is installed and authenticated.
 
 <Note>
-Maestro is a pass-through to your provider. Your MCP tools, custom skills, permissions, and authentication all work in Maestro exactly as they do when running the provider directly. The only difference is batch mode execution - Maestro sends a prompt and receives a response rather than running an interactive session.
+OpenWizardAI is a pass-through to your provider. Your MCP tools, custom skills, permissions, and authentication all work in OpenWizardAI exactly as they do when running the provider directly. The only difference is batch mode execution - OpenWizardAI sends a prompt and receives a response rather than running an interactive session.
 </Note>
 
 Click the **New Agent** button in the bottom-left sidebar (or press `Cmd+N` / `Ctrl+N`). You'll see the **New Agent** selector:
@@ -74,7 +74,7 @@ The conversation and the generated Playbook both name the model they are running
 
 Don't want a Playbook? On the directory step, choose **Skip that, just create the agent** and the wizard creates the agent and gets out of the way.
 
-The Wizard creates a fully configured agent with an Auto Run document folder ready to go. Generated documents are saved to an `Initiation/` subfolder within `.maestro/playbooks/` to keep them organized separately from documents you create later.
+The Wizard creates a fully configured agent with an Auto Run document folder ready to go. Generated documents are saved to an `Initiation/` subfolder within `.openwizardai/playbooks/` to keep them organized separately from documents you create later.
 
 <Note>
 The guided wizard captures application input until it completes. For a lighter touch, create an agent manually, then run the `/wizard` slash command or click the wand button in the Auto Run panel. The in-tab wizard runs alongside your other work.
@@ -93,7 +93,7 @@ You can skip the tour and access it later via **Quick Actions** (`Cmd+K` / `Ctrl
 
 ## 3. Open a project
 
-Point your new agent at a project directory. Maestro will detect git repos automatically and enable git-aware features like diffs, logs, and worktrees.
+Point your new agent at a project directory. OpenWizardAI will detect git repos automatically and enable git-aware features like diffs, logs, and worktrees.
 
 ## 4. Start a conversation
 

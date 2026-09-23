@@ -1,5 +1,5 @@
 /**
- * useAgentErrorListener - registers `window.maestro.process.onAgentError`
+ * useAgentErrorListener - registers `window.openwizardai.process.onAgentError`
  *
  * Three branches:
  *  1. Group chat errors → routed to `groupChatStore.setGroupChatError` and
@@ -60,7 +60,7 @@ export function useAgentErrorListener(deps: UseAgentErrorListenerDeps): void {
 		const getSessions = () => useSessionStore.getState().sessions;
 		const { openModal } = useModalStore.getState();
 
-		const unsubscribe = window.maestro.process.onAgentError((sessionId: string, error) => {
+		const unsubscribe = window.openwizardai.process.onAgentError((sessionId: string, error) => {
 			const agentError: AgentError = {
 				type: error.type as AgentError['type'],
 				message: error.message,
@@ -247,7 +247,7 @@ export function useAgentErrorListener(deps: UseAgentErrorListenerDeps): void {
 								: undefined;
 
 						// Tag the error frame with `renderStyle: 'text-stream'` when the
-						// session is running through maestro-p (interactive TUI) so the
+						// session is running through openwizardai-p (interactive TUI) so the
 						// bottom-center pill on the error card reads "TUI" instead of
 						// "API". The same tagger runs on assistant output in
 						// useBatchedSessionUpdates; errors live in their own listener and
@@ -440,7 +440,7 @@ export function useAgentErrorListener(deps: UseAgentErrorListenerDeps): void {
 	// failure, so a board where both chat agents and pipelines share one expired
 	// token still produces exactly one prompt listing all of them.
 	useEffect(() => {
-		return window.maestro.process.onAuthExpired((payload) => {
+		return window.openwizardai.process.onAuthExpired((payload) => {
 			const { opened, providerKey } = reportAuthFailure({
 				sessionId: payload.sessionId,
 				message: payload.message,

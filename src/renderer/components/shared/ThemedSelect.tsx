@@ -1,7 +1,7 @@
 /**
  * ThemedSelect - Themed custom dropdown replacement for native <select>.
  *
- * Renders a button that opens a positioned dropdown menu matching Maestro's
+ * Renders a button that opens a positioned dropdown menu matching OpenWizardAI's
  * standard context menu aesthetic (bgSidebar, border, hover bgActivity).
  * Supports full keyboard navigation (Arrow keys, Home/End, Enter/Space, Escape).
  *

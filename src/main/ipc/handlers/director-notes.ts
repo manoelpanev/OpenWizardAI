@@ -92,7 +92,7 @@ const handlerOpts = (operation: string): Pick<CreateHandlerOptions, 'context' | 
  * One agent's worth of history in the aggregated corpus.
  *
  * Local agents come from `userData/history/`; foreign agents are assembled from
- * the shared JSONL files another Maestro instance mirrored into the project
+ * the shared JSONL files another OpenWizardAI instance mirrored into the project
  * directory. Every Director's Notes surface reads this same shape so the list,
  * the graph, Rich Mode, and the click-to-offset lookup can never disagree about
  * which runs exist.
@@ -272,7 +272,7 @@ function readSessionRecords(): Array<Record<string, unknown>> {
 }
 
 /**
- * Build a map of Maestro session ID -> session name from the sessions store.
+ * Build a map of OpenWizardAI session ID -> session name from the sessions store.
  * Used to resolve the display name shown in the left bar for each session.
  */
 function buildSessionNameMap(): Map<string, string> {
@@ -349,13 +349,13 @@ export interface GraphBucket {
 }
 
 export interface UnifiedHistoryEntry extends HistoryEntry {
-	agentName?: string; // The OpenWizzard session name for display
+	agentName?: string; // The OpenWizardAI session name for display
 	sourceSessionId: string; // Which session this entry came from
 }
 
 /** Aggregate stats returned alongside unified history (computed from the full unfiltered set) */
 export interface UnifiedHistoryStats {
-	agentCount: number; // Distinct OpenWizzard agents with history
+	agentCount: number; // Distinct OpenWizardAI agents with history
 	sessionCount: number; // Distinct provider sessions across all agents
 	autoCount: number; // Total AUTO entries
 	userCount: number; // Total USER entries
@@ -377,7 +377,7 @@ export interface SynopsisOptions {
 }
 
 export interface SynopsisStats {
-	agentCount: number; // OpenWizzard agents with history in the lookback window
+	agentCount: number; // OpenWizardAI agents with history in the lookback window
 	entryCount: number; // Total history entries in the lookback window
 	durationMs: number; // Time taken for AI generation
 }
@@ -425,7 +425,7 @@ export interface RichAgentStat {
  */
 export interface RichOverviewStats {
 	totalEntries: number;
-	agentCount: number; // Distinct OpenWizzard agents with entries in the window
+	agentCount: number; // Distinct OpenWizardAI agents with entries in the window
 	sessionCount: number; // Distinct provider sessions across all agents
 	autoCount: number;
 	userCount: number;
@@ -509,7 +509,7 @@ export function registerDirectorNotesHandlers(deps: DirectorNotesHandlerDependen
 				// lookbackDays <= 0 means "all time" - no cutoff
 				const cutoffTime = lookbackDays > 0 ? now - lookbackDays * 24 * 60 * 60 * 1000 : 0;
 
-				// Local history plus anything a peer Maestro mirrored into the
+				// Local history plus anything a peer OpenWizardAI mirrored into the
 				// shared project files. Names come from the left bar for local
 				// agents, host-qualified for foreign ones.
 				const corpus = await loadUnifiedCorpus(

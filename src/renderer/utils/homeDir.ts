@@ -12,8 +12,8 @@ let homeDirPromise: Promise<string> | undefined;
  */
 export function getHomeDir(): string | undefined {
 	if (cachedHomeDir) return cachedHomeDir;
-	if (!homeDirPromise && typeof window !== 'undefined' && window.maestro?.fs?.homeDir) {
-		homeDirPromise = window.maestro.fs.homeDir().then((dir) => {
+	if (!homeDirPromise && typeof window !== 'undefined' && window.openwizardai?.fs?.homeDir) {
+		homeDirPromise = window.openwizardai.fs.homeDir().then((dir) => {
 			cachedHomeDir = dir;
 			return dir;
 		});

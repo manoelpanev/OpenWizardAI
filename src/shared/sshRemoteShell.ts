@@ -1,7 +1,7 @@
 /**
  * Detection and remediation copy for a remote whose default SSH shell is not POSIX.
  *
- * Maestro drives remote agents by piping a POSIX script into `/bin/bash` (see
+ * OpenWizardAI drives remote agents by piping a POSIX script into `/bin/bash` (see
  * `buildSshCommandWithStdin` in `src/main/utils/ssh-command-builder.ts`): PATH
  * bootstrap, `export VAR=...`, `cd dir && exec agent`. A Windows host running
  * OpenSSH with its stock `DefaultShell` cannot execute any of that, so every
@@ -85,7 +85,7 @@ export const WSL_DEFAULT_SHELL_COMMAND =
 
 /** Documentation page that walks through the whole Windows remote setup. */
 export const SSH_WINDOWS_DOCS_URL =
-	'https://docs.runmaestro.ai/ssh-remote-execution#windows-remote-hosts';
+	'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/ssh-remote-execution.md#windows-remote-hosts';
 
 /**
  * A recognized failure the user can act on, in the shape the UI renders.
@@ -113,7 +113,7 @@ export interface SshRemoteRemediation {
  * Build the remediation for a reachable host whose SSH shell is not POSIX.
  *
  * Authentication and networking are fine in this case, which is exactly why the
- * raw shell error misleads: the user can `ssh` in by hand and concludes Maestro
+ * raw shell error misleads: the user can `ssh` in by hand and concludes OpenWizardAI
  * is broken. Name the shell, say why it cannot work, and hand over the fix.
  *
  * @param shell The shell family detected on the remote
@@ -129,7 +129,7 @@ export function nonPosixRemoteShellRemediation(
 		code: 'non-posix-remote-shell',
 		title: `Remote SSH shell is ${shellName}`,
 		detail:
-			`${target} SSH with ${shellName}. OpenWizzard runs remote agents by piping a POSIX ` +
+			`${target} SSH with ${shellName}. OpenWizardAI runs remote agents by piping a POSIX ` +
 			`script into /bin/bash, which Windows shells cannot execute. Point the remote's ` +
 			`OpenSSH DefaultShell at Git Bash or WSL bash, then test again.`,
 		command: GIT_BASH_DEFAULT_SHELL_COMMAND,

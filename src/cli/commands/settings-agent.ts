@@ -1,5 +1,5 @@
 // Agent-specific configuration commands
-// Manages per-agent settings in maestro-agent-configs.json
+// Manages per-agent settings in openwizardai-agent-configs.json
 
 import {
 	readAgentConfigs,

@@ -30,8 +30,8 @@ export async function loadContextGroomerPrompts(force = false): Promise<void> {
 	if (contextGroomerPromptsLoaded && !force) return;
 
 	const [groomingResult, transferResult] = await Promise.all([
-		window.maestro.prompts.get('context-grooming'),
-		window.maestro.prompts.get('context-transfer'),
+		window.openwizardai.prompts.get('context-grooming'),
+		window.openwizardai.prompts.get('context-transfer'),
 	]);
 
 	if (!groomingResult.success) {
@@ -313,7 +313,7 @@ export class ContextGroomingService {
 			});
 
 			// Use the new single-call groomContext API (spawns batch process with prompt)
-			const groomedText = await window.maestro.context.groomContext(
+			const groomedText = await window.openwizardai.context.groomContext(
 				targetProjectRoot,
 				request.targetAgent,
 				prompt
@@ -429,7 +429,7 @@ Please consolidate the above contexts into a single, coherent summary following 
 	 */
 	private async cleanupGroomingSession(sessionId: string): Promise<void> {
 		try {
-			await window.maestro.context.cleanupGroomingSession(sessionId);
+			await window.openwizardai.context.cleanupGroomingSession(sessionId);
 		} catch {
 			// Ignore cleanup errors - session may already be terminated
 		} finally {

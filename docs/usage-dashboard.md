@@ -9,7 +9,7 @@ The Usage Dashboard provides comprehensive analytics for tracking your AI usage 
 ![Usage Dashboard](./screenshots/usage-dashboard.png)
 
 <Note>
-The Usage Dashboard only tracks activity from within Maestro. It does not include historical data from before you started using Maestro, nor does it capture usage from agents run outside of Maestro (e.g., directly from the command line).
+The Usage Dashboard only tracks activity from within OpenWizardAI. It does not include historical data from before you started using OpenWizardAI, nor does it capture usage from agents run outside of OpenWizardAI (e.g., directly from the command line).
 </Note>
 
 ## Opening the Dashboard
@@ -76,13 +76,13 @@ The Agents tab shows one card per agent, so you can scan your whole fleet at onc
 
 **Provider accounts:** when your agents are split across more than one provider account, an **All providers** dropdown appears beside the filter box, listing each account with the number of agents behind it (`Claude Code - smash (7)`, `Codex - Default account (3)`, `OpenCode (2)`). Pick one to narrow the grid to those agents. Every card is also badged with its account name, so you can read the split without touching the filter. A plain `~/.claude` or `~/.codex` has no name of its own, so those cards badge the provider instead (`CLAUDE CODE DEFAULT`, `CODEX DEFAULT`) rather than a bare "default account" that would read the same on both. An account is whichever `CLAUDE_CONFIG_DIR` or `CODEX_HOME` that agent runs against; providers that keep one credential store show up as a single entry named after the provider.
 
-The **N agents** chip on each row of the Anthropic Usage and OpenAI Usage tabs is a shortcut into this: click it and Maestro opens the Agents tab already narrowed to that account, so you can see which agents are burning the plan you are looking at. Agents that run over SSH are marked **remote**: on the remote host that directory holds the host's own login, which can be a different account from the one the row measures. A row the last refresh could not update shows a **stale** chip with the time its bars were read.
+The **N agents** chip on each row of the Anthropic Usage and OpenAI Usage tabs is a shortcut into this: click it and OpenWizardAI opens the Agents tab already narrowed to that account, so you can see which agents are burning the plan you are looking at. Agents that run over SSH are marked **remote**: on the remote host that directory holds the host's own login, which can be a different account from the one the row measures. A row the last refresh could not update shows a **stale** chip with the time its bars were read.
 
-An account keeps its row after you move every agent off it, which is what you normally do the moment that plan hits its limit. The row holds the last reading Maestro took, badged **stale** with its age, so you can watch for the reset without keeping an agent parked on a capped account. Maestro remembers an account because it sampled it for a real agent, not because a directory looks like one, and it forgets the row only when that account directory is gone from disk.
+An account keeps its row after you move every agent off it, which is what you normally do the moment that plan hits its limit. The row holds the last reading OpenWizardAI took, badged **stale** with its age, so you can watch for the reset without keeping an agent parked on a capped account. OpenWizardAI remembers an account because it sampled it for a real agent, not because a directory looks like one, and it forgets the row only when that account directory is gone from disk.
 
 **Sorting:** the **Sort by** control orders the grid by Name, Created, Queries, Tabs, Auto %, or Provider (which groups the fleet one account at a time). The stat being sorted on is highlighted on every card, so it is obvious what the order means. When a filter is active, the default Name sort ranks the best match first; any other sort keeps the order you chose.
 
-**Tile size:** `+` and `-` resize the tiles, and `0` returns them to the default. The buttons beside the **Sort by** control do the same. A wider tile shows more of a long agent name before it truncates; a narrower one fits more agents on screen at once. Maestro remembers the size you picked, and the Groups tab keeps its own separate size.
+**Tile size:** `+` and `-` resize the tiles, and `0` returns them to the default. The buttons beside the **Sort by** control do the same. A wider tile shows more of a long agent name before it truncates; a narrower one fits more agents on screen at once. OpenWizardAI remembers the size you picked, and the Groups tab keeps its own separate size.
 
 **Per-agent details:** click any card to open a detail view for that agent, covering total queries, total and average duration, active days, a full-window daily activity chart, duration distribution (min / median / p95 / max), the user-vs-auto query split, and Auto Run totals.
 
@@ -102,10 +102,10 @@ The detail view also breaks the agent's activity down by AI tab, as a grid of ta
 
 **Paging:** an agent with a long history can have hundreds or thousands of tabs, so **All** is shown 32 tiles at a time. Page arrows appear next to the tile count whenever the list overflows one page, and you can also page with the Left and Right arrow keys once they have focus. The narrower filters always fit on a single page, so the arrows only show up when they are actually needed. Changing the filter or the sort returns you to the first page.
 
-The detail view is resizable: drag any edge or corner to resize it, and double-click a resize handle to return to the default size. Maestro remembers the size you chose and reuses it the next time you open an agent's details.
+The detail view is resizable: drag any edge or corner to resize it, and double-click a resize handle to return to the default size. OpenWizardAI remembers the size you chose and reuses it the next time you open an agent's details.
 
 <Note>
-Maestro records which tab issued each query, but tab *names* live with the tab itself. A tab that is open, snoozed, or was closed during this app session is shown by name; older closed tabs can only be identified by a short ID (e.g. `DEADBEEF`). This is why **Open** is the default view - a long-running agent accumulates many retired tabs that can no longer be named.
+OpenWizardAI records which tab issued each query, but tab *names* live with the tab itself. A tab that is open, snoozed, or was closed during this app session is shown by name; older closed tabs can only be identified by a short ID (e.g. `DEADBEEF`). This is why **Open** is the default view - a long-running agent accumulates many retired tabs that can no longer be named.
 </Note>
 
 ### Activity
@@ -132,7 +132,7 @@ The Auto Run tab focuses specifically on automated playbook execution:
 **Tasks Completed Over Time:**
 A mini bar chart showing task completions by date (last 14 days). Hover over bars to see exact counts and success percentages for each day.
 
-**How a run's duration is measured:** wall-clock time from start to finish, minus any time the machine spent asleep. Whether the Maestro window was on screen makes no difference - the agent runs in its own process and keeps working while you do something else, so a run you walked away from is timed the same as one you watched.
+**How a run's duration is measured:** wall-clock time from start to finish, minus any time the machine spent asleep. Whether the OpenWizardAI window was on screen makes no difference - the agent runs in its own process and keeps working while you do something else, so a run you walked away from is timed the same as one you watched.
 
 Older builds also subtracted time the window was hidden, which on macOS includes being minimized or fully covered by another app. That under-recorded exactly the unattended overnight runs whose length matters most, and recorded some as zero. If your history predates the fix, `scripts/repair-autorun-durations.mjs` rebuilds each affected run's duration from its own task timestamps (dry run by default; `--apply` writes, after a backup). Runs with no recorded tasks cannot be reconstructed and are left as they are.
 
@@ -140,13 +140,13 @@ Older builds also subtracted time the window was hidden, which on macOS includes
 
 Use the time range dropdown in the top-right corner to filter all dashboard data:
 
-| Range          | Description                                |
-| -------------- | ------------------------------------------ |
-| **Today**      | Current day only                           |
-| **This Week**  | Current week (default)                     |
-| **This Month** | Current calendar month                     |
-| **This Year**  | Current calendar year                      |
-| **All Time**   | Everything since you started using Maestro |
+| Range          | Description                                     |
+| -------------- | ----------------------------------------------- |
+| **Today**      | Current day only                                |
+| **This Week**  | Current week (default)                          |
+| **This Month** | Current calendar month                          |
+| **This Year**  | Current calendar year                           |
+| **All Time**   | Everything since you started using OpenWizardAI |
 
 The selected time range applies to all tabs and charts. Your preferred time range is saved and restored between sessions.
 
@@ -187,7 +187,7 @@ The Usage Dashboard collects:
 - Message content (your prompts and AI responses)
 - File contents or paths
 - Token counts or costs (tracked per-session in the main UI, not aggregated in the dashboard)
-- Activity outside of Maestro
+- Activity outside of OpenWizardAI
 
 ### Enabling/Disabling Collection
 
@@ -204,7 +204,7 @@ Disabling collection stops new data from being recorded but preserves existing d
 
 ## Accessibility
 
-The Usage Dashboard adopts Maestro's colorblind-friendly chart palette (Wong, _Nature Methods_ 2011) when **Color Blind Mode** is enabled in **Settings → Display → Accessibility**. Agent and source distinctions switch to a high-contrast set tested against protanopia, deuteranopia, and tritanopia.
+The Usage Dashboard adopts OpenWizardAI's colorblind-friendly chart palette (Wong, _Nature Methods_ 2011) when **Color Blind Mode** is enabled in **Settings → Display → Accessibility**. Agent and source distinctions switch to a high-contrast set tested against protanopia, deuteranopia, and tritanopia.
 
 See [Configuration → Accessibility](./configuration#accessibility) for everything the toggle changes across the rest of the app.
 

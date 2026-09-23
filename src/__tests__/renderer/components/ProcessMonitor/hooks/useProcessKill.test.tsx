@@ -16,7 +16,7 @@ describe('useProcessKill', () => {
 		mockCaptureException.mockClear();
 		killMock = vi.fn().mockResolvedValue(undefined);
 		stopRunMock = vi.fn().mockResolvedValue(true);
-		(window as unknown as { maestro: unknown }).maestro = {
+		(window as unknown as { openwizardai: unknown }).openwizardai = {
 			process: { kill: killMock },
 			cue: { stopRun: stopRunMock },
 		};
@@ -26,7 +26,7 @@ describe('useProcessKill', () => {
 		vi.restoreAllMocks();
 	});
 
-	it('routes non-cue kills through window.maestro.process.kill', async () => {
+	it('routes non-cue kills through window.openwizardai.process.kill', async () => {
 		const refresh = vi.fn().mockResolvedValue(undefined);
 		const { result } = renderHook(() => useProcessKill(refresh));
 		await act(async () => {
@@ -37,7 +37,7 @@ describe('useProcessKill', () => {
 		expect(refresh).toHaveBeenCalled();
 	});
 
-	it('routes cue runs through window.maestro.cue.stopRun', async () => {
+	it('routes cue runs through window.openwizardai.cue.stopRun', async () => {
 		const refresh = vi.fn().mockResolvedValue(undefined);
 		const { result } = renderHook(() => useProcessKill(refresh));
 		await act(async () => {

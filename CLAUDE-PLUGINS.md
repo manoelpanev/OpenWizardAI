@@ -1,6 +1,6 @@
 # CLAUDE-PLUGINS.md
 
-Architectural reference for **Maestro Plugins** - the third-party extension system whose pure contracts live in `src/shared/plugins/` and whose main-process runtime lives in `src/main/plugins/`. For the practical authoring guide (how to write a plugin, full manifest reference, worked examples), see [docs/agent-guides/PLUGIN-DEVELOPMENT.md](docs/agent-guides/PLUGIN-DEVELOPMENT.md). This doc is the **why** and the **gotchas** - read it before changing anything in `src/main/plugins/` or `src/shared/plugins/`.
+Architectural reference for **OpenWizardAI Plugins** - the third-party extension system whose pure contracts live in `src/shared/plugins/` and whose main-process runtime lives in `src/main/plugins/`. For the practical authoring guide (how to write a plugin, full manifest reference, worked examples), see [docs/agent-guides/PLUGIN-DEVELOPMENT.md](docs/agent-guides/PLUGIN-DEVELOPMENT.md). This doc is the **why** and the **gotchas** - read it before changing anything in `src/main/plugins/` or `src/shared/plugins/`.
 
 ## 30-second mental model
 
@@ -35,7 +35,7 @@ Main-process runtime in `src/main/plugins/`:
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `plugin-manager.ts`                           | discovery, validation, enable toggle, install/uninstall, sandbox reconcile, panel-html read       |
 | `plugin-sandbox-host.ts`                      | forks one `utilityProcess` per tier-1 plugin; the only path a child affects the host; caps/limits |
-| `plugin-sandbox-entry.ts`                     | runs inside the child; `vm` bootstrap + `buildSdk` (the `maestro` SDK)                            |
+| `plugin-sandbox-entry.ts`                     | runs inside the child; `vm` bootstrap + `buildSdk` (the `openwizardai` SDK)                       |
 | `plugin-host-handlers.ts`                     | brokered RPC implementations (fs/net/settings/sessions/storage/events/...)                        |
 | `permission-broker.ts`                        | default-deny authorization gate; re-authorizes resolved fs paths                                  |
 | `net-egress-guard.ts`                         | SSRF / DNS-rebind guard for `net:fetch`                                                           |
@@ -79,7 +79,7 @@ discover folders under pluginsDir()
 
 ```
 plugin entry code (vm context, child utilityProcess)
-   | maestro.<area>.<method>(...)        the frozen SDK from buildSdk()
+   | openwizardai.<area>.<method>(...)        the frozen SDK from buildSdk()
    v
 HostRequest { id, method, params }  ---postMessage--->  PluginSandboxHost (main)
                                                           | validate method + shape, cap size
@@ -108,7 +108,7 @@ HostResponse { id, ok, result?, error? } <---postMessage---
   - `events.subscribe` / `unsubscribe`: filtered to the fixed `PLUGIN_EVENT_TOPICS` catalog. Includes `tool.executed`, a metadata-only tool-lifecycle event (tool name + timing, never arguments or results), and `session.activated` `{ sessionId, tabId? }`, emitted from the `sessions:setActiveSessionId` handler with its own 100ms trailing debounce (separate from that handler's 400ms disk-write debounce) and skipped when the focused session did not actually change.
   - `agents.dispatch` and `process.spawn`: LIVE but fully gated. Each registers only when `deps.dispatch` / `deps.spawn` are injected (both are wired in `index.ts`). Every call runs the gate stack: allowlist-scope grant (`assertBrokerAllowed`), trusted signature (`assertTrustedActVerb`), Pianola risk ceiling (`assertLowOrMediumRisk`), a closed input schema, and the `ActionGuard` rate/concurrency cap. `agents.dispatch` ADDITIONALLY requires the separate unattended consent (see below) because plugin-initiated dispatch is never user-present.
   - `net.connect` / `net.send` / `net.close`: LIVE, trusted-only persistent outbound WebSocket. Registers only when `deps.netConnect` is injected. `wss:` only; the connect is pinned through the same `EgressGuard` lookup as `net.fetch` (loopback / RFC1918 / link-local / metadata blocked); caps at `MAX_SOCKETS_PER_PLUGIN = 4` per plugin and `MAX_FRAME_BYTES = 64 KB` per frame in both directions; `send`/`close` re-authorize the still-held host grant on every call so a mid-stream revoke denies the next call. The host owns the real socket; the plugin gets a `socketId` handle and receives frames as `net.connect:<socketId>` topic events (via `pushEvent`, not the `PLUGIN_EVENT_TOPICS` catalog). Sockets are force-closed on disable / crash / uninstall.
-  - `ui.panelPost`: requires `ui:panel` and targets ONLY one of the plugin's own declared panels (own-panels-only); JSON-only payload capped at `MAX_PANEL_POST_BYTES = 64 KB`; delivered to the panel page as a `maestro:panelData` window message. One-way push - there is no reply channel back to the sandbox.
+  - `ui.panelPost`: requires `ui:panel` and targets ONLY one of the plugin's own declared panels (own-panels-only); JSON-only payload capped at `MAX_PANEL_POST_BYTES = 64 KB`; delivered to the panel page as a `openwizardai:panelData` window message. One-way push - there is no reply channel back to the sandbox.
   - `ui.openPanel` / `ui.closePanel` / `ui.togglePanel`: requires `ui:panel` (no new consent); built by one shared factory and resolved through the SAME `deps.getPanel` lookup `ui.panelPost` uses, so a plugin can only summon its OWN panels. Non-`modal` placements are REJECTED (docked panels are always mounted, so open/close would be an untellable no-op). Registered only when `deps.panelVisibility` is wired (fail closed). Main broadcasts `plugins:panel-visibility` `{ pluginId, panelId, action }`; the renderer's App-level `PluginModalPanelMount` drives the `uiStore.openPluginPanelId` field (transient, namespaced `<pluginId>/<panelId>`), and `close` only closes when that exact panel is the open one.
 
   **Direct dispatch requires unattended consent.** The `agents.dispatch` handler additionally calls the injected `dispatchUnattendedAllowed(pluginId, agentId)` predicate (wired in `index.ts` to `isPermittedUnattended(grantsOf(pluginId), 'agents:dispatch', agentId)`) and denies the call unless the plugin holds the separate, revocable UNATTENDED grant on top of the interactive `agents:dispatch` allowlist grant. The time-based scheduler (`PluginSchedulerHost`) enforces the same unattended check independently and calls the dispatch SINK directly, so it is unaffected by this handler.
@@ -137,7 +137,7 @@ HostResponse { id, ok, result?, error? } <---postMessage---
 | `events:subscribe`    | medium | none  | metadata-only topics                                                                                                                                                                                                                   |
 | `process:spawn`       | high   | none  | LIVE, fully gated: allowlist grant + trusted signature + Pianola risk + ActionGuard + closed schema                                                                                                                                    |
 | `ui:contribute`       | medium | none  | gates declarative `uiItems` in approved host-owned surfaces; every surface uses this same capability                                                                                                                                   |
-| `ui:panel`            | medium | none  | gates sandboxed `panels` in approved Maestro regions                                                                                                                                                                                   |
+| `ui:panel`            | medium | none  | gates sandboxed `panels` in approved OpenWizardAI regions                                                                                                                                                                              |
 | `ui:hostView`         | medium | none  | drives brokered updates/removals of the plugin's declared native BlockView data; no plugin renderer runs                                                                                                                               |
 | `ui:render-unsafe`    | high   | none  | high-trust custom UI only in host-approved, non-protected regions; never a trusted-chrome bypass                                                                                                                                       |
 
@@ -150,7 +150,7 @@ HostResponse { id, ok, result?, error? } <---postMessage---
 - Every contributed id is namespaced `<pluginId>/<localId>`. The manifest author writes the bare local `id`; the loader stores both `localId` and the namespaced `id`.
 - Invalid individual items are dropped with a recorded error rather than failing the whole plugin (a typo in one theme must not hide good prompts).
 - On a namespaced-id collision the first wins (defended even though ids are plugin-scoped). For runtime agents, built-in agents always win, so a plugin can never shadow a first-party agent.
-- Contribution types: `themes`, `iconPacks`, `prompts`, `settings`, `commandMacros`, `cueTriggers` (tier 0); `commands`, `panels`, `agents`, `tools`, `keybindings` (tier 1). `cueTriggers` with `action: 'notify'` run on tier 0; `action: 'dispatch'` is risk-gated (the Pianola risk engine) and surfaced to the user, never auto-fired when high-risk. A `tools` contribution is invokable with a result via the brokered `plugins:invoke-tool` round-trip, and (when `plugins` is on) is exposed to a spawned agent's model over MCP via `maestro-cli mcp serve` (claude/codex auto-injected, others best-guess), each model call risk-gated. A `panels` contribution carries an optional `size?: 'default' | 'full'` (`modal` placement only, parsed leniently: absent -> `default` silently, invalid -> manifest error plus `default`, panel never dropped), where `full` renders edge-to-edge overlay chrome. A `keybindings` contribution's `command` must be a plugin-local id. Registering `agents`/`keybindings` does NOT by itself wire spawning / chord-binding - each is a separate step.
+- Contribution types: `themes`, `iconPacks`, `prompts`, `settings`, `commandMacros`, `cueTriggers` (tier 0); `commands`, `panels`, `agents`, `tools`, `keybindings` (tier 1). `cueTriggers` with `action: 'notify'` run on tier 0; `action: 'dispatch'` is risk-gated (the Pianola risk engine) and surfaced to the user, never auto-fired when high-risk. A `tools` contribution is invokable with a result via the brokered `plugins:invoke-tool` round-trip, and (when `plugins` is on) is exposed to a spawned agent's model over MCP via `openwizardai-cli mcp serve` (claude/codex auto-injected, others best-guess), each model call risk-gated. A `panels` contribution carries an optional `size?: 'default' | 'full'` (`modal` placement only, parsed leniently: absent -> `default` silently, invalid -> manifest error plus `default`, panel never dropped), where `full` renders edge-to-edge overlay chrome. A `keybindings` contribution's `command` must be a plugin-local id. Registering `agents`/`keybindings` does NOT by itself wire spawning / chord-binding - each is a separate step.
 - `iconPacks` is a tier-0 contribution: the host validates SVG path data and hex colors, namespaces pack entries, and renders paths only through host-owned SVG markup in the group appearance picker.
 
 - `hostViews` are data-only contributions available to tier-0 and tier-1 plugins: `{ id, surface: 'movement' | 'cadenza', title, description?, blocks? }`. `blocks` is an optional BlockView block array, serialized UTF-8 is capped at 1,000,000 bytes, and the host renderer - not plugin code - draws it. Tier-1 runtime update/remove RPCs require `ui:hostView`, resolve only an already-declared local id, retain its title/surface, and reject cadenza decision/options or agent-routing payloads.
@@ -177,7 +177,7 @@ Channels (all gated on `encoreFeatures.plugins`):
 
 - **Per-plugin session.** Partition `plugin:<pluginId>` (in-memory, never `persist:`), so a panel can never see the app's storage nor another plugin's, and everything dies on relaunch. Document URL `plugin-panel://panel/<encoded panelId>` - served by a per-session protocol handler in `plugin-panel-host.ts` (main), which re-checks the Encore flag + grant-gated contributions (`getPanelHtml`) on EVERY load and serves with a restrictive CSP **header + meta** (`connect-src 'none'`, `child-src/frame-src 'none'`, `form-action 'none'`, `base-uri 'none'`; inline script/style allowed, `img/font` `data:` only). Naming contract: `src/shared/plugins/panel-host.ts`.
 - **Main-process enforcement.** `will-attach-webview` (window-manager) verifies partition and document name the SAME plugin, then forces web prefs: no Node, `contextIsolation`, OS `sandbox`, and the broker-only preload `plugin-panel-preload.js` (the ONLY preload; anything renderer-supplied is stripped). The session cancels ALL non-panel-document requests at the `webRequest` layer (egress denial beneath CSP) and denies every permission. `did-attach-webview` branches on `isPluginPanelSession`: panel guests get `window.open` denied and ALL navigations/redirects prevented - and NONE of the browser-tab conveniences (shortcut forwarding, JS injection, privileged paste) ever run inside plugin content. The old self-navigation exfil residual is CLOSED in the main process (the `will-frame-navigate` backstop in window-manager stays for the remaining srcdoc subframes, e.g. file preview).
-- **Bridge (contract unchanged).** Panel HTML still calls `parent.postMessage({ type: 'maestro:invokeCommand', commandId, args }, '*')`. In a top-level guest `parent === window`; the guest preload (source-gated to the panel's own window) forwards that one shape via `ipcRenderer.sendToHost` -> `ipc-message` on the `<webview>` -> `PluginPanelFrame` namespaces it to `<pluginId>/<commandId>` and forwards over the broker-gated `plugins:invoke-command` RPC. One-way; no reply channel. A non-suppressible "from <plugin>" provenance line sits above every panel.
+- **Bridge (contract unchanged).** Panel HTML still calls `parent.postMessage({ type: 'openwizardai:invokeCommand', commandId, args }, '*')`. In a top-level guest `parent === window`; the guest preload (source-gated to the panel's own window) forwards that one shape via `ipcRenderer.sendToHost` -> `ipc-message` on the `<webview>` -> `PluginPanelFrame` namespaces it to `<pluginId>/<commandId>` and forwards over the broker-gated `plugins:invoke-command` RPC. One-way; no reply channel. A non-suppressible "from <plugin>" provenance line sits above every panel.
 
 ## Signing / trust
 
@@ -192,7 +192,7 @@ Integrity ("files match what was signed") and trust ("key is recognized") are la
 
 ## Host-API semver contract
 
-`HOST_API_VERSION` is a permanent public contract once plugins ship. PATCH = host bug fix; MINOR = additive (new contribution point / manifest field / capability, older plugins keep working); MAJOR = remove or change the meaning of an existing one. A plugin pins `maestro.minHostApi`; the host loads it only when same-major and `host >= min`.
+`HOST_API_VERSION` is a permanent public contract once plugins ship. PATCH = host bug fix; MINOR = additive (new contribution point / manifest field / capability, older plugins keep working); MAJOR = remove or change the meaning of an existing one. A plugin pins `openwizardai.minHostApi`; the host loads it only when same-major and `host >= min`.
 
 The current host is `1.16.0`; it added the metadata-only `session.activated`
 event topic, the `sessions.focus` method plus its narrow `sessions:focus`
@@ -206,7 +206,7 @@ added the `net:connect` capability and the `net.connect` / `net.send` /
 `net.close` methods; `1.11.0` added `groupings` + `ui:grouping`; `1.10.0` added
 `iconPacks`; `1.9.0` added `hostViews`, `ui:hostView`, and the
 `ui.hostViewUpdate` / `ui.hostViewRemove` methods. Plugins declare the
-`maestro.minHostApi` matching the lowest version whose surface they use.
+`openwizardai.minHostApi` matching the lowest version whose surface they use.
 
 ## Key invariants and gotchas (read before editing)
 
@@ -224,14 +224,14 @@ added the `net:connect` capability and the `net.connect` / `net.send` /
 
 ## Honest tier-1 trust model
 
-The `vm` sandbox is realm-escapable. The intrinsics Maestro injects (the SDK, `console`, `setTimeout`) are host-realm functions, so `someInjected.constructor("return process")()` reaches the real `process`, and `codeGeneration.strings: false` only disables code-gen for the context's own `Function`, not the host's. The `vm` is DEFENSE-IN-DEPTH, never the boundary. The real controls are: the separate `utilityProcess` (process + crash isolation), the default-deny broker (which still gates ambient fs/net/exec authority), and signature/consent gating on which code runs at all. Closing the escape fully (an OS-level sandbox dropping ambient authority) is the documented Phase-3 decision. Until then, **enabling a tier-1 code plugin is a full-trust decision - only install plugins you trust.**
+The `vm` sandbox is realm-escapable. The intrinsics OpenWizardAI injects (the SDK, `console`, `setTimeout`) are host-realm functions, so `someInjected.constructor("return process")()` reaches the real `process`, and `codeGeneration.strings: false` only disables code-gen for the context's own `Function`, not the host's. The `vm` is DEFENSE-IN-DEPTH, never the boundary. The real controls are: the separate `utilityProcess` (process + crash isolation), the default-deny broker (which still gates ambient fs/net/exec authority), and signature/consent gating on which code runs at all. Closing the escape fully (an OS-level sandbox dropping ambient authority) is the documented Phase-3 decision. Until then, **enabling a tier-1 code plugin is a full-trust decision - only install plugins you trust.**
 
 ## Authoring surface (SDK + CLI)
 
 External authors do not read this repo; two artifacts hand them the contract:
 
-- **`@maestro/plugin-sdk`** (`packages/plugin-sdk/`) - a standalone, dependency-free package that VENDORS the frozen contracts (types, the small runtime values, and the `MaestroSdk` shape) so a plugin project type-checks against the same surface. A drift-guard test keeps the vendored copies in parity with `src/shared/plugins/`; bump the package version in lockstep with `HOST_API_VERSION`.
-- **`maestro plugin` CLI** (`src/cli/commands/plugin.ts`) - `init` (scaffold), `validate` (manifest + signature status), `sign` (ed25519, payload byte-identical to `plugin-signature.ts`), `pack` (distributable tgz). See the authoring guide for the workflow.
+- **`@openwizardai/plugin-sdk`** (`packages/plugin-sdk/`) - a standalone, dependency-free package that VENDORS the frozen contracts (types, the small runtime values, and the `OpenWizardAISdk` shape) so a plugin project type-checks against the same surface. A drift-guard test keeps the vendored copies in parity with `src/shared/plugins/`; bump the package version in lockstep with `HOST_API_VERSION`.
+- **`openwizardai plugin` CLI** (`src/cli/commands/plugin.ts`) - `init` (scaffold), `validate` (manifest + signature status), `sign` (ed25519, payload byte-identical to `plugin-signature.ts`), `pack` (distributable tgz). See the authoring guide for the workflow.
 
 ## See also
 
@@ -240,8 +240,8 @@ External authors do not read this repo; two artifacts hand them the contract:
 - `src/main/ipc/handlers/plugins.ts` - IPC channels and the pure-reads invariant.
 - `src/renderer/components/plugins/PluginPanelFrame.tsx` + `src/main/plugins/plugin-panel-host.ts` - the panel render host (isolated webview) + the postMessage bridge.
 - [docs/agent-guides/PLUGIN-DEVELOPMENT.md](docs/agent-guides/PLUGIN-DEVELOPMENT.md) - the practical authoring guide.
-- `packages/plugin-sdk/` - the `@maestro/plugin-sdk` typed authoring package (vendored contracts + drift guard).
-- `src/cli/commands/plugin.ts` - the `maestro plugin` init/validate/sign/pack CLI.
+- `packages/plugin-sdk/` - the `@openwizardai/plugin-sdk` typed authoring package (vendored contracts + drift guard).
+- `src/cli/commands/plugin.ts` - the `openwizardai plugin` init/validate/sign/pack CLI.
 
 ## Virtual session groupings (HOST_API 1.9.0)
 
@@ -254,8 +254,8 @@ literal); no plugin-supplied regular expression is compiled. Groupings never
 write `session.groupId` or create, rename, or delete persisted groups.
 
 Tier-1 code may publish a validated metadata-only snapshot through
-`ui:grouping`: `maestro.ui.grouping.publish({ id, groups, assignments })` and
-`maestro.ui.grouping.clear(id)`. The id must be this plugin's declared local
+`ui:grouping`: `openwizardai.ui.grouping.publish({ id, groups, assignments })` and
+`openwizardai.ui.grouping.clear(id)`. The id must be this plugin's declared local
 grouping id; group ids are local, depth is at most two, unknown session ids are
 dropped, and snapshots are process-local and purged when the sandbox stops,
 the plugin is disabled/uninstalled, or the feature flag is off. `ui:grouping`

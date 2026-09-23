@@ -73,7 +73,7 @@ export function dispatchToastClickAction(
 			// (useAppRemoteEventListeners) switches to the target agent, reads the
 			// file, and opens it in a preview tab.
 			window.dispatchEvent(
-				new CustomEvent('maestro:openFileTab', {
+				new CustomEvent('openwizardai:openFileTab', {
 					detail: { sessionId: action.sessionId, filePath: action.path },
 				})
 			);
@@ -125,7 +125,7 @@ export function dispatchToastClickAction(
 				// No `background` flag: a click is the user asking to be taken there.
 				// The listener creates the tab, focuses it, and switches agent.
 				window.dispatchEvent(
-					new CustomEvent('maestro:openBrowserTab', {
+					new CustomEvent('openwizardai:openBrowserTab', {
 						detail: { sessionId: session.id, url: action.url },
 					})
 				);

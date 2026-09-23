@@ -133,7 +133,7 @@ export function useBatchRunner({
 		async (sessionId: string, config: BatchRunConfig, folderPath: string) => {
 			// Check global Auto Run kill switch
 			if (useSettingsStore.getState().autoRunDisabled) {
-				window.maestro.logger.log(
+				window.openwizardai.logger.log(
 					'warn',
 					'Auto Run is disabled via autoRunDisabled setting',
 					'BatchProcessor',
@@ -147,7 +147,7 @@ export function useBatchRunner({
 				return;
 			}
 
-			window.maestro.logger.log('info', 'startBatchRun called', 'BatchProcessor', {
+			window.openwizardai.logger.log('info', 'startBatchRun called', 'BatchProcessor', {
 				sessionId,
 				folderPath,
 				documentsCount: config.documents.length,
@@ -169,7 +169,7 @@ export function useBatchRunner({
 									: config.worktreeTarget.sessionId
 						})`
 					: '';
-				window.maestro.logger.log(
+				window.openwizardai.logger.log(
 					'error',
 					`Session not found for batch processing${worktreeInfo}`,
 					'BatchProcessor',
@@ -185,7 +185,7 @@ export function useBatchRunner({
 			const { documents, prompt, loopEnabled, maxLoops, taskSelectionMode, worktree } = config;
 
 			if (documents.length === 0) {
-				window.maestro.logger.log(
+				window.openwizardai.logger.log(
 					'warn',
 					'No documents provided for batch processing',
 					'BatchProcessor',
@@ -230,7 +230,7 @@ export function useBatchRunner({
 				const worktreeWithSsh = worktree ? { ...worktree, sshRemoteId } : undefined;
 				const worktreeResult = await worktreeManager.setupWorktree(session.cwd, worktreeWithSsh);
 				if (!worktreeResult.success) {
-					window.maestro.logger.log('error', 'Worktree setup failed', 'BatchProcessor', {
+					window.openwizardai.logger.log('error', 'Worktree setup failed', 'BatchProcessor', {
 						sessionId,
 						error: worktreeResult.error,
 					});
@@ -276,7 +276,7 @@ export function useBatchRunner({
 			const initialUncheckedTasks = initialTotalTasks - initialCheckedTasks;
 
 			if (initialUncheckedTasks === 0) {
-				window.maestro.logger.log(
+				window.openwizardai.logger.log(
 					'warn',
 					'No unchecked tasks found across all documents',
 					'BatchProcessor',
@@ -352,7 +352,7 @@ export function useBatchRunner({
 			});
 
 			// AUTORUN LOG: Start
-			window.maestro.logger.autorun(`Auto Run started`, session.name, {
+			window.openwizardai.logger.autorun(`Auto Run started`, session.name, {
 				documents: documents.map((d) => d.filename),
 				totalTasks: initialTotalTasks,
 				loopEnabled,
@@ -402,12 +402,12 @@ export function useBatchRunner({
 			dispatch({ type: 'SET_RUNNING', sessionId });
 
 			// Prevent system sleep while Auto Run is active
-			window.maestro.power.addReason(`autorun:${sessionId}`);
+			window.openwizardai.power.addReason(`autorun:${sessionId}`);
 
 			// Start stats tracking for this Auto Run session
 			let statsAutoRunId: string | null = null;
 			try {
-				statsAutoRunId = await window.maestro.stats.startAutoRun({
+				statsAutoRunId = await window.openwizardai.stats.startAutoRun({
 					sessionId: sessionId,
 					agentType: session.toolType,
 					documentPath: documents.map((d) => d.filename).join(', '),
@@ -479,7 +479,7 @@ export function useBatchRunner({
 			// Helper to add final loop summary (defined here so it has access to tracking vars)
 			const addFinalLoopSummary = (exitReason: string) => {
 				// AUTORUN LOG: Exit
-				window.maestro.logger.autorun(`Auto Run exiting: ${exitReason}`, session.name, {
+				window.openwizardai.logger.autorun(`Auto Run exiting: ${exitReason}`, session.name, {
 					reason: exitReason,
 					totalTasksCompleted: totalCompletedTasks,
 					loopsCompleted: loopIteration + 1,
@@ -538,7 +538,7 @@ export function useBatchRunner({
 							// Use docCheckedCount from readDocAndCountTasks instead of calling countCheckedTasks again
 							if (docCheckedCount > 0) {
 								const resetContent = uncheckAllTasks(docContent);
-								await window.maestro.autorun.writeDoc(
+								await window.openwizardai.autorun.writeDoc(
 									folderPath,
 									docEntry.filename + '.md',
 									resetContent,
@@ -570,7 +570,7 @@ export function useBatchRunner({
 					// Working copies are stored in /Runs/ and the original is never modified
 					if (docEntry.resetOnCompletion) {
 						try {
-							const { workingCopyPath } = await window.maestro.autorun.createWorkingCopy(
+							const { workingCopyPath } = await window.openwizardai.autorun.createWorkingCopy(
 								folderPath,
 								docEntry.filename,
 								loopIteration + 1, // 1-indexed loop number
@@ -600,11 +600,15 @@ export function useBatchRunner({
 					}
 
 					// AUTORUN LOG: Document processing
-					window.maestro.logger.autorun(`Processing document: ${docEntry.filename}`, session.name, {
-						document: docEntry.filename,
-						tasksRemaining: remainingTasks,
-						loopNumber: loopIteration + 1,
-					});
+					window.openwizardai.logger.autorun(
+						`Processing document: ${docEntry.filename}`,
+						session.name,
+						{
+							document: docEntry.filename,
+							tasksRemaining: remainingTasks,
+							loopNumber: loopIteration + 1,
+						}
+					);
 
 					// Update state to show current document
 					updateBatchStateAndBroadcastRef.current!(sessionId, (prev) => ({
@@ -703,7 +707,7 @@ export function useBatchRunner({
 							activeHitlGateLine = hitlGate.line;
 
 							if (isNewGate) {
-								window.maestro.logger.autorun(
+								window.openwizardai.logger.autorun(
 									`HITL gate reached: ${hitlGate.reason}`,
 									session.name,
 									{
@@ -847,7 +851,7 @@ export function useBatchRunner({
 							// reports can reconstruct why the counter did or did not increment.
 							// `appendOnlyNoProgress` flags the "agent appended explanation text instead
 							// of doing work" pattern: doc bytes grew but the task set is unchanged.
-							window.maestro.logger.autorun(
+							window.openwizardai.logger.autorun(
 								`Stall trace: ${docEntry.filename} iter=${loopIteration + 1} counter=${prevNoChangeCount}->${consecutiveNoChangeCount}/${MAX_CONSECUTIVE_NO_CHANGES}`,
 								session.name,
 								{
@@ -885,7 +889,7 @@ export function useBatchRunner({
 							// Record this task in stats database (if stats tracking is active)
 							if (statsAutoRunId && tasksCompletedThisRun > 0) {
 								try {
-									await window.maestro.stats.recordAutoTask({
+									await window.openwizardai.stats.recordAutoTask({
 										autoRunSessionId: statsAutoRunId,
 										sessionId: sessionId,
 										agentType: session.toolType,
@@ -987,7 +991,7 @@ export function useBatchRunner({
 								audioFeedbackCommandRef.current &&
 								shortSummary
 							) {
-								window.maestro.notification
+								window.openwizardai.notification
 									.speak(shortSummary, audioFeedbackCommandRef.current)
 									.catch((err) => {
 										logger.error('[BatchProcessor] Failed to speak synopsis:', undefined, err);
@@ -1003,7 +1007,7 @@ export function useBatchRunner({
 								stalledDocuments.set(docEntry.filename, stallReason);
 
 								// AUTORUN LOG: Document stalled
-								window.maestro.logger.autorun(
+								window.openwizardai.logger.autorun(
 									`Document stalled: ${docEntry.filename}`,
 									session.name,
 									{
@@ -1143,7 +1147,7 @@ export function useBatchRunner({
 					// Working copy in /Runs/ serves as the audit log of this loop's work
 					if (docEntry.resetOnCompletion && docTasksCompleted > 0) {
 						// AUTORUN LOG: Document loop completed
-						window.maestro.logger.autorun(
+						window.openwizardai.logger.autorun(
 							`Document loop completed: ${docEntry.filename}`,
 							session.name,
 							{
@@ -1189,7 +1193,7 @@ export function useBatchRunner({
 				if (!loopEnabled) {
 					// No loop mode - we're done after one pass
 					// AUTORUN LOG: Exit (non-loop mode)
-					window.maestro.logger.autorun(`Auto Run completed (single pass)`, session.name, {
+					window.openwizardai.logger.autorun(`Auto Run completed (single pass)`, session.name, {
 						reason: 'Single pass completed',
 						totalTasksCompleted: totalCompletedTasks,
 						loopsCompleted: 1,
@@ -1276,7 +1280,7 @@ export function useBatchRunner({
 				loopTotalCost = 0;
 
 				// AUTORUN LOG: Loop completion
-				window.maestro.logger.autorun(`Loop ${completedLoopNumber} completed`, session.name, {
+				window.openwizardai.logger.autorun(`Loop ${completedLoopNumber} completed`, session.name, {
 					loopNumber: completedLoopNumber,
 					tasksCompleted: completedLoopTasks,
 					tasksForNextLoop: newTotalTasks,
@@ -1408,7 +1412,7 @@ export function useBatchRunner({
 				// End stats tracking for this Auto Run session
 				if (statsAutoRunId) {
 					try {
-						await window.maestro.stats.endAutoRun(
+						await window.openwizardai.stats.endAutoRun(
 							statsAutoRunId,
 							totalElapsedMs,
 							totalCompletedTasks
@@ -1476,7 +1480,7 @@ export function useBatchRunner({
 			delete stopRequestedRefs.current[sessionId];
 
 			// Allow system to sleep now that Auto Run is complete
-			window.maestro.power.removeReason(`autorun:${sessionId}`);
+			window.openwizardai.power.removeReason(`autorun:${sessionId}`);
 			// Note: updateBatchStateAndBroadcast is accessed via ref to avoid stale closure in long-running async
 			// flushDebouncedUpdate is stable (empty deps in useSessionDebounce) so adding it doesn't cause re-renders
 		},

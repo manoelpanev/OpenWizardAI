@@ -45,7 +45,7 @@ interface MockDb {
  * a `Database` exposes a boolean `open`, and once it is closed every operation
  * throws `TypeError: The database connection is not open`. A mock that ignored
  * `open` and happily ran statements against a closed handle would stay green
- * through exactly the shutdown race MAESTRO-ZC reported from the field.
+ * through exactly the shutdown race OPENWIZARDAI-ZC reported from the field.
  */
 function makeMockDb(): { db: MockDb; stmt: MockStatement; runs: unknown[][] } {
 	const runs: unknown[][] = [];
@@ -312,11 +312,11 @@ describe('query-events-buffer', () => {
 		expect(() => flushQueryEventsSync()).not.toThrow();
 	});
 
-	// MAESTRO-ZC: `closeStatsDB()` runs inside the quit handler's `before-quit`
+	// OPENWIZARDAI-ZC: `closeStatsDB()` runs inside the quit handler's `before-quit`
 	// listener, which re-enters `app.quit()`; the re-emitted `before-quit` then
 	// ran this module's flush listener against an already-closed connection.
 	// better-sqlite3 threw, and the catch reported it to Sentry as a crash.
-	describe('flushing after the stats DB was closed (MAESTRO-ZC)', () => {
+	describe('flushing after the stats DB was closed (OPENWIZARDAI-ZC)', () => {
 		it('does not report the closed connection to Sentry', () => {
 			const { db } = makeMockDb();
 			enqueueQueryEvent(db as never, sampleEvent);

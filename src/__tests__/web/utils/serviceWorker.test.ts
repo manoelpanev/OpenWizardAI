@@ -166,8 +166,8 @@ describe('serviceWorker', () => {
 				configurable: true,
 			});
 
-			// Clear any __MAESTRO_CONFIG__
-			delete (window as unknown as { __MAESTRO_CONFIG__?: unknown }).__MAESTRO_CONFIG__;
+			// Clear any __OPENWIZARDAI_CONFIG__
+			delete (window as unknown as { __OPENWIZARDAI_CONFIG__?: unknown }).__OPENWIZARDAI_CONFIG__;
 		});
 
 		it('should return undefined when service workers not supported', async () => {
@@ -207,10 +207,11 @@ describe('serviceWorker', () => {
 		});
 
 		it('should register service worker with security token path', async () => {
-			(window as unknown as { __MAESTRO_CONFIG__: { securityToken: string } }).__MAESTRO_CONFIG__ =
-				{
-					securityToken: 'abc123',
-				};
+			(
+				window as unknown as { __OPENWIZARDAI_CONFIG__: { securityToken: string } }
+			).__OPENWIZARDAI_CONFIG__ = {
+				securityToken: 'abc123',
+			};
 
 			await registerServiceWorker();
 
@@ -768,8 +769,8 @@ describe('serviceWorker', () => {
 			});
 		});
 
-		it('should handle registration with undefined __MAESTRO_CONFIG__', async () => {
-			delete (window as unknown as { __MAESTRO_CONFIG__?: unknown }).__MAESTRO_CONFIG__;
+		it('should handle registration with undefined __OPENWIZARDAI_CONFIG__', async () => {
+			delete (window as unknown as { __OPENWIZARDAI_CONFIG__?: unknown }).__OPENWIZARDAI_CONFIG__;
 
 			const mockRegistration: Partial<ServiceWorkerRegistration> = {
 				scope: '/test/',
@@ -798,11 +799,12 @@ describe('serviceWorker', () => {
 			});
 		});
 
-		it('should handle __MAESTRO_CONFIG__ with empty securityToken', async () => {
-			(window as unknown as { __MAESTRO_CONFIG__: { securityToken: string } }).__MAESTRO_CONFIG__ =
-				{
-					securityToken: '',
-				};
+		it('should handle __OPENWIZARDAI_CONFIG__ with empty securityToken', async () => {
+			(
+				window as unknown as { __OPENWIZARDAI_CONFIG__: { securityToken: string } }
+			).__OPENWIZARDAI_CONFIG__ = {
+				securityToken: '',
+			};
 
 			const mockRegistration: Partial<ServiceWorkerRegistration> = {
 				scope: '/test/',

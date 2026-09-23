@@ -1,10 +1,10 @@
 /**
  * Shared History Manager for cross-host history synchronization.
  *
- * Writes per-hostname JSONL files to <project>/.maestro/history/ so that
- * multiple Maestro instances (local or SSH-remote) can share history visibility.
+ * Writes per-hostname JSONL files to <project>/.openwizardai/history/ so that
+ * multiple OpenWizardAI instances (local or SSH-remote) can share history visibility.
  *
- * Each Maestro instance writes to its own file (history-<hostname>.jsonl) and
+ * Each OpenWizardAI instance writes to its own file (history-<hostname>.jsonl) and
  * reads from all other files when loading history. This avoids write conflicts
  * entirely - each hostname owns its file exclusively.
  *
@@ -16,7 +16,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { logger } from './utils/logger';
 import { captureException } from './utils/sentry';
-import { SHARED_HISTORY_DIR } from '../shared/maestro-paths';
+import { SHARED_HISTORY_DIR } from '../shared/openwizardai-paths';
 import { MAX_ENTRIES_PER_SESSION } from '../shared/history';
 import type { HistoryEntry, SshRemoteConfig } from '../shared/types';
 import {
@@ -35,8 +35,8 @@ const LOCAL_HOSTNAME = os.hostname();
  * Node fs error codes we expect from a best-effort write into a user-chosen
  * project directory. The location may be permission-restricted (read-only
  * Dropbox / CloudStorage team folders), read-only, or simply not exist. These
- * are environmental, never a Maestro bug, so we keep the local warn but skip
- * Sentry to avoid telemetry noise (MAESTRO-FM).
+ * are environmental, never an OpenWizardAI bug, so we keep the local warn but skip
+ * Sentry to avoid telemetry noise (OPENWIZARDAI-FM).
  */
 const EXPECTED_FS_ERROR_CODES = new Set([
 	'EACCES',
@@ -158,7 +158,7 @@ export function writeEntryLocal(
 		// Best-effort cross-host sync write - the primary history store is
 		// unaffected when this fails. Don't report expected filesystem errors
 		// (permission-denied / missing-path on a user-chosen project dir) to
-		// Sentry; only surface genuinely unexpected failures (MAESTRO-FM).
+		// Sentry; only surface genuinely unexpected failures (OPENWIZARDAI-FM).
 		if (!isExpectedFsError(error)) {
 			captureException(error, { operation: 'sharedHistory:writeLocal', projectPath });
 		}
@@ -166,7 +166,7 @@ export function writeEntryLocal(
 }
 
 /**
- * Cheap probe: does this project's local `.maestro/history/` directory
+ * Cheap probe: does this project's local `.openwizardai/history/` directory
  * contain any JSONL files from hosts OTHER than the running machine?
  * Used by the history IPC handler to decide whether to bypass the
  * bucket-aggregate cache (the cache only fingerprints the per-session

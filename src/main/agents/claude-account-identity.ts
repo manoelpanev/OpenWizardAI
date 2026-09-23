@@ -12,7 +12,7 @@
  * failing a usage sample over it would not be.
  *
  * No caching here. The only caller is the usage sampler, which already pays a
- * multi-second `maestro-p --status` spawn per account, so one ~100KB read
+ * multi-second `openwizardai-p --status` spawn per account, so one ~100KB read
  * alongside it is noise. Adding a cache would introduce a staleness window
  * exactly where correctness matters: `/login` rewrites this file, and a cached
  * identity would keep labeling the row with the account the user just left.

@@ -1,8 +1,8 @@
 /**
  * Preload API for slash commands
  *
- * Provides the window.maestro.speckit, window.maestro.openspec, and
- * window.maestro.bmad namespaces for:
+ * Provides the window.openwizardai.speckit, window.openwizardai.openspec, and
+ * window.openwizardai.bmad namespaces for:
  * - Spec-Kit slash commands
  * - OpenSpec slash commands
  * - BMAD slash commands

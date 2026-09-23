@@ -1,5 +1,5 @@
 /**
- * GroupChatPanel component for Maestro mobile web interface
+ * GroupChatPanel component for OpenWizardAI mobile web interface
  *
  * Displays a group chat conversation with participant bar, message bubbles,
  * and input area for multi-agent group chat sessions.

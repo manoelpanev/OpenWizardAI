@@ -1,7 +1,7 @@
 /**
  * Service Worker Registration Utility
  *
- * Handles registration and lifecycle management of the Maestro
+ * Handles registration and lifecycle management of the OpenWizardAI
  * mobile web service worker for offline capability.
  */
 import { webLogger } from './logger';
@@ -64,8 +64,8 @@ export async function registerServiceWorker(
 
 	try {
 		// Get security token from config for absolute path
-		const config = (window as unknown as { __MAESTRO_CONFIG__?: { securityToken?: string } })
-			.__MAESTRO_CONFIG__;
+		const config = (window as unknown as { __OPENWIZARDAI_CONFIG__?: { securityToken?: string } })
+			.__OPENWIZARDAI_CONFIG__;
 		const token = config?.securityToken;
 
 		// Use absolute path with token prefix if available

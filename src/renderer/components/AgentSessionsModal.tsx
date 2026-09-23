@@ -31,8 +31,8 @@ interface AgentSession {
 	firstMessage: string;
 	messageCount: number;
 	sizeBytes: number;
-	sessionName?: string; // Named session from OpenWizzard
-	starred?: boolean; // Starred status from OpenWizzard
+	sessionName?: string; // Named session from OpenWizardAI
+	starred?: boolean; // Starred status from OpenWizardAI
 }
 
 interface SessionMessage {
@@ -159,7 +159,7 @@ export function AgentSessionsModal({
 				const starredFromOrigins = new Set<string>();
 				if (agentId === 'claude-code') {
 					// Claude Code uses its own origins store
-					const origins = await window.maestro.claude.getSessionOrigins(projectPath);
+					const origins = await window.openwizardai.claude.getSessionOrigins(projectPath);
 					for (const [sessionId, originData] of Object.entries(origins)) {
 						if (typeof originData === 'object' && originData?.starred) {
 							starredFromOrigins.add(sessionId);
@@ -167,7 +167,7 @@ export function AgentSessionsModal({
 					}
 				} else {
 					// Other agents use the generic origins store
-					const origins = await window.maestro.agentSessions.getOrigins(agentId, projectPath);
+					const origins = await window.openwizardai.agentSessions.getOrigins(agentId, projectPath);
 					for (const [sessionId, originData] of Object.entries(origins)) {
 						if (originData?.starred) {
 							starredFromOrigins.add(sessionId);
@@ -177,7 +177,7 @@ export function AgentSessionsModal({
 				setStarredSessions(starredFromOrigins);
 
 				// Use generic agentSessions API for session listing
-				const result = await window.maestro.agentSessions.listPaginated(
+				const result = await window.openwizardai.agentSessions.listPaginated(
 					agentId,
 					projectPath,
 					{ limit: 100 },
@@ -217,7 +217,7 @@ export function AgentSessionsModal({
 		const agentId = activeSession.toolType || 'claude-code';
 		setIsLoadingMoreSessions(true);
 		try {
-			const result = await window.maestro.agentSessions.listPaginated(
+			const result = await window.openwizardai.agentSessions.listPaginated(
 				agentId,
 				activeSession.projectRoot,
 				{
@@ -281,14 +281,14 @@ export function AgentSessionsModal({
 			if (activeSession?.projectRoot) {
 				if (agentId === 'claude-code') {
 					// Claude Code uses its own origins store
-					await window.maestro.claude.updateSessionStarred(
+					await window.openwizardai.claude.updateSessionStarred(
 						activeSession.projectRoot,
 						sessionId,
 						isNowStarred
 					);
 				} else {
 					// Other agents use the generic origins store
-					await window.maestro.agentSessions.setSessionStarred(
+					await window.openwizardai.agentSessions.setSessionStarred(
 						agentId,
 						activeSession.projectRoot,
 						sessionId,
@@ -314,7 +314,7 @@ export function AgentSessionsModal({
 			const agentId = activeSession.toolType || 'claude-code';
 			setMessagesLoading(true);
 			try {
-				const result = await window.maestro.agentSessions.read(
+				const result = await window.openwizardai.agentSessions.read(
 					agentId,
 					activeSession.projectRoot,
 					session.sessionId,

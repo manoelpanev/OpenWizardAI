@@ -4,7 +4,7 @@ description: Process markdown checklists with AI agents using Auto Run documents
 icon: play
 ---
 
-Auto Run is a file-system-based document runner that lets you process tasks using AI agents. Select a folder containing markdown documents with task checkboxes, and Maestro will work through them one by one, spawning a fresh AI session for each task.
+Auto Run is a file-system-based document runner that lets you process tasks using AI agents. Select a folder containing markdown documents with task checkboxes, and OpenWizardAI will work through them one by one, spawning a fresh AI session for each task.
 
 ![Auto Run](./screenshots/autorun-1.png)
 
@@ -96,7 +96,7 @@ folder offers nothing.
 
 ## Fresh Context: Task vs Document
 
-The run configuration modal has a **Fresh context per** toggle that controls how context is scoped as the runner works through a document. This is distinct from [task granularity](#task-granularity-two-approaches) above - granularity is how you _structure_ a document, while this is how Maestro _executes_ it.
+The run configuration modal has a **Fresh context per** toggle that controls how context is scoped as the runner works through a document. This is distinct from [task granularity](#task-granularity-two-approaches) above - granularity is how you _structure_ a document, while this is how OpenWizardAI _executes_ it.
 
 **Task** - A new agent is spawned for each unchecked task, with a clean context every time.
 
@@ -109,7 +109,7 @@ The run configuration modal has a **Fresh context per** toggle that controls how
 - Best for agents with very large context windows, and for work where later tasks build on earlier ones.
 - Requires enough context window to hold a whole document's worth of work in one session.
 
-**Auto-selection:** Maestro picks the mode by combining the running agent's context window with the average task count across the documents you've selected. The tasks-per-doc threshold scales with the window - **5** at 256K or less, **10** at 512K, **20** at 1M - and below the threshold Maestro recommends **Document**, at/above it **Task**. Selecting different documents recomputes the recommendation. If you toggle to the non-recommended mode, the modal surfaces a small note explaining what it would have picked and why, but respects your choice. A loaded Playbook's saved mode always takes precedence, and once you've manually toggled, future document-selection changes don't yank the mode back.
+**Auto-selection:** OpenWizardAI picks the mode by combining the running agent's context window with the average task count across the documents you've selected. The tasks-per-doc threshold scales with the window - **5** at 256K or less, **10** at 512K, **20** at 1M - and below the threshold OpenWizardAI recommends **Document**, at/above it **Task**. Selecting different documents recomputes the recommendation. If you toggle to the non-recommended mode, the modal surfaces a small note explaining what it would have picked and why, but respects your choice. A loaded Playbook's saved mode always takes precedence, and once you've manually toggled, future document-selection changes don't yank the mode back.
 
 > **Tip:** Author tasks to be self-contained regardless of mode. Document mode is an optimization, not a license to write tasks that depend on chat memory.
 
@@ -161,7 +161,7 @@ A steering note is not a conversation turn. It spawns no agent of its own and co
 
 Use it for the things you notice while watching:
 
-- `Important notice: Maestro error - stop touching the Cue engine and fix the build first.`
+- `Important notice: OpenWizardAI error - stop touching the Cue engine and fix the build first.`
 - `The API changed. Use the v3 endpoint for the rest of these tasks.`
 - `Do not commit anything else until I say so.`
 
@@ -210,8 +210,8 @@ Both are documented in [Configuration → Per-Agent Environment Variables](./con
 
 Two things Auto Run specifically does **not** give you:
 
-- **A playbook or task document cannot set environment variables.** Frontmatter in an Auto Run document is rendered as a table for you to read, never interpreted. The only in-document directives Maestro acts on are the [HITL gate](#human-in-the-loop-gates), the [halt marker](#halt-marker-agent-early-exit), and the [model and effort markers](#model-tier-and-effort) - there is no `MAESTRO:ENV` equivalent.
-- **The CLI has no per-run environment flag.** `maestro-cli playbook`, `run-doc`, `auto-run`, and `goal-run` take `--model` and `--effort` as run-scoped overrides, but no `--env`. The `--env` flag exists only on `create-agent` and `update-agent`, where it edits the agent record itself and therefore affects every later run on that agent.
+- **A playbook or task document cannot set environment variables.** Frontmatter in an Auto Run document is rendered as a table for you to read, never interpreted. The only in-document directives OpenWizardAI acts on are the [HITL gate](#human-in-the-loop-gates), the [halt marker](#halt-marker-agent-early-exit), and the [model and effort markers](#model-tier-and-effort) - there is no `OPENWIZARDAI:ENV` equivalent.
+- **The CLI has no per-run environment flag.** `openwizardai-cli playbook`, `run-doc`, `auto-run`, and `goal-run` take `--model` and `--effort` as run-scoped overrides, but no `--env`. The `--env` flag exists only on `create-agent` and `update-agent`, where it edits the agent record itself and therefore affects every later run on that agent.
 
 So if a run needs different variables, change the agent it runs against, or point the run at a different agent.
 
@@ -221,33 +221,33 @@ By default an Auto Run executes against the **currently active agent**, so it pi
 
 The run configuration modal can redirect it. Under [Dispatch to a separate worktree](#run-in-worktree), the dropdown chooses a worktree target, and each option has different consequences for your environment:
 
-| Option                  | Environment the run gets                                                                                                                             |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Open in Maestro**     | An agent already open in Maestro. It runs with **that agent's own variables**, so this is the way to run one document under a different environment. |
-| **Available Worktrees** | A new agent, which **inherits the current agent's variables** verbatim                                                                               |
-| **Create New Worktree** | A new agent, which **inherits the current agent's variables** verbatim                                                                               |
+| Option                   | Environment the run gets                                                                                                                                  |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Open in OpenWizardAI** | An agent already open in OpenWizardAI. It runs with **that agent's own variables**, so this is the way to run one document under a different environment. |
+| **Available Worktrees**  | A new agent, which **inherits the current agent's variables** verbatim                                                                                    |
+| **Create New Worktree**  | A new agent, which **inherits the current agent's variables** verbatim                                                                                    |
 
-The distinction is easy to miss: creating a worktree does not give you a blank agent to configure. Maestro copies the parent agent's variables (along with its provider, model, and custom arguments) onto the new one, and the worktree dialog has no environment field. If you need a worktree run under a different environment, create the worktree agent first, edit its variables in **Edit Agent**, then dispatch to it with **Open in Maestro**.
+The distinction is easy to miss: creating a worktree does not give you a blank agent to configure. OpenWizardAI copies the parent agent's variables (along with its provider, model, and custom arguments) onto the new one, and the worktree dialog has no environment field. If you need a worktree run under a different environment, create the worktree agent first, edit its variables in **Edit Agent**, then dispatch to it with **Open in OpenWizardAI**.
 
-### Variables Maestro Sets For You
+### Variables OpenWizardAI Sets For You
 
-Maestro sets environment variables that your agent hooks can use to customize behavior:
+OpenWizardAI sets environment variables that your agent hooks can use to customize behavior:
 
-| Variable                  | Value | Description                                                      |
-| ------------------------- | ----- | ---------------------------------------------------------------- |
-| `MAESTRO_SESSION_RESUMED` | `1`   | Set when resuming an existing session (not set for new sessions) |
+| Variable                       | Value | Description                                                      |
+| ------------------------------ | ----- | ---------------------------------------------------------------- |
+| `OPENWIZARDAI_SESSION_RESUMED` | `1`   | Set when resuming an existing session (not set for new sessions) |
 
 **Example: Conditional Hook Execution**
 
-Since Maestro spawns a new agent process for each message (batch mode), agent "session start" hooks will run on every turn. Use `MAESTRO_SESSION_RESUMED` to skip hooks on resumed sessions:
+Since OpenWizardAI spawns a new agent process for each message (batch mode), agent "session start" hooks will run on every turn. Use `OPENWIZARDAI_SESSION_RESUMED` to skip hooks on resumed sessions:
 
 ```bash
 # In your agent's session start hook
-[ "$MAESTRO_SESSION_RESUMED" = "1" ] && exit 0
+[ "$OPENWIZARDAI_SESSION_RESUMED" = "1" ] && exit 0
 # ... rest of your hook logic for new sessions only
 ```
 
-This works with any agent provider (Claude Code, Codex, OpenCode) since the environment variable is set by Maestro before spawning the agent process.
+This works with any agent provider (Claude Code, Codex, OpenCode) since the environment variable is set by OpenWizardAI before spawning the agent process.
 
 ## History & Tracking
 
@@ -286,7 +286,7 @@ The Expanded Editor provides:
 
 Click **Collapse** or press `Esc` to return to the sidebar panel view.
 
-> **Maestro Pro Tip - a scratch pad from anywhere:** Because `Cmd+Shift+3` and the Command Palette open the Expanded Editor from anywhere (the Auto Run panel doesn't need to be open), it doubles as an always-available scratch pad. Keep a throwaway document in your Auto Run folder and, as ideas surface mid-session, pop open the editor and jot down tasks you want to kick off later. When you wrap up your interactive work, run that document to dispatch the whole batch at once.
+> **OpenWizardAI Pro Tip - a scratch pad from anywhere:** Because `Cmd+Shift+3` and the Command Palette open the Expanded Editor from anywhere (the Auto Run panel doesn't need to be open), it doubles as an always-available scratch pad. Keep a throwaway document in your Auto Run folder and, as ideas surface mid-session, pop open the editor and jot down tasks you want to kick off later. When you wrap up your interactive work, run that document to dispatch the whole batch at once.
 
 ## Saving Documents
 
@@ -303,11 +303,11 @@ Paste images directly into your documents. Images are saved to an `images/` subf
 Most playbooks change gears partway through. Surveying an existing codebase is cheap, mechanical work; designing the migration that follows is not. Rather than running everything at one setting, a marker sets the model tier and effort level:
 
 ```markdown
-<!-- MAESTRO:MODEL tier="low" effort="low" -->
+<!-- OPENWIZARDAI:MODEL tier="low" effort="low" -->
 
 - [ ] Catalogue every call site of the auth middleware
 - [ ] Summarize the current request flow
-- [ ] Design the migration <!-- MAESTRO:MODEL tier="high" effort="high" -->
+- [ ] Design the migration <!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->
 - [ ] Apply the mechanical renames
 ```
 
@@ -335,13 +335,13 @@ Markers render as nothing in the Auto Run panel (they are HTML comments), so a t
 
 ### The two layer per axis
 
-An inline marker only overrides the axes it names. Given a document-wide `tier="low" effort="high"`, a task marked `<!-- MAESTRO:MODEL tier="high" -->` runs at high tier **and** high effort - it inherits the effort rather than resetting it. Use `default` to push one axis explicitly back to the agent's own configuration:
+An inline marker only overrides the axes it names. Given a document-wide `tier="low" effort="high"`, a task marked `<!-- OPENWIZARDAI:MODEL tier="high" -->` runs at high tier **and** high effort - it inherits the effort rather than resetting it. Use `default` to push one axis explicitly back to the agent's own configuration:
 
 ```markdown
-<!-- MAESTRO:MODEL tier="high" effort="high" -->
+<!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->
 
 - [ ] Design the caching layer
-- [ ] Rename the config keys <!-- MAESTRO:MODEL tier="default" effort="default" -->
+- [ ] Rename the config keys <!-- OPENWIZARDAI:MODEL tier="default" effort="default" -->
 ```
 
 ### Markers in per-document mode
@@ -364,7 +364,7 @@ The three levels mean the floor, the middle, and the ceiling of whatever that pr
 | `effort="medium"` | `high`            | `medium`    |
 | `effort="high"`   | `max`             | `xhigh`     |
 
-Write the Maestro level, not the provider's word. A playbook that says `effort="high"` asks for the most that provider offers, whatever it happens to be called, and keeps working when a provider adds a rung.
+Write the OpenWizardAI level, not the provider's word. A playbook that says `effort="high"` asks for the most that provider offers, whatever it happens to be called, and keeps working when a provider adds a rung.
 
 ### Provider support
 
@@ -376,14 +376,14 @@ Write the Maestro level, not the provider's word. A playbook that says `effort="
 | Copilot-CLI   | Agent default           | Yes    |
 | OpenCode      | Agent default           | None   |
 
-Model tiers ship only where the model identifiers are stable enough that a playbook written today still resolves correctly later. Codex and Copilot-CLI discover their catalogues at runtime and their IDs change per release; OpenCode runs whatever models you configured, which may be local. For those, a `tier` hint falls back to the agent's configured model **and says so** - a warning in the History entry, and a `model_resolution` event on the JSONL stream when run through `maestro-cli`. It never silently substitutes a different model.
+Model tiers ship only where the model identifiers are stable enough that a playbook written today still resolves correctly later. Codex and Copilot-CLI discover their catalogues at runtime and their IDs change per release; OpenCode runs whatever models you configured, which may be local. For those, a `tier` hint falls back to the agent's configured model **and says so** - a warning in the History entry, and a `model_resolution` event on the JSONL stream when run through `openwizardai-cli`. It never silently substitutes a different model.
 
 ### Recording why
 
 A marker can carry a `reason` explaining the choice:
 
 ```html
-<!-- MAESTRO:MODEL tier="high" effort="high" reason="Redesigns lock ordering across three services. A wrong ordering corrupts data rather than failing loudly, so this is worth the strongest model thinking hard." -->
+<!-- OPENWIZARDAI:MODEL tier="high" effort="high" reason="Redesigns lock ordering across three services. A wrong ordering corrupts data rather than failing loudly, so this is worth the strongest model thinking hard." -->
 ```
 
 The reason changes nothing about how the task runs. It appears behind an **ⓘ** on the marker's pill: hover it in any document preview and the justification appears in an overlay. Wizard-generated playbooks include one on every marker they write.
@@ -411,7 +411,7 @@ The per-task synopsis is pinned to the cheapest model and lowest effort regardle
 
 A run does not die because the provider had a bad minute. If a task fails on `529 Overloaded` or a spent plan quota, [Agent Resilience](/agent-resilience) parks the loop, waits out the backoff (for a quota failure, until the real reset time), and resumes the run from where it stopped. You get a **Auto Run: retrying** toast and a History entry recording the outage, rather than a run that quietly stalled overnight.
 
-Cancel the auto-retry from the status card in the transcript and the usual resume, skip, and abort controls come back. Resilience is on by default per agent; batches launched from `maestro-cli` do not auto-retry.
+Cancel the auto-retry from the status card in the transcript and the usual resume, skip, and abort controls come back. Resilience is on by default per agent; batches launched from `openwizardai-cli` do not auto-retry.
 
 ## Stopping the Runner
 
@@ -423,14 +423,14 @@ Click the **Stop** button at any time. The runner will:
 
 ## Marker Pills
 
-Every Maestro marker is an HTML comment, which means it renders as nothing. That is right for the file - other markdown tools ignore it, and an agent editing the document leaves it alone - but it is wrong for you. Two of the three markers do not merely change how a run behaves, they stop it:
+Every OpenWizardAI marker is an HTML comment, which means it renders as nothing. That is right for the file - other markdown tools ignore it, and an agent editing the document leaves it alone - but it is wrong for you. Two of the three markers do not merely change how a run behaves, they stop it:
 
 - A leftover **HITL gate** pauses every re-run until the box below it is ticked.
 - A leftover **halt marker** makes Auto Run refuse to start at all.
 
 Both present the same way: you press **Run** and nothing happens, with the cause sitting in text the panel does not draw.
 
-So Maestro renders each marker as a small pill wherever the document is previewed - the Auto Run panel, the file preview, the wizard's document editor, and the Playbook Exchange preview. The pill says what the marker **does**, not what it is called:
+So OpenWizardAI renders each marker as a small pill wherever the document is previewed - the Auto Run panel, the file preview, the wizard's document editor, and the Playbook Exchange preview. The pill says what the marker **does**, not what it is called:
 
 | Pill                          | Meaning                                                                                                |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -459,12 +459,12 @@ Marker pills appear only on document surfaces. An agent that mentions the marker
 When a task needs a person - manual testing, visual judgment, sign-off, or a credential only a human can obtain - the agent writes a gate marker on its own line above that task:
 
 ```html
-<!-- MAESTRO:HITL reason="Add SENDGRID_API_KEY to .env before the mailer tasks run" artifact="https://staging.example.com/checkout" -->
+<!-- OPENWIZARDAI:HITL reason="Add SENDGRID_API_KEY to .env before the mailer tasks run" artifact="https://staging.example.com/checkout" -->
 ```
 
 In the desktop app the run **pauses** there, surfaces the reason (and the optional `artifact` to look at) in the Auto Run panel and a toast, and waits. You resume by ticking the box above the marker or clicking Resume. That is a deliberate, visible pause, the opposite of a stall.
 
-A headless CLI run has no human to wait for, so `maestro run-playbook` reports the gate as a `document_gated` event naming the reason and the line, then moves to the next document. The marker means the same thing on both surfaces; only the response differs.
+A headless CLI run has no human to wait for, so `openwizardai run-playbook` reports the gate as a `document_gated` event naming the reason and the line, then moves to the next document. The marker means the same thing on both surfaces; only the response differs.
 
 A gate is the right answer whenever the blocker is a person. Reaching for the halt marker instead throws away every remaining task in every remaining document because one task needed a signature.
 
@@ -483,7 +483,7 @@ This is why an agent almost never needs the halt marker. A stuck task resolves i
 Sometimes the agent itself discovers that the rest of the playbook cannot meaningfully proceed - a missing dependency, a broken precondition, an ambiguous spec it cannot resolve, or a destructive change it refuses to make. In that case the agent can abort the entire run by writing a halt marker into the current document:
 
 ```html
-<!-- maestro:halt: brief reason here -->
+<!-- openwizardai:halt: brief reason here -->
 ```
 
 When the engine re-reads the document after the task and finds this marker, it stops dispatch immediately:
@@ -493,7 +493,7 @@ When the engine re-reads the document after the task and finds this marker, it s
 - The reason text is recorded in the History panel
 - A `halt` event is emitted to the JSONL stream, followed by a `complete` event with `success: false` and the same reason
 
-The bare form `<!-- maestro:halt -->` works without a reason, but agents are instructed to always include one. The agent should leave the unfinishable task **unchecked** so you can see exactly where execution stopped.
+The bare form `<!-- openwizardai:halt -->` works without a reason, but agents are instructed to always include one. The agent should leave the unfinishable task **unchecked** so you can see exactly where execution stopped.
 
 This is distinct from clicking **Stop** (a manual user action) or a single task simply failing (which by default does **not** halt the playbook - Auto Run is designed to run independent tasks, so one failure doesn't invalidate the rest).
 
@@ -533,12 +533,12 @@ You can dispatch an Auto Run directly into a new git worktree from the run confi
 
 ![Run in Worktree](./screenshots/autorun-worktree.png)
 
-| Option                              | Description                                                                                |
-| ----------------------------------- | ------------------------------------------------------------------------------------------ |
-| **Dispatch to a separate worktree** | Toggle to enable worktree isolation for this run                                           |
-| **Worktree selection**              | Create a new worktree or select an existing one                                            |
-| **Base Branch**                     | The branch to base the new worktree on (e.g., `main`)                                      |
-| **Worktree Branch Name**            | Name for the new branch - also used as the worktree directory name                         |
-| **Automatically create PR**         | When checked, Maestro opens a pull request from the worktree branch when the run completes |
+| Option                              | Description                                                                                     |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Dispatch to a separate worktree** | Toggle to enable worktree isolation for this run                                                |
+| **Worktree selection**              | Create a new worktree or select an existing one                                                 |
+| **Base Branch**                     | The branch to base the new worktree on (e.g., `main`)                                           |
+| **Worktree Branch Name**            | Name for the new branch - also used as the worktree directory name                              |
+| **Automatically create PR**         | When checked, OpenWizardAI opens a pull request from the worktree branch when the run completes |
 
 This is the recommended workflow for longer Auto Runs - your main branch stays untouched, all changes land on a dedicated branch, and you get a PR at the end ready for review.

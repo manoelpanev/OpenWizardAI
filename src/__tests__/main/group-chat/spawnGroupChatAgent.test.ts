@@ -1,8 +1,8 @@
 /**
  * @file spawnGroupChatAgent.test.ts
  * @description Verifies the Group Chat spawn helper forwards `maxWaitSeconds`
- * into maestro-p's `--max-wait`. Without this the interactive (TUI) path falls
- * back to maestro-p's 300s idle default and silently kills a still-working
+ * into openwizardai-p's `--max-wait`. Without this the interactive (TUI) path falls
+ * back to openwizardai-p's 300s idle default and silently kills a still-working
  * moderator/participant whose JSONL output stalls past 300s, even though the
  * router would wait the full supervising timeout. Regression guard for that.
  */
@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Keep applyClaudeSpawnDecision + buildRemoteInteractiveSpawn REAL (they own the
 // actual `--max-wait` arg injection, which is what we want to assert lands in
 // the spawn). Only stub resolveClaudeSpawnMode so it deterministically resolves
-// to the local interactive (maestro-p) path without needing a real binary or a
+// to the local interactive (openwizardai-p) path without needing a real binary or a
 // usage snapshot.
 const mockResolve = vi.fn();
 vi.mock('../../../main/agents/resolveClaudeSpawnMode', async () => {
@@ -37,8 +37,8 @@ vi.mock('../../../main/utils/ssh-spawn-wrapper', async () => {
 		wrapSpawnWithSsh: (...args: unknown[]) => mockWrapSpawnWithSsh(...args),
 	};
 });
-vi.mock('../../../main/agents/probeRemoteMaestroP', () => ({
-	ensureRemoteMaestroPProbed: vi.fn().mockResolvedValue(undefined),
+vi.mock('../../../main/agents/probeRemoteOpenWizardAIP', () => ({
+	ensureRemoteOpenWizardAIPProbed: vi.fn().mockResolvedValue(undefined),
 }));
 vi.mock('../../../main/utils/ssh-remote-resolver', () => ({
 	getSshRemoteConfig: vi.fn(() => ({ config: null, source: 'session' })),
@@ -71,12 +71,12 @@ describe('spawnGroupChatAgent', () => {
 		} as unknown as IProcessManager;
 	});
 
-	it('forwards maxWaitSeconds as --max-wait on the interactive maestro-p spawn', async () => {
-		// Decision: local interactive, with a resolved maestro-p script path.
+	it('forwards maxWaitSeconds as --max-wait on the interactive openwizardai-p spawn', async () => {
+		// Decision: local interactive, with a resolved openwizardai-p script path.
 		mockResolve.mockReturnValue({
 			mode: 'interactive',
 			reason: 'auto',
-			maestroPBinPath: '/bundled/maestro-p.js',
+			openwizardaiPBinPath: '/bundled/openwizardai-p.js',
 			claudeRealBinPath: '/usr/local/bin/claude',
 		});
 
@@ -95,7 +95,7 @@ describe('spawnGroupChatAgent', () => {
 
 		expect(spawnSpy).toHaveBeenCalledTimes(1);
 		const spawned = spawnSpy.mock.calls[0][0] as { command: string; args: string[] };
-		// process.execPath drives the maestro-p script under ELECTRON_RUN_AS_NODE.
+		// process.execPath drives the openwizardai-p script under ELECTRON_RUN_AS_NODE.
 		expect(spawned.command).toBe(process.execPath);
 		// --max-wait must land after the script but before the batch args/prompt.
 		const i = spawned.args.indexOf('--max-wait');
@@ -108,7 +108,7 @@ describe('spawnGroupChatAgent', () => {
 		mockResolve.mockReturnValue({
 			mode: 'interactive',
 			reason: 'auto',
-			maestroPBinPath: '/bundled/maestro-p.js',
+			openwizardaiPBinPath: '/bundled/openwizardai-p.js',
 			claudeRealBinPath: '/usr/local/bin/claude',
 		});
 
@@ -127,8 +127,8 @@ describe('spawnGroupChatAgent', () => {
 		expect(spawned.args).not.toContain('--max-wait');
 	});
 
-	it('does not inject --max-wait on the API path (no maestro-p)', async () => {
-		mockResolve.mockReturnValue({ mode: 'api', reason: 'auto', maestroPBinPath: null });
+	it('does not inject --max-wait on the API path (no openwizardai-p)', async () => {
+		mockResolve.mockReturnValue({ mode: 'api', reason: 'auto', openwizardaiPBinPath: null });
 
 		await spawnGroupChatAgent({
 			sessionId: 'sess-3',
@@ -152,7 +152,7 @@ describe('spawnGroupChatAgent', () => {
 		const sshStore = {} as never;
 
 		beforeEach(() => {
-			mockResolve.mockReturnValue({ mode: 'api', reason: 'auto', maestroPBinPath: null });
+			mockResolve.mockReturnValue({ mode: 'api', reason: 'auto', openwizardaiPBinPath: null });
 		});
 
 		it('fails loudly instead of silently spawning locally when the remote cannot be resolved', async () => {

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/services/storage', () => ({
 	resolveAgentId: vi.fn((id: string) => id),
 	readActiveAgentId: vi.fn(() => null),
@@ -30,7 +30,7 @@ import {
 	tabEnterToSend,
 	tabShow,
 } from '../../../cli/commands/tab';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveAgentId, readActiveAgentId } from '../../../cli/services/storage';
 import { formatError } from '../../../cli/output/formatter';
 
@@ -74,7 +74,7 @@ const SESSIONS = [
  */
 function mockTab(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				if (payload.type === 'list_desktop_sessions') {

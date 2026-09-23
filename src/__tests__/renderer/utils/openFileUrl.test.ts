@@ -5,13 +5,13 @@ const openPath = vi.fn();
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	(window as unknown as { maestro: unknown }).maestro = { shell: { openPath } };
+	(window as unknown as { openwizardai: unknown }).openwizardai = { shell: { openPath } };
 });
 
 describe('openFileUrl', () => {
 	it('ignores anything that is not a file:// href', () => {
 		expect(openFileUrl('https://example.com', vi.fn())).toBe(false);
-		expect(openFileUrl('maestro-file://src/app.ts', vi.fn())).toBe(false);
+		expect(openFileUrl('openwizardai-file://src/app.ts', vi.fn())).toBe(false);
 		expect(openPath).not.toHaveBeenCalled();
 	});
 
@@ -25,7 +25,7 @@ describe('openFileUrl', () => {
 		expect(openPath).not.toHaveBeenCalled();
 	});
 
-	it('opens a previewable file in Maestro instead of the OS', () => {
+	it('opens a previewable file in OpenWizardAI instead of the OS', () => {
 		const onFileClick = vi.fn();
 		// A JSON outside the project root used to be handed to the system editor.
 		expect(openFileUrl('file:///Users/me/.config/app/creds.json', onFileClick)).toBe(true);

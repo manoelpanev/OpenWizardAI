@@ -1,5 +1,5 @@
 /**
- * MobileHistoryPanel component for Maestro mobile web interface
+ * MobileHistoryPanel component for OpenWizardAI mobile web interface
  *
  * A full-screen view displaying history entries from the desktop app.
  * This view shows all AUTO and USER entries in a list format, with the ability

@@ -5,7 +5,7 @@ import type { FileNode } from '../../types/fileTree';
 import {
 	loadFileTree,
 	loadFileTreeRemoteBatched,
-	spliceMaestroIntoTree,
+	spliceOpenWizardAIIntoTree,
 	compareFileTrees,
 	isDepthCappedFolder,
 	FileTreeAbortError,
@@ -327,7 +327,7 @@ export function useFileTreeManagement(
 	 * git-state-refresh all stay in sync.
 	 *
 	 * SSH callers may pass `onProgress` and `onPhase` for progressive UI
-	 * updates between the `.maestro` and rest-of-tree phases.
+	 * updates between the `.openwizardai` and rest-of-tree phases.
 	 */
 	const loadFullTree = useCallback(
 		(
@@ -343,8 +343,8 @@ export function useFileTreeManagement(
 				signal?: AbortSignal;
 				onProgress?: (p: FileTreeProgress) => void;
 				onPhase?: (
-					phase: 'maestro' | 'rest',
-					partial: { maestro?: FileTreeNode[]; rest?: FileTreeNode[] }
+					phase: 'openwizardai' | 'rest',
+					partial: { openwizardai?: FileTreeNode[]; rest?: FileTreeNode[] }
 				) => void;
 			}
 		) => {
@@ -406,7 +406,7 @@ export function useFileTreeManagement(
 			try {
 				// Fire stats independently - update asynchronously without blocking tree refresh.
 				if (!options?.skipStats) {
-					window.maestro.fs
+					window.openwizardai.fs
 						.directorySize(
 							treeRoot,
 							sshContext?.sshRemoteId,
@@ -528,7 +528,7 @@ export function useFileTreeManagement(
 
 			try {
 				// Fire stats independently - update asynchronously without blocking tree/git refresh.
-				window.maestro.fs
+				window.openwizardai.fs
 					.directorySize(
 						treeRoot,
 						sshContext?.sshRemoteId,
@@ -609,7 +609,7 @@ export function useFileTreeManagement(
 				);
 
 				// Also refresh history panel (reload from disk first to bypass electron-store cache)
-				await window.maestro.history.reload();
+				await window.openwizardai.history.reload();
 				rightPanelRef.current?.refreshHistoryPanel();
 			} catch (error) {
 				// Refresh failed - log it but preserve the existing file tree.
@@ -729,7 +729,7 @@ export function useFileTreeManagement(
 
 			// For SSH sessions, fire a shallow load (depth 1) first so the root-level
 			// tree renders almost instantly (single round-trip). The phased batched
-			// loader below then loads `.maestro` deeply (drives Cue, playbooks),
+			// loader below then loads `.openwizardai` deeply (drives Cue, playbooks),
 			// then the rest of the tree - each phase repaints as it completes.
 			// Local sessions skip the shallow pass since local readdir is fast
 			// enough that the overhead isn't worth it.
@@ -781,9 +781,12 @@ export function useFileTreeManagement(
 				onProgress,
 				onPhase: (phase, partial) => {
 					// Repaint progressively as phases complete so the user sees
-					// `.maestro` content show up before the rest of the tree.
+					// `.openwizardai` content show up before the rest of the tree.
 					if (isStale(sessionId, seq)) return;
-					const merged = spliceMaestroIntoTree(partial.rest ?? shallowTree ?? [], partial.maestro);
+					const merged = spliceOpenWizardAIIntoTree(
+						partial.rest ?? shallowTree ?? [],
+						partial.openwizardai
+					);
 					setSessions((prev) =>
 						prev.map((s) =>
 							s.id === sessionId && s.fileTreeLoading && stillAtRoot(s)
@@ -796,15 +799,15 @@ export function useFileTreeManagement(
 								: s
 						)
 					);
-					// Once .maestro has landed, we can safely signal initial ready.
-					if (phase === 'maestro') signalInitialFileTreeReady();
+					// Once .openwizardai has landed, we can safely signal initial ready.
+					if (phase === 'openwizardai') signalInitialFileTreeReady();
 				},
 			});
 
 			// Fetch stats independently - a directorySize failure (e.g., `du` timeout
 			// on large repos over SSH) should not prevent the file tree from loading.
 			// Stats update the UI asynchronously after the tree is already displayed.
-			window.maestro.fs
+			window.openwizardai.fs
 				.directorySize(
 					treeRoot,
 					sshContext?.sshRemoteId,
@@ -1006,7 +1009,7 @@ export function useFileTreeManagement(
 		const treeRoot = session.projectRoot || session.cwd;
 
 		// Fetch stats only (don't re-fetch tree)
-		window.maestro.fs
+		window.openwizardai.fs
 			.directorySize(
 				treeRoot,
 				sshContext?.sshRemoteId,

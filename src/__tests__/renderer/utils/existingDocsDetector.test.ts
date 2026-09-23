@@ -16,67 +16,67 @@ import {
 	getExistingAutoRunDocsCount,
 	ExistingDocument,
 } from '../../../renderer/utils/existingDocsDetector';
-import { PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 
-// Mock window.maestro.autorun API
+// Mock window.openwizardai.autorun API
 const mockAutorunApi = {
 	listDocs: vi.fn(),
 };
 
-// Store original window.maestro
-const originalMaestro = (global as any).window?.maestro;
+// Store original window.openwizardai
+const originalOpenWizardAI = (global as any).window?.openwizardai;
 
 describe('existingDocsDetector', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 
-		// Setup window.maestro mock
+		// Setup window.openwizardai mock
 		(global as any).window = {
-			maestro: {
+			openwizardai: {
 				autorun: mockAutorunApi,
 			},
 		};
 	});
 
 	afterEach(() => {
-		// Restore original window.maestro if it existed
-		if (originalMaestro) {
-			(global as any).window = { maestro: originalMaestro };
+		// Restore original window.openwizardai if it existed
+		if (originalOpenWizardAI) {
+			(global as any).window = { openwizardai: originalOpenWizardAI };
 		} else {
 			delete (global as any).window;
 		}
 	});
 
 	describe('PLAYBOOKS_DIR', () => {
-		it('equals ".maestro/playbooks"', () => {
-			expect(PLAYBOOKS_DIR).toBe('.maestro/playbooks');
+		it('equals ".openwizardai/playbooks"', () => {
+			expect(PLAYBOOKS_DIR).toBe('.openwizardai/playbooks');
 		});
 	});
 
 	describe('getAutoRunFolderPath', () => {
 		it('appends playbooks folder to project path', () => {
 			const result = getAutoRunFolderPath('/path/to/project');
-			expect(result).toBe('/path/to/project/.maestro/playbooks');
+			expect(result).toBe('/path/to/project/.openwizardai/playbooks');
 		});
 
 		it('handles trailing slash in project path', () => {
 			const result = getAutoRunFolderPath('/path/to/project/');
-			expect(result).toBe('/path/to/project/.maestro/playbooks');
+			expect(result).toBe('/path/to/project/.openwizardai/playbooks');
 		});
 
 		it('handles empty path', () => {
 			const result = getAutoRunFolderPath('');
-			expect(result).toBe('/.maestro/playbooks');
+			expect(result).toBe('/.openwizardai/playbooks');
 		});
 
 		it('handles home directory paths', () => {
 			const result = getAutoRunFolderPath('/Users/user/Projects/myapp');
-			expect(result).toBe('/Users/user/Projects/myapp/.maestro/playbooks');
+			expect(result).toBe('/Users/user/Projects/myapp/.openwizardai/playbooks');
 		});
 
 		it('handles Windows-style paths', () => {
 			const result = getAutoRunFolderPath('C:/Users/user/Projects');
-			expect(result).toBe('C:/Users/user/Projects/.maestro/playbooks');
+			expect(result).toBe('C:/Users/user/Projects/.openwizardai/playbooks');
 		});
 	});
 
@@ -90,7 +90,9 @@ describe('existingDocsDetector', () => {
 			const result = await hasExistingAutoRunDocs('/path/to/project');
 
 			expect(result).toBe(true);
-			expect(mockAutorunApi.listDocs).toHaveBeenCalledWith('/path/to/project/.maestro/playbooks');
+			expect(mockAutorunApi.listDocs).toHaveBeenCalledWith(
+				'/path/to/project/.openwizardai/playbooks'
+			);
 		});
 
 		it('returns false when no documents exist', async () => {
@@ -143,7 +145,9 @@ describe('existingDocsDetector', () => {
 			const result = await hasExistingAutoRunDocs('/path/to/project/');
 
 			expect(result).toBe(true);
-			expect(mockAutorunApi.listDocs).toHaveBeenCalledWith('/path/to/project/.maestro/playbooks');
+			expect(mockAutorunApi.listDocs).toHaveBeenCalledWith(
+				'/path/to/project/.openwizardai/playbooks'
+			);
 		});
 	});
 
@@ -160,12 +164,12 @@ describe('existingDocsDetector', () => {
 			expect(result[0]).toEqual({
 				name: 'phase-1',
 				filename: 'phase-1.md',
-				path: '/path/to/project/.maestro/playbooks/phase-1.md',
+				path: '/path/to/project/.openwizardai/playbooks/phase-1.md',
 			});
 			expect(result[1]).toEqual({
 				name: 'phase-2',
 				filename: 'phase-2.md',
-				path: '/path/to/project/.maestro/playbooks/phase-2.md',
+				path: '/path/to/project/.openwizardai/playbooks/phase-2.md',
 			});
 		});
 
@@ -372,7 +376,7 @@ describe('existingDocsDetector', () => {
 			await hasExistingAutoRunDocs('/Users/developer/Projects/my-awesome-app');
 
 			expect(mockAutorunApi.listDocs).toHaveBeenCalledWith(
-				'/Users/developer/Projects/my-awesome-app/.maestro/playbooks'
+				'/Users/developer/Projects/my-awesome-app/.openwizardai/playbooks'
 			);
 		});
 	});

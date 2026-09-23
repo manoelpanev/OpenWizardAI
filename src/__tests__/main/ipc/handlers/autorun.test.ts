@@ -970,7 +970,7 @@ describe('autorun IPC handlers', () => {
 			const result = await handler!({} as any, '/test/project');
 
 			expect(result.success).toBe(true);
-			expect(fs.rm).toHaveBeenCalledWith(path.join('/test/project', '.maestro/playbooks'), {
+			expect(fs.rm).toHaveBeenCalledWith(path.join('/test/project', '.openwizardai/playbooks'), {
 				recursive: true,
 				force: true,
 			});

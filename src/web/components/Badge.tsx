@@ -1,5 +1,5 @@
 /**
- * Badge component for Maestro web interface
+ * Badge component for OpenWizardAI web interface
  *
  * A reusable badge/status indicator component that supports multiple variants
  * and sizes. Ideal for showing session states, labels, and status information.
@@ -72,7 +72,7 @@ const sizeStyles: Record<BadgeSize, { className: string; borderRadius: string; d
 	};
 
 /**
- * Badge component for the Maestro web interface
+ * Badge component for the OpenWizardAI web interface
  *
  * @example
  * ```tsx

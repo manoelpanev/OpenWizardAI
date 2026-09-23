@@ -55,11 +55,11 @@ instead.
 ### From the Command Line
 
 ```bash
-maestro-cli open-graph docs/
-maestro-cli open-graph docs/a.md docs/b.md --focus docs/a.md
+openwizardai-cli open-graph docs/
+openwizardai-cli open-graph docs/a.md docs/b.md --focus docs/a.md
 ```
 
-See [open-graph](/cli-reference#maestro-cli-open-graph-paths) for the full
+See [open-graph](/cli-reference#openwizardai-cli-open-graph-paths) for the full
 options.
 
 ### Using Go to File

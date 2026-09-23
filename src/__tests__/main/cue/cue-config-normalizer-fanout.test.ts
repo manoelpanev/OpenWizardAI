@@ -23,7 +23,7 @@ let projectRoot = '';
 
 beforeEach(() => {
 	projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cue-fanout-norm-'));
-	fs.mkdirSync(path.join(projectRoot, '.maestro/prompts'), { recursive: true });
+	fs.mkdirSync(path.join(projectRoot, '.openwizardai/prompts'), { recursive: true });
 });
 
 afterEach(() => {
@@ -38,9 +38,9 @@ function writePrompt(relativePath: string, content: string) {
 
 describe('normalizer - fan_out_prompt_files resolution', () => {
 	it('expands fan_out_prompt_files into fan_out_prompts at load time', () => {
-		writePrompt('.maestro/prompts/codex_1-pipeline_1.md', 'codex work');
-		writePrompt('.maestro/prompts/opencode_1-pipeline_1.md', 'opencode work');
-		writePrompt('.maestro/prompts/claude_1-pipeline_1.md', 'claude work');
+		writePrompt('.openwizardai/prompts/codex_1-pipeline_1.md', 'codex work');
+		writePrompt('.openwizardai/prompts/opencode_1-pipeline_1.md', 'opencode work');
+		writePrompt('.openwizardai/prompts/claude_1-pipeline_1.md', 'claude work');
 
 		const raw = yaml.dump({
 			subscriptions: [
@@ -49,9 +49,9 @@ describe('normalizer - fan_out_prompt_files resolution', () => {
 					event: 'app.startup',
 					fan_out: ['Codex 1', 'OpenCode 1', 'Claude 1'],
 					fan_out_prompt_files: [
-						'.maestro/prompts/codex_1-pipeline_1.md',
-						'.maestro/prompts/opencode_1-pipeline_1.md',
-						'.maestro/prompts/claude_1-pipeline_1.md',
+						'.openwizardai/prompts/codex_1-pipeline_1.md',
+						'.openwizardai/prompts/opencode_1-pipeline_1.md',
+						'.openwizardai/prompts/claude_1-pipeline_1.md',
 					],
 				},
 			],
@@ -66,9 +66,9 @@ describe('normalizer - fan_out_prompt_files resolution', () => {
 		// The raw file list survives materialization so the UI can edit
 		// individual files without losing their paths.
 		expect(sub.fan_out_prompt_files).toEqual([
-			'.maestro/prompts/codex_1-pipeline_1.md',
-			'.maestro/prompts/opencode_1-pipeline_1.md',
-			'.maestro/prompts/claude_1-pipeline_1.md',
+			'.openwizardai/prompts/codex_1-pipeline_1.md',
+			'.openwizardai/prompts/opencode_1-pipeline_1.md',
+			'.openwizardai/prompts/claude_1-pipeline_1.md',
 		]);
 	});
 
@@ -94,8 +94,8 @@ describe('normalizer - fan_out_prompt_files resolution', () => {
 
 	it('falls back to inline array at the same index when a file is missing', () => {
 		// First file exists, second is missing on disk, third exists.
-		writePrompt('.maestro/prompts/a.md', 'A from file');
-		writePrompt('.maestro/prompts/c.md', 'C from file');
+		writePrompt('.openwizardai/prompts/a.md', 'A from file');
+		writePrompt('.openwizardai/prompts/c.md', 'C from file');
 
 		const raw = yaml.dump({
 			subscriptions: [
@@ -104,9 +104,9 @@ describe('normalizer - fan_out_prompt_files resolution', () => {
 					event: 'app.startup',
 					fan_out: ['A', 'B', 'C'],
 					fan_out_prompt_files: [
-						'.maestro/prompts/a.md',
-						'.maestro/prompts/missing.md',
-						'.maestro/prompts/c.md',
+						'.openwizardai/prompts/a.md',
+						'.openwizardai/prompts/missing.md',
+						'.openwizardai/prompts/c.md',
 					],
 					// Author dual-wrote inline as a defensive fallback.
 					fan_out_prompts: ['A inline', 'B inline', 'C inline'],
@@ -123,7 +123,7 @@ describe('normalizer - fan_out_prompt_files resolution', () => {
 	});
 
 	it('returns empty string for missing files when no inline fallback is present', () => {
-		writePrompt('.maestro/prompts/a.md', 'A content');
+		writePrompt('.openwizardai/prompts/a.md', 'A content');
 		// b.md deliberately NOT written
 
 		const raw = yaml.dump({
@@ -132,7 +132,7 @@ describe('normalizer - fan_out_prompt_files resolution', () => {
 					name: 'Partial',
 					event: 'app.startup',
 					fan_out: ['A', 'B'],
-					fan_out_prompt_files: ['.maestro/prompts/a.md', '.maestro/prompts/b.md'],
+					fan_out_prompt_files: ['.openwizardai/prompts/a.md', '.openwizardai/prompts/b.md'],
 				},
 			],
 		});

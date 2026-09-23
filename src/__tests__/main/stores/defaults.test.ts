@@ -12,7 +12,7 @@ import {
 	CLAUDE_SESSION_ORIGINS_DEFAULTS,
 	AGENT_SESSION_ORIGINS_DEFAULTS,
 } from '../../../main/stores/defaults';
-import { MAESTRO_FONT_STACK } from '../../../shared/fontStack';
+import { OPENWIZARDAI_FONT_STACK } from '../../../shared/fontStack';
 import { DEFAULT_CUE_HISTORY_RETENTION_DAYS } from '../../../shared/cue/retention';
 
 describe('stores/defaults', () => {
@@ -135,11 +135,11 @@ describe('stores/defaults', () => {
 		});
 
 		it('should have correct default fontFamily', () => {
-			// The default must name the family Maestro actually BUNDLES
+			// The default must name the family OpenWizardAI actually BUNDLES
 			// (src/renderer/public/fonts/), and must match what the splash screen
 			// paints with before React mounts. When it named Roboto Mono instead,
 			// the window visibly changed font the moment React took over.
-			expect(SETTINGS_DEFAULTS.fontFamily).toBe(MAESTRO_FONT_STACK);
+			expect(SETTINGS_DEFAULTS.fontFamily).toBe(OPENWIZARDAI_FONT_STACK);
 		});
 
 		it('should have empty customFonts by default', () => {

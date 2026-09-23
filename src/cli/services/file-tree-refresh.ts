@@ -14,14 +14,14 @@
  *    a cosmetic refresh could not be delivered would be a lie.
  */
 
-import { withMaestroClient } from './maestro-client';
+import { withOpenWizardAIClient } from './openwizardai-client';
 import { resolveOwningAgent } from '../utils/owning-agent';
 
 /** Ask the desktop to re-read one agent's working directory. */
 export async function refreshFileTreeFor(
 	sessionId: string
 ): Promise<{ success: boolean; error?: string }> {
-	const result = await withMaestroClient(async (client) =>
+	const result = await withOpenWizardAIClient(async (client) =>
 		client.sendCommand<{ type: string; success: boolean; error?: string }>(
 			{ type: 'refresh_file_tree', sessionId },
 			'refresh_file_tree_result'
@@ -50,7 +50,7 @@ export async function nudgeFileTreeForPaths(paths: string[]): Promise<string[]> 
 	try {
 		// One connection for the whole set: a save of twenty images into one
 		// project should not open twenty sockets.
-		await withMaestroClient(async (client) => {
+		await withOpenWizardAIClient(async (client) => {
 			for (const sessionId of sessionIds) {
 				try {
 					await client.sendCommand<{ success: boolean }>(

@@ -1,6 +1,6 @@
 /**
  * Tests for CueEngine.saveSettings() - the path used by Settings → Encore
- * Features → Maestro Cue to persist global settings to every known cue.yaml
+ * Features → OpenWizardAI Cue to persist global settings to every known cue.yaml
  * on disk and refresh in-memory engine state.
  *
  * Covers:
@@ -72,13 +72,13 @@ vi.mock('../../../main/cue/config/cue-config-repository', () => ({
 	// resolveCueConfigPath is consumed by cue-session-runtime-service to gate
 	// which sessions get a cue.yaml watcher set up. Return a synthetic path so
 	// every session passes the gate during engine.start().
-	resolveCueConfigPath: (root: string) => `${root}/.maestro/cue.yaml`,
+	resolveCueConfigPath: (root: string) => `${root}/.openwizardai/cue.yaml`,
 	watchCueConfigFile: vi.fn(() => () => {}),
 	writeCuePromptFile: vi.fn(),
 	deleteCueConfigFile: vi.fn(),
 	pruneOrphanedPromptFiles: vi.fn(() => []),
 	removeEmptyPromptsDir: vi.fn(() => false),
-	removeEmptyMaestroDir: vi.fn(() => false),
+	removeEmptyOpenWizardAIDir: vi.fn(() => false),
 }));
 
 // Mock sentry so caught errors don't try to invoke the real exporter.
@@ -124,7 +124,7 @@ describe('CueEngine.saveSettings', () => {
 		]);
 
 		mockReadCueConfigFile.mockImplementation((root: string) => ({
-			filePath: `${root}/.maestro/cue.yaml`,
+			filePath: `${root}/.openwizardai/cue.yaml`,
 			raw: yaml.dump({
 				settings: {
 					timeout_minutes: 30,
@@ -156,7 +156,7 @@ describe('CueEngine.saveSettings', () => {
 		]);
 
 		mockReadCueConfigFile.mockReturnValue({
-			filePath: '/shared/.maestro/cue.yaml',
+			filePath: '/shared/.openwizardai/cue.yaml',
 			raw: yaml.dump({ settings: {}, subscriptions: [] }),
 		});
 
@@ -188,7 +188,7 @@ describe('CueEngine.saveSettings', () => {
 			no_ancestor_fallback: true,
 		});
 		mockReadCueConfigFile.mockReturnValue({
-			filePath: '/proj/.maestro/cue.yaml',
+			filePath: '/proj/.openwizardai/cue.yaml',
 			raw: existingYaml,
 		});
 
@@ -236,7 +236,7 @@ describe('CueEngine.saveSettings', () => {
 			],
 		});
 		mockReadCueConfigFile.mockReturnValue({
-			filePath: '/proj/.maestro/cue.yaml',
+			filePath: '/proj/.openwizardai/cue.yaml',
 			raw: existingYaml,
 		});
 
@@ -269,7 +269,7 @@ describe('CueEngine.saveSettings', () => {
 		const engine = startEngineWithSessions([{ id: 's1', projectRoot: '/proj', config: cfg }]);
 
 		mockReadCueConfigFile.mockReturnValue({
-			filePath: '/proj/.maestro/cue.yaml',
+			filePath: '/proj/.openwizardai/cue.yaml',
 			raw: yaml.dump({ settings: {}, subscriptions: [] }),
 		});
 
@@ -315,7 +315,7 @@ describe('CueEngine.saveSettings', () => {
 		mockReadCueConfigFile.mockImplementation((root: string) => {
 			if (root === '/no-yaml') return null;
 			return {
-				filePath: `${root}/.maestro/cue.yaml`,
+				filePath: `${root}/.openwizardai/cue.yaml`,
 				raw: yaml.dump({ settings: {}, subscriptions: [] }),
 			};
 		});
@@ -342,7 +342,7 @@ describe('CueEngine.saveSettings', () => {
 		mockReadCueConfigFile.mockImplementation((root: string) => {
 			if (root === '/bad') throw new Error('EACCES: permission denied');
 			return {
-				filePath: `${root}/.maestro/cue.yaml`,
+				filePath: `${root}/.openwizardai/cue.yaml`,
 				raw: yaml.dump({ settings: {}, subscriptions: [] }),
 			};
 		});

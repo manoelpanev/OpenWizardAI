@@ -78,7 +78,7 @@ export function useBatchControlActions({
 		(sessionId: string, error: AgentError, documentIndex: number, taskDescription?: string) => {
 			if (!isMountedRef.current) return;
 
-			window.maestro.logger.autorun(
+			window.openwizardai.logger.autorun(
 				`Auto Run paused due to ${error.type}: ${error.message}`,
 				sessionId,
 				{
@@ -128,7 +128,7 @@ export function useBatchControlActions({
 		(sessionId: string) => {
 			if (!isMountedRef.current) return;
 
-			window.maestro.logger.autorun(`Skipping document after error`, sessionId, {});
+			window.openwizardai.logger.autorun(`Skipping document after error`, sessionId, {});
 
 			dispatch({ type: 'CLEAR_ERROR', sessionId });
 			const currentState = useBatchStore.getState().batchRunStates[sessionId];
@@ -158,7 +158,7 @@ export function useBatchControlActions({
 		(sessionId: string) => {
 			if (!isMountedRef.current) return;
 
-			window.maestro.logger.autorun(`Resuming Auto Run after error resolution`, sessionId, {});
+			window.openwizardai.logger.autorun(`Resuming Auto Run after error resolution`, sessionId, {});
 
 			dispatch({ type: 'CLEAR_ERROR', sessionId });
 			const currentState = useBatchStore.getState().batchRunStates[sessionId];
@@ -189,7 +189,7 @@ export function useBatchControlActions({
 		(sessionId: string) => {
 			if (!isMountedRef.current) return;
 
-			window.maestro.logger.autorun(`Auto Run aborted due to error`, sessionId, {});
+			window.openwizardai.logger.autorun(`Auto Run aborted due to error`, sessionId, {});
 
 			stopRequestedRefs.current[sessionId] = true;
 			const errorResolution = errorResolutionRefs.current[sessionId];

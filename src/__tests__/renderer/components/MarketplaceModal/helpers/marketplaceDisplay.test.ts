@@ -14,7 +14,7 @@ describe('MarketplaceModal helpers', () => {
 		const incompatible = makePlaybook({
 			id: 'b',
 			title: 'B',
-			minMaestroVersion: '99.0.0',
+			minOpenWizardAIVersion: '99.0.0',
 		});
 		const compatibleC = makePlaybook({ id: 'c', title: 'C' });
 

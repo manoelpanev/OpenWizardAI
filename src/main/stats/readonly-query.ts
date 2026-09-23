@@ -1,7 +1,7 @@
 /**
  * Read-only SQL access to the stats database.
  *
- * Powers `maestro-cli stats-query`, letting an agent or external caller run
+ * Powers `openwizardai-cli stats-query`, letting an agent or external caller run
  * arbitrary read-only SQL against the Usage Dashboard's SQLite store to answer
  * ad-hoc questions and generate dynamic charts.
  *

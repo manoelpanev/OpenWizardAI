@@ -23,10 +23,10 @@ import { ToggleSwitchTrack } from '../ui/ToggleSwitch';
 import { CUE_COLOR } from '../../../shared/cue-pipeline-types';
 
 /** Tab ids. Kept in sync with the `cue` entry in `shared/uiSurfaces.ts`, which
- *  is what `maestro-cli open cue --tab <id>` deep-links against.
+ *  is what `openwizardai-cli open cue --tab <id>` deep-links against.
  *
  *  `pipeline` is the graph canvas. Its id predates the "Pipeline Graph" label
- *  and is deliberately unchanged: saved deep links, `maestro-cli open cue
+ *  and is deliberately unchanged: saved deep links, `openwizardai-cli open cue
  *  --tab pipeline`, and the YAML editor's nav button all address it by id. */
 export type CueModalTab =
 	| 'dashboard'
@@ -80,14 +80,14 @@ function CueModalHeaderInner({
 				<div className="flex items-center gap-2">
 					<Zap className="w-5 h-5" style={{ color: CUE_COLOR }} />
 					<h2 className="text-base font-bold" style={{ color: theme.colors.textMain }}>
-						OpenWizzard Cue
+						OpenWizardAI Cue
 					</h2>
 					{/* Help button - opens the guide as a layered modal */}
 					<button
 						onClick={onOpenHelp}
 						className="p-1 rounded hover:bg-white/10 transition-colors"
 						aria-label="Open help"
-						title="About OpenWizzard Cue"
+						title="About OpenWizardAI Cue"
 						style={{ color: theme.colors.textDim }}
 					>
 						<HelpCircle className="w-4 h-4" />

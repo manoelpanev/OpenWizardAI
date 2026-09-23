@@ -599,7 +599,7 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 		};
 
 		logger.info('[BatchRunnerModal] handleGo - calling onGo with config:', undefined, config);
-		window.maestro.logger.log('info', 'Go button clicked', 'BatchRunnerModal', {
+		window.openwizardai.logger.log('info', 'Go button clicked', 'BatchRunnerModal', {
 			documentsCount: validDocuments.length,
 		});
 
@@ -636,7 +636,7 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 			className="fixed inset-0 modal-overlay flex items-center justify-center z-[9999] animate-in fade-in duration-200"
 			role="dialog"
 			aria-modal="true"
-			aria-label="OpenWizzard Auto Run"
+			aria-label="OpenWizardAI Auto Run"
 			tabIndex={-1}
 		>
 			<div
@@ -664,13 +664,13 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 					<div className="flex items-center gap-2">
 						<PlayCircle className="w-5 h-5" style={{ color: theme.colors.accent }} />
 						<h2 className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-							OpenWizzard Auto Run
+							OpenWizardAI Auto Run
 						</h2>
 						<button
 							onClick={() => setShowHelp(true)}
 							className="p-1 rounded hover:bg-white/10 transition-colors"
 							aria-label="Open help"
-							title="About OpenWizzard Auto Run"
+							title="About OpenWizardAI Auto Run"
 							style={{ color: theme.colors.textDim }}
 						>
 							<HelpCircle className="w-4 h-4" />
@@ -806,7 +806,7 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 							)}
 
 							{/* Import Playbook - always visible so users with zero existing
-							    playbooks can still import a .maestro-playbook.zip. Previously
+							    playbooks can still import a .openwizardai-playbook.zip. Previously
 							    lived inside the Load Playbook dropdown, which only renders when
 							    at least one playbook exists - making the entry point unreachable
 							    on fresh worktrees / first-time users. */}
@@ -814,7 +814,7 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 								onClick={handleImportPlaybook}
 								className="flex items-center gap-2 px-3 py-1.5 rounded-lg border hover:bg-white/5 transition-colors"
 								style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
-								title="Import a playbook from a .maestro-playbook.zip file"
+								title="Import a playbook from a .openwizardai-playbook.zip file"
 							>
 								<Upload className="w-4 h-4" style={{ color: theme.colors.accent }} />
 								<span className="text-sm">Import Playbook</span>

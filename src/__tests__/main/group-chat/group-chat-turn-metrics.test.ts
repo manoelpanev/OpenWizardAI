@@ -87,12 +87,15 @@ describe('group-chat-turn-metrics', () => {
 
 	it('keeps parallel participants apart', () => {
 		beginGroupChatTurn(`group-chat-${CHAT}-participant-rc-1`);
-		beginGroupChatTurn(`group-chat-${CHAT}-participant-Maestro-2`);
+		beginGroupChatTurn(`group-chat-${CHAT}-participant-OpenWizardAI-2`);
 		recordGroupChatTurnUsage(`group-chat-${CHAT}-participant-rc-1`, usage({ inputTokens: 500 }));
-		recordGroupChatTurnUsage(`group-chat-${CHAT}-participant-Maestro-2`, usage({ inputTokens: 7 }));
+		recordGroupChatTurnUsage(
+			`group-chat-${CHAT}-participant-OpenWizardAI-2`,
+			usage({ inputTokens: 7 })
+		);
 
 		expect(finishGroupChatTurn(CHAT, 'rc').tokenCount).toBe(500);
-		expect(finishGroupChatTurn(CHAT, 'Maestro').tokenCount).toBe(7);
+		expect(finishGroupChatTurn(CHAT, 'OpenWizardAI').tokenCount).toBe(7);
 	});
 
 	it('reports nothing at all when no turn is in flight', () => {

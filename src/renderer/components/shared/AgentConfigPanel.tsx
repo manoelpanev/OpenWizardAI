@@ -9,7 +9,7 @@
  * - Custom path input
  * - Custom arguments input
  * - Environment variables (key-value pairs)
- * - Built-in environment variables (MAESTRO_SESSION_RESUMED)
+ * - Built-in environment variables (OPENWIZARDAI_SESSION_RESUMED)
  * - Agent-specific config options (contextWindow, model, etc.)
  */
 
@@ -24,14 +24,14 @@ import {
 	type ClaudeTokenMode,
 } from '../../../shared/claudeTokenMode';
 import { readOpenCodeAgentArg, writeOpenCodeAgentArg } from '../../../shared/opencodeAgentArg';
-import { useRemoteMaestroPAvailable } from '../../hooks/agent/useRemoteMaestroPAvailable';
+import { useRemoteOpenWizardAIPAvailable } from '../../hooks/agent/useRemoteOpenWizardAIPAvailable';
 import { openUrl } from '../../utils/openUrl';
 import { logger } from '../../utils/logger';
 import { EnvVarKeyInput } from './EnvVarKeyInput';
 import { BLANK_ENV_VAR_KEY } from '../../../shared/envVarCatalog';
 import { useKnownEnvVarKeys } from '../../hooks/agent/useKnownEnvVarKeys';
 
-const MAESTRO_P_INSTALL_URL = 'https://runmaestro.ai/maestro-p/';
+const OPENWIZARDAI_P_INSTALL_URL = 'https://github.com/manoelpanev/OpenWizardAI';
 
 // Sentinel value for the installation chooser's "Custom" entry, used when the
 // active path was typed by hand and isn't one of the auto-detected locations.
@@ -50,14 +50,14 @@ const CLAUDE_TOKEN_MODE_OPTIONS: { value: ClaudeTokenMode; label: string }[] = [
 
 const CLAUDE_TOKEN_MODE_HINTS: Record<ClaudeTokenMode, string> = {
 	api: 'Always use claude --print (per-token API credit).',
-	interactive: 'Always drive the maestro-p TUI against your Max plan quota.',
+	interactive: 'Always drive the openwizardai-p TUI against your Max plan quota.',
 	dynamic: 'Start on the Max plan TUI, then auto-switch to API when the quota is near exhaustion.',
 };
 
-// Built-in environment variables that Maestro sets automatically
+// Built-in environment variables that OpenWizardAI sets automatically
 const BUILT_IN_ENV_VARS: { key: string; description: string; value: string }[] = [
 	{
-		key: 'MAESTRO_SESSION_RESUMED',
+		key: 'OPENWIZARDAI_SESSION_RESUMED',
 		description:
 			'Set to "1" when resuming an existing session. Not set for new sessions. Use this in your agent hooks to skip initialization on resumed sessions.',
 		value: '1 (when resuming)',
@@ -358,23 +358,23 @@ export interface AgentConfigPanelProps {
 	isSshEnabled?: boolean;
 	/**
 	 * SSH remote id for this session. When set (and SSH enabled), the panel
-	 * probes the remote for `maestro-p` and disables the TUI token-source option
+	 * probes the remote for `openwizardai-p` and disables the TUI token-source option
 	 * when it's absent there. Omit for local agents.
 	 */
 	sshRemoteId?: string;
 	// === Claude Code Batch Mode (claude-code agent only) ===
-	// When true, the spawner auto-switches between maestro-p (Time Limits) and
+	// When true, the spawner auto-switches between openwizardai-p (Time Limits) and
 	// `claude --print` (API Limits) based on the latest usage snapshot. Off by default.
-	enableMaestroP?: boolean;
-	onEnableMaestroPChange?: (value: boolean) => void;
-	/** Refinement of the maestro-p opt-in: always-TUI ('interactive') vs auto-switch ('dynamic'). */
-	maestroPMode?: 'interactive' | 'dynamic';
-	onMaestroPModeChange?: (mode: 'interactive' | 'dynamic') => void;
-	maestroPPath?: string;
-	onMaestroPPathChange?: (value: string) => void;
-	onMaestroPPathBlur?: () => void;
-	/** Auto-detected maestro-p path shown as helper text when `maestroPPath` is empty. */
-	detectedMaestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	onEnableOpenWizardAIPChange?: (value: boolean) => void;
+	/** Refinement of the openwizardai-p opt-in: always-TUI ('interactive') vs auto-switch ('dynamic'). */
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	onOpenWizardAIPModeChange?: (mode: 'interactive' | 'dynamic') => void;
+	openwizardaiPPath?: string;
+	onOpenWizardAIPPathChange?: (value: string) => void;
+	onOpenWizardAIPPathBlur?: () => void;
+	/** Auto-detected openwizardai-p path shown as helper text when `openwizardaiPPath` is empty. */
+	detectedOpenWizardAIPPath?: string;
 	/** Last resolved Claude headless-mode state for this session. When provided and Adaptive Mode is on,
 	 *  the panel renders a small pill next to the toggle so the user can see whether the spawner is
 	 *  currently on Time Limits (Max plan) or has fallen back to API Limits. */
@@ -418,14 +418,14 @@ export function AgentConfigPanel({
 	// Left undefined when never configured (NOT coerced to false): getClaudeTokenMode
 	// reads that "unset" state to default an SSH agent to the TUI. An explicit
 	// false (user picked API) collapses to api as usual.
-	enableMaestroP,
-	onEnableMaestroPChange,
-	maestroPMode,
-	onMaestroPModeChange,
-	maestroPPath = '',
-	onMaestroPPathChange,
-	onMaestroPPathBlur,
-	detectedMaestroPPath,
+	enableOpenWizardAIP,
+	onEnableOpenWizardAIPChange,
+	openwizardaiPMode,
+	onOpenWizardAIPModeChange,
+	openwizardaiPPath = '',
+	onOpenWizardAIPPathChange,
+	onOpenWizardAIPPathBlur,
+	detectedOpenWizardAIPPath,
 	claudeInteractive,
 }: AgentConfigPanelProps): JSX.Element {
 	const callOnConfigBlurSafely = (key: string, committedValue: any) => {
@@ -438,44 +438,45 @@ export function AgentConfigPanel({
 	};
 	const padding = compact ? 'p-2' : 'p-3';
 	const spacing = compact ? 'space-y-2' : 'space-y-3';
-	// Probe the SSH remote for maestro-p. When it's known-absent the remote can't
+	// Probe the SSH remote for openwizardai-p. When it's known-absent the remote can't
 	// run the TUI, so the TUI option is disabled and the agent defaults to API
 	// (mirrors resolveClaudeSpawnMode, which falls a remote TUI spawn back to api).
 	// undefined = unknown (not SSH, still probing, or unreachable): stay optimistic.
 	const {
-		available: remoteMaestroPAvailable,
-		isProbing: remoteMaestroPProbing,
-		refresh: refreshRemoteMaestroP,
-	} = useRemoteMaestroPAvailable(isSshEnabled ? sshRemoteId : undefined);
-	const remoteMaestroPMissing = isSshEnabled && remoteMaestroPAvailable === false;
-	// Collapse the stored (enableMaestroP, maestroPMode) pair into the tri-state the
+		available: remoteOpenWizardAIPAvailable,
+		isProbing: remoteOpenWizardAIPProbing,
+		refresh: refreshRemoteOpenWizardAIP,
+	} = useRemoteOpenWizardAIPAvailable(isSshEnabled ? sshRemoteId : undefined);
+	const remoteOpenWizardAIPMissing = isSshEnabled && remoteOpenWizardAIPAvailable === false;
+	// Collapse the stored (enableOpenWizardAIP, openwizardaiPMode) pair into the tri-state the
 	// segmented "Claude Token Source" selector renders. Source not API => show the
-	// maestro-p path input and the live Time/API-limits pill.
+	// openwizardai-p path input and the live Time/API-limits pill.
 	// Over SSH an unconfigured agent defaults to the TUI (Max plan), so pass the
 	// SSH flag through - getClaudeTokenMode flips the unset default from api to
-	// interactive for remote, except when the remote has no maestro-p.
+	// interactive for remote, except when the remote has no openwizardai-p.
 	const claudeTokenMode = getClaudeTokenMode(
-		{ enableMaestroP, maestroPMode },
-		{ sshEnabled: isSshEnabled, sshMaestroPAvailable: remoteMaestroPAvailable }
+		{ enableOpenWizardAIP, openwizardaiPMode },
+		{ sshEnabled: isSshEnabled, sshOpenWizardAIPAvailable: remoteOpenWizardAIPAvailable }
 	);
 	// SSH-remote agents only offer TUI / API, never Dynamic: the auto-switch
 	// reads a LOCAL usage snapshot that says nothing about the remote account's
 	// quota, so there's no honest signal to switch on. Drop the Dynamic segment
 	// and, when a stored Dynamic value meets SSH, display (and behave) as API -
 	// mirroring resolveClaudeSpawnMode, which falls a dynamic+SSH spawn back to
-	// api. Also drop TUI when the remote has no maestro-p to run it. The stored
+	// api. Also drop TUI when the remote has no openwizardai-p to run it. The stored
 	// preference is left untouched so disabling SSH restores it.
 	const claudeTokenModeOptions = isSshEnabled
 		? CLAUDE_TOKEN_MODE_OPTIONS.filter(
-				(o) => o.value !== 'dynamic' && !(remoteMaestroPMissing && o.value === 'interactive')
+				(o) => o.value !== 'dynamic' && !(remoteOpenWizardAIPMissing && o.value === 'interactive')
 			)
 		: CLAUDE_TOKEN_MODE_OPTIONS;
 	const displayClaudeTokenMode: ClaudeTokenMode =
 		isSshEnabled &&
-		(claudeTokenMode === 'dynamic' || (remoteMaestroPMissing && claudeTokenMode === 'interactive'))
+		(claudeTokenMode === 'dynamic' ||
+			(remoteOpenWizardAIPMissing && claudeTokenMode === 'interactive'))
 			? 'api'
 			: claudeTokenMode;
-	const showMaestroPDetails = displayClaudeTokenMode !== 'api';
+	const showOpenWizardAIPDetails = displayClaudeTokenMode !== 'api';
 	// Track which built-in env var tooltip is showing
 	const knownEnvVarKeys = useKnownEnvVarKeys();
 	// Set when the user presses "Add Variable", cleared once the new unnamed row
@@ -676,14 +677,14 @@ export function AgentConfigPanel({
 			</div>
 
 			{/* Claude Token Source selector - Claude Code only. Picks how this agent
-			    spends Claude quota: API (claude --print, per-token), TUI (maestro-p
+			    spends Claude quota: API (claude --print, per-token), TUI (openwizardai-p
 			    driving the Claude TUI against the Max plan), or Dynamic (start on the
 			    TUI, fall back to API when the 5-hour or weekly window is near
 			    exhaustion, then snap back once both windows reset). Over SSH only
 			    API / TUI are offered (Dynamic needs a local quota snapshot that
-			    doesn't reflect the remote account) and maestro-p runs on the remote
-			    host's PATH, so the local OpenWizzard-P Path override is hidden. */}
-			{agent.id === 'claude-code' && onEnableMaestroPChange && (
+			    doesn't reflect the remote account) and openwizardai-p runs on the remote
+			    host's PATH, so the local OpenWizardAI-P Path override is hidden. */}
+			{agent.id === 'claude-code' && onEnableOpenWizardAIPChange && (
 				<div
 					className={`${padding} rounded border`}
 					style={{ borderColor: theme.colors.border, backgroundColor: theme.colors.bgMain }}
@@ -697,18 +698,20 @@ export function AgentConfigPanel({
 								type="button"
 								onClick={(e) => {
 									e.stopPropagation();
-									refreshRemoteMaestroP();
+									refreshRemoteOpenWizardAIP();
 								}}
-								disabled={remoteMaestroPProbing}
-								title="Re-check whether maestro-p is installed on the remote host"
+								disabled={remoteOpenWizardAIPProbing}
+								title="Re-check whether openwizardai-p is installed on the remote host"
 								className="flex items-center gap-1 text-2xs px-1.5 py-0.5 rounded border disabled:opacity-50"
 								style={{ borderColor: theme.colors.border, color: theme.colors.textDim }}
 							>
-								<RefreshCw className={`w-3 h-3 ${remoteMaestroPProbing ? 'animate-spin' : ''}`} />
+								<RefreshCw
+									className={`w-3 h-3 ${remoteOpenWizardAIPProbing ? 'animate-spin' : ''}`}
+								/>
 								Re-check
 							</button>
 						)}
-						{showMaestroPDetails && claudeInteractive && (
+						{showOpenWizardAIPDetails && claudeInteractive && (
 							<span
 								className="text-2xs font-mono px-1.5 py-0.5 rounded whitespace-nowrap"
 								style={{
@@ -733,61 +736,62 @@ export function AgentConfigPanel({
 						value={displayClaudeTokenMode}
 						onChange={(mode) => {
 							const src = toClaudeTokenModeSource(mode);
-							onEnableMaestroPChange(src.enableMaestroP);
-							onMaestroPModeChange?.(src.maestroPMode);
+							onEnableOpenWizardAIPChange(src.enableOpenWizardAIP);
+							onOpenWizardAIPModeChange?.(src.openwizardaiPMode);
 						}}
 						theme={theme}
 					/>
 					<p className="text-xs opacity-50 mt-2">
 						{CLAUDE_TOKEN_MODE_HINTS[displayClaudeTokenMode]}
 						{isSshEnabled && displayClaudeTokenMode === 'interactive'
-							? ' Runs maestro-p on the remote host (must be on its PATH).'
+							? ' Runs openwizardai-p on the remote host (must be on its PATH).'
 							: ''}
 					</p>
-					{remoteMaestroPMissing && (
+					{remoteOpenWizardAIPMissing && (
 						<p
 							className="text-xs mt-2"
 							style={{ color: theme.colors.warning ?? theme.colors.accent }}
 						>
-							TUI (Max plan) is unavailable: maestro-p was not found on the remote host&apos;s PATH.{' '}
+							TUI (Max plan) is unavailable: openwizardai-p was not found on the remote host&apos;s
+							PATH.{' '}
 							<button
 								type="button"
 								onClick={(e) => {
 									e.stopPropagation();
-									openUrl(MAESTRO_P_INSTALL_URL, { ctrlKey: e.ctrlKey || e.metaKey });
+									openUrl(OPENWIZARDAI_P_INSTALL_URL, { ctrlKey: e.ctrlKey || e.metaKey });
 								}}
 								className="underline hover:no-underline"
 								style={{ color: 'inherit' }}
 							>
-								Install maestro-p
+								Install openwizardai-p
 							</button>{' '}
 							there to drive the Claude TUI, or use API.
 						</p>
 					)}
-					{/* Local Maestro-P Path override is local-only: over SSH maestro-p
+					{/* Local OpenWizardAI-P Path override is local-only: over SSH openwizardai-p
 					    is resolved as a bare command on the remote PATH, so hide it. */}
-					{showMaestroPDetails && !isSshEnabled && (
+					{showOpenWizardAIPDetails && !isSshEnabled && (
 						<div className="mt-3">
 							<label
 								className="block text-xs font-medium mb-2"
 								style={{ color: theme.colors.textDim }}
 							>
-								OpenWizzard-P Path (optional)
+								OpenWizardAI-P Path (optional)
 							</label>
 							<input
 								type="text"
-								value={maestroPPath}
-								onChange={(e) => onMaestroPPathChange?.(e.target.value)}
-								onBlur={onMaestroPPathBlur}
+								value={openwizardaiPPath}
+								onChange={(e) => onOpenWizardAIPPathChange?.(e.target.value)}
+								onBlur={onOpenWizardAIPPathBlur}
 								onClick={(e) => e.stopPropagation()}
-								placeholder={detectedMaestroPPath ?? '/path/to/maestro-p'}
+								placeholder={detectedOpenWizardAIPPath ?? '/path/to/openwizardai-p'}
 								className="w-full p-2 rounded border bg-transparent outline-none text-xs font-mono"
 								style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
 							/>
 							<p className="text-xs opacity-50 mt-2">
-								{detectedMaestroPPath
-									? `Auto-detected: ${detectedMaestroPPath}. Override only if you want a different build.`
-									: 'No bundled maestro-p found. Point this at a built copy or rebuild OpenWizzard.'}
+								{detectedOpenWizardAIPPath
+									? `Auto-detected: ${detectedOpenWizardAIPPath}. Override only if you want a different build.`
+									: 'No bundled openwizardai-p found. Point this at a built copy or rebuild OpenWizardAI.'}
 							</p>
 						</div>
 					)}
@@ -823,7 +827,7 @@ export function AgentConfigPanel({
 					/>
 					<p className="text-xs opacity-50 mt-2">
 						Runs as <span className="font-mono">opencode run --agent &lt;name&gt;</span> so this
-						OpenWizzard agent keeps that OpenCode agent&apos;s persona, model, and instructions.
+						OpenWizardAI agent keeps that OpenCode agent&apos;s persona, model, and instructions.
 						Accepts plugin-provided agents (oh-my-opencode and friends), which OpenCode resolves at
 						run time even when <span className="font-mono">opencode agent list</span> does not show
 						them. The value is stored in Custom Arguments below. Plan mode still forces{' '}

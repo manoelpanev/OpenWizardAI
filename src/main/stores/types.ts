@@ -44,7 +44,7 @@ export interface BootstrapSettings {
 // Settings Store
 // ============================================================================
 
-export interface MaestroSettings {
+export interface OpenWizardAISettings {
 	activeThemeId: string;
 	shortcuts: Record<string, any>;
 	fontSize: number;
@@ -108,7 +108,7 @@ export interface MaestroSettings {
 	wakatimeDetailedTracking: boolean;
 	// Standalone hands-on time tracker (migrated from globalStats.totalActiveTimeMs)
 	totalActiveTimeMs: number;
-	// Last prompt edited in Settings → Maestro Prompts (restored on reopen)
+	// Last prompt edited in Settings → OpenWizardAI Prompts (restored on reopen)
 	lastSelectedPromptId: string | null;
 	// Spell check in input areas
 	spellCheck: boolean;
@@ -116,11 +116,11 @@ export interface MaestroSettings {
 	// ('claude-code' | 'codex'); value is the interval in ms (0 = off). Read by
 	// the main-process background scheduler (usage-refresh-scheduler.ts).
 	usageRefreshIntervals: Record<string, number>;
-	// System-wide hotkey to summon the Maestro window (key array, e.g. ['Meta','Shift','M']).
+	// System-wide hotkey to summon the OpenWizardAI window (key array, e.g. ['Meta','Shift','M']).
 	// Empty array disables it. Stored in the same format as `shortcuts` so the UI can reuse
 	// the existing capture helpers; converted to an Electron Accelerator at registration time.
 	globalShowHotkey: string[];
-	// Days of Maestro Cue run history kept in cue.db. Read by the Cue engine's
+	// Days of OpenWizardAI Cue run history kept in cue.db. Read by the Cue engine's
 	// prune pass at startup; declared explicitly (rather than left to the index
 	// signature) so main-process readers get `number` instead of `any`.
 	cueHistoryRetentionDays: number;
@@ -187,7 +187,7 @@ export type ClaudeSessionOrigin = 'user' | 'auto';
 
 export interface ClaudeSessionOriginInfo {
 	origin: ClaudeSessionOrigin;
-	sessionName?: string; // User-defined session name from OpenWizzard
+	sessionName?: string; // User-defined session name from OpenWizardAI
 	starred?: boolean; // Whether the session is starred
 	contextUsage?: number; // Last known context window usage percentage (0-100)
 }
@@ -220,7 +220,7 @@ export interface AgentSessionOriginsData {
 export interface SettingsStoreInterface {
 	get<T>(key: string, defaultValue?: T): T;
 	/** Type-safe set for known settings keys */
-	set<K extends keyof MaestroSettings>(key: K, value: MaestroSettings[K]): void;
+	set<K extends keyof OpenWizardAISettings>(key: K, value: OpenWizardAISettings[K]): void;
 	/** Fallback for dynamic keys - used by the generic settings:set IPC handler
 	 *  in persistence.ts which accepts arbitrary key/value pairs from the renderer */
 	set(key: string, value: unknown): void;

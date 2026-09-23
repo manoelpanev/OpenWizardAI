@@ -27,7 +27,7 @@ const session = {
 	] as FileNode[],
 } as any;
 
-const mockMaestro = {
+const mockOpenWizardAI = {
 	fs: {
 		rename: vi.fn().mockResolvedValue(undefined),
 		delete: vi.fn().mockResolvedValue(undefined),
@@ -36,7 +36,7 @@ const mockMaestro = {
 		getPathForFile: vi.fn((file: { path?: string }) => file.path ?? ''),
 	},
 };
-(window as any).maestro = mockMaestro;
+(window as any).openwizardai = mockOpenWizardAI;
 
 const defaultArgs = {
 	session,
@@ -75,8 +75,8 @@ function makeOsDragEvent(paths: string[]): React.DragEvent {
 	);
 }
 
-const SINGLE = 'application/x-maestro-file-path';
-const MULTI = 'application/x-maestro-file-paths';
+const SINGLE = 'application/x-openwizardai-file-path';
+const MULTI = 'application/x-openwizardai-file-paths';
 
 describe('useDragToMove', () => {
 	beforeEach(() => {
@@ -90,7 +90,7 @@ describe('useDragToMove', () => {
 		expect(result.current.isMoving).toBe(false);
 	});
 
-	it('handleFolderDragEnter sets dragOverFolder for maestro drags', () => {
+	it('handleFolderDragEnter sets dragOverFolder for openwizardai drags', () => {
 		const { result } = renderHook(() => useDragToMove(defaultArgs));
 		const e = makeDragEvent([SINGLE]);
 		act(() => {
@@ -127,7 +127,7 @@ describe('useDragToMove', () => {
 				'dest'
 			);
 		});
-		expect(mockMaestro.fs.rename).toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.rename).toHaveBeenCalled();
 		expect(refreshFileTree).toHaveBeenCalledWith('sess-1');
 	});
 
@@ -215,7 +215,7 @@ describe('useDragToMove', () => {
 			result.current.handleFolderDrop(e, 'dest');
 		});
 		// Should not call rename since source and dest are same parent
-		expect(mockMaestro.fs.rename).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.rename).not.toHaveBeenCalled();
 	});
 
 	it('self/descendant drop is a no-op in handleFolderDrop', async () => {
@@ -224,7 +224,7 @@ describe('useDragToMove', () => {
 		act(() => {
 			result.current.handleFolderDrop(e, 'dest');
 		});
-		expect(mockMaestro.fs.rename).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.rename).not.toHaveBeenCalled();
 	});
 
 	it('conflict drops open the moveConflict modal', async () => {
@@ -253,12 +253,12 @@ describe('useDragToMove', () => {
 				'dest'
 			);
 		});
-		expect(mockMaestro.fs.delete).toHaveBeenCalledBefore(mockMaestro.fs.rename as any);
+		expect(mockOpenWizardAI.fs.delete).toHaveBeenCalledBefore(mockOpenWizardAI.fs.rename as any);
 	});
 
 	it('pre-overwrite delete failure is swallowed and rename still proceeds', async () => {
 		const deleteError = new Error('not found');
-		mockMaestro.fs.delete.mockRejectedValueOnce(deleteError);
+		mockOpenWizardAI.fs.delete.mockRejectedValueOnce(deleteError);
 		const onShowFlash = vi.fn();
 		const { result } = renderHook(() => useDragToMove({ ...defaultArgs, onShowFlash }));
 		await act(async () => {
@@ -284,7 +284,7 @@ describe('useDragToMove', () => {
 				}),
 			})
 		);
-		expect(mockMaestro.fs.rename).toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.rename).toHaveBeenCalled();
 		expect(onShowFlash).toHaveBeenCalledWith('Moved "x.ts"');
 	});
 
@@ -300,7 +300,7 @@ describe('useDragToMove', () => {
 		});
 		// Both files should be queued - rename called once after performMoves resolves
 		await act(async () => {});
-		expect(mockMaestro.fs.rename).toHaveBeenCalledTimes(2);
+		expect(mockOpenWizardAI.fs.rename).toHaveBeenCalledTimes(2);
 	});
 
 	// `internalDragActive` drives the mid-drag footer as a whole (the drag-out
@@ -372,12 +372,12 @@ describe('useDragToMove', () => {
 				result.current.handleFolderDrop(e, 'dest');
 			});
 			await act(async () => {});
-			expect(mockMaestro.fs.copyPath).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.fs.copyPath).toHaveBeenCalledWith(
 				'/external/photo.png',
 				'/project/dest/photo.png',
 				{ overwrite: false, sshRemoteId: undefined }
 			);
-			expect(mockMaestro.fs.rename).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.fs.rename).not.toHaveBeenCalled();
 		});
 
 		it('copies into the tree root when dropped on the root (empty dest path)', async () => {
@@ -387,7 +387,7 @@ describe('useDragToMove', () => {
 				result.current.handleFolderDrop(e, '');
 			});
 			await act(async () => {});
-			expect(mockMaestro.fs.copyPath).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.fs.copyPath).toHaveBeenCalledWith(
 				'/external/notes.md',
 				'/project/notes.md',
 				{ overwrite: false, sshRemoteId: undefined }
@@ -404,7 +404,7 @@ describe('useDragToMove', () => {
 			expect(result.current.moveConflict).not.toBeNull();
 			expect(result.current.moveConflict?.operation).toBe('copy');
 			expect(result.current.moveConflict?.conflicts[0].sourceName).toBe('existing.ts');
-			expect(mockMaestro.fs.copyPath).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.fs.copyPath).not.toHaveBeenCalled();
 		});
 
 		it('flashes "Imported" for a copy operation', async () => {
@@ -423,7 +423,7 @@ describe('useDragToMove', () => {
 					'copy'
 				);
 			});
-			expect(mockMaestro.fs.copyPath).toHaveBeenCalled();
+			expect(mockOpenWizardAI.fs.copyPath).toHaveBeenCalled();
 			expect(onShowFlash).toHaveBeenCalledWith('Imported "photo.png"');
 		});
 
@@ -438,7 +438,7 @@ describe('useDragToMove', () => {
 			await act(async () => {});
 			// The dest lives on the remote host; copyPath carries the sshRemoteId so
 			// the main process uploads the local source over SSH.
-			expect(mockMaestro.fs.copyPath).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.fs.copyPath).toHaveBeenCalledWith(
 				'/external/photo.png',
 				'/project/dest/photo.png',
 				{ overwrite: false, sshRemoteId: 'remote-1' }

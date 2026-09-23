@@ -171,7 +171,7 @@ beforeEach(() => {
 	mockRenamePipeline.mockResolvedValue({
 		renamed: true,
 		subscriptionsUpdated: 2,
-		filesWritten: ['/p/.maestro/cue.yaml'],
+		filesWritten: ['/p/.openwizardai/cue.yaml'],
 		warnings: [],
 	});
 });
@@ -663,7 +663,7 @@ describe('PipelineListTab', () => {
 			mockRenamePipeline.mockResolvedValue({
 				renamed: true,
 				subscriptionsUpdated: 1,
-				filesWritten: ['/p/.maestro/cue.yaml'],
+				filesWritten: ['/p/.openwizardai/cue.yaml'],
 				warnings: ['pipeline renamed, but saved node positions could not be moved: disk full'],
 			});
 			renderList();

@@ -16,7 +16,7 @@ import {
 } from '../../../../main/utils/history-bucket-cache';
 
 /** Temp dir the graph bucket cache writes to. Hoisted for the electron mock. */
-const GRAPH_CACHE_DIR = path.join(os.tmpdir(), `maestro-history-handler-test-${process.pid}`);
+const GRAPH_CACHE_DIR = path.join(os.tmpdir(), `openwizardai-history-handler-test-${process.pid}`);
 import * as historyManagerModule from '../../../../main/history-manager';
 import * as sharedHistoryModule from '../../../../main/shared-history-manager';
 import type { HistoryManager } from '../../../../main/history-manager';
@@ -212,7 +212,7 @@ describe('history IPC handlers', () => {
 			const result = await handler!({} as any, '/test/project');
 
 			expect(sharedHistoryModule.readRemoteEntriesSsh).not.toHaveBeenCalled();
-			// Local agents still read .maestro/history/ from the project dir
+			// Local agents still read .openwizardai/history/ from the project dir
 			expect(sharedHistoryModule.readRemoteEntriesLocal).toHaveBeenCalledWith(
 				'/test/project',
 				undefined
@@ -220,7 +220,7 @@ describe('history IPC handlers', () => {
 			expect(result).toEqual(mockEntries);
 		});
 
-		it('should merge local .maestro/history/ entries for local agents', async () => {
+		it('should merge local .openwizardai/history/ entries for local agents', async () => {
 			const localEntries = [createMockEntry({ id: 'local-1' })];
 			const sharedLocalEntries = [
 				createMockEntry({ id: 'remote-operator-1', hostname: 'ssh-client' }),
@@ -1237,7 +1237,7 @@ describe('history IPC handlers', () => {
 			expect(sharedHistoryModule.writeEntryLocal).not.toHaveBeenCalled();
 		});
 
-		it('should mirror the entry to local .maestro/history/ when the session has shareHistoryToProjectDir on', async () => {
+		it('should mirror the entry to local .openwizardai/history/ when the session has shareHistoryToProjectDir on', async () => {
 			registerHistoryHandlers({
 				safeSend: mockSafeSend,
 				getMaxEntries: () => 5000,

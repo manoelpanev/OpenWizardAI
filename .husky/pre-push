@@ -26,7 +26,7 @@ z40=0000000000000000000000000000000000000000
 # full test suite.
 #
 # For the intentional release promotion, re-run with:
-#   MAESTRO_ALLOW_RC_TO_MAIN=1 git push ...
+#   OPENWIZARDAI_ALLOW_RC_TO_MAIN=1 git push ...
 rc_ref=$(git rev-parse --verify --quiet refs/remotes/origin/rc)
 if [ -n "$rc_ref" ]; then
 	while read -r local_ref local_sha remote_ref remote_sha; do
@@ -34,7 +34,7 @@ if [ -n "$rc_ref" ]; then
 		case "$local_sha" in "$z40" | "") continue ;; esac
 
 		# Check 1: main must never carry an -RC version. NOT bypassable, not even
-		# by MAESTRO_ALLOW_RC_TO_MAIN. This is what separates an accident from an
+		# by OPENWIZARDAI_ALLOW_RC_TO_MAIN. This is what separates an accident from an
 		# intentional release: an accidental fast-forward drags rc's package.json
 		# along and lands main on 0.18.x-RC, while the documented promotion bumps
 		# to the GA version on the promotion branch before merging.
@@ -50,8 +50,8 @@ if [ -n "$rc_ref" ]; then
 		esac
 
 		# Check 2: main must not absorb the rc line. Bypassable for the planned
-		# promotion via MAESTRO_ALLOW_RC_TO_MAIN=1, since check 1 still holds.
-		[ "${MAESTRO_ALLOW_RC_TO_MAIN:-0}" = "1" ] && continue
+		# promotion via OPENWIZARDAI_ALLOW_RC_TO_MAIN=1, since check 1 still holds.
+		[ "${OPENWIZARDAI_ALLOW_RC_TO_MAIN:-0}" = "1" ] && continue
 		# Commits this push adds to main, and how many of them rc already has.
 		# NOTE: use explicit "^rev" exclusions, never repeated "--not". A second
 		# --not toggles the sense back to positive, so "--not A --not B" INCLUDES
@@ -75,7 +75,7 @@ if [ -n "$rc_ref" ]; then
 			echo "[pre-push]   main is the stable release line; rc carries in-soak features."
 			echo "[pre-push]   Merging main INTO rc stays fine, it is only this direction that is blocked."
 			echo "[pre-push]   If this is an intentional release promotion, re-run with:"
-			echo "[pre-push]     MAESTRO_ALLOW_RC_TO_MAIN=1 git push ..."
+			echo "[pre-push]     OPENWIZARDAI_ALLOW_RC_TO_MAIN=1 git push ..."
 			exit 1
 		fi
 	done <"$refs_file"

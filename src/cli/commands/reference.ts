@@ -3,8 +3,8 @@
 // generated reference can never drift from the actual CLI surface: regenerate it
 // after adding/changing a command and the docs update mechanically.
 //
-//   maestro-cli reference            # Markdown (default)
-//   maestro-cli reference --format json
+//   openwizardai-cli reference            # Markdown (default)
+//   openwizardai-cli reference --format json
 //
 // `npm run gen:cli-reference` pipes the Markdown form into docs/cli-reference.md.
 
@@ -69,10 +69,10 @@ function flatten(info: CommandInfo, out: CommandInfo[]): void {
 
 function toMarkdown(root: CommandInfo): string {
 	const lines: string[] = [];
-	lines.push('# maestro-cli Command Reference');
+	lines.push('# openwizardai-cli Command Reference');
 	lines.push('');
 	lines.push(
-		'> Generated from the CLI command tree by `maestro-cli reference`. Do not edit by hand - run `npm run gen:cli-reference` to refresh.'
+		'> Generated from the CLI command tree by `openwizardai-cli reference`. Do not edit by hand - run `npm run gen:cli-reference` to refresh.'
 	);
 	lines.push('');
 

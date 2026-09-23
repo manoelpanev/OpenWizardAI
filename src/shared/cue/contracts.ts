@@ -71,7 +71,7 @@ export type CueCommandMode = 'shell' | 'cli';
  * agent - clicking the toast jumps to that agent.
  *
  * Used primarily by `time.once` reminder/task subscriptions emitted from
- * `maestro-cli cue schedule --notify`, but any event type can drive a
+ * `openwizardai-cli cue schedule --notify`, but any event type can drive a
  * notify action.
  */
 export interface CueNotifyConfig {
@@ -84,7 +84,7 @@ export interface CueNotifyConfig {
 }
 
 /**
- * A maestro-cli sub-command. Currently only `send` is supported, but the
+ * A openwizardai-cli sub-command. Currently only `send` is supported, but the
  * shape leaves room for future sub-commands.
  */
 export interface CueCommandCliCall {
@@ -97,7 +97,7 @@ export interface CueCommandCliCall {
 
 /**
  * A `command` action - either an arbitrary shell command (PATH-aware, runs in
- * the owning session's project root) or a structured maestro-cli call.
+ * the owning session's project root) or a structured openwizardai-cli call.
  */
 export type CueCommand = { mode: 'shell'; shell: string } | { mode: 'cli'; cli: CueCommandCliCall };
 
@@ -106,7 +106,7 @@ export type CueCommand = { mode: 'shell'; shell: string } | { mode: 'cli'; cli: 
  *
  * `action` defaults to `'prompt'` (run an AI agent with the substituted
  * `prompt`). When `action` is `'command'`, the subscription instead spawns a
- * shell command or invokes maestro-cli - see {@link CueCommand}.
+ * shell command or invokes openwizardai-cli - see {@link CueCommand}.
  *
  * Note: prompt content is always materialized at config-load time. The raw YAML
  * `prompt_file` / `output_prompt_file` fields are resolved by the normalizer and
@@ -376,7 +376,7 @@ export interface CueRunResult {
 	endedAt: string;
 	/**
 	 * Provider session id (e.g. Claude's `session_id`) parsed from the agent's
-	 * stdout. Distinct from `sessionId`, which is the Maestro agent id. Used by
+	 * stdout. Distinct from `sessionId`, which is the OpenWizardAI agent id. Used by
 	 * the Cue stats dashboard to attribute token usage to the on-disk session
 	 * file the run actually produced. Undefined for shell/CLI command runs (no
 	 * AI session) and for runs whose stdout carried no parseable session id.

@@ -42,14 +42,14 @@ vi.mock('lucide-react', () => ({
 	Check: () => <span data-testid="check-icon">Check</span>,
 }));
 
-// Mock window.maestro for IPC calls (LocalImage, shell, etc.)
-const mockMaestro = {
+// Mock window.openwizardai for IPC calls (LocalImage, shell, etc.)
+const mockOpenWizardAI = {
 	fs: { readFile: vi.fn().mockResolvedValue(null) },
 	shell: { openExternal: vi.fn(), openPath: vi.fn() },
 	settings: { get: vi.fn(), set: vi.fn() },
 	clipboard: { writeText: vi.fn() },
 };
-Object.defineProperty(window, 'maestro', { value: mockMaestro, writable: true });
+Object.defineProperty(window, 'openwizardai', { value: mockOpenWizardAI, writable: true });
 
 // Mock openUrl so link-click tests can assert the exact options passed through
 // (specifically the translated `ctrlKey` modifier) without depending on the
@@ -60,7 +60,7 @@ const { mockOpenUrl } = vi.hoisted(() => ({ mockOpenUrl: vi.fn() }));
 vi.mock('../../../renderer/utils/openUrl', () => ({
 	openUrl: mockOpenUrl,
 	openInSystemBrowser: vi.fn(),
-	openInMaestroBrowser: vi.fn(),
+	openInOpenWizardAIBrowser: vi.fn(),
 }));
 
 // Mock fileExplorerStore for FileContextMenu's Document Graph action
@@ -1106,7 +1106,7 @@ describe('MarkdownRenderer', () => {
 			'  </defs>',
 			'  <rect x="2" y="2" width="356" height="76" rx="16" fill="url(#g)"/>',
 			'  <circle cx="46" cy="40" r="22" fill="#fff"/>',
-			'  <text x="90" y="46" font-family="sans-serif" font-size="26" fill="#fff">OpenWizzard</text>',
+			'  <text x="90" y="46" font-family="sans-serif" font-size="26" fill="#fff">OpenWizardAI</text>',
 			'</svg>',
 		].join('\n');
 
@@ -1126,7 +1126,7 @@ describe('MarkdownRenderer', () => {
 			expect(rect!.getAttribute('fill')).toBe('url(#g)');
 			expect(rect!.getAttribute('rx')).toBe('16');
 			expect(container.querySelector('circle')!.getAttribute('cx')).toBe('46');
-			expect(container.querySelector('text')!.textContent).toBe('OpenWizzard');
+			expect(container.querySelector('text')!.textContent).toBe('OpenWizardAI');
 		});
 
 		it('strips <script> and event handlers nested inside an SVG', () => {
@@ -1215,13 +1215,13 @@ describe('MarkdownRenderer', () => {
 			const { container } = render(
 				<MarkdownRenderer
 					{...defaultProps}
-					content='<a href="#" data-maestro-file="report.csv">report.csv</a>'
+					content='<a href="#" data-openwizardai-file="report.csv">report.csv</a>'
 					allowRawHtml={true}
 					projectRoot="/Users/test/project"
 					onFileClick={vi.fn()}
 				/>
 			);
-			const link = container.querySelector('a[data-maestro-file]');
+			const link = container.querySelector('a[data-openwizardai-file]');
 			expect(link).not.toBeNull();
 
 			fireEvent.contextMenu(link!, { clientX: 150, clientY: 250 });
@@ -1232,7 +1232,7 @@ describe('MarkdownRenderer', () => {
 			expect(screen.getByText(/^Reveal in /)).toBeInTheDocument();
 			expect(screen.getByText('Open in Default App')).toBeInTheDocument();
 			expect(screen.queryByText('Copy Link')).toBeNull();
-			expect(screen.queryByText('Open in OpenWizzard Browser')).toBeNull();
+			expect(screen.queryByText('Open in OpenWizardAI Browser')).toBeNull();
 			expect(screen.queryByText('Open in System Browser')).toBeNull();
 		});
 
@@ -1240,12 +1240,12 @@ describe('MarkdownRenderer', () => {
 			const { container } = render(
 				<MarkdownRenderer
 					{...defaultProps}
-					content='<a href="#" data-maestro-file="README.md">README.md</a>'
+					content='<a href="#" data-openwizardai-file="README.md">README.md</a>'
 					allowRawHtml={true}
 					projectRoot="/Users/test/project"
 				/>
 			);
-			const link = container.querySelector('a[data-maestro-file]');
+			const link = container.querySelector('a[data-openwizardai-file]');
 			expect(link).not.toBeNull();
 			fireEvent.contextMenu(link!, { clientX: 150, clientY: 250 });
 
@@ -1256,12 +1256,12 @@ describe('MarkdownRenderer', () => {
 			const { container } = render(
 				<MarkdownRenderer
 					{...defaultProps}
-					content='<a href="#" data-maestro-file="data.csv">data.csv</a>'
+					content='<a href="#" data-openwizardai-file="data.csv">data.csv</a>'
 					allowRawHtml={true}
 					projectRoot="/Users/test/project"
 				/>
 			);
-			const link = container.querySelector('a[data-maestro-file]');
+			const link = container.querySelector('a[data-openwizardai-file]');
 			expect(link).not.toBeNull();
 			fireEvent.contextMenu(link!, { clientX: 150, clientY: 250 });
 
@@ -1289,12 +1289,12 @@ describe('MarkdownRenderer', () => {
 			expect(screen.getByText('Copy File Name')).toBeInTheDocument();
 			expect(screen.getByText(/^Reveal in /)).toBeInTheDocument();
 			expect(screen.queryByText('Copy Link')).toBeNull();
-			expect(screen.queryByText('Open in OpenWizzard Browser')).toBeNull();
+			expect(screen.queryByText('Open in OpenWizardAI Browser')).toBeNull();
 		});
 	});
 
 	describe('link context menu', () => {
-		it('renders a context menu with Copy Link, Open in OpenWizzard Browser, and Open in System Browser on right-click', () => {
+		it('renders a context menu with Copy Link, Open in OpenWizardAI Browser, and Open in System Browser on right-click', () => {
 			const { container } = render(
 				<MarkdownRenderer
 					{...defaultProps}
@@ -1307,7 +1307,7 @@ describe('MarkdownRenderer', () => {
 			fireEvent.contextMenu(link!, { clientX: 100, clientY: 200 });
 
 			expect(screen.getByText('Copy Link')).toBeInTheDocument();
-			expect(screen.getByText('Open in OpenWizzard Browser')).toBeInTheDocument();
+			expect(screen.getByText('Open in OpenWizardAI Browser')).toBeInTheDocument();
 			expect(screen.getByText('Open in System Browser')).toBeInTheDocument();
 		});
 

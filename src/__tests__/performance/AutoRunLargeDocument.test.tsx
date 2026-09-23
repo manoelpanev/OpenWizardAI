@@ -134,9 +134,9 @@ vi.mock('../../renderer/components/TemplateAutocompleteDropdown', () => ({
 
 // Helper to create mock theme
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -153,8 +153,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Default props factory
@@ -232,10 +232,10 @@ function generateSearchableDocument(lineCount: number, searchTermFrequency: numb
 }
 
 describe('AutoRun Large Document Performance', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -383,7 +383,7 @@ describe('AutoRun Large Document Performance', () => {
 			fireEvent.click(screen.getByText('Save'));
 
 			await waitFor(() => {
-				expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+				expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 					'/test/folder',
 					'test-doc.md',
 					modifiedContent

@@ -56,15 +56,15 @@ export function getModelContextWindowOverride(model: string | null | undefined):
 }
 
 /**
- * Whether Adaptive Mode (a.k.a. maestro-p / automatic Claude token-source
- * management, persisted as `enableMaestroP`) is enabled by default for newly
+ * Whether Adaptive Mode (a.k.a. openwizardai-p / automatic Claude token-source
+ * management, persisted as `enableOpenWizardAIP`) is enabled by default for newly
  * created agents of the given type. This is the single source of truth for the
  * "default on for new agents" rule; the one-shot migration in
  * `src/main/stores/migrations/` keeps existing agents aligned with it.
  *
  * Currently OFF for every agent: new Claude Code agents default to the API
  * token source (`claude --print`). TUI/Dynamic remain available but are now
- * opt-in per agent - the maestro-p TUI path has been a recurring source of
+ * opt-in per agent - the openwizardai-p TUI path has been a recurring source of
  * trouble, so we no longer flip anyone onto it automatically. Kept as a
  * function so re-enabling a default later is a one-line change.
  */
@@ -113,7 +113,7 @@ export const COMBINED_CONTEXT_AGENTS: ReadonlySet<AgentId> = new Set<AgentId>([
  *
  * Use this anywhere the previous hard-coded `DEFAULT_CONTEXT_WINDOWS[agentId]`
  * pattern appears so context-window changes shipped by an agent vendor flow
- * into Maestro automatically once a snapshot has captured them.
+ * into OpenWizardAI automatically once a snapshot has captured them.
  *
  * Caller migration of existing readers is deferred to a follow-up PR - this
  * helper coexists with the old constant readers and is safe to land first.

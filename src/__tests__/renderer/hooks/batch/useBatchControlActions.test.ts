@@ -13,7 +13,7 @@ const autorunLog = vi.fn();
 beforeEach(() => {
 	autorunLog.mockReset();
 	useBatchStore.setState({ batchRunStates: {}, customPrompts: {} });
-	(window as unknown as { maestro: unknown }).maestro = {
+	(window as unknown as { openwizardai: unknown }).openwizardai = {
 		logger: { autorun: autorunLog, log: vi.fn() },
 	};
 });

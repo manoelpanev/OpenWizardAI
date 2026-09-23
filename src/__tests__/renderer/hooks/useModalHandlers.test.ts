@@ -85,8 +85,8 @@ beforeEach(() => {
 		groupChatStagedImages: [],
 	});
 
-	// Ensure window.maestro.app mock is present
-	(window.maestro as any).app = {
+	// Ensure window.openwizardai.app mock is present
+	(window.openwizardai as any).app = {
 		confirmQuit: vi.fn(),
 		cancelQuit: vi.fn(),
 	};
@@ -340,7 +340,7 @@ describe('useModalHandlers', () => {
 			});
 
 			expect(useModalStore.getState().isOpen('quitConfirm')).toBe(false);
-			expect(window.maestro.app.confirmQuit).toHaveBeenCalledOnce();
+			expect(window.openwizardai.app.confirmQuit).toHaveBeenCalledOnce();
 		});
 
 		it('handleCancelQuit closes quit modal and calls cancelQuit', () => {
@@ -355,7 +355,7 @@ describe('useModalHandlers', () => {
 			});
 
 			expect(useModalStore.getState().isOpen('quitConfirm')).toBe(false);
-			expect(window.maestro.app.cancelQuit).toHaveBeenCalledOnce();
+			expect(window.openwizardai.app.cancelQuit).toHaveBeenCalledOnce();
 		});
 	});
 
@@ -746,7 +746,7 @@ describe('useModalHandlers', () => {
 
 			expect(mockAuth).toHaveBeenCalledWith('session-1');
 			expect(useModalStore.getState().isOpen('agentError')).toBe(false);
-			// The login now happens inside Maestro, so the error modal hands off to the
+			// The login now happens inside OpenWizardAI, so the error modal hands off to the
 			// re-authentication terminal instead of returning focus to the composer.
 			expect(useModalStore.getState().isOpen('reauth')).toBe(true);
 			expect(useModalStore.getState().getData('reauth')).toMatchObject({

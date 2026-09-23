@@ -61,7 +61,7 @@ import type { Session } from '../../../renderer/types';
 // Window mock
 // ============================================================================
 
-const mockMaestro = {
+const mockOpenWizardAI = {
 	agents: {
 		get: vi.fn().mockResolvedValue({ id: 'claude-code', name: 'Claude Code', command: 'claude' }),
 	},
@@ -82,7 +82,7 @@ const mockMaestro = {
 	},
 };
 
-(window as any).maestro = mockMaestro;
+(window as any).openwizardai = mockOpenWizardAI;
 
 // ============================================================================
 // Helpers
@@ -138,7 +138,7 @@ function createSession(overrides: Partial<Session> = {}): Session {
 		activeFileTabId: null,
 		unifiedTabOrder: [{ type: 'ai' as const, id: 'tab-1' }],
 		unifiedClosedTabHistory: [],
-		autoRunFolderPath: '/test/project/.maestro/playbooks',
+		autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		...overrides,
 	} as Session;
 }
@@ -250,7 +250,7 @@ describe('useSessionCrud', () => {
 				await result.current.createNewSession('claude-code', '/test/project', 'My Session');
 			});
 
-			expect(mockMaestro.stats.recordSessionCreated).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.stats.recordSessionCreated).toHaveBeenCalledWith(
 				expect.objectContaining({
 					agentType: 'claude-code',
 					projectPath: '/test/project',
@@ -330,7 +330,7 @@ describe('useSessionCrud', () => {
 				);
 			});
 
-			expect(mockMaestro.stats.recordSessionCreated).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.stats.recordSessionCreated).toHaveBeenCalledWith(
 				expect.objectContaining({ isRemote: true })
 			);
 		});
@@ -358,7 +358,7 @@ describe('useSessionCrud', () => {
 		});
 
 		it('handles agent not found', async () => {
-			mockMaestro.agents.get.mockResolvedValueOnce(null);
+			mockOpenWizardAI.agents.get.mockResolvedValueOnce(null);
 			const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
 			const deps = createDeps();
@@ -478,7 +478,7 @@ describe('useSessionCrud', () => {
 			});
 
 			expect(useSessionStore.getState().sessions[0].autoRunFolderPath).toBe(
-				'/test/project/.maestro/playbooks'
+				'/test/project/.openwizardai/playbooks'
 			);
 		});
 
@@ -653,10 +653,10 @@ describe('useSessionCrud', () => {
 				await onConfirm();
 			});
 
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('s1-ai');
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('s1-terminal');
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('s2-ai');
-			expect(mockMaestro.process.kill).toHaveBeenCalledWith('s2-terminal');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('s1-ai');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('s1-terminal');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('s2-ai');
+			expect(mockOpenWizardAI.process.kill).toHaveBeenCalledWith('s2-terminal');
 		});
 
 		it('deletes playbooks for each session on confirm', async () => {
@@ -680,8 +680,8 @@ describe('useSessionCrud', () => {
 				await onConfirm();
 			});
 
-			expect(mockMaestro.playbooks.deleteAll).toHaveBeenCalledWith('s1');
-			expect(mockMaestro.playbooks.deleteAll).toHaveBeenCalledWith('s2');
+			expect(mockOpenWizardAI.playbooks.deleteAll).toHaveBeenCalledWith('s1');
+			expect(mockOpenWizardAI.playbooks.deleteAll).toHaveBeenCalledWith('s2');
 		});
 
 		it('removes sessions from store on confirm', async () => {
@@ -869,7 +869,7 @@ describe('useSessionCrud', () => {
 		});
 
 		it('continues even if process kill fails', async () => {
-			mockMaestro.process.kill.mockRejectedValueOnce(new Error('kill failed'));
+			mockOpenWizardAI.process.kill.mockRejectedValueOnce(new Error('kill failed'));
 			const consoleError = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
 			useSessionStore.setState({
@@ -963,7 +963,7 @@ describe('useSessionCrud', () => {
 				result.current.finishRenamingSession('sess-1', 'Synced Name');
 			});
 
-			expect(mockMaestro.claude.updateSessionName).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.claude.updateSessionName).toHaveBeenCalledWith(
 				'/my/project',
 				'agent-sess-123',
 				'Synced Name'
@@ -989,7 +989,7 @@ describe('useSessionCrud', () => {
 				result.current.finishRenamingSession('sess-1', 'Codex Name');
 			});
 
-			expect(mockMaestro.agentSessions.setSessionName).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.agentSessions.setSessionName).toHaveBeenCalledWith(
 				'codex',
 				'/my/project',
 				'codex-sess-456',
@@ -1014,8 +1014,8 @@ describe('useSessionCrud', () => {
 				result.current.finishRenamingSession('sess-1', 'No Sync');
 			});
 
-			expect(mockMaestro.claude.updateSessionName).not.toHaveBeenCalled();
-			expect(mockMaestro.agentSessions.setSessionName).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.claude.updateSessionName).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.agentSessions.setSessionName).not.toHaveBeenCalled();
 		});
 
 		it('does not sync if session has no projectRoot', () => {
@@ -1036,7 +1036,7 @@ describe('useSessionCrud', () => {
 				result.current.finishRenamingSession('sess-1', 'No Root');
 			});
 
-			expect(mockMaestro.claude.updateSessionName).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.claude.updateSessionName).not.toHaveBeenCalled();
 		});
 
 		it('does not affect other sessions when renaming', () => {

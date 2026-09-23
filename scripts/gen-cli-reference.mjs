@@ -1,7 +1,7 @@
 // Generate docs/cli-reference.md from the live CLI command tree.
 //
 // Builds the CLI bundle (so the reference reflects the current source) then runs
-// `maestro-cli reference` and writes the Markdown to docs/cli-reference.md. The
+// `openwizardai-cli reference` and writes the Markdown to docs/cli-reference.md. The
 // reference is introspected from Commander, so it can never drift from the
 // registered commands.
 //
@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const rootDir = join(dirname(fileURLToPath(import.meta.url)), '..');
-const cliBundle = join(rootDir, 'dist/cli/maestro-cli.js');
+const cliBundle = join(rootDir, 'dist/cli/openwizardai-cli.js');
 const outFile = join(rootDir, 'docs/cli-reference.md');
 
 console.log('Building CLI bundle...');

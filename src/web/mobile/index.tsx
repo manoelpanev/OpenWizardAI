@@ -1,5 +1,5 @@
 /**
- * Maestro Mobile Web Entry Point
+ * OpenWizardAI Mobile Web Entry Point
  *
  * This is the entry point for the mobile web interface.
  * It exports the main MobileApp component and any mobile-specific

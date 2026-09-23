@@ -13,9 +13,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 
-// Add updates mock to window.maestro if not present
-if (!(window.maestro as any).updates) {
-	(window.maestro as any).updates = {
+// Add updates mock to window.openwizardai if not present
+if (!(window.openwizardai as any).updates) {
+	(window.openwizardai as any).updates = {
 		check: vi.fn(),
 		download: vi.fn(),
 		install: vi.fn(),
@@ -67,7 +67,7 @@ const createMockRelease = (
 	tag_name: 'v1.1.0',
 	name: 'Version 1.1.0',
 	body: '## New Features\n- Added feature X\n- Fixed bug Y',
-	html_url: 'https://github.com/RunMaestro/Maestro/releases/tag/v1.1.0',
+	html_url: 'https://github.com/manoelpanev/OpenWizardAI/releases/tag/v1.1.0',
 	published_at: '2024-01-15T12:00:00Z',
 	...overrides,
 });
@@ -91,7 +91,7 @@ const createMockUpdateResult = (
 	assetsReady: true,
 	versionsBehind: 1,
 	releases: [createMockRelease()],
-	releasesUrl: 'https://github.com/RunMaestro/Maestro/releases',
+	releasesUrl: 'https://github.com/manoelpanev/OpenWizardAI/releases',
 	...overrides,
 });
 
@@ -100,7 +100,9 @@ describe('UpdateCheckModal', () => {
 		vi.clearAllMocks();
 
 		// Default mock: update available
-		(window.maestro as any).updates.check = vi.fn().mockResolvedValue(createMockUpdateResult());
+		(window.openwizardai as any).updates.check = vi
+			.fn()
+			.mockResolvedValue(createMockUpdateResult());
 	});
 
 	afterEach(() => {
@@ -114,7 +116,7 @@ describe('UpdateCheckModal', () => {
 	describe('loading state', () => {
 		it('shows loading message initially', async () => {
 			// Make check take some time
-			(window.maestro as any).updates.check.mockImplementation(
+			(window.openwizardai as any).updates.check.mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve(createMockUpdateResult()), 100))
 			);
 
@@ -124,7 +126,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows spinning loader during check', async () => {
-			(window.maestro as any).updates.check.mockImplementation(
+			(window.openwizardai as any).updates.check.mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve(createMockUpdateResult()), 100))
 			);
 
@@ -150,7 +152,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows versions behind count', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({ versionsBehind: 3 })
 			);
 
@@ -162,7 +164,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows singular version when 1 behind', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({ versionsBehind: 1 })
 			);
 
@@ -199,7 +201,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('starts download when download button clicked', async () => {
-			(window.maestro.updates.download as any).mockResolvedValue({ success: true });
+			(window.openwizardai.updates.download as any).mockResolvedValue({ success: true });
 
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -209,7 +211,7 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('Download and Install Update'));
 
-			expect(window.maestro.updates.download).toHaveBeenCalled();
+			expect(window.openwizardai.updates.download).toHaveBeenCalled();
 		});
 
 		it('shows fallback link to GitHub', async () => {
@@ -252,7 +254,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('toggles release expansion on click', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					versionsBehind: 2,
 					releases: [
@@ -287,7 +289,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows release name if different from tag', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					releases: [
 						createMockRelease({
@@ -306,7 +308,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('does not show release name if same as tag', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					releases: [
 						createMockRelease({
@@ -328,7 +330,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('strips version prefix from release name with pipe separator', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					releases: [
 						createMockRelease({
@@ -352,7 +354,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('strips version prefix from release name with dash separator', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					releases: [
 						createMockRelease({
@@ -372,7 +374,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('keeps release name when it does not start with version', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					releases: [
 						createMockRelease({
@@ -392,7 +394,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows fallback text when no release body', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					releases: [createMockRelease({ body: '' })],
 				})
@@ -412,7 +414,7 @@ describe('UpdateCheckModal', () => {
 
 	describe('up to date state', () => {
 		it('shows up to date message', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					updateAvailable: false,
 					versionsBehind: 0,
@@ -428,7 +430,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows current version', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					currentVersion: '1.2.3',
 					updateAvailable: false,
@@ -439,12 +441,12 @@ describe('UpdateCheckModal', () => {
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
 			await waitFor(() => {
-				expect(screen.getByText('OpenWizzard v1.2.3')).toBeInTheDocument();
+				expect(screen.getByText('OpenWizardAI v1.2.3')).toBeInTheDocument();
 			});
 		});
 
 		it('shows view all releases link', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					updateAvailable: false,
 					versionsBehind: 0,
@@ -459,7 +461,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('opens releases URL when view all releases clicked', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					updateAvailable: false,
 					versionsBehind: 0,
@@ -474,8 +476,8 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('View all releases'));
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://github.com/RunMaestro/Maestro/releases'
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI/releases'
 			);
 		});
 	});
@@ -486,7 +488,7 @@ describe('UpdateCheckModal', () => {
 
 	describe('error state', () => {
 		it('shows error message', async () => {
-			(window.maestro as any).updates.check.mockRejectedValue(new Error('Network error'));
+			(window.openwizardai as any).updates.check.mockRejectedValue(new Error('Network error'));
 
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -496,7 +498,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows manual check link on error', async () => {
-			(window.maestro as any).updates.check.mockRejectedValue(new Error('Failed'));
+			(window.openwizardai as any).updates.check.mockRejectedValue(new Error('Failed'));
 
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -506,7 +508,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('opens releases URL when manual check clicked', async () => {
-			(window.maestro as any).updates.check.mockRejectedValue(new Error('Failed'));
+			(window.openwizardai as any).updates.check.mockRejectedValue(new Error('Failed'));
 
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -516,13 +518,13 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('Check releases manually'));
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://github.com/RunMaestro/Maestro/releases'
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI/releases'
 			);
 		});
 
 		it('handles non-Error exceptions', async () => {
-			(window.maestro as any).updates.check.mockRejectedValue('String error');
+			(window.openwizardai as any).updates.check.mockRejectedValue('String error');
 
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -549,11 +551,11 @@ describe('UpdateCheckModal', () => {
 			fireEvent.click(refreshButton);
 
 			// Should call check again
-			expect((window.maestro as any).updates.check).toHaveBeenCalledTimes(2);
+			expect((window.openwizardai as any).updates.check).toHaveBeenCalledTimes(2);
 		});
 
 		it('is disabled while loading', async () => {
-			(window.maestro as any).updates.check.mockImplementation(
+			(window.openwizardai as any).updates.check.mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve(createMockUpdateResult()), 100))
 			);
 
@@ -565,7 +567,7 @@ describe('UpdateCheckModal', () => {
 
 		it('shows spinning icon while refreshing', async () => {
 			let resolveCheck: (value: any) => void;
-			(window.maestro as any).updates.check.mockImplementation(
+			(window.openwizardai as any).updates.check.mockImplementation(
 				() =>
 					new Promise((resolve) => {
 						resolveCheck = resolve;
@@ -721,7 +723,7 @@ describe('UpdateCheckModal', () => {
 
 	describe('multiple releases', () => {
 		it('shows all releases', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					versionsBehind: 3,
 					releases: [
@@ -742,7 +744,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('keeps all releases collapsed when multiple', async () => {
-			(window.maestro as any).updates.check.mockResolvedValue(
+			(window.openwizardai as any).updates.check.mockResolvedValue(
 				createMockUpdateResult({
 					versionsBehind: 2,
 					releases: [
@@ -770,12 +772,12 @@ describe('UpdateCheckModal', () => {
 	describe('auto-update download flow', () => {
 		beforeEach(() => {
 			// Reset download mock
-			(window.maestro.updates.download as any).mockReset();
-			(window.maestro.updates.install as any).mockReset();
+			(window.openwizardai.updates.download as any).mockReset();
+			(window.openwizardai.updates.install as any).mockReset();
 		});
 
 		it('calls download API when download button is clicked', async () => {
-			(window.maestro.updates.download as any).mockResolvedValue({ success: true });
+			(window.openwizardai.updates.download as any).mockResolvedValue({ success: true });
 
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -785,12 +787,12 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('Download and Install Update'));
 
-			expect(window.maestro.updates.download).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.updates.download).toHaveBeenCalledTimes(1);
 		});
 
 		it('shows downloading state when download starts', async () => {
 			// Make download take some time
-			(window.maestro.updates.download as any).mockImplementation(
+			(window.openwizardai.updates.download as any).mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 100))
 			);
 
@@ -809,7 +811,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('disables download button while downloading', async () => {
-			(window.maestro.updates.download as any).mockImplementation(
+			(window.openwizardai.updates.download as any).mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 100))
 			);
 
@@ -829,7 +831,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('disables refresh button while downloading', async () => {
-			(window.maestro.updates.download as any).mockImplementation(
+			(window.openwizardai.updates.download as any).mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve({ success: true }), 100))
 			);
 
@@ -850,7 +852,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows download error when download fails', async () => {
-			(window.maestro.updates.download as any).mockResolvedValue({
+			(window.openwizardai.updates.download as any).mockResolvedValue({
 				success: false,
 				error: 'Download failed: network error',
 			});
@@ -870,7 +872,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('shows manual download link on error', async () => {
-			(window.maestro.updates.download as any).mockResolvedValue({
+			(window.openwizardai.updates.download as any).mockResolvedValue({
 				success: false,
 				error: 'Some error',
 			});
@@ -889,7 +891,7 @@ describe('UpdateCheckModal', () => {
 		});
 
 		it('opens GitHub releases when manual download link is clicked after error', async () => {
-			(window.maestro.updates.download as any).mockResolvedValue({
+			(window.openwizardai.updates.download as any).mockResolvedValue({
 				success: false,
 				error: 'Some error',
 			});
@@ -908,20 +910,20 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('Download manually from GitHub'));
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://github.com/RunMaestro/Maestro/releases'
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI/releases'
 			);
 		});
 
 		it('subscribes to status updates on mount', async () => {
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
-			expect(window.maestro.updates.onStatus).toHaveBeenCalled();
+			expect(window.openwizardai.updates.onStatus).toHaveBeenCalled();
 		});
 
 		it('unsubscribes from status updates on unmount', async () => {
 			const mockUnsubscribe = vi.fn();
-			(window.maestro.updates.onStatus as any).mockReturnValue(mockUnsubscribe);
+			(window.openwizardai.updates.onStatus as any).mockReturnValue(mockUnsubscribe);
 
 			const { unmount } = render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
@@ -939,7 +941,7 @@ describe('UpdateCheckModal', () => {
 		it('calls install API when restart button is clicked', async () => {
 			// Simulate downloaded state via onStatus callback
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -959,12 +961,12 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('Restart to Update'));
 
-			expect(window.maestro.updates.install).toHaveBeenCalled();
+			expect(window.openwizardai.updates.install).toHaveBeenCalled();
 		});
 
 		it('shows restart button after download completes', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -988,7 +990,7 @@ describe('UpdateCheckModal', () => {
 
 		it('restart button has success styling', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1017,7 +1019,7 @@ describe('UpdateCheckModal', () => {
 	describe('download progress', () => {
 		it('shows progress bar during download', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1042,7 +1044,7 @@ describe('UpdateCheckModal', () => {
 
 		it('shows download speed', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1065,7 +1067,7 @@ describe('UpdateCheckModal', () => {
 
 		it('shows transferred and total bytes', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1088,7 +1090,7 @@ describe('UpdateCheckModal', () => {
 
 		it('updates progress bar width based on percent', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1116,7 +1118,7 @@ describe('UpdateCheckModal', () => {
 
 		it('handles error status from onStatus callback', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1162,14 +1164,14 @@ describe('UpdateCheckModal', () => {
 
 			fireEvent.click(screen.getByText('Or download manually from GitHub'));
 
-			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
-				'https://github.com/RunMaestro/Maestro/releases'
+			expect(window.openwizardai.shell.openExternal).toHaveBeenCalledWith(
+				'https://github.com/manoelpanev/OpenWizardAI/releases'
 			);
 		});
 
 		it('fallback link is visible during download', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});
@@ -1192,7 +1194,7 @@ describe('UpdateCheckModal', () => {
 
 		it('fallback link is visible after download completes', async () => {
 			let statusCallback: ((status: any) => void) | null = null;
-			(window.maestro.updates.onStatus as any).mockImplementation((cb: any) => {
+			(window.openwizardai.updates.onStatus as any).mockImplementation((cb: any) => {
 				statusCallback = cb;
 				return vi.fn();
 			});

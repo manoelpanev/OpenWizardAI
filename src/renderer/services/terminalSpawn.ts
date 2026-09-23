@@ -137,7 +137,7 @@ export async function spawnPtyForTab(options: SpawnPtyForTabOptions): Promise<vo
 	const { defaultShell, shellArgs, shellEnvVars } = useSettingsStore.getState();
 
 	try {
-		const result = await window.maestro.process.spawnTerminalTab({
+		const result = await window.openwizardai.process.spawnTerminalTab({
 			sessionId: terminalSessionId,
 			cwd: spawnCwd,
 			shell: defaultShell || undefined,
@@ -155,9 +155,11 @@ export async function spawnPtyForTab(options: SpawnPtyForTabOptions): Promise<vo
 			// Run the user-configured startup command. The PTY buffers stdin, so the
 			// shell will execute it once initialization (rc files, etc.) finishes.
 			if (tab.startupCommand) {
-				window.maestro.process.write(terminalSessionId, tab.startupCommand + '\n').catch(() => {
-					// Write failures are surfaced by the process exit handler
-				});
+				window.openwizardai.process
+					.write(terminalSessionId, tab.startupCommand + '\n')
+					.catch(() => {
+						// Write failures are surfaced by the process exit handler
+					});
 			}
 		} else {
 			onSpawnFailure(

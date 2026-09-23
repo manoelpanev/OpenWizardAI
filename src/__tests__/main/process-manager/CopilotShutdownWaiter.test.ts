@@ -44,7 +44,7 @@ describe('CopilotShutdownWaiter', () => {
 	let eventsPath: string;
 
 	beforeEach(async () => {
-		configDir = await fs.mkdtemp(path.join(os.tmpdir(), 'maestro-cpshutdown-'));
+		configDir = await fs.mkdtemp(path.join(os.tmpdir(), 'openwizardai-cpshutdown-'));
 		eventsPath = path.join(configDir, 'session-state', AGENT_SESSION_ID, 'events.jsonl');
 		await fs.mkdir(path.dirname(eventsPath), { recursive: true });
 	});

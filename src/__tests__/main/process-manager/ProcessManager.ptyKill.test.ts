@@ -43,7 +43,7 @@ vi.mock('../../../shared/platformDetection', () => ({
 }));
 
 vi.mock('../../../main/coworking/coworking-socket-path', () => ({
-	getBridgeSocketPath: () => '/tmp/maestro-test-coworking.sock',
+	getBridgeSocketPath: () => '/tmp/openwizardai-test-coworking.sock',
 }));
 
 import { ProcessManager } from '../../../main/process-manager';
@@ -101,7 +101,7 @@ function spawnTerminal(pm: ProcessManager, sessionId: string) {
 	});
 }
 
-describe('ProcessManager PTY kill on Windows (MAESTRO-XZ)', () => {
+describe('ProcessManager PTY kill on Windows (OPENWIZARDAI-XZ)', () => {
 	let fakePty: FakeWindowsPty;
 
 	beforeEach(() => {

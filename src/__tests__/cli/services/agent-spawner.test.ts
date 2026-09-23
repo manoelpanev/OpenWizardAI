@@ -111,9 +111,9 @@ vi.mock('fs', async () => {
 		readFileSync: vi.fn(),
 		writeFileSync: vi.fn(),
 		existsSync: vi.fn(() => false),
-		// Default to "maestro-p not found" so Claude spawns resolve to API unless a
+		// Default to "openwizardai-p not found" so Claude spawns resolve to API unless a
 		// test opts into the TUI by making this succeed. Mirrors production, where
-		// getCliMaestroPBinPath()/fileExists gate the interactive path.
+		// getCliOpenWizardAIPBinPath()/fileExists gate the interactive path.
 		accessSync: vi.fn(() => {
 			throw new Error('ENOENT');
 		}),
@@ -921,34 +921,34 @@ Some text with [x] in it that's not a checkbox
 			expect(result.success).toBe(true);
 		});
 
-		it('runs the local maestro-p TUI when the agent selected the interactive token source', async () => {
+		it('runs the local openwizardai-p TUI when the agent selected the interactive token source', async () => {
 			// Honoring the token source across the board: a local Claude agent set to
-			// interactive (TUI) wraps the spawn with maestro-p via process.execPath
-			// (node), injecting MAESTRO_CLAUDE_BIN, instead of running `claude --print`.
-			// Make maestro-p "present": getCliMaestroPBinPath() (accessSync) resolves
+			// interactive (TUI) wraps the spawn with openwizardai-p via process.execPath
+			// (node), injecting OPENWIZARDAI_CLAUDE_BIN, instead of running `claude --print`.
+			// Make openwizardai-p "present": getCliOpenWizardAIPBinPath() (accessSync) resolves
 			// and the resolver's fileExists (existsSync) confirms the candidate.
 			vi.mocked(fs.accessSync).mockReturnValue(undefined);
 			vi.mocked(fs.existsSync).mockReturnValue(true);
 
 			const resultPromise = spawnAgent('claude-code', '/project/path', 'Test prompt', undefined, {
-				enableMaestroP: true,
-				maestroPMode: 'interactive',
+				enableOpenWizardAIP: true,
+				openwizardaiPMode: 'interactive',
 			});
 			await new Promise((resolve) => setTimeout(resolve, 0));
 
 			expect(mockSpawn).toHaveBeenCalled();
 			const [cmd, args, options] = mockSpawn.mock.calls[0];
 
-			// Command is the node/electron execPath (maestro-p is a Node script), not claude.
+			// Command is the node/electron execPath (openwizardai-p is a Node script), not claude.
 			expect(cmd).toBe(process.execPath);
-			// maestro-p.js script is the first arg, followed by its interactive flag,
+			// openwizardai-p.js script is the first arg, followed by its interactive flag,
 			// then the original headless batch args ending with the prompt positional.
-			expect(String(args[0])).toMatch(/maestro-p\.js$/);
+			expect(String(args[0])).toMatch(/openwizardai-p\.js$/);
 			expect(args).toContain('--dangerously-skip-permissions');
 			expect(args).toContain('--');
 			expect(args).toContain('Test prompt');
-			// MAESTRO_CLAUDE_BIN points maestro-p at the real claude binary to drive.
-			expect(options.env.MAESTRO_CLAUDE_BIN).toBeTruthy();
+			// OPENWIZARDAI_CLAUDE_BIN points openwizardai-p at the real claude binary to drive.
+			expect(options.env.OPENWIZARDAI_CLAUDE_BIN).toBeTruthy();
 
 			mockStdout.emit('data', Buffer.from('{"type":"result","result":"ok"}\n'));
 			await new Promise((resolve) => setTimeout(resolve, 0));
@@ -957,20 +957,20 @@ Some text with [x] in it that's not a checkbox
 			expect(result.success).toBe(true);
 		});
 
-		it('stays on claude --print for the API token source (no maestro-p wrap)', async () => {
-			// The inverse guard: even with maestro-p present on disk, an agent set to
-			// API must NOT route through maestro-p.
+		it('stays on claude --print for the API token source (no openwizardai-p wrap)', async () => {
+			// The inverse guard: even with openwizardai-p present on disk, an agent set to
+			// API must NOT route through openwizardai-p.
 			vi.mocked(fs.accessSync).mockReturnValue(undefined);
 			vi.mocked(fs.existsSync).mockReturnValue(true);
 
 			const resultPromise = spawnAgent('claude-code', '/project/path', 'Test prompt', undefined, {
-				enableMaestroP: false,
+				enableOpenWizardAIP: false,
 			});
 			await new Promise((resolve) => setTimeout(resolve, 0));
 
 			const [cmd, args] = mockSpawn.mock.calls[0];
 			expect(cmd).not.toBe(process.execPath);
-			expect(String(args[0])).not.toMatch(/maestro-p\.js$/);
+			expect(String(args[0])).not.toMatch(/openwizardai-p\.js$/);
 			expect(args).toContain('--print');
 
 			mockStdout.emit('data', Buffer.from('{"type":"result","result":"ok"}\n'));
@@ -1960,35 +1960,35 @@ Some text with [x] in it that's not a checkbox
 		});
 
 		it('applies session customEnvVars to local spawn env (wins over shell env)', async () => {
-			const prev = process.env.MAESTRO_TEST_ENV;
-			process.env.MAESTRO_TEST_ENV = 'from-shell';
+			const prev = process.env.OPENWIZARDAI_TEST_ENV;
+			process.env.OPENWIZARDAI_TEST_ENV = 'from-shell';
 
 			try {
 				const p = spawnAgent('claude-code', '/p', 'hi', undefined, {
-					customEnvVars: { MAESTRO_TEST_ENV: 'from-session' },
+					customEnvVars: { OPENWIZARDAI_TEST_ENV: 'from-session' },
 				});
 				await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
 				const { options } = spawnCall();
-				expect(options.env.MAESTRO_TEST_ENV).toBe('from-session');
+				expect(options.env.OPENWIZARDAI_TEST_ENV).toBe('from-session');
 			} finally {
-				if (prev === undefined) delete process.env.MAESTRO_TEST_ENV;
-				else process.env.MAESTRO_TEST_ENV = prev;
+				if (prev === undefined) delete process.env.OPENWIZARDAI_TEST_ENV;
+				else process.env.OPENWIZARDAI_TEST_ENV = prev;
 			}
 		});
 
 		it('session customEnvVars wins over agent-level customEnvVars', async () => {
 			mockReadAgentConfig.mockReturnValue({
-				customEnvVars: { MAESTRO_TEST_LAYER: 'agent' },
+				customEnvVars: { OPENWIZARDAI_TEST_LAYER: 'agent' },
 			});
 
 			const p = spawnAgent('claude-code', '/p', 'hi', undefined, {
-				customEnvVars: { MAESTRO_TEST_LAYER: 'session' },
+				customEnvVars: { OPENWIZARDAI_TEST_LAYER: 'session' },
 			});
 			await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
 			const { options } = spawnCall();
-			expect(options.env.MAESTRO_TEST_LAYER).toBe('session');
+			expect(options.env.OPENWIZARDAI_TEST_LAYER).toBe('session');
 		});
 
 		it('shell env wins over agent defaultEnvVars when user has no customEnvVars', async () => {
@@ -2169,7 +2169,7 @@ Some text with [x] in it that's not a checkbox
 			// Explicit API token source so the remote command stays `claude`.
 			const p = spawnAgent('claude-code', '/p', 'hi', undefined, {
 				sshRemoteConfig: { enabled: true, remoteId: 'r1' },
-				enableMaestroP: false,
+				enableOpenWizardAIP: false,
 			});
 			await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
@@ -2182,14 +2182,14 @@ Some text with [x] in it that's not a checkbox
 		});
 
 		it('defaults an UNCONFIGURED SSH agent to claude --print, NOT the remote TUI', async () => {
-			// The CLI cannot probe the remote for maestro-p and it may not be
+			// The CLI cannot probe the remote for openwizardai-p and it may not be
 			// installed there, so an agent that never chose a token source must
-			// default to API (claude) over SSH - never optimistically exec maestro-p.
+			// default to API (claude) over SSH - never optimistically exec openwizardai-p.
 			mockWrapSpawnWithSsh.mockResolvedValue(sshWrapResult({ args: ['remotehost'] }));
 
 			const p = spawnAgent('claude-code', '/p', 'hi', undefined, {
 				sshRemoteConfig: { enabled: true, remoteId: 'r1' },
-				// enableMaestroP intentionally omitted (unconfigured).
+				// enableOpenWizardAIP intentionally omitted (unconfigured).
 			});
 			await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
@@ -2197,28 +2197,28 @@ Some text with [x] in it that's not a checkbox
 				{ agentBinaryName?: string; args: string[] },
 			];
 			expect(wrapConfig.agentBinaryName).toBe('claude');
-			expect(wrapConfig.agentBinaryName).not.toBe('maestro-p');
+			expect(wrapConfig.agentBinaryName).not.toBe('openwizardai-p');
 		});
 
-		it('runs maestro-p on the remote host when the agent selected the TUI token source', async () => {
+		it('runs openwizardai-p on the remote host when the agent selected the TUI token source', async () => {
 			// Honoring the token source across the board: an SSH agent set to
-			// interactive (TUI) drives the remote maestro-p on the Max plan instead
+			// interactive (TUI) drives the remote openwizardai-p on the Max plan instead
 			// of `claude --print`, mirroring the desktop SSH remote-interactive path.
 			mockWrapSpawnWithSsh.mockResolvedValue(sshWrapResult({ args: ['remotehost'] }));
 
 			const p = spawnAgent('claude-code', '/p', 'hi', undefined, {
 				sshRemoteConfig: { enabled: true, remoteId: 'r1' },
-				enableMaestroP: true,
-				maestroPMode: 'interactive',
+				enableOpenWizardAIP: true,
+				openwizardaiPMode: 'interactive',
 			});
 			await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
 			const [wrapConfig] = mockWrapSpawnWithSsh.mock.calls[0] as [
 				{ agentBinaryName?: string; args: string[] },
 			];
-			// Remote command is maestro-p (not claude), with the interactive flag
+			// Remote command is openwizardai-p (not claude), with the interactive flag
 			// prepended ahead of the headless batch args.
-			expect(wrapConfig.agentBinaryName).toBe('maestro-p');
+			expect(wrapConfig.agentBinaryName).toBe('openwizardai-p');
 			expect(wrapConfig.args).toContain('--dangerously-skip-permissions');
 		});
 
@@ -2451,19 +2451,19 @@ Some text with [x] in it that's not a checkbox
 			mockSpawn.mockReturnValue(mockChild);
 		});
 
-		it('passes the Maestro system prompt to Claude via --append-system-prompt (non-Windows)', async () => {
+		it('passes the OpenWizardAI system prompt to Claude via --append-system-prompt (non-Windows)', async () => {
 			const originalPlatform = process.platform;
 			Object.defineProperty(process, 'platform', { value: 'darwin', configurable: true });
 			try {
 				const p = spawnAgent('claude-code', '/p', 'user msg', undefined, {
-					appendSystemPrompt: 'maestro context here',
+					appendSystemPrompt: 'openwizardai context here',
 				});
 				await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
 				const { args } = spawnCall();
 				const flagIdx = args.indexOf('--append-system-prompt');
 				expect(flagIdx).toBeGreaterThanOrEqual(0);
-				expect(args[flagIdx + 1]).toBe('maestro context here');
+				expect(args[flagIdx + 1]).toBe('openwizardai context here');
 				// The flag must precede the '--' separator so it doesn't get
 				// swallowed as part of the positional prompt.
 				const sepIdx = args.indexOf('--');
@@ -2490,13 +2490,13 @@ Some text with [x] in it that's not a checkbox
 				const { args } = spawnCall();
 				const fileFlagIdx = args.indexOf('--append-system-prompt-file');
 				expect(fileFlagIdx).toBeGreaterThanOrEqual(0);
-				// The arg after the flag should be a tmp-path with the maestro prefix
-				expect(args[fileFlagIdx + 1]).toMatch(/maestro-sysprompt-/);
+				// The arg after the flag should be a tmp-path with the openwizardai prefix
+				expect(args[fileFlagIdx + 1]).toMatch(/openwizardai-sysprompt-/);
 				// Inline flag must NOT also be emitted on the Windows local path
 				expect(args.indexOf('--append-system-prompt')).toBe(-1);
 				// And we must have written the temp file
 				expect(writeSpy).toHaveBeenCalledWith(
-					expect.stringMatching(/maestro-sysprompt-/),
+					expect.stringMatching(/openwizardai-sysprompt-/),
 					'sysprompt',
 					'utf-8'
 				);
@@ -2531,7 +2531,7 @@ Some text with [x] in it that's not a checkbox
 				expect(tempPath).not.toMatch(/\.\.\//);
 				expect(tempPath).not.toMatch(/\.\.\\/);
 				// And the dangerous chars should have collapsed to safe ones
-				expect(tempPath).toMatch(/maestro-sysprompt-[A-Za-z0-9_-]+-\d+\.txt$/);
+				expect(tempPath).toMatch(/openwizardai-sysprompt-[A-Za-z0-9_-]+-\d+\.txt$/);
 			} finally {
 				writeSpy.mockRestore();
 				Object.defineProperty(process, 'platform', {
@@ -2574,9 +2574,9 @@ Some text with [x] in it that's not a checkbox
 			}
 		});
 
-		it('still injects the Maestro system prompt on resume (Claude reads it every turn)', async () => {
+		it('still injects the OpenWizardAI system prompt on resume (Claude reads it every turn)', async () => {
 			const p = spawnAgent('claude-code', '/p', 'follow-up', 'session-abc', {
-				appendSystemPrompt: 'maestro context',
+				appendSystemPrompt: 'openwizardai context',
 			});
 			await driveSpawnToCompletion(p, 0, CLAUDE_OK());
 
@@ -2585,12 +2585,12 @@ Some text with [x] in it that's not a checkbox
 			expect(args).toContain('session-abc');
 			const flagIdx = args.indexOf('--append-system-prompt');
 			expect(flagIdx).toBeGreaterThanOrEqual(0);
-			expect(args[flagIdx + 1]).toBe('maestro context');
+			expect(args[flagIdx + 1]).toBe('openwizardai context');
 		});
 
 		it('Codex (no native --append-system-prompt support) embeds the system prompt in the first user turn', async () => {
 			const p = spawnAgent('codex', '/p', 'do thing', undefined, {
-				appendSystemPrompt: 'maestro ctx',
+				appendSystemPrompt: 'openwizardai ctx',
 			});
 			await driveSpawnToCompletion(p, 0, CODEX_INIT());
 
@@ -2599,7 +2599,7 @@ Some text with [x] in it that's not a checkbox
 			const sepIdx = args.indexOf('--');
 			expect(sepIdx).toBeGreaterThan(0);
 			const positional = args[sepIdx + 1];
-			expect(positional).toContain('maestro ctx');
+			expect(positional).toContain('openwizardai ctx');
 			expect(positional).toContain('# User Request');
 			expect(positional).toContain('do thing');
 			// must NOT emit the native flag for agents that don't support it
@@ -2609,7 +2609,7 @@ Some text with [x] in it that's not a checkbox
 
 		it('Codex resume skips system-prompt embedding (already captured in transcript)', async () => {
 			const p = spawnAgent('codex', '/p', 'do thing', 'codex-thread-xyz', {
-				appendSystemPrompt: 'maestro ctx',
+				appendSystemPrompt: 'openwizardai ctx',
 			});
 			await driveSpawnToCompletion(p, 0, CODEX_INIT());
 
@@ -2618,7 +2618,7 @@ Some text with [x] in it that's not a checkbox
 			expect(sepIdx).toBeGreaterThan(0);
 			const positional = args[sepIdx + 1];
 			expect(positional).toBe('do thing');
-			expect(positional).not.toContain('maestro ctx');
+			expect(positional).not.toContain('openwizardai ctx');
 			expect(positional).not.toContain('# User Request');
 		});
 

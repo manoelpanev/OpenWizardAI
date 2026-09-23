@@ -25,7 +25,7 @@ function input(overrides: Partial<SnoozeHistoryInput> = {}): SnoozeHistoryInput 
 	};
 }
 
-const settingsSet = window.maestro.settings.set as ReturnType<typeof vi.fn>;
+const settingsSet = window.openwizardai.settings.set as ReturnType<typeof vi.fn>;
 
 describe('snoozeHistoryStore', () => {
 	beforeEach(() => {

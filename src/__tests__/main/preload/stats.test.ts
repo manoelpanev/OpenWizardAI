@@ -52,7 +52,7 @@ describe('Stats Preload API', () => {
 			const session = {
 				sessionId: 'session-1',
 				agentType: 'claude-code',
-				documentPath: '/project/.maestro/tasks.md',
+				documentPath: '/project/.openwizardai/tasks.md',
 				startTime: Date.now(),
 				tasksTotal: 10,
 				projectPath: '/project',

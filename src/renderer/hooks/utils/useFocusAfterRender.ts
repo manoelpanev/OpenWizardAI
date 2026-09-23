@@ -51,7 +51,7 @@ export function useFocusAfterRender(
  * Focuses `ref.current` once, when the host component mounts.
  *
  * Use this for the search/filter input of a modal that opens from a keyboard
- * shortcut, a popover menu, or the command palette: Maestro is keyboard-first,
+ * shortcut, a popover menu, or the command palette: OpenWizardAI is keyboard-first,
  * so a modal must land with its input already focused. Unlike
  * {@link useFocusAfterRender} this does not re-assert focus on later renders,
  * so clicking a control inside the modal keeps its own focus.

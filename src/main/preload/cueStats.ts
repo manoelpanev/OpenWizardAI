@@ -1,10 +1,10 @@
 /**
  * Preload API for Cue Stats operations.
  *
- * Exposes `window.maestro.cueStats` - the renderer-side bridge to the Phase 03
+ * Exposes `window.openwizardai.cueStats` - the renderer-side bridge to the Phase 03
  * aggregation handler (`cue-stats:get-aggregation`). The handler throws
  * `'CueStatsDisabled'` when either `encoreFeatures.usageStats` or
- * `encoreFeatures.maestroCue` is off; consumers should catch that to render
+ * `encoreFeatures.openwizardaiCue` is off; consumers should catch that to render
  * the "feature off" state.
  */
 

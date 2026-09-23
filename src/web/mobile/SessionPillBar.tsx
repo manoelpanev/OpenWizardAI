@@ -1,5 +1,5 @@
 /**
- * SessionPillBar component for Maestro mobile web interface
+ * SessionPillBar component for OpenWizardAI mobile web interface
  *
  * A horizontal scrollable bar displaying session pills at the top of the mobile interface.
  * Each pill shows the session name, status dot (color-coded), and mode icon (AI/terminal).

@@ -12,7 +12,7 @@ import type { DataBufferManager } from '../handlers/DataBufferManager';
 import { StdoutHandler } from '../handlers/StdoutHandler';
 import { StderrHandler } from '../handlers/StderrHandler';
 import { ExitHandler } from '../handlers/ExitHandler';
-import { buildChildProcessEnv, collectMaestroEnvVars } from '../utils/envBuilder';
+import { buildChildProcessEnv, collectOpenWizardAIEnvVars } from '../utils/envBuilder';
 import { DEFAULT_QUERY_SOURCE } from '../../../shared/querySource';
 import { saveImageToTempFile, buildImagePromptPrefix } from '../utils/imageUtils';
 import { buildStreamJsonMessage } from '../utils/streamJsonBuilder';
@@ -277,7 +277,7 @@ export class ChildProcessSpawner {
 			// Node.js refuses to spawn .cmd/.bat directly (throws "spawn EINVAL") after
 			// the CVE-2024-27980 fix - they must be launched through a shell. npm-installed
 			// agent CLIs resolve to shims like claude.cmd / codex.cmd / opencode.cmd, which
-			// is exactly what tab naming spawns on Windows. Fixes MAESTRO-Q8.
+			// is exactly what tab naming spawns on Windows. Fixes OPENWIZARDAI-Q8.
 			if (isWindows() && !useShell && (commandExt === '.cmd' || commandExt === '.bat')) {
 				useShell = true;
 				logger.info(
@@ -462,7 +462,7 @@ export class ChildProcessSpawner {
 				// `StdoutHandler.emitSessionIdIfNeeded` remains the source of
 				// truth for fresh sessions.
 				agentSessionId: config.agentSessionId,
-				maestroEnvVars: collectMaestroEnvVars(
+				openwizardaiEnvVars: collectOpenWizardAIEnvVars(
 					shellEnvVars,
 					customEnvVars,
 					isResuming,

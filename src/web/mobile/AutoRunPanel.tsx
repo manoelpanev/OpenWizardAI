@@ -1,5 +1,5 @@
 /**
- * AutoRunPanel component for Maestro mobile web interface
+ * AutoRunPanel component for OpenWizardAI mobile web interface
  *
  * Full-screen Auto Run management view that mirrors the desktop AutoRun panel.
  * Reuses {@link AutoRunInline} so the layout, toolbar, document selector,

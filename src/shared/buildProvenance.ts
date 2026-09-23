@@ -1,11 +1,11 @@
 /**
- * Build provenance - proof that a build came out of Maestro's own release pipeline.
+ * Build provenance - proof that a build came out of OpenWizardAI's own release pipeline.
  *
  * WHY THIS EXISTS
  *
  * The Sentry DSN used to be a string literal in `src/main/index.ts`. A DSN is a
  * write-only ingest key, so it is not a secret in the security sense, but it IS
- * an address: anything holding it writes crash reports into the `smash-labs/maestro`
+ * an address: anything holding it writes crash reports into the `smash-labs/openwizardai`
  * project. Because it sat in source, every fork inherited it. Four separate forks
  * were found reporting into our project at once (a "Command Center"/Telegram fork,
  * a "Squads" fork, "Voyager", and a rebrand calling itself "Superluminal Overport"),
@@ -26,12 +26,12 @@
  *
  * Deliberately NOT a filter. Filtering by release, or by whether stack frames match
  * an official build manifest, was considered and rejected: two of the four forks
- * reuse real Maestro version numbers, and frame matching breaks on every refactor.
+ * reuse real OpenWizardAI version numbers, and frame matching breaks on every refactor.
  * A build either carries the pipeline's provenance or it cannot report at all.
  *
  * WHAT A FORK SHOULD DO
  *
- * Set `MAESTRO_SENTRY_DSN` to your OWN Sentry DSN before `npm run build`, and your
+ * Set `OPENWIZARDAI_SENTRY_DSN` to your OWN Sentry DSN before `npm run build`, and your
  * crash reports go to your own project. Leave it unset and crash reporting is off.
  */
 

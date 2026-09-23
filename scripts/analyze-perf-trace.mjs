@@ -1,11 +1,11 @@
-// Analyze a Maestro field performance trace and print a Markdown summary.
+// Analyze an OpenWizardAI field performance trace and print a Markdown summary.
 //
 // This is the development-time counterpart to the in-app capture (Cmd+K ->
 // "Debug: Start/End Performance Profiling"). The app only CAPTURES traces; all
 // analysis lives here so nothing heavy ships in the Electron main process.
 //
 // Usage:
-//   node scripts/analyze-perf-trace.mjs <maestro-profile-*.zip | trace.json | trace.json.gz>
+//   node scripts/analyze-perf-trace.mjs <openwizardai-profile-*.zip | trace.json | trace.json.gz>
 //
 // It surfaces the long main-thread tasks (the lag a user feels), self-time by
 // subsystem (Layout / Paint / JS / GC), and the hottest JS functions. See
@@ -135,7 +135,7 @@ function forEachEventWhole(trace, onEvent) {
 	if (trace.byteLength > MAX_WHOLE_PARSE_BYTES) {
 		throw new Error(
 			`Trace is ${(trace.byteLength / 1024 / 1024).toFixed(0)}MB and is not line-delimited, so it cannot be ` +
-				'parsed as a single JSON document. Re-capture with Maestro, which writes one event per line.'
+				'parsed as a single JSON document. Re-capture with OpenWizardAI, which writes one event per line.'
 		);
 	}
 	const chunks = [];
@@ -627,11 +627,11 @@ const sanitize = (s) => {
 
 function render(analysis, meta) {
 	const out = [];
-	out.push('# Maestro Performance Profile analysis');
+	out.push('# OpenWizardAI Performance Profile analysis');
 	out.push('');
 	if (meta) {
 		out.push(
-			`Captured ${meta.capturedAt} | Maestro v${meta.appVersion} | ${meta.platform} ${meta.arch} | ` +
+			`Captured ${meta.capturedAt} | OpenWizardAI v${meta.appVersion} | ${meta.platform} ${meta.arch} | ` +
 				`Electron ${meta.electronVersion} (Chrome ${meta.chromeVersion}) | CPU ${meta.cpuModel} x${meta.cpuCount}`
 		);
 		out.push('');

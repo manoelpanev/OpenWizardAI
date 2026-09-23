@@ -20,7 +20,7 @@ let projectRoot = '';
 
 beforeEach(() => {
 	projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cue-fanout-engine-'));
-	fs.mkdirSync(path.join(projectRoot, '.maestro/prompts'), { recursive: true });
+	fs.mkdirSync(path.join(projectRoot, '.openwizardai/prompts'), { recursive: true });
 });
 
 afterEach(() => {
@@ -39,7 +39,7 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 	it('loads the fan-out subscription instead of skipping it as invalid', () => {
 		// Exactly the shape the renderer emits post-Commit-7.
 		writeFile(
-			'.maestro/cue.yaml',
+			'.openwizardai/cue.yaml',
 			[
 				'subscriptions:',
 				'  - name: Pipeline 1',
@@ -52,9 +52,9 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 				'      - OpenCode 1',
 				'      - Claude 1',
 				'    fan_out_prompt_files:',
-				'      - .maestro/prompts/codex_1-pipeline_1.md',
-				'      - .maestro/prompts/opencode_1-pipeline_1.md',
-				'      - .maestro/prompts/claude_1-pipeline_1.md',
+				'      - .openwizardai/prompts/codex_1-pipeline_1.md',
+				'      - .openwizardai/prompts/opencode_1-pipeline_1.md',
+				'      - .openwizardai/prompts/claude_1-pipeline_1.md',
 				'settings:',
 				'  timeout_minutes: 30',
 				'  timeout_on_fail: break',
@@ -63,9 +63,9 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 				'',
 			].join('\n')
 		);
-		writeFile('.maestro/prompts/codex_1-pipeline_1.md', 'codex work');
-		writeFile('.maestro/prompts/opencode_1-pipeline_1.md', 'opencode work');
-		writeFile('.maestro/prompts/claude_1-pipeline_1.md', 'claude work');
+		writeFile('.openwizardai/prompts/codex_1-pipeline_1.md', 'codex work');
+		writeFile('.openwizardai/prompts/opencode_1-pipeline_1.md', 'opencode work');
+		writeFile('.openwizardai/prompts/claude_1-pipeline_1.md', 'claude work');
 
 		const result = loadCueConfigDetailed(projectRoot);
 		expect(result.ok).toBe(true);
@@ -80,9 +80,9 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 		expect(sub.fan_out).toEqual(['Codex 1', 'OpenCode 1', 'Claude 1']);
 		expect(sub.fan_out_prompts).toEqual(['codex work', 'opencode work', 'claude work']);
 		expect(sub.fan_out_prompt_files).toEqual([
-			'.maestro/prompts/codex_1-pipeline_1.md',
-			'.maestro/prompts/opencode_1-pipeline_1.md',
-			'.maestro/prompts/claude_1-pipeline_1.md',
+			'.openwizardai/prompts/codex_1-pipeline_1.md',
+			'.openwizardai/prompts/opencode_1-pipeline_1.md',
+			'.openwizardai/prompts/claude_1-pipeline_1.md',
 		]);
 		// pipeline_name / pipeline_color must round-trip for UI grouping.
 		expect(sub.pipeline_name).toBe('Pipeline 1');
@@ -91,7 +91,7 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 
 	it('loads the fan-out subscription with legacy inline fan_out_prompts', () => {
 		writeFile(
-			'.maestro/cue.yaml',
+			'.openwizardai/cue.yaml',
 			[
 				'subscriptions:',
 				'  - name: Legacy Pipeline',
@@ -124,15 +124,15 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 		// Regression guard: even if validation passed now, a stray warning
 		// in `result.warnings` would surface in logs as if something failed.
 		writeFile(
-			'.maestro/cue.yaml',
+			'.openwizardai/cue.yaml',
 			[
 				'subscriptions:',
 				'  - name: Clean',
 				'    event: app.startup',
 				'    fan_out: [A, B]',
 				'    fan_out_prompt_files:',
-				'      - .maestro/prompts/a.md',
-				'      - .maestro/prompts/b.md',
+				'      - .openwizardai/prompts/a.md',
+				'      - .openwizardai/prompts/b.md',
 				'settings:',
 				'  timeout_minutes: 30',
 				'  timeout_on_fail: break',
@@ -141,8 +141,8 @@ describe('loadCueConfigDetailed - fan-out with per-agent prompt files', () => {
 				'',
 			].join('\n')
 		);
-		writeFile('.maestro/prompts/a.md', 'a');
-		writeFile('.maestro/prompts/b.md', 'b');
+		writeFile('.openwizardai/prompts/a.md', 'a');
+		writeFile('.openwizardai/prompts/b.md', 'b');
 
 		const result = loadCueConfigDetailed(projectRoot);
 		expect(result.ok).toBe(true);

@@ -1,6 +1,6 @@
 # CLAUDE-PLATFORM.md
 
-Cross-platform and multi-environment considerations for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+Cross-platform and multi-environment considerations for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]].
 
 ---
 

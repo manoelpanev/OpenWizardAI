@@ -4,14 +4,14 @@
  * This module provides generic IPC handlers for agent session management
  * that work with any agent supporting the AgentSessionStorage interface.
  *
- * This is the preferred API for new code. The window.maestro.claude.* API
+ * This is the preferred API for new code. The window.openwizardai.claude.* API
  * remains for backwards compatibility but logs deprecation warnings.
  *
  * Usage:
- * - window.maestro.agentSessions.list(agentId, projectPath)
- * - window.maestro.agentSessions.read(agentId, projectPath, sessionId)
- * - window.maestro.agentSessions.search(agentId, projectPath, query, mode)
- * - window.maestro.agentSessions.getGlobalStats() - aggregates from all providers
+ * - window.openwizardai.agentSessions.list(agentId, projectPath)
+ * - window.openwizardai.agentSessions.read(agentId, projectPath, sessionId)
+ * - window.openwizardai.agentSessions.search(agentId, projectPath, query, mode)
+ * - window.openwizardai.agentSessions.getGlobalStats() - aggregates from all providers
  */
 
 import { ipcMain, BrowserWindow } from 'electron';
@@ -64,8 +64,8 @@ const LOG_CONTEXT = '[AgentSessions]';
  * discovered on disk. The file belongs to the agent CLI, not to us: it can be
  * unreadable (restrictive umask, a `~/.claude` tree owned by another user),
  * deleted between the directory listing and the read, or briefly locked on
- * Windows. These are environmental, never a Maestro bug, so we keep the local
- * warn but skip Sentry to avoid telemetry noise (MAESTRO-W9). Same shape as the
+ * Windows. These are environmental, never an OpenWizardAI bug, so we keep the local
+ * warn but skip Sentry to avoid telemetry noise (OPENWIZARDAI-W9). Same shape as the
  * `RangeError` carve-out in the loops below: classify the expected boundary,
  * log it locally, and let everything else report.
  */
@@ -885,7 +885,7 @@ export function registerAgentSessionsHandlers(deps?: AgentSessionsHandlerDepende
 				originsStore.set('origins', allOrigins);
 				logger.info(`Set session starred for ${agentId}/${sessionId}: ${starred}`, LOG_CONTEXT);
 
-				// Keep Maestro's own transcript mirror in sync with the star: snapshot
+				// Keep OpenWizardAI's own transcript mirror in sync with the star: snapshot
 				// on star so the conversation survives provider-side deletion, drop the
 				// mirror on unstar so it ages out naturally again. Fire-and-forget - the
 				// star toggle must not block on disk I/O.
@@ -1103,7 +1103,7 @@ export function registerAgentSessionsHandlers(deps?: AgentSessionsHandlerDepende
 					}
 				} catch (error) {
 					// A session file too large to read into a single V8 string throws
-					// `RangeError: Invalid string length` (MAESTRO-M9). That's an expected
+					// `RangeError: Invalid string length` (OPENWIZARDAI-M9). That's an expected
 					// boundary for huge sessions, not a bug - skip it and keep aggregating
 					// the rest. Mirrors the storage-layer carve-out in
 					// claude-/codex-session-storage.ts.
@@ -1111,7 +1111,7 @@ export function registerAgentSessionsHandlers(deps?: AgentSessionsHandlerDepende
 						logger.warn(`Claude session file too large to parse: ${file.sessionKey}`, LOG_CONTEXT);
 					} else if (isExpectedSessionReadError(error)) {
 						// Unreadable or vanished transcript - environmental, see
-						// EXPECTED_SESSION_READ_ERROR_CODES (MAESTRO-W9).
+						// EXPECTED_SESSION_READ_ERROR_CODES (OPENWIZARDAI-W9).
 						logger.warn(`Claude session file not readable: ${file.sessionKey}`, LOG_CONTEXT, {
 							error,
 						});
@@ -1145,12 +1145,12 @@ export function registerAgentSessionsHandlers(deps?: AgentSessionsHandlerDepende
 					}
 				} catch (error) {
 					// See the Claude loop above: oversized session files throw
-					// `RangeError: Invalid string length` (MAESTRO-M9), an expected
+					// `RangeError: Invalid string length` (OPENWIZARDAI-M9), an expected
 					// boundary we skip rather than report.
 					if (error instanceof RangeError) {
 						logger.warn(`Codex session file too large to parse: ${file.sessionKey}`, LOG_CONTEXT);
 					} else if (isExpectedSessionReadError(error)) {
-						// See the Claude loop above (MAESTRO-W9).
+						// See the Claude loop above (OPENWIZARDAI-W9).
 						logger.warn(`Codex session file not readable: ${file.sessionKey}`, LOG_CONTEXT, {
 							error,
 						});

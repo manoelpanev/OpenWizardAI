@@ -1408,9 +1408,9 @@ describe('ThinkingStatusPill', () => {
 		});
 
 		it('handles unicode in session names', () => {
-			const item = createThinkingItem({ name: '🎼 Maestro Session' });
+			const item = createThinkingItem({ name: '🎼 OpenWizardAI Session' });
 			render(<ThinkingStatusPill thinkingItems={[item]} theme={mockTheme} />);
-			const elements = screen.getAllByText('🎼 Maestro Session');
+			const elements = screen.getAllByText('🎼 OpenWizardAI Session');
 			expect(elements.length).toBeGreaterThanOrEqual(1);
 		});
 

@@ -18,13 +18,13 @@ describe('useModalLayer', () => {
 
 	beforeEach(() => {
 		process.env.NODE_ENV = 'production';
-		delete (window as unknown as Record<string, unknown>).__MAESTRO_DEBUG__;
+		delete (window as unknown as Record<string, unknown>).__OPENWIZARDAI_DEBUG__;
 	});
 
 	afterEach(() => {
 		vi.restoreAllMocks();
 		process.env.NODE_ENV = originalNodeEnv;
-		delete (window as unknown as Record<string, unknown>).__MAESTRO_DEBUG__;
+		delete (window as unknown as Record<string, unknown>).__OPENWIZARDAI_DEBUG__;
 	});
 
 	// Wrapper component that provides LayerStackContext

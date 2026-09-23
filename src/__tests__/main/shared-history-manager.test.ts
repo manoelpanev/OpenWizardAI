@@ -101,9 +101,12 @@ describe('SharedHistoryManager', () => {
 			writeEntryLocal('/test/project', entry);
 
 			// Should create directory
-			expect(fs.mkdirSync).toHaveBeenCalledWith(path.join('/test/project', '.maestro/history'), {
-				recursive: true,
-			});
+			expect(fs.mkdirSync).toHaveBeenCalledWith(
+				path.join('/test/project', '.openwizardai/history'),
+				{
+					recursive: true,
+				}
+			);
 
 			// Should append JSONL line
 			expect(fs.appendFileSync).toHaveBeenCalled();
@@ -113,7 +116,7 @@ describe('SharedHistoryManager', () => {
 			expect(parsed.hostname).toBe(LOCAL_HOSTNAME);
 		});
 
-		// MAESTRO-FM: best-effort sync writes into a permission-restricted or
+		// OPENWIZARDAI-FM: best-effort sync writes into a permission-restricted or
 		// non-existent project dir must not spam Sentry with expected fs errors.
 		it('does not report expected filesystem errors (EACCES) to Sentry', () => {
 			vi.mocked(fs.existsSync).mockReturnValue(false);

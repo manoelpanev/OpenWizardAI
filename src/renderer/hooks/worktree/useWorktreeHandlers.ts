@@ -107,7 +107,7 @@ function isSkippableBranch(branch: string | null | undefined): boolean {
  */
 async function resolveRepoRoot(path: string, sshRemoteId?: string): Promise<string | null> {
 	try {
-		const info = await window.maestro.git.worktreeInfo(path, sshRemoteId);
+		const info = await window.openwizardai.git.worktreeInfo(path, sshRemoteId);
 		if (!info.success || !info.exists || !info.repoRoot) return null;
 		return normalizePath(info.repoRoot);
 	} catch (err) {
@@ -214,7 +214,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 		// Scan for worktrees and create sub-agent sessions
 		const parentSshRemoteId = getSshRemoteId(activeSession);
 		try {
-			const scanResult = await window.maestro.git.scanWorktreeDirectory(
+			const scanResult = await window.openwizardai.git.scanWorktreeDirectory(
 				config.basePath,
 				parentSshRemoteId
 			);
@@ -357,7 +357,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 
 			try {
 				// Create the worktree via git (pass SSH remote ID for remote sessions)
-				const result = await window.maestro.git.worktreeSetup(
+				const result = await window.openwizardai.git.worktreeSetup(
 					activeSession.cwd,
 					worktreePath,
 					branchName,
@@ -486,7 +486,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 			// Create the worktree via git (pass SSH remote ID for remote sessions).
 			// baseBranch is honored only when the named branch doesn't already exist
 			// - see git.ts handler for the full semantics.
-			const result = await window.maestro.git.worktreeSetup(
+			const result = await window.openwizardai.git.worktreeSetup(
 				createWtSession.cwd,
 				worktreePath,
 				branchName,
@@ -596,7 +596,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 		const deleteWtSession = useModalStore.getState().getData('deleteWorktree')?.session ?? null;
 		if (!deleteWtSession) return;
 		// Remove the session AND delete the worktree from disk
-		const result = await window.maestro.git.removeWorktree(deleteWtSession.cwd, true);
+		const result = await window.openwizardai.git.removeWorktree(deleteWtSession.cwd, true);
 		if (!result.success) {
 			throw new Error(result.error || 'Failed to remove worktree');
 		}
@@ -635,7 +635,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 		for (const parentSession of sessionsWithWorktreeConfig) {
 			try {
 				const sshRemoteId = getSshRemoteId(parentSession);
-				const scanResult = await window.maestro.git.scanWorktreeDirectory(
+				const scanResult = await window.openwizardai.git.scanWorktreeDirectory(
 					parentSession.worktreeConfig!.basePath,
 					sshRemoteId
 				);
@@ -845,7 +845,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 
 		// Start chokidar watchers, logging failures so they don't go silent
 		for (const session of watchableSessions) {
-			window.maestro.git
+			window.openwizardai.git
 				.watchWorktreeDirectory(session.id, session.worktreeConfig!.basePath)
 				.then((result) => {
 					logger.warn(`[WT-DEBUG] watchWorktreeDirectory result:`, undefined, result);
@@ -863,7 +863,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 		}
 
 		// Set up listener for discovered worktrees (from chokidar)
-		const cleanupListener = window.maestro.git.onWorktreeDiscovered(async (data) => {
+		const cleanupListener = window.openwizardai.git.onWorktreeDiscovered(async (data) => {
 			const { sessionId, worktree } = data;
 			logger.warn(`[WT-DEBUG] onWorktreeDiscovered fired:`, undefined, { sessionId, worktree });
 
@@ -908,7 +908,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 				// disable the repo-root guard for chokidar discoveries with no
 				// production signal. An explicit "not a repo" still resolves to
 				// `info.success=false` and falls through to the legacy fallback.
-				window.maestro.git.worktreeInfo(worktree.path, sshRemoteId).catch((err) => {
+				window.openwizardai.git.worktreeInfo(worktree.path, sshRemoteId).catch((err) => {
 					logger.error(
 						`[WorktreeWatcher] worktreeInfo failed for ${worktree.path}:`,
 						undefined,
@@ -964,7 +964,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 		});
 
 		// Listen for worktree removals (e.g., git worktree remove from CLI)
-		const cleanupRemovalListener = window.maestro.git.onWorktreeRemoved((data) => {
+		const cleanupRemovalListener = window.openwizardai.git.onWorktreeRemoved((data) => {
 			const { sessionId, worktreePath } = data;
 			logger.warn(`[WT-DEBUG] onWorktreeRemoved fired:`, undefined, { sessionId, worktreePath });
 
@@ -1001,7 +1001,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 			cleanupRemovalListener();
 			document.removeEventListener('visibilitychange', handleVisibilityChange);
 			for (const session of watchableSessions) {
-				window.maestro.git.unwatchWorktreeDirectory(session.id);
+				window.openwizardai.git.unwatchWorktreeDirectory(session.id);
 			}
 		};
 	}, [worktreeConfigKey, defaultSaveToHistory, scanWorktreeConfigs]);
@@ -1037,7 +1037,7 @@ export function useWorktreeHandlers(): WorktreeHandlersReturn {
 					try {
 						// Get SSH remote ID for parent session (check both runtime and config)
 						const parentSshRemoteId = getSshRemoteId(session);
-						const result = await window.maestro.git.scanWorktreeDirectory(
+						const result = await window.openwizardai.git.scanWorktreeDirectory(
 							session.worktreeParentPath!,
 							parentSshRemoteId
 						);

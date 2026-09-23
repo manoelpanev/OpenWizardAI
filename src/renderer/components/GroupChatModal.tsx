@@ -68,8 +68,10 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 	const [requireIdle, setRequireIdle] = useState(true);
 	// Track if user has visited/modified the config panel (edit mode only)
 	const [configWasModified, setConfigWasModified] = useState(false);
-	// Auto-detected maestro-p path, shown as helper text in the Claude Token Source selector
-	const [detectedMaestroPPath, setDetectedMaestroPPath] = useState<string | undefined>(undefined);
+	// Auto-detected openwizardai-p path, shown as helper text in the Claude Token Source selector
+	const [detectedOpenWizardAIPPath, setDetectedOpenWizardAIPPath] = useState<string | undefined>(
+		undefined
+	);
 
 	const nameInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,18 +98,18 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 		ac.setCustomEnvVarsDisabled(groupChat.moderatorConfig?.customEnvVarsDisabled || {});
 		ac.setSshRemoteConfig(groupChat.moderatorConfig?.sshRemoteConfig as any);
 		// Claude token source (Claude Code moderator only)
-		ac.setEnableMaestroP(groupChat.moderatorConfig?.enableMaestroP ?? false);
-		ac.setMaestroPMode(groupChat.moderatorConfig?.maestroPMode ?? 'dynamic');
-		ac.setMaestroPPath(groupChat.moderatorConfig?.maestroPPath ?? '');
+		ac.setEnableOpenWizardAIP(groupChat.moderatorConfig?.enableOpenWizardAIP ?? false);
+		ac.setOpenWizardAIPMode(groupChat.moderatorConfig?.openwizardaiPMode ?? 'dynamic');
+		ac.setOpenWizardAIPPath(groupChat.moderatorConfig?.openwizardaiPPath ?? '');
 	}, [mode, isOpen, groupChat]);
 
-	// Resolve the auto-detected maestro-p path for the Claude Token Source helper text
+	// Resolve the auto-detected openwizardai-p path for the Claude Token Source helper text
 	useEffect(() => {
 		if (!isOpen) return;
-		void window.maestro.agents
-			.getMaestroPDetectedPath()
-			.then((p) => setDetectedMaestroPPath(p ?? undefined))
-			.catch(() => setDetectedMaestroPPath(undefined));
+		void window.openwizardai.agents
+			.getOpenWizardAIPDetectedPath()
+			.then((p) => setDetectedOpenWizardAIPPath(p ?? undefined))
+			.catch(() => setDetectedOpenWizardAIPPath(undefined));
 	}, [isOpen]);
 
 	// Focus name input when agents detected
@@ -153,12 +155,12 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 	// Build moderator config from state
 	const buildModeratorConfig = useCallback((): ModeratorConfig | undefined => {
 		const customModelValue = ac.agentConfig.model;
-		// Claude token source (maestro-p TUI vs `claude --print` API) only applies to a
+		// Claude token source (openwizardai-p TUI vs `claude --print` API) only applies to a
 		// Claude Code moderator; mirror NewInstanceModal and store the opt-in (and its
 		// refinements) only when enabled.
-		const tokenSourceEnabled = ac.selectedAgent === 'claude-code' && ac.enableMaestroP;
-		const maestroPPathValue =
-			tokenSourceEnabled && ac.maestroPPath.trim() ? ac.maestroPPath.trim() : undefined;
+		const tokenSourceEnabled = ac.selectedAgent === 'claude-code' && ac.enableOpenWizardAIP;
+		const openwizardaiPPathValue =
+			tokenSourceEnabled && ac.openwizardaiPPath.trim() ? ac.openwizardaiPPath.trim() : undefined;
 		const hasConfig =
 			ac.customPath ||
 			ac.customArgs ||
@@ -177,9 +179,9 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 				Object.keys(ac.customEnvVarsDisabled).length > 0 ? ac.customEnvVarsDisabled : undefined,
 			customModel: customModelValue || undefined,
 			sshRemoteConfig: ac.sshRemoteConfig || undefined,
-			enableMaestroP: tokenSourceEnabled || undefined,
-			maestroPMode: tokenSourceEnabled ? ac.maestroPMode : undefined,
-			maestroPPath: maestroPPathValue,
+			enableOpenWizardAIP: tokenSourceEnabled || undefined,
+			openwizardaiPMode: tokenSourceEnabled ? ac.openwizardaiPMode : undefined,
+			openwizardaiPPath: openwizardaiPPathValue,
 		};
 	}, [
 		ac.customPath,
@@ -189,9 +191,9 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 		ac.agentConfig.model,
 		ac.sshRemoteConfig,
 		ac.selectedAgent,
-		ac.enableMaestroP,
-		ac.maestroPMode,
-		ac.maestroPPath,
+		ac.enableOpenWizardAIP,
+		ac.openwizardaiPMode,
+		ac.openwizardaiPPath,
 	]);
 
 	const handleSubmit = useCallback(() => {
@@ -232,14 +234,15 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 
 		// Claude token source (Claude Code moderator only) - toggling it marks the config dirty
 		const isClaudeModerator = ac.selectedAgent === 'claude-code';
-		const enableMaestroPChanged =
+		const enableOpenWizardAIPChanged =
 			isClaudeModerator &&
-			ac.enableMaestroP !== (groupChat.moderatorConfig?.enableMaestroP ?? false);
-		const maestroPModeChanged =
+			ac.enableOpenWizardAIP !== (groupChat.moderatorConfig?.enableOpenWizardAIP ?? false);
+		const openwizardaiPModeChanged =
 			isClaudeModerator &&
-			ac.maestroPMode !== (groupChat.moderatorConfig?.maestroPMode ?? 'dynamic');
-		const maestroPPathChanged =
-			isClaudeModerator && ac.maestroPPath !== (groupChat.moderatorConfig?.maestroPPath ?? '');
+			ac.openwizardaiPMode !== (groupChat.moderatorConfig?.openwizardaiPMode ?? 'dynamic');
+		const openwizardaiPPathChanged =
+			isClaudeModerator &&
+			ac.openwizardaiPPath !== (groupChat.moderatorConfig?.openwizardaiPPath ?? '');
 
 		return (
 			nameChanged ||
@@ -249,9 +252,9 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 			argsChanged ||
 			envVarsChanged ||
 			sshChanged ||
-			enableMaestroPChanged ||
-			maestroPModeChanged ||
-			maestroPPathChanged ||
+			enableOpenWizardAIPChanged ||
+			openwizardaiPModeChanged ||
+			openwizardaiPPathChanged ||
 			configWasModified
 		);
 	}, [
@@ -264,9 +267,9 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 		ac.customEnvVars,
 		ac.customEnvVarsDisabled,
 		ac.sshRemoteConfig,
-		ac.enableMaestroP,
-		ac.maestroPMode,
-		ac.maestroPPath,
+		ac.enableOpenWizardAIP,
+		ac.openwizardaiPMode,
+		ac.openwizardaiPPath,
 		configWasModified,
 	]);
 
@@ -399,7 +402,7 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 						<span style={{ color: theme.colors.textMain }}>moderator</span> manages the conversation
 						flow, deciding when to involve other agents. You can{' '}
 						<span style={{ color: theme.colors.accent }}>@mention</span> any agent defined in
-						OpenWizzard to bring them into the discussion. We're still working on this feature, but
+						OpenWizardAI to bring them into the discussion. We're still working on this feature, but
 						right now Claude appears to be the best performing moderator.
 					</div>
 				)}
@@ -613,16 +616,16 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 								loadingDynamicOptions={ac.loadingDynamicOptions}
 								onRefreshAgent={ac.refreshAgent}
 								refreshingAgent={ac.refreshingAgent}
-								enableMaestroP={ac.enableMaestroP}
-								onEnableMaestroPChange={ac.setEnableMaestroP}
-								maestroPMode={ac.maestroPMode}
-								onMaestroPModeChange={ac.setMaestroPMode}
-								maestroPPath={ac.maestroPPath}
-								onMaestroPPathChange={ac.setMaestroPPath}
-								onMaestroPPathBlur={() => {
+								enableOpenWizardAIP={ac.enableOpenWizardAIP}
+								onEnableOpenWizardAIPChange={ac.setEnableOpenWizardAIP}
+								openwizardaiPMode={ac.openwizardaiPMode}
+								onOpenWizardAIPModeChange={ac.setOpenWizardAIPMode}
+								openwizardaiPPath={ac.openwizardaiPPath}
+								onOpenWizardAIPPathChange={ac.setOpenWizardAIPPath}
+								onOpenWizardAIPPathBlur={() => {
 									/* Local state only */
 								}}
-								detectedMaestroPPath={detectedMaestroPPath}
+								detectedOpenWizardAIPPath={detectedOpenWizardAIPPath}
 								compact
 								showBuiltInEnvVars
 							/>

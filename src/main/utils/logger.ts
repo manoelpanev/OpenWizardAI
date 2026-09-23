@@ -3,7 +3,7 @@
  * Logs are stored in memory and can be retrieved via IPC
  *
  * On Windows, logs are also written to a file for easier debugging:
- * %APPDATA%/Maestro/logs/maestro-debug.log
+ * %APPDATA%/OpenWizardAI/logs/openwizardai-debug.log
  */
 
 import { EventEmitter } from 'events';
@@ -23,9 +23,9 @@ export type { MainLogLevel as LogLevel, SystemLogEntry as LogEntry };
 
 /**
  * Get the platform-specific logs directory path.
- * On Windows: %APPDATA%/Maestro/logs
- * On macOS: ~/Library/Application Support/OpenWizzard/logs
- * On Linux: ~/.config/OpenWizzard/logs (or XDG_CONFIG_HOME)
+ * On Windows: %APPDATA%/OpenWizardAI/logs
+ * On macOS: ~/Library/Application Support/OpenWizardAI/logs
+ * On Linux: ~/.config/OpenWizardAI/logs (or XDG_CONFIG_HOME)
  */
 function getLogsDir(): string {
 	let appDataDir: string;
@@ -38,7 +38,7 @@ function getLogsDir(): string {
 		appDataDir = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
 	}
 
-	return path.join(appDataDir, 'OpenWizzard', 'logs');
+	return path.join(appDataDir, 'OpenWizardAI', 'logs');
 }
 
 /**
@@ -54,10 +54,10 @@ function getTodayDateString(): string {
 
 /**
  * Get the path to the debug log file with today's date.
- * Returns a dated filename: maestro-debug-YYYY-MM-DD.log using local date.
+ * Returns a dated filename: openwizardai-debug-YYYY-MM-DD.log using local date.
  */
 function getLogFilePath(): string {
-	return path.join(getLogsDir(), `maestro-debug-${getTodayDateString()}.log`);
+	return path.join(getLogsDir(), `openwizardai-debug-${getTodayDateString()}.log`);
 }
 
 class Logger extends EventEmitter {
@@ -79,7 +79,7 @@ class Logger extends EventEmitter {
 		// Enable file logging in the Windows desktop main process by default.
 		// CLI bundles also import this module, but process.type is undefined when
 		// Electron runs as Node; initializing the desktop logger there pollutes
-		// command output such as `maestro-cli --version`.
+		// command output such as `openwizardai-cli --version`.
 		if (isWindows() && process.type === 'browser') {
 			this.enableFileLogging();
 		}
@@ -137,9 +137,9 @@ class Logger extends EventEmitter {
 			this.currentLogDate = getTodayDateString();
 			this.logFilePath = getLogFilePath();
 
-			// Migrate legacy maestro-debug.log if it exists
+			// Migrate legacy openwizardai-debug.log if it exists
 			try {
-				const legacyPath = path.join(logsDir, 'maestro-debug.log');
+				const legacyPath = path.join(logsDir, 'openwizardai-debug.log');
 				if (fs.existsSync(legacyPath)) {
 					const stat = fs.statSync(legacyPath);
 					const mtime = stat.mtime;
@@ -147,11 +147,11 @@ class Logger extends EventEmitter {
 					const month = String(mtime.getMonth() + 1).padStart(2, '0');
 					const day = String(mtime.getDate()).padStart(2, '0');
 					const mtimeDate = `${year}-${month}-${day}`;
-					const targetPath = path.join(logsDir, `maestro-debug-${mtimeDate}.log`);
+					const targetPath = path.join(logsDir, `openwizardai-debug-${mtimeDate}.log`);
 
 					if (!fs.existsSync(targetPath)) {
 						fs.renameSync(legacyPath, targetPath);
-						console.log(`[Logger] Migrated legacy log file to maestro-debug-${mtimeDate}.log`);
+						console.log(`[Logger] Migrated legacy log file to openwizardai-debug-${mtimeDate}.log`);
 					} else {
 						// Target dated file already exists; remove the legacy file to prevent orphans
 						fs.unlinkSync(legacyPath);
@@ -167,7 +167,7 @@ class Logger extends EventEmitter {
 			this.fileLogEnabled = true;
 
 			// Write a startup marker
-			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] OpenWizzard started - File logging enabled\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
+			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] OpenWizardAI started - File logging enabled\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
 			this.logFileStream.write(startupMsg);
 
 			// Clean up old log files
@@ -222,7 +222,7 @@ class Logger extends EventEmitter {
 			this.currentLogDate = todayDate;
 
 			// Write rotation marker
-			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] OpenWizzard log rotated - new log file\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
+			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] OpenWizardAI log rotated - new log file\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
 			this.logFileStream.write(startupMsg);
 
 			// Clean up old log files
@@ -243,7 +243,7 @@ class Logger extends EventEmitter {
 		try {
 			const logsDir = getLogsDir();
 			const files = fs.readdirSync(logsDir);
-			const logFilePattern = /^maestro-debug-(\d{4}-\d{2}-\d{2})\.log$/;
+			const logFilePattern = /^openwizardai-debug-(\d{4}-\d{2}-\d{2})\.log$/;
 			const now = new Date();
 			// Use UTC calendar-day arithmetic to avoid DST edge cases
 			const todayDay = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86_400_000;
@@ -344,7 +344,7 @@ class Logger extends EventEmitter {
 		// Also output to console for development
 		// Wrapped in try-catch to handle EPIPE errors when stdout/stderr is disconnected
 		// (e.g., when a parent process consuming output dies unexpectedly)
-		// Fixes MAESTRO-5C
+		// Fixes OPENWIZARDAI-5C
 		try {
 			switch (entry.level) {
 				case 'error':

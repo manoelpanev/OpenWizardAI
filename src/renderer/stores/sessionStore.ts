@@ -226,7 +226,7 @@ export const useSessionStore = create<SessionStore>()((set) => ({
 		// Not awaited - UI state must update synchronously; if the write
 		// fails the only consequence is the session won't be pre-selected
 		// on next launch (falls back to first session).
-		window.maestro?.sessions?.setActiveSessionId(id);
+		window.openwizardai?.sessions?.setActiveSessionId(id);
 	},
 
 	hydrateActiveSessionId: (id) => set({ activeSessionId: id, cyclePosition: -1 }),

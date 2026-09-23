@@ -5,9 +5,9 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-// Mock maestro-client
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+// Mock openwizardai-client
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 }));
 
 // Mock storage service
@@ -24,12 +24,12 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { removeGroup } from '../../../cli/commands/remove-group';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { resolveGroupId, getSessionsByGroup } from '../../../cli/services/storage';
 import { formatError, formatSuccess } from '../../../cli/output/formatter';
 
 function mockDeleteResult(result: { success: boolean; error?: string }) {
-	vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 		const mockClient = {
 			sendCommand: vi.fn().mockResolvedValue({ type: 'delete_group_result', ...result }),
 		};
@@ -64,7 +64,7 @@ describe('remove-group command', () => {
 
 		it('should send the resolved group ID in the payload', async () => {
 			let sentPayload: Record<string, unknown> = {};
-			vi.mocked(withMaestroClient).mockImplementation(async (action) => {
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) => {
 				const mockClient = {
 					sendCommand: vi.fn().mockImplementation((payload) => {
 						sentPayload = payload;
@@ -101,7 +101,7 @@ describe('remove-group command', () => {
 
 			expect(formatError).toHaveBeenCalledWith(expect.stringContaining('2 agent(s)'));
 			expect(processExitSpy).toHaveBeenCalledWith(1);
-			expect(withMaestroClient).not.toHaveBeenCalled();
+			expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		});
 
 		it('should delete a non-empty group with --force and report ungrouped count', async () => {
@@ -110,7 +110,7 @@ describe('remove-group command', () => {
 
 			await removeGroup('group-1', { force: true });
 
-			expect(withMaestroClient).toHaveBeenCalled();
+			expect(withOpenWizardAIClient).toHaveBeenCalled();
 			expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Ungrouped 2 agent(s)'));
 			expect(processExitSpy).not.toHaveBeenCalled();
 		});
@@ -148,7 +148,7 @@ describe('remove-group command', () => {
 		});
 
 		it('should handle connection error in JSON mode', async () => {
-			vi.mocked(withMaestroClient).mockRejectedValue(new Error('App not running'));
+			vi.mocked(withOpenWizardAIClient).mockRejectedValue(new Error('App not running'));
 
 			await expect(removeGroup('group-1', { json: true })).rejects.toThrow('__exit__');
 

@@ -1,7 +1,7 @@
 /**
  * Preload API for system operations
  *
- * Provides the window.maestro.dialog, fonts, shells, shell, tunnel, sync, devtools, power, updates, app namespaces
+ * Provides the window.openwizardai.dialog, fonts, shells, shell, tunnel, sync, devtools, power, updates, app namespaces
  */
 
 import { ipcRenderer } from 'electron';
@@ -206,7 +206,7 @@ export function createAppApi() {
 			return () => ipcRenderer.removeListener('app:systemResume', handler);
 		},
 		/**
-		 * Listen for deep link navigation events (maestro:// URLs)
+		 * Listen for deep link navigation events (openwizardai:// URLs)
 		 * Fired when the app is activated via a deep link from OS notification clicks,
 		 * external apps, or CLI commands.
 		 */

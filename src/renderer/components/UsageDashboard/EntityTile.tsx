@@ -9,7 +9,7 @@
  *   4. the labeled stats, across the full width
  *
  * The title owns its whole row on purpose. Badges and the sparkline used to
- * flank it and squeeze it, so an ordinary agent name ("Maestro Docs") truncated
+ * flank it and squeeze it, so an ordinary agent name ("OpenWizardAI Docs") truncated
  * to "Ma..." on a tile with room to spare. Dropping them to their own band
  * costs one short row and buys the name every pixel of the tile's width, and it
  * frees the stats to spread across the bottom instead of being packed into

@@ -39,12 +39,12 @@ vi.mock('../../../renderer/contexts/LayerStackContext', () => ({
 	}),
 }));
 
-// Mock window.maestro APIs
+// Mock window.openwizardai APIs
 const mockSelectFolder = vi.fn();
 const mockWriteFile = vi.fn();
 
 beforeEach(() => {
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		dialog: {
 			selectFolder: mockSelectFolder,
 		},

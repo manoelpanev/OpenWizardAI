@@ -194,7 +194,7 @@ describe('EntityTile', () => {
 
 	describe('layout bands', () => {
 		// The name is what the tile is for. Badges and the sparkline used to
-		// flank it and squeeze it, so "Maestro Docs" truncated to "Ma..." on a
+		// flank it and squeeze it, so "OpenWizardAI Docs" truncated to "Ma..." on a
 		// tile with room to spare; they now sit in their own band below.
 		it('leaves the title row to the title, the status dot, and the age', () => {
 			render(

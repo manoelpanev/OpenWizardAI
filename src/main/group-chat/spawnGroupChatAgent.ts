@@ -13,7 +13,7 @@ import { IProcessManager } from './group-chat-moderator';
 import { getContextWindowValue } from '../utils/agent-args';
 import { wrapSpawnWithSsh, sshUnresolvedRemoteMessage } from '../utils/ssh-spawn-wrapper';
 import { getSshRemoteConfig, type SshRemoteSettingsStore } from '../utils/ssh-remote-resolver';
-import { ensureRemoteMaestroPProbed } from '../agents/probeRemoteMaestroP';
+import { ensureRemoteOpenWizardAIPProbed } from '../agents/probeRemoteOpenWizardAIP';
 import { getWindowsSpawnConfig } from './group-chat-config';
 import { beginGroupChatTurn } from './group-chat-turn-metrics';
 import type { AgentConfig } from '../agents/definitions';
@@ -50,12 +50,12 @@ export interface SpawnGroupChatAgentConfig {
 	sshStore?: SshRemoteSettingsStore | null;
 	/**
 	 * Claude token source for this agent (Claude Code only). Drives the
-	 * maestro-p TUI vs `claude --print` choice. Ignored for non-Claude agents
+	 * openwizardai-p TUI vs `claude --print` choice. Ignored for non-Claude agents
 	 * and SSH spawns (the TUI wrapper needs the local claude binary).
 	 */
 	tokenMode?: ClaudeTokenMode;
-	/** Optional per-agent maestro-p script override. */
-	maestroPPath?: string;
+	/** Optional per-agent openwizardai-p script override. */
+	openwizardaiPPath?: string;
 	/** Process manager to invoke */
 	processManager: IProcessManager;
 	/** Whether the spawned process is read-only (moderator / synthesis = true) */
@@ -63,10 +63,10 @@ export interface SpawnGroupChatAgentConfig {
 	/** Optional label for debug logs (e.g. 'moderator', 'participant: Alice') */
 	debugLabel?: string;
 	/**
-	 * Overall idle budget for a maestro-p (interactive/dynamic) run, in seconds,
+	 * Overall idle budget for a openwizardai-p (interactive/dynamic) run, in seconds,
 	 * forwarded as `--max-wait`. Group Chat is a background/orchestrated caller, so
 	 * it MUST pass this to match the router's own supervising timeout - otherwise
-	 * maestro-p falls back to its 300s idle default and silently kills a
+	 * openwizardai-p falls back to its 300s idle default and silently kills a
 	 * still-working moderator/participant whose JSONL output stalls past 300s
 	 * (long tool runs or extended thinking), even though the router would wait the
 	 * full 10 minutes. Same contract Cue follows. Ignored on the API path.
@@ -120,37 +120,37 @@ export async function spawnGroupChatAgent(
 	let spawnSshStdinScript: string | undefined;
 	let spawnSshRemoteCommand: string | undefined;
 
-	// Over SSH, warm the remote maestro-p probe BEFORE resolving so a remote TUI
-	// selection falls back to API instead of exiting 127 when maestro-p isn't
+	// Over SSH, warm the remote openwizardai-p probe BEFORE resolving so a remote TUI
+	// selection falls back to API instead of exiting 127 when openwizardai-p isn't
 	// installed on the remote (the resolver reads this from the cache).
 	if (sshRemoteConfig?.enabled && sshStore) {
 		const sshRemote = getSshRemoteConfig(sshStore, {
 			sessionSshConfig: sshRemoteConfig,
 		}).config;
 		if (sshRemote) {
-			await ensureRemoteMaestroPProbed(sshRemote);
+			await ensureRemoteOpenWizardAIPProbed(sshRemote);
 		}
 	}
 
-	// Resolve the Claude token source (maestro-p TUI vs `claude --print`) and,
-	// for the interactive/dynamic case, rewrite the spawn to run maestro-p via
+	// Resolve the Claude token source (openwizardai-p TUI vs `claude --print`) and,
+	// for the interactive/dynamic case, rewrite the spawn to run openwizardai-p via
 	// process.execPath. The resolver returns API for non-Claude agents and SSH
 	// spawns, so this is a no-op outside the local Claude Code interactive path.
-	// maestro-p reads the prompt the same way claude does (positional after the
+	// openwizardai-p reads the prompt the same way claude does (positional after the
 	// args processManager appends), so prompt delivery is unchanged.
 	const claudeDecision = resolveClaudeSpawnMode({
 		agent,
 		tokenMode: config.tokenMode ?? 'api',
 		sshEnabled: !!sshRemoteConfig?.enabled,
 		// Lets the resolver fall a remote TUI spawn back to API when the remote
-		// has no maestro-p on its PATH (avoids exit 127).
+		// has no openwizardai-p on its PATH (avoids exit 127).
 		sshRemoteId: sshRemoteConfig?.remoteId ?? undefined,
 		command: baseCommand,
 		sessionCustomEnvVars: customEnvVars,
-		maestroPPath: config.maestroPPath,
+		openwizardaiPPath: config.openwizardaiPPath,
 		now: new Date(),
 	});
-	if (claudeDecision.mode === 'interactive' && claudeDecision.maestroPBinPath) {
+	if (claudeDecision.mode === 'interactive' && claudeDecision.openwizardaiPBinPath) {
 		const applied = applyClaudeSpawnDecision({
 			decision: claudeDecision,
 			interactiveModeArgs: agent.interactiveModeArgs,
@@ -164,7 +164,7 @@ export async function spawnGroupChatAgent(
 		spawnEnvVars = applied.customEnvVars;
 		if (debugLabel) {
 			console.log(
-				`[GroupChat:Debug] ${debugLabel} resolved to maestro-p (tokenMode=${config.tokenMode})`
+				`[GroupChat:Debug] ${debugLabel} resolved to openwizardai-p (tokenMode=${config.tokenMode})`
 			);
 		}
 	}
@@ -179,7 +179,7 @@ export async function spawnGroupChatAgent(
 		if (debugLabel) {
 			console.log(`[GroupChat:Debug] Applying SSH wrapping for ${debugLabel}...`);
 		}
-		// Claude interactive/dynamic over SSH runs maestro-p on the remote host
+		// Claude interactive/dynamic over SSH runs openwizardai-p on the remote host
 		// (must be on its PATH) to drive the remote TUI on the Max subscription.
 		// Returns null for the API path, leaving the SSH config untouched.
 		const remoteInteractive = buildRemoteInteractiveSpawn({
@@ -190,7 +190,7 @@ export async function spawnGroupChatAgent(
 		});
 		if (remoteInteractive && debugLabel) {
 			console.log(
-				`[GroupChat:Debug] ${debugLabel} resolved to remote maestro-p over SSH (tokenMode=${config.tokenMode})`
+				`[GroupChat:Debug] ${debugLabel} resolved to remote openwizardai-p over SSH (tokenMode=${config.tokenMode})`
 			);
 		}
 		const sshWrapped = await wrapSpawnWithSsh(

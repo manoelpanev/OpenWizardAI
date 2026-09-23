@@ -40,14 +40,14 @@ let storePath: string;
 function sidecars(): string[] {
 	return fs
 		.readdirSync(tempDir)
-		.filter((name) => name.startsWith('maestro-sessions.corrupt-'))
+		.filter((name) => name.startsWith('openwizardai-sessions.corrupt-'))
 		.sort();
 }
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'maestro-store-recovery-'));
-	storePath = path.join(tempDir, 'maestro-sessions.json');
+	tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openwizardai-store-recovery-'));
+	storePath = path.join(tempDir, 'openwizardai-sessions.json');
 });
 
 afterEach(() => {
@@ -59,7 +59,7 @@ describe('corruptStorePath', () => {
 		const first = corruptStorePath(storePath, new Date(2026, 8, 22, 7, 15, 30));
 		const second = corruptStorePath(storePath, new Date(2026, 8, 22, 9, 0, 0));
 
-		expect(path.basename(first)).toBe('maestro-sessions.corrupt-20260922-071530.json');
+		expect(path.basename(first)).toBe('openwizardai-sessions.corrupt-20260922-071530.json');
 		expect(path.dirname(first)).toBe(tempDir);
 		expect(second).not.toBe(first);
 	});
@@ -101,7 +101,7 @@ describe('createStoreDeserializer', () => {
 		expect(error).toBeInstanceOf(SyntaxError);
 		expect(extra).toMatchObject({
 			operation: 'store:deserialize',
-			storeFile: 'maestro-sessions.json',
+			storeFile: 'openwizardai-sessions.json',
 			quarantined: true,
 		});
 	});

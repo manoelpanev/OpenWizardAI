@@ -13,7 +13,7 @@ import {
 } from '../../../renderer/utils/mediaItems';
 
 /** A stream URL shaped like the one the main process mints for a local file. */
-const STREAM = 'maestro-media://stream/tok3n/2f66696c65732f612e6d7033';
+const STREAM = 'openwizardai-media://stream/tok3n/2f66696c65732f612e6d7033';
 
 function item(overrides: Partial<MediaItem> = {}): MediaItem {
 	return {
@@ -37,7 +37,7 @@ describe('getOpenedMediaKind', () => {
 	});
 
 	it('rejects a file with no stream URL, so a remote .mp3 stays a preview', () => {
-		// Only local files get a maestro-media:// URL. Without one there are no
+		// Only local files get a openwizardai-media:// URL. Without one there are no
 		// bytes to play, so it must fall through to the binary "open externally"
 		// path rather than landing in a silent player.
 		expect(getOpenedMediaKind('podcast.mp3', '<binary>')).toBeNull();

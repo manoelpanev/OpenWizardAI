@@ -213,7 +213,7 @@ describe.skipIf(SKIP_E2E)('Copilot-CLI E2E through ProcessManager', () => {
 			pm = new ProcessManager();
 			const sessionId = 'test-copilot-tools';
 			const prompt =
-				'Run `echo maestro-e2e-marker` using the bash tool and report the exact stdout.';
+				'Run `echo openwizardai-e2e-marker` using the bash tool and report the exact stdout.';
 			const args = buildBatchArgs(prompt);
 
 			const agent = getAgentDefinition('copilot-cli')!;
@@ -240,7 +240,7 @@ describe.skipIf(SKIP_E2E)('Copilot-CLI E2E through ProcessManager', () => {
 
 			// The final result should mention the marker.
 			const fullData = captured.data.join('');
-			expect(fullData).toContain('maestro-e2e-marker');
+			expect(fullData).toContain('openwizardai-e2e-marker');
 		},
 		COPILOT_TIMEOUT
 	);
@@ -263,9 +263,9 @@ describe.skipIf(SKIP_E2E)('Copilot-CLI E2E through ProcessManager', () => {
 				cwd: os.tmpdir(),
 				command: agent.command,
 				args: buildBatchArgs(
-					'Remember the marker token PURPLE_MAESTRO_42. Reply with exactly "Got it." and nothing else.'
+					'Remember the marker token PURPLE_OPENWIZARDAI_42. Reply with exactly "Got it." and nothing else.'
 				),
-				prompt: 'Remember the marker token PURPLE_MAESTRO_42. Reply with exactly "Got it."',
+				prompt: 'Remember the marker token PURPLE_OPENWIZARDAI_42. Reply with exactly "Got it."',
 				promptArgs: agent.promptArgs,
 				requiresPty: agent.requiresPty,
 			});
@@ -298,7 +298,7 @@ describe.skipIf(SKIP_E2E)('Copilot-CLI E2E through ProcessManager', () => {
 			expect(await exitB).toBe(0);
 			const fullData = captureB.data.join('');
 			expect(fullData.toUpperCase(), 'resumed session should recall the token').toContain(
-				'PURPLE_MAESTRO_42'
+				'PURPLE_OPENWIZARDAI_42'
 			);
 		},
 		COPILOT_TIMEOUT * 2

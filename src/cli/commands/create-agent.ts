@@ -1,10 +1,10 @@
-// Create agent command - create a new agent in the Maestro desktop app.
+// Create agent command - create a new agent in the OpenWizardAI desktop app.
 //
 // Selects the new agent, as it always has. Pass --background to create it
 // without moving the Left Bar selection; the agent is still created and listed.
 
 import * as path from 'path';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { formatError, formatSuccess } from '../output/formatter';
 import { AGENT_IDS } from '../../shared/agentIds';
 import { parseCliBool } from '../utils/parse';
@@ -151,7 +151,7 @@ export async function createAgent(name: string, options: CreateAgentOptions): Pr
 	if (options.autoRunFolder) payload.autoRunFolderPath = path.resolve(options.autoRunFolder);
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

@@ -72,8 +72,8 @@ export function OpenSpecCommandsPanel({
 			setIsLoading(true);
 			try {
 				const [promptsResult, metadataResult] = await Promise.all([
-					window.maestro.openspec.getPrompts(),
-					window.maestro.openspec.getMetadata(),
+					window.openwizardai.openspec.getPrompts(),
+					window.openwizardai.openspec.getMetadata(),
 				]);
 
 				if (promptsResult.success && promptsResult.commands) {
@@ -101,7 +101,7 @@ export function OpenSpecCommandsPanel({
 		if (!editingCommand) return;
 
 		try {
-			const result = await window.maestro.openspec.savePrompt(
+			const result = await window.openwizardai.openspec.savePrompt(
 				editingCommand.id,
 				editingCommand.prompt
 			);
@@ -124,7 +124,7 @@ export function OpenSpecCommandsPanel({
 
 	const handleReset = async (id: string) => {
 		try {
-			const result = await window.maestro.openspec.resetPrompt(id);
+			const result = await window.openwizardai.openspec.resetPrompt(id);
 			if (result.success && result.prompt) {
 				setCommands(
 					commands.map((cmd) =>
@@ -140,11 +140,11 @@ export function OpenSpecCommandsPanel({
 	const handleRefresh = async () => {
 		setIsRefreshing(true);
 		try {
-			const result = await window.maestro.openspec.refresh();
+			const result = await window.openwizardai.openspec.refresh();
 			if (result.success && result.metadata) {
 				setMetadata(result.metadata);
 				// Reload prompts after refresh
-				const promptsResult = await window.maestro.openspec.getPrompts();
+				const promptsResult = await window.openwizardai.openspec.getPrompts();
 				if (promptsResult.success && promptsResult.commands) {
 					setCommands(promptsResult.commands);
 				}
@@ -409,7 +409,7 @@ export function OpenSpecCommandsPanel({
 														color: theme.colors.accent,
 													}}
 												>
-													OpenWizzard
+													OpenWizardAI
 												</span>
 											)}
 											{cmd.isModified && (

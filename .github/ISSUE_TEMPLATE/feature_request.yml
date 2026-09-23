@@ -1,5 +1,5 @@
 name: Feature request
-description: Propose a new capability or workflow improvement for Maestro.
+description: Propose a new capability or workflow improvement for OpenWizardAI.
 title: 'Feature: '
 labels:
   - enhancement
@@ -51,9 +51,9 @@ body:
       placeholder: Include mockups, related issues, or workaround details.
 
   - type: input
-    id: maestro_version
+    id: openwizardai_version
     attributes:
-      label: Maestro version
+      label: OpenWizardAI version
       description: Optional but helpful if this request is tied to a recent release.
       placeholder: 0.15.3
 

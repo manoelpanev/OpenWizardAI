@@ -31,7 +31,7 @@ export const USAGE_PEAK_KEYS = [
 
 export type UsagePeakKey = (typeof USAGE_PEAK_KEYS)[number];
 
-/** Structurally identical to `MaestroUsageStats` in renderer types. */
+/** Structurally identical to `OpenWizardAIUsageStats` in renderer types. */
 export type UsagePeaks = Record<UsagePeakKey, number>;
 
 export const ZERO_USAGE_PEAKS: UsagePeaks = {

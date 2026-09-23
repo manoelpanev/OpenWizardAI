@@ -4,7 +4,6 @@ import { GhostIconButton } from '../ui/GhostIconButton';
 import { AgentConfigPanel } from '../shared/AgentConfigPanel';
 import { isBetaAgent } from '../../../shared/agentMetadata';
 import { isAdaptiveModeDefaultOn } from '../../../shared/agentConstants';
-import { buildMaestroUrl } from '../../utils/buildMaestroUrl';
 import { SUPPORTED_AGENTS } from './types';
 import type { AgentPickerGridProps } from './types';
 import { openUrl } from '../../utils/openUrl';
@@ -21,10 +20,10 @@ export const AgentPickerGrid = React.memo(function AgentPickerGrid({
 	customAgentPaths,
 	customAgentArgs,
 	customAgentEnvVars,
-	enableMaestroPByAgent,
-	maestroPModeByAgent,
-	maestroPPathByAgent,
-	detectedMaestroPPath,
+	enableOpenWizardAIPByAgent,
+	openwizardaiPModeByAgent,
+	openwizardaiPPathByAgent,
+	detectedOpenWizardAIPPath,
 	agentConfigs,
 	availableModels,
 	loadingModels,
@@ -34,9 +33,9 @@ export const AgentPickerGrid = React.memo(function AgentPickerGrid({
 	onDismissDebug,
 	onCustomPathChange,
 	onCustomArgsChange,
-	onEnableMaestroPChange,
-	onMaestroPModeChange,
-	onMaestroPPathChange,
+	onEnableOpenWizardAIPChange,
+	onOpenWizardAIPModeChange,
+	onOpenWizardAIPPathChange,
 	onEnvVarKeyChange,
 	onEnvVarValueChange,
 	onEnvVarRemove,
@@ -258,30 +257,30 @@ export const AgentPickerGrid = React.memo(function AgentPickerGrid({
 											onRefreshAgent={() => onRefreshAgent(agent.id)}
 											refreshingAgent={refreshingAgent === agent.id}
 											showBuiltInEnvVars
-											enableMaestroP={
-												enableMaestroPByAgent?.[agent.id] ?? isAdaptiveModeDefaultOn(agent.id)
+											enableOpenWizardAIP={
+												enableOpenWizardAIPByAgent?.[agent.id] ?? isAdaptiveModeDefaultOn(agent.id)
 											}
-											onEnableMaestroPChange={
-												onEnableMaestroPChange
-													? (value) => onEnableMaestroPChange(agent.id, value)
+											onEnableOpenWizardAIPChange={
+												onEnableOpenWizardAIPChange
+													? (value) => onEnableOpenWizardAIPChange(agent.id, value)
 													: undefined
 											}
-											maestroPMode={maestroPModeByAgent?.[agent.id] ?? 'dynamic'}
-											onMaestroPModeChange={
-												onMaestroPModeChange
-													? (mode) => onMaestroPModeChange(agent.id, mode)
+											openwizardaiPMode={openwizardaiPModeByAgent?.[agent.id] ?? 'dynamic'}
+											onOpenWizardAIPModeChange={
+												onOpenWizardAIPModeChange
+													? (mode) => onOpenWizardAIPModeChange(agent.id, mode)
 													: undefined
 											}
-											maestroPPath={maestroPPathByAgent?.[agent.id] ?? ''}
-											onMaestroPPathChange={
-												onMaestroPPathChange
-													? (value) => onMaestroPPathChange(agent.id, value)
+											openwizardaiPPath={openwizardaiPPathByAgent?.[agent.id] ?? ''}
+											onOpenWizardAIPPathChange={
+												onOpenWizardAIPPathChange
+													? (value) => onOpenWizardAIPPathChange(agent.id, value)
 													: undefined
 											}
-											onMaestroPPathBlur={() => {
+											onOpenWizardAIPPathBlur={() => {
 												/* Saved on agent create */
 											}}
-											detectedMaestroPPath={detectedMaestroPPath}
+											detectedOpenWizardAIPPath={detectedOpenWizardAIPPath}
 										/>
 									</div>
 								)}
@@ -300,11 +299,11 @@ export const AgentPickerGrid = React.memo(function AgentPickerGrid({
 					style={{ color: theme.colors.accent }}
 					onClick={() =>
 						openUrl(
-							buildMaestroUrl('https://docs.runmaestro.ai/autorun-playbooks#environment-variables')
+							'https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/autorun-playbooks.md#environment-variables'
 						)
 					}
 				>
-					MAESTRO_SESSION_RESUMED
+					OPENWIZARDAI_SESSION_RESUMED
 				</button>{' '}
 				to skip on resumed sessions.
 			</p>

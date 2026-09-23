@@ -64,9 +64,9 @@ describe('AutoRunSetupModal', () => {
 		vi.useFakeTimers();
 
 		// Reset mocks to default behavior
-		vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
-		vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+		vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue(null);
 	});
 
 	afterEach(() => {
@@ -279,7 +279,7 @@ describe('AutoRunSetupModal', () => {
 			const onFolderSelected = vi.fn();
 
 			// Make listDocs take time
-			vi.mocked(window.maestro.autorun.listDocs).mockImplementation(
+			vi.mocked(window.openwizardai.autorun.listDocs).mockImplementation(
 				() => new Promise((resolve) => setTimeout(() => resolve({ success: true, files: [] }), 500))
 			);
 
@@ -306,7 +306,10 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -332,7 +335,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['doc1.md'],
 			});
@@ -360,7 +363,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['doc1.md', 'doc2.md', 'doc3.md'],
 			});
@@ -388,7 +391,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: false });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({ success: false });
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -413,7 +416,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockRejectedValue(new Error('Network error'));
+			vi.mocked(window.openwizardai.autorun.listDocs).mockRejectedValue(new Error('Network error'));
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -454,14 +457,17 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 		});
 
 		it('debounces validation with 300ms delay', async () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -490,7 +496,7 @@ describe('AutoRunSetupModal', () => {
 			});
 
 			// Not yet called (only 300ms since last change)
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 
 			// After debounce completes
 			await act(async () => {
@@ -498,7 +504,7 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/abc', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith('/abc', undefined);
 		});
 	});
 
@@ -507,8 +513,11 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -526,7 +535,7 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(
 				'/home/testuser/Documents',
 				undefined
 			);
@@ -536,8 +545,11 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -555,7 +567,10 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/home/testuser', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(
+				'/home/testuser',
+				undefined
+			);
 		});
 
 		it('waits for homeDir before validating tilde paths', async () => {
@@ -567,8 +582,11 @@ describe('AutoRunSetupModal', () => {
 			const homeDirPromise = new Promise<string>((resolve) => {
 				resolveHomeDir = resolve;
 			});
-			vi.mocked(window.maestro.fs.homeDir).mockReturnValue(homeDirPromise);
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.fs.homeDir).mockReturnValue(homeDirPromise);
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -588,7 +606,7 @@ describe('AutoRunSetupModal', () => {
 			});
 
 			expect(screen.getByText('Checking folder...')).toBeInTheDocument();
-			expect(window.maestro.autorun.listDocs).not.toHaveBeenCalled();
+			expect(window.openwizardai.autorun.listDocs).not.toHaveBeenCalled();
 
 			// Now resolve homeDir
 			await act(async () => {
@@ -602,7 +620,7 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(
 				'/home/testuser/path',
 				undefined
 			);
@@ -612,8 +630,11 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -643,7 +664,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/folder');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/selected/folder');
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -660,14 +681,14 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 		});
 
 		it('updates input when folder is selected from picker', async () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/folder');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/selected/folder');
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -692,7 +713,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue(null);
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue(null);
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -721,7 +742,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/folder');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/selected/folder');
 
 			const { container } = renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -739,14 +760,14 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 		});
 
 		it('opens folder picker on Ctrl+O', async () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/folder');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/selected/folder');
 
 			const { container } = renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -764,14 +785,17 @@ describe('AutoRunSetupModal', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 		});
 
 		it('triggers continue on Enter when folder is selected', async () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			const { container } = renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -978,7 +1002,10 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1007,7 +1034,10 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn(() => callOrder.push('close'));
 			const onFolderSelected = vi.fn(() => callOrder.push('folderSelected'));
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1213,7 +1243,10 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1239,7 +1272,7 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: false });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({ success: false });
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1268,7 +1301,10 @@ describe('AutoRunSetupModal', () => {
 			const onFolderSelected = vi.fn();
 
 			const longPath = '/a/'.repeat(100) + 'folder';
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1287,7 +1323,7 @@ describe('AutoRunSetupModal', () => {
 			});
 
 			expect(input).toHaveValue(longPath);
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith(longPath, undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith(longPath, undefined);
 		});
 
 		it('handles paths with special characters', async () => {
@@ -1295,7 +1331,10 @@ describe('AutoRunSetupModal', () => {
 			const onFolderSelected = vi.fn();
 
 			const specialPath = '/path with spaces/folder (test)/[brackets]';
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1324,7 +1363,10 @@ describe('AutoRunSetupModal', () => {
 			const onFolderSelected = vi.fn();
 
 			const unicodePath = '/Users/テスト/Documenti/文档';
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1352,7 +1394,10 @@ describe('AutoRunSetupModal', () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({ success: true, files: [] });
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
+				success: true,
+				files: [],
+			});
 
 			renderWithLayerStack(
 				<AutoRunSetupModal theme={theme} onClose={onClose} onFolderSelected={onFolderSelected} />
@@ -1379,14 +1424,14 @@ describe('AutoRunSetupModal', () => {
 			});
 
 			// Only the last path should be validated
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/path9', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith('/path9', undefined);
 		});
 
 		it('cancels previous validation request when folder changes quickly', async () => {
 			const onClose = vi.fn();
 			const onFolderSelected = vi.fn();
 
-			vi.mocked(window.maestro.autorun.listDocs).mockResolvedValue({
+			vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValue({
 				success: true,
 				files: ['doc.md'],
 			});
@@ -1418,8 +1463,8 @@ describe('AutoRunSetupModal', () => {
 			});
 
 			// Only the second path should have been validated (first was cancelled by debounce)
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledTimes(1);
-			expect(window.maestro.autorun.listDocs).toHaveBeenCalledWith('/second/path', undefined);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledTimes(1);
+			expect(window.openwizardai.autorun.listDocs).toHaveBeenCalledWith('/second/path', undefined);
 			expect(screen.getByText('Found 1 markdown document')).toBeInTheDocument();
 		});
 	});

@@ -1,6 +1,6 @@
 # Architecture Guide
 
-Deep technical documentation for Maestro's architecture and design patterns. For quick reference, see [CLAUDE.md](CLAUDE.md). For development setup, see [CONTRIBUTING.md](CONTRIBUTING.md).
+Deep technical documentation for OpenWizardAI's architecture and design patterns. For quick reference, see [CLAUDE.md](CLAUDE.md). For development setup, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Table of Contents
 
@@ -32,11 +32,11 @@ Deep technical documentation for Maestro's architecture and design patterns. For
 
 ## Architecture
 
-Maestro organizes work into **Agents** (workspaces), each with a **CLI Terminal** and multiple **AI Tabs**. Each tab can be connected to a **Provider Session** - either newly created or resumed from the session pool.
+OpenWizardAI organizes work into **Agents** (workspaces), each with a **CLI Terminal** and multiple **AI Tabs**. Each tab can be connected to a **Provider Session** - either newly created or resumed from the session pool.
 
 ```mermaid
 graph LR
-    subgraph Maestro["Maestro App"]
+    subgraph OpenWizardAI["OpenWizardAI App"]
         subgraph ProjectA["Agent A (workspace)"]
             TermA[CLI Terminal]
             subgraph TabsA["Agent Tabs"]
@@ -67,7 +67,7 @@ graph LR
     Tab1B -.->|"resume"| S3
     Tab2B -.->|"new"| S4
 
-    style Maestro fill:#9b8cd6,stroke:#6b5b95
+    style OpenWizardAI fill:#9b8cd6,stroke:#6b5b95
     style ProjectA fill:#87ceeb,stroke:#4682b4
     style ProjectB fill:#87ceeb,stroke:#4682b4
     style TermA fill:#90ee90,stroke:#228b22
@@ -79,7 +79,7 @@ graph LR
 
 ## Dual-Process Architecture
 
-Maestro uses Electron's main/renderer split with strict context isolation.
+OpenWizardAI uses Electron's main/renderer split with strict context isolation.
 
 ### Main Process (`src/main/`)
 
@@ -139,12 +139,12 @@ All renderer-to-main communication uses the preload script:
 
 - **Context isolation**: Enabled (renderer has no Node.js access)
 - **Node integration**: Disabled (no `require()` in renderer)
-- **Preload script**: Exposes minimal API via `contextBridge.exposeInMainWorld('maestro', ...)`
+- **Preload script**: Exposes minimal API via `contextBridge.exposeInMainWorld('openwizardai', ...)`
 
-### The `window.maestro` API
+### The `window.openwizardai` API
 
 ```typescript
-window.maestro = {
+window.openwizardai = {
   // Core persistence
   settings: { get, set, getAll },
   sessions: { getAll, setAll },
@@ -388,7 +388,7 @@ onEscape: () => {
 
 ## Custom Hooks
 
-Maestro uses 15 custom hooks for state management and functionality.
+OpenWizardAI uses 15 custom hooks for state management and functionality.
 
 ### Core Hooks
 
@@ -476,7 +476,7 @@ Template variable autocomplete (e.g., `{{date}}`, `{{time}}`), minus the text su
 Two editors offer this popup and share nothing at the DOM level, so each supplies a small `TemplateAutocompleteTarget` binding over the one state machine:
 
 - `useTemplateAutocomplete` (`hooks/input/useTemplateAutocomplete.ts`) - plain `<textarea>` (the command panels, the prompt composers). Locates the caret with a mirror div, since a textarea exposes no per-character boxes.
-- `useEditorTemplateAutocomplete` (`hooks/input/useEditorTemplateAutocomplete.ts`) - the CodeMirror `MarkdownEditor` (Maestro Prompts, Auto Run). Reads the caret from the view and claims Up/Down/Enter/Escape by returning `true` from the editor's `onKeyDown`.
+- `useEditorTemplateAutocomplete` (`hooks/input/useEditorTemplateAutocomplete.ts`) - the CodeMirror `MarkdownEditor` (OpenWizardAI Prompts, Auto Run). Reads the caret from the view and claims Up/Down/Enter/Escape by returning `true` from the editor's `onKeyDown`.
 
 Do not hand-roll a second `{{` detector for a new editor; write a target for it (three methods, all about caret positions).
 
@@ -592,7 +592,7 @@ Commands support these template variables:
 
 ### Claude Code CLI Commands
 
-Maestro also fetches slash commands from Claude Code CLI when available, making Claude Code's built-in commands accessible through the same autocomplete interface.
+OpenWizardAI also fetches slash commands from Claude Code CLI when available, making Claude Code's built-in commands accessible through the same autocomplete interface.
 
 ---
 
@@ -653,16 +653,16 @@ Settings stored via `electron-store`:
 
 **Locations:**
 
-- **macOS**: `~/Library/Application Support/maestro/`
-- **Windows**: `%APPDATA%/maestro/`
-- **Linux**: `~/.config/maestro/`
+- **macOS**: `~/Library/Application Support/openwizardai/`
+- **Windows**: `%APPDATA%/openwizardai/`
+- **Linux**: `~/.config/openwizardai/`
 
 **Files:**
 
-- `maestro-settings.json` - User preferences
-- `maestro-sessions.json` - Agent persistence
-- `maestro-groups.json` - Agent groups
-- `maestro-agent-configs.json` - Per-agent configuration
+- `openwizardai-settings.json` - User preferences
+- `openwizardai-sessions.json` - Agent persistence
+- `openwizardai-groups.json` - Agent groups
+- `openwizardai-agent-configs.json` - Per-agent configuration
 
 ### Adding New Settings
 
@@ -677,14 +677,14 @@ const [mySetting, setMySettingState] = useState<MyType>(defaultValue);
 ```typescript
 const setMySetting = (value: MyType) => {
 	setMySettingState(value);
-	window.maestro.settings.set('mySetting', value);
+	window.openwizardai.settings.set('mySetting', value);
 };
 ```
 
 3. Load in useEffect:
 
 ```typescript
-const saved = await window.maestro.settings.get('mySetting');
+const saved = await window.openwizardai.settings.get('mySetting');
 if (saved !== undefined) setMySettingState(saved);
 ```
 
@@ -700,36 +700,36 @@ Browse and resume Claude Code provider sessions from `~/.claude/projects/`.
 
 Claude Code encodes project paths by replacing `/` with `-`:
 
-- `/Users/pedram/Projects/Maestro` → `-Users-pedram-Projects-Maestro`
+- `/Users/pedram/Projects/OpenWizardAI` → `-Users-pedram-Projects-OpenWizardAI`
 
 ### IPC Handlers
 
 ```typescript
 // List sessions for a project
-const sessions = await window.maestro.claude.listSessions(projectPath);
+const sessions = await window.openwizardai.claude.listSessions(projectPath);
 // Returns: [{ sessionId, projectPath, timestamp, modifiedAt, firstMessage, messageCount, sizeBytes }]
 
 // Read messages with pagination
-const { messages, total, hasMore } = await window.maestro.claude.readSessionMessages(
+const { messages, total, hasMore } = await window.openwizardai.claude.readSessionMessages(
 	projectPath,
 	sessionId,
 	{ offset: 0, limit: 20 }
 );
 
 // Search sessions
-const results = await window.maestro.claude.searchSessions(
+const results = await window.openwizardai.claude.searchSessions(
 	projectPath,
 	'query',
 	'all' // 'title' | 'user' | 'assistant' | 'all'
 );
 
 // Get global stats across all Claude projects (with streaming updates)
-const stats = await window.maestro.claude.getGlobalStats();
+const stats = await window.openwizardai.claude.getGlobalStats();
 // Returns: { totalSessions, totalMessages, totalInputTokens, totalOutputTokens,
 //            totalCacheReadTokens, totalCacheCreationTokens, totalCostUsd, totalSizeBytes }
 
 // Subscribe to streaming updates during stats calculation
-const unsubscribe = window.maestro.claude.onGlobalStatsUpdate((stats) => {
+const unsubscribe = window.openwizardai.claude.onGlobalStatsUpdate((stats) => {
 	console.log(`Progress: ${stats.totalSessions} sessions, $${stats.totalCostUsd.toFixed(2)}`);
 	if (stats.isComplete) console.log('Stats calculation complete');
 });
@@ -944,23 +944,23 @@ Gamification system that rewards Auto Run usage with conductor-themed badges.
 
 15 conductor levels based on cumulative Auto Run time:
 
-| Level | Badge                   | Time Required |
-| ----- | ----------------------- | ------------- |
-| 1     | Apprentice Conductor    | 1 minute      |
-| 2     | Junior Conductor        | 5 minutes     |
-| 3     | Assistant Conductor     | 15 minutes    |
-| 4     | Associate Conductor     | 30 minutes    |
-| 5     | Conductor               | 1 hour        |
-| 6     | Senior Conductor        | 2 hours       |
-| 7     | Principal Conductor     | 4 hours       |
-| 8     | Master Conductor        | 8 hours       |
-| 9     | Chief Conductor         | 16 hours      |
-| 10    | Distinguished Conductor | 24 hours      |
-| 11    | Elite Conductor         | 48 hours      |
-| 12    | Virtuoso Conductor      | 72 hours      |
-| 13    | Legendary Conductor     | 100 hours     |
-| 14    | Mythic Conductor        | 150 hours     |
-| 15    | Transcendent Maestro    | 200 hours     |
+| Level | Badge                     | Time Required |
+| ----- | ------------------------- | ------------- |
+| 1     | Apprentice Conductor      | 1 minute      |
+| 2     | Junior Conductor          | 5 minutes     |
+| 3     | Assistant Conductor       | 15 minutes    |
+| 4     | Associate Conductor       | 30 minutes    |
+| 5     | Conductor                 | 1 hour        |
+| 6     | Senior Conductor          | 2 hours       |
+| 7     | Principal Conductor       | 4 hours       |
+| 8     | Master Conductor          | 8 hours       |
+| 9     | Chief Conductor           | 16 hours      |
+| 10    | Distinguished Conductor   | 24 hours      |
+| 11    | Elite Conductor           | 48 hours      |
+| 12    | Virtuoso Conductor        | 72 hours      |
+| 13    | Legendary Conductor       | 100 hours     |
+| 14    | Mythic Conductor          | 150 hours     |
+| 15    | Transcendent OpenWizardAI | 200 hours     |
 
 ### Standing Ovation
 
@@ -1058,12 +1058,12 @@ interface FilePreviewTab {
 
 **`content` is not always content.** Some formats are too large, too binary, or too random-access to cross IPC as a string, so `fs:readFile` short-circuits them to a short sentinel and the viewer fetches the real bytes another way:
 
-| Format         | What `content` holds            | Who reads the file                                    |
-| -------------- | ------------------------------- | ----------------------------------------------------- |
-| Text, code, md | the file, as UTF-8              | the renderer                                          |
-| Images         | a `data:` URL                   | the renderer                                          |
-| Audio / video  | a `maestro-media://` stream URL | Chromium, via range requests over the custom protocol |
-| Parquet        | a `maestro-parquet://` marker   | the main process, over the `parquet:*` IPC surface    |
+| Format         | What `content` holds                 | Who reads the file                                    |
+| -------------- | ------------------------------------ | ----------------------------------------------------- |
+| Text, code, md | the file, as UTF-8                   | the renderer                                          |
+| Images         | a `data:` URL                        | the renderer                                          |
+| Audio / video  | a `openwizardai-media://` stream URL | Chromium, via range requests over the custom protocol |
+| Parquet        | a `openwizardai-parquet://` marker   | the main process, over the `parquet:*` IPC surface    |
 
 Anything that inspects `content` must therefore test what kind of tab it is first. `isParquetPreviewMarker()` (`src/shared/parquet/preview.ts`) and `isMediaStreamUrl()` (`src/shared/mediaTypes.ts`) are the checks; both are cheap prefix tests. Getting this wrong is not subtle in behaviour but is silent in review: tokenizing a marker reports "15 tokens" for a two-gigabyte table, and a text search over one reports zero matches on a file full of them.
 
@@ -1151,7 +1151,7 @@ Persistent PTY-backed terminal tabs that integrate into the unified tab bar alon
 - **Spawn failure UX**: `state === 'exited' && pid === 0` shows an error overlay with a Retry button
 - **Exit message**: PTY exit writes a yellow ANSI banner and new-terminal hint to the xterm buffer
 - **Font-swap hazard (no mitigation in `XTerminal` today)**: xterm measures its cell size ONCE, inside `term.open()`. The terminal fonts load from Google Fonts with `display=swap` (`src/renderer/index.html`), so a face that arrives after that leaves every glyph drawn at its own advance inside a cell sized for the fallback, which renders as `C l a u d e   C o d e` - correct letters, stretched spacing. Terminal tabs mask it by re-fitting on every show/hide; a terminal that mounts once inside a modal has nothing that re-measures it. `XTerminal` carried a `document.fonts.ready` re-measure for this and it was removed, so a new always-mounted terminal surface has to solve it itself.
-- **Fixed-pitch guarantee (`resolveTerminalFontFamily()` in `XTerminal.tsx`)**: Maestro has ONE `fontFamily` setting, shared between the app chrome and every terminal, so a user who picks a proportional UI font (Avenir Next was the reported case) breaks every terminal at once. That is a different failure from the font-swap hazard above and needs a different fix, because the configured font resolves perfectly - it simply is not fixed-pitch, so appending a `monospace` fallback is never reached. Since CSS cannot be asked whether a family is monospace, `isFixedPitchStack()` MEASURES it on a canvas: a fixed-pitch face gives `W` and `i` the same advance, while Avenir Next gives them 1025 and 296. A proportional stack is replaced with `FIXED_PITCH_FALLBACK_STACK`; anything measurably fixed-pitch is left alone, and unmeasurable input (no canvas, jsdom) keeps the user's font rather than overriding on no evidence. `ensureMonospaceFallback()` still runs first and covers the other half - a font that fails to resolve at all, where the browser would otherwise fall back to the context default (`sans-serif` on a canvas, the inherited UI font in the DOM).
+- **Fixed-pitch guarantee (`resolveTerminalFontFamily()` in `XTerminal.tsx`)**: OpenWizardAI has ONE `fontFamily` setting, shared between the app chrome and every terminal, so a user who picks a proportional UI font (Avenir Next was the reported case) breaks every terminal at once. That is a different failure from the font-swap hazard above and needs a different fix, because the configured font resolves perfectly - it simply is not fixed-pitch, so appending a `monospace` fallback is never reached. Since CSS cannot be asked whether a family is monospace, `isFixedPitchStack()` MEASURES it on a canvas: a fixed-pitch face gives `W` and `i` the same advance, while Avenir Next gives them 1025 and 296. A proportional stack is replaced with `FIXED_PITCH_FALLBACK_STACK`; anything measurably fixed-pitch is left alone, and unmeasurable input (no canvas, jsdom) keeps the user's font rather than overriding on no evidence. `ensureMonospaceFallback()` still runs first and covers the other half - a font that fails to resolve at all, where the browser would otherwise fall back to the context default (`sans-serif` on a canvas, the inherited UI font in the DOM).
 
 ### Terminal Tab Interface
 
@@ -1265,7 +1265,7 @@ interface NavigationEntry {
 
 ## Group Chat System
 
-Multi-agent coordination system where a moderator AI orchestrates conversations between multiple Maestro agents, synthesizing their responses into cohesive answers.
+Multi-agent coordination system where a moderator AI orchestrates conversations between multiple OpenWizardAI agents, synthesizing their responses into cohesive answers.
 
 ### Architecture Overview
 
@@ -1423,36 +1423,36 @@ Two key prompts control moderator behavior:
 ### Data Flow Example
 
 ```
-User: "How does @Maestro and @RunMaestro.ai relate?"
+User: "How does @OpenWizardAI and @manoelpanev.ai relate?"
 
 1. routeUserMessage()
    - Logs message as "user"
-   - Auto-adds @Maestro and @RunMaestro.ai as participants
+   - Auto-adds @OpenWizardAI and @manoelpanev.ai as participants
    - Spawns moderator process with user message
 
-2. Moderator responds: "Let me ask the agents. @Maestro @RunMaestro.ai explain..."
+2. Moderator responds: "Let me ask the agents. @OpenWizardAI @manoelpanev.ai explain..."
    routeModeratorResponse()
    - Logs message as "moderator"
-   - Extracts mentions: ["Maestro", "RunMaestro.ai"]
+   - Extracts mentions: ["OpenWizardAI", "manoelpanev.ai"]
    - Spawns batch processes for each agent
-   - Sets pendingParticipantResponses = {"Maestro", "RunMaestro.ai"}
+   - Sets pendingParticipantResponses = {"OpenWizardAI", "manoelpanev.ai"}
 
-3. Agent "Maestro" responds
+3. Agent "OpenWizardAI" responds
    routeAgentResponse()
-   - Logs message as "Maestro"
-   - markParticipantResponded() → pendingParticipantResponses = {"RunMaestro.ai"}
+   - Logs message as "OpenWizardAI"
+   - markParticipantResponded() → pendingParticipantResponses = {"manoelpanev.ai"}
    - Not last agent, so no synthesis yet
 
-4. Agent "RunMaestro.ai" responds
+4. Agent "manoelpanev.ai" responds
    routeAgentResponse()
-   - Logs message as "RunMaestro.ai"
+   - Logs message as "manoelpanev.ai"
    - markParticipantResponded() → pendingParticipantResponses = {} (empty)
    - Last agent! Triggers spawnModeratorSynthesis()
 
 5. Moderator synthesis
    - Receives all agent responses in chat history
    - Decision point:
-     a) If needs more info: "@Maestro can you clarify..." → back to step 2
+     a) If needs more info: "@OpenWizardAI can you clarify..." → back to step 2
      b) If satisfied: "Here's how they relate..." (no @mentions) → done
 
 6. Final response to user (no @mentions = turn complete)
@@ -1493,7 +1493,7 @@ groupChatEmitters.emitModeratorUsage(chatId, usage); // Token usage stats
 ### Storage Structure
 
 ```
-~/Library/Application Support/maestro/group-chats/
+~/Library/Application Support/openwizardai/group-chats/
 ├── {chatId}/
 │   ├── chat.json           # Group chat metadata
 │   ├── log.jsonl           # Append-only message log
@@ -1504,7 +1504,7 @@ groupChatEmitters.emitModeratorUsage(chatId, usage); // Token usage stats
 
 ## Web/Mobile Interface
 
-Progressive Web App (PWA) for remote control of Maestro from mobile devices.
+Progressive Web App (PWA) for remote control of OpenWizardAI from mobile devices.
 
 ### Architecture
 
@@ -1559,9 +1559,9 @@ The web interface communicates with the desktop app via WebSocket:
 
 ```typescript
 // Desktop broadcasts to web clients
-window.maestro.web.broadcastUserInput(sessionId, input);
-window.maestro.web.broadcastAutoRunState(sessionId, state);
-window.maestro.web.broadcastTabChange(sessionId, tabId);
+window.openwizardai.web.broadcastUserInput(sessionId, input);
+window.openwizardai.web.broadcastAutoRunState(sessionId, state);
+window.openwizardai.web.broadcastTabChange(sessionId, tabId);
 
 // Web client sends commands back
 websocket.send({ type: 'command', sessionId, content });
@@ -1578,7 +1578,7 @@ websocket.send({ type: 'command', sessionId, content });
 
 ## CLI Tool
 
-Command-line interface for headless Maestro operations.
+Command-line interface for headless OpenWizardAI operations.
 
 ### Architecture
 
@@ -1604,14 +1604,14 @@ src/cli/
 
 ### Available Commands
 
-| Command                      | Description                 |
-| ---------------------------- | --------------------------- |
-| `maestro list-agents`        | List available AI agents    |
-| `maestro list-groups`        | List session groups         |
-| `maestro list-playbooks`     | List saved playbooks        |
-| `maestro show-agent <id>`    | Show agent details          |
-| `maestro show-playbook <id>` | Show playbook configuration |
-| `maestro run-playbook <id>`  | Execute a playbook          |
+| Command                           | Description                 |
+| --------------------------------- | --------------------------- |
+| `openwizardai list-agents`        | List available AI agents    |
+| `openwizardai list-groups`        | List session groups         |
+| `openwizardai list-playbooks`     | List saved playbooks        |
+| `openwizardai show-agent <id>`    | Show agent details          |
+| `openwizardai show-playbook <id>` | Show playbook configuration |
+| `openwizardai run-playbook <id>`  | Execute a playbook          |
 
 ### Output Formats
 
@@ -1689,7 +1689,7 @@ Utilities for processing template variables in Custom AI Commands:
 
 ## Remote Access & Tunnels
 
-Secure remote access to Maestro via Cloudflare Tunnels.
+Secure remote access to OpenWizardAI via Cloudflare Tunnels.
 
 ### Architecture
 
@@ -1709,10 +1709,10 @@ interface TunnelStatus {
 }
 
 // IPC API
-window.maestro.tunnel.start();
-window.maestro.tunnel.stop();
-window.maestro.tunnel.getStatus();
-window.maestro.tunnel.onStatusChange(callback);
+window.openwizardai.tunnel.start();
+window.openwizardai.tunnel.stop();
+window.openwizardai.tunnel.getStatus();
+window.openwizardai.tunnel.onStatusChange(callback);
 ```
 
 ### Access Methods
@@ -1762,7 +1762,7 @@ ipcMain.handle('git:isRepo', async (_, cwd) => {
 export const gitService = {
 	async isRepo(cwd: string): Promise<boolean> {
 		try {
-			return await window.maestro.git.isRepo(cwd);
+			return await window.openwizardai.git.isRepo(cwd);
 		} catch (error) {
 			console.error('Git isRepo error:', error);
 			return false;
@@ -1778,7 +1778,7 @@ export const gitService = {
 ```typescript
 const handleFileLoad = async (path: string) => {
 	try {
-		const content = await window.maestro.fs.readFile(path);
+		const content = await window.openwizardai.fs.readFile(path);
 		setFileContent(content);
 	} catch (error) {
 		console.error('Failed to load file:', error);

@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible Maestro bug with the environment details needed for triage.
+description: Report a reproducible OpenWizardAI bug with the environment details needed for triage.
 title: 'Bug: '
 labels:
   - bug
@@ -9,7 +9,7 @@ body:
       value: |
         Thanks for reporting this. Please fill out the required fields so we can reproduce the issue without extra back-and-forth.
 
-        If you opened this from the Maestro app, prefer the in-app feedback flow when possible so screenshots and environment details stay aligned.
+        If you opened this from the OpenWizardAI app, prefer the in-app feedback flow when possible so screenshots and environment details stay aligned.
 
   - type: input
     id: summary
@@ -21,10 +21,10 @@ body:
       required: true
 
   - type: input
-    id: maestro_version
+    id: openwizardai_version
     attributes:
-      label: Maestro version
-      description: The Maestro version shown in the app or release build.
+      label: OpenWizardAI version
+      description: The OpenWizardAI version shown in the app or release build.
       placeholder: 0.15.3
     validations:
       required: true
@@ -116,7 +116,7 @@ body:
       label: Steps to reproduce
       description: Use a numbered list when possible.
       placeholder: |
-        1. Open Maestro
+        1. Open OpenWizardAI
         2. Click Feedback
         3. Attach a screenshot
         4. Click Send Feedback

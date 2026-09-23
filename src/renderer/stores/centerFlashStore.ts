@@ -5,7 +5,7 @@
  * confirmation overlay used for:
  *   - "Copy to Clipboard" acknowledgements
  *   - Quick mode-change / success notes triggered by user-initiated actions
- *   - External notifications fired via `maestro-cli notify flash`
+ *   - External notifications fired via `openwizardai-cli notify flash`
  *
  * The look is **themed** - every theme produces a visually distinct flash by
  * default (`color: 'theme'` uses `theme.colors.accent`). Use one of the four

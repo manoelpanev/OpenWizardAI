@@ -18,7 +18,7 @@ describe('browserTabHelpers', () => {
 
 		expect(tab.title).toBe('New Tab');
 		expect(tab.createdAt).toBe(1234);
-		expect(tab.partition).toBe('persist:maestro-browser-session-session-one');
+		expect(tab.partition).toBe('persist:openwizardai-browser-session-session-one');
 		expect(tab.isLoading).toBe(false);
 	});
 

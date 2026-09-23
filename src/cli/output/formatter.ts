@@ -413,7 +413,7 @@ export function formatRunEvent(event: RunEvent, options?: { debug?: boolean }): 
 			return [
 				`${timeStr} ${c('red', '■')} ${bold('Playbook halted by the agent')}`,
 				`${timeStr}       ${reason}`,
-				`${timeStr}       ${dim('Remove the <!-- maestro:halt --> marker before re-running.')}`,
+				`${timeStr}       ${dim('Remove the <!-- openwizardai:halt --> marker before re-running.')}`,
 			].join('\n');
 		}
 

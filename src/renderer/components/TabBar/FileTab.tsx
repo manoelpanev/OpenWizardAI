@@ -197,7 +197,7 @@ export const FileTab = memo(function FileTab({
 	const handleOpenInDefaultApp = useCallback(
 		(e: React.MouseEvent) => {
 			e.stopPropagation();
-			window.maestro?.shell?.openPath(tab.path);
+			window.openwizardai?.shell?.openPath(tab.path);
 			setOverlayOpen(false);
 		},
 		[tab.path, setOverlayOpen]
@@ -206,7 +206,7 @@ export const FileTab = memo(function FileTab({
 	const handleRevealInFinder = useCallback(
 		(e: React.MouseEvent) => {
 			e.stopPropagation();
-			window.maestro?.shell?.showItemInFolder(tab.path);
+			window.openwizardai?.shell?.showItemInFolder(tab.path);
 			setOverlayOpen(false);
 		},
 		[tab.path, setOverlayOpen]
@@ -527,7 +527,7 @@ export const FileTab = memo(function FileTab({
 										style={{ color: theme.colors.textMain }}
 									>
 										<FolderOpen className="w-3.5 h-3.5" style={{ color: theme.colors.textDim }} />
-										{getRevealLabel(window.maestro.platform)}
+										{getRevealLabel(window.openwizardai.platform)}
 									</button>
 								)}
 

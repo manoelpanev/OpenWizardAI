@@ -23,7 +23,7 @@ interface NowPlayingIndicatorProps {
  * The minimized media player: a play/pause button in the Left Bar header.
  *
  * Minimizing the floating widget parks it here rather than stopping it, so this
- * is both the "Maestro is the thing making noise" indicator and the transport
+ * is both the "OpenWizardAI is the thing making noise" indicator and the transport
  * for it. The icon is the current state's *action*, the way a media control
  * always is: a pause glyph while it plays, a play glyph while it is paused.
  *

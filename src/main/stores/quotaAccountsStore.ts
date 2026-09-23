@@ -1,7 +1,7 @@
 /**
  * Remembered Quota Accounts
  *
- * Durable, provider-keyed list of the plan accounts Maestro has actually used
+ * Durable, provider-keyed list of the plan accounts OpenWizardAI has actually used
  * on this machine (canonical `CLAUDE_CONFIG_DIR` / `CODEX_HOME` paths).
  *
  * Why this exists: the Usage Dashboard derived its account list from live

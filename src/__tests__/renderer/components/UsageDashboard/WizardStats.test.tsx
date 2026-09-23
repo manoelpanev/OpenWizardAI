@@ -45,7 +45,7 @@ const mockStatsApi = {
 };
 
 beforeEach(() => {
-	(window as unknown as { maestro: unknown }).maestro = { stats: mockStatsApi };
+	(window as unknown as { openwizardai: unknown }).openwizardai = { stats: mockStatsApi };
 	vi.clearAllMocks();
 	mockStatsApi.onStatsUpdate.mockReturnValue(() => {});
 	mockStatsApi.getWizardRuns.mockResolvedValue([]);

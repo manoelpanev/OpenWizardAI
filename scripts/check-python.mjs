@@ -3,12 +3,13 @@
 // and node-pty) still imports `distutils`, which was removed from the
 // standard library in Python 3.12 - so `npm install` dies with
 // `ModuleNotFoundError: No module named 'distutils'` during the postinstall
-// electron-rebuild step. See https://github.com/RunMaestro/Maestro/issues/170.
+// electron-rebuild step. See https://github.com/manoelpanev/OpenWizardAI/issues/170.
 
 import { spawnSync } from 'node:child_process';
 
 const skip =
-	process.env.MAESTRO_SKIP_PYTHON_CHECK === '1' || process.env.MAESTRO_SKIP_PYTHON_CHECK === 'true';
+	process.env.OPENWIZARDAI_SKIP_PYTHON_CHECK === '1' ||
+	process.env.OPENWIZARDAI_SKIP_PYTHON_CHECK === 'true';
 if (skip) process.exit(0);
 
 const candidate = process.env.PYTHON || process.env.npm_config_python || 'python3';
@@ -55,7 +56,7 @@ const bold = '\x1b[1m';
 console.warn(
 	[
 		'',
-		`${yellow}${bold}[maestro] Python toolchain warning${reset}`,
+		`${yellow}${bold}[openwizardai] Python toolchain warning${reset}`,
 		`  Detected ${python.raw} at '${python.bin}', but \`setuptools\` is not installed.`,
 		`  node-gyp (via better-sqlite3 / node-pty) still imports \`distutils\`, which was`,
 		`  removed from Python's standard library in 3.12 — your install is likely to fail`,
@@ -66,7 +67,7 @@ console.warn(
 		`    ${bold}${python.bin} -m pip install setuptools${reset}`,
 		`    ${bold}uv venv -p 3.11 && source .venv/bin/activate${reset}   (use Python 3.11)`,
 		'',
-		`  Set MAESTRO_SKIP_PYTHON_CHECK=1 to silence this check.`,
+		`  Set OPENWIZARDAI_SKIP_PYTHON_CHECK=1 to silence this check.`,
 		'',
 	].join('\n')
 );

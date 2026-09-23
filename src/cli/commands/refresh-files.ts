@@ -1,6 +1,6 @@
-// Refresh files command - refresh the file tree in the Maestro desktop app
+// Refresh files command - refresh the file tree in the OpenWizardAI desktop app
 
-import { resolveTargetSessionId } from '../services/maestro-client';
+import { resolveTargetSessionId } from '../services/openwizardai-client';
 import { refreshFileTreeFor } from '../services/file-tree-refresh';
 
 interface RefreshFilesOptions {

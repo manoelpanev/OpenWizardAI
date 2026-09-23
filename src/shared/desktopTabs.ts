@@ -1,6 +1,6 @@
 /**
  * Wire shape for one open AI tab as reported by the desktop app's
- * `list_desktop_sessions` message (`maestro-cli session list`).
+ * `list_desktop_sessions` message (`openwizardai-cli session list`).
  *
  * It lives in `shared/` because both ends of that message need it: the main
  * process builds the entries in `web-server-factory.ts`, and the CLI consumes
@@ -16,7 +16,7 @@
 export interface DesktopTabEntry {
 	tabId: string;
 	sessionId: string;
-	/** Maestro agent (Left Bar entity) ID this tab belongs to. */
+	/** OpenWizardAI agent (Left Bar entity) ID this tab belongs to. */
 	agentId: string;
 	agentName: string;
 	toolType: string;

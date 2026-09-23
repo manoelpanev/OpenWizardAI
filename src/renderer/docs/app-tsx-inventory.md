@@ -6,7 +6,7 @@ This document provides a detailed map of `src/renderer/App.tsx` (~9,700 lines) t
 
 ## 1. useState Declarations (lines 231-600)
 
-The `MaestroConsoleInner` component starts at line 231. State declarations are organized by category below.
+The `OpenWizardAIConsoleInner` component starts at line 231. State declarations are organized by category below.
 
 ### Hook Dependencies (not useState but extracted from hooks/contexts)
 
@@ -561,7 +561,7 @@ Processes queued messages when group chat state becomes idle:
 - Triggered when `groupChatState === 'idle'` and queue is non-empty
 - Takes first item from `groupChatExecutionQueue`
 - Sets state to `'moderator-thinking'` (both local and in global Map)
-- Calls `window.maestro.groupChat.sendToModerator()`
+- Calls `window.openwizardai.groupChat.sendToModerator()`
 - Dependencies: `[groupChatState, groupChatExecutionQueue, activeGroupChatId]`
 
 ### Refs (lines 2363-2401)
@@ -604,7 +604,7 @@ thinkingChunkRafIdRef; // RAF ID for cleanup
 
 ### Debug Window Exposure useEffect (lines 2403-2422)
 
-Exposes `window.__maestroDebug` for testing:
+Exposes `window.__openwizardaiDebug` for testing:
 
 - `addToast(type, title, message)` - trigger toast from console
 - `testToast()` - quick test with sample notification
@@ -779,8 +779,8 @@ const handleFileClick = useCallback(async (node: any, path: string) => { ... }, 
 **Behavior**:
 
 - Guards against null session
-- For files with external associations (images, docs, etc.), shows confirmation modal via `setConfirmModalMessage/setConfirmModalOnConfirm/setConfirmModalOpen`, then opens with `window.maestro.shell.openExternal()`
-- For text files, reads content via `window.maestro.fs.readFile(fullPath)`
+- For files with external associations (images, docs, etc.), shows confirmation modal via `setConfirmModalMessage/setConfirmModalOnConfirm/setConfirmModalOpen`, then opens with `window.openwizardai.shell.openExternal()`
+- For text files, reads content via `window.openwizardai.fs.readFile(fullPath)`
 - Opens file in tab-based preview system via `onOpenFileTab` callback
 - Updates `activeFocus` to main panel
 
@@ -796,7 +796,7 @@ const updateSessionWorkingDirectory = async () => { ... };
 
 **Behavior**:
 
-- Opens native folder dialog via `window.maestro.dialog.selectFolder()`
+- Opens native folder dialog via `window.openwizardai.dialog.selectFolder()`
 - Updates session's `cwd`, `fullPath`, clears `fileTree` and `fileTreeError`
 
 **Not memoized**: Simple async function, no deps.
@@ -1071,7 +1071,7 @@ This section catalogs all modal components rendered in the JSX, their open state
 | 43  | `EditAgentModal`               | `editAgentModalOpen`                      | 9477-9492 | Always rendered (isOpen prop)                                                       | Edit session config                          |
 | 44  | `SettingsModal`                | `settingsModalOpen`                       | 9495-9564 | Always rendered (isOpen prop)                                                       | Large: ~70 props                             |
 | 45  | `WizardResumeModal`            | `wizardResumeModalOpen`                   | 9567-9626 | `{wizardResumeModalOpen && wizardResumeState && ...}`                               | Resume wizard prompt                         |
-| 46  | `MaestroWizard`                | `wizardState.isOpen`                      | 9630-9638 | `{wizardState.isOpen && ...}`                                                       | Full wizard overlay                          |
+| 46  | `OpenWizardAIWizard`           | `wizardState.isOpen`                      | 9630-9638 | `{wizardState.isOpen && ...}`                                                       | Full wizard overlay                          |
 
 ### Summary Statistics
 
@@ -1147,7 +1147,7 @@ The modal section spans from line 7192 (`{/* --- MODALS --- */}`) to line 9689 (
 | NewInstance + EditAgent                             | 9468-9492            | 24         | 1.0%               |
 | **SettingsModal**                                   | 9495-9564            | **69**     | **2.8%**           |
 | WizardResumeModal                                   | 9567-9626            | 59         | 2.4%               |
-| MaestroWizard + TourOverlay                         | 9630-9657            | 27         | 1.1%               |
+| OpenWizardAIWizard + TourOverlay                    | 9630-9657            | 27         | 1.1%               |
 | Flash notifications                                 | 9659-9688            | 29         | 1.2%               |
 
 ### Modals with Complex Inline Handlers
@@ -1463,16 +1463,16 @@ const {
 
 ### 8.6 Extraction Dependencies Summary
 
-| Dependency Type                   | Count     | Impact                                 |
-| --------------------------------- | --------- | -------------------------------------- |
-| `setSessions` direct access       | 13 modals | Must pass callback or use context      |
-| Ref access                        | 4 modals  | Must pass refs or use ref context      |
-| `addToast` access                 | 8 modals  | Must pass callback or use ToastContext |
-| Dual context (session/group chat) | 2 modals  | Must handle both contexts              |
-| Session factory (create Session)  | 3 modals  | Should share factory function          |
-| History API access                | 3 modals  | `window.maestro.history.*` calls       |
-| Git service access                | 3 modals  | `window.maestro.git.*` calls           |
-| Agent session storage access      | 2 modals  | `window.maestro.agentSessions.*` calls |
+| Dependency Type                   | Count     | Impact                                      |
+| --------------------------------- | --------- | ------------------------------------------- |
+| `setSessions` direct access       | 13 modals | Must pass callback or use context           |
+| Ref access                        | 4 modals  | Must pass refs or use ref context           |
+| `addToast` access                 | 8 modals  | Must pass callback or use ToastContext      |
+| Dual context (session/group chat) | 2 modals  | Must handle both contexts                   |
+| Session factory (create Session)  | 3 modals  | Should share factory function               |
+| History API access                | 3 modals  | `window.openwizardai.history.*` calls       |
+| Git service access                | 3 modals  | `window.openwizardai.git.*` calls           |
+| Agent session storage access      | 2 modals  | `window.openwizardai.agentSessions.*` calls |
 
 ### 8.7 Recommended Extraction Order for Complex Components
 
@@ -2247,7 +2247,7 @@ App.tsx total lines: 9,716 (verified via wc -l)
 | Render Helper Functions            | 6749-7102  | 354    | ✅ Section 4                   | handleFileClick, toggleFolder, useEffects        |
 | Layout JSX Setup                   | 7103-7191  | 89     | ⚠️ Not detailed                | GitStatusProvider wrapper, main div setup        |
 | Modal JSX Section                  | 7192-9689  | 2,497  | ✅ Sections 5 & 6              | 46 modals cataloged with complexity analysis     |
-| Context Wrapper                    | 9690-9716  | 27     | ⚠️ Minimal                     | MaestroConsole wrapper with providers            |
+| Context Wrapper                    | 9690-9716  | 27     | ⚠️ Minimal                     | OpenWizardAIConsole wrapper with providers       |
 
 ### Coverage Summary
 

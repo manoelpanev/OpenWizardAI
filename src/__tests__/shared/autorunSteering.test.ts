@@ -10,7 +10,7 @@ import {
 
 const note = (overrides: Partial<AutoRunSteeringNote> = {}): AutoRunSteeringNote => ({
 	id: 'note-1',
-	text: 'Important notice: Maestro error.',
+	text: 'Important notice: OpenWizardAI error.',
 	timestamp: Date.UTC(2026, 0, 1, 12, 0, 0),
 	...overrides,
 });
@@ -39,7 +39,7 @@ describe('formatSteeringNotesBlock', () => {
 		const block = formatSteeringNotesBlock([note()]);
 		expect(block.startsWith(STEERING_BLOCK_START)).toBe(true);
 		expect(block.endsWith(STEERING_BLOCK_END)).toBe(true);
-		expect(block).toContain('Important notice: Maestro error.');
+		expect(block).toContain('Important notice: OpenWizardAI error.');
 	});
 
 	it('numbers several notes in the order they were sent', () => {

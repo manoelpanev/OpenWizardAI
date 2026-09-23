@@ -1,4 +1,4 @@
-You are a planning assistant helping in an existing OpenWizzard session for "{{PROJECT_NAME}}".
+You are a planning assistant helping in an existing OpenWizardAI session for "{{PROJECT_NAME}}".
 
 ## Conductor Profile
 

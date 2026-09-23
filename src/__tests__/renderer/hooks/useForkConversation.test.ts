@@ -33,7 +33,7 @@ vi.mock('../../../renderer/utils/sentry', () => ({
 }));
 
 vi.mock('../../../renderer/utils/spawnHelpers', () => ({
-	prepareMaestroSystemPrompt: vi.fn().mockResolvedValue('mock-system-prompt'),
+	prepareOpenWizardAISystemPrompt: vi.fn().mockResolvedValue('mock-system-prompt'),
 	getStdinFlags: vi.fn().mockReturnValue({
 		sendPromptViaStdin: false,
 		sendPromptViaStdinRaw: false,
@@ -105,7 +105,7 @@ function mountHook(initialSessions: Session[], activeSessionId: string | null) {
 beforeEach(() => {
 	vi.clearAllMocks();
 
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		agents: {
 			get: vi.fn().mockResolvedValue({
 				command: 'claude',
@@ -228,9 +228,9 @@ describe('useForkConversation', () => {
 
 			const newTab = getSessions()[0].aiTabs.find((t) => t.id !== 'source-tab')!;
 			await waitFor(() => {
-				expect((window as any).maestro.process.spawn).toHaveBeenCalledTimes(1);
+				expect((window as any).openwizardai.process.spawn).toHaveBeenCalledTimes(1);
 			});
-			const spawnArgs = (window as any).maestro.process.spawn.mock.calls[0][0];
+			const spawnArgs = (window as any).openwizardai.process.spawn.mock.calls[0][0];
 			expect(spawnArgs.sessionId).toBe(`${session.id}-ai-${newTab.id}`);
 			expect(spawnArgs.toolType).toBe('claude-code');
 			expect(spawnArgs.command).toBe('/usr/bin/claude');
@@ -301,13 +301,13 @@ describe('useForkConversation', () => {
 
 			expect(setSessions).not.toHaveBeenCalled();
 			expect(getSessions()[0].aiTabs).toHaveLength(1);
-			expect((window as any).maestro.process.spawn).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.process.spawn).not.toHaveBeenCalled();
 		});
 	});
 
 	describe('error path', () => {
 		it('flips tab and session back to idle and appends an error log on spawn failure', async () => {
-			(window as any).maestro.process.spawn = vi.fn().mockRejectedValueOnce(new Error('boom'));
+			(window as any).openwizardai.process.spawn = vi.fn().mockRejectedValueOnce(new Error('boom'));
 
 			const session = buildSession();
 			const { fork, getSessions } = mountHook([session], session.id);

@@ -125,7 +125,7 @@ describe('debugPackage service', () => {
 		it('attaches the snapshot so main never has to guess', async () => {
 			const createPackage = vi.fn().mockResolvedValue({ success: true });
 			(globalThis as unknown as { window: unknown }).window = {
-				maestro: { debug: { createPackage } },
+				openwizardai: { debug: { createPackage } },
 			};
 
 			useBatchStore.setState({

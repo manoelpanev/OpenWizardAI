@@ -75,7 +75,7 @@ vi.mock('../../../main/web-server/WebServer', () => {
 			setDeletePlaybookCallback = vi.fn();
 			setGetSettingsCallback = vi.fn();
 			setSetSettingCallback = vi.fn();
-			// Added with `maestro-cli open`: the factory wires this on every build,
+			// Added with `openwizardai-cli open`: the factory wires this on every build,
 			// so omitting it makes every test in this file throw.
 			setOpenModalCallback = vi.fn();
 			// Network-roam handling: the factory subscribes so it can push the new
@@ -577,7 +577,7 @@ describe('web-server/web-server-factory', () => {
 	});
 
 	// PR2 of the CLI surface refactor: read-only conversation-state inspection
-	// surfaced via `maestro-cli session show <tabId>`. The callback wired here
+	// surfaced via `openwizardai-cli session show <tabId>`. The callback wired here
 	// is the desktop-side half of the contract; the CLI half is tested in
 	// `src/__tests__/cli/commands/session.test.ts`.
 	describe('getSessionHistoryCallback behavior', () => {
@@ -1165,7 +1165,7 @@ describe('web-server/web-server-factory', () => {
 	describe('Cue subscription callbacks', () => {
 		// Regression: previously this callback forwarded the request to the
 		// renderer via `remote:getCueSubscriptions` and waited 30 s for a
-		// response, but no renderer handler existed. Every `maestro-cli cue
+		// response, but no renderer handler existed. Every `openwizardai-cli cue
 		// list` call timed out. Now it must call the injected graph-data
 		// dependency directly and flatten the result.
 		it('flattens engine graph data into CueSubscriptionInfo[] without any IPC bounce', async () => {

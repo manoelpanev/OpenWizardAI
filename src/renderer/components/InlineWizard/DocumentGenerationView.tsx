@@ -512,7 +512,7 @@ export function DocumentGenerationView({
 					<p className="text-sm text-center max-w-md" style={{ color: theme.colors.textDim }}>
 						Available under{' '}
 						<span style={{ color: theme.colors.accent, fontWeight: 500 }}>
-							{subfolderName || '.maestro/playbooks'}/
+							{subfolderName || '.openwizardai/playbooks'}/
 						</span>
 					</p>
 				) : (

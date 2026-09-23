@@ -10,7 +10,7 @@
  *
  * Does NOT include:
  * - Local image loading via IPC (not available in web context)
- * - File tree linking (maestro-file:// protocol)
+ * - File tree linking (openwizardai-file:// protocol)
  * - Frontmatter parsing (not needed for AI responses)
  */
 

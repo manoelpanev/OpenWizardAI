@@ -51,10 +51,10 @@ describe('migrateAdaptiveModeDefault', () => {
 			sessions: [
 				{ id: 'a', toolType: 'claude-code', name: 'Claude' },
 				{ id: 'b', toolType: 'codex', name: 'Codex' },
-				{ id: 'c', toolType: 'claude-code', name: 'Already on', enableMaestroP: true },
+				{ id: 'c', toolType: 'claude-code', name: 'Already on', enableOpenWizardAIP: true },
 				// Explicit API choice (false) must survive the backfill - flipping it
 				// on would silently revert the user's token source to Dynamic.
-				{ id: 'd', toolType: 'claude-code', name: 'Picked API', enableMaestroP: false },
+				{ id: 'd', toolType: 'claude-code', name: 'Picked API', enableOpenWizardAIP: false },
 			],
 		});
 		mockedGetSessionsStore.mockReturnValue(sessionsStore as any);
@@ -64,10 +64,10 @@ describe('migrateAdaptiveModeDefault', () => {
 
 		const written = sessionsStore.set.mock.calls[0][1];
 		expect(written).toEqual([
-			{ id: 'a', toolType: 'claude-code', name: 'Claude', enableMaestroP: true },
+			{ id: 'a', toolType: 'claude-code', name: 'Claude', enableOpenWizardAIP: true },
 			{ id: 'b', toolType: 'codex', name: 'Codex' },
-			{ id: 'c', toolType: 'claude-code', name: 'Already on', enableMaestroP: true },
-			{ id: 'd', toolType: 'claude-code', name: 'Picked API', enableMaestroP: false },
+			{ id: 'c', toolType: 'claude-code', name: 'Already on', enableOpenWizardAIP: true },
+			{ id: 'd', toolType: 'claude-code', name: 'Picked API', enableOpenWizardAIP: false },
 		]);
 		expect(settingsStore.data[ADAPTIVE_MODE_DEFAULT_MIGRATION_MARKER]).toBe(true);
 	});
@@ -75,8 +75,8 @@ describe('migrateAdaptiveModeDefault', () => {
 	it('sets the marker without writing sessions when every agent already has an explicit choice', () => {
 		const sessionsStore = makeStore({
 			sessions: [
-				{ id: 'c', toolType: 'claude-code', name: 'On', enableMaestroP: true },
-				{ id: 'd', toolType: 'claude-code', name: 'API', enableMaestroP: false },
+				{ id: 'c', toolType: 'claude-code', name: 'On', enableOpenWizardAIP: true },
+				{ id: 'd', toolType: 'claude-code', name: 'API', enableOpenWizardAIP: false },
 			],
 		});
 		mockedGetSessionsStore.mockReturnValue(sessionsStore as any);

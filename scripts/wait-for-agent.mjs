@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 /**
- * Block until a Maestro agent is genuinely idle, then exit.
+ * Block until an OpenWizardAI agent is genuinely idle, then exit.
  *
  * Usage:
  *   node scripts/wait-for-agent.mjs [options]
  *
  * Options:
- *   --cwd <path>       Resolve the target by working directory. Default: ~/Projects/Maestro
+ *   --cwd <path>       Resolve the target by working directory. Default: ~/Projects/OpenWizardAI
  *   --agent <id>       Resolve the target by agent id instead (wins over --cwd)
  *   --name <name>      Resolve the target by exact agent name instead (wins over --cwd)
  *   --caller <id>      Your own agent id. The wait refuses to target it.
  *   --idle-for <sec>   Continuous idle required before declaring done. Default: 30
  *   --timeout <sec>    Ceiling on the whole wait. Default: 1800
  *   --interval <sec>   Seconds between probes. Default: 5
- *   --cli <path>       maestro-cli.js path. Default: the installed Maestro.app copy
+ *   --cli <path>       openwizardai-cli.js path. Default: the installed OpenWizardAI.app copy
  *   --quiet            Only print the final line
  *
  * Exit codes:
@@ -25,15 +25,15 @@
  * -------------------------
  * Busy state exists ONLY in the running app. Persistence rewrites every session
  * and tab to `state: 'idle'` on the way to disk (see src/main/utils/agent-busy.ts),
- * so maestro-sessions.json reports a fully idle app while a tab is mid-turn.
- * The probe is therefore `maestro-cli session list --json`, which reads live state
+ * so openwizardai-sessions.json reports a fully idle app while a tab is mid-turn.
+ * The probe is therefore `openwizardai-cli session list --json`, which reads live state
  * over the desktop's WebSocket bridge and has no on-disk fallback. `ps`/`pgrep`
  * is no substitute either: an agent can run over SSH, so there is no local process.
  * And `sleep N` is the failure this replaces - sleeping is not detecting.
  *
  * Four rules keep the answer honest:
  *   - The target is resolved by working directory, not by name. Several agents
- *     have "maestro" in their name; exactly one has a given cwd. An ambiguous
+ *     have "openwizardai" in their name; exactly one has a given cwd. An ambiguous
  *     match refuses to proceed rather than picking one.
  *   - It never waits on the caller. The caller's own tab is busy for as long as
  *     this runs, so that wait could only ever end in a timeout.
@@ -51,20 +51,20 @@ import { execFile } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 
-const DEFAULT_CLI = '/Applications/Maestro.app/Contents/Resources/maestro-cli.js';
+const DEFAULT_CLI = '/Applications/OpenWizardAI.app/Contents/Resources/openwizardai-cli.js';
 const PROBE_TIMEOUT_MS = 20_000;
 const MAX_CONSECUTIVE_PROBE_FAILURES = 3;
 
 function parseArgs(argv) {
 	const opts = {
-		cwd: path.join(os.homedir(), 'Projects', 'Maestro'),
+		cwd: path.join(os.homedir(), 'Projects', 'OpenWizardAI'),
 		agent: null,
 		name: null,
 		caller: null,
 		idleFor: 30,
 		timeout: 1800,
 		interval: 5,
-		cli: process.env.MAESTRO_CLI || DEFAULT_CLI,
+		cli: process.env.OPENWIZARDAI_CLI || DEFAULT_CLI,
 		quiet: false,
 	};
 	for (let i = 0; i < argv.length; i++) {
@@ -119,7 +119,7 @@ function parseArgs(argv) {
 function printUsage() {
 	console.log(
 		[
-			'Block until a Maestro agent is idle.',
+			'Block until an OpenWizardAI agent is idle.',
 			'',
 			'  node scripts/wait-for-agent.mjs [--cwd <path> | --agent <id> | --name <name>]',
 			'                                  [--caller <id>] [--idle-for 30] [--timeout 1800]',
@@ -138,7 +138,7 @@ function fatal(message) {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const stamp = () => new Date().toTimeString().slice(0, 8);
 
-/** Run a maestro-cli verb. Resolves to stdout, or null when the call failed. */
+/** Run a openwizardai-cli verb. Resolves to stdout, or null when the call failed. */
 function runCli(cliPath, args) {
 	return new Promise((resolve) => {
 		execFile(
@@ -218,7 +218,7 @@ async function main() {
 	};
 
 	if ((await runCli(opts.cli, ['status'])) === null) {
-		fatal('Maestro desktop not reachable');
+		fatal('OpenWizardAI desktop not reachable');
 	}
 
 	const target = await resolveTarget(opts);
@@ -255,7 +255,7 @@ async function main() {
 				`[${stamp()}] probe failed (${consecutiveFailures}/${MAX_CONSECUTIVE_PROBE_FAILURES}) - not idle`
 			);
 			if (consecutiveFailures >= MAX_CONSECUTIVE_PROBE_FAILURES) {
-				fatal('lost contact with Maestro');
+				fatal('lost contact with OpenWizardAI');
 			}
 			await sleep(opts.interval * 1000);
 			continue;

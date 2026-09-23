@@ -1,5 +1,5 @@
 /**
- * Filter matching engine for Maestro Cue event payload filtering.
+ * Filter matching engine for OpenWizardAI Cue event payload filtering.
  *
  * Evaluates filter expressions against event payloads. Supports exact match,
  * negation, numeric comparison, glob patterns, and boolean matching.

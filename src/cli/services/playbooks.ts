@@ -1,5 +1,5 @@
 // Playbooks service for CLI
-// Reads playbook files from the Maestro config directory
+// Reads playbook files from the OpenWizardAI config directory
 
 import * as fs from 'fs';
 import * as path from 'path';

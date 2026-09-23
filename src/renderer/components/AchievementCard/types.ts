@@ -1,4 +1,4 @@
-import type { AutoRunStats, MaestroUsageStats, Theme } from '../../types';
+import type { AutoRunStats, OpenWizardAIUsageStats, Theme } from '../../types';
 import type { ConductorBadge } from '../../constants/conductorBadges';
 
 export interface GlobalStatsSubset {
@@ -19,7 +19,7 @@ export interface AchievementCardProps {
 	theme: Theme;
 	autoRunStats: AutoRunStats;
 	globalStats?: GlobalStatsSubset | null;
-	usageStats?: MaestroUsageStats | null;
+	usageStats?: OpenWizardAIUsageStats | null;
 	handsOnTimeMs?: number;
 }
 

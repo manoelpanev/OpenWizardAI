@@ -153,7 +153,7 @@ export async function ensureCliServer(deps: WebHandlerDependencies): Promise<boo
 	}
 
 	logger.error(
-		`Gave up starting CLI server after ${ENSURE_CLI_MAX_ATTEMPTS} attempts — maestro-cli will be unavailable until Live Mode is toggled`,
+		`Gave up starting CLI server after ${ENSURE_CLI_MAX_ATTEMPTS} attempts — openwizardai-cli will be unavailable until Live Mode is toggled`,
 		'CliServer'
 	);
 	return false;
@@ -165,7 +165,7 @@ let cliDiscoveryWatchdog: ReturnType<typeof setInterval> | null = null;
 /**
  * Default interval between watchdog checks.
  *
- * Short on purpose: maestro-cli is the user's hands-off entry point and a 30s
+ * Short on purpose: openwizardai-cli is the user's hands-off entry point and a 30s
  * window of "command says app isn't running" is enough to retrain muscle
  * memory toward toggling Live Mode. 5s self-heals well before the user gives
  * up and reaches for the UI.
@@ -192,7 +192,7 @@ export function startCliDiscoveryWatchdog(
 		const webServer = deps.getWebServer();
 		if (!webServer) {
 			// No server yet (initial ensureCliServer never succeeded) - try to
-			// bring one up so maestro-cli works without forcing a Live Mode toggle.
+			// bring one up so openwizardai-cli works without forcing a Live Mode toggle.
 			void ensureCliServer(deps).catch((err: unknown) => {
 				logger.error(
 					`Watchdog ensureCliServer failed: ${err instanceof Error ? err.message : String(err)}`,
@@ -473,7 +473,7 @@ export function registerWebHandlers(deps: WebHandlerDependencies): void {
 		const webServer = getWebServer();
 		if (!webServer) {
 			// Even with no server, ensure the CLI channel is available so
-			// maestro-cli works after Live Mode toggles.
+			// openwizardai-cli works after Live Mode toggles.
 			await ensureCliServer(deps);
 			return { success: true };
 		}
@@ -491,7 +491,7 @@ export function registerWebHandlers(deps: WebHandlerDependencies): void {
 
 		// Bring the CLI server back up on a fresh port + token. The user
 		// turned off Live Mode (closing the public URL) but the CLI server
-		// must remain reachable for maestro-cli.
+		// must remain reachable for openwizardai-cli.
 		await ensureCliServer(deps);
 		return { success: true };
 	});
@@ -575,7 +575,7 @@ export function registerWebHandlers(deps: WebHandlerDependencies): void {
 			return { success: false, count, error: error.message };
 		}
 
-		// Bring the CLI server back up on a fresh port + token so maestro-cli
+		// Bring the CLI server back up on a fresh port + token so openwizardai-cli
 		// continues working after Live Mode is fully disabled.
 		await ensureCliServer(deps);
 		return { success: true, count };

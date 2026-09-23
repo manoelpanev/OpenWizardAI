@@ -42,7 +42,7 @@ const baseRun: WizardRun = {
 	exchanges: 4,
 	documents: 2,
 	tasks: 17,
-	projectPath: '/Users/pedram/Projects/Maestro',
+	projectPath: '/Users/pedram/Projects/OpenWizardAI',
 };
 
 describe('wizard-runs', () => {
@@ -69,7 +69,7 @@ describe('wizard-runs', () => {
 				4,
 				2,
 				17,
-				'/Users/pedram/Projects/Maestro'
+				'/Users/pedram/Projects/OpenWizardAI'
 			);
 		});
 

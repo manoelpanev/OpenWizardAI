@@ -882,7 +882,7 @@ export function useInputHandlers(deps: UseInputHandlersDeps): UseInputHandlersRe
 				for (const p of internalPaths) {
 					if (isImagePath(p) && treeRoot) {
 						const absolutePath = `${treeRoot}/${p}`;
-						void window.maestro.fs
+						void window.openwizardai.fs
 							.readFile(absolutePath, sshRemoteId)
 							.then((content) => {
 								if (typeof content !== 'string' || !content.startsWith('data:image/')) return;
@@ -950,7 +950,7 @@ export function useInputHandlers(deps: UseInputHandlersDeps): UseInputHandlersRe
 					// External non-image file or folder - collect path for @-mention.
 					// `File.path` was removed in modern Electron; resolve via webUtils
 					// (bridged through the preload as `getPathForFile`).
-					const filePath = window.maestro.fs.getPathForFile(file);
+					const filePath = window.openwizardai.fs.getPathForFile(file);
 					if (filePath) {
 						externalPaths.push(toMentionPath(filePath, projectRoot));
 					}

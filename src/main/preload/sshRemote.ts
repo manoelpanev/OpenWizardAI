@@ -1,7 +1,7 @@
 /**
  * Preload API for SSH remote operations
  *
- * Provides the window.maestro.sshRemote namespace for:
+ * Provides the window.openwizardai.sshRemote namespace for:
  * - SSH remote configuration management
  * - SSH connection testing
  * - SSH config file parsing

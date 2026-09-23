@@ -1,7 +1,7 @@
 /**
  * @vitest-environment node
  *
- * Regression tests for MAESTRO-113/114: `table query_events has no column named
+ * Regression tests for OPENWIZARDAI-113/114: `table query_events has no column named
  * input_tokens` on every query event.
  *
  * rc and main number their stats migrations differently past v7 (rc's v8 is
@@ -104,7 +104,7 @@ describe('runMigrations repairs schema skipped by a cross-branch user_version', 
 		expect(logger.warn).not.toHaveBeenCalled();
 	});
 
-	it('adds the token columns to an rc v8 database so the query event insert prepares (MAESTRO-114)', () => {
+	it('adds the token columns to an rc v8 database so the query event insert prepares (OPENWIZARDAI-114)', () => {
 		// rc v8 = multi_window_usage_daily; token columns arrived in rc's v9.
 		const db = rcShapedDb(8, { tokenColumns: true, resilience: true, wizard: true });
 		expect(() => db.prepare(INSERT_QUERY_EVENT_SQL)).toThrow(/no column named input_tokens/);

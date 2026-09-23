@@ -84,11 +84,11 @@ export interface ModeratorConfig {
 		workingDirOverride?: string;
 	};
 	/** Claude token-source opt-in (Claude Code moderator only). See getClaudeTokenMode. */
-	enableMaestroP?: boolean;
-	/** Refines enableMaestroP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
-	maestroPMode?: 'interactive' | 'dynamic';
-	/** Optional maestro-p script override. */
-	maestroPPath?: string;
+	enableOpenWizardAIP?: boolean;
+	/** Refines enableOpenWizardAIP: 'interactive' (always TUI) vs 'dynamic' (auto-switch). */
+	openwizardaiPMode?: 'interactive' | 'dynamic';
+	/** Optional openwizardai-p script override. */
+	openwizardaiPPath?: string;
 }
 
 /**
@@ -113,7 +113,7 @@ export interface GroupChat {
 	archived?: boolean;
 	/**
 	 * When true (the default), the moderator only hands work to an agent whose
-	 * Maestro agent is idle, holding the handoff until it is rather than
+	 * OpenWizardAI agent is idle, holding the handoff until it is rather than
 	 * starting a second process there. Undefined means enabled - read it through
 	 * {@link requiresIdleParticipants} rather than testing the field, so chats
 	 * created before this setting existed keep the safe behavior.

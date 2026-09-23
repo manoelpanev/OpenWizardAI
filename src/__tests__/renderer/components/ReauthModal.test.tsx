@@ -2,7 +2,7 @@
  * @file ReauthModal.test.tsx
  * @description Tests for the provider re-authentication modal.
  *
- * The point of this modal is that the login finishes inside Maestro, so the
+ * The point of this modal is that the login finishes inside OpenWizardAI, so the
  * behavior under test is the PTY contract: spawn exactly one login shell, type
  * the provider's own login command into it, run it on the agent's SSH remote
  * when the agent has one, and never leave that shell alive behind a closed
@@ -108,16 +108,16 @@ beforeEach(() => {
 	useSettingsStore.setState({ shellEnvVars: {} } as never);
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const maestro = (window as any).maestro;
-	maestro.process.spawnTerminalTab = mockSpawnTerminalTab;
-	maestro.process.write = mockWrite;
-	maestro.process.kill = mockKill;
-	maestro.agents.getCustomEnvVars = mockGetCustomEnvVars;
-	maestro.process.onExit = vi.fn((handler: (sessionId: string) => void) => {
+	const openwizardai = (window as any).openwizardai;
+	openwizardai.process.spawnTerminalTab = mockSpawnTerminalTab;
+	openwizardai.process.write = mockWrite;
+	openwizardai.process.kill = mockKill;
+	openwizardai.agents.getCustomEnvVars = mockGetCustomEnvVars;
+	openwizardai.process.onExit = vi.fn((handler: (sessionId: string) => void) => {
 		exitHandler = handler;
 		return () => {};
 	});
-	maestro.process.onData = vi.fn((handler: (sessionId: string, data: string) => void) => {
+	openwizardai.process.onData = vi.fn((handler: (sessionId: string, data: string) => void) => {
 		dataHandler = handler;
 		return () => {};
 	});
@@ -316,7 +316,7 @@ describe('ReauthModal', () => {
 
 		expect(mockSpawnTerminalTab).not.toHaveBeenCalled();
 		expect(screen.queryByTestId('xterm-mock')).not.toBeInTheDocument();
-		expect(screen.getByText(/no login command OpenWizzard can run/)).toBeInTheDocument();
+		expect(screen.getByText(/no login command OpenWizardAI can run/)).toBeInTheDocument();
 	});
 
 	it('reports a failed spawn instead of waiting on a shell that never started', async () => {

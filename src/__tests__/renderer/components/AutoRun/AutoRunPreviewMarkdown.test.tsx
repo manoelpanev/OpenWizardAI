@@ -47,7 +47,7 @@ const renderPreview = (content: string, overrides: Record<string, unknown> = {})
 
 beforeEach(() => {
 	writeDoc.mockClear();
-	(window as any).maestro = {
+	(window as any).openwizardai = {
 		fs: { readFile: vi.fn().mockResolvedValue(''), readDir: vi.fn().mockResolvedValue([]) },
 		autorun: {
 			listImages: vi.fn().mockResolvedValue({ success: true, images: [] }),

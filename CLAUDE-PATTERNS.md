@@ -1,6 +1,6 @@
 # CLAUDE-PATTERNS.md
 
-Core implementation patterns for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+Core implementation patterns for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]].
 
 ## 1. Process Management
 
@@ -38,12 +38,12 @@ const [mySetting, setMySettingState] = useState(defaultValue);
 // 2. Add wrapper that persists
 const setMySetting = (value) => {
 	setMySettingState(value);
-	window.maestro.settings.set('mySetting', value);
+	window.openwizardai.settings.set('mySetting', value);
 };
 
 // 3. Load from batch response in useEffect (settings use batch loading)
 // In the loadSettings useEffect, extract from allSettings object:
-const allSettings = await window.maestro.settings.getAll();
+const allSettings = await window.openwizardai.settings.getAll();
 const savedMySetting = allSettings['mySetting'];
 if (savedMySetting !== undefined) setMySettingState(savedMySetting);
 ```
@@ -81,7 +81,7 @@ useEffect(() => {
 }, [isOpen, registerLayer, unregisterLayer]);
 ```
 
-**Max size:** The Maestro Cue modal (`90vw x 90vh`) is the maximum modal footprint - no modal, including "expanded"/"fullscreen" states, should exceed it (never `w-screen h-screen`). See [UI-PATTERNS.md → Modal Sizing](docs/agent-guides/UI-PATTERNS.md#modal-sizing-max-footprint).
+**Max size:** The OpenWizardAI Cue modal (`90vw x 90vh`) is the maximum modal footprint - no modal, including "expanded"/"fullscreen" states, should exceed it (never `w-screen h-screen`). See [UI-PATTERNS.md → Modal Sizing](docs/agent-guides/UI-PATTERNS.md#modal-sizing-max-footprint).
 
 ## 5. Theme Colors
 
@@ -178,14 +178,14 @@ session.autoRunSelectedFile?: string;  // Currently selected document
 session.autoRunMode?: 'edit' | 'preview';
 
 // API for Auto Run operations
-window.maestro.autorun.listDocuments(folderPath);
-window.maestro.autorun.readDocument(folderPath, filename);
-window.maestro.autorun.saveDocument(folderPath, filename, content);
+window.openwizardai.autorun.listDocuments(folderPath);
+window.openwizardai.autorun.readDocument(folderPath, filename);
+window.openwizardai.autorun.saveDocument(folderPath, filename, content);
 ```
 
 **Worktree Support:** Auto Run can operate in a git worktree, allowing users to continue interactive editing in the main repo while Auto Run processes tasks in the background. When `batchRunState.worktreeActive` is true, read-only mode is disabled and a git branch icon appears in the UI. See `useBatchProcessor.ts` for worktree setup logic.
 
-**Playbook Assets:** Playbooks can include non-markdown assets (config files, YAML, Dockerfiles, scripts) in an `assets/` subfolder. When installing playbooks from the marketplace or importing from ZIP files, Maestro copies the entire folder structure including assets. See the [Maestro-Playbooks repository](https://github.com/RunMaestro/Maestro-Playbooks) for the convention documentation.
+**Playbook Assets:** Playbooks can include non-markdown assets (config files, YAML, Dockerfiles, scripts) in an `assets/` subfolder. When installing playbooks from the marketplace or importing from ZIP files, OpenWizardAI copies the entire folder structure including assets. See the [OpenWizardAI-Playbooks repository](https://github.com/manoelpanev/OpenWizardAI-Playbooks) for the convention documentation.
 
 ```
 playbook-folder/
@@ -299,7 +299,7 @@ const sshId = session.sshRemoteId || session.sessionSshRemoteConfig?.remoteId;
 
 This applies to any operation that needs to run on the remote:
 
-- `window.maestro.fs.readDir(path, sshId)`
+- `window.openwizardai.fs.readDir(path, sshId)`
 - `gitService.isRepo(path, sshId)`
 - Directory existence checks for `cd` command tracking
 
@@ -367,14 +367,14 @@ When adding a new Encore Feature, gate **all** access points:
 - **Hamburger menu:** `setDirectorNotesOpen` made optional in `SessionList.tsx`, button conditionally rendered with `{setDirectorNotesOpen && (…)}`
 - **Command palette:** `onOpenDirectorNotes` already conditionally renders in `QuickActionsModal.tsx` - passing `undefined` from App.tsx is sufficient
 
-**Maestro Cue** - Event-driven automation, second Encore Feature:
+**OpenWizardAI Cue** - Event-driven automation, second Encore Feature:
 
-- **Flag:** `encoreFeatures.maestroCue` in `EncoreFeatureFlags`
-- **App.tsx gating:** Cue modal, hooks (`useCue`, `useCueAutoDiscovery`), and engine lifecycle gated on `encoreFeatures.maestroCue`
-- **Keyboard shortcut:** `ctx.encoreFeatures?.maestroCue` guard in `useMainKeyboardHandler.ts`
-- **Hamburger menu:** `setMaestroCueOpen` made optional in `SessionList.tsx`
-- **Command palette:** `onOpenMaestroCue` conditionally renders in `QuickActionsModal.tsx`
-- **Session list:** Cue status indicator (Zap icon) gated on `maestroCueEnabled`
+- **Flag:** `encoreFeatures.openwizardaiCue` in `EncoreFeatureFlags`
+- **App.tsx gating:** Cue modal, hooks (`useCue`, `useCueAutoDiscovery`), and engine lifecycle gated on `encoreFeatures.openwizardaiCue`
+- **Keyboard shortcut:** `ctx.encoreFeatures?.openwizardaiCue` guard in `useMainKeyboardHandler.ts`
+- **Hamburger menu:** `setOpenWizardAICueOpen` made optional in `SessionList.tsx`
+- **Command palette:** `onOpenOpenWizardAICue` conditionally renders in `QuickActionsModal.tsx`
+- **Session list:** Cue status indicator (Zap icon) gated on `openwizardaiCueEnabled`
 
 When adding a new Encore Feature, mirror this pattern across all access points.
 
@@ -382,7 +382,7 @@ See [CONTRIBUTING.md → Encore Features](CONTRIBUTING.md#encore-features-featur
 
 ## 13. Browser Tab Keyboard Interception
 
-When a `<webview>` has focus, keyboard events are trapped in its guest Chromium process - the renderer's `window` keydown handler never sees them. Maestro uses a three-layer approach to ensure app shortcuts (tab cycling, Cmd+L, etc.) still work:
+When a `<webview>` has focus, keyboard events are trapped in its guest Chromium process - the renderer's `window` keydown handler never sees them. OpenWizardAI uses a three-layer approach to ensure app shortcuts (tab cycling, Cmd+L, etc.) still work:
 
 1. **Main process `before-input-event`** - intercepts shortcuts before the guest page sees them, sends via `browser-tab:shortcutKey` IPC
 2. **Renderer IPC listener** - blurs the webview and re-dispatches as a native `KeyboardEvent` on `window`

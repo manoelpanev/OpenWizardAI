@@ -2,7 +2,7 @@
  * Tests for the settings file watcher factory.
  *
  * The behaviour that matters most here is self-write suppression: the app
- * writes maestro-settings.json on every settings change (one write per
+ * writes openwizardai-settings.json on every settings change (one write per
  * keystroke for text settings like the Conductor Profile), and each of those
  * writes trips the same fs.watch the CLI does. Echoing them back to the
  * renderer as "external change" makes it reload settings asynchronously and
@@ -90,7 +90,7 @@ describe('app-lifecycle/settings-watcher', () => {
 	it('notifies the renderer for an external settings change', async () => {
 		await startWatcher();
 
-		emitChange('maestro-settings.json');
+		emitChange('openwizardai-settings.json');
 		vi.advanceTimersByTime(400);
 
 		expect(send).toHaveBeenCalledWith('settings:externalChange');
@@ -99,7 +99,7 @@ describe('app-lifecycle/settings-watcher', () => {
 	it('ignores unrelated files in the watched directory', async () => {
 		await startWatcher();
 
-		emitChange('maestro-sessions.json');
+		emitChange('openwizardai-sessions.json');
 		vi.advanceTimersByTime(400);
 
 		expect(send).not.toHaveBeenCalled();
@@ -109,8 +109,8 @@ describe('app-lifecycle/settings-watcher', () => {
 		const { markInternalWrite } = await import('../../../main/stores/write-tracker');
 		await startWatcher();
 
-		markInternalWrite('maestro-settings.json');
-		emitChange('maestro-settings.json');
+		markInternalWrite('openwizardai-settings.json');
+		emitChange('openwizardai-settings.json');
 		vi.advanceTimersByTime(400);
 
 		expect(send).not.toHaveBeenCalled();
@@ -121,8 +121,8 @@ describe('app-lifecycle/settings-watcher', () => {
 		await startWatcher();
 
 		for (let i = 0; i < 20; i++) {
-			markInternalWrite('maestro-settings.json');
-			emitChange('maestro-settings.json');
+			markInternalWrite('openwizardai-settings.json');
+			emitChange('openwizardai-settings.json');
 			vi.advanceTimersByTime(120); // ~8 keystrokes/sec
 		}
 		vi.advanceTimersByTime(400);
@@ -135,10 +135,10 @@ describe('app-lifecycle/settings-watcher', () => {
 			await import('../../../main/stores/write-tracker');
 		await startWatcher();
 
-		markInternalWrite('maestro-settings.json');
+		markInternalWrite('openwizardai-settings.json');
 		vi.advanceTimersByTime(INTERNAL_WRITE_SHADOW_MS + 1);
 
-		emitChange('maestro-settings.json');
+		emitChange('openwizardai-settings.json');
 		vi.advanceTimersByTime(400);
 
 		expect(send).toHaveBeenCalledWith('settings:externalChange');
@@ -149,8 +149,8 @@ describe('app-lifecycle/settings-watcher', () => {
 		await startWatcher();
 
 		// A settings write must not mask an external agent-config change.
-		markInternalWrite('maestro-settings.json');
-		emitChange('maestro-agent-configs.json');
+		markInternalWrite('openwizardai-settings.json');
+		emitChange('openwizardai-agent-configs.json');
 		vi.advanceTimersByTime(400);
 
 		expect(send).toHaveBeenCalledWith('settings:externalChange');

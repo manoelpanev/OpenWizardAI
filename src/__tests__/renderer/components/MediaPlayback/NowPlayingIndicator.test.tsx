@@ -36,7 +36,7 @@ function seed(overrides: Partial<ReturnType<typeof useMediaPlaybackStore.getStat
 describe('NowPlayingIndicator', () => {
 	beforeEach(() => {
 		seed();
-		(window as unknown as { maestro?: unknown }).maestro = { settings: { set: vi.fn() } };
+		(window as unknown as { openwizardai?: unknown }).openwizardai = { settings: { set: vi.fn() } };
 	});
 
 	it('names the minimized file, so audio is never coming from nowhere', () => {
@@ -145,7 +145,7 @@ describe('NowPlayingIndicator', () => {
 		expect(screen.getByTestId('now-playing-toggle').getAttribute('title')).toContain('podcast.mp3');
 	});
 
-	// This pill used to be `shrink-0`, back when the MAESTRO wordmark carried
+	// This pill used to be `shrink-0`, back when the OPENWIZARDAI wordmark carried
 	// `truncate` and was the header row's shrink target. A clipped brand reads as
 	// a rendering bug, so the wordmark now drops out whole and this pill inherits
 	// the role: its filename is already truncated, and a clipped filename is

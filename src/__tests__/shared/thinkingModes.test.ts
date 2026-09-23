@@ -3,7 +3,7 @@ import { THINKING_MODES, nextThinkingMode, asThinkingMode } from '../../shared/t
 
 describe('thinking mode helpers', () => {
 	it('cycles off -> on -> sticky -> off', () => {
-		// The composer chip and `maestro-cli tab thinking <id> cycle` share this
+		// The composer chip and `openwizardai-cli tab thinking <id> cycle` share this
 		// order; if it changes, a click and a CLI cycle disagree.
 		expect(THINKING_MODES).toEqual(['off', 'on', 'sticky']);
 		expect(nextThinkingMode('off')).toBe('on');

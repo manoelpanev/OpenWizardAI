@@ -1,5 +1,5 @@
 /**
- * GitHub poller provider for Maestro Cue github.pull_request, github.issue,
+ * GitHub poller provider for OpenWizardAI Cue github.pull_request, github.issue,
  * and github.label subscriptions.
  *
  * Polls GitHub CLI (`gh`) for new PRs/issues (and for label-add events), tracks
@@ -158,7 +158,7 @@ export function isGitHubRateLimitError(err: unknown): boolean {
  * A 5xx from api.github.com counts: `HTTP 504: 504 Gateway Timeout` and friends
  * mean GitHub itself is degraded, which is the same "can't reach the API right
  * now" condition as a dropped socket. The poller retries on its own schedule, so
- * paging Sentry on every tick of a GitHub outage is pure noise (MAESTRO-KE).
+ * paging Sentry on every tick of a GitHub outage is pure noise (OPENWIZARDAI-KE).
  */
 export function isGitHubConnectivityError(err: unknown): boolean {
 	const haystack = ghErrorHaystack(err);
@@ -189,8 +189,8 @@ export function isGitHubConnectivityError(err: unknown): boolean {
  * documented and unit-tested as *not* matching auth/configuration failures, and
  * the two want different user-facing guidance ("GitHub is unreachable, we'll
  * retry" vs "re-authenticate `gh`"). What they share is that neither is a
- * Maestro bug, so neither should page Sentry. Without this, one install whose
- * token went stale files an event on every poll tick indefinitely - MAESTRO-KE
+ * OpenWizardAI bug, so neither should page Sentry. Without this, one install whose
+ * token went stale files an event on every poll tick indefinitely - OPENWIZARDAI-KE
  * collected 924 of them from a single trigger.
  */
 export function isGitHubAuthError(err: unknown): boolean {
@@ -380,7 +380,7 @@ export function createCueGitHubPoller(config: CueGitHubPollerConfig): () => void
 			// condition the doPoll catch below suppresses. Repo auto-detection runs
 			// first, so without this a `gh repo view` 5xx during an outage would
 			// still page Sentry once per tick for every auto-detect trigger
-			// (MAESTRO-KE). Skipping the poll and returning null is unchanged.
+			// (OPENWIZARDAI-KE). Skipping the poll and returning null is unchanged.
 			if (!isGitHubConnectivityError(err)) {
 				void captureException(err, { operation: 'cue:github:resolveRepo', triggerName });
 			}
@@ -846,7 +846,7 @@ export function createCueGitHubPoller(config: CueGitHubPollerConfig): () => void
 				);
 			} else if (isGitHubAuthError(err)) {
 				// Actionable by the user and only by the user, so say what to do
-				// instead of filing a crash report on every tick (MAESTRO-KE).
+				// instead of filing a crash report on every tick (OPENWIZARDAI-KE).
 				onLog(
 					'warn',
 					`[CUE] GitHub poll skipped for "${triggerName}" - the GitHub CLI is not authenticated. Run \`gh auth login\` to reconnect: ${message}`

@@ -1,7 +1,7 @@
 /**
  * Renderer-side platform detection helpers.
  *
- * Reads `window.maestro.platform` (set via the Electron preload bridge), which
+ * Reads `window.openwizardai.platform` (set via the Electron preload bridge), which
  * is the only authoritative source in the renderer:
  *   - navigator.userAgent / navigator.platform are unreliable and deprecated.
  *   - `process.platform` is the string 'browser', hard-coded by the renderer's
@@ -13,7 +13,7 @@
  */
 
 function getPlatform(): string {
-	return (window as any).maestro?.platform ?? '';
+	return (window as any).openwizardai?.platform ?? '';
 }
 
 export function isWindowsPlatform(): boolean {

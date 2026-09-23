@@ -2,7 +2,7 @@
  * Tests for cue-cli-executor.
  *
  * Verifies that subscriptions with `action: command` + `command.mode: 'cli'`
- * shell out to `node maestro-cli.js send <target> <message> --live`, with
+ * shell out to `node openwizardai-cli.js send <target> <message> --live`, with
  * template substitution applied to both target and (optional) message.
  */
 
@@ -122,7 +122,7 @@ describe('cue-cli-executor', () => {
 		vi.clearAllMocks();
 	});
 
-	it('substitutes {{CUE_FROM_AGENT}} in target before invoking maestro-cli dispatch', async () => {
+	it('substitutes {{CUE_FROM_AGENT}} in target before invoking openwizardai-cli dispatch', async () => {
 		const config = createConfig();
 		const promise = executeCueCli(config as any);
 		// Let the microtask scheduler register the close handler before we emit.
@@ -132,7 +132,7 @@ describe('cue-cli-executor', () => {
 
 		expect(mockSpawn).toHaveBeenCalledTimes(1);
 		const args = mockSpawn.mock.calls[0][1] as string[];
-		expect(args[0]).toContain('maestro-cli.js');
+		expect(args[0]).toContain('openwizardai-cli.js');
 		// PR1: Cue migrated from `send --live` to the dedicated `dispatch` verb.
 		// `dispatch` accepts the same positional args (target, message) without
 		// the `--live` flag, since "live" is now its only mode.
@@ -176,7 +176,7 @@ describe('cue-cli-executor', () => {
 	it('spawns with ELECTRON_RUN_AS_NODE=1 so packaged Electron runs Node, not the app', async () => {
 		// In packaged Electron, `process.execPath` is the app binary. Without
 		// this env flag the spawn would relaunch the app instead of running
-		// maestro-cli.js, silently breaking Cue output delivery in production.
+		// openwizardai-cli.js, silently breaking Cue output delivery in production.
 		const config = createConfig();
 		const promise = executeCueCli(config as any);
 		await Promise.resolve();
@@ -217,7 +217,7 @@ describe('cue-cli-executor', () => {
 		expect(result.stderr).toMatch(/empty string/i);
 	});
 
-	it('reports failed status when maestro-cli exits non-zero', async () => {
+	it('reports failed status when openwizardai-cli exits non-zero', async () => {
 		const config = createConfig({
 			cli: { command: 'send' as const, target: 'literal-session-id' },
 		});

@@ -2,7 +2,7 @@
  * ResilienceStats - Agent Resilience outcomes for the Usage Dashboard.
  *
  * Answers one question: how often did a provider refuse work (quota wall,
- * overload) and Maestro carried the turn through anyway? Metric tiles up top,
+ * overload) and OpenWizardAI carried the turn through anyway? Metric tiles up top,
  * then a per-day timeline of outages split by outcome.
  *
  * Data source: `resilience_events` (one row per RESOLVED outage - recovered or
@@ -50,7 +50,7 @@ export const ResilienceStats = memo(function ResilienceStats({
 
 	const fetchEvents = useCallback(async () => {
 		try {
-			setEvents(await window.maestro.stats.getResilience(timeRange));
+			setEvents(await window.openwizardai.stats.getResilience(timeRange));
 		} catch (err) {
 			captureException(err, { extra: { operation: 'fetchResilienceStats' } });
 		} finally {
@@ -60,7 +60,7 @@ export const ResilienceStats = memo(function ResilienceStats({
 
 	useEffect(() => {
 		fetchEvents();
-		const unsubscribe = window.maestro.stats.onStatsUpdate(() => {
+		const unsubscribe = window.openwizardai.stats.onStatsUpdate(() => {
 			fetchEvents();
 		});
 		return () => unsubscribe();

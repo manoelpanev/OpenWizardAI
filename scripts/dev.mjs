@@ -88,7 +88,7 @@ try {
 	shutdown(1);
 }
 
-const cdpPort = process.env.MAESTRO_CDP_PORT;
+const cdpPort = process.env.OPENWIZARDAI_CDP_PORT;
 const mainArgs = ['run', mainScript];
 if (cdpPort) {
 	mainArgs.push('--', `--remote-debugging-port=${cdpPort}`);

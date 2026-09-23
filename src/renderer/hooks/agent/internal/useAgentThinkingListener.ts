@@ -1,5 +1,5 @@
 /**
- * useAgentThinkingListener - registers `window.maestro.process.onThinkingChunk`
+ * useAgentThinkingListener - registers `window.openwizardai.process.onThinkingChunk`
  *
  * High-frequency stream - chunks are buffered and flushed inside a single
  * `requestAnimationFrame` to coalesce up to 60Hz worth of writes into one
@@ -34,7 +34,7 @@ export function useAgentThinkingListener(): void {
 		const setSessions = useSessionStore.getState().setSessions;
 		const thinkingChunkBuffer = thinkingChunkBufferRef.current;
 
-		const unsubscribe = window.maestro.process.onThinkingChunk?.(
+		const unsubscribe = window.openwizardai.process.onThinkingChunk?.(
 			(sessionId: string, content: string) => {
 				const aiTabMatch = sessionId.match(REGEX_AI_TAB);
 				if (!aiTabMatch) return;

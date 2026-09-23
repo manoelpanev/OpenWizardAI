@@ -246,7 +246,7 @@ export const OverviewTab = forwardRef<TabFocusHandle, OverviewTabProps>(function
 						<p>
 							Pull the same unified history and AI synopsis from your terminal with{' '}
 							<code className={codeClass} style={{ backgroundColor: theme.colors.bgActivity }}>
-								maestro-cli director-notes
+								openwizardai-cli director-notes
 							</code>
 							- great for scripts, cron jobs, or piping into your own tooling.
 						</p>
@@ -263,14 +263,14 @@ export const OverviewTab = forwardRef<TabFocusHandle, OverviewTabProps>(function
 									# Markdown recap of the last day
 								</span>
 							</div>
-							<div>maestro-cli director-notes history -f markdown -d 1</div>
+							<div>openwizardai-cli director-notes history -f markdown -d 1</div>
 							<div className="pt-1">
 								<span style={{ color: theme.colors.textDim }}>
 									# Weekly report → dated markdown file
 								</span>
 							</div>
-							<div>maestro-cli director-notes synopsis -d 7 -f markdown \</div>
-							<div>{'  > ~/maestro-weekly-$(date +%Y-%m-%d).md'}</div>
+							<div>openwizardai-cli director-notes synopsis -d 7 -f markdown \</div>
+							<div>{'  > ~/openwizardai-weekly-$(date +%Y-%m-%d).md'}</div>
 						</div>
 						<p>
 							Schedule it with{' '}
@@ -281,7 +281,7 @@ export const OverviewTab = forwardRef<TabFocusHandle, OverviewTabProps>(function
 							<code className={codeClass} style={{ backgroundColor: theme.colors.bgActivity }}>
 								launchd
 							</code>
-							, or OpenWizzard Cue to wake up to a fresh weekly report every Monday.{' '}
+							, or OpenWizardAI Cue to wake up to a fresh weekly report every Monday.{' '}
 							<code className={codeClass} style={{ backgroundColor: theme.colors.bgActivity }}>
 								history
 							</code>{' '}

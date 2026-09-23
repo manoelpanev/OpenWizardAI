@@ -1339,7 +1339,7 @@ describe('DocumentGraphView', () => {
 		it('triggers graph rebuild when file deletion event is received', () => {
 			// The component subscribes to file change events:
 			//
-			// const unsubscribe = window.maestro.documentGraph.onFilesChanged((data) => {
+			// const unsubscribe = window.openwizardai.documentGraph.onFilesChanged((data) => {
 			//   if (data.rootPath !== rootPath) return;
 			//   debouncedLoadGraphData();  // <-- Triggers rebuild for any file change
 			// });

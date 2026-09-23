@@ -8,7 +8,7 @@
  *   - handleUtilityTabSelect: switch to an AI tab from utility modals (tab switcher, etc.)
  *   - handleUtilityFileTabSelect: switch to a file tab from utility modals
  *
- * Also owns the deep link navigation effect (maestro:// URL handling).
+ * Also owns the deep link navigation effect (openwizardai:// URL handling).
  *
  * Self-sources from: sessionStore, uiStore
  * External deps: setActiveSessionId (wrapper that dismisses group chat),
@@ -24,7 +24,7 @@ import { useFileExplorerStore } from '../../stores/fileExplorerStore';
 import { aiTabFocusFields } from '../../utils/tabHelpers';
 import { outputSearchKeyFor } from '../../utils/outputSearch';
 import type { CrossTabSearchJumpTarget } from '../../components/CrossTabSearchModal';
-import { subscribeToInAppDeepLinks } from '../../utils/openMaestroLink';
+import { subscribeToInAppDeepLinks } from '../../utils/openOpenWizardAILink';
 import type { ParsedDeepLink } from '../../../shared/types';
 
 /** Helper: update a single session by ID using an updater function */
@@ -177,7 +177,7 @@ export function useSessionSwitchCallbacks(
 		[setActiveSessionId]
 	);
 
-	// Deep link navigation handler - processes maestro:// URLs from OS notifications,
+	// Deep link navigation handler - processes openwizardai:// URLs from OS notifications,
 	// external apps, CLI commands, AND in-renderer markdown link clicks.
 	useEffect(() => {
 		const handleDeepLink = (deepLink: ParsedDeepLink) => {
@@ -215,7 +215,7 @@ export function useSessionSwitchCallbacks(
 				const targetExists = sessions.some((s) => s.id === deepLink.sessionId);
 				if (!targetExists) return;
 				window.dispatchEvent(
-					new CustomEvent('maestro:openFileTab', {
+					new CustomEvent('openwizardai:openFileTab', {
 						detail: {
 							sessionId: deepLink.sessionId,
 							filePath: deepLink.filePath,
@@ -225,7 +225,7 @@ export function useSessionSwitchCallbacks(
 				);
 			}
 		};
-		const unsubscribeIpc = window.maestro.app.onDeepLink(handleDeepLink);
+		const unsubscribeIpc = window.openwizardai.app.onDeepLink(handleDeepLink);
 		const unsubscribeInApp = subscribeToInAppDeepLinks(handleDeepLink);
 		return () => {
 			unsubscribeIpc();

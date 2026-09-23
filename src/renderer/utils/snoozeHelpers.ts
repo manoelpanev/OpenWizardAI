@@ -387,7 +387,7 @@ export function wakeSnoozedTab(
 
 /**
  * Drop a snooze without restoring its tab - the user no longer cares about it.
- * The conversation itself is untouched on disk; only Maestro's tab is discarded.
+ * The conversation itself is untouched on disk; only OpenWizardAI's tab is discarded.
  *
  * @param session - Session owning the snooze
  * @param snoozeId - Snooze entry to discard
@@ -537,7 +537,7 @@ export function getSnoozedTabLabel(entry: SnoozedTabEntry): string {
 export async function isSnoozeRestorable(entry: SnoozedTabEntry): Promise<boolean> {
 	if (entry.type !== 'file') return true;
 	try {
-		const stat = await window.maestro.fs.stat(entry.tab.path, entry.tab.sshRemoteId);
+		const stat = await window.openwizardai.fs.stat(entry.tab.path, entry.tab.sshRemoteId);
 		return !!stat?.isFile;
 	} catch {
 		// A failed check is not proof the file is gone - the remote could be

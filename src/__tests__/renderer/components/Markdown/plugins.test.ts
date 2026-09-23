@@ -9,7 +9,7 @@ import rehypeKatex from 'rehype-katex';
 import { remarkFrontmatterTable } from '../../../../renderer/utils/remarkFrontmatterTable';
 import { remarkFileLinks } from '../../../../renderer/utils/remarkFileLinks';
 import { remarkPromoteDisplayMath } from '../../../../shared/remarkPromoteDisplayMath';
-import { remarkMaestroMarkers } from '../../../../renderer/components/Markdown/remarkMaestroMarkers';
+import { remarkOpenWizardAIMarkers } from '../../../../renderer/components/Markdown/remarkOpenWizardAIMarkers';
 import { remarkStripHtmlComments } from '../../../../shared/remarkStripHtmlComments';
 import { buildMarkdownPlugins } from '../../../../renderer/components/Markdown/plugins';
 
@@ -57,11 +57,11 @@ describe('buildMarkdownPlugins', () => {
 	it('adds the Auto Run marker plugin only when autorunMarkers is set', () => {
 		expect(
 			pluginFns(buildMarkdownPlugins({ autorunMarkers: true }).remarkPlugins as unknown[])
-		).toContain(remarkMaestroMarkers);
+		).toContain(remarkOpenWizardAIMarkers);
 		// Off by default: a marker pill asserts that something is configured, so
 		// it must be opted into rather than inherited by every surface.
 		expect(pluginFns(buildMarkdownPlugins().remarkPlugins as unknown[])).not.toContain(
-			remarkMaestroMarkers
+			remarkOpenWizardAIMarkers
 		);
 	});
 
@@ -72,7 +72,7 @@ describe('buildMarkdownPlugins', () => {
 			buildMarkdownPlugins({ autorunMarkers: true, chatLineBreaks: true })
 				.remarkPlugins as unknown[]
 		);
-		expect(fns.indexOf(remarkMaestroMarkers)).toBeLessThan(fns.indexOf(remarkBreaks));
+		expect(fns.indexOf(remarkOpenWizardAIMarkers)).toBeLessThan(fns.indexOf(remarkBreaks));
 	});
 
 	it('adds remark-math (single-dollar disabled) + promote + rehype-katex for chatMath', () => {
@@ -113,7 +113,9 @@ describe('buildMarkdownPlugins', () => {
 
 	it('strips comments after the marker plugin, so marker pills are not stripped too', () => {
 		const fns = pluginFns(buildMarkdownPlugins({ autorunMarkers: true }).remarkPlugins);
-		expect(fns.indexOf(remarkStripHtmlComments)).toBeGreaterThan(fns.indexOf(remarkMaestroMarkers));
+		expect(fns.indexOf(remarkStripHtmlComments)).toBeGreaterThan(
+			fns.indexOf(remarkOpenWizardAIMarkers)
+		);
 	});
 
 	describe('file links gating (mirrors chat renderer logic)', () => {

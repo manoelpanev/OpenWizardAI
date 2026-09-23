@@ -1,5 +1,5 @@
 /**
- * SSH Remote Manager for Maestro.
+ * SSH Remote Manager for OpenWizardAI.
  *
  * Manages SSH remote configurations and provides connection testing.
  * Used to execute AI agent commands on remote hosts via SSH.

@@ -248,10 +248,10 @@ describe('substituteTemplateVariables', () => {
 
 		it('should replace {{AGENT_HISTORY_PATH}} with historyFilePath', () => {
 			const context = createTestContext({
-				historyFilePath: '/Users/test/.config/Maestro/history/session-123.json',
+				historyFilePath: '/Users/test/.config/OpenWizardAI/history/session-123.json',
 			});
 			const result = substituteTemplateVariables('History: {{AGENT_HISTORY_PATH}}', context);
-			expect(result).toBe('History: /Users/test/.config/Maestro/history/session-123.json');
+			expect(result).toBe('History: /Users/test/.config/OpenWizardAI/history/session-123.json');
 		});
 
 		it('should replace {{AGENT_HISTORY_PATH}} with empty string when historyFilePath is undefined', () => {
@@ -350,7 +350,7 @@ describe('substituteTemplateVariables', () => {
 				autoRunFolder: undefined,
 			});
 			const result = substituteTemplateVariables('Folder: {{AUTORUN_FOLDER}}', context);
-			expect(result).toBe('Folder: /Users/test/project/.maestro/playbooks');
+			expect(result).toBe('Folder: /Users/test/project/.openwizardai/playbooks');
 		});
 
 		it('should prefer fullPath over projectRoot over cwd for AUTORUN_FOLDER fallback', () => {
@@ -364,7 +364,7 @@ describe('substituteTemplateVariables', () => {
 				autoRunFolder: undefined,
 			});
 			const result = substituteTemplateVariables('Folder: {{AUTORUN_FOLDER}}', context);
-			expect(result).toBe('Folder: /full/path/.maestro/playbooks');
+			expect(result).toBe('Folder: /full/path/.openwizardai/playbooks');
 		});
 	});
 
@@ -601,7 +601,7 @@ describe('substituteTemplateVariables', () => {
 				session: createTestSession({ id: 'sess-abc' }),
 			});
 			const result = substituteTemplateVariables('Link: {{AGENT_DEEP_LINK}}', context);
-			expect(result).toBe('Link: maestro://session/sess-abc');
+			expect(result).toBe('Link: openwizardai://session/sess-abc');
 		});
 
 		it('should replace {{TAB_DEEP_LINK}} with session+tab deep link when activeTabId provided', () => {
@@ -610,7 +610,7 @@ describe('substituteTemplateVariables', () => {
 				activeTabId: 'tab-def',
 			});
 			const result = substituteTemplateVariables('Link: {{TAB_DEEP_LINK}}', context);
-			expect(result).toBe('Link: maestro://session/sess-abc/tab/tab-def');
+			expect(result).toBe('Link: openwizardai://session/sess-abc/tab/tab-def');
 		});
 
 		it('should replace {{TAB_DEEP_LINK}} with session-only link when no activeTabId', () => {
@@ -618,7 +618,7 @@ describe('substituteTemplateVariables', () => {
 				session: createTestSession({ id: 'sess-abc' }),
 			});
 			const result = substituteTemplateVariables('Link: {{TAB_DEEP_LINK}}', context);
-			expect(result).toBe('Link: maestro://session/sess-abc');
+			expect(result).toBe('Link: openwizardai://session/sess-abc');
 		});
 
 		it('should replace {{GROUP_DEEP_LINK}} with group deep link when groupId provided', () => {
@@ -626,7 +626,7 @@ describe('substituteTemplateVariables', () => {
 				groupId: 'grp-789',
 			});
 			const result = substituteTemplateVariables('Link: {{GROUP_DEEP_LINK}}', context);
-			expect(result).toBe('Link: maestro://group/grp-789');
+			expect(result).toBe('Link: openwizardai://group/grp-789');
 		});
 
 		it('should replace {{GROUP_DEEP_LINK}} with empty string when no groupId', () => {
@@ -868,7 +868,7 @@ describe('substituteTemplateVariables', () => {
 		it('should substitute an Auto Run prompt template', () => {
 			const context = createTestContext({
 				session: createTestSession({
-					id: 'maestro-123',
+					id: 'openwizardai-123',
 					name: 'Backend Dev',
 					toolType: 'claude-code',
 					cwd: '/Users/dev/myproject',
@@ -882,7 +882,7 @@ describe('substituteTemplateVariables', () => {
 
 			const template = `# Context
 
-Your name is **{{AGENT_NAME}}**, a Maestro-managed AI agent.
+Your name is **{{AGENT_NAME}}**, an OpenWizardAI-managed AI agent.
 
 - **Agent Path:** {{AGENT_PATH}}
 - **Git Branch:** {{GIT_BRANCH}}

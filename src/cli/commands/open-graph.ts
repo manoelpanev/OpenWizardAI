@@ -1,7 +1,7 @@
 // Open graph command - render a Document Graph over an arbitrary set of
-// markdown files in the Maestro desktop app.
+// markdown files in the OpenWizardAI desktop app.
 //
-// This is a separate verb rather than a `maestro-cli open <surface>` entry on
+// This is a separate verb rather than a `openwizardai-cli open <surface>` entry on
 // purpose. `open_modal` carries a surface name and a tab, nothing else, and
 // `shared/uiSurfaces.ts` is deliberately payload-free so that adding a modal
 // stays a one-line registry change. A graph needs a file set, so it gets its
@@ -14,7 +14,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { getSessionById } from '../services/storage';
 import { resolveOwningAgent } from '../utils/owning-agent';
 
@@ -77,7 +77,7 @@ export async function openGraph(paths: string[], options: OpenGraphOptions): Pro
 	const scope = resolveScope(paths, options);
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{
 					type: 'open_document_graph',

@@ -849,9 +849,9 @@ describe('ShortcutsHelpModal', () => {
 			expect(screen.getByText(/more to reach/)).toBeInTheDocument();
 		});
 
-		it('shows Keyboard Maestro level name when at 100% mastery', () => {
+		it('shows Keyboard OpenWizardAI level name when at 100% mastery', () => {
 			// This test verifies that the level shown changes based on percentage
-			// At 100%, the level should be "Keyboard Maestro"
+			// At 100%, the level should be "Keyboard OpenWizardAI"
 
 			// We can't easily hit 100% with FIXED_SHORTCUTS included,
 			// but we can verify the level name updates correctly at different thresholds

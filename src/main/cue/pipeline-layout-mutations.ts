@@ -2,7 +2,7 @@
  * CLI-driven mutations for the cue pipeline layout file.
  *
  * Wraps {@link loadPipelineLayout} / {@link savePipelineLayout} with the small
- * surface needed by `maestro-cli cue pipeline …`: list, get, add, replace,
+ * surface needed by `openwizardai-cli cue pipeline …`: list, get, add, replace,
  * remove. Each mutation is a load → mutate → save round-trip, so the same
  * atomic-write semantics that protect the layout file from the desktop app
  * also protect CLI edits. Runs in the main process; no renderer round-trip.
@@ -175,7 +175,7 @@ export function removePipelineFromLayout(
 
 /**
  * Asserts the layout shape is one we know how to mutate. Layout files
- * written by a future Maestro version with a bumped `version` field should
+ * written by a future OpenWizardAI version with a bumped `version` field should
  * not be silently re-saved by a CLI that doesn't understand the new shape.
  */
 function assertSupportedVersion(

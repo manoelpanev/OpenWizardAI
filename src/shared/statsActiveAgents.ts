@@ -21,7 +21,7 @@ import type { StatsAggregation } from './stats-types';
 /** The only slice of `StatsAggregation` this module needs. */
 export type BySessionByDay = StatsAggregation['bySessionByDay'];
 
-/** An agent-shaped record: anything carrying the Maestro session id. */
+/** An agent-shaped record: anything carrying the OpenWizardAI session id. */
 export interface AgentIdentity {
 	id: string;
 }

@@ -177,11 +177,11 @@ describe('DocumentEditor', () => {
 		fireEvent.paste(textarea, {
 			clipboardData: {
 				items: [],
-				getData: () => '  Maestro  ',
+				getData: () => '  OpenWizardAI  ',
 			},
 		});
 
-		expect(props.onContentChange).toHaveBeenCalledWith('Hello Maestro');
+		expect(props.onContentChange).toHaveBeenCalledWith('Hello OpenWizardAI');
 	});
 
 	it('saves pasted images, adds an attachment, and inserts markdown', async () => {
@@ -194,7 +194,7 @@ describe('DocumentEditor', () => {
 		}
 
 		vi.stubGlobal('FileReader', MockFileReader);
-		vi.mocked(window.maestro.autorun.saveImage).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.saveImage).mockResolvedValueOnce({
 			success: true,
 			relativePath: 'images/draft-1.png',
 		});
@@ -217,7 +217,7 @@ describe('DocumentEditor', () => {
 		});
 
 		await waitFor(() => {
-			expect(window.maestro.autorun.saveImage).toHaveBeenCalledWith(
+			expect(window.openwizardai.autorun.saveImage).toHaveBeenCalledWith(
 				'/tmp/autorun',
 				'draft',
 				'abc',
@@ -239,7 +239,7 @@ describe('DocumentEditor', () => {
 		}
 
 		vi.stubGlobal('FileReader', MockFileReader);
-		vi.mocked(window.maestro.autorun.saveImage).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.saveImage).mockResolvedValueOnce({
 			success: false,
 			error: 'disk full',
 		});
@@ -287,10 +287,10 @@ describe('DocumentEditor', () => {
 		}
 
 		let resolveSave: (
-			value: Awaited<ReturnType<typeof window.maestro.autorun.saveImage>>
+			value: Awaited<ReturnType<typeof window.openwizardai.autorun.saveImage>>
 		) => void = () => {};
 		vi.stubGlobal('FileReader', MockFileReader);
-		vi.mocked(window.maestro.autorun.saveImage).mockReturnValueOnce(
+		vi.mocked(window.openwizardai.autorun.saveImage).mockReturnValueOnce(
 			new Promise((resolve) => {
 				resolveSave = resolve;
 			})

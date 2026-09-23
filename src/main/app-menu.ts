@@ -1,7 +1,7 @@
 /**
  * macOS application menu.
  *
- * Maestro is keyboard-first and every shortcut is matched in the renderer's
+ * OpenWizardAI is keyboard-first and every shortcut is matched in the renderer's
  * window keydown handler (`useMainKeyboardHandler`). That makes the native menu
  * a discovery surface rather than a dispatch surface: it exists so users can
  * *find* features and *learn* the keystroke, not so macOS can own the keystroke.
@@ -60,7 +60,7 @@ interface MenuCommand {
 type MenuEntry = MenuCommand | 'separator';
 
 /**
- * Items appended to the app (Maestro) menu, after About. macOS users expect
+ * Items appended to the app (OpenWizardAI) menu, after About. macOS users expect
  * Preferences to live here, and it is the one place nobody thinks to look for
  * an in-app button.
  */
@@ -183,7 +183,7 @@ function buildTemplate(): Electron.MenuItemConstructorOptions[] {
 			// Explicit appMenu - uses a custom Quit item instead of `role: 'quit'`
 			// so we can swallow Opt+Cmd+Q. macOS auto-binds Opt+Cmd+Q to any
 			// quit role (as "Quit and Keep Windows"), and that keystroke sits
-			// one modifier away from Opt+Q (Maestro Cue), causing accidental
+			// one modifier away from Opt+Q (OpenWizardAI Cue), causing accidental
 			// quits. Click events from accelerators carry modifier flags, so
 			// we can detect Option held and ignore the keystroke entirely.
 			role: 'appMenu',
@@ -199,12 +199,12 @@ function buildTemplate(): Electron.MenuItemConstructorOptions[] {
 				{ role: 'unhide' },
 				{ type: 'separator' },
 				{
-					label: 'Quit OpenWizzard',
+					label: 'Quit OpenWizardAI',
 					accelerator: 'Cmd+Q',
 					click: (_item, _window, event) => {
 						if (event?.altKey) {
 							logger.info(
-								'Ignoring Opt+Cmd+Q to prevent accidental quit (too close to Opt+Q for OpenWizzard Cue)',
+								'Ignoring Opt+Cmd+Q to prevent accidental quit (too close to Opt+Q for OpenWizardAI Cue)',
 								'Menu'
 							);
 							return;
@@ -270,7 +270,7 @@ function buildTemplate(): Electron.MenuItemConstructorOptions[] {
  * menu - without a custom menu those are intercepted at the NSMenu level and
  * never reach the renderer.
  *
- * On Windows/Linux the menu bar is removed entirely; Maestro uses its own UI.
+ * On Windows/Linux the menu bar is removed entirely; OpenWizardAI uses its own UI.
  */
 export function installApplicationMenu(): void {
 	if (!isMacOS()) {

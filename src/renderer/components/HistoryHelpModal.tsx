@@ -18,7 +18,6 @@ import { MODAL_PRIORITIES } from '../constants/modalPriorities';
 import { Modal } from './ui/Modal';
 import { useSettingsStore } from '../stores/settingsStore';
 import { openUrl } from '../utils/openUrl';
-import { buildMaestroUrl } from '../utils/buildMaestroUrl';
 
 interface HistoryHelpModalProps {
 	theme: Theme;
@@ -29,7 +28,7 @@ export const HistoryHelpModal = memo(function HistoryHelpModal({
 	theme,
 	onClose,
 }: HistoryHelpModalProps) {
-	const maestroCueEnabled = useSettingsStore((s) => s.encoreFeatures.maestroCue);
+	const openwizardaiCueEnabled = useSettingsStore((s) => s.encoreFeatures.openwizardaiCue);
 
 	return (
 		<Modal
@@ -116,7 +115,7 @@ export const HistoryHelpModal = memo(function HistoryHelpModal({
 								include success/failure indicators and human validation status.
 							</p>
 						</div>
-						{maestroCueEnabled && (
+						{openwizardaiCueEnabled && (
 							<div className="flex items-start gap-3">
 								<span
 									className="flex items-center gap-1 px-2 py-0.5 rounded-full text-2xs font-bold uppercase shrink-0"
@@ -130,9 +129,9 @@ export const HistoryHelpModal = memo(function HistoryHelpModal({
 									CUE
 								</span>
 								<p>
-									Entries created by OpenWizzard Cue automations. These are triggered by events such
-									as file changes, time intervals, agent completions, GitHub activity, or pending
-									tasks. Each entry records the trigger name and event type.
+									Entries created by OpenWizardAI Cue automations. These are triggered by events
+									such as file changes, time intervals, agent completions, GitHub activity, or
+									pending tasks. Each entry records the trigger name and event type.
 								</p>
 							</div>
 						)}
@@ -340,11 +339,13 @@ export const HistoryHelpModal = memo(function HistoryHelpModal({
 				>
 					<ExternalLink className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
 					<button
-						onClick={() => openUrl(buildMaestroUrl('https://docs.runmaestro.ai/history'))}
+						onClick={() =>
+							openUrl('https://github.com/manoelpanev/OpenWizardAI/blob/main/docs/history.md')
+						}
 						className="text-xs hover:opacity-80 transition-colors"
 						style={{ color: theme.colors.accent }}
 					>
-						Read more at docs.runmaestro.ai/history
+						Read more at github.com/manoelpanev/OpenWizardAI/tree/main/docs/history
 					</button>
 				</div>
 			</div>

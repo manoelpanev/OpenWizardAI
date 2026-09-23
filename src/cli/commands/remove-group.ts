@@ -1,11 +1,11 @@
-// Remove group command - delete a group from the Maestro desktop app.
+// Remove group command - delete a group from the OpenWizardAI desktop app.
 //
 // Deleting a group never deletes the agents inside it; the desktop ungroups
 // any members (clears their groupId) and then removes the group. To guard
 // against accidentally scattering a populated group from the command line,
 // this refuses a non-empty group unless `--force` is passed.
 
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { resolveGroupId, getSessionsByGroup, readGroups } from '../services/storage';
 import { formatError, formatSuccess } from '../output/formatter';
 
@@ -45,7 +45,7 @@ export async function removeGroup(groupId: string, options: RemoveGroupOptions):
 	}
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{
 				type: string;
 				success: boolean;

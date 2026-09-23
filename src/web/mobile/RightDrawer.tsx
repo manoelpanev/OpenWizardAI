@@ -1,5 +1,5 @@
 /**
- * RightDrawer component for Maestro mobile web interface
+ * RightDrawer component for OpenWizardAI mobile web interface
  *
  * A unified slide-out drawer combining Files, History, Auto Run, and Git tabs.
  * Slides in from the right edge with overlay backdrop.

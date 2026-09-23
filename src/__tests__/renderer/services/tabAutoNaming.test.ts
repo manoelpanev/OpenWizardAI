@@ -35,10 +35,10 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 beforeEach(() => {
 	generateTabName.mockReset();
 	generateTabName.mockResolvedValue('Ingest Pipeline');
-	window.maestro = {
-		...window.maestro,
+	window.openwizardai = {
+		...window.openwizardai,
 		tabNaming: { generateTabName },
-	} as typeof window.maestro;
+	} as typeof window.openwizardai;
 	useSettingsStore.setState({ automaticTabNamingEnabled: true } as never);
 });
 
@@ -132,7 +132,7 @@ describe('requestTabAutoName', () => {
 		requestTabAutoName({
 			session,
 			tabId: tab.id,
-			prompt: 'look at https://github.com/RunMaestro/Maestro/pull/381',
+			prompt: 'look at https://github.com/manoelpanev/OpenWizardAI/pull/381',
 		});
 
 		expect(generateTabName).not.toHaveBeenCalled();

@@ -104,7 +104,7 @@ function makeSession(overrides: Partial<Session> = {}): Session {
 		activeFileTabId: null,
 		unifiedTabOrder: [{ type: 'ai' as const, id: tab.id }],
 		unifiedClosedTabHistory: [],
-		autoRunFolderPath: '/test/project/.maestro/playbooks',
+		autoRunFolderPath: '/test/project/.openwizardai/playbooks',
 		...overrides,
 		// Ensure aiTabs uses proper tab objects
 		...(overrides.aiTabs ? { aiTabs: overrides.aiTabs } : {}),

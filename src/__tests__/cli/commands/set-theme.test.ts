@@ -5,19 +5,19 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/output/formatter', () => ({
 	formatError: vi.fn((msg) => `Error: ${msg}`),
 	formatSuccess: vi.fn((msg) => `Success: ${msg}`),
 }));
 
 import { setTheme } from '../../../cli/commands/set-theme';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { formatError } from '../../../cli/output/formatter';
 
 function mockSend(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				captured = payload;
@@ -59,14 +59,14 @@ describe('set-theme command', () => {
 	it('rejects an unknown theme without connecting', async () => {
 		await expect(setTheme('not-a-real-theme', {})).rejects.toThrow('__exit__');
 		expect(formatError).toHaveBeenCalledWith(expect.stringContaining('Unknown theme'));
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
 	it('--list prints themes and does not connect', async () => {
 		await setTheme(undefined, { list: true });
 		expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Available themes'));
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 	});
 
 	it('lists as JSON when --list --json', async () => {

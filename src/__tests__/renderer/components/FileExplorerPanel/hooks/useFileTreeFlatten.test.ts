@@ -7,8 +7,8 @@ vi.mock('../../../../../renderer/utils/logger', () => ({
 	logger: { warn: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock('../../../../../../shared/maestro-paths', () => ({
-	MAESTRO_DIR: '.maestro',
+vi.mock('../../../../../../shared/openwizardai-paths', () => ({
+	OPENWIZARDAI_DIR: '.openwizardai',
 }));
 
 const makeTree = (): FileNode[] => [
@@ -21,7 +21,7 @@ const makeTree = (): FileNode[] => [
 		],
 	},
 	{ name: '.env', type: 'file' },
-	{ name: '.maestro', type: 'folder', children: [] },
+	{ name: '.openwizardai', type: 'folder', children: [] },
 	{ name: 'readme.md', type: 'file' },
 ];
 
@@ -39,10 +39,10 @@ describe('useFileTreeFlatten', () => {
 		expect(names).not.toContain('.env');
 	});
 
-	it('keeps .maestro visible regardless of showHiddenFiles setting', () => {
+	it('keeps .openwizardai visible regardless of showHiddenFiles setting', () => {
 		const { result } = renderHook(() => useFileTreeFlatten(defaultArgs));
 		const names = result.current.flattenedTree.map((n) => n.node.name);
-		expect(names).toContain('.maestro');
+		expect(names).toContain('.openwizardai');
 	});
 
 	it('shows hidden files when showHiddenFiles is true', () => {

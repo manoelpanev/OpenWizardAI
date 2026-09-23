@@ -423,10 +423,10 @@ export function usePipelinePersistence({
 				return [...cwds].some((c) => !errorPipelineRoots.has(c));
 			}).length;
 
-			// Delete cue.yaml (and clean up prompts + .maestro/) for any root whose
+			// Delete cue.yaml (and clean up prompts + .openwizardai/) for any root whose
 			// last pipeline was removed this save, in parallel. Deleting the file is
 			// the correct behaviour - writing an empty YAML left a stale
-			// .maestro/cue.yaml on disk that confused users and the engine. Roots
+			// .openwizardai/cue.yaml on disk that confused users and the engine. Roots
 			// still referenced by error-node pipelines are preserved: the pipeline
 			// exists in the editor and becomes writable once the user fixes the
 			// unresolved agent references.

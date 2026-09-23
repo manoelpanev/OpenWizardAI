@@ -1,5 +1,5 @@
 /**
- * useCommandHistory hook for Maestro mobile web interface
+ * useCommandHistory hook for OpenWizardAI mobile web interface
  *
  * Manages command history storage and retrieval with localStorage persistence.
  * Provides methods to add, remove, and navigate through command history.
@@ -12,7 +12,7 @@ import { webLogger } from '../utils/logger';
 const MAX_HISTORY_SIZE = 50;
 
 /** LocalStorage key for persisting command history */
-const STORAGE_KEY = 'maestro_command_history';
+const STORAGE_KEY = 'openwizardai_command_history';
 
 export interface CommandHistoryEntry {
 	/** Unique identifier for the entry */
@@ -32,7 +32,7 @@ export interface UseCommandHistoryOptions {
 	maxSize?: number;
 	/** Whether to persist to localStorage (default: true) */
 	persist?: boolean;
-	/** Custom storage key (default: 'maestro_command_history') */
+	/** Custom storage key (default: 'openwizardai_command_history') */
 	storageKey?: string;
 }
 

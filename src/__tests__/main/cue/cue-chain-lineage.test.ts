@@ -37,7 +37,7 @@ vi.mock('../../../main/utils/sentry', () => ({
 // Output-prompt phase isn't exercised by these tests, but the module is
 // imported by cue-run-manager so we stub it to keep the dependency tree quiet.
 vi.mock('../../../main/cue/cue-cli-executor', () => ({
-	runMaestroCliSend: vi.fn(async () => ({
+	runOpenWizardAICliSend: vi.fn(async () => ({
 		ok: true,
 		exitCode: 0,
 		stdout: '',

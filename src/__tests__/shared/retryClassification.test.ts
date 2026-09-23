@@ -26,7 +26,7 @@ function err(partial: Partial<ClassifiableError> & { message: string }): Classif
 }
 
 /**
- * The 2026-09-16 report: Codex refused a model with a hard HTTP 400 and Maestro
+ * The 2026-09-16 report: Codex refused a model with a hard HTTP 400 and OpenWizardAI
  * drew "Service overloaded - auto-retrying" over it, probing every 30 minutes
  * with no attempt cap while the one actionable instruction - upgrade the CLI -
  * sat behind a dismissible banner. Nothing in the payload was ambiguous; the
@@ -401,7 +401,7 @@ describe('tokenExhaustionDelayMs', () => {
 	// This is the guard on the clamp DIRECTION, and it is load-bearing. Clamping
 	// the other way (waiting for a distant reset instead of the cadence) restores
 	// the blind sleep this design replaced: the observed failure was a 2h26m
-	// outage that cleared "after 0 retries" because Maestro looked exactly once,
+	// outage that cleared "after 0 retries" because OpenWizardAI looked exactly once,
 	// at the end. A far-off reset must never stretch the wait past the floor.
 	it('never waits LONGER than the floor just because a reset is far away', () => {
 		expect(tokenExhaustionDelayMs(5, now + 30 * minute, now)).toBe(floor);

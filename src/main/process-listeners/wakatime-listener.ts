@@ -19,7 +19,7 @@ import type { ProcessManager } from '../process-manager';
 import type { QueryCompleteData, ToolExecution, UsageStats } from '../process-manager/types';
 import type { WakaTimeManager } from '../wakatime-manager';
 import { extractFilePathFromToolExecution } from '../wakatime-manager';
-import type { MaestroSettings } from '../stores/types';
+import type { OpenWizardAISettings } from '../stores/types';
 
 /** Helper to send a heartbeat for a managed process */
 function heartbeatForSession(
@@ -49,7 +49,7 @@ const USAGE_FLUSH_DELAY_MS = 500;
 export function setupWakaTimeListener(
 	processManager: ProcessManager,
 	wakaTimeManager: WakaTimeManager,
-	settingsStore: Store<MaestroSettings>
+	settingsStore: Store<OpenWizardAISettings>
 ): void {
 	// Cache enabled state so data/thinking-chunk listeners can bail out
 	// without hitting the store on every stdout chunk

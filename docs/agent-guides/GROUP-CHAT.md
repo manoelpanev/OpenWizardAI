@@ -31,7 +31,7 @@ The group chat system enables multi-agent collaboration through a hub-and-spoke 
 
 1. User submits a message via the renderer
 2. The IPC handler (`groupChat:sendToModerator`) calls `routeUserMessage()`
-3. The router auto-adds any `@mentioned` agents not yet in the chat (matching against available Maestro sessions)
+3. The router auto-adds any `@mentioned` agents not yet in the chat (matching against available OpenWizardAI sessions)
 4. The message is appended to the pipe-delimited chat log
 5. A moderator batch process is spawned with the full system prompt, participant list, chat history, and user message
 6. The moderator responds with `@mentions` targeting specific participants
@@ -195,7 +195,7 @@ goes idle. Rules the implementation depends on:
   (`src/main/utils/agent-busy.ts`).** The persisted session record cannot answer
   this: `useDebouncedPersistence` rewrites every session and tab to `state: 'idle'`
   on the way to disk, so a stored record always reads idle.
-- **Unknown is not busy.** A participant with no matching Maestro agent cannot be
+- **Unknown is not busy.** A participant with no matching OpenWizardAI agent cannot be
   probed and is never blocked, or a participant whose agent was renamed becomes
   permanently unreachable. `waitForAgentToFree()` applies the same rule: a session
   that vanishes mid-wait counts as free.
@@ -224,7 +224,7 @@ goes idle. Rules the implementation depends on:
 
 Module-level callbacks set during initialization:
 
-- `setGetSessionsCallback()` - Looks up available Maestro sessions for auto-add
+- `setGetSessionsCallback()` - Looks up available OpenWizardAI sessions for auto-add
 - `setGetCustomEnvVarsCallback()` - Resolves per-agent env vars
 - `setGetAgentConfigCallback()` - Resolves per-agent config (custom args, model, etc.)
 - `setSshStore()` - Provides SSH store for remote execution
@@ -419,10 +419,10 @@ Located in `src/renderer/components/`:
 
 ## Symphony System
 
-Symphony is a separate feature that connects Maestro users with open-source projects seeking contributions. It is not part of the group chat system, but shares some infrastructure:
+Symphony is a separate feature that connects OpenWizardAI users with open-source projects seeking contributions. It is not part of the group chat system, but shares some infrastructure:
 
-- **Registry**: Hosted at `symphony-registry.json` in the Maestro GitHub repo. Contains registered repositories with categories, maintainer info, and active status.
-- **Workflow**: Browse repositories, select an issue labeled `runmaestro.ai`, clone the repo, create a branch and draft PR, run Auto Run documents from the issue, then mark the PR as ready for review.
+- **Registry**: Hosted at `symphony-registry.json` in the OpenWizardAI GitHub repo. Contains registered repositories with categories, maintainer info, and active status.
+- **Workflow**: Browse repositories, select an issue labeled `github.com/manoelpanev/OpenWizardAI`, clone the repo, create a branch and draft PR, run Auto Run documents from the issue, then mark the PR as ready for review.
 - **Types**: Defined in `src/shared/symphony-types.ts` - includes `SymphonyRegistry`, `SymphonyIssue`, `ActiveContribution`, `ContributorStats`, and `SymphonyState`.
 - **Constants**: Defined in `src/shared/symphony-constants.ts` - registry URL, cache TTLs, branch/PR templates, category display info.
 - **Session metadata**: Symphony sessions attach `SymphonySessionMetadata` to the agent session for cross-referencing contributions.

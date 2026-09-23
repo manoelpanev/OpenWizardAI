@@ -1,6 +1,6 @@
 # Adding Agent Support
 
-This guide explains how to add support for a new AI coding agent (provider) in Maestro. It covers the architecture, required implementations, and step-by-step instructions.
+This guide explains how to add support for a new AI coding agent (provider) in OpenWizardAI. It covers the architecture, required implementations, and step-by-step instructions.
 
 ## Multi-Provider Architecture Status
 
@@ -15,7 +15,7 @@ The multi-provider refactoring has established the pluggable architecture for su
 | Session Storage     | ✅ Complete | `AgentSessionStorage` interface, Claude + OpenCode implementations |
 | Output Parsers      | ✅ Complete | `AgentOutputParser` interface, Claude + OpenCode parsers           |
 | Error Handling      | ✅ Complete | `AgentError` types, detection patterns, recovery UI                |
-| IPC API             | ✅ Complete | `window.maestro.agentSessions.*` replaces `claude.*`               |
+| IPC API             | ✅ Complete | `window.openwizardai.agentSessions.*` replaces `claude.*`          |
 | UI Capability Gates | ✅ Complete | Features hidden/shown based on agent capabilities                  |
 
 ### Adding a New Agent
@@ -66,30 +66,30 @@ See detailed instructions below.
 
 Use these terms consistently throughout the codebase:
 
-| Term                 | Definition                                                                   |
-| -------------------- | ---------------------------------------------------------------------------- |
-| **Maestro Agent**    | A configured AI assistant in Maestro (e.g., "My Claude Assistant")           |
-| **Provider**         | The underlying AI service (Claude Code, OpenCode, Codex, Gemini CLI)         |
-| **Provider Session** | A conversation session managed by the provider (e.g., Claude's `session_id`) |
-| **Tab**              | A Maestro UI tab that maps 1:1 to a Provider Session                         |
+| Term                   | Definition                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------- |
+| **OpenWizardAI Agent** | A configured AI assistant in OpenWizardAI (e.g., "My Claude Assistant")      |
+| **Provider**           | The underlying AI service (Claude Code, OpenCode, Codex, Gemini CLI)         |
+| **Provider Session**   | A conversation session managed by the provider (e.g., Claude's `session_id`) |
+| **Tab**                | An OpenWizardAI UI tab that maps 1:1 to a Provider Session                   |
 
-**Hierarchy:** `Maestro Agent → Provider → Provider Sessions → Tabs`
+**Hierarchy:** `OpenWizardAI Agent → Provider → Provider Sessions → Tabs`
 
 ---
 
 ## Architecture Overview
 
-Maestro uses a pluggable architecture for AI agents. Each agent integrates through:
+OpenWizardAI uses a pluggable architecture for AI agents. Each agent integrates through:
 
 1. **Agent Definition** (`src/main/agents/definitions.ts`) - CLI binary, arguments, detection
 2. **Capabilities** (`src/main/agents/capabilities.ts`) - Feature flags controlling UI
-3. **Output Parser** (`src/main/parsers/`) - Translates agent JSON to Maestro events
+3. **Output Parser** (`src/main/parsers/`) - Translates agent JSON to OpenWizardAI events
 4. **Session Storage** (`src/main/storage/`) - Optional browsing of past sessions
 5. **Error Patterns** (`src/main/parsers/error-patterns.ts`) - Error detection and recovery
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Maestro UI                           │
+│                        OpenWizardAI UI                           │
 │  (InputArea, MainPanel, AgentSessionsBrowser, etc.)        │
 └─────────────────────────────────────────────────────────────┘
                               │
@@ -201,7 +201,7 @@ interface AgentCapabilities {
 
 ### Context Window Configuration
 
-For agents where context window size varies by model (like OpenCode or Codex), Maestro provides a user-configurable setting:
+For agents where context window size varies by model (like OpenCode or Codex), OpenWizardAI provides a user-configurable setting:
 
 **Configuration Location:** Settings → Agent Configuration → Context Window Size
 
@@ -399,7 +399,7 @@ export class YourAgentOutputParser implements AgentOutputParser {
 		try {
 			const event = JSON.parse(line);
 
-			// Map your agent's event types to Maestro's ParsedEvent
+			// Map your agent's event types to OpenWizardAI's ParsedEvent
 			switch (event.type) {
 				case 'your_text_event':
 					return {
@@ -525,7 +525,7 @@ export class YourAgentSessionStorage implements AgentSessionStorage {
 npm run dev
 
 # Create a session with your agent
-# 1. Open Maestro
+# 1. Open OpenWizardAI
 # 2. Create new session, select your agent
 # 3. Send a message
 # 4. Verify output displays correctly
@@ -593,7 +593,7 @@ import { type ParsedEvent } from './agent-output-parser';
 
 ## Error Handling
 
-Maestro has unified error handling for agent failures. Your agent should integrate with this system.
+OpenWizardAI has unified error handling for agent failures. Your agent should integrate with this system.
 
 ### Error Types
 
@@ -733,7 +733,7 @@ OpenCode automatically approves all tool operations in batch mode (`opencode run
 - **Configurable permissions:** Advanced users can customize via `opencode.json` with granular tool-level controls (`allow`, `ask`, `deny`)
 - **Read-only operations:** Tools like `view`, `glob`, `grep`, `ls`, and `diagnostics` never require approval
 
-This makes OpenCode suitable for Maestro's batch processing use case without additional configuration.
+This makes OpenCode suitable for OpenWizardAI's batch processing use case without additional configuration.
 
 **Session Storage Details:**
 
@@ -863,9 +863,9 @@ Then reference the custom model name in OpenCode config.
 
 Model ID format: `provider_id/model_id` (e.g., `ollama/llama2`, `anthropic/claude-sonnet-4-5`)
 
-**Maestro Integration Considerations:**
+**OpenWizardAI Integration Considerations:**
 
-Since OpenCode supports multiple providers/models, Maestro should consider:
+Since OpenCode supports multiple providers/models, OpenWizardAI should consider:
 
 1. **Model selection UI:** Add model dropdown when OpenCode is selected, populated from config or `opencode models` command
 2. **Default config generation:** Optionally generate `~/.config/opencode/opencode.json` for Ollama on first use
@@ -930,7 +930,7 @@ Since OpenCode supports multiple providers/models, Maestro should consider:
 - **Reasoning Tokens:** Reports `reasoning_output_tokens` separately from `output_tokens`, displayed in UI
 - **Three Sandbox Levels:** `read-only`, `workspace-write`, `danger-full-access`
 - **Cached Input Discount:** 75% discount on cached input tokens ($0.275/million)
-- **YOLO Mode Default:** Full system access enabled by default in Maestro
+- **YOLO Mode Default:** Full system access enabled by default in OpenWizardAI
 
 **Command Line Pattern:**
 
@@ -938,7 +938,7 @@ Since OpenCode supports multiple providers/models, Maestro should consider:
 # Basic execution
 codex exec --json -C /path/to/project "prompt"
 
-# With YOLO mode (default in Maestro)
+# With YOLO mode (default in OpenWizardAI)
 codex exec --json --dangerously-bypass-approvals-and-sandbox -C /path/to/project "prompt"
 
 # Resume session

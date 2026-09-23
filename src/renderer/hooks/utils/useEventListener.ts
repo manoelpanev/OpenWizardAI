@@ -33,7 +33,7 @@ export interface UseEventListenerOptions {
  * or when `eventType`, `target`, or `enabled` changes.
  *
  * @example
- * useEventListener('maestro:openFileTab', (e) => {
+ * useEventListener('openwizardai:openFileTab', (e) => {
  *   const { sessionId, filePath } = (e as CustomEvent).detail;
  *   // ...
  * });

@@ -19,7 +19,7 @@ import type { PluggableList } from 'unified';
 import type { Theme } from '../../types';
 import type { FileNode } from '../../types/fileTree';
 import { buildFileTreeIndices } from '../../utils/remarkFileLinks';
-import { urlTransformAllowingMaestro } from '../../utils/markdownUrlTransform';
+import { urlTransformAllowingOpenWizardAI } from '../../utils/markdownUrlTransform';
 import { getHomeDir, getHomeDirAsync } from '../../utils/homeDir';
 import {
 	createMarkdownComponents,
@@ -264,7 +264,7 @@ export const Markdown = memo(function Markdown({
 		<ReactMarkdown
 			remarkPlugins={remarkPlugins}
 			rehypePlugins={rehypePlugins}
-			urlTransform={urlTransformAllowingMaestro}
+			urlTransform={urlTransformAllowingOpenWizardAI}
 			components={components}
 		>
 			{processedContent}

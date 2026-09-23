@@ -16,7 +16,7 @@
  *     capped, so it does not survive a restart).
  *
  * Anything older is a closed tab we can only identify by its id, which we
- * render as the same short uppercase octet Maestro already shows for unnamed
+ * render as the same short uppercase octet OpenWizardAI already shows for unnamed
  * tabs. That is why the default filter is "Open": a long-lived agent
  * accumulates hundreds of retired tab ids, and a list of bare octets is not
  * what someone opening this modal is looking for. The wider filters are there

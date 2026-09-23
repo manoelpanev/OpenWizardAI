@@ -23,7 +23,7 @@ const COMMON_MONOSPACE_FONTS = [
 ];
 
 /**
- * Proportional faces offered alongside the monospace list. Maestro was fixed
+ * Proportional faces offered alongside the monospace list. OpenWizardAI was fixed
  * width on every surface before per-surface fonts existed, so prose surfaces
  * (AI chat, the file preview) had no way to reach a reading face at all.
  * Availability is annotated the same way as the monospace group, so a face this
@@ -85,7 +85,7 @@ export interface FontConfigurationPanelProps {
 	/**
 	 * CSS font-family the live sample under the picker is drawn in.
 	 *
-	 * Pass the surface's RESOLVED value - a `var(--maestro-font-*)` reference is
+	 * Pass the surface's RESOLVED value - a `var(--openwizardai-font-*)` reference is
 	 * ideal, since those are the very properties the app paints with, so the
 	 * sample cannot claim a face the surface is not actually using. Needed
 	 * because the selected value alone is not always a face: a surface sitting on
@@ -95,7 +95,7 @@ export interface FontConfigurationPanelProps {
 	 */
 	previewFontFamily?: string;
 	/**
-	 * CSS font-size for the live sample, e.g. `var(--maestro-size-chat)`. Omitted
+	 * CSS font-size for the live sample, e.g. `var(--openwizardai-size-chat)`. Omitted
 	 * means "inherit", which is right for a picker with no surface behind it.
 	 */
 	previewFontSize?: string;
@@ -357,7 +357,7 @@ export function FontConfigurationPanel({
 				{/* Bundled fonts ship inside the app, so they are never annotated
 				    "(Not Found)" - unlike a system font, their presence is a fact
 				    rather than a guess. Listed first for that reason. */}
-				<optgroup label="Bundled with OpenWizzard (always available)">
+				<optgroup label="Bundled with OpenWizardAI (always available)">
 					{BUNDLED_FONTS.map((font) => (
 						<option key={font.name} value={font.name} style={{ fontFamily: font.name }}>
 							{font.name}

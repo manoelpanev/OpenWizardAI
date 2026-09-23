@@ -563,7 +563,7 @@ export function GroupChatHistoryPanel({
 
 		const loadLookbackPreference = async () => {
 			const settingsKey = `groupChatHistoryLookback:${groupChatId}`;
-			const saved = await window.maestro.settings.get(settingsKey);
+			const saved = await window.openwizardai.settings.get(settingsKey);
 			if (cancelled || saved === undefined) return;
 			setLookbackHours(saved as number | null);
 		};
@@ -578,7 +578,7 @@ export function GroupChatHistoryPanel({
 	const handleLookbackChange = (hours: number | null) => {
 		setLookbackHours(hours);
 		const settingsKey = `groupChatHistoryLookback:${groupChatId}`;
-		window.maestro.settings.set(settingsKey, hours);
+		window.openwizardai.settings.set(settingsKey, hours);
 	};
 
 	// The conductor is not a participant, so no color was ever assigned to them.

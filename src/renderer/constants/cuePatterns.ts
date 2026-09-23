@@ -12,7 +12,7 @@ export const CUE_PATTERNS: CuePattern[] = [
 		name: 'Startup',
 		description: 'Run once when the application starts',
 		explanation:
-			'Fires a single time when the OpenWizzard application launches. Perfect for workspace setup, dependency installation, or health checks. Does not re-fire on YAML hot-reload or when toggling Cue on/off.',
+			'Fires a single time when the OpenWizardAI application launches. Perfect for workspace setup, dependency installation, or health checks. Does not re-fire on YAML hot-reload or when toggling Cue on/off.',
 		yaml: `subscriptions:
   - name: "Initialize Workspace"
     event: app.startup
@@ -125,14 +125,14 @@ subscriptions:
     prompt_file: prompts/step-1.md
     enabled: true
 
-# Session B config (separate .maestro/cue.yaml):
+# Session B config (separate .openwizardai/cue.yaml):
 # subscriptions:
 #   - name: "Step 2"
 #     event: agent.completed
 #     source_session: "session-a"
 #     prompt_file: prompts/step-2.md
 
-# Session C config (separate .maestro/cue.yaml):
+# Session C config (separate .openwizardai/cue.yaml):
 # subscriptions:
 #   - name: "Step 3"
 #     event: agent.completed
@@ -246,9 +246,9 @@ subscriptions:
 	{
 		id: 'cli-trigger',
 		name: 'CLI Trigger',
-		description: 'On-demand trigger via maestro-cli',
+		description: 'On-demand trigger via openwizardai-cli',
 		explanation:
-			'Fires only when explicitly triggered from the command line with `maestro-cli cue trigger <name>`. Supports an optional `--prompt` flag to override or supply the prompt at invocation time. Ideal for deployment scripts, CI/CD integration, or ad-hoc automation.',
+			'Fires only when explicitly triggered from the command line with `openwizardai-cli cue trigger <name>`. Supports an optional `--prompt` flag to override or supply the prompt at invocation time. Ideal for deployment scripts, CI/CD integration, or ad-hoc automation.',
 		yaml: `subscriptions:
   - name: "deploy"
     event: cli.trigger
@@ -256,8 +256,8 @@ subscriptions:
     enabled: true
 
 # Usage:
-#   maestro-cli cue trigger deploy
-#   maestro-cli cue trigger deploy --prompt "Deploy to staging only"
+#   openwizardai-cli cue trigger deploy
+#   openwizardai-cli cue trigger deploy --prompt "Deploy to staging only"
 #
 # Template variables available in your prompt:
 #   {{CUE_CLI_PROMPT}} - The prompt text passed via --prompt flag (empty if not provided)

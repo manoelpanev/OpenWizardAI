@@ -1,24 +1,24 @@
-// Status command - check if Maestro desktop app is running and reachable
+// Status command - check if OpenWizardAI desktop app is running and reachable
 
 import { readCliServerInfo, isCliServerRunning } from '../../shared/cli-server-discovery';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { ExitCode } from '../exit-codes';
 
 export async function status(): Promise<void> {
 	const info = readCliServerInfo();
 	if (!info) {
-		console.log('OpenWizzard desktop app is not running');
+		console.log('OpenWizardAI desktop app is not running');
 		process.exit(ExitCode.NotRunning);
 	}
 
 	if (!isCliServerRunning()) {
-		console.log('OpenWizzard discovery file is stale (app may have crashed)');
+		console.log('OpenWizardAI discovery file is stale (app may have crashed)');
 		process.exit(ExitCode.NotRunning);
 	}
 
 	try {
 		// Ping to verify WebSocket connectivity
-		await withMaestroClient(async (client) => {
+		await withOpenWizardAIClient(async (client) => {
 			await client.sendCommand<{ type: string }>({ type: 'ping' }, 'pong');
 
 			// Get session count
@@ -29,7 +29,7 @@ export async function status(): Promise<void> {
 
 			const sessionCount = sessionsResult.sessions?.length ?? 0;
 			console.log(
-				`OpenWizzard is running on port ${info.port} with ${sessionCount} agent${sessionCount !== 1 ? 's' : ''}`
+				`OpenWizardAI is running on port ${info.port} with ${sessionCount} agent${sessionCount !== 1 ? 's' : ''}`
 			);
 		});
 	} catch (error) {

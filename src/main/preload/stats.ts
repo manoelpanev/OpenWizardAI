@@ -1,7 +1,7 @@
 /**
  * Preload API for stats operations
  *
- * Provides the window.maestro.stats namespace for:
+ * Provides the window.openwizardai.stats namespace for:
  * - Usage tracking and analytics
  * - Query event recording
  * - Auto Run session tracking

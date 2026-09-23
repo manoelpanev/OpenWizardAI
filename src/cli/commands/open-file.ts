@@ -1,4 +1,4 @@
-// Open file command - open a file as a preview tab in the Maestro desktop app.
+// Open file command - open a file as a preview tab in the OpenWizardAI desktop app.
 //
 // Focuses by default, as it always has. Two different opt-outs, deliberately
 // NOT merged - folding one into the other would silently change behaviour for
@@ -12,7 +12,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { withMaestroClient } from '../services/maestro-client';
+import { withOpenWizardAIClient } from '../services/openwizardai-client';
 import { getSessionById } from '../services/storage';
 import { resolveBackgroundFlag } from '../../shared/focusPlacement';
 import { resolveOwningAgent } from '../utils/owning-agent';
@@ -45,7 +45,7 @@ export async function openFile(filePath: string, options: OpenFileOptions): Prom
 	const switchToAgent = options.switch !== false;
 
 	try {
-		const result = await withMaestroClient(async (client) => {
+		const result = await withOpenWizardAIClient(async (client) => {
 			return client.sendCommand<{ type: string; success: boolean; error?: string }>(
 				{
 					type: 'open_file_tab',
@@ -71,7 +71,7 @@ export async function openFile(filePath: string, options: OpenFileOptions): Prom
 				);
 			else
 				console.log(
-					`Opened ${path.basename(target.absolutePath)} in OpenWizzard${
+					`Opened ${path.basename(target.absolutePath)} in OpenWizardAI${
 						background ? ' (background tab)' : ''
 					}`
 				);

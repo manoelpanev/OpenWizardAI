@@ -36,8 +36,8 @@ const defaultArgs = {
 	onShowFlash: vi.fn(),
 };
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	fs: {
 		rename: vi.fn().mockResolvedValue(undefined),
 		writeFile: vi.fn().mockResolvedValue(undefined),
@@ -46,7 +46,7 @@ const mockMaestro = {
 		countItems: vi.fn().mockResolvedValue({ fileCount: 2, folderCount: 1 }),
 	},
 };
-(window as any).maestro = mockMaestro;
+(window as any).openwizardai = mockOpenWizardAI;
 
 describe('useFileOperations', () => {
 	beforeEach(() => {
@@ -74,7 +74,7 @@ describe('useFileOperations', () => {
 			await result.current.handleRename();
 		});
 		expect(result.current.renameModal).toBeNull();
-		expect(mockMaestro.fs.rename).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.rename).not.toHaveBeenCalled();
 	});
 
 	it('handleRename sets error when name contains a slash', async () => {
@@ -99,7 +99,7 @@ describe('useFileOperations', () => {
 		await act(async () => {
 			await result.current.handleRename();
 		});
-		expect(mockMaestro.fs.rename).toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.rename).toHaveBeenCalled();
 		expect(onShowFlash).toHaveBeenCalledWith('Renamed to "App2.tsx"');
 	});
 
@@ -154,7 +154,7 @@ describe('useFileOperations', () => {
 			await result.current.handleCreateNewFile();
 		});
 		expect(result.current.newFileError).toContain('already exists');
-		expect(mockMaestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	it('handleCreateNewFile calls writeFile, refresh, expandFolder and flashes', async () => {
@@ -171,7 +171,7 @@ describe('useFileOperations', () => {
 		await act(async () => {
 			await result.current.handleCreateNewFile();
 		});
-		expect(mockMaestro.fs.writeFile).toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.writeFile).toHaveBeenCalled();
 		expect(refreshFileTree).toHaveBeenCalledWith('sess-1');
 		expect(expandFolder).toHaveBeenCalledWith('components');
 		expect(onShowFlash).toHaveBeenCalledWith('Created "NewComp.tsx"');
@@ -187,8 +187,8 @@ describe('useFileOperations', () => {
 		await act(async () => {
 			await result.current.handleCreateNewFile();
 		});
-		expect(mockMaestro.fs.mkdir).toHaveBeenCalledWith('/project/components/NewDir', undefined);
-		expect(mockMaestro.fs.writeFile).not.toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.mkdir).toHaveBeenCalledWith('/project/components/NewDir', undefined);
+		expect(mockOpenWizardAI.fs.writeFile).not.toHaveBeenCalled();
 	});
 
 	// ─── delete ───────────────────────────────────────────────────────────────
@@ -198,7 +198,7 @@ describe('useFileOperations', () => {
 		await act(async () => {
 			await result.current.openDeleteModal(folderNode, 'components');
 		});
-		expect(mockMaestro.fs.countItems).toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.countItems).toHaveBeenCalled();
 		expect(result.current.deleteModal?.itemCount).toEqual({ fileCount: 2, folderCount: 1 });
 	});
 
@@ -211,7 +211,7 @@ describe('useFileOperations', () => {
 		await act(async () => {
 			await result.current.handleDelete();
 		});
-		expect(mockMaestro.fs.delete).toHaveBeenCalled();
+		expect(mockOpenWizardAI.fs.delete).toHaveBeenCalled();
 		expect(onShowFlash).toHaveBeenCalledWith('Deleted "App.tsx"');
 		expect(result.current.deleteModal).toBeNull();
 	});

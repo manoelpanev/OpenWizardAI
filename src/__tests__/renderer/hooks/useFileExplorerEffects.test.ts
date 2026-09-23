@@ -95,9 +95,9 @@ beforeEach(() => {
 		selectionAnchorIndex: -1,
 	});
 
-	// Setup window.maestro
-	(window as any).maestro = {
-		...(window as any).maestro,
+	// Setup window.openwizardai
+	(window as any).openwizardai = {
+		...(window as any).openwizardai,
 		shell: { openExternal: vi.fn(), openPath: vi.fn() },
 		fs: {
 			readFile: vi.fn().mockResolvedValue('file content'),
@@ -204,7 +204,7 @@ describe('useFileExplorerEffects', () => {
 				await result.current.handleMainPanelFileClick('src/index.ts');
 			});
 
-			expect(window.maestro.fs.readFile).toHaveBeenCalledWith(
+			expect(window.openwizardai.fs.readFile).toHaveBeenCalledWith(
 				'/test/project/src/index.ts',
 				undefined
 			);
@@ -234,7 +234,7 @@ describe('useFileExplorerEffects', () => {
 				await result.current.handleMainPanelFileClick('/test/project/src/index.ts:20');
 			});
 
-			expect(window.maestro.fs.readFile).toHaveBeenCalledWith(
+			expect(window.openwizardai.fs.readFile).toHaveBeenCalledWith(
 				'/test/project/src/index.ts',
 				undefined
 			);
@@ -263,7 +263,10 @@ describe('useFileExplorerEffects', () => {
 				await result.current.handleMainPanelFileClick('src/index.ts:20:5');
 			});
 
-			expect(window.maestro.fs.stat).toHaveBeenCalledWith('/test/project/src/index.ts', undefined);
+			expect(window.openwizardai.fs.stat).toHaveBeenCalledWith(
+				'/test/project/src/index.ts',
+				undefined
+			);
 			expect(handleOpenFileTab).toHaveBeenCalledWith(
 				expect.objectContaining({
 					path: '/test/project/src/index.ts',
@@ -320,7 +323,9 @@ describe('useFileExplorerEffects', () => {
 				await result.current.handleMainPanelFileClick('docs/manual.pdf');
 			});
 
-			expect(window.maestro.shell.openPath).toHaveBeenCalledWith('/test/project/docs/manual.pdf');
+			expect(window.openwizardai.shell.openPath).toHaveBeenCalledWith(
+				'/test/project/docs/manual.pdf'
+			);
 			expect(handleOpenFileTab).not.toHaveBeenCalled();
 		});
 
@@ -356,7 +361,7 @@ describe('useFileExplorerEffects', () => {
 			const { shouldOpenExternally } = await import('../../../renderer/utils/fileExplorer');
 			vi.mocked(shouldOpenExternally).mockReturnValue(false);
 
-			(window.maestro.fs.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
+			(window.openwizardai.fs.readFile as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('ENOENT')
 			);
 
@@ -1036,7 +1041,7 @@ describe('useFileExplorerEffects', () => {
 				await result.current.handleMainPanelFileClick('src/index.ts');
 			});
 
-			expect((window as any).maestro.fs.readFile).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.fs.readFile).toHaveBeenCalledWith(
 				'/test/project/src/index.ts',
 				'ssh-remote-1'
 			);
@@ -1074,7 +1079,7 @@ describe('useFileExplorerEffects', () => {
 				await result.current.handleMainPanelFileClick('src/index.ts');
 			});
 
-			expect((window as any).maestro.fs.readFile).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.fs.readFile).toHaveBeenCalledWith(
 				'/test/project/src/index.ts',
 				'config-remote-1'
 			);
@@ -1107,7 +1112,7 @@ describe('useFileExplorerEffects', () => {
 			});
 
 			// Should NOT open externally - SSH files are read via the remote
-			expect((window as any).maestro.shell.openExternal).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.shell.openExternal).not.toHaveBeenCalled();
 			// Should read file and open in tab instead
 			expect(handleOpenFileTab).toHaveBeenCalled();
 		});
@@ -1145,7 +1150,7 @@ describe('useFileExplorerEffects', () => {
 			const { shouldOpenExternally } = await import('../../../renderer/utils/fileExplorer');
 			vi.mocked(shouldOpenExternally).mockReturnValue(false);
 
-			((window as any).maestro.fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
+			((window as any).openwizardai.fs.stat as ReturnType<typeof vi.fn>).mockResolvedValue({
 				modifiedAt: '2024-06-15T12:00:00Z',
 			});
 
@@ -1181,7 +1186,7 @@ describe('useFileExplorerEffects', () => {
 			const { shouldOpenExternally } = await import('../../../renderer/utils/fileExplorer');
 			vi.mocked(shouldOpenExternally).mockReturnValue(false);
 
-			((window as any).maestro.fs.stat as ReturnType<typeof vi.fn>).mockRejectedValue(
+			((window as any).openwizardai.fs.stat as ReturnType<typeof vi.fn>).mockRejectedValue(
 				new Error('ENOENT')
 			);
 

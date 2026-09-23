@@ -16,7 +16,7 @@ export function shouldOpenExternally(filename: string): boolean {
 		return false;
 	}
 
-	// Same for audio/video Maestro can play itself. Only the containers Chromium
+	// Same for audio/video OpenWizardAI can play itself. Only the containers Chromium
 	// can actually decode qualify, so the formats it cannot demux (mkv, avi, wmv,
 	// flv, wma) stay in the list below and keep opening in the system player.
 	if (isMediaFile(filename)) {
@@ -49,7 +49,7 @@ export function shouldOpenExternally(filename: string): boolean {
 		'sketch',
 		'fig',
 		'xd',
-		// Video/audio Chromium cannot demux, so Maestro's own player can't help.
+		// Video/audio Chromium cannot demux, so OpenWizardAI's own player can't help.
 		// Playable formats are handled by the isMediaFile check above and must not
 		// be listed here.
 		'avi',
@@ -155,7 +155,7 @@ interface LoadingState {
 	maxEntries: number;
 	/**
 	 * Files counted toward the entry cap. Files inside an always-visible subtree
-	 * (e.g. `.maestro`) are excluded so prioritized content can never starve
+	 * (e.g. `.openwizardai`) are excluded so prioritized content can never starve
 	 * sibling directories of their budget.
 	 */
 	budgetUsed: number;
@@ -187,7 +187,7 @@ export interface FileTreeLoadResult {
 }
 
 /** Files that should always appear in the file tree regardless of ignore patterns */
-const ALWAYS_VISIBLE_FILES = new Set(['.maestro']);
+const ALWAYS_VISIBLE_FILES = new Set(['.openwizardai']);
 
 /** Options for local (non-SSH) file tree loading */
 export interface LocalFileTreeOptions {
@@ -263,7 +263,7 @@ function withFolderChildren(
  *   counted). Once reached, further files are skipped and the returned result
  *   is flagged `truncated`. Pass `Infinity` to disable.
  *
- * Entries listed in {@link ALWAYS_VISIBLE_FILES} (e.g. `.maestro`) are
+ * Entries listed in {@link ALWAYS_VISIBLE_FILES} (e.g. `.openwizardai`) are
  * processed before other entries at every level and walked with an unlimited
  * budget - their files do not count toward `maxEntries`. This guarantees that
  * project-critical content survives even on SSH remotes where the cap has
@@ -298,7 +298,7 @@ export async function loadFileTree(
 	// a walk worth ~100ms of disk work stretched into minutes of spinner.
 	if (!isRemote) {
 		if (signal?.aborted) throw new FileTreeAbortError();
-		const result = await window.maestro.fs.readDirTree(dirPath, {
+		const result = await window.openwizardai.fs.readDirTree(dirPath, {
 			maxDepth,
 			maxEntries: Number.isFinite(maxEntries) ? maxEntries : undefined,
 			ignorePatterns: localOptions?.ignorePatterns,
@@ -340,7 +340,7 @@ export async function loadFileTree(
 		// If honor gitignore is enabled, try to parse the local .gitignore
 		if (localOptions?.honorGitignore) {
 			try {
-				const content = await window.maestro.fs.readFile(`${dirPath}/.gitignore`);
+				const content = await window.openwizardai.fs.readFile(`${dirPath}/.gitignore`);
 				if (content) {
 					ignorePatterns = [...ignorePatterns, ...parseGitignoreContent(content)];
 				}
@@ -378,7 +378,7 @@ async function fetchRemoteGitignorePatterns(
 	sshRemoteId: string
 ): Promise<string[]> {
 	try {
-		const content = await window.maestro.fs.readFile(`${dirPath}/.gitignore`, sshRemoteId);
+		const content = await window.openwizardai.fs.readFile(`${dirPath}/.gitignore`, sshRemoteId);
 		return content ? parseGitignoreContent(content) : [];
 	} catch {
 		return [];
@@ -390,7 +390,7 @@ async function fetchRemoteGitignorePatterns(
  *
  * @param unlimitedBudget When true, the entry cap is bypassed for this subtree
  *   and its descendants. Used to fully load always-visible directories like
- *   `.maestro` even when the SSH-reduced cap has been reached elsewhere.
+ *   `.openwizardai` even when the SSH-reduced cap has been reached elsewhere.
  */
 async function loadFileTreeRecursive(
 	dirPath: string,
@@ -404,7 +404,7 @@ async function loadFileTreeRecursive(
 	if (state.signal?.aborted) throw new FileTreeAbortError();
 
 	try {
-		const entries = await window.maestro.fs.readDir(dirPath, sshContext?.sshRemoteId);
+		const entries = await window.openwizardai.fs.readDir(dirPath, sshContext?.sshRemoteId);
 		if (state.signal?.aborted) throw new FileTreeAbortError();
 		const tree: FileTreeNode[] = [];
 
@@ -424,7 +424,7 @@ async function loadFileTreeRecursive(
 		// where the OS or IPC layer returns the same entry more than once).
 		const seen = new Set<string>();
 
-		// Process always-visible directories (e.g. `.maestro`) first so they're
+		// Process always-visible directories (e.g. `.openwizardai`) first so they're
 		// loaded ahead of bulk content - important on SSH where each dir is its
 		// own round-trip and the entry cap may be reduced.
 		const orderedEntries = [...entries].sort((a, b) => {
@@ -451,7 +451,7 @@ async function loadFileTreeRecursive(
 			}
 
 			// Always-visible directories propagate unlimited-budget to descendants so
-			// e.g. all of `.maestro/playbooks/**` survives the cap.
+			// e.g. all of `.openwizardai/playbooks/**` survives the cap.
 			const childUnlimited =
 				unlimitedBudget || (entry.isDirectory && ALWAYS_VISIBLE_FILES.has(entry.name));
 
@@ -619,21 +619,21 @@ export function buildTreeFromPaths(directories: string[], files: string[]): File
 }
 
 /**
- * Splice a `.maestro` subtree (loaded in its own phase) into the rest-of-tree
- * result. The rest tree should have been loaded with `excludePaths: ['.maestro']`
- * so it doesn't already contain `.maestro` - this helper guards against that
+ * Splice a `.openwizardai` subtree (loaded in its own phase) into the rest-of-tree
+ * result. The rest tree should have been loaded with `excludePaths: ['.openwizardai']`
+ * so it doesn't already contain `.openwizardai` - this helper guards against that
  * anyway by filtering it out.
  */
-export function spliceMaestroIntoTree(
+export function spliceOpenWizardAIIntoTree(
 	restTree: FileTreeNode[],
-	maestroChildren: FileTreeNode[] | undefined
+	openwizardaiChildren: FileTreeNode[] | undefined
 ): FileTreeNode[] {
-	const filtered = restTree.filter((n) => n.name !== '.maestro');
-	if (maestroChildren && maestroChildren.length > 0) {
+	const filtered = restTree.filter((n) => n.name !== '.openwizardai');
+	if (openwizardaiChildren && openwizardaiChildren.length > 0) {
 		filtered.push({
-			name: '.maestro',
+			name: '.openwizardai',
 			type: 'folder',
-			children: maestroChildren,
+			children: openwizardaiChildren,
 		});
 	}
 	return filtered.sort((a, b) => {
@@ -676,11 +676,11 @@ export interface RemoteBatchedLoadOptions {
 	/**
 	 * Optional callback fired when an intermediate phase completes, so the
 	 * renderer can paint partial results before the final phase resolves.
-	 * Called with: ('maestro', maestroSubtree) and ('rest', restTree).
+	 * Called with: ('openwizardai', openwizardaiSubtree) and ('rest', restTree).
 	 */
 	onPhase?: (
-		phase: 'maestro' | 'rest',
-		partial: { maestro?: FileTreeNode[]; rest?: FileTreeNode[] }
+		phase: 'openwizardai' | 'rest',
+		partial: { openwizardai?: FileTreeNode[]; rest?: FileTreeNode[] }
 	) => void;
 }
 
@@ -688,11 +688,11 @@ export interface RemoteBatchedLoadOptions {
  * Load a remote file tree using batched `find` calls.
  *
  * Issues two SSH round-trips total:
- *  1. **Maestro phase** - enumerate `<root>/.maestro` (unlimited budget). Loads
- *     first because `.maestro` drives Cue, playbooks, and other features that
+ *  1. **OpenWizardAI phase** - enumerate `<root>/.openwizardai` (unlimited budget). Loads
+ *     first because `.openwizardai` drives Cue, playbooks, and other features that
  *     should be available as soon as possible.
  *  2. **Rest phase** - enumerate the rest of the tree with the file cap and
- *     `.maestro` pruned out (we already have it).
+ *     `.openwizardai` pruned out (we already have it).
  *
  * Replaces the per-directory recursive `readDir` walk that issued one SSH call
  * per remote directory (hundreds of calls on a moderately-sized project).
@@ -730,25 +730,25 @@ export async function loadFileTreeRemoteBatched(
 
 	if (signal?.aborted) throw new FileTreeAbortError();
 
-	const partial: { maestro?: FileTreeNode[]; rest?: FileTreeNode[] } = {};
+	const partial: { openwizardai?: FileTreeNode[]; rest?: FileTreeNode[] } = {};
 
-	// Phase 1: .maestro subtree (unlimited budget). May fail benignly if the
-	// directory doesn't exist (most projects without Maestro state). The whole
-	// phase is best-effort: a missing or unreadable `.maestro` should not block
+	// Phase 1: .openwizardai subtree (unlimited budget). May fail benignly if the
+	// directory doesn't exist (most projects without OpenWizardAI state). The whole
+	// phase is best-effort: a missing or unreadable `.openwizardai` should not block
 	// the rest of the tree from loading.
 	if (onProgress) {
 		onProgress({
 			directoriesScanned: 0,
 			filesFound: 0,
-			currentDirectory: `${rootPath}/.maestro`,
+			currentDirectory: `${rootPath}/.openwizardai`,
 		});
 	}
-	let maestroChildren: FileTreeNode[] = [];
-	let maestroDirsScanned = 0;
-	let maestroFilesFound = 0;
+	let openwizardaiChildren: FileTreeNode[] = [];
+	let openwizardaiDirsScanned = 0;
+	let openwizardaiFilesFound = 0;
 	try {
-		const maestroResult = await window.maestro.fs.listTreeRemote(
-			`${rootPath}/.maestro`,
+		const openwizardaiResult = await window.openwizardai.fs.listTreeRemote(
+			`${rootPath}/.openwizardai`,
 			sshRemoteId,
 			{
 				maxDepth,
@@ -757,29 +757,32 @@ export async function loadFileTreeRemoteBatched(
 			}
 		);
 		if (signal?.aborted) throw new FileTreeAbortError();
-		maestroChildren = buildTreeFromPaths(maestroResult.directories, maestroResult.files);
-		maestroDirsScanned = maestroResult.directories.length;
-		maestroFilesFound = maestroResult.files.length;
-		partial.maestro = maestroChildren;
-		onPhase?.('maestro', partial);
+		openwizardaiChildren = buildTreeFromPaths(
+			openwizardaiResult.directories,
+			openwizardaiResult.files
+		);
+		openwizardaiDirsScanned = openwizardaiResult.directories.length;
+		openwizardaiFilesFound = openwizardaiResult.files.length;
+		partial.openwizardai = openwizardaiChildren;
+		onPhase?.('openwizardai', partial);
 	} catch (err) {
 		if (err instanceof FileTreeAbortError) throw err;
-		// .maestro missing/unreadable - log and continue with empty subtree
-		logger.debug('[loadFileTreeRemoteBatched] .maestro phase failed:', undefined, err);
+		// .openwizardai missing/unreadable - log and continue with empty subtree
+		logger.debug('[loadFileTreeRemoteBatched] .openwizardai phase failed:', undefined, err);
 	}
 
-	// Phase 2: rest of tree with .maestro pruned and file cap applied.
+	// Phase 2: rest of tree with .openwizardai pruned and file cap applied.
 	if (onProgress) {
 		onProgress({
-			directoriesScanned: maestroDirsScanned,
-			filesFound: maestroFilesFound,
+			directoriesScanned: openwizardaiDirsScanned,
+			filesFound: openwizardaiFilesFound,
 			currentDirectory: rootPath,
 		});
 	}
-	const restResult = await window.maestro.fs.listTreeRemote(rootPath, sshRemoteId, {
+	const restResult = await window.openwizardai.fs.listTreeRemote(rootPath, sshRemoteId, {
 		maxDepth,
 		ignorePatterns: effectiveIgnorePatterns,
-		excludePaths: ['.maestro'],
+		excludePaths: ['.openwizardai'],
 		maxFiles: maxEntries > 0 && Number.isFinite(maxEntries) ? maxEntries : undefined,
 	});
 	if (signal?.aborted) throw new FileTreeAbortError();
@@ -788,7 +791,7 @@ export async function loadFileTreeRemoteBatched(
 	partial.rest = restTree;
 	onPhase?.('rest', partial);
 
-	let finalTree = spliceMaestroIntoTree(restTree, maestroChildren);
+	let finalTree = spliceOpenWizardAIIntoTree(restTree, openwizardaiChildren);
 
 	// Phase 3: folders the user expanded past the depth cap. `find -maxdepth`
 	// lists such a folder but not its contents, so each gets a one-level listing
@@ -805,14 +808,14 @@ export async function loadFileTreeRemoteBatched(
 		if (!isDepthCappedFolder(finalTree, relPath, maxDepth)) continue;
 		deepListings++;
 		try {
-			const listing = await window.maestro.fs.listTreeRemote(
+			const listing = await window.openwizardai.fs.listTreeRemote(
 				`${rootPath}/${relPath}`,
 				sshRemoteId,
 				{
 					maxDepth: 1,
-					// `.maestro` is never subject to ignore patterns, at any depth.
+					// `.openwizardai` is never subject to ignore patterns, at any depth.
 					ignorePatterns:
-						relPath === '.maestro' || relPath.startsWith('.maestro/')
+						relPath === '.openwizardai' || relPath.startsWith('.openwizardai/')
 							? []
 							: effectiveIgnorePatterns,
 				}
@@ -832,11 +835,11 @@ export async function loadFileTreeRemoteBatched(
 		}
 	}
 
-	const totalFiles = maestroFilesFound + restResult.files.length + deepFilesFound;
+	const totalFiles = openwizardaiFilesFound + restResult.files.length + deepFilesFound;
 
 	if (onProgress) {
 		onProgress({
-			directoriesScanned: maestroDirsScanned + restResult.directories.length + deepDirsScanned,
+			directoriesScanned: openwizardaiDirsScanned + restResult.directories.length + deepDirsScanned,
 			filesFound: totalFiles,
 			currentDirectory: rootPath,
 		});

@@ -78,19 +78,19 @@ describe('NewInstanceModal', () => {
 		mockUpdateLayerHandler.mockClear();
 
 		// Setup default mock implementations
-		vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+		vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 			createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 		]);
-		vi.mocked(window.maestro.agents.getAllCustomPaths).mockResolvedValue({});
-		vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue(null);
-		vi.mocked(window.maestro.agents.refresh).mockResolvedValue({
+		vi.mocked(window.openwizardai.agents.getAllCustomPaths).mockResolvedValue({});
+		vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.agents.refresh).mockResolvedValue({
 			agents: [createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true })],
 			debugInfo: null,
 		});
-		vi.mocked(window.maestro.agents.setCustomPath).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.agents.setCustomPath).mockResolvedValue(undefined);
 		// Default: no SSH remotes configured
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [],
 		});
@@ -169,7 +169,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Agent detection and display', () => {
 		it('should load and display available agents', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({
 					id: 'claude-code',
 					name: 'Claude Code',
@@ -195,7 +195,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should display path for available agents', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({
 					id: 'claude-code',
 					name: 'Claude Code',
@@ -227,7 +227,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should display "Not Found" for unavailable Claude Code agent', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false, path: null }),
 			]);
 
@@ -247,7 +247,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should display "Coming Soon" for non-claude-code agents', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 				createAgentConfig({ id: 'openai-codex', name: 'OpenAI Codex', available: false }),
 			]);
@@ -268,7 +268,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should hide hidden agents from display', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 				createAgentConfig({
 					id: 'hidden-agent',
@@ -296,7 +296,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should select default agent when available', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -317,7 +317,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should select first available agent when default is not available', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'unavailable-agent', name: 'Unavailable Agent', available: false }),
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
@@ -342,7 +342,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Agent selection', () => {
 		it('should allow selecting claude-code when available', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -366,7 +366,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should allow selecting unavailable claude-code to configure custom path', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
 
@@ -391,7 +391,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should not allow selecting non-claude-code agents', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 				createAgentConfig({ id: 'openai-codex', name: 'OpenAI Codex', available: true }),
 			]);
@@ -420,10 +420,10 @@ describe('NewInstanceModal', () => {
 
 	describe('Agent refresh', () => {
 		it('should refresh agent when refresh button is clicked', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.agents.refresh).mockResolvedValue({
+			vi.mocked(window.openwizardai.agents.refresh).mockResolvedValue({
 				agents: [createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true })],
 				debugInfo: null,
 			});
@@ -447,14 +447,14 @@ describe('NewInstanceModal', () => {
 				fireEvent.click(refreshButton);
 			});
 
-			expect(window.maestro.agents.refresh).toHaveBeenCalledWith('claude-code');
+			expect(window.openwizardai.agents.refresh).toHaveBeenCalledWith('claude-code');
 		});
 
 		it('should display debug info when agent refresh shows not found', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
-			vi.mocked(window.maestro.agents.refresh).mockResolvedValue({
+			vi.mocked(window.openwizardai.agents.refresh).mockResolvedValue({
 				agents: [createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false })],
 				debugInfo: {
 					agentId: 'claude-code',
@@ -496,10 +496,10 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should dismiss debug info when dismiss button is clicked', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
-			vi.mocked(window.maestro.agents.refresh).mockResolvedValue({
+			vi.mocked(window.openwizardai.agents.refresh).mockResolvedValue({
 				agents: [createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false })],
 				debugInfo: {
 					agentId: 'claude-code',
@@ -547,7 +547,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Form inputs', () => {
 		it('should allow typing in instance name input', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -571,7 +571,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should allow typing in working directory input', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -595,7 +595,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should focus name input on modal open', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -618,10 +618,10 @@ describe('NewInstanceModal', () => {
 
 	describe('Folder selection', () => {
 		it('should open folder dialog when folder button is clicked', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/folder');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue('/selected/folder');
 
 			render(
 				<NewInstanceModal
@@ -646,7 +646,7 @@ describe('NewInstanceModal', () => {
 				fireEvent.click(folderButton);
 			});
 
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 
 			await waitFor(() => {
 				expect(screen.getByPlaceholderText('Select directory...')).toHaveValue('/selected/folder');
@@ -654,10 +654,10 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should not update input when folder selection is cancelled', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue(null);
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue(null);
 
 			render(
 				<NewInstanceModal
@@ -691,10 +691,10 @@ describe('NewInstanceModal', () => {
 
 	describe('Tilde expansion', () => {
 		it('should expand tilde to home directory on create', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
+			vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
 
 			render(
 				<NewInstanceModal
@@ -736,19 +736,19 @@ describe('NewInstanceModal', () => {
 				expect.objectContaining({ enabled: false, remoteId: null }),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
 		});
 
 		it('should expand lone tilde to home directory', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
+			vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
 
 			render(
 				<NewInstanceModal
@@ -790,19 +790,19 @@ describe('NewInstanceModal', () => {
 				expect.objectContaining({ enabled: false, remoteId: null }),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
 		});
 
 		it('should not expand tilde in middle of path', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.fs.homeDir).mockResolvedValue('/home/testuser');
+			vi.mocked(window.openwizardai.fs.homeDir).mockResolvedValue('/home/testuser');
 
 			render(
 				<NewInstanceModal
@@ -844,9 +844,9 @@ describe('NewInstanceModal', () => {
 				expect.objectContaining({ enabled: false, remoteId: null }),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
@@ -855,7 +855,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Form submission', () => {
 		it('should call onCreate with correct values when Create button is clicked', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -899,9 +899,9 @@ describe('NewInstanceModal', () => {
 				expect.objectContaining({ enabled: false, remoteId: null }),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
@@ -909,7 +909,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should disable Create button when no instance name provided', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -936,7 +936,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should disable Create button when no working directory', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -959,7 +959,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should disable Create button when agent is not available', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
 
@@ -985,7 +985,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should reset form after creation', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1034,7 +1034,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Cancel button', () => {
 		it('should call onClose when Cancel button is clicked', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1057,7 +1057,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should call onClose when X button is clicked', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1082,10 +1082,12 @@ describe('NewInstanceModal', () => {
 
 	describe('Keyboard shortcuts', () => {
 		it('should trigger folder selection on Cmd+O', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/via/shortcut');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue(
+				'/selected/via/shortcut'
+			);
 
 			const { container } = render(
 				<NewInstanceModal
@@ -1107,14 +1109,16 @@ describe('NewInstanceModal', () => {
 				fireEvent.keyDown(wrapper, { key: 'o', metaKey: true });
 			});
 
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 		});
 
 		it('should trigger folder selection on Ctrl+O', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.dialog.selectFolder).mockResolvedValue('/selected/via/shortcut');
+			vi.mocked(window.openwizardai.dialog.selectFolder).mockResolvedValue(
+				'/selected/via/shortcut'
+			);
 
 			const { container } = render(
 				<NewInstanceModal
@@ -1136,11 +1140,11 @@ describe('NewInstanceModal', () => {
 				fireEvent.keyDown(wrapper, { key: 'O', ctrlKey: true });
 			});
 
-			expect(window.maestro.dialog.selectFolder).toHaveBeenCalled();
+			expect(window.openwizardai.dialog.selectFolder).toHaveBeenCalled();
 		});
 
 		it('should create agent on Cmd+Enter when form is valid', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1174,7 +1178,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should not create agent on Cmd+Enter when form is invalid', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1201,7 +1205,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should not create agent on Cmd+Enter when instance name is missing', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1234,7 +1238,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Layer stack integration', () => {
 		it('should register layer when modal opens', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1260,7 +1264,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should unregister layer when modal closes', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1290,7 +1294,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should update layer handler when onClose changes', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1332,7 +1336,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Custom agent paths', () => {
 		it('should display path input for Claude Code agent', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1360,7 +1364,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should pass custom path to onCreate when creating agent', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1417,16 +1421,16 @@ describe('NewInstanceModal', () => {
 				expect.objectContaining({ enabled: false, remoteId: null }),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
 		});
 
 		it('should enable Create button when custom path is specified for unavailable agent', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
 
@@ -1475,7 +1479,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should select unavailable agent immediately when clicked (to configure custom path)', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
 
@@ -1512,7 +1516,7 @@ describe('NewInstanceModal', () => {
 
 		it('should call onCreate with custom path for previously unavailable agent', async () => {
 			// Agent is unavailable and has no detected path
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false, path: null }),
 			]);
 
@@ -1571,9 +1575,9 @@ describe('NewInstanceModal', () => {
 				expect.objectContaining({ enabled: false, remoteId: null }),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
@@ -1582,7 +1586,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Error handling', () => {
 		it('should handle agent detection failure gracefully', async () => {
-			vi.mocked(window.maestro.agents.detect).mockRejectedValue(new Error('Detection failed'));
+			vi.mocked(window.openwizardai.agents.detect).mockRejectedValue(new Error('Detection failed'));
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
 			render(
@@ -1607,10 +1611,10 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should handle agent refresh failure gracefully', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.agents.refresh).mockRejectedValue(new Error('Refresh failed'));
+			vi.mocked(window.openwizardai.agents.refresh).mockRejectedValue(new Error('Refresh failed'));
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 
 			render(
@@ -1646,7 +1650,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Styling and theming', () => {
 		it('should apply theme colors to modal', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1667,7 +1671,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should apply success color to Available badge', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1688,7 +1692,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should apply error color to Not Found badge', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
 
@@ -1711,7 +1715,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Accessibility', () => {
 		it('should have proper ARIA attributes on modal', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1731,7 +1735,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should have proper role=option on agent selections', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1752,7 +1756,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should have tabindex=-1 on modal container', () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1771,7 +1775,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should have tabindex=0 for available claude-code option', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -1794,7 +1798,7 @@ describe('NewInstanceModal', () => {
 		it('should have tabindex=-1 for unsupported agents (coming soon)', async () => {
 			// Note: tabIndex is based on isSupported (in SUPPORTED_AGENTS), not availability
 			// gemini-cli is not in SUPPORTED_AGENTS so it should have tabIndex=-1
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'gemini-cli', name: 'Gemini CLI', available: false }),
 			]);
 
@@ -1817,7 +1821,7 @@ describe('NewInstanceModal', () => {
 
 	describe('Multiple agents display', () => {
 		it('should display multiple agents correctly', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 				createAgentConfig({ id: 'openai-codex', name: 'OpenAI Codex', available: false }),
 				createAgentConfig({ id: 'gemini-cli', name: 'Gemini CLI', available: false }),
@@ -1841,7 +1845,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should display correct badge for each agent type', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 				createAgentConfig({ id: 'openai-codex', name: 'OpenAI Codex', available: false }),
 			]);
@@ -1865,10 +1869,10 @@ describe('NewInstanceModal', () => {
 
 	describe('PATH display in debug info', () => {
 		it('should split and display PATH entries correctly', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
-			vi.mocked(window.maestro.agents.refresh).mockResolvedValue({
+			vi.mocked(window.openwizardai.agents.refresh).mockResolvedValue({
 				agents: [createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false })],
 				debugInfo: {
 					agentId: 'claude-code',
@@ -1942,13 +1946,13 @@ describe('NewInstanceModal', () => {
 				],
 			});
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([agentWithModelSelection]);
-			vi.mocked(window.maestro.agents.getModels).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([agentWithModelSelection]);
+			vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([
 				'ollama/qwen3:8b',
 				'anthropic/claude-sonnet-4-20250514',
 				'opencode/gpt-5-nano',
 			]);
-			vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
+			vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
 
 			render(
 				<NewInstanceModal
@@ -1975,7 +1979,7 @@ describe('NewInstanceModal', () => {
 
 			// Should call getModels when expanding
 			await waitFor(() => {
-				expect(window.maestro.agents.getModels).toHaveBeenCalledWith('opencode', false);
+				expect(window.openwizardai.agents.getModels).toHaveBeenCalledWith('opencode', false);
 			});
 		});
 
@@ -2010,9 +2014,13 @@ describe('NewInstanceModal', () => {
 				],
 			});
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([agentWithModelSelection]);
-			vi.mocked(window.maestro.agents.getModels).mockResolvedValue(['model1', 'model2', 'model3']);
-			vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([agentWithModelSelection]);
+			vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([
+				'model1',
+				'model2',
+				'model3',
+			]);
+			vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
 
 			render(
 				<NewInstanceModal
@@ -2065,8 +2073,8 @@ describe('NewInstanceModal', () => {
 				},
 			});
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([agentWithoutModelSelection]);
-			vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([agentWithoutModelSelection]);
+			vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
 
 			render(
 				<NewInstanceModal
@@ -2092,7 +2100,7 @@ describe('NewInstanceModal', () => {
 			}
 
 			// Should NOT call getModels
-			expect(window.maestro.agents.getModels).not.toHaveBeenCalled();
+			expect(window.openwizardai.agents.getModels).not.toHaveBeenCalled();
 		});
 
 		it('should show refresh button for model input when supportsModelSelection', async () => {
@@ -2126,9 +2134,9 @@ describe('NewInstanceModal', () => {
 				],
 			});
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([agentWithModelSelection]);
-			vi.mocked(window.maestro.agents.getModels).mockResolvedValue(['model1']);
-			vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([agentWithModelSelection]);
+			vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue(['model1']);
+			vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
 
 			render(
 				<NewInstanceModal
@@ -2195,7 +2203,7 @@ describe('NewInstanceModal', () => {
 				customContextWindow: 200000,
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2247,7 +2255,7 @@ describe('NewInstanceModal', () => {
 				isLive: false,
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2276,7 +2284,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should not pre-fill when sourceSession is not provided', async () => {
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2328,7 +2336,7 @@ describe('NewInstanceModal', () => {
 				customArgs: '--model=opus --verbose',
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2385,7 +2393,7 @@ describe('NewInstanceModal', () => {
 				customEffort: 'xhigh',
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({
 					id: 'codex',
 					name: 'OpenAI Codex',
@@ -2457,7 +2465,7 @@ describe('NewInstanceModal', () => {
 				groupId: 'group-abc',
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2521,7 +2529,7 @@ describe('NewInstanceModal', () => {
 				isLive: false,
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2569,10 +2577,10 @@ describe('NewInstanceModal', () => {
 
 		it('should display SSH selector even when no agent is selected', async () => {
 			// This tests the bug where SSH section was hidden when no agents were available
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 			]);
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [
 					{
@@ -2608,14 +2616,14 @@ describe('NewInstanceModal', () => {
 			// This tests that SSH config selected before agent selection transfers to the agent
 			// We verify that the _pending_ config is used by checking that agents.detect is called
 			// with the SSH remote ID (which happens when agentSshRemoteConfigs['_pending_'] is set)
-			const detectMock = vi.mocked(window.maestro.agents.detect);
+			const detectMock = vi.mocked(window.openwizardai.agents.detect);
 
 			// Initial detection returns agents
 			detectMock.mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
 				createAgentConfig({ id: 'opencode', name: 'OpenCode', available: true }),
 			]);
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [
 					{
@@ -2630,7 +2638,7 @@ describe('NewInstanceModal', () => {
 				],
 			});
 			// Mock fs.stat for remote path validation
-			vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+			vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 				size: 4096,
 				createdAt: '2024-01-01T00:00:00.000Z',
 				modifiedAt: '2024-01-15T12:30:00.000Z',
@@ -2732,9 +2740,9 @@ describe('NewInstanceModal', () => {
 				}),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP
-				undefined, // maestroPPath
-				undefined, // maestroPMode
+				undefined, // enableOpenWizardAIP
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
@@ -2773,7 +2781,7 @@ describe('NewInstanceModal', () => {
 				},
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
 
@@ -2800,7 +2808,7 @@ describe('NewInstanceModal', () => {
 		});
 
 		it('should re-detect agents when SSH remote selection changes', async () => {
-			const detectMock = vi.mocked(window.maestro.agents.detect);
+			const detectMock = vi.mocked(window.openwizardai.agents.detect);
 
 			// Initial detection returns local agents
 			detectMock.mockResolvedValue([
@@ -2808,7 +2816,7 @@ describe('NewInstanceModal', () => {
 				createAgentConfig({ id: 'opencode', name: 'OpenCode', available: true }),
 			]);
 
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [
 					{
@@ -2869,10 +2877,10 @@ describe('NewInstanceModal', () => {
 			// path. This path MUST flow into sessionSshRemoteConfig.workingDirOverride so that
 			// SSH terminals `cd` to the correct directory on the remote host. Without this,
 			// terminals would drop into the remote home directory instead.
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [
 					{
@@ -2886,7 +2894,7 @@ describe('NewInstanceModal', () => {
 					},
 				],
 			});
-			vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+			vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 				size: 4096,
 				createdAt: '2024-01-01T00:00:00.000Z',
 				modifiedAt: '2024-01-15T12:30:00.000Z',
@@ -2963,9 +2971,9 @@ describe('NewInstanceModal', () => {
 				}),
 				undefined,
 				undefined,
-				undefined, // enableMaestroP unset: API is the default for Claude Code (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				undefined, // enableOpenWizardAIP unset: API is the default for Claude Code (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
@@ -3006,10 +3014,10 @@ describe('NewInstanceModal', () => {
 				},
 			} as Session;
 
-			vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+			vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 				createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
 			]);
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [
 					{
@@ -3023,7 +3031,7 @@ describe('NewInstanceModal', () => {
 					},
 				],
 			});
-			vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+			vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 				size: 4096,
 				createdAt: '2024-01-01T00:00:00.000Z',
 				modifiedAt: '2024-01-15T12:30:00.000Z',
@@ -3083,10 +3091,10 @@ describe('NewInstanceModal', () => {
 				// Duplicating materializes the source's unset token source into an explicit
 				// `false` (API) - the modal collapses `undefined ?? isAdaptiveModeDefaultOn()`
 				// to a concrete choice so the duplicate doesn't drift onto the TUI default over
-				// SSH (which would spawn maestro-p on a remote that may not have it).
-				false, // enableMaestroP: explicit API (Adaptive Mode off)
-				undefined, // maestroPPath
-				undefined, // maestroPMode unset until the user opts into TUI/Dynamic
+				// SSH (which would spawn openwizardai-p on a remote that may not have it).
+				false, // enableOpenWizardAIP: explicit API (Adaptive Mode off)
+				undefined, // openwizardaiPPath
+				undefined, // openwizardaiPMode unset until the user opts into TUI/Dynamic
 				true, // retryOnAvailabilityErrors
 				true // retryOnTokenExhaustion
 			);
@@ -3094,26 +3102,28 @@ describe('NewInstanceModal', () => {
 
 		it('should show connection error when SSH remote is unreachable', async () => {
 			// Mock detection to return agents with errors when SSH remote is used
-			vi.mocked(window.maestro.agents.detect).mockImplementation(async (sshRemoteId?: string) => {
-				if (sshRemoteId === 'unreachable-remote') {
+			vi.mocked(window.openwizardai.agents.detect).mockImplementation(
+				async (sshRemoteId?: string) => {
+					if (sshRemoteId === 'unreachable-remote') {
+						return [
+							{
+								...createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
+								error: 'Connection refused',
+							},
+							{
+								...createAgentConfig({ id: 'opencode', name: 'OpenCode', available: false }),
+								error: 'Connection refused',
+							},
+						];
+					}
 					return [
-						{
-							...createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: false }),
-							error: 'Connection refused',
-						},
-						{
-							...createAgentConfig({ id: 'opencode', name: 'OpenCode', available: false }),
-							error: 'Connection refused',
-						},
+						createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
+						createAgentConfig({ id: 'opencode', name: 'OpenCode', available: true }),
 					];
 				}
-				return [
-					createAgentConfig({ id: 'claude-code', name: 'Claude Code', available: true }),
-					createAgentConfig({ id: 'opencode', name: 'OpenCode', available: true }),
-				];
-			});
+			);
 
-			vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+			vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 				success: true,
 				configs: [
 					{

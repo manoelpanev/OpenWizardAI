@@ -1,5 +1,5 @@
 /**
- * SessionStatusBanner component for Maestro mobile web interface
+ * SessionStatusBanner component for OpenWizardAI mobile web interface
  *
  * Displays a compact status banner showing the current session's key information.
  * Positioned below the header/session pill bar, this provides at-a-glance

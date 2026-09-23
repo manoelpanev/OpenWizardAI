@@ -1,9 +1,9 @@
 /**
  * @file system-prompt.test.ts
- * @description Tests for `prepareMaestroSystemPromptCli` - the CLI-side
- * builder that loads `maestro-system-prompt`, threads in branch / history /
+ * @description Tests for `prepareOpenWizardAISystemPromptCli` - the CLI-side
+ * builder that loads `openwizardai-system-prompt`, threads in branch / history /
  * conductor context, and returns the substituted template for use as
- * `appendSystemPrompt`. Mirrors the renderer's `prepareMaestroSystemPrompt`
+ * `appendSystemPrompt`. Mirrors the renderer's `prepareOpenWizardAISystemPrompt`
  * in `src/renderer/utils/spawnHelpers.ts`.
  */
 
@@ -39,7 +39,7 @@ vi.mock('fs', async () => {
 });
 
 import fs from 'fs';
-import { prepareMaestroSystemPromptCli } from '../../../cli/services/system-prompt';
+import { prepareOpenWizardAISystemPromptCli } from '../../../cli/services/system-prompt';
 import { getCliPrompt } from '../../../cli/services/prompt-loader';
 import { readSettingValue } from '../../../cli/services/storage';
 import { getGitBranch, isGitRepo } from '../../../cli/services/git-utils';
@@ -53,7 +53,7 @@ const mockSession = (overrides: Partial<SessionInfo> = {}): SessionInfo => ({
 	...overrides,
 });
 
-describe('prepareMaestroSystemPromptCli', () => {
+describe('prepareOpenWizardAISystemPromptCli', () => {
 	beforeEach(() => {
 		// Clear call history but keep implementations - explicit per-test
 		// defaults below so behavior is unambiguous.
@@ -75,7 +75,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		);
 		vi.mocked(readSettingValue).mockReturnValue('senior engineer, prefers concise');
 
-		const result = await prepareMaestroSystemPromptCli(mockSession({ name: 'Codex Bot' }));
+		const result = await prepareOpenWizardAISystemPromptCli(mockSession({ name: 'Codex Bot' }));
 
 		expect(result).toContain('You are Codex Bot on branch main.');
 		expect(result).toContain('Conductor: senior engineer, prefers concise');
@@ -83,10 +83,12 @@ describe('prepareMaestroSystemPromptCli', () => {
 
 	it('returns undefined when the prompt template fails to load (non-fatal)', async () => {
 		vi.mocked(getCliPrompt).mockRejectedValue(
-			new Error('Failed to load prompt "maestro-system-prompt" (maestro-system-prompt.md)')
+			new Error(
+				'Failed to load prompt "openwizardai-system-prompt" (openwizardai-system-prompt.md)'
+			)
 		);
 
-		const result = await prepareMaestroSystemPromptCli(mockSession());
+		const result = await prepareOpenWizardAISystemPromptCli(mockSession());
 
 		expect(result).toBeUndefined();
 	});
@@ -97,7 +99,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		// than silently spawning without a system prompt.
 		vi.mocked(getCliPrompt).mockRejectedValue(new TypeError('something is undefined'));
 
-		await expect(prepareMaestroSystemPromptCli(mockSession())).rejects.toThrow(
+		await expect(prepareOpenWizardAISystemPromptCli(mockSession())).rejects.toThrow(
 			/something is undefined/
 		);
 	});
@@ -106,7 +108,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		vi.mocked(getCliPrompt).mockResolvedValue('branch=[{{GIT_BRANCH}}]');
 		vi.mocked(isGitRepo).mockReturnValue(false);
 
-		const result = await prepareMaestroSystemPromptCli(mockSession());
+		const result = await prepareOpenWizardAISystemPromptCli(mockSession());
 
 		expect(getGitBranch).not.toHaveBeenCalled();
 		expect(result).toBe('branch=[]');
@@ -116,7 +118,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		vi.mocked(getCliPrompt).mockResolvedValue('history=[{{AGENT_HISTORY_PATH}}]');
 		// fs.accessSync is already mocked to throw ENOENT in beforeEach
 
-		const result = await prepareMaestroSystemPromptCli(mockSession());
+		const result = await prepareOpenWizardAISystemPromptCli(mockSession());
 
 		expect(result).toBe('history=[]');
 	});
@@ -126,7 +128,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		// Override the throw-by-default beforeEach with a no-op success.
 		vi.mocked(fs.accessSync).mockImplementation(() => undefined);
 
-		const result = await prepareMaestroSystemPromptCli(mockSession({ id: 'sess-1' }));
+		const result = await prepareOpenWizardAISystemPromptCli(mockSession({ id: 'sess-1' }));
 
 		// Sanitized session id forms the filename
 		expect(result).toMatch(/history=\[.*sess-1\.json\]/);
@@ -136,7 +138,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		vi.mocked(getCliPrompt).mockResolvedValue('history=[{{AGENT_HISTORY_PATH}}]');
 		vi.mocked(fs.accessSync).mockImplementation(() => undefined);
 
-		const result = await prepareMaestroSystemPromptCli(
+		const result = await prepareOpenWizardAISystemPromptCli(
 			mockSession({
 				sessionSshRemoteConfig: { enabled: true, remoteId: 'remote1' },
 			})
@@ -150,7 +152,7 @@ describe('prepareMaestroSystemPromptCli', () => {
 		// e.g. a malformed settings file with a non-string value
 		vi.mocked(readSettingValue).mockReturnValue({ accidentallyAnObject: true });
 
-		const result = await prepareMaestroSystemPromptCli(mockSession());
+		const result = await prepareOpenWizardAISystemPromptCli(mockSession());
 
 		expect(result).toBe('cond=[]');
 	});

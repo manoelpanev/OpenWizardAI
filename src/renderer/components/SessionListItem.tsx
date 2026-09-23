@@ -6,7 +6,7 @@
  * - Quick resume button (visible on hover)
  * - Session name with inline rename capability
  * - First message preview
- * - Session origin pill (MAESTRO, AUTO, CLI)
+ * - Session origin pill (OPENWIZARDAI, AUTO, CLI)
  * - Session ID pill
  * - Stats (time, messages, size, cost)
  * - Content search match info (when searching)
@@ -256,9 +256,9 @@ export const SessionListItem = React.memo(function SessionListItem({
 								backgroundColor: theme.colors.accent + '40',
 								color: theme.colors.accentText,
 							}}
-							title="User-initiated through OpenWizzard"
+							title="User-initiated through OpenWizardAI"
 						>
-							OPENWIZZARD
+							OPENWIZARDAI
 						</span>
 					)}
 					{session.origin === 'auto' && (

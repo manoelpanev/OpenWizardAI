@@ -2,7 +2,7 @@
  * @fileoverview Tests for CLI output formatter
  *
  * This file contains comprehensive tests for the human-readable output formatter
- * used by the Maestro CLI. It tests all formatting functions including:
+ * used by the OpenWizardAI CLI. It tests all formatting functions including:
  * - Color and style helpers (c, bold, dim, truncate)
  * - Group formatting (formatGroups)
  * - Agent formatting (formatAgents, formatAgentDetail)

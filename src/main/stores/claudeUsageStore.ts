@@ -2,7 +2,7 @@
  * Claude Usage Snapshot Store
  *
  * Singleton wrapper around an electron-store namespace that caches the latest
- * `maestro-p --status` snapshot per canonical `CLAUDE_CONFIG_DIR` account. The
+ * `openwizardai-p --status` snapshot per canonical `CLAUDE_CONFIG_DIR` account. The
  * mode selector consults these snapshots whenever the per-agent Batch Mode
  * toggle is on to decide whether to fall back from interactive (Time Limits)
  * to API (API Limits) when the Max plan quota is exhausted.

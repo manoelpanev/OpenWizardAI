@@ -563,12 +563,12 @@ describe('FileExplorerPanel', () => {
 	});
 
 	describe('Dotfiles Toggle (#757)', () => {
-		it('keeps .maestro visible when showHiddenFiles is false (other dotfiles still hidden)', () => {
-			// Invariant: `.maestro` is the project's Maestro workspace and must
+		it('keeps .openwizardai visible when showHiddenFiles is false (other dotfiles still hidden)', () => {
+			// Invariant: `.openwizardai` is the project's OpenWizardAI workspace and must
 			// never be hidden by the dotfiles toggle. Other dotfiles (e.g. `.git`)
 			// are still filtered out. See FileExplorerPanel.filterHiddenFiles.
-			const treeWithMaestro = [
-				{ name: '.maestro', type: 'folder' as const, children: [] },
+			const treeWithOpenWizardAI = [
+				{ name: '.openwizardai', type: 'folder' as const, children: [] },
 				{ name: '.git', type: 'folder' as const, children: [] },
 				{ name: 'src', type: 'folder' as const, children: [] },
 			];
@@ -576,27 +576,27 @@ describe('FileExplorerPanel', () => {
 				<FileExplorerPanel
 					{...defaultProps}
 					showHiddenFiles={false}
-					filteredFileTree={treeWithMaestro}
+					filteredFileTree={treeWithOpenWizardAI}
 				/>
 			);
-			expect(screen.getByText('.maestro')).toBeInTheDocument();
+			expect(screen.getByText('.openwizardai')).toBeInTheDocument();
 			expect(screen.queryByText('.git')).not.toBeInTheDocument();
 			expect(screen.getByText('src')).toBeInTheDocument();
 		});
 
-		it('shows .maestro when showHiddenFiles is true', () => {
-			const treeWithMaestro = [
-				{ name: '.maestro', type: 'folder' as const, children: [] },
+		it('shows .openwizardai when showHiddenFiles is true', () => {
+			const treeWithOpenWizardAI = [
+				{ name: '.openwizardai', type: 'folder' as const, children: [] },
 				{ name: 'src', type: 'folder' as const, children: [] },
 			];
 			render(
 				<FileExplorerPanel
 					{...defaultProps}
 					showHiddenFiles={true}
-					filteredFileTree={treeWithMaestro}
+					filteredFileTree={treeWithOpenWizardAI}
 				/>
 			);
-			expect(screen.getByText('.maestro')).toBeInTheDocument();
+			expect(screen.getByText('.openwizardai')).toBeInTheDocument();
 			expect(screen.getByText('src')).toBeInTheDocument();
 		});
 
@@ -2049,7 +2049,7 @@ describe('FileExplorerPanel', () => {
 			const row = getRow(container, 'package.json');
 			const dt = makeDataTransfer();
 			fireEvent.dragStart(row, { dataTransfer: dt });
-			expect(dt.data['application/x-maestro-file-path']).toBe('package.json');
+			expect(dt.data['application/x-openwizardai-file-path']).toBe('package.json');
 			expect(dt.effectAllowed).toBe('copyMove');
 		});
 
@@ -2074,7 +2074,7 @@ describe('FileExplorerPanel', () => {
 
 		it('moves a nested file to the root via the move-to-root receptacle', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 			const onShowFlash = vi.fn();
 
 			const { container, getByText } = render(
@@ -2095,7 +2095,7 @@ describe('FileExplorerPanel', () => {
 			});
 
 			const receptacle = getByText('Drop here to move to root');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'src/index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'src/index.ts' });
 			await act(async () => {
 				fireEvent.drop(receptacle, { dataTransfer: dt });
 				await Promise.resolve();
@@ -2111,7 +2111,7 @@ describe('FileExplorerPanel', () => {
 		});
 
 		// The drag-out gesture (Option/Alt-drag to Finder) is invisible otherwise:
-		// a plain drag only reaches targets inside Maestro, so the hint is the only
+		// a plain drag only reaches targets inside OpenWizardAI, so the hint is the only
 		// thing telling a user the file can leave the app at all.
 		it('shows the drag-out hint while a row drag is active', () => {
 			const { container, queryByText } = renderWithExpanded();
@@ -2220,7 +2220,7 @@ describe('FileExplorerPanel', () => {
 
 		it('moves a nested file to the root by dropping on the path row', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 			const onShowFlash = vi.fn();
 
 			const { container, getByText } = render(
@@ -2241,7 +2241,7 @@ describe('FileExplorerPanel', () => {
 			});
 
 			const pathTarget = getByText('/Users/test/project');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'src/index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'src/index.ts' });
 			await act(async () => {
 				fireEvent.drop(pathTarget, { dataTransfer: dt });
 				await Promise.resolve();
@@ -2258,7 +2258,7 @@ describe('FileExplorerPanel', () => {
 
 		it('moves a root file into a folder via fs.rename with absolute paths', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const refreshFileTree = vi.fn().mockResolvedValue({ totalChanges: 1 });
 			const onShowFlash = vi.fn();
@@ -2273,7 +2273,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'package.json' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'package.json' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2292,7 +2292,7 @@ describe('FileExplorerPanel', () => {
 
 		it('expands the destination folder after a successful move', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 			const setSessions = vi.fn();
 
 			const { container } = render(
@@ -2305,7 +2305,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'package.json' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'package.json' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2326,7 +2326,7 @@ describe('FileExplorerPanel', () => {
 
 		it('passes sshRemoteId through to fs.rename for remote sessions', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const { container } = render(
 				<FileExplorerPanel
@@ -2341,7 +2341,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'README.md' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'README.md' });
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
 				await Promise.resolve();
@@ -2356,11 +2356,11 @@ describe('FileExplorerPanel', () => {
 
 		it('rejects dropping a folder into itself', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const { container } = renderWithExpanded();
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'src' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'src' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2372,11 +2372,11 @@ describe('FileExplorerPanel', () => {
 
 		it('rejects dropping a folder into one of its own descendants', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const { container } = renderWithExpanded();
 			const utilsRow = getRow(container, 'utils');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'src' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'src' });
 
 			await act(async () => {
 				fireEvent.drop(utilsRow, { dataTransfer: dt });
@@ -2388,12 +2388,12 @@ describe('FileExplorerPanel', () => {
 
 		it('skips moves where source already lives directly in the destination folder', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const { container } = renderWithExpanded();
 			const srcRow = getRow(container, 'src');
 			// index.ts is already inside src/, dropping it onto src/ is a no-op.
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'src/index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'src/index.ts' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2405,7 +2405,7 @@ describe('FileExplorerPanel', () => {
 
 		it('opens the name-conflict modal when the destination already has the file', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			// Tree where both root and src/ contain index.ts so a move triggers conflict.
 			const conflictTree = [
@@ -2428,7 +2428,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'index.ts' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2443,7 +2443,7 @@ describe('FileExplorerPanel', () => {
 
 		it('auto-rename move uses the suffixed name', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 			const onShowFlash = vi.fn();
 
 			const conflictTree = [
@@ -2467,7 +2467,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'index.ts' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2494,7 +2494,7 @@ describe('FileExplorerPanel', () => {
 		it('overwrite deletes the existing destination before renaming', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
 			const deleteFn = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename, delete: deleteFn } };
+			(window as any).openwizardai = { fs: { rename, delete: deleteFn } };
 
 			const conflictTree = [
 				{ name: 'index.ts', type: 'file' as const },
@@ -2516,7 +2516,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'index.ts' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2544,7 +2544,7 @@ describe('FileExplorerPanel', () => {
 		it('cancel closes the conflict modal without calling fs', async () => {
 			const rename = vi.fn();
 			const deleteFn = vi.fn();
-			(window as any).maestro = { fs: { rename, delete: deleteFn } };
+			(window as any).openwizardai = { fs: { rename, delete: deleteFn } };
 
 			const conflictTree = [
 				{ name: 'index.ts', type: 'file' as const },
@@ -2566,7 +2566,7 @@ describe('FileExplorerPanel', () => {
 			);
 
 			const srcRow = getRow(container, 'src');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'index.ts' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'index.ts' });
 
 			await act(async () => {
 				fireEvent.drop(srcRow, { dataTransfer: dt });
@@ -2585,10 +2585,10 @@ describe('FileExplorerPanel', () => {
 
 		it('does not register drop handlers on file rows', () => {
 			const rename = vi.fn();
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 			const { container } = renderWithExpanded();
 			const fileRow = getRow(container, 'package.json');
-			const dt = makeDataTransfer({ 'application/x-maestro-file-path': 'README.md' });
+			const dt = makeDataTransfer({ 'application/x-openwizardai-file-path': 'README.md' });
 			fireEvent.drop(fileRow, { dataTransfer: dt });
 			expect(rename).not.toHaveBeenCalled();
 		});
@@ -2598,8 +2598,8 @@ describe('FileExplorerPanel', () => {
 			const row = getRow(container, 'package.json');
 			const dt = makeDataTransfer();
 			fireEvent.dragStart(row, { dataTransfer: dt });
-			expect(dt.data['application/x-maestro-file-path']).toBe('package.json');
-			expect(dt.data['application/x-maestro-file-paths']).toBeUndefined();
+			expect(dt.data['application/x-openwizardai-file-path']).toBe('package.json');
+			expect(dt.data['application/x-openwizardai-file-paths']).toBeUndefined();
 		});
 
 		it('drags all selected paths when the dragged row is in the multi-selection', () => {
@@ -2630,8 +2630,8 @@ describe('FileExplorerPanel', () => {
 			const dt = makeDataTransfer();
 			fireEvent.dragStart(readmeRow, { dataTransfer: dt });
 
-			expect(dt.data['application/x-maestro-file-path']).toBe('README.md');
-			const multi = JSON.parse(dt.data['application/x-maestro-file-paths']);
+			expect(dt.data['application/x-openwizardai-file-path']).toBe('README.md');
+			const multi = JSON.parse(dt.data['application/x-openwizardai-file-paths']);
 			expect(multi).toEqual(expect.arrayContaining(['package.json', 'README.md']));
 			expect(multi).toHaveLength(2);
 		});
@@ -2662,13 +2662,13 @@ describe('FileExplorerPanel', () => {
 			// Drag an unselected row - should not pull in the multi-selection.
 			const dt = makeDataTransfer();
 			fireEvent.dragStart(htmlRow, { dataTransfer: dt });
-			expect(dt.data['application/x-maestro-file-path']).toBe('index.html');
-			expect(dt.data['application/x-maestro-file-paths']).toBeUndefined();
+			expect(dt.data['application/x-openwizardai-file-path']).toBe('index.html');
+			expect(dt.data['application/x-openwizardai-file-paths']).toBeUndefined();
 		});
 
 		it('moves every path in a multi-source drop', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const { container } = render(
 				<FileExplorerPanel
@@ -2680,8 +2680,8 @@ describe('FileExplorerPanel', () => {
 
 			const srcRow = getRow(container, 'src');
 			const dt = makeDataTransfer({
-				'application/x-maestro-file-paths': JSON.stringify(['package.json', 'README.md']),
-				'application/x-maestro-file-path': 'package.json',
+				'application/x-openwizardai-file-paths': JSON.stringify(['package.json', 'README.md']),
+				'application/x-openwizardai-file-path': 'package.json',
 			});
 
 			await act(async () => {
@@ -2705,7 +2705,7 @@ describe('FileExplorerPanel', () => {
 
 		it('multi-source drop opens the batched conflict modal when some destinations exist', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			// Tree where src/ already contains README.md so dropping [package.json,
 			// README.md] onto src/ conflicts on README.md only.
@@ -2728,8 +2728,8 @@ describe('FileExplorerPanel', () => {
 
 			const srcRow = getRow(container, 'src');
 			const dt = makeDataTransfer({
-				'application/x-maestro-file-paths': JSON.stringify(['package.json', 'README.md']),
-				'application/x-maestro-file-path': 'package.json',
+				'application/x-openwizardai-file-paths': JSON.stringify(['package.json', 'README.md']),
+				'application/x-openwizardai-file-path': 'package.json',
 			});
 
 			await act(async () => {
@@ -2746,7 +2746,7 @@ describe('FileExplorerPanel', () => {
 
 		it('batched auto-rename moves both conflicting and non-conflicting items', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { rename } };
+			(window as any).openwizardai = { fs: { rename } };
 
 			const tree = [
 				{
@@ -2767,8 +2767,8 @@ describe('FileExplorerPanel', () => {
 
 			const srcRow = getRow(container, 'src');
 			const dt = makeDataTransfer({
-				'application/x-maestro-file-paths': JSON.stringify(['package.json', 'README.md']),
-				'application/x-maestro-file-path': 'package.json',
+				'application/x-openwizardai-file-paths': JSON.stringify(['package.json', 'README.md']),
+				'application/x-openwizardai-file-path': 'package.json',
 			});
 
 			await act(async () => {
@@ -2800,7 +2800,7 @@ describe('FileExplorerPanel', () => {
 		it('batched skip-conflicts moves only the non-conflicting items', async () => {
 			const rename = vi.fn().mockResolvedValue({ success: true });
 			const deleteFn = vi.fn();
-			(window as any).maestro = { fs: { rename, delete: deleteFn } };
+			(window as any).openwizardai = { fs: { rename, delete: deleteFn } };
 
 			const tree = [
 				{
@@ -2821,8 +2821,8 @@ describe('FileExplorerPanel', () => {
 
 			const srcRow = getRow(container, 'src');
 			const dt = makeDataTransfer({
-				'application/x-maestro-file-paths': JSON.stringify(['package.json', 'README.md']),
-				'application/x-maestro-file-path': 'package.json',
+				'application/x-openwizardai-file-paths': JSON.stringify(['package.json', 'README.md']),
+				'application/x-openwizardai-file-path': 'package.json',
 			});
 
 			await act(async () => {
@@ -2903,7 +2903,7 @@ describe('FileExplorerPanel', () => {
 				};
 			})();
 			fireEvent.dragStart(htmlRow, { dataTransfer: dt });
-			const multi = JSON.parse(dt.data['application/x-maestro-file-paths']);
+			const multi = JSON.parse(dt.data['application/x-openwizardai-file-paths']);
 			// Selection should include the rows from index 0..3 (src, package.json,
 			// README.md, index.html) - the actual order isn't significant, only the
 			// set membership.
@@ -2961,7 +2961,7 @@ describe('FileExplorerPanel', () => {
 				};
 			})();
 			fireEvent.dragStart(pkgRow, { dataTransfer: dt });
-			const multi = JSON.parse(dt.data['application/x-maestro-file-paths']);
+			const multi = JSON.parse(dt.data['application/x-openwizardai-file-paths']);
 			expect(multi).toEqual(
 				expect.arrayContaining(['src', 'src/index.ts', 'src/utils', 'package.json'])
 			);
@@ -3016,7 +3016,7 @@ describe('FileExplorerPanel', () => {
 				};
 			})();
 			fireEvent.dragStart(pkgRow, { dataTransfer: dt });
-			expect(dt.data['application/x-maestro-file-paths']).toBeUndefined();
+			expect(dt.data['application/x-openwizardai-file-paths']).toBeUndefined();
 		});
 	});
 
@@ -3188,7 +3188,7 @@ describe('FileExplorerPanel', () => {
 			const mockFs = {
 				countItems: vi.fn().mockResolvedValue({ fileCount: 0, folderCount: 0 }),
 			};
-			(window as any).maestro = { platform: 'darwin', fs: mockFs };
+			(window as any).openwizardai = { platform: 'darwin', fs: mockFs };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const fileItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3250,7 +3250,7 @@ describe('FileExplorerPanel', () => {
 		// holds no folder, so its New File has to create in the workspace root.
 		it('creates a new file next to the right-clicked top-level file', async () => {
 			const writeFile = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { writeFile } };
+			(window as any).openwizardai = { fs: { writeFile } };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const fileItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3323,7 +3323,7 @@ describe('FileExplorerPanel', () => {
 
 		it('creates a new file inside the right-clicked folder', async () => {
 			const writeFile = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { writeFile } };
+			(window as any).openwizardai = { fs: { writeFile } };
 			const refreshFileTree = vi.fn().mockResolvedValue({ totalChanges: 1 });
 			const onShowFlash = vi.fn();
 
@@ -3356,7 +3356,7 @@ describe('FileExplorerPanel', () => {
 
 		it('expands the parent folder after creating a new file in it', async () => {
 			const writeFile = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { writeFile } };
+			(window as any).openwizardai = { fs: { writeFile } };
 			const setSessions = vi.fn();
 
 			const { container } = render(
@@ -3394,7 +3394,7 @@ describe('FileExplorerPanel', () => {
 
 		it('rejects new file name with slashes', async () => {
 			const writeFile = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { writeFile } };
+			(window as any).openwizardai = { fs: { writeFile } };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const folderItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3417,7 +3417,7 @@ describe('FileExplorerPanel', () => {
 
 		it('rejects new file name that already exists in the folder', async () => {
 			const writeFile = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { writeFile } };
+			(window as any).openwizardai = { fs: { writeFile } };
 
 			// session.fileTree is the source of truth for the duplicate check, not
 			// filteredFileTree - pass it in explicitly so src/index.ts is known.
@@ -3447,7 +3447,7 @@ describe('FileExplorerPanel', () => {
 
 		it('passes sshRemoteId to writeFile for remote sessions', async () => {
 			const writeFile = vi.fn().mockResolvedValue({ success: true });
-			(window as any).maestro = { fs: { writeFile } };
+			(window as any).openwizardai = { fs: { writeFile } };
 
 			const { container } = render(
 				<FileExplorerPanel
@@ -3495,7 +3495,7 @@ describe('FileExplorerPanel', () => {
 
 		it('calls shell.showItemInFolder with full path when Reveal in Finder is clicked', () => {
 			const mockShell = { showItemInFolder: vi.fn().mockResolvedValue(undefined) };
-			(window as any).maestro = { platform: 'darwin', shell: mockShell };
+			(window as any).openwizardai = { platform: 'darwin', shell: mockShell };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const fileItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3511,7 +3511,7 @@ describe('FileExplorerPanel', () => {
 
 		it('calls shell.showItemInFolder with folder path when Reveal in Finder is clicked on folder', () => {
 			const mockShell = { showItemInFolder: vi.fn().mockResolvedValue(undefined) };
-			(window as any).maestro = { platform: 'darwin', shell: mockShell };
+			(window as any).openwizardai = { platform: 'darwin', shell: mockShell };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const folderItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3527,7 +3527,7 @@ describe('FileExplorerPanel', () => {
 
 		it('calls shell.openPath with full file path when Open in Default App is clicked', () => {
 			const mockShell = { openPath: vi.fn().mockResolvedValue(undefined) };
-			(window as any).maestro = { platform: 'darwin', shell: mockShell };
+			(window as any).openwizardai = { platform: 'darwin', shell: mockShell };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const fileItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3541,7 +3541,7 @@ describe('FileExplorerPanel', () => {
 			expect(mockShell.openPath).toHaveBeenCalledWith('/Users/test/project/package.json');
 		});
 
-		it('shows Open in OpenWizzard Browser option for HTML files when onOpenBrowserTabAt is provided', () => {
+		it('shows Open in OpenWizardAI Browser option for HTML files when onOpenBrowserTabAt is provided', () => {
 			const onOpenBrowserTabAt = vi.fn();
 			const { container } = render(
 				<FileExplorerPanel {...defaultProps} onOpenBrowserTabAt={onOpenBrowserTabAt} />
@@ -3551,10 +3551,10 @@ describe('FileExplorerPanel', () => {
 			);
 			fireEvent.contextMenu(fileItem!, { clientX: 100, clientY: 200 });
 
-			expect(screen.getByText('Open in OpenWizzard Browser')).toBeInTheDocument();
+			expect(screen.getByText('Open in OpenWizardAI Browser')).toBeInTheDocument();
 		});
 
-		it('does not show Open in OpenWizzard Browser option for non-HTML files', () => {
+		it('does not show Open in OpenWizardAI Browser option for non-HTML files', () => {
 			const onOpenBrowserTabAt = vi.fn();
 			const { container } = render(
 				<FileExplorerPanel {...defaultProps} onOpenBrowserTabAt={onOpenBrowserTabAt} />
@@ -3564,20 +3564,20 @@ describe('FileExplorerPanel', () => {
 			);
 			fireEvent.contextMenu(fileItem!, { clientX: 100, clientY: 200 });
 
-			expect(screen.queryByText('Open in OpenWizzard Browser')).not.toBeInTheDocument();
+			expect(screen.queryByText('Open in OpenWizardAI Browser')).not.toBeInTheDocument();
 		});
 
-		it('does not show Open in OpenWizzard Browser option when handler is missing', () => {
+		it('does not show Open in OpenWizardAI Browser option when handler is missing', () => {
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const fileItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
 				el.textContent?.includes('index.html')
 			);
 			fireEvent.contextMenu(fileItem!, { clientX: 100, clientY: 200 });
 
-			expect(screen.queryByText('Open in OpenWizzard Browser')).not.toBeInTheDocument();
+			expect(screen.queryByText('Open in OpenWizardAI Browser')).not.toBeInTheDocument();
 		});
 
-		it('calls onOpenBrowserTabAt with a file:// URL when Open in OpenWizzard Browser is clicked', () => {
+		it('calls onOpenBrowserTabAt with a file:// URL when Open in OpenWizardAI Browser is clicked', () => {
 			const onOpenBrowserTabAt = vi.fn();
 			const { container } = render(
 				<FileExplorerPanel {...defaultProps} onOpenBrowserTabAt={onOpenBrowserTabAt} />
@@ -3587,14 +3587,14 @@ describe('FileExplorerPanel', () => {
 			);
 			fireEvent.contextMenu(fileItem!, { clientX: 100, clientY: 200 });
 
-			fireEvent.click(screen.getByText('Open in OpenWizzard Browser'));
+			fireEvent.click(screen.getByText('Open in OpenWizardAI Browser'));
 
 			expect(onOpenBrowserTabAt).toHaveBeenCalledWith('file:///Users/test/project/index.html', {
 				title: 'index.html',
 			});
 		});
 
-		it('does not show Open in OpenWizzard Browser option for SSH sessions', () => {
+		it('does not show Open in OpenWizardAI Browser option for SSH sessions', () => {
 			const sshSession = createMockSession({
 				sshRemoteId: 'ssh-remote-123',
 			});
@@ -3611,7 +3611,7 @@ describe('FileExplorerPanel', () => {
 			);
 			fireEvent.contextMenu(fileItem!, { clientX: 100, clientY: 200 });
 
-			expect(screen.queryByText('Open in OpenWizzard Browser')).not.toBeInTheDocument();
+			expect(screen.queryByText('Open in OpenWizardAI Browser')).not.toBeInTheDocument();
 		});
 
 		it('does not show Open in Default App option for SSH sessions', () => {
@@ -3671,7 +3671,7 @@ describe('FileExplorerPanel', () => {
 			const mockFs = {
 				countItems: vi.fn().mockResolvedValue({ fileCount: 5, folderCount: 2 }),
 			};
-			(window as any).maestro = { platform: 'darwin', fs: mockFs };
+			(window as any).openwizardai = { platform: 'darwin', fs: mockFs };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const folderItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>
@@ -3694,7 +3694,7 @@ describe('FileExplorerPanel', () => {
 			const mockFs = {
 				countItems: vi.fn().mockResolvedValue({ fileCount: 0, folderCount: 0 }),
 			};
-			(window as any).maestro = { platform: 'darwin', fs: mockFs };
+			(window as any).openwizardai = { platform: 'darwin', fs: mockFs };
 
 			const { container } = render(<FileExplorerPanel {...defaultProps} />);
 			const fileItem = Array.from(container.querySelectorAll('[data-file-index]')).find((el) =>

@@ -53,7 +53,7 @@ describe('handleAutoRunRefresh', () => {
 				['Phase 2', { completed: 0, total: 2 }],
 			])
 		);
-		vi.mocked(window.maestro.autorun.readDoc).mockImplementation(
+		vi.mocked(window.openwizardai.autorun.readDoc).mockImplementation(
 			async (_folder: string, file: string) => ({
 				success: true,
 				content: DOC_CONTENT[file] ?? '',
@@ -62,7 +62,7 @@ describe('handleAutoRunRefresh', () => {
 	});
 
 	it('re-reads the task counts from disk so edited documents show fresh counts', async () => {
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: true,
 			files: ['Phase 1', 'Phase 2'],
 			tree: [],
@@ -75,7 +75,7 @@ describe('handleAutoRunRefresh', () => {
 		});
 
 		expect(deps.setAutoRunDocumentList).toHaveBeenCalledWith(['Phase 1', 'Phase 2']);
-		expect(window.maestro.autorun.readDoc).toHaveBeenCalledWith(
+		expect(window.openwizardai.autorun.readDoc).toHaveBeenCalledWith(
 			'/projects/autorun-docs',
 			'Phase 1.md',
 			undefined
@@ -87,7 +87,7 @@ describe('handleAutoRunRefresh', () => {
 	});
 
 	it('keeps the cached task counts when listing the folder fails', async () => {
-		vi.mocked(window.maestro.autorun.listDocs).mockResolvedValueOnce({
+		vi.mocked(window.openwizardai.autorun.listDocs).mockResolvedValueOnce({
 			success: false,
 			error: 'boom',
 		});
@@ -99,7 +99,7 @@ describe('handleAutoRunRefresh', () => {
 		});
 
 		expect(deps.setAutoRunDocumentList).not.toHaveBeenCalled();
-		expect(window.maestro.autorun.readDoc).not.toHaveBeenCalled();
+		expect(window.openwizardai.autorun.readDoc).not.toHaveBeenCalled();
 		expect(useBatchStore.getState().documentTaskCounts.get('Phase 1')).toEqual({
 			completed: 1,
 			total: 4,
@@ -109,7 +109,7 @@ describe('handleAutoRunRefresh', () => {
 	it('leaves the loading flag to the newer refresh when an older one settles late', async () => {
 		type ListResult = { success: boolean; files: string[]; tree: never[] };
 		const resolvers: Array<(value: ListResult) => void> = [];
-		vi.mocked(window.maestro.autorun.listDocs).mockImplementation(
+		vi.mocked(window.openwizardai.autorun.listDocs).mockImplementation(
 			() =>
 				new Promise<ListResult>((resolve) => {
 					resolvers.push(resolve);
@@ -146,7 +146,7 @@ describe('handleAutoRunRefresh', () => {
 			files: string[];
 			tree: never[];
 		}) => void = () => {};
-		vi.mocked(window.maestro.autorun.listDocs).mockReturnValueOnce(
+		vi.mocked(window.openwizardai.autorun.listDocs).mockReturnValueOnce(
 			new Promise((resolve) => {
 				resolveList = resolve;
 			})
@@ -166,7 +166,7 @@ describe('handleAutoRunRefresh', () => {
 		});
 
 		expect(deps.setAutoRunDocumentList).not.toHaveBeenCalled();
-		expect(window.maestro.autorun.readDoc).not.toHaveBeenCalled();
+		expect(window.openwizardai.autorun.readDoc).not.toHaveBeenCalled();
 		expect(useBatchStore.getState().documentTaskCounts.get('Phase 1')).toEqual({
 			completed: 1,
 			total: 4,

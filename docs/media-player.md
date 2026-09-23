@@ -4,15 +4,15 @@ description: Play audio and video files in a floating player you can drag anywhe
 icon: music
 ---
 
-Open an audio or video file and Maestro plays it in a small floating player. It does not open a tab, and it does not take over the main window. The player floats above whatever you are working on and follows you across tabs and agents, so a podcast keeps playing while you keep working.
+Open an audio or video file and OpenWizardAI plays it in a small floating player. It does not open a tab, and it does not take over the main window. The player floats above whatever you are working on and follows you across tabs and agents, so a podcast keeps playing while you keep working.
 
-![The Maestro media player, floating over an agent with its Recently Played menu open](/screenshots/media-player.png)
+![The OpenWizardAI media player, floating over an agent with its Recently Played menu open](/screenshots/media-player.png)
 
 ## Opening a file
 
 Double-click any supported audio or video file - in the Files pane, from a link in a chat transcript, or through Fuzzy File Search. The player appears in the bottom-right corner and starts playing.
 
-This holds for a file anywhere on disk, not just inside the project. A media path an agent mentions is a link, and clicking it plays the file in Maestro rather than handing it to your system's default player.
+This holds for a file anywhere on disk, not just inside the project. A media path an agent mentions is a link, and clicking it plays the file in OpenWizardAI rather than handing it to your system's default player.
 
 Audio opens as a slim control strip, since there is nothing to look at. Video opens as a proper frame, sized to that file's own aspect ratio - a 4:3 screen recording and a vertical phone clip each get a box that fits them, so nothing ever plays inside black bars.
 
@@ -89,7 +89,7 @@ The title bar has two lists, and each button only appears when its list has some
 - Click any row to jump to it, the `x` on a row to drop it, or **Clear** to empty what is queued. Clear does not stop the music - it drops what is lined up behind it. Use the `x` in the title bar to stop playback.
 - Every row shows how long the file runs. If you are part way through one, a second, dimmer time underneath shows how much is left (`-3:26`).
 - Each file remembers where you paused it, so jumping away and coming back resumes rather than restarting.
-- **The queue is saved across restarts.** Reopen Maestro and a half-listened playlist is still there, paused, with your positions and times intact. Nothing starts playing on its own at launch.
+- **The queue is saved across restarts.** Reopen OpenWizardAI and a half-listened playlist is still there, paused, with your positions and times intact. Nothing starts playing on its own at launch.
 
 **Recently played** (the clock icon) lists what you have already played, newest first, with the same times on each row. The track in the player is **not** in it - it is named in the title bar, and it joins the list the moment it leaves: the next track starts, or you close the player. Click any entry to jump straight to it - that is how you get back to something that is neither adjacent in the queue nor currently loaded. An entry works even after you drop the file from the queue; picking it puts the file back.
 
@@ -101,7 +101,7 @@ Closing the file that is currently playing stops playback - closing is stop, not
 
 The two buttons in the title bar do genuinely different things.
 
-**Minimize** (the `-` button) parks the player in the Left Bar header, next to the Maestro logo. **Playback continues** - minimizing is not stopping. The pill that appears there becomes the player's transport:
+**Minimize** (the `-` button) parks the player in the Left Bar header, next to the OpenWizardAI logo. **Playback continues** - minimizing is not stopping. The pill that appears there becomes the player's transport:
 
 - While something is playing it shows a **pause** button. Click it and the audio pauses.
 - Paused, it shows a **play** button. Click it and the audio resumes.

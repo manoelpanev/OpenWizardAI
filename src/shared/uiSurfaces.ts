@@ -1,8 +1,8 @@
 /**
- * Registry of Maestro's openable UI surfaces (modals and dashboards).
+ * Registry of OpenWizardAI's openable UI surfaces (modals and dashboards).
  *
  * One list, three consumers:
- *   - `maestro-cli open <surface> [--tab <tab>]` validates its argument here
+ *   - `openwizardai-cli open <surface> [--tab <tab>]` validates its argument here
  *     and prints the "you can also reach it by ..." hint from the same entry.
  *   - The main process validates the `open_modal` bridge message against it.
  *   - The renderer maps a surface id to a `ModalId` + optional tab payload.
@@ -22,7 +22,7 @@ export interface UiSurfaceTab {
 }
 
 /** Encore Feature flag that must be on for a surface to exist. */
-export type UiSurfaceEncoreFlag = 'directorNotes' | 'usageStats' | 'maestroCue';
+export type UiSurfaceEncoreFlag = 'directorNotes' | 'usageStats' | 'openwizardaiCue';
 
 export interface UiSurface {
 	/** CLI name (kebab-case), and the wire value on the `open_modal` message. */
@@ -59,28 +59,28 @@ export const CUE_MODAL_TABS: UiSurfaceTab[] = [
 export const UI_SURFACES: UiSurface[] = [
 	{
 		id: 'cue',
-		label: 'OpenWizzard Cue',
-		aliases: ['maestro-cue', 'cue-modal'],
+		label: 'OpenWizardAI Cue',
+		aliases: ['openwizardai-cue', 'cue-modal'],
 		modal: 'cueModal',
 		description: 'Event-driven automation: pipelines, scheduled tasks, run history.',
 		tabs: CUE_MODAL_TABS,
 		shortcutId: 'openCue',
-		commandPalette: 'OpenWizzard Cue',
+		commandPalette: 'OpenWizardAI Cue',
 		click: 'the lightning-bolt icon in the Left Bar footer',
-		encore: 'maestroCue',
+		encore: 'openwizardaiCue',
 	},
 	{
 		id: 'settings',
 		label: 'Settings',
 		modal: 'settings',
-		description: 'Application settings, themes, shortcuts, and OpenWizzard Prompts.',
+		description: 'Application settings, themes, shortcuts, and OpenWizardAI Prompts.',
 		tabs: [
 			{ id: 'general', label: 'General' },
 			{ id: 'shortcuts', label: 'Shortcuts' },
 			{ id: 'theme', label: 'Theme' },
 			{ id: 'notifications', label: 'Notifications' },
 			{ id: 'aicommands', label: 'AI Commands' },
-			{ id: 'prompts', label: 'OpenWizzard Prompts' },
+			{ id: 'prompts', label: 'OpenWizardAI Prompts' },
 		],
 		shortcutId: 'settings',
 		commandPalette: 'Settings',
@@ -184,7 +184,7 @@ export const UI_SURFACES: UiSurface[] = [
 		label: 'Process Monitor',
 		aliases: ['processes'],
 		modal: 'processMonitor',
-		description: 'Live view of every process OpenWizzard has spawned.',
+		description: 'Live view of every process OpenWizardAI has spawned.',
 		shortcutId: 'processMonitor',
 		commandPalette: 'Process Monitor',
 	},
@@ -193,7 +193,7 @@ export const UI_SURFACES: UiSurface[] = [
 		label: 'System Log Viewer',
 		aliases: ['log-viewer', 'system-logs'],
 		modal: 'logViewer',
-		description: "OpenWizzard's own application logs.",
+		description: "OpenWizardAI's own application logs.",
 		shortcutId: 'systemLogs',
 		commandPalette: 'System Logs',
 	},
@@ -215,11 +215,11 @@ export const UI_SURFACES: UiSurface[] = [
 	},
 	{
 		id: 'about',
-		label: 'About OpenWizzard',
+		label: 'About OpenWizardAI',
 		modal: 'about',
 		description: 'Version, build info, and lifetime stats.',
 		commandPalette: 'About',
-		click: 'the OpenWizzard menu → About OpenWizzard',
+		click: 'the OpenWizardAI menu → About OpenWizardAI',
 	},
 ];
 

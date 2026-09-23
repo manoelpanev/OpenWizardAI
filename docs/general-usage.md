@@ -1,12 +1,12 @@
 ---
 title: General Usage
-description: Learn the Maestro UI layout, agent status indicators, file explorer, and output filtering.
+description: Learn the OpenWizardAI UI layout, agent status indicators, file explorer, and output filtering.
 icon: grid-2
 ---
 
 ## UI Overview
 
-Maestro features a three-panel layout:
+OpenWizardAI features a three-panel layout:
 
 - **Left Panel** - Agent list with grouping, filtering, search, bookmarks, and drag-and-drop organization
 - **Main Panel** - Center workspace with two modes per agent:
@@ -190,11 +190,11 @@ preserved, so a 2x podcast still sounds like a person.
 | `F`                    | Fullscreen (video only)        |
 
 You can also set the speed outside the app with
-`maestro-cli settings set mediaPlaybackRate 1.5`.
+`openwizardai-cli settings set mediaPlaybackRate 1.5`.
 
 ### Compressing a Folder
 
-Right-click any folder in the Files tab and choose **Compress**. Maestro zips the
+Right-click any folder in the Files tab and choose **Compress**. OpenWizardAI zips the
 folder into a `.zip` that lands beside it in the parent directory, named after
 the folder itself. Unzipping gives you back the folder, not its loose contents
 sprayed into the current directory.
@@ -205,7 +205,7 @@ archive you made the first time. A toast tells you the name of the file that was
 actually written, and the file tree refreshes so you can see it right away.
 
 This works on remote agents too. The remote host needs the `zip` command
-installed; without it, Maestro says so rather than failing quietly.
+installed; without it, OpenWizardAI says so rather than failing quietly.
 
 ### File Icon Themes
 
@@ -215,7 +215,7 @@ The Files pane draws each file and folder with one of two icon sets, chosen in
 - **Rich** (the default) uses Material Icon Theme style SVGs: colorful,
   language-specific icons for 70+ file types plus folder categories such as
   tests, docs, assets, and config.
-- **Flat** uses Maestro's simpler monochrome icons, which read as less busy on a
+- **Flat** uses OpenWizardAI's simpler monochrome icons, which read as less busy on a
   large tree.
 
 The choice applies to every agent's Files pane and takes effect right away.
@@ -264,7 +264,7 @@ Where you drop decides what happens:
 Importing into the tree copies from your local machine, so it is not available for agents running on an SSH remote. Attaching files to the chat still works on remotes.
 </Note>
 
-### Drag Files Out of Maestro
+### Drag Files Out of OpenWizardAI
 
 Hold **Option** (**Alt** on Windows and Linux) while dragging a row out of the **Files tab** to hand the real file to anything that accepts a file drop: your Desktop, Finder or Explorer, a Mail or iMessage message, a browser upload field.
 
@@ -274,7 +274,7 @@ Hold **Option** (**Alt** on Windows and Linux) while dragging a row out of the *
 
 A hint appears at the bottom of the panel as soon as you start dragging, to remind you which key to hold.
 
-Hold the key **before** you begin the drag. A plain drag is reserved for Maestro's own targets, so the app has to decide which kind of drag it is the moment you start one, and pressing Option partway through has no effect. If that happens the hint tells you so: drop the file, then drag again with the key already held.
+Hold the key **before** you begin the drag. A plain drag is reserved for OpenWizardAI's own targets, so the app has to decide which kind of drag it is the moment you start one, and pressing Option partway through has no effect. If that happens the hint tells you so: drop the file, then drag again with the key already held.
 
 Where a plain drag lands still decides what happens inside the app:
 
@@ -285,7 +285,7 @@ Where a plain drag lands still decides what happens inside the app:
 | **Option-drag** anywhere outside   | Copies the real file out to the app or folder you drop on     |
 
 <Note>
-For agents running on an SSH remote, drag-out covers files but not folders, and the first Option-drag of a file downloads it before it can leave the app. Maestro flashes "drag again" when the file is ready, and the second drag carries it. This is deliberate, so a half-downloaded file is never handed to another app.
+For agents running on an SSH remote, drag-out covers files but not folders, and the first Option-drag of a file downloads it before it can leave the app. OpenWizardAI flashes "drag again" when the file is ready, and the second drag carries it. This is deliberate, so a half-downloaded file is never handed to another app.
 </Note>
 
 ### Publish as GitHub Gist
@@ -399,7 +399,7 @@ Press `!` a second time, on an empty command line, and the composer climbs one m
 delete every node_modules folder under this project
 ```
 
-Press `Enter` and Maestro asks **this tab's own model**, at the model and effort the tab is set to, for a single command line. Nothing runs yet. The answer appears as a card above the composer showing the command it proposes, with **Run** and **Cancel**:
+Press `Enter` and OpenWizardAI asks **this tab's own model**, at the model and effort the tab is set to, for a single command line. Nothing runs yet. The answer appears as a card above the composer showing the command it proposes, with **Run** and **Cancel**:
 
 | Key       | Does                                                         |
 | --------- | ------------------------------------------------------------ |
@@ -420,7 +420,7 @@ That request travels with the command. When you ask for a follow-up, the model s
 - **The model only names the command; it never runs anything.** The request is answered with tools disabled and in read-only mode, so a task-shaped request ("clean up the build output") comes back as a command to look at rather than as work already done.
 - **It is the tab's own provider**, billed and configured like any other turn on that tab. The mode strip shows the model and effort it will use.
 - **The agent's conversation is untouched.** The request and the suggestion never enter the agent's context, the same as any other command-mode activity.
-- **The prompt is yours to change.** It is a core prompt (`ai-command`), editable under **Settings → Maestro Prompts → Commands**, like every other Maestro prompt. See [Prompt Customization](/prompt-customization).
+- **The prompt is yours to change.** It is a core prompt (`ai-command`), editable under **Settings → OpenWizardAI Prompts → Commands**, like every other OpenWizardAI prompt. See [Prompt Customization](/prompt-customization).
 
 There is no rung above AI Command Mode, so a `!` typed here is an ordinary character - your request is prose, and prose contains bangs.
 
@@ -553,9 +553,9 @@ With a single image staged the button is hidden, since there is nothing to compa
 
 ### Referring to an image by number
 
-Drag a thumbnail from the strip into the conversation and Maestro types its reference into your message for you, as `Screenshot 1`, `Screenshot 2`, and so on. Drop it anywhere in the chat area, not just on the input box itself.
+Drag a thumbnail from the strip into the conversation and OpenWizardAI types its reference into your message for you, as `Screenshot 1`, `Screenshot 2`, and so on. Drop it anywhere in the chat area, not just on the input box itself.
 
-**References follow the pictures.** If you write `Screenshot 1` and then reorder the strip so that image becomes the third one, Maestro rewrites the reference in your draft to `Screenshot 3`. Swapping two images swaps both references rather than collapsing them onto one number, and numbers you typed for images that did not move are left alone.
+**References follow the pictures.** If you write `Screenshot 1` and then reorder the strip so that image becomes the third one, OpenWizardAI rewrites the reference in your draft to `Screenshot 3`. Swapping two images swaps both references rather than collapsing them onto one number, and numbers you typed for images that did not move are left alone.
 
 <Note>
 Reordering rewrites references in the message you are currently composing. Messages you have already sent are unchanged, since the agent has already seen those images in the order they were sent.
@@ -650,7 +650,7 @@ Results are grouped by tab, each row showing who said it, when, a preview of the
 hit with the match highlighted, and a pill when that message contains several
 matches. The tab you're currently on is labeled "current".
 
-Pick a result with `Enter` or a click and Maestro:
+Pick a result with `Enter` or a click and OpenWizardAI:
 
 1. Switches to that tab
 2. Scrolls to the message and flashes it so you can see where you landed
@@ -680,7 +680,7 @@ Each agent has a Command Terminal alongside its AI Terminal - a real PTY shell s
 
 ### Startup Command
 
-Configure a command to run automatically every time a terminal tab's shell is started - including after you quit and reopen Maestro. This is the simplest way to keep something like `npm run dev`, a watcher, or a long-running log tail attached to a specific tab.
+Configure a command to run automatically every time a terminal tab's shell is started - including after you quit and reopen OpenWizardAI. This is the simplest way to keep something like `npm run dev`, a watcher, or a long-running log tail attached to a specific tab.
 
 **To configure:**
 
@@ -691,7 +691,7 @@ Configure a command to run automatically every time a terminal tab's shell is st
 
 **Behavior:**
 
-- The command runs each time the PTY for that tab is spawned. The most common trigger is launching Maestro after a quit - any open terminal tab is restored, its shell respawned, and the configured command executes.
+- The command runs each time the PTY for that tab is spawned. The most common trigger is launching OpenWizardAI after a quit - any open terminal tab is restored, its shell respawned, and the configured command executes.
 - Configuring a command on an already-running shell does **not** retroactively run it. The next spawn (app restart, or close-and-reopen the tab) picks it up.
 - The configured working directory becomes the shell's spawn directory, so the command starts in the right place even if the tab's last `cd` was somewhere else.
 - Leave the command field empty and save to disable the feature for that tab.
@@ -701,7 +701,7 @@ Configure a command to run automatically every time a terminal tab's shell is st
 
 ## Agent Management
 
-Agents are the core of Maestro - each agent represents an AI coding assistant running in its own workspace.
+Agents are the core of OpenWizardAI - each agent represents an AI coding assistant running in its own workspace.
 
 ### Creating Agents
 
@@ -728,7 +728,7 @@ Right-click any agent in the left panel and select **Edit Agent...** to modify i
 
 ### Deleting Agents
 
-Right-click an agent and select **Remove Agent** to delete it. This removes the agent from Maestro but does not delete any files or AI session data.
+Right-click an agent and select **Remove Agent** to delete it. This removes the agent from OpenWizardAI but does not delete any files or AI session data.
 
 ### Agent Configuration via Quick Actions
 
@@ -791,13 +791,13 @@ Right-click any agent for quick actions. The menu is headed by the name of the a
 - **Edit Agent...** - Open configuration modal
 - **Add/Remove Bookmark** - Toggle bookmark status
 - **Move to Group** - Organize into groups
-- **Move to Window** - Send the agent to another Maestro window
+- **Move to Window** - Send the agent to another OpenWizardAI window
 - **View Git Log / View Git Diff / Git Pull / Git Push / Change Branch / Create Pull Request** - the full [git menu](#git-actions), for git repositories only
 - **Create Worktree** - Create a git worktree sub-agent (if configured)
 - **Configure Worktrees** - Set up worktree configuration
-- **Configure Maestro Cue** - Set up event-driven automation for this agent
+- **Configure OpenWizardAI Cue** - Set up event-driven automation for this agent
 - **Copy Agent GUID to Clipboard** - Copy the agent's unique identifier
-- **Remove Agent** - Delete the agent from Maestro
+- **Remove Agent** - Delete the agent from OpenWizardAI
 
 The git actions here act on the agent you right-clicked, so you can pull or inspect the log of a background agent without switching to it first.
 
@@ -819,7 +819,7 @@ Each agent session can have multiple tabs, allowing you to work on different tas
 
 ### Automatic Tab Naming
 
-When you send your first message to a new tab, Maestro automatically generates a descriptive name based on your request. This helps you identify tabs at a glance without manual renaming.
+When you send your first message to a new tab, OpenWizardAI automatically generates a descriptive name based on your request. This helps you identify tabs at a glance without manual renaming.
 
 **How it works:**
 
@@ -843,7 +843,7 @@ When you send your first message to a new tab, Maestro automatically generates a
 - Toggle **Automatic Tab Naming** on or off
 - Default: Enabled
 
-**Wizard tabs:** a tab started with `/wizard` opens as `Wizard`, because it exists before anyone knows what you are planning. It renames itself to `wizard: <topic>` as soon as you say what you want (from the `/wizard <topic>` argument, or from your first message), and to the generated playbook folder once the wizard finishes. Rename it yourself at any point and Maestro leaves your name alone.
+**Wizard tabs:** a tab started with `/wizard` opens as `Wizard`, because it exists before anyone knows what you are planning. It renames itself to `wizard: <topic>` as soon as you say what you want (from the `/wizard <topic>` argument, or from your first message), and to the generated playbook folder once the wizard finishes. Rename it yourself at any point and OpenWizardAI leaves your name alone.
 
 <Note>
 Automatic tab naming uses the same AI agent as your session, including SSH remote configurations. The naming request runs in parallel with your main prompt, so there's no delay to your workflow.
@@ -892,15 +892,15 @@ Every snooze takes an optional note, and that note becomes the body of the notif
 
 The tab disappears from the tab bar and from tab navigation. The conversation is preserved exactly as you left it, and the tab returns to its original position when it wakes. If you snooze an agent's only tab, a fresh empty tab takes its place so you're never left staring at an empty workspace.
 
-When the time arrives, the tab reappears and Maestro raises a notification that stays until you dismiss it, so a reminder can't scroll past unseen. Click it to jump straight to the tab.
+When the time arrives, the tab reappears and OpenWizardAI raises a notification that stays until you dismiss it, so a reminder can't scroll past unseen. Click it to jump straight to the tab.
 
 The returning tab also gets a **Back from snooze** card at the end of its conversation, showing how long it was away, when it was due, and the note you left yourself. The notification is momentary, but this card stays in the transcript, so weeks later the tab still explains why it came back.
 
 <Note>
-Wakes are delivered by the running app. If Maestro is closed when a snooze comes due, the tab returns the next time you launch - overdue reminders are never silently dropped.
+Wakes are delivered by the running app. If OpenWizardAI is closed when a snooze comes due, the tab returns the next time you launch - overdue reminders are never silently dropped.
 </Note>
 
-**Long snoozes are safe.** Your AI provider owns the conversation transcript and eventually ages old ones out, which would leave a tab snoozed for months coming back empty. Maestro keeps its own copy for the length of every snooze, exactly as it does for [starred sessions](#session-management), and restores it when the tab wakes. That copy is held until the snooze ends, so unstarring a snoozed session does not discard it either.
+**Long snoozes are safe.** Your AI provider owns the conversation transcript and eventually ages old ones out, which would leave a tab snoozed for months coming back empty. OpenWizardAI keeps its own copy for the length of every snooze, exactly as it does for [starred sessions](#session-management), and restores it when the tab wakes. That copy is held until the snooze ends, so unstarring a snoozed session does not discard it either.
 
 **Managing snoozed tabs**
 
@@ -919,7 +919,7 @@ Click any entry to jump back to it. If the tab is still open you land directly o
 The log keeps the most recent 100 entries; older ones drop off as new ones arrive.
 
 <Note>
-Dismissing only discards Maestro's tab. The underlying conversation is still on disk and can be reopened from the Session Explorer.
+Dismissing only discards OpenWizardAI's tab. The underlying conversation is still on disk and can be reopened from the Session Explorer.
 </Note>
 
 ## Session Management

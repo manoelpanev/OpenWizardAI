@@ -55,7 +55,7 @@ export function useAgentSessionsAggregateStats({
 		if (!projectRoot) return;
 		if (agentId !== 'claude-code') return;
 
-		const unsubscribe = window.maestro.claude.onProjectStatsUpdate((stats) => {
+		const unsubscribe = window.openwizardai.claude.onProjectStatsUpdate((stats) => {
 			if (stats.projectPath === projectRoot) {
 				setAggregateStats({
 					totalSessions: stats.totalSessions,

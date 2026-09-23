@@ -48,7 +48,7 @@ describe('EmptyState', () => {
 		it('displays the default message', () => {
 			render(<EmptyState theme={darkTheme} />);
 
-			expect(screen.getByText('Start using OpenWizzard to see your stats!')).toBeInTheDocument();
+			expect(screen.getByText('Start using OpenWizardAI to see your stats!')).toBeInTheDocument();
 		});
 	});
 
@@ -65,7 +65,7 @@ describe('EmptyState', () => {
 
 			expect(screen.getByText('Try selecting a different time range.')).toBeInTheDocument();
 			expect(
-				screen.queryByText('Start using OpenWizzard to see your stats!')
+				screen.queryByText('Start using OpenWizardAI to see your stats!')
 			).not.toBeInTheDocument();
 		});
 
@@ -159,7 +159,7 @@ describe('EmptyState', () => {
 			render(<EmptyState theme={darkTheme} />);
 
 			const title = screen.getByText('No usage data yet');
-			const message = screen.getByText('Start using OpenWizzard to see your stats!');
+			const message = screen.getByText('Start using OpenWizardAI to see your stats!');
 
 			// Text should be in the document and visible
 			expect(title).toBeVisible();

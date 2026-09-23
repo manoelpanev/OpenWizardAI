@@ -50,7 +50,7 @@ vi.mock('../../../renderer/constants/app', () => ({
 	getSlashCommandDescription: vi.fn((cmd: string) => `Description for ${cmd}`),
 }));
 
-// autorunSynopsisPrompt is now loaded via IPC (window.maestro.prompts.get)
+// autorunSynopsisPrompt is now loaded via IPC (window.openwizardai.prompts.get)
 // and cached in the hook's module-level cache via loadWizardHandlersPrompts()
 
 vi.mock('../../../shared/synopsis', () => ({
@@ -239,8 +239,8 @@ const createMatchingInlineWizardTabState = (wizardState: any) => ({
 	subfolderName: wizardState?.subfolderName,
 });
 
-const setupMaestroMocks = () => {
-	(window as any).maestro = {
+const setupOpenWizardAIMocks = () => {
+	(window as any).openwizardai = {
 		claude: {
 			getCommands: vi.fn().mockResolvedValue([]),
 			getSkills: vi.fn().mockResolvedValue([]),
@@ -291,7 +291,7 @@ describe('useWizardHandlers', () => {
 		useModalStore.setState({
 			modals: new Map(),
 		} as any);
-		setupMaestroMocks();
+		setupOpenWizardAIMocks();
 	});
 
 	afterEach(() => {
@@ -306,10 +306,10 @@ describe('useWizardHandlers', () => {
 			const session = createMockSession({ agentCommands: undefined });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.claude.getCommands.mockResolvedValue([
+			(window as any).openwizardai.claude.getCommands.mockResolvedValue([
 				{ command: '/custom-cmd', description: 'Custom command' },
 			]);
-			(window as any).maestro.agents.discoverSlashCommands.mockResolvedValue([
+			(window as any).openwizardai.agents.discoverSlashCommands.mockResolvedValue([
 				{ name: 'init' },
 				{ name: 'review' },
 			]);
@@ -322,8 +322,10 @@ describe('useWizardHandlers', () => {
 				await new Promise((r) => setTimeout(r, 50));
 			});
 
-			expect((window as any).maestro.claude.getCommands).toHaveBeenCalledWith('/projects/test');
-			expect((window as any).maestro.agents.discoverSlashCommands).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.claude.getCommands).toHaveBeenCalledWith(
+				'/projects/test'
+			);
+			expect((window as any).openwizardai.agents.discoverSlashCommands).toHaveBeenCalledWith(
 				'claude-code',
 				'/projects/test',
 				undefined,
@@ -344,7 +346,7 @@ describe('useWizardHandlers', () => {
 			const session = createMockSession({ agentCommands: undefined });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.agents.discoverSlashCommands.mockResolvedValue([
+			(window as any).openwizardai.agents.discoverSlashCommands.mockResolvedValue([
 				{ name: 'Research', description: 'Deep literature review' },
 			]);
 
@@ -376,7 +378,7 @@ describe('useWizardHandlers', () => {
 				await new Promise((r) => setTimeout(r, 50));
 			});
 
-			expect((window as any).maestro.claude.getCommands).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.claude.getCommands).not.toHaveBeenCalled();
 		});
 
 		it('skips discovery for non-claude-code sessions', async () => {
@@ -390,15 +392,15 @@ describe('useWizardHandlers', () => {
 				await new Promise((r) => setTimeout(r, 50));
 			});
 
-			expect((window as any).maestro.claude.getCommands).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.claude.getCommands).not.toHaveBeenCalled();
 		});
 
 		it('handles fetch errors gracefully', async () => {
 			const session = createMockSession({ agentCommands: undefined });
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.claude.getCommands.mockRejectedValue(new Error('Network error'));
-			(window as any).maestro.agents.discoverSlashCommands.mockRejectedValue(
+			(window as any).openwizardai.claude.getCommands.mockRejectedValue(new Error('Network error'));
+			(window as any).openwizardai.agents.discoverSlashCommands.mockRejectedValue(
 				new Error('Discovery failed')
 			);
 
@@ -422,7 +424,7 @@ describe('useWizardHandlers', () => {
 			});
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.agents.discoverSlashCommands.mockResolvedValue([
+			(window as any).openwizardai.agents.discoverSlashCommands.mockResolvedValue([
 				{ name: 'help' },
 				{ name: 'model' },
 			]);
@@ -434,8 +436,8 @@ describe('useWizardHandlers', () => {
 				await new Promise((r) => setTimeout(r, 50));
 			});
 
-			expect((window as any).maestro.claude.getCommands).not.toHaveBeenCalled();
-			expect((window as any).maestro.agents.discoverSlashCommands).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.claude.getCommands).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.agents.discoverSlashCommands).toHaveBeenCalledWith(
 				'copilot-cli',
 				'/projects/test',
 				undefined,
@@ -458,7 +460,7 @@ describe('useWizardHandlers', () => {
 			});
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.agents.discoverSlashCommands.mockResolvedValue([
+			(window as any).openwizardai.agents.discoverSlashCommands.mockResolvedValue([
 				{ name: 'deploy', prompt: 'Deploy the app' },
 			]);
 
@@ -469,8 +471,8 @@ describe('useWizardHandlers', () => {
 				await new Promise((r) => setTimeout(r, 50));
 			});
 
-			expect((window as any).maestro.claude.getCommands).not.toHaveBeenCalled();
-			expect((window as any).maestro.agents.discoverSlashCommands).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.claude.getCommands).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.agents.discoverSlashCommands).toHaveBeenCalledWith(
 				'opencode',
 				'/projects/test',
 				undefined,
@@ -1233,7 +1235,7 @@ describe('useWizardHandlers', () => {
 			const session = createMockSession();
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.claude.getSkills.mockResolvedValue([
+			(window as any).openwizardai.claude.getSkills.mockResolvedValue([
 				{
 					name: 'code-review',
 					source: 'project',
@@ -1270,7 +1272,7 @@ describe('useWizardHandlers', () => {
 			const session = createMockSession();
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.claude.getSkills.mockResolvedValue([]);
+			(window as any).openwizardai.claude.getSkills.mockResolvedValue([]);
 
 			const deps = createMockDeps();
 			const { result } = renderHook(() => useWizardHandlers(deps));
@@ -1297,7 +1299,7 @@ describe('useWizardHandlers', () => {
 				await result.current.handleSkillsCommand();
 			});
 
-			expect((window as any).maestro.claude.getSkills).not.toHaveBeenCalled();
+			expect((window as any).openwizardai.claude.getSkills).not.toHaveBeenCalled();
 			consoleSpy.mockRestore();
 		});
 
@@ -1322,7 +1324,9 @@ describe('useWizardHandlers', () => {
 			const session = createMockSession();
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.claude.getSkills.mockRejectedValue(new Error('Skill fetch failed'));
+			(window as any).openwizardai.claude.getSkills.mockRejectedValue(
+				new Error('Skill fetch failed')
+			);
 
 			const consoleSpy = vi.spyOn(logger, 'error').mockImplementation(() => {});
 			const deps = createMockDeps();
@@ -1343,7 +1347,7 @@ describe('useWizardHandlers', () => {
 			const session = createMockSession();
 			useSessionStore.setState({ sessions: [session], activeSessionId: 'session-1' });
 
-			(window as any).maestro.claude.getSkills.mockResolvedValue([
+			(window as any).openwizardai.claude.getSkills.mockResolvedValue([
 				{
 					name: 'big-skill',
 					source: 'project',
@@ -2153,7 +2157,7 @@ describe('useWizardHandlers', () => {
 			expect(newSession.name).toBe('My Project');
 			expect(newSession.toolType).toBe('claude-code');
 			expect(newSession.cwd).toBe('/projects/my-app');
-			expect(newSession.autoRunFolderPath).toBe('/projects/my-app/.maestro/playbooks');
+			expect(newSession.autoRunFolderPath).toBe('/projects/my-app/.openwizardai/playbooks');
 			expect(newSession.autoRunSelectedFile).toBe('phase-1');
 
 			// Should have been set as active
@@ -2164,7 +2168,7 @@ describe('useWizardHandlers', () => {
 			expect(deps.wizardContext.clearResumeState).toHaveBeenCalled();
 
 			// Stats should be recorded
-			expect((window as any).maestro.stats.recordSessionCreated).toHaveBeenCalledWith(
+			expect((window as any).openwizardai.stats.recordSessionCreated).toHaveBeenCalledWith(
 				expect.objectContaining({
 					agentType: 'claude-code',
 					projectPath: '/projects/my-app',
@@ -2204,9 +2208,9 @@ describe('useWizardHandlers', () => {
 						isComplete: false,
 						createdSessionId: null,
 						// User picked "TUI" in the wizard config panel.
-						enableMaestroP: true,
-						maestroPMode: 'interactive',
-						maestroPPath: '  /custom/maestro-p  ',
+						enableOpenWizardAIP: true,
+						openwizardaiPMode: 'interactive',
+						openwizardaiPPath: '  /custom/openwizardai-p  ',
 					} as any,
 					completeWizard: vi.fn().mockResolvedValue(undefined),
 					clearResumeState: vi.fn().mockResolvedValue(undefined),
@@ -2220,10 +2224,10 @@ describe('useWizardHandlers', () => {
 			});
 
 			const newSession = useSessionStore.getState().sessions[0];
-			expect(newSession.enableMaestroP).toBe(true);
-			expect(newSession.maestroPMode).toBe('interactive');
+			expect(newSession.enableOpenWizardAIP).toBe(true);
+			expect(newSession.openwizardaiPMode).toBe('interactive');
 			// Path is trimmed before it lands on the session.
-			expect(newSession.maestroPPath).toBe('/custom/maestro-p');
+			expect(newSession.openwizardaiPPath).toBe('/custom/openwizardai-p');
 		});
 
 		it('honors an explicit API pick and clears mode/path on the new session', async () => {
@@ -2257,10 +2261,10 @@ describe('useWizardHandlers', () => {
 						wantsTour: false,
 						isComplete: false,
 						createdSessionId: null,
-						// User picked "API": enableMaestroP false collapses mode/path away.
-						enableMaestroP: false,
-						maestroPMode: 'dynamic',
-						maestroPPath: '/custom/maestro-p',
+						// User picked "API": enableOpenWizardAIP false collapses mode/path away.
+						enableOpenWizardAIP: false,
+						openwizardaiPMode: 'dynamic',
+						openwizardaiPPath: '/custom/openwizardai-p',
 					} as any,
 					completeWizard: vi.fn().mockResolvedValue(undefined),
 					clearResumeState: vi.fn().mockResolvedValue(undefined),
@@ -2274,9 +2278,9 @@ describe('useWizardHandlers', () => {
 			});
 
 			const newSession = useSessionStore.getState().sessions[0];
-			expect(newSession.enableMaestroP).toBe(false);
-			expect(newSession.maestroPMode).toBeUndefined();
-			expect(newSession.maestroPPath).toBeUndefined();
+			expect(newSession.enableOpenWizardAIP).toBe(false);
+			expect(newSession.openwizardaiPMode).toBeUndefined();
+			expect(newSession.openwizardaiPPath).toBeUndefined();
 		});
 
 		it('auto-starts batch run with first document that has tasks', async () => {
@@ -2332,7 +2336,7 @@ describe('useWizardHandlers', () => {
 				expect.objectContaining({
 					documents: expect.arrayContaining([expect.objectContaining({ filename: 'phase-1' })]),
 				}),
-				expect.stringContaining('.maestro/playbooks')
+				expect.stringContaining('.openwizardai/playbooks')
 			);
 		});
 
@@ -2398,7 +2402,7 @@ describe('useWizardHandlers', () => {
 						expect.objectContaining({ filename: 'phase-3' }),
 					]),
 				}),
-				expect.stringContaining('.maestro/playbooks')
+				expect.stringContaining('.openwizardai/playbooks')
 			);
 
 			// Should have exactly 3 documents in the batch
@@ -2663,7 +2667,7 @@ describe('useWizardHandlers', () => {
 		it('throws when agent is not found', async () => {
 			useSessionStore.setState({ sessions: [], activeSessionId: null });
 
-			(window as any).maestro.agents.get.mockResolvedValue(null);
+			(window as any).openwizardai.agents.get.mockResolvedValue(null);
 
 			const deps = createMockDeps({
 				wizardContext: {

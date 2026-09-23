@@ -141,7 +141,7 @@ export function useAutoRunContentSync({
 		if (!folderPath || !selectedFile || !isDirty) return;
 
 		try {
-			await (window as any).maestro.autorun.writeDoc(
+			await (window as any).openwizardai.autorun.writeDoc(
 				folderPath,
 				selectedFile + '.md',
 				localContent,

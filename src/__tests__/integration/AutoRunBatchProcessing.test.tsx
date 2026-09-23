@@ -128,9 +128,9 @@ vi.mock('../../renderer/components/TemplateAutocompleteDropdown', () => ({
 	TemplateAutocompleteDropdown: React.forwardRef(() => null),
 }));
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -147,8 +147,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Create base batch run state
@@ -203,10 +203,10 @@ Some implementation notes here.`,
 });
 
 describe('AutoRun + Batch Processing Integration', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -768,7 +768,7 @@ describe('AutoRun + Batch Processing Integration', () => {
 
 			// writeDoc should have been called to save
 			await waitFor(() => {
-				expect(mockMaestro.autorun.writeDoc).toHaveBeenCalled();
+				expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalled();
 			});
 
 			expect(onOpenBatchRunner).toHaveBeenCalledTimes(1);
@@ -783,7 +783,7 @@ describe('AutoRun + Batch Processing Integration', () => {
 			fireEvent.click(screen.getByRole('button', { name: /^run$/i }));
 
 			// writeDoc should not have been called
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 			expect(onOpenBatchRunner).toHaveBeenCalledTimes(1);
 		});
 
@@ -807,7 +807,7 @@ describe('AutoRun + Batch Processing Integration', () => {
 			fireEvent.keyDown(textarea, { key: 's', metaKey: true });
 
 			// writeDoc should not be called
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('Cmd+E still toggles mode during batch run (via container)', () => {

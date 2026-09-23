@@ -496,25 +496,25 @@ describe('Test 2.11: Real-World Use Cases', () => {
 
 	it('should handle debug flags set globally', () => {
 		const globalVars = {
-			DEBUG: 'maestro:*',
+			DEBUG: 'openwizardai:*',
 			LOG_LEVEL: 'debug',
 		};
 
 		const env = buildChildProcessEnv(undefined, false, globalVars);
 
-		expect(env.DEBUG).toBe('maestro:*');
+		expect(env.DEBUG).toBe('openwizardai:*');
 		expect(env.LOG_LEVEL).toBe('debug');
 	});
 
 	it('should handle config paths with tilde expansion', () => {
 		const globalVars = {
-			JEST_CONFIG_PATH: '~/.maestro/jest.config.js',
+			JEST_CONFIG_PATH: '~/.openwizardai/jest.config.js',
 			APP_CONFIG_DIR: '~/app-configs',
 		};
 
 		const env = buildChildProcessEnv(undefined, false, globalVars);
 
-		expect(env.JEST_CONFIG_PATH).toBe(path.join(originalHomedir, '.maestro/jest.config.js'));
+		expect(env.JEST_CONFIG_PATH).toBe(path.join(originalHomedir, '.openwizardai/jest.config.js'));
 		expect(env.APP_CONFIG_DIR).toBe(path.join(originalHomedir, 'app-configs'));
 	});
 
@@ -668,10 +668,10 @@ describe('Test 2.12: Environment Isolation Between Sessions', () => {
 });
 
 /**
- * Test Suite 2.13: MAESTRO_SESSION_RESUMED Flag
+ * Test Suite 2.13: OPENWIZARDAI_SESSION_RESUMED Flag
  * Verifies that resumed sessions are properly marked
  */
-describe('Test 2.13: MAESTRO_SESSION_RESUMED Flag', () => {
+describe('Test 2.13: OPENWIZARDAI_SESSION_RESUMED Flag', () => {
 	let originalProcessEnv: NodeJS.ProcessEnv;
 
 	beforeEach(() => {
@@ -682,16 +682,16 @@ describe('Test 2.13: MAESTRO_SESSION_RESUMED Flag', () => {
 		process.env = originalProcessEnv;
 	});
 
-	it('should set MAESTRO_SESSION_RESUMED when isResuming is true', () => {
+	it('should set OPENWIZARDAI_SESSION_RESUMED when isResuming is true', () => {
 		const env = buildChildProcessEnv(undefined, true);
 
-		expect(env.MAESTRO_SESSION_RESUMED).toBe('1');
+		expect(env.OPENWIZARDAI_SESSION_RESUMED).toBe('1');
 	});
 
-	it('should not set MAESTRO_SESSION_RESUMED when isResuming is false', () => {
+	it('should not set OPENWIZARDAI_SESSION_RESUMED when isResuming is false', () => {
 		const env = buildChildProcessEnv(undefined, false);
 
-		expect(env.MAESTRO_SESSION_RESUMED).toBeUndefined();
+		expect(env.OPENWIZARDAI_SESSION_RESUMED).toBeUndefined();
 	});
 
 	it('should set flag with global vars when resuming', () => {
@@ -701,7 +701,7 @@ describe('Test 2.13: MAESTRO_SESSION_RESUMED Flag', () => {
 
 		const env = buildChildProcessEnv(undefined, true, globalVars);
 
-		expect(env.MAESTRO_SESSION_RESUMED).toBe('1');
+		expect(env.OPENWIZARDAI_SESSION_RESUMED).toBe('1');
 		expect(env.API_KEY).toBe('key-value');
 	});
 });

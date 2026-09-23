@@ -72,7 +72,7 @@ export function useScrollLogHandlers(): ScrollLogHandlersReturn {
 		if (isAIMode && currentActiveTab) {
 			const agentSessionId = currentActiveTab.agentSessionId;
 			if (agentSessionId && currentSession.cwd) {
-				window.maestro.claude
+				window.openwizardai.claude
 					.deleteMessagePair(currentSession.cwd, agentSessionId, logId, log.text)
 					.then((result) => {
 						if (!result.success) {

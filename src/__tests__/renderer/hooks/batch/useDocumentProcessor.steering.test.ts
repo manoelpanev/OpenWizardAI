@@ -14,18 +14,18 @@ import { createMockSession } from '../../../helpers/mockSession';
 const DOC_CONTENT = '- [ ] Do the thing\n';
 
 function mockAutorunIpc(): void {
-	window.maestro = {
-		...window.maestro,
+	window.openwizardai = {
+		...window.openwizardai,
 		autorun: {
-			...window.maestro?.autorun,
+			...window.openwizardai?.autorun,
 			readDoc: vi.fn().mockResolvedValue({ success: true, content: DOC_CONTENT }),
 			writeDoc: vi.fn().mockResolvedValue({ success: true }),
 		},
 		agentSessions: {
-			...window.maestro?.agentSessions,
+			...window.openwizardai?.agentSessions,
 			registerSessionOrigin: vi.fn().mockResolvedValue(undefined),
 		},
-	} as typeof window.maestro;
+	} as typeof window.openwizardai;
 }
 
 describe('useDocumentProcessor - steering notes', () => {
@@ -48,7 +48,7 @@ describe('useDocumentProcessor - steering notes', () => {
 	function baseConfig(steeringNotes?: { id: string; text: string; timestamp: number }[]) {
 		const session = createMockSession({ cwd: '/test/project' });
 		return {
-			folderPath: '/test/project/.maestro/playbooks',
+			folderPath: '/test/project/.openwizardai/playbooks',
 			session,
 			loopIteration: 1,
 			effectiveCwd: session.cwd,
@@ -65,11 +65,11 @@ describe('useDocumentProcessor - steering notes', () => {
 
 	it('prepends the note block ahead of the prompt', async () => {
 		const prompt = await runTask([
-			{ id: 'n1', text: 'Important notice: Maestro error.', timestamp: Date.now() },
+			{ id: 'n1', text: 'Important notice: OpenWizardAI error.', timestamp: Date.now() },
 		]);
 
 		expect(prompt.startsWith(STEERING_BLOCK_START)).toBe(true);
-		expect(prompt).toContain('Important notice: Maestro error.');
+		expect(prompt).toContain('Important notice: OpenWizardAI error.');
 		// The note comes FIRST - the base prompt follows it.
 		expect(prompt.indexOf(STEERING_BLOCK_END)).toBeLessThan(prompt.indexOf('Work the document.'));
 	});

@@ -9,7 +9,7 @@ import { useRemotePathValidation } from '../../../renderer/hooks/agent/useRemote
 
 describe('useRemotePathValidation', () => {
 	beforeEach(() => {
-		vi.mocked(window.maestro.fs.stat).mockReset();
+		vi.mocked(window.openwizardai.fs.stat).mockReset();
 	});
 
 	it('should return default state when SSH is disabled', () => {
@@ -93,7 +93,7 @@ describe('useRemotePathValidation', () => {
 	});
 
 	it('should return valid: true for directory stat result', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: true,
 			isFile: false,
 			size: 4096,
@@ -117,11 +117,11 @@ describe('useRemotePathValidation', () => {
 			});
 		});
 
-		expect(window.maestro.fs.stat).toHaveBeenCalledWith('/home/user/project', 'remote-1');
+		expect(window.openwizardai.fs.stat).toHaveBeenCalledWith('/home/user/project', 'remote-1');
 	});
 
 	it('should return error for file stat result', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: false,
 			isFile: true,
 			size: 1024,
@@ -148,7 +148,7 @@ describe('useRemotePathValidation', () => {
 	});
 
 	it('should return error when stat returns null', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue(null as any);
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue(null as any);
 
 		const { result } = renderHook(() =>
 			useRemotePathValidation({
@@ -170,7 +170,7 @@ describe('useRemotePathValidation', () => {
 	});
 
 	it('should return error when stat throws', async () => {
-		vi.mocked(window.maestro.fs.stat).mockRejectedValue(new Error('Connection refused'));
+		vi.mocked(window.openwizardai.fs.stat).mockRejectedValue(new Error('Connection refused'));
 
 		const { result } = renderHook(() =>
 			useRemotePathValidation({
@@ -192,7 +192,7 @@ describe('useRemotePathValidation', () => {
 	});
 
 	it('should check the local filesystem when validateLocal is set and SSH is off', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue(null);
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue(null);
 
 		const { result } = renderHook(() =>
 			useRemotePathValidation({
@@ -209,7 +209,7 @@ describe('useRemotePathValidation', () => {
 		});
 
 		// Local: no remote id is passed, even when the form still holds one.
-		expect(window.maestro.fs.stat).toHaveBeenCalledWith('/home/user/typo', undefined);
+		expect(window.openwizardai.fs.stat).toHaveBeenCalledWith('/home/user/typo', undefined);
 	});
 
 	it('should not check the local filesystem without validateLocal', () => {
@@ -222,11 +222,11 @@ describe('useRemotePathValidation', () => {
 			})
 		);
 
-		expect(window.maestro.fs.stat).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.stat).not.toHaveBeenCalled();
 	});
 
 	it('should drop a previous result as soon as the path changes', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: true,
 			isFile: false,
 			size: 4096,
@@ -255,7 +255,7 @@ describe('useRemotePathValidation', () => {
 	});
 
 	it('should reset to default when SSH is toggled off', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: true,
 			isFile: false,
 			size: 0,
@@ -294,7 +294,7 @@ describe('useRemotePathValidation', () => {
 	});
 
 	it('should not call stat when SSH is disabled even with valid path and remoteId', async () => {
-		vi.mocked(window.maestro.fs.stat).mockResolvedValue({
+		vi.mocked(window.openwizardai.fs.stat).mockResolvedValue({
 			isDirectory: true,
 			isFile: false,
 			size: 0,
@@ -313,6 +313,6 @@ describe('useRemotePathValidation', () => {
 		// Wait a bit to ensure debounce would have fired
 		await new Promise((r) => setTimeout(r, 50));
 
-		expect(window.maestro.fs.stat).not.toHaveBeenCalled();
+		expect(window.openwizardai.fs.stat).not.toHaveBeenCalled();
 	});
 });

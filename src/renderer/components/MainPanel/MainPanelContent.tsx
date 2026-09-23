@@ -244,7 +244,7 @@ export interface MainPanelContentProps {
 	onPublishGist?: () => void;
 	hasGist?: boolean;
 	onOpenInGraph?: () => void;
-	/** Open the currently previewed file in a new Maestro browser tab. */
+	/** Open the currently previewed file in a new OpenWizardAI browser tab. */
 	onOpenInBrowser?: () => void;
 	onPublishMessageGist?: (text: string, messageId?: string) => void;
 	onToggleTabReadOnlyMode?: () => void;

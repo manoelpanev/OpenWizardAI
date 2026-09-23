@@ -102,7 +102,7 @@ export function useAvailableAgents(
 		setError(null);
 
 		try {
-			const detectedAgents = await window.maestro.agents.detect();
+			const detectedAgents = await window.openwizardai.agents.detect();
 			setRawAgents(detectedAgents);
 		} catch (err) {
 			logger.error('Failed to detect agents:', undefined, err);

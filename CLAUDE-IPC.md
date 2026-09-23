@@ -1,10 +1,10 @@
 # CLAUDE-IPC.md
 
-IPC API surface documentation for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+IPC API surface documentation for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]].
 
 ## Overview
 
-The `window.maestro` API exposes the following namespaces:
+The `window.openwizardai` API exposes the following namespaces:
 
 ## Core APIs
 
@@ -47,8 +47,8 @@ The `window.maestro` API exposes the following namespaces:
 - `history` - Per-agent execution history (see History API below)
 - `cli` - CLI activity detection for playbook runs
 - `tempfile` - Temporary file management for batch processing
-- `cue` - Maestro Cue event-driven automation (see Cue API below)
-- `cueBackup` - Snapshot/restore of every workspace's `.maestro/cue.yaml` + `.maestro/prompts/` as a zip in `userData/cue-backups/` (Cue modal Backup tab)
+- `cue` - OpenWizardAI Cue event-driven automation (see Cue API below)
+- `cueBackup` - Snapshot/restore of every workspace's `.openwizardai/cue.yaml` + `.openwizardai/prompts/` as a zip in `userData/cue-backups/` (Cue modal Backup tab)
 
 ## Analytics & Visualization
 
@@ -60,10 +60,10 @@ The `window.maestro` API exposes the following namespaces:
 
 ## History API
 
-Per-agent history storage with 5,000 entries per agent (up from 1,000 global). Each agent's history is stored as a JSON file in `~/Library/Application Support/Maestro/history/{sessionId}.json`.
+Per-agent history storage with 5,000 entries per agent (up from 1,000 global). Each agent's history is stored as a JSON file in `~/Library/Application Support/OpenWizardAI/history/{sessionId}.json`.
 
 ```typescript
-window.maestro.history = {
+window.openwizardai.history = {
   getAll: (projectPath?, sessionId?) => Promise<HistoryEntry[]>,
   getAllPaginated: (options?) => Promise<PaginatedResult<HistoryEntry>>,
   add: (entry) => Promise<boolean>,
@@ -88,14 +88,14 @@ window.maestro.history = {
 
 **AI Context Integration**: Use `getFilePath(sessionId)` to get the path to an agent's history file. This file can be passed directly to AI agents as context, giving them visibility into past completed tasks, decisions, and work patterns.
 
-**Activity Graph (cached)**: `getGraphData` returns pre-aggregated buckets covering the full session history. Cached to `userData/history-cache/` keyed by source-file fingerprint, so the activity graph stays "all-encompassing" without recomputing across thousands of entries on every interaction. The unified-history equivalent is `window.maestro.directorNotes.getGraphData(bucketCount)`.
+**Activity Graph (cached)**: `getGraphData` returns pre-aggregated buckets covering the full session history. Cached to `userData/history-cache/` keyed by source-file fingerprint, so the activity graph stays "all-encompassing" without recomputing across thousands of entries on every interaction. The unified-history equivalent is `window.openwizardai.directorNotes.getGraphData(bucketCount)`.
 
 ## Cue API
 
-Maestro Cue event-driven automation engine. Gated behind the `maestroCue` Encore Feature flag.
+OpenWizardAI Cue event-driven automation engine. Gated behind the `openwizardaiCue` Encore Feature flag.
 
 ```typescript
-window.maestro.cue = {
+window.openwizardai.cue = {
   // Query engine state
   getStatus: () => Promise<CueSessionStatus[]>,
   getActiveRuns: () => Promise<CueRunResult[]>,
@@ -126,10 +126,10 @@ window.maestro.cue = {
 
 ## Cue Backup API
 
-Snapshot/restore of every workspace's `.maestro/cue.yaml` + `.maestro/prompts/` as a single zip in `userData/cue-backups/`. Used by the Cue modal's Backup tab. Restore is **additive only** - files in the live workspace that are not in the backup are left alone (deletion is too easy to regret).
+Snapshot/restore of every workspace's `.openwizardai/cue.yaml` + `.openwizardai/prompts/` as a single zip in `userData/cue-backups/`. Used by the Cue modal's Backup tab. Restore is **additive only** - files in the live workspace that are not in the backup are left alone (deletion is too easy to regret).
 
 ```typescript
-window.maestro.cueBackup = {
+window.openwizardai.cueBackup = {
 	create: () => Promise<CueBackupSummary>,
 	list: () => Promise<CueBackupSummary[]>,
 	inspect: (filePath) => Promise<CueBackupManifest>,
@@ -147,7 +147,7 @@ Every write path validates the backup zip lives inside `userData/cue-backups/` t
 ## Parquet API
 
 ```typescript
-window.maestro.parquet = {
+window.openwizardai.parquet = {
 	open(filePath, sshRemoteId?): Promise<ParquetFileInfo>;   // footer + schema only
 	query(request: ParquetQueryRequest): Promise<ParquetQueryResult>;
 	export(options): Promise<{ path; rows; truncated }>;      // CSV / JSON Lines

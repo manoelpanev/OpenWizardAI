@@ -74,7 +74,7 @@ export function useAtMentionCompletion(session: Session | null): UseAtMentionCom
 
 		const fetchAutoRunFiles = async () => {
 			try {
-				const result = await window.maestro.autorun.listDocs(autoRunFolderPath);
+				const result = await window.openwizardai.autorun.listDocs(autoRunFolderPath);
 				if (cancelled) return;
 
 				if (result.success && result.tree) {

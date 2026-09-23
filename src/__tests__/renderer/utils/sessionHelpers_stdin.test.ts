@@ -11,15 +11,15 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	platform: 'win32',
 	agents: {
 		get: vi.fn(),
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import { buildSpawnConfigForAgent } from '../../../renderer/utils/sessionHelpers';
@@ -27,11 +27,11 @@ import { buildSpawnConfigForAgent } from '../../../renderer/utils/sessionHelpers
 describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		mockMaestro.platform = 'win32';
+		mockOpenWizardAI.platform = 'win32';
 	});
 
 	afterEach(() => {
-		mockMaestro.platform = 'darwin';
+		mockOpenWizardAI.platform = 'darwin';
 	});
 
 	it('should include sendPromptViaStdinRaw on Windows without SSH', async () => {
@@ -44,7 +44,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: ['--print'],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',
@@ -70,7 +70,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: ['--print'],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',
@@ -90,7 +90,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 	});
 
 	it('should NOT include stdin flags on non-Windows platforms', async () => {
-		mockMaestro.platform = 'darwin';
+		mockOpenWizardAI.platform = 'darwin';
 
 		const mockAgent = {
 			id: 'claude-code',
@@ -101,7 +101,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: ['--print'],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',
@@ -125,7 +125,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: [],
 			capabilities: { supportsStreamJsonInput: false },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',
@@ -150,7 +150,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: ['--print'],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',
@@ -176,7 +176,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: ['--print'],
 			capabilities: { supportsStreamJsonInput: true },
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',
@@ -213,7 +213,7 @@ describe('buildSpawnConfigForAgent - Windows stdin transport flags', () => {
 			args: [],
 			// No capabilities property
 		};
-		mockMaestro.agents.get.mockResolvedValue(mockAgent);
+		mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 		const result = await buildSpawnConfigForAgent({
 			sessionId: 'test-session',

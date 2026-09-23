@@ -1,7 +1,7 @@
 /**
  * Tests for the group registry backup guard.
  *
- * Emptying `maestro-groups.json` is unrecoverable: the rows carry every group's
+ * Emptying `openwizardai-groups.json` is unrecoverable: the rows carry every group's
  * name, emoji and collapsed state, agents only reference them by `groupId`, and
  * nothing else on disk holds a second copy. This guard keeps the outgoing
  * registry before an empty one replaces it.
@@ -37,7 +37,7 @@ function makeGroup(id: string): Group {
 function makeStore(stored: Group[] | (() => never)): GroupsBackupStore {
 	return {
 		get: typeof stored === 'function' ? (stored as () => never) : () => stored,
-		path: '/tmp/maestro-test/maestro-groups.json',
+		path: '/tmp/openwizardai-test/openwizardai-groups.json',
 	};
 }
 

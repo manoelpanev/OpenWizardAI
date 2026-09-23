@@ -18,7 +18,10 @@ import {
 } from '../../agents';
 import { capabilitySnapshots } from '../../agents/capability-snapshot';
 import type { AgentCapabilitiesSnapshotMap } from '../../../shared/agentCapabilities';
-import { probeRemoteMaestroP, ensureRemoteMaestroPProbed } from '../../agents/probeRemoteMaestroP';
+import {
+	probeRemoteOpenWizardAIP,
+	ensureRemoteOpenWizardAIPProbed,
+} from '../../agents/probeRemoteOpenWizardAIP';
 import { execFileNoThrow } from '../../utils/execFile';
 import { logger } from '../../utils/logger';
 import { getWhichCommand } from '../../../shared/platformDetection';
@@ -30,7 +33,7 @@ import {
 import { buildSshCommand, RemoteCommandOptions } from '../../utils/ssh-command-builder';
 import { stripAnsi } from '../../utils/stripAnsi';
 import { SshRemoteConfig } from '../../../shared/types';
-import { MaestroSettings } from './persistence';
+import { OpenWizardAISettings } from './persistence';
 import { captureException } from '../../utils/sentry';
 import {
 	getAllSnapshots as getAllClaudeUsageSnapshots,
@@ -47,7 +50,7 @@ import type { UsageSnapshot } from '../../agents/claude-mode-selector';
 import type { CodexUsageSnapshot } from '../../stores/codexUsageStore';
 import {
 	runStartupUsageSampling,
-	getMaestroPBinPath,
+	getOpenWizardAIPBinPath,
 	discoverClaudeConfigDirs,
 } from '../../agents/claude-usage-startup';
 import { runCodexUsageSampling, discoverCodexHomes } from '../../agents/codex-usage-startup';
@@ -292,7 +295,7 @@ async function discoverOpenCodeSlashCommands(cwd: string): Promise<DiscoveredCom
  * 4. User-global prompts:   <CODEX_HOME>/prompts/<name>.md
  *
  * Every discovered command carries the file body as its `prompt`, because
- * Maestro drives Codex through headless `codex exec`, where the CLI does not
+ * OpenWizardAI drives Codex through headless `codex exec`, where the CLI does not
  * expand `/name` itself - the renderer substitutes the body before sending
  * (see `useInputProcessing`), exactly as it already does for OpenCode.
  *
@@ -307,7 +310,7 @@ async function discoverCodexSlashCommands(cwd: string): Promise<DiscoveredComman
 		if (commands.has(name)) return; // project-local wins over global
 		const doc = parseCodexMarkdownDoc(content);
 		// `user-invocable: false` marks a background/reference skill that Codex
-		// itself never offers as a `/name`, so Maestro must not either.
+		// itself never offers as a `/name`, so OpenWizardAI must not either.
 		if (!doc.userInvocable) return;
 		if (!doc.body) return;
 		commands.set(name, { name, prompt: doc.body, description: doc.description });
@@ -383,8 +386,8 @@ async function discoverCodexSlashCommands(cwd: string): Promise<DiscoveredComman
 export interface AgentsHandlerDependencies {
 	getAgentDetector: () => AgentDetector | null;
 	agentConfigsStore: Store<AgentConfigsData>;
-	/** The settings store (MaestroSettings) - required for SSH remote lookup */
-	settingsStore?: Store<MaestroSettings>;
+	/** The settings store (OpenWizardAISettings) - required for SSH remote lookup */
+	settingsStore?: Store<OpenWizardAISettings>;
 	/**
 	 * Sessions store - required for handlers that need to read or persist
 	 * per-session state (e.g. resolving the Batch Mode usage snapshot for a
@@ -400,7 +403,7 @@ export interface AgentsHandlerDependencies {
  * Note: Does not check the 'enabled' flag - if user explicitly selects a remote, we should try to use it.
  */
 function getSshRemoteById(
-	store: Store<MaestroSettings> | undefined,
+	store: Store<OpenWizardAISettings> | undefined,
 	sshRemoteId: string
 ): SshRemoteConfig | undefined {
 	if (!store) {
@@ -579,13 +582,13 @@ async function detectAgentsRemote(sshRemote: SshRemoteConfig): Promise<any[]> {
 		);
 	}
 
-	// Piggyback a maestro-p availability probe on the same connection. The
+	// Piggyback a openwizardai-p availability probe on the same connection. The
 	// Token Source selector disables the TUI option, and resolveClaudeSpawnMode
 	// falls a remote TUI spawn back to API, when the remote can't run it. Only
 	// when the connection actually worked - an unreachable host leaves the
 	// availability unknown rather than caching a false.
 	if (connectionSucceeded) {
-		await probeRemoteMaestroP(sshRemote);
+		await probeRemoteOpenWizardAIP(sshRemote);
 	}
 
 	return agents;
@@ -1735,22 +1738,22 @@ export function registerAgentsHandlers(deps: AgentsHandlerDependencies): void {
 		)
 	);
 
-	// Auto-detected maestro-p binary path (bundled with the app). The renderer's
+	// Auto-detected openwizardai-p binary path (bundled with the app). The renderer's
 	// AgentConfigPanel shows this as helper text for the Batch Mode path override.
 	// Returns null when no bundled script can be located - usually means the user
 	// is running a dev build without `npm run build` having produced
-	// `dist/cli/maestro-p.js`.
+	// `dist/cli/openwizardai-p.js`.
 	ipcMain.handle(
-		'agents:getMaestroPDetectedPath',
+		'agents:getOpenWizardAIPDetectedPath',
 		withIpcErrorLogging(
-			handlerOpts('getMaestroPDetectedPath'),
+			handlerOpts('getOpenWizardAIPDetectedPath'),
 			async (): Promise<string | null> => {
-				return getMaestroPBinPath();
+				return getOpenWizardAIPBinPath();
 			}
 		)
 	);
 
-	// Whether `maestro-p` is on the PATH of an SSH remote. The AgentConfigPanel
+	// Whether `openwizardai-p` is on the PATH of an SSH remote. The AgentConfigPanel
 	// uses this to disable the TUI token-source option (and default an
 	// unconfigured remote agent to API) when the remote can't run it. Returns a
 	// fresh cached result, otherwise probes the remote on demand. `null` means
@@ -1758,12 +1761,12 @@ export function registerAgentsHandlers(deps: AgentsHandlerDependencies): void {
 	//
 	// `force` bypasses the TTL cache and re-probes the remote immediately - wired
 	// to the Refresh button next to the Claude Token Source selector, so a user
-	// who just installed maestro-p on the remote can re-check without waiting out
+	// who just installed openwizardai-p on the remote can re-check without waiting out
 	// the 5-minute cache window.
 	ipcMain.handle(
-		'agents:getRemoteMaestroPAvailable',
+		'agents:getRemoteOpenWizardAIPAvailable',
 		withIpcErrorLogging(
-			handlerOpts('getRemoteMaestroPAvailable'),
+			handlerOpts('getRemoteOpenWizardAIPAvailable'),
 			async (sshRemoteId?: string, force?: boolean): Promise<boolean | null> => {
 				if (!sshRemoteId) {
 					return null;
@@ -1773,9 +1776,9 @@ export function registerAgentsHandlers(deps: AgentsHandlerDependencies): void {
 					return null;
 				}
 				if (force) {
-					return (await probeRemoteMaestroP(sshConfig)) ?? null;
+					return (await probeRemoteOpenWizardAIP(sshConfig)) ?? null;
 				}
-				return (await ensureRemoteMaestroPProbed(sshConfig)) ?? null;
+				return (await ensureRemoteOpenWizardAIPProbed(sshConfig)) ?? null;
 			}
 		)
 	);
@@ -1852,7 +1855,7 @@ export function registerAgentsHandlers(deps: AgentsHandlerDependencies): void {
 	);
 
 	// Every Claude account this machine has: the `~/.claude-*` dirs on disk plus
-	// the ones Maestro has actually sampled (`quotaAccountsStore`). The second
+	// the ones OpenWizardAI has actually sampled (`quotaAccountsStore`). The second
 	// source is what keeps an account the discovery sweep cannot see - symlinked,
 	// outside $HOME, or named like a backup - on the dashboard once its agents
 	// move away. Remembered accounts whose dir is gone are forgotten here.
@@ -1902,7 +1905,7 @@ export function registerAgentsHandlers(deps: AgentsHandlerDependencies): void {
 				await runStartupUsageSampling({
 					sessionsStore,
 					agentConfigsStore,
-					settingsStore: settingsStore as unknown as Store<MaestroSettings>,
+					settingsStore: settingsStore as unknown as Store<OpenWizardAISettings>,
 					agentDetector,
 					mode: 'manual',
 				});
@@ -1928,7 +1931,7 @@ export function registerAgentsHandlers(deps: AgentsHandlerDependencies): void {
 		)
 	);
 
-	// Discovered `~/.codex-*` homes plus the ones Maestro has sampled before, so
+	// Discovered `~/.codex-*` homes plus the ones OpenWizardAI has sampled before, so
 	// an account keeps its dashboard row after its last agent moves off it.
 	ipcMain.handle(
 		'agents:getCodexUsageAccountKeys',

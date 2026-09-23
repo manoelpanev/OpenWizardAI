@@ -42,13 +42,13 @@ export function useAgentSessionsStar({
 			if (activeSession?.projectRoot) {
 				try {
 					if (agentId === 'claude-code') {
-						await window.maestro.claude.updateSessionStarred(
+						await window.openwizardai.claude.updateSessionStarred(
 							activeSession.projectRoot,
 							sessionId,
 							isNowStarred
 						);
 					} else {
-						await window.maestro.agentSessions.setSessionStarred(
+						await window.openwizardai.agentSessions.setSessionStarred(
 							agentId,
 							activeSession.projectRoot,
 							sessionId,

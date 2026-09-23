@@ -5,7 +5,7 @@
  * and the hook behavior with mocked IPC.
  *
  * Note: The hook itself (useBatchProcessor) has complex async state management
- * that requires careful mocking of the window.maestro IPC bridge.
+ * that requires careful mocking of the window.openwizardai IPC bridge.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -603,7 +603,7 @@ describe('useBatchProcessor hook', () => {
 	let mockOnComplete: ReturnType<typeof vi.fn>;
 	let mockOnPRResult: ReturnType<typeof vi.fn>;
 
-	// Mock window.maestro methods
+	// Mock window.openwizardai methods
 	let mockReadDoc: ReturnType<typeof vi.fn>;
 	let mockWriteDoc: ReturnType<typeof vi.fn>;
 	let mockCreateWorkingCopy: ReturnType<typeof vi.fn>;
@@ -636,7 +636,7 @@ describe('useBatchProcessor hook', () => {
 		mockOnComplete = vi.fn();
 		mockOnPRResult = vi.fn();
 
-		// Set up window.maestro mocks
+		// Set up window.openwizardai mocks
 		mockReadDoc = vi
 			.fn()
 			.mockResolvedValue({ success: true, content: '# Tasks\n- [ ] Task 1\n- [ ] Task 2' });
@@ -653,9 +653,9 @@ describe('useBatchProcessor hook', () => {
 			.fn()
 			.mockResolvedValue({ success: true, prUrl: 'https://github.com/test/test/pull/1' });
 
-		// Configure window.maestro
-		window.maestro = {
-			...window.maestro,
+		// Configure window.openwizardai
+		window.openwizardai = {
+			...window.openwizardai,
 			autorun: {
 				readDoc: mockReadDoc,
 				writeDoc: mockWriteDoc,
@@ -665,7 +665,7 @@ describe('useBatchProcessor hook', () => {
 				readFolder: vi.fn(),
 			},
 			git: {
-				...window.maestro.git,
+				...window.openwizardai.git,
 				status: mockStatus,
 				branch: mockBranch,
 				worktreeSetup: mockWorktreeSetup,
@@ -674,11 +674,11 @@ describe('useBatchProcessor hook', () => {
 				createPR: mockCreatePR,
 			},
 			web: {
-				...window.maestro.web,
+				...window.openwizardai.web,
 				broadcastAutoRunState: mockBroadcastAutoRunState,
 			},
 			agentSessions: {
-				...window.maestro.agentSessions,
+				...window.openwizardai.agentSessions,
 				registerSessionOrigin: mockRegisterSessionOrigin,
 			},
 			power: {
@@ -1238,7 +1238,7 @@ describe('useBatchProcessor hook', () => {
 
 			// Wait for startAutoRun to fire (flush state ref is populated right after)
 			await waitFor(() => {
-				expect(window.maestro.stats.startAutoRun).toHaveBeenCalled();
+				expect(window.openwizardai.stats.startAutoRun).toHaveBeenCalled();
 			});
 			// Wait for the agent to be spawned (batch is mid-task)
 			await waitFor(() => {
@@ -1256,8 +1256,9 @@ describe('useBatchProcessor hook', () => {
 			// endAutoRun must have been called with a non-zero duration so the recorded Auto Run
 			// time isn't lost. Previously this was called after timeTracking.stopTracking() had
 			// already zeroed the tracker, producing a 0ms duration.
-			expect(window.maestro.stats.endAutoRun).toHaveBeenCalledTimes(1);
-			const endCall = (window.maestro.stats.endAutoRun as ReturnType<typeof vi.fn>).mock.calls[0];
+			expect(window.openwizardai.stats.endAutoRun).toHaveBeenCalledTimes(1);
+			const endCall = (window.openwizardai.stats.endAutoRun as ReturnType<typeof vi.fn>).mock
+				.calls[0];
 			expect(endCall[0]).toBe('auto-run-id'); // statsAutoRunId from setup mock
 			expect(endCall[1]).toBeGreaterThan(0); // elapsed duration in ms
 			expect(endCall[2]).toBe(0); // completedTasks - nothing finished before kill
@@ -1763,8 +1764,8 @@ describe('useBatchProcessor hook', () => {
 			const groups = [createMockGroup()];
 
 			const mockSpeak = vi.fn().mockResolvedValue(undefined);
-			window.maestro.notification = {
-				...window.maestro.notification,
+			window.openwizardai.notification = {
+				...window.openwizardai.notification,
 				speak: mockSpeak,
 			};
 
@@ -3831,7 +3832,7 @@ describe('useBatchProcessor hook', () => {
 				success: false,
 				error: 'Failed to create worktree',
 			});
-			window.maestro.git.worktreeSetup = mockWorktreeSetup;
+			window.openwizardai.git.worktreeSetup = mockWorktreeSetup;
 
 			const { result } = renderHook(() =>
 				useBatchProcessor({
@@ -3882,12 +3883,12 @@ describe('useBatchProcessor hook', () => {
 				success: true,
 				branchMismatch: true,
 			});
-			window.maestro.git.worktreeSetup = mockWorktreeSetup;
+			window.openwizardai.git.worktreeSetup = mockWorktreeSetup;
 
 			const mockWorktreeCheckout = vi.fn().mockResolvedValue({
 				success: true,
 			});
-			window.maestro.git.worktreeCheckout = mockWorktreeCheckout;
+			window.openwizardai.git.worktreeCheckout = mockWorktreeCheckout;
 
 			const { result } = renderHook(() =>
 				useBatchProcessor({
@@ -3946,14 +3947,14 @@ describe('useBatchProcessor hook', () => {
 				success: true,
 				branchMismatch: true,
 			});
-			window.maestro.git.worktreeSetup = mockWorktreeSetup;
+			window.openwizardai.git.worktreeSetup = mockWorktreeSetup;
 
 			// Mock checkout failure due to uncommitted changes
 			const mockWorktreeCheckout = vi.fn().mockResolvedValue({
 				success: false,
 				hasUncommittedChanges: true,
 			});
-			window.maestro.git.worktreeCheckout = mockWorktreeCheckout;
+			window.openwizardai.git.worktreeCheckout = mockWorktreeCheckout;
 
 			const { result } = renderHook(() =>
 				useBatchProcessor({
@@ -4003,21 +4004,21 @@ describe('useBatchProcessor hook', () => {
 
 			// Mock worktree setup
 			const mockWorktreeSetup = vi.fn().mockResolvedValue({ success: true });
-			window.maestro.git.worktreeSetup = mockWorktreeSetup;
+			window.openwizardai.git.worktreeSetup = mockWorktreeSetup;
 
 			// Mock PR creation
 			const mockCreatePR = vi.fn().mockResolvedValue({
 				success: true,
 				prUrl: 'https://github.com/test/repo/pull/123',
 			});
-			window.maestro.git.createPR = mockCreatePR;
+			window.openwizardai.git.createPR = mockCreatePR;
 
 			// Mock default branch detection
 			const mockGetDefaultBranch = vi.fn().mockResolvedValue({
 				success: true,
 				branch: 'main',
 			});
-			window.maestro.git.getDefaultBranch = mockGetDefaultBranch;
+			window.openwizardai.git.getDefaultBranch = mockGetDefaultBranch;
 
 			const mockOnPRResult = vi.fn();
 
@@ -4074,20 +4075,20 @@ describe('useBatchProcessor hook', () => {
 
 			// Mock worktree setup
 			const mockWorktreeSetup = vi.fn().mockResolvedValue({ success: true });
-			window.maestro.git.worktreeSetup = mockWorktreeSetup;
+			window.openwizardai.git.worktreeSetup = mockWorktreeSetup;
 
 			// Mock PR creation failure
 			const mockCreatePR = vi.fn().mockResolvedValue({
 				success: false,
 				error: 'No upstream configured',
 			});
-			window.maestro.git.createPR = mockCreatePR;
+			window.openwizardai.git.createPR = mockCreatePR;
 
 			const mockGetDefaultBranch = vi.fn().mockResolvedValue({
 				success: true,
 				branch: 'main',
 			});
-			window.maestro.git.getDefaultBranch = mockGetDefaultBranch;
+			window.openwizardai.git.getDefaultBranch = mockGetDefaultBranch;
 
 			const mockOnPRResult = vi.fn();
 
@@ -4144,14 +4145,14 @@ describe('useBatchProcessor hook', () => {
 
 			// Mock worktree setup
 			const mockWorktreeSetup = vi.fn().mockResolvedValue({ success: true });
-			window.maestro.git.worktreeSetup = mockWorktreeSetup;
+			window.openwizardai.git.worktreeSetup = mockWorktreeSetup;
 
 			// Mock PR creation
 			const mockCreatePR = vi.fn().mockResolvedValue({
 				success: true,
 				prUrl: 'https://github.com/test/repo/pull/456',
 			});
-			window.maestro.git.createPR = mockCreatePR;
+			window.openwizardai.git.createPR = mockCreatePR;
 
 			const { result } = renderHook(() =>
 				useBatchProcessor({
@@ -4221,7 +4222,7 @@ describe('useBatchProcessor hook', () => {
 			});
 
 			const mockSpeak = vi.fn().mockResolvedValue(undefined);
-			window.maestro.notification.speak = mockSpeak;
+			window.openwizardai.notification.speak = mockSpeak;
 
 			const { result } = renderHook(() =>
 				useBatchProcessor({
@@ -5194,7 +5195,7 @@ describe('useBatchProcessor hook', () => {
 			const groups = [createMockGroup()];
 
 			const mockSpeak = vi.fn().mockResolvedValue(undefined);
-			window.maestro.notification.speak = mockSpeak;
+			window.openwizardai.notification.speak = mockSpeak;
 
 			let callCount = 0;
 			mockReadDoc.mockImplementation(async () => {
@@ -5240,7 +5241,7 @@ describe('useBatchProcessor hook', () => {
 			const groups = [createMockGroup()];
 
 			const mockSpeak = vi.fn().mockRejectedValue(new Error('TTS not available'));
-			window.maestro.notification.speak = mockSpeak;
+			window.openwizardai.notification.speak = mockSpeak;
 
 			let callCount = 0;
 			mockReadDoc.mockImplementation(async () => {
@@ -5805,7 +5806,7 @@ describe('useBatchProcessor hook', () => {
 			expect(mockCreatePR).toHaveBeenCalled();
 			const createPRCallArgs = mockCreatePR.mock.calls[0];
 			// The worktreeManager.createPR gets an options object, but it's the
-			// internal createPR mock on window.maestro.git. The worktreeManager wrapper
+			// internal createPR mock on window.openwizardai.git. The worktreeManager wrapper
 			// passes worktreePath as the first arg to git.createPR
 			expect(createPRCallArgs[0]).toBe('/projects/main-repo/worktrees/my-feature');
 		});

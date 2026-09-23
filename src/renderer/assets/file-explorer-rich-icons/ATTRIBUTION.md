@@ -5,7 +5,7 @@ This directory contains a curated subset of SVG icons copied from:
 - Commit: `ed35cf9bde65881c6592f03212d0820653551415`
 - License: MIT
 
-The copied SVG assets are used only for OpenWizzard's Files pane "Rich" icon theme.
+The copied SVG assets are used only for OpenWizardAI's Files pane "Rich" icon theme.
 
 Upstream MIT license:
 

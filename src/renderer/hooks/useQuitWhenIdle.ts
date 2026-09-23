@@ -33,7 +33,7 @@ export function useQuitWhenIdle(): void {
 			}
 			if (!snapshot.hasActiveOperations) {
 				useQuitWhenIdleStore.getState().cancel();
-				window.maestro.app.confirmQuit();
+				window.openwizardai.app.confirmQuit();
 			}
 		};
 

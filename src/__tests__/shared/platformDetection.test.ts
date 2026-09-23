@@ -80,35 +80,35 @@ describe('platformDetection', () => {
 	});
 
 	describe('renderer (browser) fallback', () => {
-		// In a renderer, `process` is undefined and `globalThis.maestro.platform`
+		// In a renderer, `process` is undefined and `globalThis.openwizardai.platform`
 		// is provided by the preload bridge. Simulate the no-process case by
-		// blanking process.platform; the fallback should pick up maestro.platform.
-		const g = globalThis as unknown as { maestro?: { platform?: string } };
+		// blanking process.platform; the fallback should pick up openwizardai.platform.
+		const g = globalThis as unknown as { openwizardai?: { platform?: string } };
 
-		it('reads platform from globalThis.maestro.platform when process.platform is empty', () => {
+		it('reads platform from globalThis.openwizardai.platform when process.platform is empty', () => {
 			Object.defineProperty(process, 'platform', { value: '', configurable: true });
-			const savedMaestro = g.maestro;
+			const savedOpenWizardAI = g.openwizardai;
 			try {
-				g.maestro = { platform: 'darwin' };
+				g.openwizardai = { platform: 'darwin' };
 				expect(isMacOS()).toBe(true);
 				expect(isWindows()).toBe(false);
 				expect(isLinux()).toBe(false);
 			} finally {
-				g.maestro = savedMaestro;
+				g.openwizardai = savedOpenWizardAI;
 			}
 		});
 
-		it('falls back to linux when neither process.platform nor maestro is defined', () => {
+		it('falls back to linux when neither process.platform nor openwizardai is defined', () => {
 			Object.defineProperty(process, 'platform', { value: '', configurable: true });
-			const savedMaestro = g.maestro;
+			const savedOpenWizardAI = g.openwizardai;
 			try {
-				g.maestro = undefined;
+				g.openwizardai = undefined;
 				expect(() => isMacOS()).not.toThrow();
 				expect(isLinux()).toBe(true);
 				expect(isMacOS()).toBe(false);
 				expect(isWindows()).toBe(false);
 			} finally {
-				g.maestro = savedMaestro;
+				g.openwizardai = savedOpenWizardAI;
 			}
 		});
 
@@ -118,27 +118,27 @@ describe('platformDetection', () => {
 		// rendered "Ctrl+0" instead of "Command+0".
 		it('prefers the preload bridge over the renderer process shim', () => {
 			Object.defineProperty(process, 'platform', { value: 'browser', configurable: true });
-			const savedMaestro = g.maestro;
+			const savedOpenWizardAI = g.openwizardai;
 			try {
-				g.maestro = { platform: 'darwin' };
+				g.openwizardai = { platform: 'darwin' };
 				expect(isMacOS()).toBe(true);
 				expect(isWindows()).toBe(false);
 				expect(isLinux()).toBe(false);
 			} finally {
-				g.maestro = savedMaestro;
+				g.openwizardai = savedOpenWizardAI;
 			}
 		});
 
 		it('never treats the shim sentinel "browser" as a real platform', () => {
 			Object.defineProperty(process, 'platform', { value: 'browser', configurable: true });
-			const savedMaestro = g.maestro;
+			const savedOpenWizardAI = g.openwizardai;
 			try {
-				g.maestro = undefined;
+				g.openwizardai = undefined;
 				expect(isLinux()).toBe(true);
 				expect(isMacOS()).toBe(false);
 				expect(isWindows()).toBe(false);
 			} finally {
-				g.maestro = savedMaestro;
+				g.openwizardai = savedOpenWizardAI;
 			}
 		});
 	});

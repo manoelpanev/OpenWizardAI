@@ -1,6 +1,6 @@
 # Building and Running on Windows
 
-This guide provides instructions for setting up your environment and running the Maestro application on a Windows machine.
+This guide provides instructions for setting up your environment and running the OpenWizardAI application on a Windows machine.
 
 ## Prerequisites
 

@@ -10,7 +10,7 @@ import { resolveToBytesSync } from '../../storage/session-image-store';
  * Resolve an image value to base64 + media type.
  *
  * Accepts BOTH inline `data:image/...;base64,...` data URLs (freshly pasted,
- * not yet persisted) AND `maestro-image://store/<sha>.<ext>` references (images
+ * not yet persisted) AND `openwizardai-image://store/<sha>.<ext>` references (images
  * relocated to the content-addressed store on persistence - see
  * src/main/storage/session-image-store.ts). Because every send-to-agent path
  * (normal send, replay of an old message, SSH, stream-json) funnels through
@@ -24,7 +24,7 @@ export function parseDataUrl(value: string): { base64: string; mediaType: string
 	const match = value.match(/^data:(image\/[^;]+);base64,(.+)$/);
 	if (match) return { mediaType: match[1], base64: match[2] };
 
-	// maestro-image ref (persisted image relocated to the content-addressed
+	// openwizardai-image ref (persisted image relocated to the content-addressed
 	// store): read the bytes off disk and encode them for the agent hand-off.
 	const resolved = resolveToBytesSync(value);
 	if (!resolved) return null;
@@ -43,7 +43,7 @@ export function saveImageToTempFile(dataUrl: string, index: number): string | nu
 	}
 
 	const ext = parsed.mediaType.split('/')[1] || 'png';
-	const filename = `maestro-image-${Date.now()}-${index}.${ext}`;
+	const filename = `openwizardai-image-${Date.now()}-${index}.${ext}`;
 	const tempPath = path.join(os.tmpdir(), filename);
 
 	try {

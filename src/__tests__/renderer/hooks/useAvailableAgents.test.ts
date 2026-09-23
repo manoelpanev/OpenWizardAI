@@ -71,7 +71,7 @@ function createMockSession(
 describe('useAvailableAgents', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue(mockAgentConfigs);
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue(mockAgentConfigs);
 	});
 
 	it('loads agents on mount and sets loading state', async () => {
@@ -170,14 +170,14 @@ describe('useAvailableAgents', () => {
 		});
 
 		// Should have been called once on mount
-		expect(window.maestro.agents.detect).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.agents.detect).toHaveBeenCalledTimes(1);
 
 		// Call refresh
 		await act(async () => {
 			await result.current.refresh();
 		});
 
-		expect(window.maestro.agents.detect).toHaveBeenCalledTimes(2);
+		expect(window.openwizardai.agents.detect).toHaveBeenCalledTimes(2);
 	});
 
 	it('returns agent by ID with getAgent helper', async () => {
@@ -196,7 +196,9 @@ describe('useAvailableAgents', () => {
 	});
 
 	it('handles error when agent detection fails', async () => {
-		vi.mocked(window.maestro.agents.detect).mockRejectedValueOnce(new Error('Detection failed'));
+		vi.mocked(window.openwizardai.agents.detect).mockRejectedValueOnce(
+			new Error('Detection failed')
+		);
 
 		const { result } = renderHook(() => useAvailableAgents(null, []));
 
@@ -251,7 +253,7 @@ describe('useAvailableAgents', () => {
 describe('useAvailableAgentsForCapability', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue(mockAgentConfigs);
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue(mockAgentConfigs);
 	});
 
 	it('filters agents by required capability', async () => {

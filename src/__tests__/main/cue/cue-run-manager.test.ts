@@ -24,23 +24,23 @@ vi.mock('../../../main/utils/sentry', () => ({
 	captureException: (...args: unknown[]) => mockCaptureException(...args),
 }));
 
-// Mock runMaestroCliSend for Phase 3 CLI output delivery. We mock the
+// Mock runOpenWizardAICliSend for Phase 3 CLI output delivery. We mock the
 // executor-level helper (rather than the low-level execFileNoThrow or `spawn`)
 // so the test stays at the same abstraction level as the run-manager which
-// consumes `runMaestroCliSend` directly. Test assertions still inspect the
+// consumes `runOpenWizardAICliSend` directly. Test assertions still inspect the
 // target/message args the helper was called with.
-interface RunMaestroCliSendResult {
+interface manoelpanevCliSendResult {
 	ok: boolean;
 	exitCode: number | string;
 	stdout: string;
 	stderr: string;
 	resolvedTarget: string;
 }
-const mockRunMaestroCliSend =
+const mockmanoelpanevCliSend =
 	vi.fn<
-		(target: string, message: string, timeoutMs?: number) => Promise<RunMaestroCliSendResult>
+		(target: string, message: string, timeoutMs?: number) => Promise<manoelpanevCliSendResult>
 	>();
-mockRunMaestroCliSend.mockResolvedValue({
+mockmanoelpanevCliSend.mockResolvedValue({
 	ok: true,
 	exitCode: 0,
 	stdout: '{}',
@@ -49,8 +49,8 @@ mockRunMaestroCliSend.mockResolvedValue({
 });
 
 vi.mock('../../../main/cue/cue-cli-executor', () => ({
-	runMaestroCliSend: (...args: unknown[]) =>
-		mockRunMaestroCliSend(...(args as Parameters<typeof mockRunMaestroCliSend>)),
+	runOpenWizardAICliSend: (...args: unknown[]) =>
+		mockmanoelpanevCliSend(...(args as Parameters<typeof mockmanoelpanevCliSend>)),
 }));
 
 let uuidCounter = 0;
@@ -548,7 +548,7 @@ describe('createCueRunManager', () => {
 		it('falls back to stderr for the excerpt when a failed run printed nothing', async () => {
 			const deps = createDeps({
 				onCueRun: vi.fn(async () =>
-					makeResult({ status: 'failed', stdout: '', stderr: 'maestro-p idle timeout.' })
+					makeResult({ status: 'failed', stdout: '', stderr: 'openwizardai-p idle timeout.' })
 				),
 			});
 			const manager = createCueRunManager(deps);
@@ -561,8 +561,8 @@ describe('createCueRunManager', () => {
 				'failed',
 				undefined,
 				expect.objectContaining({
-					errorMessage: 'maestro-p idle timeout.',
-					outputExcerpt: 'maestro-p idle timeout.',
+					errorMessage: 'openwizardai-p idle timeout.',
+					outputExcerpt: 'openwizardai-p idle timeout.',
 					fullOutput: null,
 				})
 			);
@@ -1110,7 +1110,7 @@ describe('createCueRunManager', () => {
 
 	describe('Phase 3: CLI Output delivery', () => {
 		beforeEach(() => {
-			mockRunMaestroCliSend.mockResolvedValue({
+			mockmanoelpanevCliSend.mockResolvedValue({
 				ok: true,
 				exitCode: 0,
 				stdout: '{}',
@@ -1119,7 +1119,7 @@ describe('createCueRunManager', () => {
 			});
 		});
 
-		it('triggers runMaestroCliSend with correct arguments when run succeeds', async () => {
+		it('triggers runOpenWizardAICliSend with correct arguments when run succeeds', async () => {
 			const deps = createDeps();
 			const manager = createCueRunManager(deps);
 
@@ -1134,8 +1134,8 @@ describe('createCueRunManager', () => {
 			);
 			await vi.advanceTimersByTimeAsync(0);
 
-			expect(mockRunMaestroCliSend).toHaveBeenCalledTimes(1);
-			expect(mockRunMaestroCliSend).toHaveBeenCalledWith('agent-42', 'output');
+			expect(mockmanoelpanevCliSend).toHaveBeenCalledTimes(1);
+			expect(mockmanoelpanevCliSend).toHaveBeenCalledWith('agent-42', 'output');
 		});
 
 		it('skips delivery when target resolves to empty string', async () => {
@@ -1148,7 +1148,7 @@ describe('createCueRunManager', () => {
 			});
 			await vi.advanceTimersByTimeAsync(0);
 
-			expect(mockRunMaestroCliSend).not.toHaveBeenCalled();
+			expect(mockmanoelpanevCliSend).not.toHaveBeenCalled();
 			expect(deps.onLog).toHaveBeenCalledWith(
 				'warn',
 				expect.stringContaining('target resolved to empty string')
@@ -1166,11 +1166,11 @@ describe('createCueRunManager', () => {
 			});
 			await vi.advanceTimersByTimeAsync(0);
 
-			expect(mockRunMaestroCliSend).not.toHaveBeenCalled();
+			expect(mockmanoelpanevCliSend).not.toHaveBeenCalled();
 		});
 
 		it('delivery failure does not change run status', async () => {
-			mockRunMaestroCliSend.mockResolvedValue({
+			mockmanoelpanevCliSend.mockResolvedValue({
 				ok: false,
 				exitCode: 1,
 				stdout: '',
@@ -1211,8 +1211,8 @@ describe('createCueRunManager', () => {
 			});
 			await vi.advanceTimersByTimeAsync(0);
 
-			expect(mockRunMaestroCliSend).toHaveBeenCalledTimes(1);
-			expect(mockRunMaestroCliSend).toHaveBeenCalledWith('resolved-agent-99', 'output');
+			expect(mockmanoelpanevCliSend).toHaveBeenCalledTimes(1);
+			expect(mockmanoelpanevCliSend).toHaveBeenCalledWith('resolved-agent-99', 'output');
 		});
 
 		it('is not called when cliOutput is not provided', async () => {
@@ -1222,12 +1222,12 @@ describe('createCueRunManager', () => {
 			manager.execute('session-1', 'prompt', createEvent(), 'test-sub');
 			await vi.advanceTimersByTimeAsync(0);
 
-			expect(mockRunMaestroCliSend).not.toHaveBeenCalled();
+			expect(mockmanoelpanevCliSend).not.toHaveBeenCalled();
 		});
 
-		it('forwards the full stdout to runMaestroCliSend (truncation happens in the CLI helper)', async () => {
+		it('forwards the full stdout to runOpenWizardAICliSend (truncation happens in the CLI helper)', async () => {
 			// The run-manager no longer truncates inline - truncation is owned
-			// by `runMaestroCliSend` in cue-cli-executor (capped at
+			// by `runOpenWizardAICliSend` in cue-cli-executor (capped at
 			// CLI_SEND_OUTPUT_MAX_CHARS = 100_000). Validate the run-manager
 			// forwards the raw output unchanged so the helper can cap it.
 			const longOutput = 'x'.repeat(150_000);
@@ -1241,8 +1241,8 @@ describe('createCueRunManager', () => {
 			});
 			await vi.advanceTimersByTimeAsync(0);
 
-			expect(mockRunMaestroCliSend).toHaveBeenCalledTimes(1);
-			expect(mockRunMaestroCliSend).toHaveBeenCalledWith('agent-42', longOutput);
+			expect(mockmanoelpanevCliSend).toHaveBeenCalledTimes(1);
+			expect(mockmanoelpanevCliSend).toHaveBeenCalledWith('agent-42', longOutput);
 		});
 
 		it('logs success message on delivery', async () => {

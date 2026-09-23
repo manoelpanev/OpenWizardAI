@@ -117,7 +117,7 @@ export function useSessionPagination({
 
 				if (agentId === 'claude-code') {
 					// Claude Code uses its own origins store (claude:getSessionOrigins)
-					const origins = await window.maestro.claude.getSessionOrigins(projectPath);
+					const origins = await window.openwizardai.claude.getSessionOrigins(projectPath);
 					for (const [sessionId, originData] of Object.entries(origins)) {
 						if (typeof originData === 'object') {
 							if (originData?.starred) {
@@ -130,7 +130,7 @@ export function useSessionPagination({
 					}
 				} else {
 					// Other agents (Codex, OpenCode, etc.) use the generic origins store
-					const origins = await window.maestro.agentSessions.getOrigins(agentId, projectPath);
+					const origins = await window.openwizardai.agentSessions.getOrigins(agentId, projectPath);
 					for (const [sessionId, originData] of Object.entries(origins)) {
 						if (originData?.starred) {
 							starredFromOrigins.add(sessionId);
@@ -146,7 +146,7 @@ export function useSessionPagination({
 
 				// Use generic agentSessions API with agentId parameter for paginated loading
 				// Pass sshRemoteId for SSH remote session access
-				const result = await window.maestro.agentSessions.listPaginated(
+				const result = await window.openwizardai.agentSessions.listPaginated(
 					agentId,
 					projectPath,
 					{ limit: 100 },
@@ -173,7 +173,7 @@ export function useSessionPagination({
 				// Start fetching aggregate stats for ALL sessions (runs in background with progressive updates)
 				// Note: Stats tracking is currently Claude-specific; other agents will need their own implementation
 				if (agentId === 'claude-code') {
-					window.maestro.claude.getProjectStats(projectPath);
+					window.openwizardai.claude.getProjectStats(projectPath);
 				}
 			} catch (error) {
 				logger.error('Failed to load sessions:', undefined, error);
@@ -193,7 +193,7 @@ export function useSessionPagination({
 		try {
 			// Use generic agentSessions API with agentId parameter
 			// Pass sshRemoteId for SSH remote session access
-			const result = await window.maestro.agentSessions.listPaginated(
+			const result = await window.openwizardai.agentSessions.listPaginated(
 				agentId,
 				projectPath,
 				{

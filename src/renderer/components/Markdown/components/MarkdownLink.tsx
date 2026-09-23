@@ -5,11 +5,11 @@
  * explicit behavior flags so no surface regresses.
  *
  * Supported targets (gated by config/behavior):
- *   - `maestro-file://` / `data-maestro-file`  -> onFileClick
- *   - `maestro://`                              -> openMaestroLink (always)
+ *   - `openwizardai-file://` / `data-openwizardai-file`  -> onFileClick
+ *   - `openwizardai://`                              -> openOpenWizardAILink (always)
  *   - `#anchor`                                 -> onAnchorClick / scroll (behavior.anchors)
  *   - `http(s)://` / `file://` / `git@`         -> inline open (behavior.directExternal, chat).
- *     A `file://` target Maestro can render itself (JSON, text, source, media)
+ *     A `file://` target OpenWizardAI can render itself (JSON, text, source, media)
  *     goes to onFileClick instead of the OS, so it lands in the preview tab or
  *     the player; only OS-owned types are handed off - see `openFileUrl`.
  *   - `http(s)://` / `mailto:`                  -> onExternalLinkClick (doc)
@@ -17,7 +17,7 @@
  *
  * Right-click context menus (chat) are opt-in via the onLinkContextMenu /
  * onFileContextMenu callbacks; when omitted, no context-menu handler is attached.
- * Both `maestro-file://` and `file://` targets go to onFileContextMenu - being
+ * Both `openwizardai-file://` and `file://` targets go to onFileContextMenu - being
  * outside the project root changes the href scheme, not the fact that it is a file.
  */
 
@@ -25,7 +25,7 @@ import React from 'react';
 import type { Theme } from '../../../types';
 import { openUrl } from '../../../utils/openUrl';
 import { fileUrlToPath, openFileUrl } from '../../../utils/openFileUrl';
-import { openMaestroLink } from '../../../utils/openMaestroLink';
+import { openOpenWizardAILink } from '../../../utils/openOpenWizardAILink';
 
 export interface MarkdownLinkBehavior {
 	/** Chat: handle http/file/git destinations inline via openUrl/openPath. */
@@ -35,7 +35,7 @@ export interface MarkdownLinkBehavior {
 	/** Doc: treat unmatched relative hrefs as file clicks. */
 	relativeAsFile?: boolean;
 	/**
-	 * Pass `{ openInNewTab }` to onFileClick for `maestro-file://` links (doc).
+	 * Pass `{ openInNewTab }` to onFileClick for `openwizardai-file://` links (doc).
 	 * Chat omits options to preserve its historical single-argument call shape.
 	 */
 	fileClickOptions?: boolean;
@@ -52,7 +52,7 @@ export interface MarkdownLinkConfig {
 	onAnchorClick?: (anchorId: string) => void;
 	/** Container for in-component anchor scrolling (falls back to document). */
 	containerRef?: React.RefObject<HTMLElement>;
-	/** Right-click on an external/maestro link. When set, attaches a context handler. */
+	/** Right-click on an external/openwizardai link. When set, attaches a context handler. */
 	onLinkContextMenu?: (e: React.MouseEvent, url: string) => void;
 	/** Right-click on a file link. Receives the resolved absolute path + file name. */
 	onFileContextMenu?: (e: React.MouseEvent, absPath: string, fileName: string) => void;
@@ -92,28 +92,28 @@ export function createMarkdownLink(config: MarkdownLinkConfig) {
 	const hasContextMenu = Boolean(onLinkContextMenu || onFileContextMenu);
 
 	return function MarkdownLink({ node: _node, href, children, ...props }: any) {
-		// Check for maestro-file:// protocol OR data-maestro-file attribute
+		// Check for openwizardai-file:// protocol OR data-openwizardai-file attribute
 		// (data attribute is the fallback when rehype strips custom protocols).
-		const dataFilePath = props['data-maestro-file'] as string | undefined;
-		const isMaestroFile = href?.startsWith('maestro-file://') || !!dataFilePath;
+		const dataFilePath = props['data-openwizardai-file'] as string | undefined;
+		const isOpenWizardAIFile = href?.startsWith('openwizardai-file://') || !!dataFilePath;
 		const filePath =
 			dataFilePath ??
-			(href?.startsWith('maestro-file://') ? href.replace('maestro-file://', '') : null);
+			(href?.startsWith('openwizardai-file://') ? href.replace('openwizardai-file://', '') : null);
 		const isAnchorLink = Boolean(href && href.startsWith('#'));
 
 		const handleClick = (e: React.MouseEvent) => {
 			e.preventDefault();
 			const openInNewTab = e.metaKey || e.ctrlKey;
 
-			if (isMaestroFile && filePath && onFileClick) {
+			if (isOpenWizardAIFile && filePath && onFileClick) {
 				if (behavior.fileClickOptions) onFileClick(filePath, { openInNewTab });
 				else onFileClick(filePath);
 				return;
 			}
 			if (!href) return;
 
-			if (href.startsWith('maestro://')) {
-				openMaestroLink(href);
+			if (href.startsWith('openwizardai://')) {
+				openOpenWizardAILink(href);
 				return;
 			}
 
@@ -132,7 +132,7 @@ export function createMarkdownLink(config: MarkdownLinkConfig) {
 
 			if (behavior.directExternal) {
 				// Chat: open http/https via openUrl; file:// via openFileUrl (which
-				// keeps anything Maestro can render in the preview tab or its own
+				// keeps anything OpenWizardAI can render in the preview tab or its own
 				// player rather than handing it to the OS); attempt
 				// git@host:user/repo -> https conversion for anything else.
 				// `metaKey || ctrlKey`: on macOS Cmd-click sets metaKey, so translate
@@ -172,11 +172,11 @@ export function createMarkdownLink(config: MarkdownLinkConfig) {
 		const handleContextMenu = hasContextMenu
 			? (e: React.MouseEvent) => {
 					// A path OUTSIDE the project root arrives as `file://` rather than
-					// `maestro-file://` (see remarkFileLinks / markdownItAdapter), but it
+					// `openwizardai-file://` (see remarkFileLinks / markdownItAdapter), but it
 					// is still a file: it wants Copy Path and Reveal, not the browser
 					// actions the link menu offers.
 					const externalFilePath = href ? fileUrlToPath(href) : null;
-					const targetPath = isMaestroFile ? filePath : externalFilePath;
+					const targetPath = isOpenWizardAIFile ? filePath : externalFilePath;
 					if (targetPath && onFileContextMenu) {
 						e.preventDefault();
 						e.stopPropagation();

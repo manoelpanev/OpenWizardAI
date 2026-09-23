@@ -192,7 +192,7 @@ export function GroupChatRightPanel({
 	const handleContextReset = useCallback(
 		async (participantName: string) => {
 			try {
-				await window.maestro.groupChat.resetParticipantContext(groupChatId, participantName);
+				await window.openwizardai.groupChat.resetParticipantContext(groupChatId, participantName);
 			} catch (error) {
 				logger.error(`Failed to reset context for ${participantName}:`, undefined, error);
 			}
@@ -203,7 +203,7 @@ export function GroupChatRightPanel({
 	// Handle removing a participant from the group chat
 	const handleRemoveParticipant = useCallback(
 		async (participantName: string) => {
-			await window.maestro.groupChat.removeParticipant(groupChatId, participantName);
+			await window.openwizardai.groupChat.removeParticipant(groupChatId, participantName);
 		},
 		[groupChatId]
 	);
@@ -217,7 +217,7 @@ export function GroupChatRightPanel({
 		if (!isOpen || !groupChatId) return;
 
 		// Safety check in case preload hasn't been updated yet
-		if (typeof window.maestro.groupChat.getHistory !== 'function') {
+		if (typeof window.openwizardai.groupChat.getHistory !== 'function') {
 			logger.warn('groupChat.getHistory not available - restart dev server to update preload');
 			setHistoryEntries([]);
 			setIsLoadingHistory(false);
@@ -227,7 +227,7 @@ export function GroupChatRightPanel({
 		const loadHistory = async () => {
 			setIsLoadingHistory(true);
 			try {
-				const entries = await window.maestro.groupChat.getHistory(groupChatId);
+				const entries = await window.openwizardai.groupChat.getHistory(groupChatId);
 				setHistoryEntries(entries);
 			} catch (error) {
 				logger.error('Failed to load group chat history:', undefined, error);
@@ -245,12 +245,12 @@ export function GroupChatRightPanel({
 		if (!groupChatId) return;
 
 		// Safety check in case preload hasn't been updated yet
-		if (typeof window.maestro.groupChat.onHistoryEntry !== 'function') {
+		if (typeof window.openwizardai.groupChat.onHistoryEntry !== 'function') {
 			logger.warn('groupChat.onHistoryEntry not available - restart dev server to update preload');
 			return;
 		}
 
-		const unsubscribe = window.maestro.groupChat.onHistoryEntry((chatId, entry) => {
+		const unsubscribe = window.openwizardai.groupChat.onHistoryEntry((chatId, entry) => {
 			if (chatId === groupChatId) {
 				setHistoryEntries((prev) => [entry, ...prev]);
 			}

@@ -22,7 +22,7 @@ import type { ToastClickAction } from '../../shared/toastClickAction';
 
 /**
  * Five canonical Toast colors - same design language as Center Flash.
- * `theme` adapts to the active Maestro theme.
+ * `theme` adapts to the active OpenWizardAI theme.
  *
  *   green  - succeeded
  *   yellow - heads-up / soft warning
@@ -47,7 +47,7 @@ const TOAST_TYPE_TO_COLOR: Record<ToastType, ToastColor> = {
 
 /**
  * What happens when the toast body is clicked, as data rather than a callback,
- * so externally-fired toasts (`maestro-cli notify toast`, Cue, the web bridge)
+ * so externally-fired toasts (`openwizardai-cli notify toast`, Cue, the web bridge)
  * can carry one across the IPC boundary. The canonical shape and its validator
  * live in `shared/toastClickAction.ts`; the renderer dispatches it through
  * `services/toastClickActions.ts`.
@@ -65,8 +65,8 @@ export interface Toast {
 	type: ToastType;
 	title: string;
 	message: string;
-	group?: string; // OpenWizzard group name
-	project?: string; // OpenWizzard session name (the agent name in Left Bar)
+	group?: string; // OpenWizardAI group name
+	project?: string; // OpenWizardAI session name (the agent name in Left Bar)
 	/**
 	 * Auto-dismiss in ms. 0 = no auto-dismiss (sticky). Ignored when
 	 * `dismissible: true`, which forces no auto-dismiss.
@@ -83,7 +83,7 @@ export interface Toast {
 	tabName?: string; // Tab name or short UUID for display
 	timestamp: number;
 	// Session navigation - allows clicking toast to jump to session
-	sessionId?: string; // OpenWizzard session ID for navigation
+	sessionId?: string; // OpenWizardAI session ID for navigation
 	tabId?: string; // Tab ID within the session for navigation
 	// Action link - clickable URL shown below message (e.g., PR URL)
 	actionUrl?: string; // URL to open when clicked
@@ -236,9 +236,9 @@ export type NotifyToastInput = Omit<Toast, 'id' | 'timestamp' | 'color' | 'type'
  * 2. Color resolution (color > legacy type > 'theme')
  * 3. Duration calculation (seconds → ms; sticky when dismissible)
  * 4. Adding to visible queue (unless toasts disabled)
- * 5. Logging via window.maestro.logger.toast
- * 6. Audio feedback via window.maestro.notification.speak
- * 7. OS notifications via window.maestro.notification.show
+ * 5. Logging via window.openwizardai.logger.toast
+ * 6. Audio feedback via window.openwizardai.notification.speak
+ * 7. OS notifications via window.openwizardai.notification.show
  * 8. Auto-dismiss timer (skipped when dismissible or duration=0)
  *
  * Callable from React components and non-React code alike.
@@ -298,8 +298,8 @@ export function notifyToast(toast: NotifyToastInput): string {
 		hasContent;
 
 	// Log to system logs
-	if (typeof window !== 'undefined' && window.maestro?.logger?.toast) {
-		window.maestro.logger.toast(toast.title, {
+	if (typeof window !== 'undefined' && window.openwizardai?.logger?.toast) {
+		window.openwizardai.logger.toast(toast.title, {
 			type: toast.type,
 			message: toast.message,
 			group: toast.group,
@@ -333,7 +333,7 @@ export function notifyToast(toast: NotifyToastInput): string {
 	// gate lives in triggerCustomNotification so it can be reused by callers that
 	// fire audio without a visual toast (e.g. completion while viewing the tab).
 	// Forward the agent/tab/group/task context so commands can reference it via
-	// MAESTRO_NOTIFY_* env vars (e.g. to name which agent finished). `project` is
+	// OPENWIZARDAI_NOTIFY_* env vars (e.g. to name which agent finished). `project` is
 	// the Left Bar agent name.
 	if (!toast.skipCustomNotification) {
 		triggerCustomNotification(toast.message, {
@@ -346,7 +346,7 @@ export function notifyToast(toast: NotifyToastInput): string {
 
 	// OS desktop notification
 	if (config.osNotificationsEnabled && !toast.skipOsNotification) {
-		if (typeof window !== 'undefined' && window.maestro?.notification?.show) {
+		if (typeof window !== 'undefined' && window.openwizardai?.notification?.show) {
 			const notifTitle = toast.project || toast.title;
 
 			const tabLabel =
@@ -369,7 +369,7 @@ export function notifyToast(toast: NotifyToastInput): string {
 			const prefix = bodyParts.length > 0 ? `${bodyParts.join(' > ')}: ` : '';
 			const notifBody = prefix + firstSentence;
 
-			window.maestro.notification
+			window.openwizardai.notification
 				.show(notifTitle, notifBody, toast.sessionId, toast.tabId)
 				.catch((err) => {
 					logger.error('[notificationStore] Failed to show OS notification:', undefined, err);
@@ -396,8 +396,8 @@ export function notifyToast(toast: NotifyToastInput): string {
  * both from notifyToast (visual + audio together) and from completion handlers
  * that need the audio cue even when no visual toast is shown.
  *
- * `vars` (optional) carries Maestro context (agent/tab/group/task) that the
- * command receives as MAESTRO_NOTIFY_* env vars.
+ * `vars` (optional) carries OpenWizardAI context (agent/tab/group/task) that the
+ * command receives as OPENWIZARDAI_NOTIFY_* env vars.
  *
  * @returns true if a command was dispatched, false if gated out.
  */
@@ -410,13 +410,13 @@ export function triggerCustomNotification(
 	const shouldFire = config.audioFeedbackEnabled && !!config.audioFeedbackCommand && hasContent;
 	if (!shouldFire) return false;
 
-	if (typeof window !== 'undefined' && window.maestro?.notification?.speak) {
+	if (typeof window !== 'undefined' && window.openwizardai?.notification?.speak) {
 		// Stay 2-arg when no context is provided so callers (and their tests) that
 		// don't pass vars are unaffected.
 		const dispatched =
 			vars === undefined
-				? window.maestro.notification.speak(message!, config.audioFeedbackCommand)
-				: window.maestro.notification.speak(message!, config.audioFeedbackCommand, vars);
+				? window.openwizardai.notification.speak(message!, config.audioFeedbackCommand)
+				: window.openwizardai.notification.speak(message!, config.audioFeedbackCommand, vars);
 		dispatched.catch((err) => {
 			logger.error('[notificationStore] Custom notification failed:', undefined, err);
 		});

@@ -4,7 +4,7 @@
  * Cue ingests GitHub issue/PR bodies and comments and hands them to an agent.
  * Those are the only Cue inputs a third party can write, so they are the only
  * ones scored here - task files, CLI prompts, and watched files are the user's
- * own text and scoring them only produced false positives (Maestro's own test
+ * own text and scoring them only produced false positives (OpenWizardAI's own test
  * fixtures contain injection strings) and fan-out cost.
  *
  * Two-step API: exchange the long-lived `ODIN_API_TOKEN` for a short-lived JWT
@@ -30,22 +30,9 @@
 
 import * as crypto from 'crypto';
 import { mapWithConcurrency } from '../utils/concurrency';
+import { fetchWithTimeout } from '../utils/fetch-with-timeout';
 
 const ACCESS_TOKEN_URL = 'https://0din.ai/api/v1/access_tokens';
-
-async function fetchWithTimeout(
-	url: string,
-	options: RequestInit,
-	timeoutMs: number
-): Promise<Response> {
-	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
-	try {
-		return await fetch(url, { ...options, signal: controller.signal });
-	} finally {
-		clearTimeout(timeoutId);
-	}
-}
 const SUS_URL = 'https://defense.0din.ai/api/v1/sus';
 
 /** Per-request budget for a single sus call. */

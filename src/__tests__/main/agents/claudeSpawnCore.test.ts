@@ -3,7 +3,7 @@
  *
  * The full decision matrix is exercised through the desktop wrapper in
  * `resolveClaudeSpawnMode.test.ts`. This file locks the pieces the CORE newly
- * exposes for the standalone `maestro-cli` to share - the pure helpers and the
+ * exposes for the standalone `openwizardai-cli` to share - the pure helpers and the
  * behavior under the CLI's dependency shape (no SQLite usage snapshot) - so the
  * "one decision, honored across every surface" guarantee can't silently drift.
  */
@@ -11,7 +11,7 @@
 import { describe, it, expect } from 'vitest';
 import {
 	resolveClaudeSpawnModeCore,
-	isMaestroPBinaryPath,
+	isOpenWizardAIPBinaryPath,
 	resolveConfigDirKeyFromEnv,
 	defaultSelectMode,
 	type ClaudeSpawnCoreDeps,
@@ -19,41 +19,41 @@ import {
 
 const CLAUDE_AGENT = {
 	id: 'claude-code',
-	interactiveCommand: 'maestro-p',
+	interactiveCommand: 'openwizardai-p',
 	interactiveModeArgs: ['--dangerously-skip-permissions'],
 };
 
 /**
  * Deps mirroring the CLI's `cliSpawnCoreDeps`: no SQLite usage snapshot, an
- * optimistic remote probe, and an injectable maestro-p presence flag.
+ * optimistic remote probe, and an injectable openwizardai-p presence flag.
  */
 function cliShapedDeps(overrides?: Partial<ClaudeSpawnCoreDeps>): ClaudeSpawnCoreDeps {
 	return {
-		getMaestroPBinPath: () => '/bundle/maestro-p.js',
-		isMaestroPBinaryPath,
+		getOpenWizardAIPBinPath: () => '/bundle/openwizardai-p.js',
+		isOpenWizardAIPBinaryPath,
 		resolveConfigDirKey: resolveConfigDirKeyFromEnv,
 		getUsageSnapshot: () => null,
 		fileExists: () => true,
-		getRemoteMaestroPAvailable: () => undefined,
+		getRemoteOpenWizardAIPAvailable: () => undefined,
 		selectMode: defaultSelectMode,
 		...overrides,
 	};
 }
 
-describe('isMaestroPBinaryPath', () => {
-	it('matches maestro-p by basename across path styles and variants', () => {
-		expect(isMaestroPBinaryPath('/usr/local/bin/maestro-p')).toBe(true);
-		expect(isMaestroPBinaryPath('/opt/app/maestro-p.js')).toBe(true);
-		expect(isMaestroPBinaryPath('C:\\tools\\maestro-p.exe')).toBe(true);
-		expect(isMaestroPBinaryPath('MAESTRO-P')).toBe(true);
+describe('isOpenWizardAIPBinaryPath', () => {
+	it('matches openwizardai-p by basename across path styles and variants', () => {
+		expect(isOpenWizardAIPBinaryPath('/usr/local/bin/openwizardai-p')).toBe(true);
+		expect(isOpenWizardAIPBinaryPath('/opt/app/openwizardai-p.js')).toBe(true);
+		expect(isOpenWizardAIPBinaryPath('C:\\tools\\openwizardai-p.exe')).toBe(true);
+		expect(isOpenWizardAIPBinaryPath('OPENWIZARDAI-P')).toBe(true);
 	});
 
 	it('does not match a plain claude binary or empty input', () => {
-		expect(isMaestroPBinaryPath('/usr/local/bin/claude')).toBe(false);
-		expect(isMaestroPBinaryPath('claude')).toBe(false);
-		expect(isMaestroPBinaryPath(undefined)).toBe(false);
-		expect(isMaestroPBinaryPath(null)).toBe(false);
-		expect(isMaestroPBinaryPath('')).toBe(false);
+		expect(isOpenWizardAIPBinaryPath('/usr/local/bin/claude')).toBe(false);
+		expect(isOpenWizardAIPBinaryPath('claude')).toBe(false);
+		expect(isOpenWizardAIPBinaryPath(undefined)).toBe(false);
+		expect(isOpenWizardAIPBinaryPath(null)).toBe(false);
+		expect(isOpenWizardAIPBinaryPath('')).toBe(false);
 	});
 });
 
@@ -78,10 +78,10 @@ describe('resolveClaudeSpawnModeCore under CLI-shaped deps', () => {
 			cliShapedDeps()
 		);
 		expect(d.mode).toBe('api');
-		expect(d.maestroPBinPath).toBeNull();
+		expect(d.openwizardaiPBinPath).toBeNull();
 	});
 
-	it('interactive token mode resolves to the local maestro-p TUI when present', () => {
+	it('interactive token mode resolves to the local openwizardai-p TUI when present', () => {
 		const d = resolveClaudeSpawnModeCore(
 			{
 				agent: CLAUDE_AGENT,
@@ -93,11 +93,11 @@ describe('resolveClaudeSpawnModeCore under CLI-shaped deps', () => {
 			cliShapedDeps()
 		);
 		expect(d.mode).toBe('interactive');
-		expect(d.maestroPBinPath).toBe('/bundle/maestro-p.js');
+		expect(d.openwizardaiPBinPath).toBe('/bundle/openwizardai-p.js');
 		expect(d.claudeRealBinPath).toBe('claude');
 	});
 
-	it('interactive falls back to api when no maestro-p binary is found', () => {
+	it('interactive falls back to api when no openwizardai-p binary is found', () => {
 		const d = resolveClaudeSpawnModeCore(
 			{
 				agent: CLAUDE_AGENT,
@@ -106,10 +106,10 @@ describe('resolveClaudeSpawnModeCore under CLI-shaped deps', () => {
 				command: 'claude',
 				now: NOW,
 			},
-			cliShapedDeps({ getMaestroPBinPath: () => null })
+			cliShapedDeps({ getOpenWizardAIPBinPath: () => null })
 		);
 		expect(d.mode).toBe('api');
-		expect(d.maestroPBinPath).toBeNull();
+		expect(d.openwizardaiPBinPath).toBeNull();
 	});
 
 	it('dynamic with no usage snapshot resolves to interactive (CLI prefers the TUI it cannot rate-limit)', () => {
@@ -126,7 +126,7 @@ describe('resolveClaudeSpawnModeCore under CLI-shaped deps', () => {
 			cliShapedDeps()
 		);
 		expect(d.mode).toBe('interactive');
-		expect(d.maestroPBinPath).toBe('/bundle/maestro-p.js');
+		expect(d.openwizardaiPBinPath).toBe('/bundle/openwizardai-p.js');
 	});
 
 	it('non-claude agents always resolve to api', () => {
@@ -143,7 +143,7 @@ describe('resolveClaudeSpawnModeCore under CLI-shaped deps', () => {
 		expect(d.mode).toBe('api');
 	});
 
-	it('SSH interactive resolves to a remote maestro-p spawn (optimistic when unprobed)', () => {
+	it('SSH interactive resolves to a remote openwizardai-p spawn (optimistic when unprobed)', () => {
 		const d = resolveClaudeSpawnModeCore(
 			{
 				agent: CLAUDE_AGENT,
@@ -157,7 +157,7 @@ describe('resolveClaudeSpawnModeCore under CLI-shaped deps', () => {
 		);
 		expect(d.mode).toBe('interactive');
 		expect(d.remote).toBe(true);
-		expect(d.maestroPBinPath).toBeNull();
+		expect(d.openwizardaiPBinPath).toBeNull();
 	});
 
 	it('SSH dynamic falls back to api (no remote quota signal)', () => {

@@ -108,7 +108,7 @@ describe('useAppMenuBridge', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		(window as unknown as { maestro: unknown }).maestro = {
+		(window as unknown as { openwizardai: unknown }).openwizardai = {
 			app: { setMenuShortcutKeys, onMenuCommand },
 		};
 		useSettingsStore.setState({
@@ -168,7 +168,7 @@ describe('useAppMenuBridge', () => {
 	});
 
 	it('no-ops when the app menu bridge is unavailable (web-desktop build)', () => {
-		(window as unknown as { maestro: unknown }).maestro = { app: {} };
+		(window as unknown as { openwizardai: unknown }).openwizardai = { app: {} };
 		expect(() => renderHook(() => useAppMenuBridge())).not.toThrow();
 	});
 });

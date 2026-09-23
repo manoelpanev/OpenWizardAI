@@ -23,7 +23,7 @@ import { execFileSync } from 'node:child_process';
 const fs = nodeFs;
 
 // Create a temporary directory for test output
-const TEST_OUTPUT_DIR = '/tmp/maestro-debug-package-tests';
+const TEST_OUTPUT_DIR = '/tmp/openwizardai-debug-package-tests';
 
 function extractWithCli(zipPath: string, outputDir: string): void {
 	try {
@@ -85,9 +85,9 @@ describe('Debug Package Packager', () => {
 			expect(result.sizeBytes).toBeGreaterThan(0);
 			expect(fs.existsSync(result.path)).toBe(true);
 
-			// Verify filename format: maestro-debug-YYYY-MM-DDTHHMMSS.zip
+			// Verify filename format: openwizardai-debug-YYYY-MM-DDTHHMMSS.zip
 			const filename = path.basename(result.path);
-			expect(filename).toMatch(/^maestro-debug-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.zip$/);
+			expect(filename).toMatch(/^openwizardai-debug-\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}\.zip$/);
 		});
 
 		it('should include all expected files in the zip', async () => {
@@ -273,13 +273,13 @@ describe('Debug Package Packager', () => {
 
 			const readme = getFileContent(extractDir, 'README.md');
 			if (readme) {
-				expect(readme).toContain('# OpenWizzard Debug Package');
+				expect(readme).toContain('# OpenWizardAI Debug Package');
 				expect(readme).toContain('Privacy');
 				expect(readme).toContain('system-info.json');
 				expect(readme).toContain('settings.json');
 				expect(readme).toContain('does NOT contain');
 				expect(readme).toContain('GitHub issue');
-				expect(readme).toContain('https://github.com/RunMaestro/Maestro/issues');
+				expect(readme).toContain('https://github.com/manoelpanev/OpenWizardAI/issues');
 			}
 		});
 

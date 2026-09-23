@@ -16,8 +16,8 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({
-	withMaestroClient: vi.fn(),
+vi.mock('../../../cli/services/openwizardai-client', () => ({
+	withOpenWizardAIClient: vi.fn(),
 	resolveTargetSessionId: vi.fn(),
 }));
 
@@ -27,7 +27,10 @@ vi.mock('../../../cli/services/file-tree-refresh', () => ({
 
 import { refreshAutoRun } from '../../../cli/commands/refresh-auto-run';
 import { refreshFiles } from '../../../cli/commands/refresh-files';
-import { withMaestroClient, resolveTargetSessionId } from '../../../cli/services/maestro-client';
+import {
+	withOpenWizardAIClient,
+	resolveTargetSessionId,
+} from '../../../cli/services/openwizardai-client';
 import { refreshFileTreeFor } from '../../../cli/services/file-tree-refresh';
 
 describe('refresh verbs', () => {
@@ -48,7 +51,7 @@ describe('refresh verbs', () => {
 			type: 'refresh_auto_run_docs_result',
 			success: true,
 		});
-		vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+		vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 			action({ sendCommand } as never)
 		);
 		return sendCommand;
@@ -107,7 +110,7 @@ describe('refresh verbs', () => {
 		});
 
 		it('exits non-zero when the desktop rejects the refresh', async () => {
-			vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+			vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 				action({
 					sendCommand: vi.fn().mockResolvedValue({ success: false, error: 'No Auto Run folder' }),
 				} as never)

@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach, type MockInstance } from 'vitest';
 
-vi.mock('../../../cli/services/maestro-client', () => ({ withMaestroClient: vi.fn() }));
+vi.mock('../../../cli/services/openwizardai-client', () => ({ withOpenWizardAIClient: vi.fn() }));
 vi.mock('../../../cli/services/storage', () => ({
 	readSettingValue: vi.fn(),
 	resolveAgentId: vi.fn((id: string) => id),
@@ -16,13 +16,13 @@ vi.mock('../../../cli/output/formatter', () => ({
 }));
 
 import { encoreList, encoreSet } from '../../../cli/commands/encore';
-import { withMaestroClient } from '../../../cli/services/maestro-client';
+import { withOpenWizardAIClient } from '../../../cli/services/openwizardai-client';
 import { readSettingValue } from '../../../cli/services/storage';
 import { formatError } from '../../../cli/output/formatter';
 
 function mockSend(result: Record<string, unknown>) {
 	let captured: Record<string, unknown> = {};
-	vi.mocked(withMaestroClient).mockImplementation(async (action) =>
+	vi.mocked(withOpenWizardAIClient).mockImplementation(async (action) =>
 		action({
 			sendCommand: vi.fn().mockImplementation((payload: Record<string, unknown>) => {
 				captured = payload;
@@ -39,7 +39,7 @@ describe('encore commands', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(readSettingValue).mockReturnValue({ usageStats: true, maestroCue: false });
+		vi.mocked(readSettingValue).mockReturnValue({ usageStats: true, openwizardaiCue: false });
 		consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
@@ -51,7 +51,7 @@ describe('encore commands', () => {
 		encoreList({ json: true });
 		const parsed = JSON.parse(consoleSpy.mock.calls[0][0]);
 		expect(parsed.features.usageStats).toBe(true);
-		expect(parsed.features.maestroCue).toBe(false);
+		expect(parsed.features.openwizardaiCue).toBe(false);
 	});
 
 	it('list falls back to the shipped defaults for keys the user never stored', () => {
@@ -63,17 +63,17 @@ describe('encore commands', () => {
 		expect(parsed.features).toEqual({
 			directorNotes: true,
 			usageStats: true,
-			maestroCue: true,
+			openwizardaiCue: true,
 		});
 	});
 
 	it('enable sends the full merged encoreFeatures object', async () => {
 		const getPayload = mockSend({ success: true });
-		await encoreSet('maestroCue', true, {});
+		await encoreSet('openwizardaiCue', true, {});
 		const p = getPayload();
 		expect(p.type).toBe('set_setting');
 		expect(p.key).toBe('encoreFeatures');
-		expect(p.value).toMatchObject({ usageStats: true, maestroCue: true });
+		expect(p.value).toMatchObject({ usageStats: true, openwizardaiCue: true });
 	});
 
 	it('disable flips a flag off', async () => {
@@ -85,13 +85,13 @@ describe('encore commands', () => {
 	it('rejects an unknown feature without connecting', async () => {
 		await expect(encoreSet('telepathy', true, {})).rejects.toThrow('__exit__');
 		expect(formatError).toHaveBeenCalledWith(expect.stringContaining('Unknown Encore feature'));
-		expect(withMaestroClient).not.toHaveBeenCalled();
+		expect(withOpenWizardAIClient).not.toHaveBeenCalled();
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
 	it('reports a server failure', async () => {
 		mockSend({ success: false, error: 'nope' });
-		await expect(encoreSet('maestroCue', true, {})).rejects.toThrow('__exit__');
+		await expect(encoreSet('openwizardaiCue', true, {})).rejects.toThrow('__exit__');
 		expect(formatError).toHaveBeenCalledWith('nope');
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});

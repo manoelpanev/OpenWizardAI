@@ -17,7 +17,7 @@ import { SshRemoteConfig, SshRemoteTestResult } from '../../../shared/types';
 import { sshRemoteManager } from '../../ssh-remote-manager';
 import { createIpcHandler, CreateHandlerOptions } from '../../utils/ipcHandler';
 import { logger } from '../../utils/logger';
-import { MaestroSettings } from './persistence';
+import { OpenWizardAISettings } from './persistence';
 import { parseSshConfig, SshConfigParseResult } from '../../utils/ssh-config-parser';
 
 const LOG_CONTEXT = '[SshRemote]';
@@ -35,35 +35,35 @@ const handlerOpts = (operation: string, logSuccess = true): CreateHandlerOptions
  * Dependencies required for SSH remote handler registration
  */
 export interface SshRemoteHandlerDependencies {
-	/** The settings store (MaestroSettings) */
-	settingsStore: Store<MaestroSettings>;
+	/** The settings store (OpenWizardAISettings) */
+	settingsStore: Store<OpenWizardAISettings>;
 }
 
 /**
  * Get SSH remotes from store
  */
-function getSshRemotes(store: Store<MaestroSettings>): SshRemoteConfig[] {
+function getSshRemotes(store: Store<OpenWizardAISettings>): SshRemoteConfig[] {
 	return store.get('sshRemotes', []);
 }
 
 /**
  * Save SSH remotes to store
  */
-function setSshRemotes(store: Store<MaestroSettings>, remotes: SshRemoteConfig[]): void {
+function setSshRemotes(store: Store<OpenWizardAISettings>, remotes: SshRemoteConfig[]): void {
 	store.set('sshRemotes', remotes);
 }
 
 /**
  * Get default SSH remote ID from store
  */
-function getDefaultSshRemoteId(store: Store<MaestroSettings>): string | null {
+function getDefaultSshRemoteId(store: Store<OpenWizardAISettings>): string | null {
 	return store.get('defaultSshRemoteId', null);
 }
 
 /**
  * Set default SSH remote ID in store
  */
-function setDefaultSshRemoteId(store: Store<MaestroSettings>, id: string | null): void {
+function setDefaultSshRemoteId(store: Store<OpenWizardAISettings>, id: string | null): void {
 	store.set('defaultSshRemoteId', id);
 }
 

@@ -1,4 +1,4 @@
-import { PLAYBOOKS_DIR } from '../../../../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../../../../shared/openwizardai-paths';
 import { joinPath } from '../../../../../../shared/formatters';
 import { captureException } from '../../../../../utils/sentry';
 
@@ -50,14 +50,14 @@ export async function checkForExistingAutoRunDocs(
 ): Promise<ExistingDocsResult> {
 	// joinPath, not `${dirPath}/${PLAYBOOKS_DIR}`: a dirPath of "/" (which the
 	// directory field accepts, because readDir succeeds on it) made that template
-	// produce a leading "//", and Windows resolves "//.maestro/playbooks" as the
-	// UNC path \\.maestro\playbooks - a host that does not exist, so stat failed
+	// produce a leading "//", and Windows resolves "//.openwizardai/playbooks" as the
+	// UNC path \\.openwizardai\playbooks - a host that does not exist, so stat failed
 	// with UNKNOWN instead of the ENOENT the recoverable-error list expects.
 	const autoRunPath = joinPath(dirPath, PLAYBOOKS_DIR);
-	let result: Awaited<ReturnType<typeof window.maestro.autorun.listDocs>>;
+	let result: Awaited<ReturnType<typeof window.openwizardai.autorun.listDocs>>;
 
 	try {
-		result = await window.maestro.autorun.listDocs(autoRunPath, sshRemoteId);
+		result = await window.openwizardai.autorun.listDocs(autoRunPath, sshRemoteId);
 	} catch (error) {
 		if (isRecoverableAutoRunDocsError(error)) {
 			return { exists: false, count: 0 };

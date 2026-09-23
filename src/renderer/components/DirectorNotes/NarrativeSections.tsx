@@ -9,7 +9,7 @@
  * `agent` tag as a small pill when present.
  *
  * Within a section the bullets are bucketed by `bucketNarrativeItems`: by the
- * agent's GROUP when Maestro knows one, by the agent otherwise. A flat
+ * agent's GROUP when OpenWizardAI knows one, by the agent otherwise. A flat
  * twenty-plus-bullet section makes the reader re-derive ownership on every
  * line. The agent pill survives only inside a GROUP bucket, where it still
  * carries information (which member did it); under an agent header it would

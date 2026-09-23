@@ -40,10 +40,10 @@ export function ProcessDetailView({ theme, detail, onBack, onClose }: ProcessDet
 
 	const envEntries = useMemo(
 		() =>
-			detail.maestroEnvVars
-				? Object.entries(detail.maestroEnvVars).sort(([a], [b]) => a.localeCompare(b))
+			detail.openwizardaiEnvVars
+				? Object.entries(detail.openwizardaiEnvVars).sort(([a], [b]) => a.localeCompare(b))
 				: [],
-		[detail.maestroEnvVars]
+		[detail.openwizardaiEnvVars]
 	);
 	const envOverflow = Math.max(0, envEntries.length - ENV_VAR_COLLAPSED_LIMIT);
 	const visibleEnvEntries =
@@ -439,7 +439,7 @@ export function ProcessDetailView({ theme, detail, onBack, onClose }: ProcessDet
 						</code>
 					</div>
 
-					{/* Maestro Environment Variables - full width */}
+					{/* OpenWizardAI Environment Variables - full width */}
 					{envEntries.length > 0 && (
 						<div
 							className="col-span-2 lg:col-span-4 p-4 rounded-lg"
@@ -452,7 +452,7 @@ export function ProcessDetailView({ theme, detail, onBack, onClose }: ProcessDet
 										className="text-xs font-medium uppercase tracking-wide"
 										style={{ color: theme.colors.textDim }}
 									>
-										OpenWizzard Environment Variables
+										OpenWizardAI Environment Variables
 									</span>
 									<span className="text-xs" style={{ color: theme.colors.textDim, opacity: 0.7 }}>
 										({envEntries.length})

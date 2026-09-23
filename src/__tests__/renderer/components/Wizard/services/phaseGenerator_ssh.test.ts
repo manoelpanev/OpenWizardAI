@@ -14,8 +14,8 @@ let capturedFileChangedCallback:
 	| ((data: { filename: string; eventType: string; folderPath: string }) => void)
 	| null = null;
 
-// Mock window.maestro
-const mockMaestro = {
+// Mock window.openwizardai
+const mockOpenWizardAI = {
 	agents: {
 		get: vi.fn(),
 	},
@@ -47,7 +47,7 @@ const mockMaestro = {
 	},
 };
 
-vi.stubGlobal('window', { maestro: mockMaestro });
+vi.stubGlobal('window', { openwizardai: mockOpenWizardAI });
 
 // Import after mocking
 import { phaseGenerator } from '../../../../../renderer/components/Wizard/services/phaseGenerator';
@@ -57,7 +57,7 @@ import { phaseGenerator } from '../../../../../renderer/components/Wizard/servic
  * with the correct session ID so the internal guards pass.
  */
 function setupSpawnMock(exitDelay = 10) {
-	mockMaestro.process.spawn.mockImplementation(async (config: { sessionId: string }) => {
+	mockOpenWizardAI.process.spawn.mockImplementation(async (config: { sessionId: string }) => {
 		const sid = config.sessionId;
 
 		// Fire exit callback with the real session ID (after a delay to match async flow)
@@ -87,10 +87,10 @@ describe('phaseGenerator - SSH Remote Support', () => {
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Setup process callbacks
-			mockMaestro.process.spawn.mockImplementation(async () => {
+			mockOpenWizardAI.process.spawn.mockImplementation(async () => {
 				// Simulate agent output
 				setTimeout(() => {
 					if (capturedDataCallback) {
@@ -133,7 +133,7 @@ CONTENT:
 			);
 
 			// Verify writeDoc was called with sshRemoteId
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				expect.stringContaining('/remote/path'),
 				'Phase-01-Setup.md',
 				'# Test content',
@@ -148,7 +148,7 @@ CONTENT:
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Use saveDocuments without sshRemoteId
 			await phaseGenerator.saveDocuments('/local/path', [
@@ -160,7 +160,7 @@ CONTENT:
 			]);
 
 			// Verify writeDoc was called with undefined sshRemoteId
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				expect.stringContaining('/local/path'),
 				'Phase-01-Setup.md',
 				'# Test content',
@@ -177,7 +177,7 @@ CONTENT:
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Setup spawn mock with proper session ID handling
 			setupSpawnMock();
@@ -194,8 +194,8 @@ CONTENT:
 			});
 
 			// Verify watchFolder was called with sshRemoteId
-			expect(mockMaestro.autorun.watchFolder).toHaveBeenCalledWith(
-				expect.stringContaining('/remote/path/.maestro/playbooks'),
+			expect(mockOpenWizardAI.autorun.watchFolder).toHaveBeenCalledWith(
+				expect.stringContaining('/remote/path/.openwizardai/playbooks'),
 				'test-remote-id' // sshRemoteId
 			);
 		});
@@ -207,7 +207,7 @@ CONTENT:
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Setup spawn mock with proper session ID handling
 			setupSpawnMock();
@@ -220,7 +220,7 @@ CONTENT:
 			});
 
 			// Verify watchFolder was called with undefined
-			expect(mockMaestro.autorun.watchFolder).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.watchFolder).toHaveBeenCalledWith(
 				expect.any(String),
 				undefined // sshRemoteId should be undefined
 			);
@@ -235,10 +235,10 @@ CONTENT:
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Setup fs.readFile to return content
-			mockMaestro.fs.readFile.mockResolvedValue('# Test content from file');
+			mockOpenWizardAI.fs.readFile.mockResolvedValue('# Test content from file');
 
 			// Setup spawn mock with proper session ID handling (longer delay to allow watcher setup)
 			setupSpawnMock(100);
@@ -255,7 +255,7 @@ CONTENT:
 			});
 
 			// Capture the actual folder path from watchFolder call
-			const watchFolderCall = mockMaestro.autorun.watchFolder.mock.calls[0];
+			const watchFolderCall = mockOpenWizardAI.autorun.watchFolder.mock.calls[0];
 			const actualFolderPath = (watchFolderCall?.[0] as string) || '';
 
 			// Simulate file change event with the correct folderPath
@@ -271,7 +271,7 @@ CONTENT:
 			await new Promise((resolve) => setTimeout(resolve, 100));
 
 			// Verify readFile was called with sshRemoteId
-			expect(mockMaestro.fs.readFile).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.fs.readFile).toHaveBeenCalledWith(
 				expect.stringContaining('Phase-01-Setup.md'),
 				'test-remote-id' // sshRemoteId
 			);
@@ -286,16 +286,16 @@ CONTENT:
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Setup listDocs to return files
-			mockMaestro.autorun.listDocs.mockResolvedValue({
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({
 				success: true,
 				files: ['Phase-01-Test'],
 			});
 
 			// Setup readDoc to return content
-			mockMaestro.autorun.readDoc.mockResolvedValue({
+			mockOpenWizardAI.autorun.readDoc.mockResolvedValue({
 				success: true,
 				content: '# Test content',
 			});
@@ -318,8 +318,8 @@ CONTENT:
 			await new Promise((resolve) => setTimeout(resolve, 50));
 
 			// Verify listDocs was called with sshRemoteId
-			expect(mockMaestro.autorun.listDocs).toHaveBeenCalledWith(
-				expect.stringContaining('/remote/path/.maestro/playbooks'),
+			expect(mockOpenWizardAI.autorun.listDocs).toHaveBeenCalledWith(
+				expect.stringContaining('/remote/path/.openwizardai/playbooks'),
 				'test-remote-id' // sshRemoteId
 			);
 		});
@@ -331,16 +331,16 @@ CONTENT:
 				command: 'claude',
 				args: [],
 			};
-			mockMaestro.agents.get.mockResolvedValue(mockAgent);
+			mockOpenWizardAI.agents.get.mockResolvedValue(mockAgent);
 
 			// Setup listDocs to return files
-			mockMaestro.autorun.listDocs.mockResolvedValue({
+			mockOpenWizardAI.autorun.listDocs.mockResolvedValue({
 				success: true,
 				files: ['Phase-01-Test'],
 			});
 
 			// Setup readDoc to return content
-			mockMaestro.autorun.readDoc.mockResolvedValue({
+			mockOpenWizardAI.autorun.readDoc.mockResolvedValue({
 				success: true,
 				content: '# Test content',
 			});
@@ -363,8 +363,8 @@ CONTENT:
 			await new Promise((resolve) => setTimeout(resolve, 50));
 
 			// Verify readDoc was called with sshRemoteId
-			expect(mockMaestro.autorun.readDoc).toHaveBeenCalledWith(
-				expect.stringContaining('/remote/path/.maestro/playbooks'),
+			expect(mockOpenWizardAI.autorun.readDoc).toHaveBeenCalledWith(
+				expect.stringContaining('/remote/path/.openwizardai/playbooks'),
 				'Phase-01-Test',
 				'test-remote-id' // sshRemoteId
 			);

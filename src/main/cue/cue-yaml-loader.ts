@@ -1,5 +1,5 @@
 /**
- * YAML loader façade for Maestro Cue configuration files.
+ * YAML loader façade for OpenWizardAI Cue configuration files.
  *
  * Public entrypoints stay here for compatibility while parsing/validation/watching
  * are implemented in responsibility-focused config modules.
@@ -130,7 +130,7 @@ export function loadCueConfigDetailed(projectRoot: string): LoadCueConfigDetaile
 
 /**
  * Loads and parses a cue config file from the given project root.
- * Checks .maestro/cue.yaml first, then falls back to maestro-cue.yaml.
+ * Checks .openwizardai/cue.yaml first, then falls back to openwizardai-cue.yaml.
  * Returns null if neither file exists, or on parse / validation failure.
  *
  * Legacy entry point: prefer {@link loadCueConfigDetailed} when you need
@@ -152,7 +152,7 @@ export function loadCueConfig(projectRoot: string): CueConfig | null {
 }
 
 /**
- * Watches a maestro-cue.yaml file for changes. Returns a cleanup function.
+ * Watches a openwizardai-cue.yaml file for changes. Returns a cleanup function.
  * Calls onChange when the file is created, modified, or deleted.
  * Debounces by 1 second.
  */
@@ -169,7 +169,7 @@ export function validateCueConfig(config: unknown): { valid: boolean; errors: st
 
 // findAncestorCueConfigRoot{,s} were removed when Cue moved to the
 // per-agent-cwd model. Each session now reads only its own cue.yaml at
-// `<session.cwd>/.maestro/cue.yaml`; cross-agent pipelines are stitched at
+// `<session.cwd>/.openwizardai/cue.yaml`; cross-agent pipelines are stitched at
 // runtime via `agent_id` references in `source_session_ids` / `fan_out_ids`,
 // not via parent-directory inheritance. Worktrees that previously inherited
 // a parent's cue.yaml must now create their own. See `pipelinesToYamlByOwnerCwd`

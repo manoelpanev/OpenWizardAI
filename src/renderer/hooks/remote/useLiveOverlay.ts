@@ -103,7 +103,7 @@ export function useLiveOverlay(isLiveMode: boolean): UseLiveOverlayReturn {
 	// Check for cloudflared installation when Live overlay opens
 	useEffect(() => {
 		if (isLiveMode && liveOverlayOpen && !cloudflaredChecked) {
-			window.maestro.tunnel.isCloudflaredInstalled().then((installed: boolean) => {
+			window.openwizardai.tunnel.isCloudflaredInstalled().then((installed: boolean) => {
 				setCloudflaredInstalled(installed);
 				setCloudflaredChecked(true);
 			});
@@ -140,7 +140,7 @@ export function useLiveOverlay(isLiveMode: boolean): UseLiveOverlayReturn {
 		let cancelled = false;
 		const syncStatus = async () => {
 			try {
-				const status = await window.maestro.tunnel.getStatus();
+				const status = await window.openwizardai.tunnel.getStatus();
 				if (cancelled) return;
 
 				if (status.isRunning && status.url) {
@@ -210,13 +210,13 @@ export function useLiveOverlay(isLiveMode: boolean): UseLiveOverlayReturn {
 		setTunnelError(null);
 
 		try {
-			await window.maestro.tunnel.stop();
+			await window.openwizardai.tunnel.stop();
 		} catch (error) {
 			logger.error('[restartTunnel] Failed to stop tunnel:', undefined, error);
 		}
 
 		try {
-			const result = await window.maestro.tunnel.start();
+			const result = await window.openwizardai.tunnel.start();
 			if (result.success && result.url) {
 				setTunnelStatus('connected');
 				setTunnelUrl(result.url);
@@ -237,7 +237,7 @@ export function useLiveOverlay(isLiveMode: boolean): UseLiveOverlayReturn {
 		if (tunnelStatus === 'connected') {
 			// Turn off tunnel
 			try {
-				await window.maestro.tunnel.stop();
+				await window.openwizardai.tunnel.stop();
 			} catch (error) {
 				logger.error('[handleTunnelToggle] Failed to stop tunnel:', undefined, error);
 				// Continue anyway - we still want to update UI state
@@ -257,7 +257,7 @@ export function useLiveOverlay(isLiveMode: boolean): UseLiveOverlayReturn {
 			setTunnelError(null);
 
 			try {
-				const result = await window.maestro.tunnel.start();
+				const result = await window.openwizardai.tunnel.start();
 				if (result.success && result.url) {
 					setTunnelStatus('connected');
 					setTunnelUrl(result.url);

@@ -78,7 +78,7 @@ describe('isSelfContainedCard', () => {
 		});
 
 		it('is NOT a card when an agent merely discusses limits', () => {
-			// Maestro's own agents write about quota constantly. A reply that
+			// OpenWizardAI's own agents write about quota constantly. A reply that
 			// quotes the banner carries surrounding prose, so it stays a stream and
 			// keeps coalescing normally.
 			const reply = entry({

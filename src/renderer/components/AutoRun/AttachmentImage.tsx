@@ -125,7 +125,7 @@ export const AttachmentImage = memo(function AttachmentImage({
 
 			// Load from folder using absolute path
 			const absolutePath = `${folderPath}/${decodedSrc}`;
-			window.maestro.fs
+			window.openwizardai.fs
 				.readFile(absolutePath, sshRemoteId)
 				.then((result) => {
 					if (isStale) return;
@@ -145,7 +145,7 @@ export const AttachmentImage = memo(function AttachmentImage({
 		} else if (src.startsWith('/')) {
 			// Absolute file path - load via IPC
 			setFilename(src.split('/').pop() || null);
-			window.maestro.fs
+			window.openwizardai.fs
 				.readFile(src, sshRemoteId)
 				.then((result) => {
 					if (isStale) return;
@@ -174,7 +174,7 @@ export const AttachmentImage = memo(function AttachmentImage({
 			}
 
 			const pathToLoad = folderPath ? `${folderPath}/${src}` : src;
-			window.maestro.fs
+			window.openwizardai.fs
 				.readFile(pathToLoad, sshRemoteId)
 				.then((result) => {
 					if (isStale) return;

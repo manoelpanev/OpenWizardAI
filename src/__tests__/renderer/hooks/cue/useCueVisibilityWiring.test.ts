@@ -13,7 +13,7 @@ describe('useCueVisibilityWiring', () => {
 	beforeEach(() => {
 		setActive = vi.fn().mockResolvedValue(undefined);
 		// The cue mock is provided by setup.ts but reset call counts here.
-		(window.maestro.cue as unknown as { setActive: typeof setActive }).setActive = setActive;
+		(window.openwizardai.cue as unknown as { setActive: typeof setActive }).setActive = setActive;
 		// Reset visibility to "visible" between tests.
 		Object.defineProperty(document, 'hidden', { configurable: true, value: false });
 	});
@@ -61,13 +61,13 @@ describe('useCueVisibilityWiring', () => {
 		expect(setActive).not.toHaveBeenCalled();
 	});
 
-	it('does not throw when window.maestro.cue is missing', () => {
-		const original = window.maestro.cue;
-		(window.maestro as unknown as { cue: unknown }).cue = undefined;
+	it('does not throw when window.openwizardai.cue is missing', () => {
+		const original = window.openwizardai.cue;
+		(window.openwizardai as unknown as { cue: unknown }).cue = undefined;
 		try {
 			expect(() => renderHook(() => useCueVisibilityWiring())).not.toThrow();
 		} finally {
-			(window.maestro as unknown as { cue: unknown }).cue = original;
+			(window.openwizardai as unknown as { cue: unknown }).cue = original;
 		}
 	});
 

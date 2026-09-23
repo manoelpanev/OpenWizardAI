@@ -5,7 +5,7 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import prettierConfig from 'eslint-config-prettier';
 import globals from 'globals';
-import maestroPlugin from './eslint-rules/no-em-dash-in-comments.mjs';
+import openwizardaiPlugin from './eslint-rules/no-em-dash-in-comments.mjs';
 import fontSizesPlugin from './eslint-rules/no-arbitrary-font-sizes.mjs';
 
 export default tseslint.config(
@@ -56,7 +56,7 @@ export default tseslint.config(
 		plugins: {
 			react: reactPlugin,
 			'react-hooks': reactHooksPlugin,
-			maestro: maestroPlugin,
+			openwizardai: openwizardaiPlugin,
 			'font-sizes': fontSizesPlugin,
 		},
 		rules: {
@@ -98,7 +98,7 @@ export default tseslint.config(
 			// what made 603 files differ between main and rc while being otherwise
 			// identical. Autofixable via `eslint --fix`. See the rule for why this
 			// covers comments only and not string literals.
-			'maestro/no-em-dash-in-comments': 'error',
+			'openwizardai/no-em-dash-in-comments': 'error',
 
 			// Font-size sweep: prevent regression of hard-pixel font classes that freeze
 			// when users change root font-size. Named classes (text-3xs, text-2xs,

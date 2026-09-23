@@ -50,15 +50,15 @@ describe('AgentSelectionScreen hooks', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.useRealTimers();
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 			agent({ id: 'claude-code', available: true }),
 			agent({ id: 'terminal', hidden: true }),
 		]);
-		vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({});
-		vi.mocked(window.maestro.agents.getModels).mockResolvedValue([]);
-		vi.mocked(window.maestro.agents.setConfig).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.agents.setCustomPath).mockResolvedValue(undefined);
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({});
+		vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue([]);
+		vi.mocked(window.openwizardai.agents.setConfig).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.agents.setCustomPath).mockResolvedValue(undefined);
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [],
 		});
@@ -82,7 +82,7 @@ describe('AgentSelectionScreen hooks', () => {
 
 		await waitFor(() => expect(result.current.isDetecting).toBe(false));
 
-		expect(window.maestro.agents.detect).toHaveBeenCalledWith(undefined);
+		expect(window.openwizardai.agents.detect).toHaveBeenCalledWith(undefined);
 		expect(result.current.detectedAgents).toHaveLength(1);
 		expect(setAvailableAgents).toHaveBeenCalledWith([
 			expect.objectContaining({ id: 'claude-code' }),
@@ -111,7 +111,7 @@ describe('AgentSelectionScreen hooks', () => {
 	it('detects with SSH remote ID and exposes all-agent connection errors', async () => {
 		const setAvailableAgents = vi.fn();
 		const setSelectedAgent = vi.fn();
-		vi.mocked(window.maestro.agents.detect).mockResolvedValue([
+		vi.mocked(window.openwizardai.agents.detect).mockResolvedValue([
 			agent({ id: 'claude-code', available: false, error: 'Connection timed out' } as any),
 			agent({ id: 'codex', available: false, error: 'Connection timed out' } as any),
 		]);
@@ -127,19 +127,19 @@ describe('AgentSelectionScreen hooks', () => {
 
 		await waitFor(() => expect(result.current.isDetecting).toBe(false));
 
-		expect(window.maestro.agents.detect).toHaveBeenCalledWith('remote-1');
+		expect(window.openwizardai.agents.detect).toHaveBeenCalledWith('remote-1');
 		expect(result.current.sshConnectionError).toBe('Connection timed out');
 		expect(result.current.announcement).toContain('Unable to connect to remote host');
 
-		vi.mocked(window.maestro.agents.detect).mockClear();
+		vi.mocked(window.openwizardai.agents.detect).mockClear();
 		await act(async () => result.current.refreshAgentDetection());
-		expect(window.maestro.agents.detect).toHaveBeenCalledWith('remote-1');
+		expect(window.openwizardai.agents.detect).toHaveBeenCalledWith('remote-1');
 	});
 
 	it('handles thrown detection errors and ignores stale completion after unmount', async () => {
 		const setAvailableAgents = vi.fn();
 		const setSelectedAgent = vi.fn();
-		vi.mocked(window.maestro.agents.detect).mockRejectedValue(new Error('boom'));
+		vi.mocked(window.openwizardai.agents.detect).mockRejectedValue(new Error('boom'));
 
 		const { result, unmount } = renderHook(() =>
 			useAgentDetection({
@@ -154,7 +154,7 @@ describe('AgentSelectionScreen hooks', () => {
 		expect(result.current.sshConnectionError).toBe('boom');
 
 		let resolveDetect: (agents: AgentConfig[]) => void = () => {};
-		vi.mocked(window.maestro.agents.detect).mockReturnValue(
+		vi.mocked(window.openwizardai.agents.detect).mockReturnValue(
 			new Promise((resolve) => {
 				resolveDetect = resolve;
 			})
@@ -175,7 +175,7 @@ describe('AgentSelectionScreen hooks', () => {
 
 	it('loads SSH remotes, syncs restored context, and forwards local or remote selections', async () => {
 		const setWizardSessionSshRemoteConfig = vi.fn();
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: true,
 			configs: [{ id: 'remote-1', name: 'Server', host: 'host' } as any],
 		});
@@ -190,7 +190,7 @@ describe('AgentSelectionScreen hooks', () => {
 		);
 
 		await waitFor(() => expect(result.current.sshRemotes).toHaveLength(1));
-		expect(window.maestro.sshRemote.getConfigs).toHaveBeenCalledTimes(1);
+		expect(window.openwizardai.sshRemote.getConfigs).toHaveBeenCalledTimes(1);
 
 		act(() => result.current.handleSshRemoteChange('remote-1'));
 		expect(result.current.sshRemoteConfig).toEqual({ enabled: true, remoteId: 'remote-1' });
@@ -219,7 +219,7 @@ describe('AgentSelectionScreen hooks', () => {
 			remoteId: 'remote-2',
 			workingDirOverride: '/work',
 		});
-		await waitFor(() => expect(window.maestro.sshRemote.getConfigs).toHaveBeenCalledTimes(2));
+		await waitFor(() => expect(window.openwizardai.sshRemote.getConfigs).toHaveBeenCalledTimes(2));
 
 		rerender({
 			sessionSshRemoteConfig: {
@@ -234,12 +234,12 @@ describe('AgentSelectionScreen hooks', () => {
 			remoteId: 'remote-2',
 			workingDirOverride: '/other-work',
 		});
-		expect(window.maestro.sshRemote.getConfigs).toHaveBeenCalledTimes(2);
+		expect(window.openwizardai.sshRemote.getConfigs).toHaveBeenCalledTimes(2);
 	});
 
 	it('swallows SSH remote load failures and reports telemetry', async () => {
 		const error = new Error('no ssh');
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockRejectedValue(error);
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockRejectedValue(error);
 
 		const { result } = renderHook(() =>
 			useSshRemotes({
@@ -248,7 +248,7 @@ describe('AgentSelectionScreen hooks', () => {
 			})
 		);
 
-		await waitFor(() => expect(window.maestro.sshRemote.getConfigs).toHaveBeenCalled());
+		await waitFor(() => expect(window.openwizardai.sshRemote.getConfigs).toHaveBeenCalled());
 		expect(result.current.sshRemotes).toEqual([]);
 		expect(captureException).toHaveBeenCalledWith(error, {
 			extra: {
@@ -260,7 +260,7 @@ describe('AgentSelectionScreen hooks', () => {
 	});
 
 	it('handles unsuccessful SSH remote config responses', async () => {
-		vi.mocked(window.maestro.sshRemote.getConfigs).mockResolvedValue({
+		vi.mocked(window.openwizardai.sshRemote.getConfigs).mockResolvedValue({
 			success: false,
 			error: 'Failed to load',
 		});
@@ -272,7 +272,7 @@ describe('AgentSelectionScreen hooks', () => {
 			})
 		);
 
-		await waitFor(() => expect(window.maestro.sshRemote.getConfigs).toHaveBeenCalled());
+		await waitFor(() => expect(window.openwizardai.sshRemote.getConfigs).toHaveBeenCalled());
 		expect(result.current.sshRemotes).toEqual([]);
 		expect(captureException).toHaveBeenCalledWith(expect.any(Error), {
 			extra: {
@@ -371,8 +371,8 @@ describe('AgentSelectionScreen hooks', () => {
 
 	it('opens and closes config panel, loading config and models with SSH ID', async () => {
 		vi.useFakeTimers();
-		vi.mocked(window.maestro.agents.getConfig).mockResolvedValue({ model: 'old' });
-		vi.mocked(window.maestro.agents.getModels).mockResolvedValue(['gpt-5']);
+		vi.mocked(window.openwizardai.agents.getConfig).mockResolvedValue({ model: 'old' });
+		vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue(['gpt-5']);
 		const showConfigView = vi.fn();
 		const showGridView = vi.fn();
 		const announce = vi.fn();
@@ -408,15 +408,15 @@ describe('AgentSelectionScreen hooks', () => {
 			await result.current.handleOpenConfig('codex');
 		});
 
-		expect(window.maestro.agents.getConfig).toHaveBeenCalledWith('codex');
-		expect(window.maestro.agents.getModels).toHaveBeenCalledWith('codex', false, 'remote-1');
+		expect(window.openwizardai.agents.getConfig).toHaveBeenCalledWith('codex');
+		expect(window.openwizardai.agents.getModels).toHaveBeenCalledWith('codex', false, 'remote-1');
 		expect(result.current.agentConfig).toEqual({ model: 'old' });
 		expect(result.current.availableModels).toEqual(['gpt-5']);
 		expect(showConfigView).toHaveBeenCalledTimes(1);
 		expect(announce).toHaveBeenCalledWith('Configuring Codex');
 
 		const loadError = new Error('load failed');
-		vi.mocked(window.maestro.agents.getModels).mockRejectedValueOnce(loadError);
+		vi.mocked(window.openwizardai.agents.getModels).mockRejectedValueOnce(loadError);
 		await act(async () => {
 			await result.current.handleOpenConfig('codex');
 		});
@@ -442,7 +442,7 @@ describe('AgentSelectionScreen hooks', () => {
 		const setWizardCustomArgs = vi.fn();
 		const setWizardCustomEnvVars = vi.fn();
 		const refreshAgentDetection = vi.fn();
-		vi.mocked(window.maestro.agents.getModels).mockResolvedValue(['model-a']);
+		vi.mocked(window.openwizardai.agents.getModels).mockResolvedValue(['model-a']);
 
 		const { result } = renderHook(() =>
 			useAgentConfigurationPanel({
@@ -476,7 +476,7 @@ describe('AgentSelectionScreen hooks', () => {
 		await act(async () => result.current.handleCustomPathBlur());
 		await act(async () => result.current.handleRefreshModels());
 		const refreshError = new Error('refresh failed');
-		vi.mocked(window.maestro.agents.getModels).mockRejectedValueOnce(refreshError);
+		vi.mocked(window.openwizardai.agents.getModels).mockRejectedValueOnce(refreshError);
 		await act(async () => result.current.handleRefreshModels());
 		await act(async () => result.current.handleRefreshAgent());
 
@@ -486,9 +486,9 @@ describe('AgentSelectionScreen hooks', () => {
 		expect(setWizardCustomEnvVars).toHaveBeenCalledWith({ OLD: '3' });
 		expect(setWizardCustomEnvVars).toHaveBeenCalledWith(undefined);
 		expect(setWizardCustomEnvVars).toHaveBeenCalledWith({ OLD: '1', '': '' });
-		expect(window.maestro.agents.setConfig).toHaveBeenCalledWith('codex', { model: 'gpt-5' });
-		expect(window.maestro.agents.setCustomPath).toHaveBeenCalledWith('codex', '/bin/codex');
-		expect(window.maestro.agents.getModels).toHaveBeenCalledWith('codex', true, undefined);
+		expect(window.openwizardai.agents.setConfig).toHaveBeenCalledWith('codex', { model: 'gpt-5' });
+		expect(window.openwizardai.agents.setCustomPath).toHaveBeenCalledWith('codex', '/bin/codex');
+		expect(window.openwizardai.agents.getModels).toHaveBeenCalledWith('codex', true, undefined);
 		expect(captureException).toHaveBeenCalledWith(refreshError, {
 			extra: {
 				operation: 'agentSelection:refreshModels',

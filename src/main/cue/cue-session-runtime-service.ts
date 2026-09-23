@@ -128,7 +128,7 @@ export function createCueSessionRuntimeService(
 		}
 
 		// Per-agent-cwd model: each session reads ONLY its own
-		// `<cwd>/.maestro/cue.yaml`. There is no ancestor walk and no
+		// `<cwd>/.openwizardai/cue.yaml`. There is no ancestor walk and no
 		// cross-cwd merge - every subscription that targets this agent
 		// lives in this agent's own yaml file (writer enforces this via
 		// `pipelinesToYamlByOwnerCwd`). Worktrees, sub-agents, and any

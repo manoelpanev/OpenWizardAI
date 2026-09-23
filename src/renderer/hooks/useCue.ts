@@ -63,11 +63,11 @@ export function useCue(options?: UseCueOptions): UseCueReturn {
 			// a user-visible error banner. Going direct preserves the catch
 			// path below; the wrapper would make `err` unreachable here.
 			const [statusData, runsData, logData, queueData, eventCountData] = await Promise.all([
-				window.maestro.cue.getStatus(),
-				window.maestro.cue.getActiveRuns(),
-				window.maestro.cue.getActivityLog(100),
-				window.maestro.cue.getQueueStatus(),
-				window.maestro.cue.getEventCount(),
+				window.openwizardai.cue.getStatus(),
+				window.openwizardai.cue.getActiveRuns(),
+				window.openwizardai.cue.getActivityLog(100),
+				window.openwizardai.cue.getQueueStatus(),
+				window.openwizardai.cue.getEventCount(),
 			]);
 			if (!mountedRef.current) return;
 			setSessions(statusData);

@@ -1,32 +1,32 @@
 ---
 title: Keyboard Shortcuts
-description: Complete reference for Maestro keyboard shortcuts, tab completion, and mastery tracking.
+description: Complete reference for OpenWizardAI keyboard shortcuts, tab completion, and mastery tracking.
 icon: keyboard
 ---
 
 ## Quick Actions (Cmd+K)
 
-The command palette is your gateway to nearly every action in Maestro. Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux) to open it.
+The command palette is your gateway to nearly every action in OpenWizardAI. Press `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux) to open it.
 
 ![Command palette](./screenshots/cmd-k-1.png)
 
-## System-Wide Hotkey (Summon Maestro)
+## System-Wide Hotkey (Summon OpenWizardAI)
 
-Configure a single OS-level hotkey that summons Maestro - bringing the window to the foreground and focusing it - from any application on macOS, Windows, or Linux. This is the only shortcut in Maestro that fires while the app is in the background; every other shortcut on this page is in-app.
+Configure a single OS-level hotkey that summons OpenWizardAI - bringing the window to the foreground and focusing it - from any application on macOS, Windows, or Linux. This is the only shortcut in OpenWizardAI that fires while the app is in the background; every other shortcut on this page is in-app.
 
 **To configure:**
 
 1. Open **Settings** (`Cmd+,` / `Ctrl+,`) → **General** tab
-2. Find **Global Hotkey to Show Maestro**
+2. Find **Global Hotkey to Show OpenWizardAI**
 3. Click the key capture button and press your desired combo
 4. Leave it blank to disable the binding
 
 Tips and gotchas:
 
 - Pick a combo with two modifiers (e.g. `Cmd+Shift+M` / `Win+Shift+M`) to avoid clashing with app shortcuts.
-- If the OS or another app already owns the combo, Maestro will surface a registration failure - pick a different binding.
+- If the OS or another app already owns the combo, OpenWizardAI will surface a registration failure - pick a different binding.
 - `Meta` maps to **Cmd** on macOS and **Win** (Super) on Windows/Linux automatically.
-- The hotkey works even when Maestro is hidden, minimized, or behind other windows.
+- The hotkey works even when OpenWizardAI is hidden, minimized, or behind other windows.
 
 ## Global Shortcuts
 
@@ -61,9 +61,9 @@ Tips and gotchas:
 | Jump to Nearest Terminal    | `Opt+Cmd+J`           | `Alt+Ctrl+J`           |
 | Jump to Bottom              | `Opt+J`               | `Alt+J`                |
 | Toggle Bookmark             | `Cmd+Shift+B`         | `Ctrl+Shift+B`         |
-| Maestro Symphony            | `Opt+Cmd+Y`           | `Alt+Ctrl+Y`           |
+| OpenWizardAI Symphony       | `Opt+Cmd+Y`           | `Alt+Ctrl+Y`           |
 | Director's Notes            | `Cmd+Shift+O`         | `Ctrl+Shift+O`         |
-| Maestro Cue                 | `Opt+Q`               | `Alt+Q`                |
+| OpenWizardAI Cue            | `Opt+Q`               | `Alt+Q`                |
 | Edit Image from Clipboard   | `Opt+Cmd+E`           | `Alt+Ctrl+E`           |
 | Forced Parallel Send        | `Cmd+Shift+Enter`     | `Ctrl+Shift+Enter`     |
 | Cycle Focus Areas           | `Tab`                 | `Tab`                  |
@@ -98,14 +98,14 @@ surface too, so a chord you chose yourself behaves the same as the default.
 
 `Cmd+E` toggles edit and preview on a markdown File Preview, in the Memories
 viewer (`Cmd+Shift+M`), where the pane opens on the rendered document, and on
-the Maestro Prompts tab in Settings, where it opens on the source. Inside the
+the OpenWizardAI Prompts tab in Settings, where it opens on the source. Inside the
 Memories viewer, `Cmd+G` graphs the memories and `Cmd+U` toggles the unlinked
 filter, in place of their usual meanings.
 
 **Git: Pull**, **Git: Push**, **Git: Change Branch**, and **Git: Create Pull Request** ship
 unbound. They run against the active agent's repository, exactly as the branch
 pill's dropdown and the command palette (`Cmd+K`) do, and two of them write to a
-remote, so Maestro does not claim four chords for them out of the box. Bind any
+remote, so OpenWizardAI does not claim four chords for them out of the box. Bind any
 of them in **Settings** -> **Shortcuts** and the chord appears on the matching
 branch-pill row and palette entry.
 
@@ -114,7 +114,7 @@ the active agent in one press. When a File Preview is open it re-reads that file
 from disk too, so everything on screen comes back fresh in one chord. A file you
 have unsaved edits in is left alone: the reload would discard them without
 asking, and the on-disk-change banner is where that question belongs. Plain
-`Cmd+R` is reserved: Maestro blocks it so the window can never reload out from
+`Cmd+R` is reserved: OpenWizardAI blocks it so the window can never reload out from
 under a running agent.
 
 ## Group Chat
@@ -453,9 +453,9 @@ from the filter box it returns you to the list **keeping your query**, so you
 can filter and then arrow through the hits; pressing it again clears the
 filter, and once more closes the viewer.
 
-## Maestro Prompts (Settings)
+## OpenWizardAI Prompts (Settings)
 
-Settings -> Maestro Prompts edits the system prompts Maestro sends to agents.
+Settings -> OpenWizardAI Prompts edits the system prompts OpenWizardAI sends to agents.
 The prompt list is focused when the tab opens, so these work right away.
 
 | Action                 | macOS           | Windows/Linux   |
@@ -563,17 +563,17 @@ Most shortcuts can be remapped to fit your workflow:
 
 **Finding a shortcut by pressing it:** Both the Shortcuts tab and the Shortcuts Help panel (`Cmd+/` / `Ctrl+/`) have a **By Key** button. Click it and press a combination to see what it is bound to. It keeps listening after each press, so you can run through one key after another to explore what your keyboard already does. Press `Esc` or click away to stop. If nothing is bound to what you pressed, the panel says so by name rather than showing a bare "no results".
 
-### Combinations Maestro Will Not Take
+### Combinations OpenWizardAI Will Not Take
 
-`Cmd+Shift+Arrow` (`Ctrl+Shift+Arrow` on Windows and Linux) belongs to the operating system inside a text field: it extends your selection to the top, bottom, start of the line, or end of the line. Maestro refuses to bind these, because a Maestro binding on one of them wins everywhere in the app, so you would lose select-to-end in every input and get an agent jump instead - which looks exactly like a broken text box.
+`Cmd+Shift+Arrow` (`Ctrl+Shift+Arrow` on Windows and Linux) belongs to the operating system inside a text field: it extends your selection to the top, bottom, start of the line, or end of the line. OpenWizardAI refuses to bind these, because an OpenWizardAI binding on one of them wins everywhere in the app, so you would lose select-to-end in every input and get an agent jump instead - which looks exactly like a broken text box.
 
-The recorder refuses these with an explanation. If you had one of them bound in an earlier version, Maestro clears it on the next launch and puts that action back on its default combination, so the action keeps working. You'll find it under its default binding in the Shortcuts tab.
+The recorder refuses these with an explanation. If you had one of them bound in an earlier version, OpenWizardAI clears it on the next launch and puts that action back on its default combination, so the action keeps working. You'll find it under its default binding in the Shortcuts tab.
 
 **Resetting shortcuts:** There's currently no "reset to default" button - if you need to restore defaults, you can find the original bindings in this documentation or delete the shortcuts from your settings file.
 
 ### Changed Default Bindings
 
-When a default binding has to move to free a combo for a new action, Maestro migrates it for you on the next launch - but only if you were still on the old default. If you had personally rebound that action, your binding is left untouched and you may need to move it yourself.
+When a default binding has to move to free a combo for a new action, OpenWizardAI migrates it for you on the next launch - but only if you were still on the old default. If you had personally rebound that action, your binding is left untouched and you may need to move it yourself.
 
 | Action                    | Was           | Now           | Freed for                        |
 | ------------------------- | ------------- | ------------- | -------------------------------- |
@@ -585,15 +585,15 @@ If `Opt+Cmd+F` still focuses the active tab instead of opening cross-tab search,
 
 ## Keyboard Mastery
 
-Maestro tracks your keyboard shortcut usage and rewards you for becoming a power user. As you discover and use more shortcuts, you'll level up through 5 mastery levels:
+OpenWizardAI tracks your keyboard shortcut usage and rewards you for becoming a power user. As you discover and use more shortcuts, you'll level up through 5 mastery levels:
 
-| Level | Title                | Threshold |
-| :---: | -------------------- | --------- |
-|   0   | **Beginner**         | 0%        |
-|   1   | **Student**          | 25%       |
-|   2   | **Performer**        | 50%       |
-|   3   | **Virtuoso**         | 75%       |
-|   4   | **Keyboard Maestro** | 100%      |
+| Level | Title                     | Threshold |
+| :---: | ------------------------- | --------- |
+|   0   | **Beginner**              | 0%        |
+|   1   | **Student**               | 25%       |
+|   2   | **Performer**             | 50%       |
+|   3   | **Virtuoso**              | 75%       |
+|   4   | **Keyboard OpenWizardAI** | 100%      |
 
 **Tracking your progress:**
 
@@ -611,6 +611,6 @@ joins the count.
 
 The modal shows all available shortcuts with checkmarks indicating which you've mastered. Use the search bar to find specific shortcuts quickly.
 
-**Why keyboard shortcuts matter:** Using shortcuts keeps you in flow state, reduces context switching, and dramatically speeds up your workflow. Maestro is designed for keyboard-first operation - the less you reach for the mouse, the faster you'll work.
+**Why keyboard shortcuts matter:** Using shortcuts keeps you in flow state, reduces context switching, and dramatically speeds up your workflow. OpenWizardAI is designed for keyboard-first operation - the less you reach for the mouse, the faster you'll work.
 
-Keyboard Mastery is separate from [Conductor Ranks](./achievements), which track cumulative Auto Run time. Both systems reward you for mastering different aspects of Maestro.
+Keyboard Mastery is separate from [Conductor Ranks](./achievements), which track cumulative Auto Run time. Both systems reward you for mastering different aspects of OpenWizardAI.

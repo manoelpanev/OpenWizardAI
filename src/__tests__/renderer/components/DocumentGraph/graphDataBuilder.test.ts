@@ -159,9 +159,9 @@ describe('graphDataBuilder', () => {
 		mockReadFile = vi.fn().mockImplementation(mockReadFileImpl);
 		mockStat = vi.fn().mockImplementation(mockStatImpl);
 
-		// Mock window.maestro.fs
+		// Mock window.openwizardai.fs
 		vi.stubGlobal('window', {
-			maestro: {
+			openwizardai: {
 				fs: {
 					readDir: mockReadDir,
 					readFile: mockReadFile,
@@ -258,7 +258,7 @@ describe('graphDataBuilder', () => {
 			]);
 
 			vi.stubGlobal('window', {
-				maestro: {
+				openwizardai: {
 					fs: {
 						readDir: cyclicReadDir,
 						readFile: vi.fn().mockResolvedValue('# entry\n'),

@@ -1,5 +1,5 @@
 /**
- * Shared theme type definitions for Maestro
+ * Shared theme type definitions for OpenWizardAI
  *
  * This file contains theme types used across:
  * - Main process (Electron)
@@ -28,7 +28,7 @@ export type ThemeId =
 	| 'catppuccin-latte'
 	| 'ayu-light'
 	| 'pedurple'
-	| 'maestros-choice'
+	| 'openwizardais-choice'
 	| 'dre-synth'
 	| 'winamp'
 	| 'custom';
@@ -156,7 +156,7 @@ export function isValidThemeId(id: string): id is ThemeId {
 		'catppuccin-latte',
 		'ayu-light',
 		'pedurple',
-		'maestros-choice',
+		'openwizardais-choice',
 		'dre-synth',
 		'winamp',
 		'custom',

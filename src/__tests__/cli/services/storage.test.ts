@@ -91,10 +91,10 @@ describe('storage service', () => {
 		vi.clearAllMocks();
 		// Reset environment
 		process.env = { ...originalEnv };
-		// Strip MAESTRO_USER_DATA if set in the test runner's shell - getConfigDir()
+		// Strip OPENWIZARDAI_USER_DATA if set in the test runner's shell - getConfigDir()
 		// honors it as an override, so leaving it set would shadow the mocked
 		// homedir/platform paths these tests assert against.
-		delete process.env.MAESTRO_USER_DATA;
+		delete process.env.OPENWIZARDAI_USER_DATA;
 		// Default to macOS
 		vi.mocked(os.platform).mockReturnValue('darwin');
 		vi.mocked(os.homedir).mockReturnValue('/Users/testuser');
@@ -115,7 +115,7 @@ describe('storage service', () => {
 			const result = getConfigDirectory();
 
 			expect(result).toBe(
-				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizzard')
+				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizardAI')
 			);
 		});
 
@@ -127,7 +127,7 @@ describe('storage service', () => {
 			const result = getConfigDirectory();
 
 			expect(result).toContain('Roaming');
-			expect(result).toContain('OpenWizzard');
+			expect(result).toContain('OpenWizardAI');
 		});
 
 		it('should return Windows config path fallback without APPDATA', () => {
@@ -138,7 +138,7 @@ describe('storage service', () => {
 			const result = getConfigDirectory();
 
 			expect(result).toContain('testuser');
-			expect(result).toContain('OpenWizzard');
+			expect(result).toContain('OpenWizardAI');
 		});
 
 		it('should return Linux config path with XDG_CONFIG_HOME', () => {
@@ -148,7 +148,7 @@ describe('storage service', () => {
 
 			const result = getConfigDirectory();
 
-			expect(result).toBe(path.join('/home/testuser/.custom-config', 'OpenWizzard'));
+			expect(result).toBe(path.join('/home/testuser/.custom-config', 'OpenWizardAI'));
 		});
 
 		it('should return Linux config path fallback without XDG_CONFIG_HOME', () => {
@@ -158,7 +158,7 @@ describe('storage service', () => {
 
 			const result = getConfigDirectory();
 
-			expect(result).toBe(path.join('/home/testuser', '.config', 'OpenWizzard'));
+			expect(result).toBe(path.join('/home/testuser', '.config', 'OpenWizardAI'));
 		});
 
 		it('should use Linux path for unknown platforms', () => {
@@ -168,7 +168,7 @@ describe('storage service', () => {
 
 			const result = getConfigDirectory();
 
-			expect(result).toBe(path.join('/home/testuser', '.config', 'OpenWizzard'));
+			expect(result).toBe(path.join('/home/testuser', '.config', 'OpenWizardAI'));
 		});
 	});
 
@@ -887,9 +887,9 @@ describe('storage service', () => {
 			addHistoryEntry(mockHistoryEntry());
 
 			const writeCall = vi.mocked(fs.writeFileSync).mock.calls[0];
-			expect(writeCall[0]).toContain('maestro-history.json');
+			expect(writeCall[0]).toContain('openwizardai-history.json');
 			expect(writeCall[0]).toContain(
-				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizzard')
+				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizardAI')
 			);
 		});
 	});
@@ -1277,7 +1277,7 @@ describe('storage service', () => {
 
 			writeSettingValue('fontSize', 16);
 
-			expect(fs.mkdirSync).toHaveBeenCalledWith(expect.stringContaining('OpenWizzard'), {
+			expect(fs.mkdirSync).toHaveBeenCalledWith(expect.stringContaining('OpenWizardAI'), {
 				recursive: true,
 			});
 		});
@@ -1502,7 +1502,7 @@ describe('storage service', () => {
 			writeSshRemotes(remotes);
 
 			expect(fs.writeFileSync).toHaveBeenCalledWith(
-				expect.stringContaining('maestro-settings.json'),
+				expect.stringContaining('openwizardai-settings.json'),
 				expect.stringContaining('"sshRemotes"'),
 				'utf-8'
 			);

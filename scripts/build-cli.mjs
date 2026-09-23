@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Build script for the Maestro CLI using esbuild.
+ * Build script for the OpenWizardAI CLI using esbuild.
  *
  * Bundles the CLI into a single JavaScript file that can be run with Node.js.
  * Users of this CLI already have Node.js installed (required for Claude Code),
@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 
-const outfile = path.join(rootDir, 'dist/cli/maestro-cli.js');
+const outfile = path.join(rootDir, 'dist/cli/openwizardai-cli.js');
 
 const pkgJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
 const cliVersion = pkgJson.version;
@@ -69,7 +69,7 @@ async function build() {
 			external: ['fsevents'],
 			plugins: [rawMdPlugin],
 			define: {
-				__MAESTRO_CLI_VERSION__: JSON.stringify(cliVersion),
+				__OPENWIZARDAI_CLI_VERSION__: JSON.stringify(cliVersion),
 			},
 		});
 

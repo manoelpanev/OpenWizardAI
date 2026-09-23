@@ -79,7 +79,7 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	jumpToAgent.mockReturnValue(true);
 	useSettingsStore.setState({ modalSizes: {} });
-	(window as unknown as Record<string, unknown>).maestro = {
+	(window as unknown as Record<string, unknown>).openwizardai = {
 		stats: {
 			getStats: vi.fn().mockResolvedValue([]),
 			getAutoRunSessions: vi.fn().mockResolvedValue([]),

@@ -11,7 +11,7 @@
  * before a tab can be created), the playback store, and the player itself.
  *
  * The playability test is deliberately content-based rather than
- * extension-based. The main process only hands back a `maestro-media://` stream
+ * extension-based. The main process only hands back a `openwizardai-media://` stream
  * URL for *local* files it can actually range-serve, so a `.mp4` opened over
  * SSH keeps the existing binary "download and open externally" path instead of
  * landing in a player that has no bytes to read.

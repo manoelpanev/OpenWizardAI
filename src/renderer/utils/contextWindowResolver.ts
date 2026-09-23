@@ -44,7 +44,7 @@ export async function resolveConfiguredContextWindow(
 	if (sessionModelWindow) return sessionModelWindow;
 	if (!session.toolType) return 0;
 	try {
-		const config = await window.maestro.agents.getConfig(session.toolType);
+		const config = await window.openwizardai.agents.getConfig(session.toolType);
 		const configModelWindow = getModelContextWindowOverride(config?.model);
 		if (configModelWindow) return configModelWindow;
 		return typeof config?.contextWindow === 'number' ? config.contextWindow : 0;

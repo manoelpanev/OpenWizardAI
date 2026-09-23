@@ -126,12 +126,12 @@ export interface StatsAggregation {
 	avgSessionDuration: number;
 	/** Queries and duration by provider per day (for provider comparison) */
 	byAgentByDay: Record<string, Array<{ date: string; count: number; duration: number }>>;
-	/** Queries and duration by Maestro session per day (for agent usage chart) */
+	/** Queries and duration by OpenWizardAI session per day (for agent usage chart) */
 	bySessionByDay: Record<string, Array<{ date: string; count: number; duration: number }>>;
-	/** User vs auto query counts per Maestro session (for per-card auto% on the dashboard) */
+	/** User vs auto query counts per OpenWizardAI session (for per-card auto% on the dashboard) */
 	bySessionSource: Record<string, { user: number; auto: number }>;
 	/**
-	 * Token and cost totals per Maestro session, for agent and group cost
+	 * Token and cost totals per OpenWizardAI session, for agent and group cost
 	 * rollups. `pricedQueries` is how many of that session's rows actually
 	 * carried usage data: rows written before the token columns landed report
 	 * none, so a session can show a large query count against a small priced
@@ -152,7 +152,7 @@ export interface StatsAggregation {
 }
 
 /**
- * Token and cost totals for one Maestro session within a time range.
+ * Token and cost totals for one OpenWizardAI session within a time range.
  */
 export interface SessionTokenTotals {
 	inputTokens: number;
@@ -186,12 +186,12 @@ export interface ShortcutUsageDay {
 /**
  * An Agent Resilience outage, recorded once when it RESOLVES (never while
  * counting down). One row per outage, not per retry attempt - the question the
- * dashboard answers is "how often did Maestro carry my work across a wall",
+ * dashboard answers is "how often did OpenWizardAI carry my work across a wall",
  * and an outage that took 3 retries is still one carried outage.
  */
 export interface ResilienceEvent {
 	id: string;
-	/** Maestro agent (Session.id) the outage happened on. */
+	/** OpenWizardAI agent (Session.id) the outage happened on. */
 	sessionId: string;
 	/** Provider id ('claude-code', 'codex', ...). */
 	agentType: string;
@@ -223,7 +223,7 @@ export interface ResilienceEvent {
  */
 export interface WizardRun {
 	id: string;
-	/** Maestro agent (Session.id) the wizard ran on. `'onboarding'` for the first-run wizard. */
+	/** OpenWizardAI agent (Session.id) the wizard ran on. `'onboarding'` for the first-run wizard. */
 	sessionId: string;
 	/** Provider id ('claude-code', 'codex', ...). */
 	agentType: string;

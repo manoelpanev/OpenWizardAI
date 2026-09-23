@@ -1,5 +1,5 @@
 /**
- * Shared Git utilities for Maestro
+ * Shared Git utilities for OpenWizardAI
  *
  * This module provides common git-related parsing and utility functions
  * used across main process, renderer, and CLI.

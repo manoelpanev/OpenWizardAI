@@ -644,7 +644,7 @@ describe('round-trip: trigger → command → agent shape', () => {
 // ─── Shape: `action: notify` + the one-shot task pair ────────────────────────
 
 /**
- * `maestro-cli cue schedule` with BOTH a prompt and a notify emits a matched
+ * `openwizardai-cli cue schedule` with BOTH a prompt and a notify emits a matched
  * pair of subscriptions (`<task>-prompt` / `<task>-notify`) that share one
  * event, one instant, one agent, and one label. `triggerGroupKey` therefore
  * collapses them onto ONE visual trigger with TWO outgoing edges to the same
@@ -670,7 +670,7 @@ describe('round-trip: action notify and one-shot timing', () => {
 	function scheduledTaskPair(): { pipelines: CuePipeline[]; sessions: PipelineSession[] } {
 		const t1 = trigger('t1', 'time.once', { fire_at: ONE_SHOT });
 		(t1.data as TriggerNodeData).customLabel = 'Renew the token';
-		const a1 = agent('a1', 'sess-web', 'RunMaestro.ai');
+		const a1 = agent('a1', 'sess-web', 'manoelpanev.ai');
 
 		return {
 			pipelines: [
@@ -690,7 +690,7 @@ describe('round-trip: action notify and one-shot timing', () => {
 					]
 				),
 			],
-			sessions: [{ id: 'sess-web', name: 'RunMaestro.ai', toolType: 'claude-code' }],
+			sessions: [{ id: 'sess-web', name: 'manoelpanev.ai', toolType: 'claude-code' }],
 		};
 	}
 

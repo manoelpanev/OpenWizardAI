@@ -74,12 +74,12 @@ export const TILDE_PATH_PATTERN = new RegExp(
 export const INLINE_CODE_EXT_PATTERN = new RegExp(`\\.(?:${LINKABLE_EXTENSIONS})$`, 'i');
 
 /**
- * Bare `maestro://` deep link URL embedded in text. Matches URL-safe chars
+ * Bare `openwizardai://` deep link URL embedded in text. Matches URL-safe chars
  * and only consumes `.` when followed by more URL chars, so sentence-ending
- * punctuation (e.g. `… maestro://session/abc.`) is left out of the match.
+ * punctuation (e.g. `… openwizardai://session/abc.`) is left out of the match.
  * Used to auto-linkify in-app navigation URLs (e.g.
- * `maestro://session/<id>/tab/<id>`) so they become clickable in rendered
+ * `openwizardai://session/<id>/tab/<id>`) so they become clickable in rendered
  * markdown.
  */
-export const MAESTRO_DEEP_LINK_PATTERN =
-	/maestro:\/\/[A-Za-z0-9_\-/?&=%]+(?:\.[A-Za-z0-9_\-/?&=%]+)*/g;
+export const OPENWIZARDAI_DEEP_LINK_PATTERN =
+	/openwizardai:\/\/[A-Za-z0-9_\-/?&=%]+(?:\.[A-Za-z0-9_\-/?&=%]+)*/g;

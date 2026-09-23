@@ -267,7 +267,7 @@ export const FileTreeRow = memo(function FileTreeRow({
 			onDoubleClick={() => {
 				if (isFolder) return;
 				// Optional shortcut: HTML files can default to opening in the
-				// Maestro browser instead of the preview. SSH skips this (file://
+				// OpenWizardAI browser instead of the preview. SSH skips this (file://
 				// can't reach the remote host); the right-click menu still offers
 				// both paths regardless of the setting.
 				const isHtml = /\.html?$/i.test(node.name);

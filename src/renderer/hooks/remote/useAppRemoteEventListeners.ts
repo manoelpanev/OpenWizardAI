@@ -2,7 +2,7 @@
  * useAppRemoteEventListeners.ts
  *
  * Extracted from App.tsx - handles all CustomEvent-based remote event listeners
- * dispatched by useRemoteIntegration (maestro:openFileTab, maestro:remoteCreateSession, etc.).
+ * dispatched by useRemoteIntegration (openwizardai:openFileTab, openwizardai:remoteCreateSession, etc.).
  *
  * These listeners bridge remote/web/CLI commands to the renderer's state and actions.
  */
@@ -12,7 +12,7 @@ import { useEventListener } from '../utils/useEventListener';
 import { generateId } from '../../utils/ids';
 import { useSessionStore, selectSessionById } from '../../stores/sessionStore';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { PLAYBOOKS_DIR } from '../../../shared/maestro-paths';
+import { PLAYBOOKS_DIR } from '../../../shared/openwizardai-paths';
 import { asThinkingMode } from '../../../shared/types';
 import { getBrowserTabPartition } from '../../utils/browserTabPersistence';
 import { insertAfterActiveInUnifiedTabOrder } from '../../utils/unifiedTabOrderUtils';
@@ -125,7 +125,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// --- File Operations ---
 
 	// Handle remote open file tab events from CLI/web interface
-	useEventListener('maestro:openFileTab', async (e: Event) => {
+	useEventListener('openwizardai:openFileTab', async (e: Event) => {
 		const { sessionId, filePath, background, switchToAgent, line } = (e as CustomEvent).detail as {
 			sessionId: string;
 			filePath: string;
@@ -142,7 +142,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			 */
 			switchToAgent?: boolean;
 			/** Optional 1-based line to jump to once the file is open. Set by
-			 *  maestro://file/...#L<n> deep links. */
+			 *  openwizardai://file/...#L<n> deep links. */
 			line?: number;
 		};
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
@@ -168,8 +168,8 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		}
 		try {
 			const [content, stat] = await Promise.all([
-				window.maestro.fs.readFile(filePath, sshRemoteId),
-				window.maestro.fs.stat(filePath, sshRemoteId).catch(() => null),
+				window.openwizardai.fs.readFile(filePath, sshRemoteId),
+				window.openwizardai.fs.stat(filePath, sshRemoteId).catch(() => null),
 			]);
 			if (content !== null) {
 				const filename = filePath.split(/[\\/]/).pop() || filePath;
@@ -200,7 +200,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// Handle remote open browser tab events from CLI/web interface.
 	// Acks success to responseChannel so the CLI only reports success after
 	// the tab is actually created.
-	useEventListener('maestro:openBrowserTab', (e: Event) => {
+	useEventListener('openwizardai:openBrowserTab', (e: Event) => {
 		const { sessionId, url, responseChannel, background } = (e as CustomEvent).detail as {
 			sessionId: string;
 			url: string;
@@ -209,7 +209,11 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		};
 		const ack = (success: boolean, tabId?: string) => {
 			if (responseChannel) {
-				window.maestro.process.sendRemoteOpenBrowserTabResponse(responseChannel, success, tabId);
+				window.openwizardai.process.sendRemoteOpenBrowserTabResponse(
+					responseChannel,
+					success,
+					tabId
+				);
 			}
 		};
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
@@ -263,14 +267,14 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// the owning agent from the tab id so callers only need what open-browser
 	// handed back. Acks false when no such tab exists, so an agent cleaning up
 	// after itself can tell a no-op from a real close.
-	useEventListener('maestro:closeBrowserTab', (e: Event) => {
+	useEventListener('openwizardai:closeBrowserTab', (e: Event) => {
 		const { tabId, responseChannel } = (e as CustomEvent).detail as {
 			tabId: string;
 			responseChannel?: string;
 		};
 		const ack = (success: boolean) => {
 			if (responseChannel) {
-				window.maestro.process.sendRemoteCloseBrowserTabResponse(responseChannel, success);
+				window.openwizardai.process.sendRemoteCloseBrowserTabResponse(responseChannel, success);
 			}
 		};
 		const owner = sessionsRef.current.find((s) =>
@@ -301,7 +305,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// Handle remote open terminal tab events from CLI/web interface.
 	// Acks success to responseChannel so the CLI only reports success after
 	// the tab is actually created.
-	useEventListener('maestro:openTerminalTab', (e: Event) => {
+	useEventListener('openwizardai:openTerminalTab', (e: Event) => {
 		const { sessionId, config, responseChannel, background } = (e as CustomEvent).detail as {
 			sessionId: string;
 			config: { cwd?: string; shell?: string; name?: string | null; command?: string };
@@ -310,7 +314,11 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		};
 		const ack = (success: boolean, tabId?: string) => {
 			if (responseChannel) {
-				window.maestro.process.sendRemoteOpenTerminalTabResponse(responseChannel, success, tabId);
+				window.openwizardai.process.sendRemoteOpenTerminalTabResponse(
+					responseChannel,
+					success,
+					tabId
+				);
 			}
 		};
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
@@ -388,7 +396,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// Handle remote writes into an existing terminal tab from CLI/web interface.
 	// This is the "type into the terminal the user is looking at" path, as
 	// opposed to openTerminalTab which makes a new one.
-	useEventListener('maestro:writeTerminalTab', async (e: Event) => {
+	useEventListener('openwizardai:writeTerminalTab', async (e: Event) => {
 		const { sessionId, tabRef, data, responseChannel } = (e as CustomEvent).detail as {
 			sessionId: string;
 			tabRef?: string;
@@ -400,7 +408,11 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			result?: { error?: string; tabId?: string; tabName?: string }
 		) => {
 			if (responseChannel) {
-				window.maestro.process.sendRemoteWriteTerminalTabResponse(responseChannel, success, result);
+				window.openwizardai.process.sendRemoteWriteTerminalTabResponse(
+					responseChannel,
+					success,
+					result
+				);
 			}
 		};
 
@@ -454,14 +466,14 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				error:
 					tab.state === 'exited'
 						? `Terminal "${tabName}" has exited. Restart it from the tab menu, or open a new one.`
-						: `Terminal "${tabName}" has no running shell yet. Select the tab in OpenWizzard, or use open-terminal --command.`,
+						: `Terminal "${tabName}" has no running shell yet. Select the tab in OpenWizardAI, or use open-terminal --command.`,
 				tabId: tab.id,
 				tabName,
 			});
 			return;
 		}
 
-		const success = await window.maestro.process.write(
+		const success = await window.openwizardai.process.write(
 			getTerminalSessionId(owner.id, tab.id),
 			data
 		);
@@ -475,7 +487,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// Handle remote terminal tab listing from CLI/web interface. Terminal tabs
 	// live only in renderer state, so this is the only way a caller can discover
 	// what is open before writing to it.
-	useEventListener('maestro:listTerminalTabs', (e: Event) => {
+	useEventListener('openwizardai:listTerminalTabs', (e: Event) => {
 		const { sessionId, responseChannel } = (e as CustomEvent).detail as {
 			sessionId?: string;
 			responseChannel?: string;
@@ -497,13 +509,13 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				startupCommand: tab.startupCommand ?? null,
 			}))
 		);
-		window.maestro.process.sendRemoteListTerminalTabsResponse(responseChannel, tabs);
+		window.openwizardai.process.sendRemoteListTerminalTabsResponse(responseChannel, tabs);
 	});
 
 	// --- Auto Run Operations ---
 
 	// Handle remote refresh auto-run docs events from CLI/web interface
-	useEventListener('maestro:refreshAutoRunDocs', (e: Event) => {
+	useEventListener('openwizardai:refreshAutoRunDocs', (e: Event) => {
 		const { sessionId, background } = (e as CustomEvent).detail as {
 			sessionId: string;
 			background?: boolean;
@@ -529,12 +541,12 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	});
 
 	// Handle remote set Auto Run folder events from web interface - repoints
-	// a session at a different `.maestro/` folder, mirroring desktop's
+	// a session at a different `.openwizardai/` folder, mirroring desktop's
 	// `dialog.selectFolder` + `handleAutoRunFolderSelected` flow. Lists docs
 	// from the new path via the autorun preload API and writes the new folder
 	// + first doc + content into the session atomically; the session storage
 	// layer persists `autoRunFolderPath` on the next save tick.
-	useEventListener('maestro:setAutoRunFolder', async (e: Event) => {
+	useEventListener('openwizardai:setAutoRunFolder', async (e: Event) => {
 		const { sessionId, folderPath, responseChannel } = (e as CustomEvent).detail as {
 			sessionId: string;
 			folderPath: string;
@@ -544,7 +556,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		try {
 			const session = sessionsRef.current.find((s) => s.id === sessionId);
 			if (!session) {
-				window.maestro.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
 					success: false,
 					error: `Session ${sessionId} not found`,
 				});
@@ -561,7 +573,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				error?: string;
 			} | null = null;
 			try {
-				listResult = await window.maestro.autorun.listDocs(folderPath, sshRemoteId);
+				listResult = await window.openwizardai.autorun.listDocs(folderPath, sshRemoteId);
 			} catch (error) {
 				captureException(error, {
 					extra: { sessionId, folderPath, responseChannel, sshRemoteId },
@@ -580,7 +592,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 					level: 'error',
 					extra: { sessionId, folderPath, responseChannel, sshRemoteId, listResult },
 				});
-				window.maestro.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
 					success: false,
 					error: listResult?.error || `Could not read folder ${folderPath}`,
 				});
@@ -591,7 +603,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			let firstFileContent = '';
 			if (firstFile) {
 				try {
-					const contentResult = await window.maestro.autorun.readDoc(
+					const contentResult = await window.openwizardai.autorun.readDoc(
 						folderPath,
 						firstFile + '.md',
 						sshRemoteId
@@ -618,12 +630,12 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				)
 			);
 
-			window.maestro.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
 				success: true,
 			});
 		} catch (error) {
 			captureException(error, { extra: { sessionId, folderPath, responseChannel } });
-			window.maestro.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteSetAutoRunFolderResponse(responseChannel, {
 				success: false,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -631,14 +643,14 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	});
 
 	// Handle remote configure auto-run events from CLI/web interface
-	useEventListener('maestro:configureAutoRun', async (e: Event) => {
+	useEventListener('openwizardai:configureAutoRun', async (e: Event) => {
 		const { sessionId, config, responseChannel } = (e as CustomEvent).detail;
 
 		try {
 			// Find the target session
 			const session = sessionsRef.current.find((s) => s.id === sessionId);
 			if (!session) {
-				window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 					success: false,
 					error: `Session ${sessionId} not found`,
 				});
@@ -647,14 +659,14 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 
 			// Case 1: Save as playbook
 			if (config.saveAsPlaybook) {
-				const result = await window.maestro.playbooks.create(sessionId, {
+				const result = await window.openwizardai.playbooks.create(sessionId, {
 					name: config.saveAsPlaybook,
 					documents: config.documents || [],
 					loopEnabled: config.loopEnabled || false,
 					maxLoops: config.maxLoops,
 					prompt: config.prompt || '',
 				});
-				window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 					success: result.success,
 					playbookId: result.playbook?.id,
 					error: result.error,
@@ -666,7 +678,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			if (config.launch) {
 				const folderPath = session.autoRunFolderPath;
 				if (!folderPath) {
-					window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 						success: false,
 						error: 'No Auto Run folder configured for this session',
 					});
@@ -703,7 +715,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				);
 
 				if (documents.length === 0) {
-					window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 						success: false,
 						error: 'No documents provided for auto-run',
 					});
@@ -779,7 +791,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 					try {
 						const newSessionId = await spawnWorktreeAgentAndDispatch(parentForSpawn, spawnConfig);
 						if (!newSessionId) {
-							window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+							window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 								success: false,
 								error: 'Failed to spawn worktree agent',
 							});
@@ -804,7 +816,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 					} catch (err) {
 						captureException(err, {
 							extra: {
-								event: 'maestro:configureAutoRun',
+								event: 'openwizardai:configureAutoRun',
 								sessionId,
 								parentSessionId: parentForSpawn.id,
 								worktree: config.worktree,
@@ -817,7 +829,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 							title: 'Worktree Error',
 							message: err instanceof Error ? err.message : String(err),
 						});
-						window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+						window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 							success: false,
 							error: err instanceof Error ? err.message : String(err),
 						});
@@ -827,7 +839,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 
 				// Send success response immediately - startBatchRun is long-running
 				// and would exceed the IPC/CLI timeout if awaited.
-				window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 					success: true,
 				});
 				startBatchRun(targetSessionId, batchConfig, folderPath).catch((err) => {
@@ -839,13 +851,13 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			// Case 3: Just configure (no launch, no save)
 			// Without --launch or --save-as, there is no persistent state to update.
 			// Return an error guiding the user to use one of those flags.
-			window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 				success: false,
 				error: 'Use --launch to start auto-run immediately, or --save-as to save as a playbook',
 			});
 		} catch (error) {
 			logger.error('[Remote] Failed to configure auto-run:', undefined, error);
-			window.maestro.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteConfigureAutoRunResponse(responseChannel, {
 				success: false,
 				error: String(error),
 			});
@@ -857,13 +869,13 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// Reuses spawnWorktreeAgentAndDispatch (the same helper the Auto Run launch
 	// path uses) but skips the batch dispatch: the new agent is left idle, and
 	// the CLI optionally follows up with `dispatch` to send an initial prompt.
-	useEventListener('maestro:createWorktreeSession', async (e: Event) => {
+	useEventListener('openwizardai:createWorktreeSession', async (e: Event) => {
 		const { parentSessionId, config, responseChannel, background } = (e as CustomEvent).detail;
 
 		try {
 			const parent = sessionsRef.current.find((s) => s.id === parentSessionId);
 			if (!parent) {
-				window.maestro.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
 					success: false,
 					error: `Parent agent ${parentSessionId} not found`,
 				});
@@ -894,7 +906,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			const newSessionId = await spawnWorktreeAgentAndDispatch(parentForSpawn, spawnConfig);
 			if (!newSessionId) {
 				// spawnWorktreeAgentAndDispatch already surfaced a toast describing why.
-				window.maestro.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
 					success: false,
 					error: 'Failed to create worktree agent',
 				});
@@ -909,14 +921,14 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				switchActiveSession(newSessionId, 'create-worktree');
 			}
 
-			window.maestro.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
 				success: true,
 				sessionId: newSessionId,
 			});
 		} catch (error) {
 			captureException(error, { extra: { parentSessionId, responseChannel } });
 			logger.error('[Remote] Failed to create worktree agent:', undefined, error);
-			window.maestro.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteCreateWorktreeSessionResponse(responseChannel, {
 				success: false,
 				error: error instanceof Error ? error.message : String(error),
 			});
@@ -924,17 +936,17 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	});
 
 	// Handle remote get auto-run docs from web interface
-	useEventListener('maestro:getAutoRunDocs', async (e: Event) => {
+	useEventListener('openwizardai:getAutoRunDocs', async (e: Event) => {
 		const { sessionId, responseChannel } = (e as CustomEvent).detail;
 		try {
 			const session = sessionsRef.current.find((s) => s.id === sessionId);
 			if (!session?.autoRunFolderPath) {
-				window.maestro.process.sendRemoteGetAutoRunDocsResponse(responseChannel, []);
+				window.openwizardai.process.sendRemoteGetAutoRunDocsResponse(responseChannel, []);
 				return;
 			}
 			const sshRemoteId =
 				session.sshRemoteId || session.sessionSshRemoteConfig?.remoteId || undefined;
-			const listResult = await window.maestro.autorun.listDocs(
+			const listResult = await window.openwizardai.autorun.listDocs(
 				session.autoRunFolderPath,
 				sshRemoteId
 			);
@@ -954,7 +966,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 					let taskCount = 0;
 					let completedCount = 0;
 					try {
-						const result = await window.maestro.autorun.readDoc(
+						const result = await window.openwizardai.autorun.readDoc(
 							session.autoRunFolderPath!,
 							filePath,
 							sshRemoteId
@@ -971,66 +983,66 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 					return { filename, path: normalizedPath, taskCount, completedCount, folder };
 				})
 			);
-			window.maestro.process.sendRemoteGetAutoRunDocsResponse(responseChannel, docs);
+			window.openwizardai.process.sendRemoteGetAutoRunDocsResponse(responseChannel, docs);
 		} catch (error) {
 			logger.error('[Remote] Failed to get auto-run docs:', undefined, error);
-			window.maestro.process.sendRemoteGetAutoRunDocsResponse(responseChannel, []);
+			window.openwizardai.process.sendRemoteGetAutoRunDocsResponse(responseChannel, []);
 		}
 	});
 
 	// Handle remote get auto-run doc content from web interface
-	useEventListener('maestro:getAutoRunDocContent', async (e: Event) => {
+	useEventListener('openwizardai:getAutoRunDocContent', async (e: Event) => {
 		const { sessionId, filename, responseChannel } = (e as CustomEvent).detail;
 		try {
 			const session = sessionsRef.current.find((s) => s.id === sessionId);
 			if (!session?.autoRunFolderPath) {
-				window.maestro.process.sendRemoteGetAutoRunDocContentResponse(responseChannel, '');
+				window.openwizardai.process.sendRemoteGetAutoRunDocContentResponse(responseChannel, '');
 				return;
 			}
 			const sshRemoteId =
 				session.sshRemoteId || session.sessionSshRemoteConfig?.remoteId || undefined;
-			const contentResult = await window.maestro.autorun.readDoc(
+			const contentResult = await window.openwizardai.autorun.readDoc(
 				session.autoRunFolderPath,
 				filename,
 				sshRemoteId
 			);
 			const content = contentResult.success ? contentResult.content || '' : '';
-			window.maestro.process.sendRemoteGetAutoRunDocContentResponse(responseChannel, content);
+			window.openwizardai.process.sendRemoteGetAutoRunDocContentResponse(responseChannel, content);
 		} catch (error) {
 			logger.error('[Remote] Failed to get auto-run doc content:', undefined, error);
-			window.maestro.process.sendRemoteGetAutoRunDocContentResponse(responseChannel, '');
+			window.openwizardai.process.sendRemoteGetAutoRunDocContentResponse(responseChannel, '');
 		}
 	});
 
 	// Handle remote save auto-run doc from web interface
-	useEventListener('maestro:saveAutoRunDoc', async (e: Event) => {
+	useEventListener('openwizardai:saveAutoRunDoc', async (e: Event) => {
 		const { sessionId, filename, content, responseChannel } = (e as CustomEvent).detail;
 		try {
 			const session = sessionsRef.current.find((s) => s.id === sessionId);
 			if (!session?.autoRunFolderPath) {
-				window.maestro.process.sendRemoteSaveAutoRunDocResponse(responseChannel, false);
+				window.openwizardai.process.sendRemoteSaveAutoRunDocResponse(responseChannel, false);
 				return;
 			}
 			const sshRemoteId =
 				session.sshRemoteId || session.sessionSshRemoteConfig?.remoteId || undefined;
-			const writeResult = await window.maestro.autorun.writeDoc(
+			const writeResult = await window.openwizardai.autorun.writeDoc(
 				session.autoRunFolderPath,
 				filename,
 				content,
 				sshRemoteId
 			);
-			window.maestro.process.sendRemoteSaveAutoRunDocResponse(
+			window.openwizardai.process.sendRemoteSaveAutoRunDocResponse(
 				responseChannel,
 				writeResult.success ?? false
 			);
 		} catch (error) {
 			logger.error('[Remote] Failed to save auto-run doc:', undefined, error);
-			window.maestro.process.sendRemoteSaveAutoRunDocResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteSaveAutoRunDocResponse(responseChannel, false);
 		}
 	});
 
 	// Handle remote stop auto-run from web interface (fire-and-forget, no confirmation dialog)
-	useEventListener('maestro:stopAutoRun', (e: Event) => {
+	useEventListener('openwizardai:stopAutoRun', (e: Event) => {
 		const { sessionId } = (e as CustomEvent).detail;
 		stopBatchRun(sessionId);
 	});
@@ -1038,24 +1050,24 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// Handle remote reset-tasks: rewrite all `[x]` checkboxes back to `[ ]` for a doc.
 	// Uses the same autorun:readDoc / autorun:writeDoc IPC the desktop "Reset Tasks"
 	// modal uses, so SSH remote sessions work transparently.
-	useEventListener('maestro:resetAutoRunDocTasks', async (e: Event) => {
+	useEventListener('openwizardai:resetAutoRunDocTasks', async (e: Event) => {
 		const { sessionId, filename, responseChannel } = (e as CustomEvent).detail;
 		try {
 			const session = sessionsRef.current.find((s) => s.id === sessionId);
 			if (!session?.autoRunFolderPath) {
-				window.maestro.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, false);
+				window.openwizardai.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, false);
 				return;
 			}
 			const sshRemoteId =
 				session.sshRemoteId || session.sessionSshRemoteConfig?.remoteId || undefined;
 
-			const readResult = await window.maestro.autorun.readDoc(
+			const readResult = await window.openwizardai.autorun.readDoc(
 				session.autoRunFolderPath,
 				filename,
 				sshRemoteId
 			);
 			if (!readResult?.success) {
-				window.maestro.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, false);
+				window.openwizardai.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, false);
 				return;
 			}
 			const original: string = readResult.content ?? '';
@@ -1067,10 +1079,10 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			const reset = original.replace(/^(\s*[-*]\s*)\[[xX]\](\s?)/gm, '$1[ ]$2');
 			if (reset === original) {
 				// Nothing to reset - still report success so the UI doesn't show an error.
-				window.maestro.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, true);
+				window.openwizardai.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, true);
 				return;
 			}
-			const writeResult = await window.maestro.autorun.writeDoc(
+			const writeResult = await window.openwizardai.autorun.writeDoc(
 				session.autoRunFolderPath,
 				filename,
 				reset,
@@ -1092,125 +1104,125 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 					)
 				);
 			}
-			window.maestro.process.sendRemoteResetAutoRunDocTasksResponse(
+			window.openwizardai.process.sendRemoteResetAutoRunDocTasksResponse(
 				responseChannel,
 				Boolean(writeResult?.success)
 			);
 		} catch (error) {
 			captureException(error, { extra: { sessionId, filename, responseChannel } });
 			logger.error('[Remote] Failed to reset auto-run doc tasks:', undefined, error);
-			window.maestro.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteResetAutoRunDocTasksResponse(responseChannel, false);
 		}
 	});
 
 	// Auto Run error-recovery actions from web - mirror the desktop AutoRunErrorBanner buttons.
-	useEventListener('maestro:resumeAutoRunError', (e: Event) => {
+	useEventListener('openwizardai:resumeAutoRunError', (e: Event) => {
 		const { sessionId, responseChannel } = (e as CustomEvent).detail;
 		try {
 			resumeAfterError(sessionId);
-			window.maestro.process.sendRemoteResumeAutoRunErrorResponse(responseChannel, true);
+			window.openwizardai.process.sendRemoteResumeAutoRunErrorResponse(responseChannel, true);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:resumeAutoRunError', sessionId, responseChannel },
+				extra: { event: 'openwizardai:resumeAutoRunError', sessionId, responseChannel },
 			});
 			logger.error('[Remote] Failed to resume auto-run error:', undefined, error);
-			window.maestro.process.sendRemoteResumeAutoRunErrorResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteResumeAutoRunErrorResponse(responseChannel, false);
 		}
 	});
 
-	useEventListener('maestro:skipAutoRunDocument', (e: Event) => {
+	useEventListener('openwizardai:skipAutoRunDocument', (e: Event) => {
 		const { sessionId, responseChannel } = (e as CustomEvent).detail;
 		try {
 			skipCurrentDocument(sessionId);
-			window.maestro.process.sendRemoteSkipAutoRunDocumentResponse(responseChannel, true);
+			window.openwizardai.process.sendRemoteSkipAutoRunDocumentResponse(responseChannel, true);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:skipAutoRunDocument', sessionId, responseChannel },
+				extra: { event: 'openwizardai:skipAutoRunDocument', sessionId, responseChannel },
 			});
 			logger.error('[Remote] Failed to skip auto-run document:', undefined, error);
-			window.maestro.process.sendRemoteSkipAutoRunDocumentResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteSkipAutoRunDocumentResponse(responseChannel, false);
 		}
 	});
 
-	useEventListener('maestro:abortAutoRunError', (e: Event) => {
+	useEventListener('openwizardai:abortAutoRunError', (e: Event) => {
 		const { sessionId, responseChannel } = (e as CustomEvent).detail;
 		try {
 			abortBatchOnError(sessionId);
-			window.maestro.process.sendRemoteAbortAutoRunErrorResponse(responseChannel, true);
+			window.openwizardai.process.sendRemoteAbortAutoRunErrorResponse(responseChannel, true);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:abortAutoRunError', sessionId, responseChannel },
+				extra: { event: 'openwizardai:abortAutoRunError', sessionId, responseChannel },
 			});
 			logger.error('[Remote] Failed to abort auto-run error:', undefined, error);
-			window.maestro.process.sendRemoteAbortAutoRunErrorResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteAbortAutoRunErrorResponse(responseChannel, false);
 		}
 	});
 
-	// Playbook CRUD from web - forwards to window.maestro.playbooks.*
-	useEventListener('maestro:listPlaybooks', async (e: Event) => {
+	// Playbook CRUD from web - forwards to window.openwizardai.playbooks.*
+	useEventListener('openwizardai:listPlaybooks', async (e: Event) => {
 		const { sessionId, responseChannel } = (e as CustomEvent).detail;
 		try {
-			const result = await window.maestro.playbooks.list(sessionId);
-			window.maestro.process.sendRemoteListPlaybooksResponse(
+			const result = await window.openwizardai.playbooks.list(sessionId);
+			window.openwizardai.process.sendRemoteListPlaybooksResponse(
 				responseChannel,
 				Array.isArray(result?.playbooks) ? result.playbooks : []
 			);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:listPlaybooks', sessionId, responseChannel },
+				extra: { event: 'openwizardai:listPlaybooks', sessionId, responseChannel },
 			});
 			logger.error('[Remote] Failed to list playbooks:', undefined, error);
-			window.maestro.process.sendRemoteListPlaybooksResponse(responseChannel, []);
+			window.openwizardai.process.sendRemoteListPlaybooksResponse(responseChannel, []);
 		}
 	});
 
-	useEventListener('maestro:createPlaybook', async (e: Event) => {
+	useEventListener('openwizardai:createPlaybook', async (e: Event) => {
 		const { sessionId, playbook, responseChannel } = (e as CustomEvent).detail;
 		try {
-			const result = await window.maestro.playbooks.create(sessionId, playbook);
-			window.maestro.process.sendRemoteCreatePlaybookResponse(
+			const result = await window.openwizardai.playbooks.create(sessionId, playbook);
+			window.openwizardai.process.sendRemoteCreatePlaybookResponse(
 				responseChannel,
 				result?.playbook ?? null
 			);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:createPlaybook', sessionId, responseChannel },
+				extra: { event: 'openwizardai:createPlaybook', sessionId, responseChannel },
 			});
 			logger.error('[Remote] Failed to create playbook:', undefined, error);
-			window.maestro.process.sendRemoteCreatePlaybookResponse(responseChannel, null);
+			window.openwizardai.process.sendRemoteCreatePlaybookResponse(responseChannel, null);
 		}
 	});
 
-	useEventListener('maestro:updatePlaybook', async (e: Event) => {
+	useEventListener('openwizardai:updatePlaybook', async (e: Event) => {
 		const { sessionId, playbookId, updates, responseChannel } = (e as CustomEvent).detail;
 		try {
-			const result = await window.maestro.playbooks.update(sessionId, playbookId, updates);
-			window.maestro.process.sendRemoteUpdatePlaybookResponse(
+			const result = await window.openwizardai.playbooks.update(sessionId, playbookId, updates);
+			window.openwizardai.process.sendRemoteUpdatePlaybookResponse(
 				responseChannel,
 				result?.playbook ?? null
 			);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:updatePlaybook', sessionId, playbookId, responseChannel },
+				extra: { event: 'openwizardai:updatePlaybook', sessionId, playbookId, responseChannel },
 			});
 			logger.error('[Remote] Failed to update playbook:', undefined, error);
-			window.maestro.process.sendRemoteUpdatePlaybookResponse(responseChannel, null);
+			window.openwizardai.process.sendRemoteUpdatePlaybookResponse(responseChannel, null);
 		}
 	});
 
-	useEventListener('maestro:deletePlaybook', async (e: Event) => {
+	useEventListener('openwizardai:deletePlaybook', async (e: Event) => {
 		const { sessionId, playbookId, responseChannel } = (e as CustomEvent).detail;
 		try {
 			// `playbooks.delete` returns `{ success: boolean; error?: string }` - if the
 			// IPC reports `success: false` (e.g. playbook not found) we must surface
 			// that back to the web client instead of silently acking true, otherwise
 			// the mobile UI optimistically drops the entry and the list goes stale.
-			const result = await window.maestro.playbooks.delete(sessionId, playbookId);
+			const result = await window.openwizardai.playbooks.delete(sessionId, playbookId);
 			if (!result?.success) {
 				captureMessage('playbooks.delete returned failure', {
 					level: 'error',
 					extra: {
-						event: 'maestro:deletePlaybook',
+						event: 'openwizardai:deletePlaybook',
 						sessionId,
 						playbookId,
 						error: result?.error,
@@ -1218,30 +1230,30 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				});
 				logger.error('[Remote] Failed to delete playbook:', undefined, result?.error);
 			}
-			window.maestro.process.sendRemoteDeletePlaybookResponse(
+			window.openwizardai.process.sendRemoteDeletePlaybookResponse(
 				responseChannel,
 				Boolean(result?.success)
 			);
 		} catch (error) {
 			captureException(error, {
-				extra: { event: 'maestro:deletePlaybook', sessionId, playbookId, responseChannel },
+				extra: { event: 'openwizardai:deletePlaybook', sessionId, playbookId, responseChannel },
 			});
 			logger.error('[Remote] Failed to delete playbook:', undefined, error);
-			window.maestro.process.sendRemoteDeletePlaybookResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteDeletePlaybookResponse(responseChannel, false);
 		}
 	});
 
 	// --- Session CRUD ---
 
 	// Handle remote create session from web interface
-	useEventListener('maestro:remoteCreateSession', async (e: Event) => {
+	useEventListener('openwizardai:remoteCreateSession', async (e: Event) => {
 		const { name, toolType, cwd, groupId, config, responseChannel, background } = (e as CustomEvent)
 			.detail;
 		try {
 			// Get agent definition to validate
-			const agent = await (window as any).maestro.agents.get(toolType);
+			const agent = await (window as any).openwizardai.agents.get(toolType);
 			if (!agent) {
-				window.maestro.process.sendRemoteCreateSessionResponse(responseChannel, null);
+				window.openwizardai.process.sendRemoteCreateSessionResponse(responseChannel, null);
 				return;
 			}
 
@@ -1370,7 +1382,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			if (!background) {
 				switchActiveSession(newId, 'create-agent');
 			}
-			(window as any).maestro.stats.recordSessionCreated({
+			(window as any).openwizardai.stats.recordSessionCreated({
 				sessionId: newId,
 				agentType: toolType,
 				projectPath: cwd,
@@ -1387,40 +1399,40 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			// `setMany` is incremental and idempotent: the debounced flush that
 			// follows simply rewrites the same row.
 			try {
-				await window.maestro.sessions.setMany([newSession], []);
+				await window.openwizardai.sessions.setMany([newSession], []);
 			} catch (persistErr) {
 				logger.error('[Remote] Failed to persist new CLI-created session:', undefined, persistErr);
 			}
 
-			window.maestro.process.sendRemoteCreateSessionResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteCreateSessionResponse(responseChannel, {
 				sessionId: newId,
 			});
 		} catch (error) {
 			logger.error('[Remote] Failed to create session:', undefined, error);
-			window.maestro.process.sendRemoteCreateSessionResponse(responseChannel, null);
+			window.openwizardai.process.sendRemoteCreateSessionResponse(responseChannel, null);
 		}
 	});
 
 	// Handle remote delete session from web interface (skip confirmation dialog)
-	useEventListener('maestro:remoteDeleteSession', async (e: Event) => {
+	useEventListener('openwizardai:remoteDeleteSession', async (e: Event) => {
 		const { sessionId } = (e as CustomEvent).detail;
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
 		if (!session) return;
 
 		// Kill processes
 		try {
-			await window.maestro.process.kill(`${sessionId}-ai`);
+			await window.openwizardai.process.kill(`${sessionId}-ai`);
 		} catch {
 			/* ignore */
 		}
 		try {
-			await window.maestro.process.kill(`${sessionId}-terminal`);
+			await window.openwizardai.process.kill(`${sessionId}-terminal`);
 		} catch {
 			/* ignore */
 		}
 		for (const tab of session.terminalTabs || []) {
 			try {
-				await window.maestro.process.kill(`${sessionId}-terminal-${tab.id}`);
+				await window.openwizardai.process.kill(`${sessionId}-terminal-${tab.id}`);
 			} catch {
 				/* ignore */
 			}
@@ -1441,7 +1453,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		// would otherwise read the pre-removal state. setMany is incremental
 		// and idempotent with the subsequent debounced flush.
 		try {
-			await window.maestro.sessions.setMany([], [sessionId]);
+			await window.openwizardai.sessions.setMany([], [sessionId]);
 		} catch (persistErr) {
 			logger.error('[Remote] Failed to persist session removal:', undefined, persistErr);
 		}
@@ -1454,11 +1466,11 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// spawned process keeps the cwd it launched with, so the update is refused
 	// while the agent is busy or its process is alive
 	// (workingDirectoryChangeBlocker).
-	useEventListener('maestro:remoteUpdateSessionCwd', (e: Event) => {
+	useEventListener('openwizardai:remoteUpdateSessionCwd', (e: Event) => {
 		const { sessionId, newCwd, responseChannel } = (e as CustomEvent).detail;
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
 		if (!session) {
-			window.maestro.process.sendRemoteUpdateSessionCwdResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionCwdResponse(responseChannel, {
 				success: false,
 				error: 'Agent not found',
 			});
@@ -1466,7 +1478,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		}
 		const blocker = workingDirectoryChangeBlocker(session);
 		if (blocker) {
-			window.maestro.process.sendRemoteUpdateSessionCwdResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionCwdResponse(responseChannel, {
 				success: false,
 				error: blocker,
 			});
@@ -1475,7 +1487,9 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		setSessions((prev: Session[]) =>
 			prev.map((s) => (s.id === sessionId ? withWorkingDirectory(s, newCwd) : s))
 		);
-		window.maestro.process.sendRemoteUpdateSessionCwdResponse(responseChannel, { success: true });
+		window.openwizardai.process.sendRemoteUpdateSessionCwdResponse(responseChannel, {
+			success: true,
+		});
 	});
 
 	// Handle remote update of an agent's SSH execution config. Merges the
@@ -1483,18 +1497,18 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// so a follow-up CLI read sees the new config (the renderer owns the
 	// authoritative in-memory state; offline JSON edits get clobbered). Refused
 	// while the agent process is alive because the spawn target is fixed at launch.
-	useEventListener('maestro:remoteUpdateSessionSsh', async (e: Event) => {
+	useEventListener('openwizardai:remoteUpdateSessionSsh', async (e: Event) => {
 		const { sessionId, sshPatch, responseChannel } = (e as CustomEvent).detail;
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
 		if (!session) {
-			window.maestro.process.sendRemoteUpdateSessionSshResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionSshResponse(responseChannel, {
 				success: false,
 				error: 'Agent not found',
 			});
 			return;
 		}
 		if (session.aiPid && session.aiPid > 0) {
-			window.maestro.process.sendRemoteUpdateSessionSshResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionSshResponse(responseChannel, {
 				success: false,
 				error: 'Agent process is running; stop it before changing SSH config',
 			});
@@ -1520,7 +1534,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		// Flush to disk before signaling success so a follow-up CLI read sees the
 		// new config instead of the 2s-debounced stale value (mirrors rename).
 		try {
-			await window.maestro.sessions.setMany(
+			await window.openwizardai.sessions.setMany(
 				[{ ...session, sessionSshRemoteConfig: normalized } as any],
 				[]
 			);
@@ -1528,7 +1542,9 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			logger.error('[Remote] Failed to persist session SSH config:', undefined, persistErr);
 		}
 
-		window.maestro.process.sendRemoteUpdateSessionSshResponse(responseChannel, { success: true });
+		window.openwizardai.process.sendRemoteUpdateSessionSshResponse(responseChannel, {
+			success: true,
+		});
 	});
 
 	// Handle remote update of an agent's editable per-session config from the CLI
@@ -1539,11 +1555,11 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	// launch), so unlike cwd/SSH they are applied even while the agent runs. The
 	// new config is flushed to disk before signaling success so a follow-up CLI
 	// read sees it rather than the 2s-debounced stale value.
-	useEventListener('maestro:remoteUpdateSessionConfig', async (e: Event) => {
+	useEventListener('openwizardai:remoteUpdateSessionConfig', async (e: Event) => {
 		const { sessionId, configPatch, responseChannel } = (e as CustomEvent).detail;
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
 		if (!session) {
-			window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 				success: false,
 				error: 'Agent not found',
 			});
@@ -1585,9 +1601,9 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				customEnvVars: undefined,
 				customModel: undefined,
 				customContextWindow: undefined,
-				enableMaestroP: undefined,
-				maestroPPath: undefined,
-				maestroPMode: undefined,
+				enableOpenWizardAIP: undefined,
+				openwizardaiPPath: undefined,
+				openwizardaiPMode: undefined,
 				// Reset file preview tabs and unified tab order to just the new AI tab.
 				filePreviewTabs: [],
 				activeFileTabId: null,
@@ -1600,17 +1616,17 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			};
 
 			// Kill the existing AI process for the old provider (no-op if none).
-			window.maestro.process.kill(`${sessionId}-ai`).catch(() => {});
+			window.openwizardai.process.kill(`${sessionId}-ai`).catch(() => {});
 
 			setSessions((prev: Session[]) =>
 				prev.map((s) => (s.id === sessionId ? { ...s, ...providerSwitch } : s))
 			);
 			try {
-				await window.maestro.sessions.setMany([{ ...session, ...providerSwitch } as any], []);
+				await window.openwizardai.sessions.setMany([{ ...session, ...providerSwitch } as any], []);
 			} catch (persistErr) {
 				logger.error('[Remote] Failed to persist provider switch:', undefined, persistErr);
 			}
-			window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 				success: true,
 			});
 			return;
@@ -1658,7 +1674,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 							? typeof value === 'string'
 							: asThinkingMode(value) !== undefined;
 				if (!valid) {
-					window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+					window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 						success: false,
 						error: `Invalid value for tab field '${key}'`,
 					});
@@ -1668,7 +1684,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			}
 
 			if (Object.keys(tabPatch).length === 0) {
-				window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 					success: false,
 					error: 'No editable tab fields in patch',
 				});
@@ -1676,7 +1692,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			}
 
 			if (!session.aiTabs?.some((t) => t.id === targetTabId)) {
-				window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+				window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 					success: false,
 					error: 'Tab not found',
 				});
@@ -1693,12 +1709,12 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			);
 
 			try {
-				await window.maestro.sessions.setMany([applyTabPatch(session) as any], []);
+				await window.openwizardai.sessions.setMany([applyTabPatch(session) as any], []);
 			} catch (persistErr) {
 				logger.error('[Remote] Failed to persist tab config:', undefined, persistErr);
 			}
 
-			window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 				success: true,
 			});
 			return;
@@ -1722,9 +1738,9 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			'customModel',
 			'customEffort',
 			'customContextWindow',
-			'enableMaestroP',
-			'maestroPMode',
-			'maestroPPath',
+			'enableOpenWizardAIP',
+			'openwizardaiPMode',
+			'openwizardaiPPath',
 			// UI state
 			'bookmarked',
 		]);
@@ -1740,7 +1756,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		}
 
 		if (Object.keys(updated).length === 0) {
-			window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+			window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 				success: false,
 				error: 'No editable config fields in patch',
 			});
@@ -1752,22 +1768,22 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		);
 
 		try {
-			await window.maestro.sessions.setMany([{ ...session, ...updated } as any], []);
+			await window.openwizardai.sessions.setMany([{ ...session, ...updated } as any], []);
 		} catch (persistErr) {
 			logger.error('[Remote] Failed to persist session config:', undefined, persistErr);
 		}
 
-		window.maestro.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
+		window.openwizardai.process.sendRemoteUpdateSessionConfigResponse(responseChannel, {
 			success: true,
 		});
 	});
 
 	// Handle remote rename session from web interface
-	useEventListener('maestro:remoteRenameSession', async (e: Event) => {
+	useEventListener('openwizardai:remoteRenameSession', async (e: Event) => {
 		const { sessionId, newName, responseChannel } = (e as CustomEvent).detail;
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
 		if (!session) {
-			window.maestro.process.sendRemoteRenameSessionResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteRenameSessionResponse(responseChannel, false);
 			return;
 		}
 
@@ -1782,11 +1798,11 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 			if (providerSessionId && sess?.projectRoot) {
 				const agentId = sess.toolType || 'claude-code';
 				if (agentId === 'claude-code') {
-					(window as any).maestro.claude
+					(window as any).openwizardai.claude
 						.updateSessionName(sess.projectRoot, providerSessionId, newName)
 						.catch(() => {});
 				} else {
-					(window as any).maestro.agentSessions
+					(window as any).openwizardai.agentSessions
 						.setSessionName(agentId, sess.projectRoot, providerSessionId, newName)
 						.catch(() => {});
 				}
@@ -1799,22 +1815,22 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 		// read see the stale name. setMany merges incrementally so the next
 		// debounced flush is idempotent.
 		try {
-			await window.maestro.sessions.setMany([{ ...session, name: newName } as any], []);
+			await window.openwizardai.sessions.setMany([{ ...session, name: newName } as any], []);
 		} catch (persistErr) {
 			logger.error('[Remote] Failed to persist session rename:', undefined, persistErr);
 		}
 
-		window.maestro.process.sendRemoteRenameSessionResponse(responseChannel, true);
+		window.openwizardai.process.sendRemoteRenameSessionResponse(responseChannel, true);
 	});
 
 	// --- Group CRUD ---
 
 	// Handle remote create group from web interface
-	useEventListener('maestro:remoteCreateGroup', (e: Event) => {
+	useEventListener('openwizardai:remoteCreateGroup', (e: Event) => {
 		const { name, emoji, responseChannel } = (e as CustomEvent).detail;
 		const trimmed = name.trim();
 		if (!trimmed) {
-			window.maestro.process.sendRemoteCreateGroupResponse(responseChannel, null);
+			window.openwizardai.process.sendRemoteCreateGroupResponse(responseChannel, null);
 			return;
 		}
 		const newGroupId = `group-${generateId()}`;
@@ -1827,25 +1843,25 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				collapsed: false,
 			},
 		]);
-		window.maestro.process.sendRemoteCreateGroupResponse(responseChannel, { id: newGroupId });
+		window.openwizardai.process.sendRemoteCreateGroupResponse(responseChannel, { id: newGroupId });
 	});
 
 	// Handle remote rename group from web interface
-	useEventListener('maestro:remoteRenameGroup', (e: Event) => {
+	useEventListener('openwizardai:remoteRenameGroup', (e: Event) => {
 		const { groupId, name, responseChannel } = (e as CustomEvent).detail;
 		const trimmed = name.trim();
 		if (!trimmed) {
-			window.maestro.process.sendRemoteRenameGroupResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteRenameGroupResponse(responseChannel, false);
 			return;
 		}
 		setGroups((prev: Group[]) =>
 			prev.map((g) => (g.id === groupId ? { ...g, name: trimmed.toUpperCase() } : g))
 		);
-		window.maestro.process.sendRemoteRenameGroupResponse(responseChannel, true);
+		window.openwizardai.process.sendRemoteRenameGroupResponse(responseChannel, true);
 	});
 
 	// Handle remote delete group from web interface (fire-and-forget)
-	useEventListener('maestro:remoteDeleteGroup', (e: Event) => {
+	useEventListener('openwizardai:remoteDeleteGroup', (e: Event) => {
 		const { groupId } = (e as CustomEvent).detail;
 		// Ungroup sessions in this group
 		setSessions((prev: Session[]) =>
@@ -1856,16 +1872,16 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 	});
 
 	// Handle remote move session to group from web interface
-	useEventListener('maestro:remoteMoveSessionToGroup', (e: Event) => {
+	useEventListener('openwizardai:remoteMoveSessionToGroup', (e: Event) => {
 		const { sessionId, groupId, responseChannel } = (e as CustomEvent).detail;
 		const session = sessionsRef.current.find((s) => s.id === sessionId);
 		if (!session) {
-			window.maestro.process.sendRemoteMoveSessionToGroupResponse(responseChannel, false);
+			window.openwizardai.process.sendRemoteMoveSessionToGroupResponse(responseChannel, false);
 			return;
 		}
 		setSessions((prev: Session[]) =>
 			prev.map((s) => (s.id === sessionId ? { ...s, groupId: groupId || undefined } : s))
 		);
-		window.maestro.process.sendRemoteMoveSessionToGroupResponse(responseChannel, true);
+		window.openwizardai.process.sendRemoteMoveSessionToGroupResponse(responseChannel, true);
 	});
 }

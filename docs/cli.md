@@ -1,33 +1,33 @@
 ---
 title: Command Line Interface
-description: Send messages to agents, list sessions, run playbooks, and manage Maestro settings from the command line.
+description: Send messages to agents, list sessions, run playbooks, and manage OpenWizardAI settings from the command line.
 icon: square-terminal
 ---
 
-Maestro includes a CLI tool (`maestro-cli`) for sending messages to agents, browsing sessions, running playbooks, managing settings, and controlling resources from the command line, cron jobs, or CI/CD pipelines. The CLI requires Node.js (which you already have if you're using Claude Code).
+OpenWizardAI includes a CLI tool (`openwizardai-cli`) for sending messages to agents, browsing sessions, running playbooks, managing settings, and controlling resources from the command line, cron jobs, or CI/CD pipelines. The CLI requires Node.js (which you already have if you're using Claude Code).
 
 ## Installation
 
-The CLI is bundled with Maestro as a JavaScript file. Create a shell wrapper to run it:
+The CLI is bundled with OpenWizardAI as a JavaScript file. Create a shell wrapper to run it:
 
 ```bash
-# macOS (after installing Maestro.app)
-printf '#!/bin/bash\nnode "/Applications/Maestro.app/Contents/Resources/maestro-cli.js" "$@"\n' | sudo tee /usr/local/bin/maestro-cli && sudo chmod +x /usr/local/bin/maestro-cli
+# macOS (after installing OpenWizardAI.app)
+printf '#!/bin/bash\nnode "/Applications/OpenWizardAI.app/Contents/Resources/openwizardai-cli.js" "$@"\n' | sudo tee /usr/local/bin/openwizardai-cli && sudo chmod +x /usr/local/bin/openwizardai-cli
 
 # Linux (deb/rpm installs to /opt)
-printf '#!/bin/bash\nnode "/opt/Maestro/resources/maestro-cli.js" "$@"\n' | sudo tee /usr/local/bin/maestro-cli && sudo chmod +x /usr/local/bin/maestro-cli
+printf '#!/bin/bash\nnode "/opt/OpenWizardAI/resources/openwizardai-cli.js" "$@"\n' | sudo tee /usr/local/bin/openwizardai-cli && sudo chmod +x /usr/local/bin/openwizardai-cli
 
 # Windows (PowerShell as Administrator) - create a batch file
 @"
 @echo off
-node "%ProgramFiles%\Maestro\resources\maestro-cli.js" %*
-"@ | Out-File -FilePath "$env:ProgramFiles\Maestro\maestro-cli.cmd" -Encoding ASCII
+node "%ProgramFiles%\OpenWizardAI\resources\openwizardai-cli.js" %*
+"@ | Out-File -FilePath "$env:ProgramFiles\OpenWizardAI\openwizardai-cli.cmd" -Encoding ASCII
 ```
 
 Alternatively, run directly with Node.js:
 
 ```bash
-node "/Applications/Maestro.app/Contents/Resources/maestro-cli.js" list groups
+node "/Applications/OpenWizardAI.app/Contents/Resources/openwizardai-cli.js" list groups
 ```
 
 ## Usage
@@ -43,20 +43,20 @@ Two flags work on every command:
 
 Commands exit with a standardized code so scripts and CI can branch on the failure class:
 
-| Code | Meaning                                                    |
-| ---- | ---------------------------------------------------------- |
-| `0`  | Success                                                    |
-| `1`  | Generic / uncategorized failure                            |
-| `2`  | Invalid usage (unknown flag, bad argument, nothing to do)  |
-| `3`  | The Maestro desktop app is not running or not reachable    |
-| `4`  | The running app does not support the command (older build) |
-| `5`  | The app was reachable but did not respond in time          |
+| Code | Meaning                                                      |
+| ---- | ------------------------------------------------------------ |
+| `0`  | Success                                                      |
+| `1`  | Generic / uncategorized failure                              |
+| `2`  | Invalid usage (unknown flag, bad argument, nothing to do)    |
+| `3`  | The OpenWizardAI desktop app is not running or not reachable |
+| `4`  | The running app does not support the command (older build)   |
+| `5`  | The app was reachable but did not respond in time            |
 
 ### Who Moves the View (`--background` / `--focus`)
 
-Focus belongs to whoever is at the keyboard. An agent may create a surface; it should not decide you ought to be looking at it. Every verb that can move the Maestro view or raise a notice therefore accepts `--background`, which means exactly two things: the active agent does not change, and the active tab inside any agent does not change. The surface is still created and still addressable - it lands in the tab bar the way a browser opens a background tab.
+Focus belongs to whoever is at the keyboard. An agent may create a surface; it should not decide you ought to be looking at it. Every verb that can move the OpenWizardAI view or raise a notice therefore accepts `--background`, which means exactly two things: the active agent does not change, and the active tab inside any agent does not change. The surface is still created and still addressable - it lands in the tab bar the way a browser opens a background tab.
 
-Maestro's own system prompt tells agents to **pass `--background` by default** and to drop it only when you asked to be shown something. What follows describes what each verb does when the flag is absent, which is unchanged.
+OpenWizardAI's own system prompt tells agents to **pass `--background` by default** and to drop it only when you asked to be shown something. What follows describes what each verb does when the flag is absent, which is unchanged.
 
 `--focus` is the opposite ask, and it ships on every one of these verbs even where it only names the current default. If both are passed, `--focus` wins.
 
@@ -92,13 +92,13 @@ Send a message to an agent and receive a structured JSON response. Supports crea
 
 ```bash
 # Send a message to an agent (creates a new session)
-maestro-cli send <agent-id> "describe the authentication flow"
+openwizardai-cli send <agent-id> "describe the authentication flow"
 
 # Resume an existing session for follow-up
-maestro-cli send <agent-id> "now add rate limiting" -s <session-id>
+openwizardai-cli send <agent-id> "now add rate limiting" -s <session-id>
 
 # Send in read-only mode (agent can read but not modify files)
-maestro-cli send <agent-id> "analyze the code structure" -r
+openwizardai-cli send <agent-id> "analyze the code structure" -r
 ```
 
 The response is always JSON:
@@ -132,15 +132,15 @@ On failure, `success` is `false` and an `error` field is included:
 }
 ```
 
-| Flag                 | Description                                                   |
-| -------------------- | ------------------------------------------------------------- |
-| `-s, --session <id>` | Resume an existing session instead of creating a new one      |
-| `-r, --read-only`    | Run in read-only/plan mode (agent cannot modify files)        |
-| `-t, --tab`          | Open/focus the agent's session tab in the Maestro desktop app |
+| Flag                 | Description                                                        |
+| -------------------- | ------------------------------------------------------------------ |
+| `-s, --session <id>` | Resume an existing session instead of creating a new one           |
+| `-r, --read-only`    | Run in read-only/plan mode (agent cannot modify files)             |
+| `-t, --tab`          | Open/focus the agent's session tab in the OpenWizardAI desktop app |
 
-For desktop-handoff workflows (route the message through a desktop tab, return an addressable tab id, etc.) use [`maestro-cli dispatch`](#dispatching-to-a-desktop-tab) instead.
+For desktop-handoff workflows (route the message through a desktop tab, return an addressable tab id, etc.) use [`openwizardai-cli dispatch`](#dispatching-to-a-desktop-tab) instead.
 
-Error codes: `AGENT_NOT_FOUND`, `AGENT_UNSUPPORTED`, `CLAUDE_NOT_FOUND`, `CODEX_NOT_FOUND`, `MAESTRO_NOT_RUNNING`, `COMMAND_FAILED`.
+Error codes: `AGENT_NOT_FOUND`, `AGENT_UNSUPPORTED`, `CLAUDE_NOT_FOUND`, `CODEX_NOT_FOUND`, `OPENWIZARDAI_NOT_RUNNING`, `COMMAND_FAILED`.
 
 Supported agent types: `claude-code`, `codex`.
 
@@ -149,29 +149,29 @@ Supported agent types: `claude-code`, `codex`.
 Messages whose first character is a dash (em-dash `-`, en-dash `-`, double-dash `--`, minus `-`) collide with option parsing and will be rejected as unknown flags. Use the standard `--` end-of-options separator so the message is passed verbatim:
 
 ```bash
-maestro-cli send <agent-id> -- " -  -  - revise the spec"
-maestro-cli send <agent-id> -s <session-id> -- "--re-run"
-maestro-cli dispatch <agent-id> -- "--force the rewrite"
+openwizardai-cli send <agent-id> -- " -  -  - revise the spec"
+openwizardai-cli send <agent-id> -s <session-id> -- "--re-run"
+openwizardai-cli dispatch <agent-id> -- "--force the rewrite"
 ```
 
 Everything after `--` is treated as positional, so any flags you need must come before the separator. For `send` that's `-s`, `-r`, `-t` (`-t` is the boolean focus flag here); for `dispatch` it's `-t`/`--tab`, `--new-tab`, `-f`.
 
 ### Dispatching to a Desktop Tab
 
-`dispatch` hands a prompt to an agent in the running Maestro desktop app and returns the tab/session id, so callers can address the same tab on follow-up calls without holding a persistent channel. Use this for orchestration use cases (Cue pipelines, external bots, multi-step automations).
+`dispatch` hands a prompt to an agent in the running OpenWizardAI desktop app and returns the tab/session id, so callers can address the same tab on follow-up calls without holding a persistent channel. Use this for orchestration use cases (Cue pipelines, external bots, multi-step automations).
 
 ```bash
 # Dispatch to the active tab of an agent
-maestro-cli dispatch <agent-id> "review the PR description"
+openwizardai-cli dispatch <agent-id> "review the PR description"
 
 # Open a fresh tab and dispatch the prompt into it
-maestro-cli dispatch <agent-id> "start a new review pass" --new-tab
+openwizardai-cli dispatch <agent-id> "start a new review pass" --new-tab
 
 # Continue a previous dispatch by targeting its tab
-maestro-cli dispatch <agent-id> "and now run the tests" -t <tab-id>
+openwizardai-cli dispatch <agent-id> "and now run the tests" -t <tab-id>
 
 # Force a write to a busy tab (requires allowConcurrentSend=true)
-maestro-cli dispatch <agent-id> "interrupt with this" -f
+openwizardai-cli dispatch <agent-id> "interrupt with this" -f
 ```
 
 Output is always JSON. `sessionId` and `tabId` are the same value, duplicated so polling consumers can use either name:
@@ -193,7 +193,7 @@ Output is always JSON. `sessionId` and `tabId` are the same value, duplicated so
 | `-t, --tab <id>` | Target an existing tab by id (from a previous `dispatch`). Mutually exclusive with `--new-tab`                                                 |
 | `-f, --force`    | Bypass the busy-state guard. Gated by `allowConcurrentSend`; errors with code `FORCE_NOT_ALLOWED`. Cannot be combined with `--new-tab`         |
 
-Error codes: `INVALID_OPTIONS`, `AGENT_NOT_FOUND`, `FORCE_NOT_ALLOWED`, `MAESTRO_NOT_RUNNING`, `SESSION_NOT_FOUND`, `NEW_TAB_NO_ID`, `COMMAND_FAILED`. `NEW_TAB_NO_ID` fires when the desktop app acknowledges `--new-tab` without returning a tab id, leaving callers nothing to chain follow-up dispatches against. Requires the Maestro desktop app to be running.
+Error codes: `INVALID_OPTIONS`, `AGENT_NOT_FOUND`, `FORCE_NOT_ALLOWED`, `OPENWIZARDAI_NOT_RUNNING`, `SESSION_NOT_FOUND`, `NEW_TAB_NO_ID`, `COMMAND_FAILED`. `NEW_TAB_NO_ID` fires when the desktop app acknowledges `--new-tab` without returning a tab id, leaving callers nothing to chain follow-up dispatches against. Requires the OpenWizardAI desktop app to be running.
 
 ### Listing Sessions
 
@@ -201,22 +201,22 @@ Browse an agent's session history, sorted most recent to oldest. Supports pagina
 
 ```bash
 # List the 25 most recent sessions
-maestro-cli list sessions <agent-id>
+openwizardai-cli list sessions <agent-id>
 
 # Limit to 10 results
-maestro-cli list sessions <agent-id> -l 10
+openwizardai-cli list sessions <agent-id> -l 10
 
 # Paginate: skip the first 25, show next 25
-maestro-cli list sessions <agent-id> -k 25
+openwizardai-cli list sessions <agent-id> -k 25
 
 # Page 3 of 10-item pages
-maestro-cli list sessions <agent-id> -l 10 -k 20
+openwizardai-cli list sessions <agent-id> -l 10 -k 20
 
 # Search for sessions by keyword (matches session name and first message)
-maestro-cli list sessions <agent-id> -s "authentication"
+openwizardai-cli list sessions <agent-id> -s "authentication"
 
 # Combine limit, skip, and search with JSON output
-maestro-cli list sessions <agent-id> -l 50 -k 0 -s "refactor" --json
+openwizardai-cli list sessions <agent-id> -l 50 -k 0 -s "refactor" --json
 ```
 
 | Flag                     | Description                                        | Default |
@@ -256,20 +256,20 @@ Currently supported for `claude-code` agents.
 
 ### Session Inspection
 
-Inspect open AI tabs across the running Maestro desktop app and read their conversation history. Pair `dispatch --new-tab` (writes, returns a `tabId`) with `session show <tabId>` (reads, supports `--since` and `--tail`) to build a stateless poll loop without owning a persistent connection - used by Maestro-Discord and Cue follow-ups.
+Inspect open AI tabs across the running OpenWizardAI desktop app and read their conversation history. Pair `dispatch --new-tab` (writes, returns a `tabId`) with `session show <tabId>` (reads, supports `--since` and `--tail`) to build a stateless poll loop without owning a persistent connection - used by OpenWizardAI-Discord and Cue follow-ups.
 
-Both verbs talk to the running desktop over the same WebSocket as `dispatch`. There is no on-disk fallback: if the app is not running, the CLI exits with code `MAESTRO_NOT_RUNNING`.
+Both verbs talk to the running desktop over the same WebSocket as `dispatch`. There is no on-disk fallback: if the app is not running, the CLI exits with code `OPENWIZARDAI_NOT_RUNNING`.
 
 #### List Open Tabs
 
-Flatten every open AI tab across every Maestro agent into addressable entries:
+Flatten every open AI tab across every OpenWizardAI agent into addressable entries:
 
 ```bash
 # Default: compact text (one tab per line)
-maestro-cli session list
+openwizardai-cli session list
 
 # JSON for scripting
-maestro-cli session list --json
+openwizardai-cli session list --json
 ```
 
 Default text columns: `state` (`busy` / `idle`), star (`★` if starred), `tabId`, agent name + id, tab name, `createdAt` (relative). One tab per line so the output pipes cleanly into `grep`, `awk`, etc.
@@ -296,7 +296,7 @@ JSON envelope:
 }
 ```
 
-To extract just `tabId`s with `jq`: `maestro-cli session list --json | jq '.sessions[].tabId'`.
+To extract just `tabId`s with `jq`: `openwizardai-cli session list --json | jq '.sessions[].tabId'`.
 
 #### Show Conversation History
 
@@ -304,23 +304,23 @@ Print a tab's conversation log, with optional cursor (`--since`) and cap (`--tai
 
 ```bash
 # Default: formatted transcript (header + per-message blocks)
-maestro-cli session show <tab-id>
+openwizardai-cli session show <tab-id>
 
 # JSON for scripting
-maestro-cli session show <tab-id> --json
+openwizardai-cli session show <tab-id> --json
 
 # Only messages newer than an ISO-8601 timestamp
-maestro-cli session show <tab-id> --since "2026-04-28T10:00:00Z"
+openwizardai-cli session show <tab-id> --since "2026-04-28T10:00:00Z"
 
 # `--since` also accepts a bare epoch number (auto-detects ms vs sec by magnitude,
 # so both `Date.now()` and `Date.now() / 1000` cursors work without a unit flag)
-maestro-cli session show <tab-id> --since 1714268000
+openwizardai-cli session show <tab-id> --since 1714268000
 
 # Cap at the last N messages (applied after `--since`)
-maestro-cli session show <tab-id> --tail 20
+openwizardai-cli session show <tab-id> --tail 20
 
 # Combine cursor + cap for poll loops
-maestro-cli session show <tab-id> --since "$LAST_TS" --tail 50
+openwizardai-cli session show <tab-id> --since "$LAST_TS" --tail 50
 ```
 
 | Flag                  | Description                                                                                |
@@ -359,32 +359,32 @@ JSON shape:
 
 `role` is a coarse classification (`user` | `assistant` | `system` | `tool` | `thinking` | `error` | `unknown`) so conversational consumers can branch on intent; the raw `source` is preserved alongside for callers that need to discriminate further. ISO timestamps are emitted verbatim so a `messages[-1].timestamp` from one call can be fed directly back into `--since` on the next.
 
-Error codes: `MISSING_TAB_ID`, `TAB_NOT_FOUND`, `INVALID_OPTION`, `MAESTRO_NOT_RUNNING`, `COMMAND_FAILED`. All errors are emitted as `{ "success": false, "error": "...", "code": "..." }` with exit code `1`.
+Error codes: `MISSING_TAB_ID`, `TAB_NOT_FOUND`, `INVALID_OPTION`, `OPENWIZARDAI_NOT_RUNNING`, `COMMAND_FAILED`. All errors are emitted as `{ "success": false, "error": "...", "code": "..." }` with exit code `1`.
 
 ### Pasted Images (`image list` / `image save`)
 
-An image pasted into a Maestro chat reaches the agent as pixels in its context: the agent can see the screenshot, but it has no path to the file, so "save that to the repo" used to be a right-click only you could perform. These two verbs give the agent the same reach.
+An image pasted into an OpenWizardAI chat reaches the agent as pixels in its context: the agent can see the screenshot, but it has no path to the file, so "save that to the repo" used to be a right-click only you could perform. These two verbs give the agent the same reach.
 
 ```bash
 # What has been pasted, newest first
-maestro-cli image list --limit 5
-maestro-cli image list -a <agent-id> -t <tab-id> --json
+openwizardai-cli image list --limit 5
+openwizardai-cli image list -a <agent-id> -t <tab-id> --json
 
 # The most recent image, into the current working directory
-maestro-cli image save
+openwizardai-cli image save
 
 # By index (from `image list`) or by handle, to an exact path
-maestro-cli image save 3 -o docs/screenshots/dashboard.png
-maestro-cli image save 9ca2e320 -o assets/
+openwizardai-cli image save 3 -o docs/screenshots/dashboard.png
+openwizardai-cli image save 9ca2e320 -o assets/
 
 # Every image in one conversation, into a folder
-maestro-cli image save --all -t <tab-id> -o screenshots/
+openwizardai-cli image save --all -t <tab-id> -o screenshots/
 ```
 
 `image list` prints one image per line: index, handle, age, agent, tab, and the first line of the message it came in on.
 
 ```
-  1  9ca2e320  2m ago        Maestro  Discord Message Bus  why wasn't this picked up by our Cue pipeline?
+  1  9ca2e320  2m ago        OpenWizardAI  Discord Message Bus  why wasn't this picked up by our Cue pipeline?
   2  f8d010b2  9h ago        Kensho   Fibonacci Ingest     notes from a verbal session, see the image
 ```
 
@@ -412,20 +412,20 @@ Error codes: `AGENT_NOT_FOUND`, `NO_IMAGES`, `IMAGE_NOT_FOUND`, `AMBIGUOUS_IMAGE
 
 ### Creating, Updating, and Removing Agents
 
-Create, mutate, or delete agents directly from the command line. Requires the Maestro desktop app to be running.
+Create, mutate, or delete agents directly from the command line. Requires the OpenWizardAI desktop app to be running.
 
 ```bash
 # Create a Claude Code agent with a working directory
-maestro-cli create-agent "My Agent" -d /path/to/project
+openwizardai-cli create-agent "My Agent" -d /path/to/project
 
 # Create a Codex agent with custom model and environment variables
-maestro-cli create-agent "Codex Worker" -d . -t codex --model gpt-5.3-codex --env API_KEY=abc123
+openwizardai-cli create-agent "Codex Worker" -d . -t codex --model gpt-5.3-codex --env API_KEY=abc123
 
 # Create an agent with SSH remote execution
-maestro-cli create-agent "Remote Agent" -d /home/user/project -t claude-code --ssh-remote <remote-id>
+openwizardai-cli create-agent "Remote Agent" -d /home/user/project -t claude-code --ssh-remote <remote-id>
 
 # Create an agent with all options
-maestro-cli create-agent "Full Config" -d /workspace \
+openwizardai-cli create-agent "Full Config" -d /workspace \
 	-t claude-code \
 	-g <group-id> \
 	--nudge "Always write tests" \
@@ -442,46 +442,46 @@ maestro-cli create-agent "Full Config" -d /workspace \
 	--auto-run-folder ~/playbooks/full-config
 
 # Remove an agent
-maestro-cli remove-agent <agent-id>
+openwizardai-cli remove-agent <agent-id>
 
 # Rename an agent
-maestro-cli rename-agent <agent-id> "New Name"
+openwizardai-cli rename-agent <agent-id> "New Name"
 
 # Move an agent into a group (use "none" to ungroup)
-maestro-cli update-agent <agent-id> --group <group-id>
-maestro-cli update-agent <agent-id> --group none
+openwizardai-cli update-agent <agent-id> --group <group-id>
+openwizardai-cli update-agent <agent-id> --group none
 
 # Change an agent's working directory (refused while the agent process is running)
-maestro-cli update-agent <agent-id> --cwd /new/path/to/project
+openwizardai-cli update-agent <agent-id> --cwd /new/path/to/project
 
 # Combine both in a single call
-maestro-cli update-agent <agent-id> --group <group-id> --cwd /new/path
+openwizardai-cli update-agent <agent-id> --group <group-id> --cwd /new/path
 
 # Edit the agent's settings - the same fields as the Edit Agent modal
-maestro-cli update-agent <agent-id> --nudge "Always write tests"
-maestro-cli update-agent <agent-id> --new-session-message "You are a senior engineer"
-maestro-cli update-agent <agent-id> --model opus --effort high --context-window 200000
-maestro-cli update-agent <agent-id> --env DEBUG=true --env LOG_LEVEL=info
-maestro-cli update-agent <agent-id> --custom-path /usr/local/bin/claude --custom-args "--verbose"
+openwizardai-cli update-agent <agent-id> --nudge "Always write tests"
+openwizardai-cli update-agent <agent-id> --new-session-message "You are a senior engineer"
+openwizardai-cli update-agent <agent-id> --model opus --effort high --context-window 200000
+openwizardai-cli update-agent <agent-id> --env DEBUG=true --env LOG_LEVEL=info
+openwizardai-cli update-agent <agent-id> --custom-path /usr/local/bin/claude --custom-args "--verbose"
 
 # Clear a field by passing an empty string; --clear-env empties the env map
-maestro-cli update-agent <agent-id> --nudge ""
-maestro-cli update-agent <agent-id> --clear-env
+openwizardai-cli update-agent <agent-id> --nudge ""
+openwizardai-cli update-agent <agent-id> --clear-env
 
 # Set the Claude token source (Claude Code agents only): api | tui | dynamic
-maestro-cli update-agent <agent-id> --token-source tui
+openwizardai-cli update-agent <agent-id> --token-source tui
 
 # Update SSH execution config (use "none" to revert to local)
-maestro-cli update-agent <agent-id> --ssh-remote <remote-id> --ssh-cwd /remote/workdir
-maestro-cli update-agent <agent-id> --ssh-remote none
-maestro-cli update-agent <agent-id> --sync-history-to-remote true
+openwizardai-cli update-agent <agent-id> --ssh-remote <remote-id> --ssh-cwd /remote/workdir
+openwizardai-cli update-agent <agent-id> --ssh-remote none
+openwizardai-cli update-agent <agent-id> --sync-history-to-remote true
 ```
 
-`update-agent` mutates an existing agent in place, writing the same live desktop Session the Edit Agent modal edits (not the per-agent config store that `settings agent set` writes). Read the current values back with `maestro-cli show agent <id> --json`.
+`update-agent` mutates an existing agent in place, writing the same live desktop Session the Edit Agent modal edits (not the per-agent config store that `settings agent set` writes). Read the current values back with `openwizardai-cli show agent <id> --json`.
 
 The group update reuses the same write path as drag-and-drop in the Left Bar. The cwd update moves the agent as a whole: the working directory, the project root the Files panel and Edit dialog read, and an Auto Run folder that lives inside the old directory all follow the new path (an Auto Run folder elsewhere is left where you put it). Provider conversations stored under the old path may not resume from the new one. Stop the agent before changing its cwd or SSH config; the underlying PTY's working directory and spawn target are fixed at launch time, so the renderer refuses those updates while the agent is busy or its process is alive and surfaces the reason on stderr. The remaining settings (nudge, messages, model, effort, env, token source, etc.) are spawn-time values and apply on the next launch, so they are accepted even while the agent is running.
 
-For text fields, passing an empty string (for example `--nudge ""`) clears the field. `--env` replaces the environment map with the provided pairs; `--clear-env` empties it. `--context-window 0` (or `none`) clears the context-window override. `--token-source` only carries meaning for Claude Code agents: `api` uses `claude --print` (per-token API credit), `tui` drives the maestro-p TUI (Max-plan quota), and `dynamic` starts on the TUI and falls back to API when a usage window hits its limit. The `tui` and `dynamic` modes need the [maestro-p helper](https://runmaestro.ai/maestro-p/) on PATH; it is bundled locally, but for SSH remotes it must be installed on the remote host. See [Provider Notes](/provider-notes#token-source-max-plan-vs-api).
+For text fields, passing an empty string (for example `--nudge ""`) clears the field. `--env` replaces the environment map with the provided pairs; `--clear-env` empties it. `--context-window 0` (or `none`) clears the context-window override. `--token-source` only carries meaning for Claude Code agents: `api` uses `claude --print` (per-token API credit), `tui` drives the openwizardai-p TUI (Max-plan quota), and `dynamic` starts on the TUI and falls back to API when a usage window hits its limit. The `tui` and `dynamic` modes need the [openwizardai-p helper](https://github.com/manoelpanev/OpenWizardAI) on PATH; it is bundled locally, but for SSH remotes it must be installed on the remote host. See [Provider Notes](/provider-notes#token-source-max-plan-vs-api).
 
 | Flag                              | Description                                                                                                                                        | Default |
 | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
@@ -489,7 +489,7 @@ For text fields, passing an empty string (for example `--nudge ""`) clears the f
 | `-d, --cwd <path>`                | New working directory (resolved to absolute). Agent must be stopped                                                                                | -       |
 | `--ssh-remote <id>`               | SSH remote for remote execution. Use `none` to revert to local. Agent must be stopped                                                              | -       |
 | `--ssh-cwd <path>`                | Working directory override on the SSH remote. Agent must be stopped                                                                                | -       |
-| `--sync-history-to-remote <bool>` | Sync history entries to `.maestro/history/` on the remote host                                                                                     | -       |
+| `--sync-history-to-remote <bool>` | Sync history entries to `.openwizardai/history/` on the remote host                                                                                | -       |
 | `--nudge <message>`               | Nudge message appended to every message. Empty string clears                                                                                       | -       |
 | `--new-session-message <message>` | Message prefixed to the first message of new sessions. Empty string clears                                                                         | -       |
 | `--custom-path <path>`            | Override the agent binary path. Empty string clears                                                                                                | -       |
@@ -500,56 +500,56 @@ For text fields, passing an empty string (for example `--nudge ""`) clears the f
 | `--effort <level>`                | Effort/reasoning level override. Empty string clears                                                                                               | -       |
 | `--context-window <size>`         | Context window size in tokens. `0` or `none` clears                                                                                                | -       |
 | `--token-source <mode>`           | Claude Code token source: `api`, `tui`, or `dynamic` (Claude Code agents only)                                                                     | -       |
-| `--maestro-p-path <path>`         | Override the maestro-p binary path. Empty string clears                                                                                            | -       |
+| `--openwizardai-p-path <path>`    | Override the openwizardai-p binary path. Empty string clears                                                                                       | -       |
 | `--provider <type>`               | Switch the agent's provider. Destructive: resets tabs and clears provider config. Requires `--force`. Cannot be combined with other settings edits | -       |
 | `--force`                         | Confirm a destructive change (required for `--provider`)                                                                                           | -       |
 | `--json`                          | Machine-readable JSON output                                                                                                                       | -       |
 
 The flag table below covers `create-agent`:
 
-| Flag                              | Description                                              | Default                    |
-| --------------------------------- | -------------------------------------------------------- | -------------------------- |
-| `-d, --cwd <path>`                | Working directory for the agent (required)               | -                          |
-| `-t, --type <type>`               | Agent type (claude-code, codex, opencode, factory-droid) | `claude-code`              |
-| `-g, --group <id>`                | Group ID to assign the agent to                          | -                          |
-| `--nudge <message>`               | Nudge message appended to every user message             | -                          |
-| `--new-session-message <message>` | Message prefixed to first message in new sessions        | -                          |
-| `--custom-path <path>`            | Custom binary path for the agent CLI                     | -                          |
-| `--custom-args <args>`            | Custom CLI arguments                                     | -                          |
-| `--env <KEY=VALUE>`               | Environment variable (repeatable)                        | -                          |
-| `--model <model>`                 | Model override (e.g., sonnet, opus)                      | -                          |
-| `--effort <level>`                | Effort/reasoning level override                          | -                          |
-| `--context-window <size>`         | Context window size in tokens                            | -                          |
-| `--provider-path <path>`          | Custom provider path                                     | -                          |
-| `--ssh-remote <id>`               | SSH remote ID for remote execution                       | -                          |
-| `--ssh-cwd <path>`                | Working directory override on the SSH remote             | -                          |
-| `--auto-run-folder <path>`        | Auto Run / playbooks folder for this agent               | `<cwd>/.maestro/playbooks` |
-| `--background`                    | Create the agent without selecting it in the Left Bar    | -                          |
-| `--focus`                         | Select the new agent after creating it (default)         | -                          |
-| `--json`                          | Machine-readable JSON output                             | -                          |
+| Flag                              | Description                                              | Default                         |
+| --------------------------------- | -------------------------------------------------------- | ------------------------------- |
+| `-d, --cwd <path>`                | Working directory for the agent (required)               | -                               |
+| `-t, --type <type>`               | Agent type (claude-code, codex, opencode, factory-droid) | `claude-code`                   |
+| `-g, --group <id>`                | Group ID to assign the agent to                          | -                               |
+| `--nudge <message>`               | Nudge message appended to every user message             | -                               |
+| `--new-session-message <message>` | Message prefixed to first message in new sessions        | -                               |
+| `--custom-path <path>`            | Custom binary path for the agent CLI                     | -                               |
+| `--custom-args <args>`            | Custom CLI arguments                                     | -                               |
+| `--env <KEY=VALUE>`               | Environment variable (repeatable)                        | -                               |
+| `--model <model>`                 | Model override (e.g., sonnet, opus)                      | -                               |
+| `--effort <level>`                | Effort/reasoning level override                          | -                               |
+| `--context-window <size>`         | Context window size in tokens                            | -                               |
+| `--provider-path <path>`          | Custom provider path                                     | -                               |
+| `--ssh-remote <id>`               | SSH remote ID for remote execution                       | -                               |
+| `--ssh-cwd <path>`                | Working directory override on the SSH remote             | -                               |
+| `--auto-run-folder <path>`        | Auto Run / playbooks folder for this agent               | `<cwd>/.openwizardai/playbooks` |
+| `--background`                    | Create the agent without selecting it in the Left Bar    | -                               |
+| `--focus`                         | Select the new agent after creating it (default)         | -                               |
+| `--json`                          | Machine-readable JSON output                             | -                               |
 
 ### Creating and Removing Groups
 
-Manage Left Bar groups from the command line. Requires the Maestro desktop app to be running. Use a group ID with `create-agent -g` or `update-agent --group` to place agents into it, and `update-agent --group none` to move an agent back out.
+Manage Left Bar groups from the command line. Requires the OpenWizardAI desktop app to be running. Use a group ID with `create-agent -g` or `update-agent --group` to place agents into it, and `update-agent --group none` to move an agent back out.
 
 ```bash
 # Create a group
-maestro-cli create-group "Backend"
+openwizardai-cli create-group "Backend"
 
 # Create a group with an emoji icon
-maestro-cli create-group "Backend" -e 🔧
+openwizardai-cli create-group "Backend" -e 🔧
 
 # Machine-readable output (returns the new group ID)
-maestro-cli create-group "Backend" --json
+openwizardai-cli create-group "Backend" --json
 
 # Remove an (empty) group
-maestro-cli remove-group <group-id>
+openwizardai-cli remove-group <group-id>
 
 # Remove a group that still has agents (ungroups them first)
-maestro-cli remove-group <group-id> --force
+openwizardai-cli remove-group <group-id> --force
 
 # Rename a group
-maestro-cli rename-group <group-id> "Frontend"
+openwizardai-cli rename-group <group-id> "Frontend"
 ```
 
 Removing a group never deletes the agents inside it: the desktop ungroups any members (moves them to no group) and then removes the group. `remove-group` refuses a non-empty group unless you pass `--force`, so you don't accidentally scatter a populated group. Group IDs support partial-ID resolution.
@@ -574,13 +574,13 @@ Branch a new agent off an existing parent agent into its own git worktree, witho
 
 ```bash
 # Create a worktree agent off a parent, on a new branch
-maestro-cli create-worktree -a <parent-agent-id> -b feature/new-thing
+openwizardai-cli create-worktree -a <parent-agent-id> -b feature/new-thing
 
 # Base the new branch on a specific ref when it does not yet exist
-maestro-cli create-worktree -a <parent-agent-id> -b feature/new-thing --base-branch rc
+openwizardai-cli create-worktree -a <parent-agent-id> -b feature/new-thing --base-branch rc
 
 # Create the worktree and immediately dispatch an initial prompt to it
-maestro-cli create-worktree -a <parent-agent-id> -b feature/new-thing -m "Start on the API layer"
+openwizardai-cli create-worktree -a <parent-agent-id> -b feature/new-thing -m "Start on the API layer"
 ```
 
 The optional `--message` is delivered to the new agent as a plain prompt (not an Auto Run loop) on the same connection, addressed by the ID the desktop just returned. Both `--agent` and `--branch` support the usual partial-ID resolution.
@@ -601,123 +601,123 @@ Steer the desktop UI itself: focus an agent, flip an agent between AI and termin
 
 ```bash
 # Focus (select) an agent in the Left Bar; optionally focus a specific tab
-maestro-cli focus-agent <agent-id>
-maestro-cli focus-agent <agent-id> --tab <tab-id>
+openwizardai-cli focus-agent <agent-id>
+openwizardai-cli focus-agent <agent-id> --tab <tab-id>
 
 # Switch an agent between AI chat and terminal mode
-maestro-cli switch-mode <agent-id> ai
-maestro-cli switch-mode <agent-id> terminal
+openwizardai-cli switch-mode <agent-id> ai
+openwizardai-cli switch-mode <agent-id> terminal
 
 # Open a new tab for an agent (optionally seed an AI tab with a prompt)
-maestro-cli tab new -a <agent-id>
-maestro-cli tab new -a <agent-id> --prompt "Start reviewing the API layer"
+openwizardai-cli tab new -a <agent-id>
+openwizardai-cli tab new -a <agent-id> --prompt "Start reviewing the API layer"
 
 # Create the tab without taking the view from whoever is working
-maestro-cli tab new -a <agent-id> --background
+openwizardai-cli tab new -a <agent-id> --background
 
 # Close, rename, star, or unstar a tab. The owning agent is resolved from the
 # tab ID automatically, so you only need the tab ID (exact or a unique prefix).
-maestro-cli tab close <tab-id>
-maestro-cli tab rename <tab-id> "Docs"
-maestro-cli tab star <tab-id>
-maestro-cli tab unstar <tab-id>
+openwizardai-cli tab close <tab-id>
+openwizardai-cli tab rename <tab-id> "Docs"
+openwizardai-cli tab star <tab-id>
+openwizardai-cli tab unstar <tab-id>
 
 # Flag a tab for the human with the unread dot, or clear it
-maestro-cli tab unread <tab-id>
-maestro-cli tab read <tab-id>
+openwizardai-cli tab unread <tab-id>
+openwizardai-cli tab read <tab-id>
 
 # Turn the tab's History synopsis on or off
-maestro-cli tab save-to-history <tab-id> false
+openwizardai-cli tab save-to-history <tab-id> false
 
 # Per-tab settings - the same switches as the composer chips. "active" means
 # the tab on screen; add -a <agent-id> to say whose.
-maestro-cli tab show active                     # read them all back
-maestro-cli tab thinking <tab-id> sticky        # off | on | sticky | cycle
-maestro-cli tab read-only <tab-id> true         # plan mode: no file writes
-maestro-cli tab model <tab-id> opus             # "inherit" clears the override
-maestro-cli tab effort <tab-id> high            # "inherit" clears the override
-maestro-cli tab enter-to-send <tab-id> false    # "inherit" = global setting
+openwizardai-cli tab show active                     # read them all back
+openwizardai-cli tab thinking <tab-id> sticky        # off | on | sticky | cycle
+openwizardai-cli tab read-only <tab-id> true         # plan mode: no file writes
+openwizardai-cli tab model <tab-id> opus             # "inherit" clears the override
+openwizardai-cli tab effort <tab-id> high            # "inherit" clears the override
+openwizardai-cli tab enter-to-send <tab-id> false    # "inherit" = global setting
 
 # Move a tab in the tab bar (0-based index, or "first" / "last")
-maestro-cli tab move <tab-id> first
-maestro-cli tab move <tab-id> 2
+openwizardai-cli tab move <tab-id> first
+openwizardai-cli tab move <tab-id> 2
 
 # Pin an agent to the Bookmarks section at the top of the Left Bar
-maestro-cli bookmark <agent-id>
-maestro-cli unbookmark <agent-id>
+openwizardai-cli bookmark <agent-id>
+openwizardai-cli unbookmark <agent-id>
 ```
 
 `tab new` and `switch-mode` both take `--background` / `--focus`; see [Who Moves the View](#who-moves-the-view---background----focus). `switch-mode --background` refuses when the target is the agent already on screen, since the mode change _is_ the view change there, and tells you to re-run with `--focus` if you meant it anyway.
 
-Find tab IDs with `maestro-cli session list`. `tab new` returns the new tab's ID (printed, or in the JSON payload with `--json`). Every verb that takes a `<tab-id>` also accepts the literal `active`, which resolves to the tab the agent currently has selected - `-a <agent-id>` says whose, and without it the CLI uses the agent the desktop has focused.
+Find tab IDs with `openwizardai-cli session list`. `tab new` returns the new tab's ID (printed, or in the JSON payload with `--json`). Every verb that takes a `<tab-id>` also accepts the literal `active`, which resolves to the tab the agent currently has selected - `-a <agent-id>` says whose, and without it the CLI uses the agent the desktop has focused.
 
-Bookmark, unread, star, and save-to-history are explicit set operations rather than toggles, so re-running a script lands on the same state either way. `tab thinking` is the one exception, and only in its `cycle` form, which advances one step the way clicking the chip does. Read the current values back with `maestro-cli tab show <tab-id>`, `maestro-cli show agent <id> --json` (field `bookmarked`), or `maestro-cli session list --json` (fields `starred`, `thinking`, `readOnly`, `model`, `effort`, `saveToHistory`, `enterToSend`, `active`).
+Bookmark, unread, star, and save-to-history are explicit set operations rather than toggles, so re-running a script lands on the same state either way. `tab thinking` is the one exception, and only in its `cycle` form, which advances one step the way clicking the chip does. Read the current values back with `openwizardai-cli tab show <tab-id>`, `openwizardai-cli show agent <id> --json` (field `bookmarked`), or `openwizardai-cli session list --json` (fields `starred`, `thinking`, `readOnly`, `model`, `effort`, `saveToHistory`, `enterToSend`, `active`).
 
-`model`, `effort`, and `enter-to-send` are per-tab overrides: `inherit` clears the override so the tab follows the agent's model/effort or the global `enterToSendAI` setting again. That is not the same as `false` - `tab enter-to-send <tab-id> false` pins the tab to Cmd+Enter even when the global default is Enter. Agent-wide defaults still live on `maestro-cli update-agent <id> --model/--effort`. `bookmark` also has a flag form, `maestro-cli update-agent <id> --bookmark true`, for when you are already changing other agent settings in the same call.
+`model`, `effort`, and `enter-to-send` are per-tab overrides: `inherit` clears the override so the tab follows the agent's model/effort or the global `enterToSendAI` setting again. That is not the same as `false` - `tab enter-to-send <tab-id> false` pins the tab to Cmd+Enter even when the global default is Enter. Agent-wide defaults still live on `openwizardai-cli update-agent <id> --model/--effort`. `bookmark` also has a flag form, `openwizardai-cli update-agent <id> --bookmark true`, for when you are already changing other agent settings in the same call.
 
 ### Listing Resources
 
 ```bash
 # List all groups
-maestro-cli list groups
+openwizardai-cli list groups
 
 # List all agents
-maestro-cli list agents
-maestro-cli list agents -g <group-id>
-maestro-cli list agents --group <group-id>
+openwizardai-cli list agents
+openwizardai-cli list agents -g <group-id>
+openwizardai-cli list agents --group <group-id>
 
 # Show agent details (history, usage stats, cost)
-maestro-cli show agent <agent-id>
+openwizardai-cli show agent <agent-id>
 
 # List all playbooks (or filter by agent)
-maestro-cli list playbooks
-maestro-cli list playbooks -a <agent-id>
-maestro-cli list playbooks --agent <agent-id>
+openwizardai-cli list playbooks
+openwizardai-cli list playbooks -a <agent-id>
+openwizardai-cli list playbooks --agent <agent-id>
 
 # Show playbook details
-maestro-cli show playbook <playbook-id>
+openwizardai-cli show playbook <playbook-id>
 ```
 
 ### Running Playbooks
 
 ```bash
 # Run a playbook
-maestro-cli playbook <playbook-id>
+openwizardai-cli playbook <playbook-id>
 
 # Dry run (shows what would be executed)
-maestro-cli playbook <playbook-id> --dry-run
+openwizardai-cli playbook <playbook-id> --dry-run
 
 # Run without writing to history
-maestro-cli playbook <playbook-id> --no-history
+openwizardai-cli playbook <playbook-id> --no-history
 
 # Wait for agent if busy, with verbose output
-maestro-cli playbook <playbook-id> --wait --verbose
+openwizardai-cli playbook <playbook-id> --wait --verbose
 
 # Debug mode for troubleshooting
-maestro-cli playbook <playbook-id> --debug
+openwizardai-cli playbook <playbook-id> --debug
 
 # Clean orphaned playbooks (for deleted sessions)
-maestro-cli clean playbooks
-maestro-cli clean playbooks --dry-run
+openwizardai-cli clean playbooks
+openwizardai-cli clean playbooks --dry-run
 ```
 
 ### Running Documents Without a Playbook (`run-doc`)
 
-`run-doc` runs one or more Auto Run `.md` documents directly, without saving a playbook first. Like `playbook`, it runs **headlessly** - it spawns the target agent itself and streams events, so it works whether or not the Maestro desktop window is open. This is the reliable way to execute a document an agent just wrote.
+`run-doc` runs one or more Auto Run `.md` documents directly, without saving a playbook first. Like `playbook`, it runs **headlessly** - it spawns the target agent itself and streams events, so it works whether or not the OpenWizardAI desktop window is open. This is the reliable way to execute a document an agent just wrote.
 
 ```bash
 # Run a single document on an agent (by ID or name)
-maestro-cli run-doc plans/frontend-plan.md --agent "Frontend"
+openwizardai-cli run-doc plans/frontend-plan.md --agent "Frontend"
 
 # The path may be relative to the agent's Auto Run folder, relative to the
 # current directory, or absolute. Multiple documents run in sequence.
-maestro-cli run-doc plan-a.md plan-b.md --agent <agent-id>
+openwizardai-cli run-doc plan-a.md plan-b.md --agent <agent-id>
 
 # Wait for the agent if it is busy, loop until all tasks are done
-maestro-cli run-doc plans/migrate.md --agent <agent-id> --wait --loop
+openwizardai-cli run-doc plans/migrate.md --agent <agent-id> --wait --loop
 
 # JSON output for scripting; skip history writes
-maestro-cli run-doc plans/spec.md --agent <agent-id> --json --no-history
+openwizardai-cli run-doc plans/spec.md --agent <agent-id> --json --no-history
 ```
 
 `run-doc` accepts the same execution flags as `playbook` (`--dry-run`, `--no-history`, `--json`, `--debug`, `--verbose`, `--no-synopsis`, `--wait`) plus `--prompt`, `--loop`, `--max-loops`, and `--reset-on-completion`. When no `--prompt` is given it uses the default Auto Run prompt.
@@ -728,29 +728,29 @@ maestro-cli run-doc plans/spec.md --agent <agent-id> --json --no-history
 
 ### Prompt Customization
 
-The CLI uses the same core system prompts as the desktop app. When you customize prompts via Settings → **Maestro Prompts**, those customizations are stored in `core-prompts-customizations.json` in the Maestro data directory and are automatically picked up by the CLI during playbook runs.
+The CLI uses the same core system prompts as the desktop app. When you customize prompts via Settings → **OpenWizardAI Prompts**, those customizations are stored in `core-prompts-customizations.json` in the OpenWizardAI data directory and are automatically picked up by the CLI during playbook runs.
 
 The prompts most relevant to CLI playbook execution are:
 
-| Prompt ID               | Controls                                      |
-| ----------------------- | --------------------------------------------- |
-| `autorun-default`       | Default Auto Run task execution behavior      |
-| `autorun-synopsis`      | Synopsis generation after task completion     |
-| `commit-command`        | `/commit` command behavior                    |
-| `maestro-system-prompt` | Maestro system context injected into sessions |
-| `context-grooming`      | Context grooming during transfers             |
+| Prompt ID                    | Controls                                           |
+| ---------------------------- | -------------------------------------------------- |
+| `autorun-default`            | Default Auto Run task execution behavior           |
+| `autorun-synopsis`           | Synopsis generation after task completion          |
+| `commit-command`             | `/commit` command behavior                         |
+| `openwizardai-system-prompt` | OpenWizardAI system context injected into sessions |
+| `context-grooming`           | Context grooming during transfers                  |
 
-To customize these prompts, either use the desktop app's **Maestro Prompts** tab or edit the JSON file directly:
+To customize these prompts, either use the desktop app's **OpenWizardAI Prompts** tab or edit the JSON file directly:
 
 ```text
 # macOS
-~/Library/Application Support/Maestro/core-prompts-customizations.json
+~/Library/Application Support/OpenWizardAI/core-prompts-customizations.json
 
 # Linux
-~/.config/Maestro/core-prompts-customizations.json
+~/.config/OpenWizardAI/core-prompts-customizations.json
 
 # Windows
-%APPDATA%\Maestro\core-prompts-customizations.json
+%APPDATA%\OpenWizardAI\core-prompts-customizations.json
 ```
 
 The file format is:
@@ -769,64 +769,64 @@ The file format is:
 
 ### Reading Prompts (`prompts list` / `prompts get`)
 
-The CLI exposes Maestro's prompt registry directly so other agents can self-fetch reference material on demand. Parent prompts can use the `{{REF:name}}` directive (see [Prompt Customization → Include Directives](/prompt-customization#include-directives)) to expand into a one-line pointer; the agent then runs `prompts get` to retrieve the full content.
+The CLI exposes OpenWizardAI's prompt registry directly so other agents can self-fetch reference material on demand. Parent prompts can use the `{{REF:name}}` directive (see [Prompt Customization → Include Directives](/prompt-customization#include-directives)) to expand into a one-line pointer; the agent then runs `prompts get` to retrieve the full content.
 
 ```bash
 # List every available prompt id with description and category
-maestro-cli prompts list
+openwizardai-cli prompts list
 
 # JSON output for scripting
-maestro-cli prompts list --json
+openwizardai-cli prompts list --json
 
 # Print a specific prompt's content (honors user customizations)
-maestro-cli prompts get _maestro-cli
-maestro-cli prompts get autorun-default
+openwizardai-cli prompts get _openwizardai-cli
+openwizardai-cli prompts get autorun-default
 
 # Include metadata in the response
-maestro-cli prompts get _maestro-cue --json
+openwizardai-cli prompts get _openwizardai-cue --json
 ```
 
-`prompts get` returns the same content the desktop app would deliver, so customizations made via Settings → **Maestro Prompts** are reflected immediately. Bundled include fragments use a leading underscore in their id (e.g., `_maestro-cli`, `_history-format`); standalone prompts do not.
+`prompts get` returns the same content the desktop app would deliver, so customizations made via Settings → **OpenWizardAI Prompts** are reflected immediately. Bundled include fragments use a leading underscore in their id (e.g., `_openwizardai-cli`, `_history-format`); standalone prompts do not.
 
 ### Managing Settings
 
-View and modify any Maestro configuration setting directly from the CLI. Changes take effect immediately in the running desktop app - no restart required.
+View and modify any OpenWizardAI configuration setting directly from the CLI. Changes take effect immediately in the running desktop app - no restart required.
 
 ```bash
 # List all settings with current values
-maestro-cli settings list
+openwizardai-cli settings list
 
 # List with descriptions (great for understanding what each setting does)
-maestro-cli settings list -v
+openwizardai-cli settings list -v
 
 # Filter by category
-maestro-cli settings list -c appearance
-maestro-cli settings list -c shell -v
+openwizardai-cli settings list -c appearance
+openwizardai-cli settings list -c shell -v
 
 # Show only setting keys
-maestro-cli settings list --keys-only
+openwizardai-cli settings list --keys-only
 
 # Get a specific setting
-maestro-cli settings get fontSize
-maestro-cli settings get activeThemeId
+openwizardai-cli settings get fontSize
+openwizardai-cli settings get activeThemeId
 
 # Get nested settings with dot-notation
-maestro-cli settings get encoreFeatures.directorNotes
+openwizardai-cli settings get encoreFeatures.directorNotes
 
 # Get with full details (type, default, description)
-maestro-cli settings get fontSize -v
+openwizardai-cli settings get fontSize -v
 
 # Set a setting (type is auto-detected)
-maestro-cli settings set fontSize 16
-maestro-cli settings set audioFeedbackEnabled true
-maestro-cli settings set activeThemeId monokai
-maestro-cli settings set defaultShowThinking on
+openwizardai-cli settings set fontSize 16
+openwizardai-cli settings set audioFeedbackEnabled true
+openwizardai-cli settings set activeThemeId monokai
+openwizardai-cli settings set defaultShowThinking on
 
 # Set complex values with explicit JSON
-maestro-cli settings set localIgnorePatterns --raw '["node_modules",".git","dist"]'
+openwizardai-cli settings set localIgnorePatterns --raw '["node_modules",".git","dist"]'
 
 # Reset a setting to its default value
-maestro-cli settings reset fontSize
+openwizardai-cli settings reset fontSize
 ```
 
 | Flag                    | Description                                             | Commands      |
@@ -842,7 +842,7 @@ maestro-cli settings reset fontSize
 **Categories:** appearance, editor, shell, notifications, updates, logging, web, ssh, file-indexing, context, document-graph, stats, accessibility, integrations, onboarding, advanced, internal.
 
 <Tip>
-Use `maestro-cli settings list -v` from inside an AI agent conversation to give the agent full context about every available setting and what it controls.
+Use `openwizardai-cli settings list -v` from inside an AI agent conversation to give the agent full context about every available setting and what it controls.
 </Tip>
 
 ### Theme and Encore Features
@@ -851,28 +851,28 @@ Ergonomic, validated wrappers over the underlying settings, for the customizatio
 
 ```bash
 # Switch the active theme by ID or display name (case-insensitive)
-maestro-cli set-theme tokyo-night
-maestro-cli set-theme "Catppuccin Mocha"
+openwizardai-cli set-theme tokyo-night
+openwizardai-cli set-theme "Catppuccin Mocha"
 
 # See every available theme
-maestro-cli set-theme --list
+openwizardai-cli set-theme --list
 
 # Set how much light the app chrome catches (Settings -> Themes -> Surface Gloss)
-maestro-cli gloss strong
+openwizardai-cli gloss strong
 
 # See the current level and what each one does
-maestro-cli gloss
-maestro-cli gloss --list
+openwizardai-cli gloss
+openwizardai-cli gloss --list
 
 # List Encore (experimental) features and whether each is enabled
-maestro-cli encore list
+openwizardai-cli encore list
 
 # Enable or disable an Encore feature
-maestro-cli encore enable symphony
-maestro-cli encore disable maestroCue
+openwizardai-cli encore enable symphony
+openwizardai-cli encore disable openwizardaiCue
 ```
 
-Encore feature IDs: `directorNotes`, `usageStats`, `symphony`, `maestroCue`. Friendly aliases are accepted (for example `group-chat` for `symphony`, `cue` for `maestroCue`).
+Encore feature IDs: `directorNotes`, `usageStats`, `symphony`, `openwizardaiCue`. Friendly aliases are accepted (for example `group-chat` for `symphony`, `cue` for `openwizardaiCue`).
 
 Gloss levels, least to most: `off` (the shipped flat look), `sheen`, `strong`, `max`. Gloss only adds highlights and shadows to the sidebars, headers, tab bar and composer, so it changes no theme color and leaves text exactly as legible. It has no effect on light themes.
 
@@ -882,20 +882,20 @@ Gloss levels, least to most: `off` (the shipped flat look), `sheen`, `strong`, `
 
 ```bash
 # Print the current custom palette and its base theme (reads from disk; works offline)
-maestro-cli theme show
-maestro-cli theme show --json
+openwizardai-cli theme show
+openwizardai-cli theme show --json
 
 # Export the custom theme as portable JSON (stdout, or to a file)
-maestro-cli theme export
-maestro-cli theme export --file my-theme.json
+openwizardai-cli theme export
+openwizardai-cli theme export --file my-theme.json
 
 # Import a theme JSON file, apply it live, and activate it
-maestro-cli theme import my-theme.json
-maestro-cli theme import my-theme.json --no-activate   # save the palette without switching to it
+openwizardai-cli theme import my-theme.json
+openwizardai-cli theme import my-theme.json --no-activate   # save the palette without switching to it
 
 # Set individual colors (key=value); optionally re-base from a built-in theme first
-maestro-cli theme set accent=#ff0000 bgMain=#1a1a1a
-maestro-cli theme set --base dracula accent=#ff79c6 --activate
+openwizardai-cli theme set accent=#ff0000 bgMain=#1a1a1a
+openwizardai-cli theme set --base dracula accent=#ff79c6 --activate
 ```
 
 Export files are byte-compatible with the in-app Custom Theme Builder, so a palette round-trips between the UI and CLI. `theme show` and `theme export` read the on-disk settings store directly (no running app required); `theme import` and `theme set` apply live through the running desktop app. Imports are validated the same way as the in-app importer: every required color key must be present and every value must be a valid CSS color.
@@ -918,22 +918,22 @@ Each agent (Claude Code, Codex, OpenCode, Factory Droid) can have its own config
 
 ```bash
 # List all agent configurations
-maestro-cli settings agent list
+openwizardai-cli settings agent list
 
 # List config for a specific agent
-maestro-cli settings agent list claude-code
+openwizardai-cli settings agent list claude-code
 
 # Get a specific agent config value
-maestro-cli settings agent get codex model
-maestro-cli settings agent get claude-code customPath
+openwizardai-cli settings agent get codex model
+openwizardai-cli settings agent get claude-code customPath
 
 # Set agent config values
-maestro-cli settings agent set codex contextWindow 128000
-maestro-cli settings agent set claude-code customPath /usr/local/bin/claude
-maestro-cli settings agent set codex customEnvVars --raw '{"DEBUG":"true"}'
+openwizardai-cli settings agent set codex contextWindow 128000
+openwizardai-cli settings agent set claude-code customPath /usr/local/bin/claude
+openwizardai-cli settings agent set codex customEnvVars --raw '{"DEBUG":"true"}'
 
 # Remove an agent config key
-maestro-cli settings agent reset codex model
+openwizardai-cli settings agent reset codex model
 ```
 
 | Flag            | Description                           | Commands      |
@@ -954,25 +954,25 @@ maestro-cli settings agent reset codex model
 | `reasoningEffort` | string | Reasoning effort level (`low`, `medium`, `high`) |
 
 <Info>
-Settings and agent config changes made via the CLI are automatically detected by the running Maestro desktop app. The app watches for file changes and reloads immediately - it's as if you toggled the setting in the Settings modal yourself.
+Settings and agent config changes made via the CLI are automatically detected by the running OpenWizardAI desktop app. The app watches for file changes and reloads immediately - it's as if you toggled the setting in the Settings modal yourself.
 </Info>
 
 ### Managing SSH Remotes
 
-Create, list, and remove SSH remote configurations. These commands read and write directly to the Maestro settings file - no running desktop app required.
+Create, list, and remove SSH remote configurations. These commands read and write directly to the OpenWizardAI settings file - no running desktop app required.
 
 ```bash
 # List all configured SSH remotes
-maestro-cli list ssh-remotes
+openwizardai-cli list ssh-remotes
 
 # Create a new SSH remote
-maestro-cli create-ssh-remote "Dev Server" -H 192.168.1.100 -u deploy
+openwizardai-cli create-ssh-remote "Dev Server" -H 192.168.1.100 -u deploy
 
 # Create with SSH config mode (uses ~/.ssh/config)
-maestro-cli create-ssh-remote "Prod" -H prod-host --ssh-config
+openwizardai-cli create-ssh-remote "Prod" -H prod-host --ssh-config
 
 # Create with all options
-maestro-cli create-ssh-remote "Build Server" \
+openwizardai-cli create-ssh-remote "Build Server" \
 	-H build.example.com \
 	-p 2222 \
 	-u ci \
@@ -981,7 +981,7 @@ maestro-cli create-ssh-remote "Build Server" \
 	--set-default
 
 # Remove an SSH remote
-maestro-cli remove-ssh-remote <remote-id>
+openwizardai-cli remove-ssh-remote <remote-id>
 ```
 
 | Flag                    | Description                                                     | Default |
@@ -997,7 +997,7 @@ maestro-cli remove-ssh-remote <remote-id>
 | `--json`                | Machine-readable JSON output                                    | -       |
 
 <Info>
-SSH remote changes made via the CLI are detected by the running Maestro desktop app through file watching, just like settings changes.
+SSH remote changes made via the CLI are detected by the running OpenWizardAI desktop app through file watching, just like settings changes.
 </Info>
 
 ## Partial IDs
@@ -1006,8 +1006,8 @@ All commands that accept an agent ID, group ID, or SSH remote ID support partial
 
 ```bash
 # These are equivalent if "a1b2" uniquely matches one agent
-maestro-cli send a1b2c3d4-e5f6-7890-abcd-ef1234567890 "hello"
-maestro-cli send a1b2 "hello"
+openwizardai-cli send a1b2c3d4-e5f6-7890-abcd-ef1234567890 "hello"
+openwizardai-cli send a1b2 "hello"
 ```
 
 If the partial ID is ambiguous, the CLI will show all matches.
@@ -1018,7 +1018,7 @@ By default, commands output human-readable formatted text. Use `--json` for mach
 
 ```bash
 # Human-readable output (default)
-maestro-cli list groups
+openwizardai-cli list groups
 GROUPS (2)
 
   🎨  Frontend
@@ -1027,16 +1027,16 @@ GROUPS (2)
       group-def456
 
 # JSON output for scripting
-maestro-cli list groups --json
+openwizardai-cli list groups --json
 {"type":"group","id":"group-abc123","name":"Frontend","emoji":"🎨","collapsed":false,"timestamp":...}
 {"type":"group","id":"group-def456","name":"Backend","emoji":"⚙️","collapsed":false,"timestamp":...}
 
 # Note: list agents outputs a JSON array (not JSONL)
-maestro-cli list agents --json
+openwizardai-cli list agents --json
 [{"id":"agent-abc123","name":"My Agent","toolType":"claude-code","cwd":"/path/to/project",...}]
 
 # Running a playbook with JSON streams events
-maestro-cli playbook <playbook-id> --json
+openwizardai-cli playbook <playbook-id> --json
 {"type":"start","timestamp":...,"playbook":{...}}
 {"type":"document_start","timestamp":...,"document":"tasks.md","taskCount":5}
 {"type":"task_start","timestamp":...,"taskIndex":0}
@@ -1050,23 +1050,23 @@ The `send` command always outputs JSON (no `--json` flag needed).
 
 ### Desktop Integration
 
-Commands for interacting with the running Maestro desktop app. These are especially useful for AI agents to trigger UI updates after creating or modifying files.
+Commands for interacting with the running OpenWizardAI desktop app. These are especially useful for AI agents to trigger UI updates after creating or modifying files.
 
-#### Open a Maestro Surface (Modal or Dashboard)
+#### Open an OpenWizardAI Surface (Modal or Dashboard)
 
-Bring up one of Maestro's modals or dashboards in the running app, optionally on a specific tab. This is how an agent answers "where do I see X?" by _showing_ you rather than describing a menu path.
+Bring up one of OpenWizardAI's modals or dashboards in the running app, optionally on a specific tab. This is how an agent answers "where do I see X?" by _showing_ you rather than describing a menu path.
 
 ```bash
 # Every openable surface, with its tabs and hotkey
-maestro-cli open --list
+openwizardai-cli open --list
 
-# Open Maestro Cue
-maestro-cli open cue
+# Open OpenWizardAI Cue
+openwizardai-cli open cue
 
 # Deep-link to a tab
-maestro-cli open cue --tab scheduled
-maestro-cli open settings --tab shortcuts
-maestro-cli open usage-dashboard --tab cue
+openwizardai-cli open cue --tab scheduled
+openwizardai-cli open settings --tab shortcuts
+openwizardai-cli open usage-dashboard --tab cue
 ```
 
 | Flag              | Description                                             |
@@ -1080,8 +1080,8 @@ Surfaces are addressed by id or alias (`usage`, `stats`, and `dashboard` all rea
 On success the command also prints how to reach that surface by hand:
 
 ```
-Opened Maestro Cue (scheduled tab) in Maestro.
-You can also reach Maestro Cue yourself: press Alt+Q, or open the command palette and search "Maestro Cue", or click the lightning-bolt icon in the Left Bar footer.
+Opened OpenWizardAI Cue (scheduled tab) in OpenWizardAI.
+You can also reach OpenWizardAI Cue yourself: press Alt+Q, or open the command palette and search "OpenWizardAI Cue", or click the lightning-bolt icon in the Left Bar footer.
 ```
 
 That second line is the point: an agent should relay it, so opening a surface for you teaches you the hotkey instead of making you ask again next time.
@@ -1090,10 +1090,10 @@ Surfaces behind an Encore Feature that you have switched off (Cue, Symphony, Dir
 
 #### Open a File
 
-Open a file as a preview tab in the Maestro desktop app. Without `--agent`, the owning agent is auto-detected by which agent's working directory the file lives in (longest-prefix match, most-recently-active wins on ties). Pass `--agent <id>` to target an explicit agent - the file must live inside that agent's `cwd`.
+Open a file as a preview tab in the OpenWizardAI desktop app. Without `--agent`, the owning agent is auto-detected by which agent's working directory the file lives in (longest-prefix match, most-recently-active wins on ties). Pass `--agent <id>` to target an explicit agent - the file must live inside that agent's `cwd`.
 
 ```bash
-maestro-cli open-file <file-path> [-a <id>] [--background | --no-switch]
+openwizardai-cli open-file <file-path> [-a <id>] [--background | --no-switch]
 ```
 
 | Flag               | Description                                                                     |
@@ -1107,22 +1107,22 @@ maestro-cli open-file <file-path> [-a <id>] [--background | --no-switch]
 
 #### Open a Browser Tab
 
-Open a URL as a browser tab in the Maestro desktop app. Only `http(s)` URLs are accepted; scheme-less inputs like `localhost:3000` or `example.com:8080` are auto-prefixed with `https://`.
+Open a URL as a browser tab in the OpenWizardAI desktop app. Only `http(s)` URLs are accepted; scheme-less inputs like `localhost:3000` or `example.com:8080` are auto-prefixed with `https://`.
 
 By default this **switches the UI** to the target agent and makes the new tab visible. Pass `--background` to create the tab without moving the user: the active agent is left alone and whatever tab they were looking at stays on screen. Either way the command prints the new tab's ID, which is the handle for `close-browser`.
 
 ```bash
 # Open in the active agent (switches the UI to it)
-maestro-cli open-browser https://docs.runmaestro.ai
+openwizardai-cli open-browser https://github.com/manoelpanev/OpenWizardAI/tree/main/docs
 
 # Scheme-less - gets https:// prepended
-maestro-cli open-browser localhost:3000
+openwizardai-cli open-browser localhost:3000
 
 # Target a specific agent
-maestro-cli open-browser https://github.com/RunMaestro/Maestro -a <agent-id>
+openwizardai-cli open-browser https://github.com/manoelpanev/OpenWizardAI -a <agent-id>
 
 # Background tab - does not switch agents or change the visible tab
-maestro-cli open-browser https://example.com/docs --background -a <agent-id>
+openwizardai-cli open-browser https://example.com/docs --background -a <agent-id>
 ```
 
 | Flag               | Description                                                      |
@@ -1141,7 +1141,7 @@ maestro-cli open-browser https://example.com/docs --background -a <agent-id>
 Close a browser tab by the ID that `open-browser` returned. The owning agent is resolved from the tab ID, so no `--agent` is needed. Exits non-zero if no such tab exists, so cleanup scripts can tell a real close from a no-op.
 
 ```bash
-maestro-cli close-browser <tab-id>
+openwizardai-cli close-browser <tab-id>
 ```
 
 | Flag     | Description                    |
@@ -1150,20 +1150,20 @@ maestro-cli close-browser <tab-id>
 
 #### Open a Terminal Tab
 
-Open a fresh terminal tab in the Maestro desktop app. The working directory must resolve inside the target agent's `cwd`; paths outside it are rejected.
+Open a fresh terminal tab in the OpenWizardAI desktop app. The working directory must resolve inside the target agent's `cwd`; paths outside it are rejected.
 
 ```bash
 # Open a terminal in the active agent's cwd with the default shell
-maestro-cli open-terminal
+openwizardai-cli open-terminal
 
 # Custom cwd, shell, and tab label
-maestro-cli open-terminal --cwd ./packages/api --shell bash --name "API tests"
+openwizardai-cli open-terminal --cwd ./packages/api --shell bash --name "API tests"
 
 # Start a dev server in a named terminal
-maestro-cli open-terminal --name "Dev server" --command "npm run dev"
+openwizardai-cli open-terminal --name "Dev server" --command "npm run dev"
 
 # Target a specific agent
-maestro-cli open-terminal -a <agent-id> --name "Build watch"
+openwizardai-cli open-terminal -a <agent-id> --name "Build watch"
 ```
 
 | Flag               | Description                                                         | Default     |
@@ -1186,17 +1186,17 @@ The command prints the new tab's ID. Keep it: it is the handle for `send-termina
 
 ```bash
 # Run something in the agent's active terminal
-maestro-cli send-terminal "npm test"
+openwizardai-cli send-terminal "npm test"
 
 # Target a terminal by the ID open-terminal printed, or by its tab name
-maestro-cli send-terminal --tab <tab-id> "git status"
-maestro-cli send-terminal --tab "Dev server" "npm run build"
+openwizardai-cli send-terminal --tab <tab-id> "git status"
+openwizardai-cli send-terminal --tab "Dev server" "npm run build"
 
 # Stop whatever is running (Ctrl-C)
-maestro-cli send-terminal --tab "Dev server" --control C
+openwizardai-cli send-terminal --tab "Dev server" --control C
 
 # Type the command but leave it unexecuted, so a human can read it first
-maestro-cli send-terminal --no-enter "rm -rf ./dist"
+openwizardai-cli send-terminal --no-enter "rm -rf ./dist"
 ```
 
 | Flag                 | Description                                                  | Default                     |
@@ -1219,18 +1219,18 @@ Notes:
 
 ```bash
 # Last 200 lines of the agent's active terminal
-maestro-cli read-terminal
+openwizardai-cli read-terminal
 
 # Target a specific tab, by ID or by name
-maestro-cli read-terminal --tab <tab-id>
-maestro-cli read-terminal --tab "Dev server" --tail 50
+openwizardai-cli read-terminal --tab <tab-id>
+openwizardai-cli read-terminal --tab "Dev server" --tail 50
 
 # Run something, then read what it printed
-maestro-cli send-terminal --tab "Dev server" "npm run build" && \
-    sleep 5 && maestro-cli read-terminal --tab "Dev server"
+openwizardai-cli send-terminal --tab "Dev server" "npm run build" && \
+    sleep 5 && openwizardai-cli read-terminal --tab "Dev server"
 
 # Structured output - `busy` tells you whether the command is still running
-maestro-cli read-terminal --tab "Dev server" --json
+openwizardai-cli read-terminal --tab "Dev server" --json
 ```
 
 | Flag                 | Description                          | Default                     |
@@ -1254,9 +1254,9 @@ Notes:
 Terminal tabs live in the desktop app, so this asks the running app rather than reading from disk.
 
 ```bash
-maestro-cli list terminals              # every agent
-maestro-cli list terminals -a <agent-id>
-maestro-cli list terminals --json
+openwizardai-cli list terminals              # every agent
+openwizardai-cli list terminals -a <agent-id>
+openwizardai-cli list terminals --json
 ```
 
 Each row is `state | active-marker | tabId | agent | name | cwd`, with the startup command appended when the tab has one. `*` marks the agent's active terminal (the one `send-terminal` writes to by default).
@@ -1266,7 +1266,7 @@ Each row is `state | active-marker | tabId | agent | name | cwd`, with the start
 Refresh the file tree sidebar after creating multiple files or making significant filesystem changes:
 
 ```bash
-maestro-cli refresh-files [--agent <id>] [--background]
+openwizardai-cli refresh-files [--agent <id>] [--background]
 ```
 
 This one never disturbs you: it renders no notice and moves no selection, since the Files panel it refreshes is only drawn for the agent already on screen. `--background` is accepted and ignored, so an agent that passes it on every command does not get a usage error here.
@@ -1276,7 +1276,7 @@ This one never disturbs you: it renders no notice and moves no selection, since 
 Refresh the Auto Run document list after creating or modifying auto-run documents:
 
 ```bash
-maestro-cli refresh-auto-run [--agent <id>] [--background | --focus]
+openwizardai-cli refresh-auto-run [--agent <id>] [--background | --focus]
 ```
 
 Unflagged (or with `--background`), this never moves the view: an agent already on screen is refreshed silently, and an off-screen one is left alone, since its documents are re-read the moment you switch to it anyway. `--focus` **switches to the target agent** and flashes the document count on screen. This is the one verb whose default is background, because a focusing refresh only ever moved you when you were looking at a different agent.
@@ -1297,13 +1297,13 @@ Surface notifications in the running desktop app from any script, hook, or agent
 
 Both commands accept `--color`, one of five canonical values:
 
-| Color    | Looks like                  | When to use                                                         |
-| -------- | --------------------------- | ------------------------------------------------------------------- |
-| `theme`  | Active Maestro theme accent | **Default.** Generic confirmation with no semantic                  |
-| `green`  | Success green               | Succeeded ("Build passed", "Tests green", "Deploy complete")        |
-| `yellow` | Warning yellow              | Soft heads-up ("Quota at 60%", "Slow query detected")               |
-| `orange` | Warm orange (`#f97316`)     | More emphatic warning ("Approaching context limit", "Quota at 90%") |
-| `red`    | Error red                   | Failure / blocked ("CI failed", "Auth expired", "Sync error")       |
+| Color    | Looks like                       | When to use                                                         |
+| -------- | -------------------------------- | ------------------------------------------------------------------- |
+| `theme`  | Active OpenWizardAI theme accent | **Default.** Generic confirmation with no semantic                  |
+| `green`  | Success green                    | Succeeded ("Build passed", "Tests green", "Deploy complete")        |
+| `yellow` | Warning yellow                   | Soft heads-up ("Quota at 60%", "Slow query detected")               |
+| `orange` | Warm orange (`#f97316`)          | More emphatic warning ("Approaching context limit", "Quota at 90%") |
+| `red`    | Error red                        | Failure / blocked ("CI failed", "Auth expired", "Sync error")       |
 
 Pick `theme` when you don't have an opinion - the flash/toast will visually match whatever theme the user is running.
 
@@ -1311,47 +1311,47 @@ Pick `theme` when you don't have an opinion - the flash/toast will visually matc
 
 ```bash
 # Default - themed, queue-based, auto-dismisses on the app's default schedule.
-maestro-cli notify toast "Build" "Compiled in 3.2s"
+openwizardai-cli notify toast "Build" "Compiled in 3.2s"
 
 # Pick a color and a custom timeout (in seconds, max 60).
-maestro-cli notify toast "Tests" "All green" --color green --timeout 10
-maestro-cli notify toast "Quota" "Approaching limit" --color orange --timeout 30
-maestro-cli notify toast "Tests failing" "12 failures in auth.test.ts" --color red
+openwizardai-cli notify toast "Tests" "All green" --color green --timeout 10
+openwizardai-cli notify toast "Quota" "Approaching limit" --color orange --timeout 30
+openwizardai-cli notify toast "Tests failing" "12 failures in auth.test.ts" --color red
 
 # Sticky - user must click to dismiss. Cannot combine with --timeout.
-maestro-cli notify toast "Action required" "Approve the PR before EOD" \
+openwizardai-cli notify toast "Action required" "Approve the PR before EOD" \
     --color red --dismissible
 
 # Toast linked to an agent (clicking jumps to it).
-maestro-cli notify toast "Auto Run done" "All tasks completed" --agent <agent-id>
+openwizardai-cli notify toast "Auto Run done" "All tasks completed" --agent <agent-id>
 
 # Jump to a specific AI tab inside the agent.
-maestro-cli notify toast "Diff ready" "Switch to review tab" \
+openwizardai-cli notify toast "Diff ready" "Switch to review tab" \
     --agent <agent-id> --tab <tab-id>
 
 # Open a file in the agent's File Preview pane on click.
-maestro-cli notify toast "Patch ready" "Open the diff" \
+openwizardai-cli notify toast "Patch ready" "Open the diff" \
     --agent <agent-id> --open-file src/foo.ts
 
 # Focus one of the agent's terminal tabs on click. The value is a tab id or
 # its name; bare --open-terminal lands on the agent's active terminal tab.
-maestro-cli notify toast "Dev server crashed" "Exit code 1" \
+openwizardai-cli notify toast "Dev server crashed" "Exit code 1" \
     --agent <agent-id> --open-terminal "Dev server"
 
 # Open a URL in an in-app browser tab on the agent, or focus a browser tab
 # that is already open (the id `open-browser` printed).
-maestro-cli notify toast "Preview ready" "localhost:3000" \
+openwizardai-cli notify toast "Preview ready" "localhost:3000" \
     --agent <agent-id> --open-browser http://localhost:3000
-maestro-cli notify toast "Docs updated" "Back to the page you had open" \
+openwizardai-cli notify toast "Docs updated" "Back to the page you had open" \
     --agent <agent-id> --open-browser-tab <browser-tab-id>
 
-# Open an external URL in the system browser on click (outside Maestro).
-maestro-cli notify toast "Run finished" "View logs" \
+# Open an external URL in the system browser on click (outside OpenWizardAI).
+openwizardai-cli notify toast "Run finished" "View logs" \
     --open-url https://example.com/logs
 
 # Render an inline action link beneath the message body (separate from
 # the body click). Useful for "view PR" style affordances.
-maestro-cli notify toast "PR opened" "Auto Run completed" \
+openwizardai-cli notify toast "PR opened" "Auto Run completed" \
     --agent <agent-id> \
     --action-url https://github.com/org/repo/pull/42 --action-label "View PR"
 ```
@@ -1367,7 +1367,7 @@ maestro-cli notify toast "PR opened" "Auto Run completed" \
 | `--open-terminal [tab]`   | On click, focus a terminal tab on the agent (id or name; bare = its active one). Requires `--agent` |
 | `--open-browser <url>`    | On click, open the URL in a new in-app browser tab on the agent. Requires `--agent`                 |
 | `--open-browser-tab <id>` | On click, focus an existing in-app browser tab. Requires `--agent`                                  |
-| `--open-url <url>`        | On click, open the URL in the system browser (outside Maestro)                                      |
+| `--open-url <url>`        | On click, open the URL in the system browser (outside OpenWizardAI)                                 |
 | `--action-url <url>`      | Inline link rendered beneath the message body (separate from the body click - opens in browser)     |
 | `--action-label <text>`   | Label for `--action-url` (defaults to the URL itself); requires `--action-url`                      |
 | `--json`                  | JSON output for scripting                                                                           |
@@ -1378,15 +1378,15 @@ The body-click hierarchy is: the `--open-*` flags (mutually exclusive with each 
 
 ```bash
 # Default - themed, auto-dismisses after 1.5s.
-maestro-cli notify flash "Deployed"
+openwizardai-cli notify flash "Deployed"
 
 # Pick a color. Use --timeout in seconds (max 5).
-maestro-cli notify flash "Tests passed" --color green
-maestro-cli notify flash "Production deploy starting" --color orange --detail "v1.42.0"
-maestro-cli notify flash "CI failed on main" --color red --timeout 5
+openwizardai-cli notify flash "Tests passed" --color green
+openwizardai-cli notify flash "Production deploy starting" --color orange --detail "v1.42.0"
+openwizardai-cli notify flash "CI failed on main" --color red --timeout 5
 
 # Add a second line of detail.
-maestro-cli notify flash "Cache cleared" --detail "1.2 GB freed" --timeout 3
+openwizardai-cli notify flash "Cache cleared" --detail "1.2 GB freed" --timeout 3
 ```
 
 | Flag            | Description                                                    |
@@ -1408,37 +1408,37 @@ Set up and optionally launch an auto-run session with one or more markdown docum
 
 ```bash
 # Configure documents for auto-run
-maestro-cli auto-run doc1.md doc2.md
+openwizardai-cli auto-run doc1.md doc2.md
 
 # Configure and immediately launch
-maestro-cli auto-run doc1.md doc2.md --agent <agent-id> --launch
+openwizardai-cli auto-run doc1.md doc2.md --agent <agent-id> --launch
 
 # Add a custom prompt for the agent
-maestro-cli auto-run doc1.md --prompt "Focus on test coverage"
+openwizardai-cli auto-run doc1.md --prompt "Focus on test coverage"
 
 # Save as a reusable playbook
-maestro-cli auto-run doc1.md doc2.md --save-as "Auth Rewrite"
+openwizardai-cli auto-run doc1.md doc2.md --save-as "Auth Rewrite"
 
 # Enable looping (re-run documents after completion)
-maestro-cli auto-run doc1.md --loop --launch
+openwizardai-cli auto-run doc1.md --loop --launch
 
 # Loop with a maximum number of iterations
-maestro-cli auto-run doc1.md --loop --max-loops 3 --launch
+openwizardai-cli auto-run doc1.md --loop --max-loops 3 --launch
 
 # Reset task checkboxes on completion (useful with looping)
-maestro-cli auto-run doc1.md --reset-on-completion --loop --launch
+openwizardai-cli auto-run doc1.md --reset-on-completion --loop --launch
 
 # Run the auto-run inside a fresh git worktree on a dedicated branch
-maestro-cli auto-run doc1.md --agent <agent-id> --launch \
+openwizardai-cli auto-run doc1.md --agent <agent-id> --launch \
   --worktree --branch feature/auto-x --worktree-path ../repo-auto-x
 
 # Open a PR against the repo's default branch when the auto-run finishes
-maestro-cli auto-run doc1.md --agent <agent-id> --launch \
+openwizardai-cli auto-run doc1.md --agent <agent-id> --launch \
   --worktree --branch feature/auto-x --worktree-path ../repo-auto-x \
   --create-pr
 
 # Target a specific base branch for the PR
-maestro-cli auto-run doc1.md --agent <agent-id> --launch \
+openwizardai-cli auto-run doc1.md --agent <agent-id> --launch \
   --worktree --branch feature/auto-x --worktree-path ../repo-auto-x \
   --create-pr --pr-target-branch develop
 ```
@@ -1470,28 +1470,28 @@ Once an Auto Run is going, these commands stop it or recover it from an error pa
 
 ```bash
 # Stop the active Auto Run for an agent
-maestro-cli stop-auto-run -a <agent-id>
+openwizardai-cli stop-auto-run -a <agent-id>
 
 # When an Auto Run pauses on an error, choose how to proceed:
-maestro-cli resume-auto-run -a <agent-id>   # clear the error and continue
-maestro-cli skip-auto-run -a <agent-id>     # skip the failing document, continue with the next
-maestro-cli abort-auto-run -a <agent-id>    # stop the run entirely
+openwizardai-cli resume-auto-run -a <agent-id>   # clear the error and continue
+openwizardai-cli skip-auto-run -a <agent-id>     # skip the failing document, continue with the next
+openwizardai-cli abort-auto-run -a <agent-id>    # stop the run entirely
 
 # Revert all completed [x] tasks back to [ ] in one document so it can re-run
-maestro-cli reset-auto-run-tasks loop/step-1.md -a <agent-id>
+openwizardai-cli reset-auto-run-tasks loop/step-1.md -a <agent-id>
 
 # Delete a saved playbook (find IDs with "list playbooks -a <agent-id>")
-maestro-cli remove-playbook <agent-id> <playbook-id>
+openwizardai-cli remove-playbook <agent-id> <playbook-id>
 ```
 
 The filename for `reset-auto-run-tasks` is relative to the agent's Auto Run folder; absolute paths and `..` traversal are rejected.
 
 ### Checking Status
 
-Check if the Maestro desktop app is running and reachable:
+Check if the OpenWizardAI desktop app is running and reachable:
 
 ```bash
-maestro-cli status
+openwizardai-cli status
 ```
 
 Returns the app version, uptime, and connection status.
@@ -1501,8 +1501,8 @@ Returns the app version, uptime, and connection status.
 When a command isn't working, `doctor` runs a checklist covering the most common causes in one shot: the desktop app reachable, the running build's version vs. this CLI's, whether the running app understands newer commands, and whether configured SSH remotes are well-formed.
 
 ```bash
-maestro-cli doctor
-maestro-cli doctor --json
+openwizardai-cli doctor
+openwizardai-cli doctor --json
 ```
 
 ```
@@ -1514,7 +1514,7 @@ maestro-cli doctor --json
   ✓ SSH remotes - 2 configured, all well-formed
 ```
 
-The version and "App handles commands" checks catch the most common gotcha: a freshly-built CLI talking to an older desktop app that's still running. When the app is behind, new commands fail because their handlers don't exist in the running build - rebuild and restart the desktop app. The CLI surfaces this directly: a command the running app doesn't recognize fails fast with "The running Maestro app does not support the '...' command" instead of a generic timeout.
+The version and "App handles commands" checks catch the most common gotcha: a freshly-built CLI talking to an older desktop app that's still running. When the app is behind, new commands fail because their handlers don't exist in the running build - rebuild and restart the desktop app. The CLI surfaces this directly: a command the running app doesn't recognize fails fast with "The running OpenWizardAI app does not support the '...' command" instead of a generic timeout.
 
 ### Shell Completions
 
@@ -1522,74 +1522,74 @@ Generate a completion script for your shell and source it:
 
 ```bash
 # zsh - add to a directory on your fpath, or source from ~/.zshrc
-maestro-cli completions zsh > ~/.maestro-cli-completion.zsh
-echo 'source ~/.maestro-cli-completion.zsh' >> ~/.zshrc
+openwizardai-cli completions zsh > ~/.openwizardai-cli-completion.zsh
+echo 'source ~/.openwizardai-cli-completion.zsh' >> ~/.zshrc
 
 # bash
-maestro-cli completions bash >> ~/.bashrc
+openwizardai-cli completions bash >> ~/.bashrc
 
 # fish
-maestro-cli completions fish > ~/.config/fish/completions/maestro-cli.fish
+openwizardai-cli completions fish > ~/.config/fish/completions/openwizardai-cli.fish
 ```
 
-The script is generated by introspecting the live command tree, so regenerating it after a CLI upgrade picks up new commands and flags automatically. The full command list is also available as `maestro-cli reference` (Markdown or `--format json`); [docs/cli-reference.md](cli-reference.md) is generated from it via `npm run gen:cli-reference`.
+The script is generated by introspecting the live command tree, so regenerating it after a CLI upgrade picks up new commands and flags automatically. The full command list is also available as `openwizardai-cli reference` (Markdown or `--format json`); [docs/cli-reference.md](cli-reference.md) is generated from it via `npm run gen:cli-reference`.
 
 ## Cue Automation
 
-Interact with Maestro Cue subscriptions directly from the command line.
+Interact with OpenWizardAI Cue subscriptions directly from the command line.
 
 ### Listing Subscriptions
 
 List all Cue subscriptions across all agents:
 
 ```bash
-maestro-cli cue list
+openwizardai-cli cue list
 
 # JSON output (for scripting)
-maestro-cli cue list --json
+openwizardai-cli cue list --json
 ```
 
 Shows each subscription's name, event type, agent, enabled status, and last trigger time.
 
 ### Scheduling Tasks
 
-`cue schedule` is the command surface for anything time-driven: a one-shot reminder, a daily job, or a repeating check. It writes straight to the agent's `.maestro/cue.yaml`, so it works with the desktop app closed, and everything it creates shows up in the app under **Maestro Cue → Scheduled Tasks** (`maestro-cli open cue --tab scheduled`).
+`cue schedule` is the command surface for anything time-driven: a one-shot reminder, a daily job, or a repeating check. It writes straight to the agent's `.openwizardai/cue.yaml`, so it works with the desktop app closed, and everything it creates shows up in the app under **OpenWizardAI Cue → Scheduled Tasks** (`openwizardai-cli open cue --tab scheduled`).
 
 ```bash
 # One-shot, relative
-maestro-cli cue schedule --in 20m --agent "Cyber Stocks" --prompt "Check the deploy status."
+openwizardai-cli cue schedule --in 20m --agent "Cyber Stocks" --prompt "Check the deploy status."
 
 # One-shot, absolute (local wall clock or ISO-8601 with an offset)
-maestro-cli cue schedule --at "2026-08-20 16:00" --agent Pedsidian --notify --sticky --message "Push the rc branch"
+openwizardai-cli cue schedule --at "2026-08-20 16:00" --agent Pedsidian --notify --sticky --message "Push the rc branch"
 
 # Every weekday at 9am
-maestro-cli cue schedule --daily-at 09:00 --days mon,tue,wed,thu,fri --agent Pedsidian --prompt "Draft the standup notes."
+openwizardai-cli cue schedule --daily-at 09:00 --days mon,tue,wed,thu,fri --agent Pedsidian --prompt "Draft the standup notes."
 
 # Twice a day, every day
-maestro-cli cue schedule --daily-at 09:00,17:30 --agent Neema --prompt "Sweep the inbox."
+openwizardai-cli cue schedule --daily-at 09:00,17:30 --agent Neema --prompt "Sweep the inbox."
 
 # Every 30 minutes
-maestro-cli cue schedule --every 30m --agent "ODIN Market" --prompt "Poll the market feed."
+openwizardai-cli cue schedule --every 30m --agent "ODIN Market" --prompt "Poll the market feed."
 ```
 
 Inspect and edit what is scheduled:
 
 ```bash
 # Everything, across every agent
-maestro-cli cue schedule --list
+openwizardai-cli cue schedule --list
 
 # Only the repeating daily jobs, as JSON
-maestro-cli cue schedule --list --kind daily --json
+openwizardai-cli cue schedule --list --kind daily --json
 
 # Move a task's fire time (pass the timing flag that matches its kind)
-maestro-cli cue schedule --reschedule standup --daily-at 09:15
+openwizardai-cli cue schedule --reschedule standup --daily-at 09:15
 
 # Stop it firing without deleting it, then bring it back
-maestro-cli cue schedule --pause standup
-maestro-cli cue schedule --resume standup
+openwizardai-cli cue schedule --pause standup
+openwizardai-cli cue schedule --resume standup
 
 # Delete it
-maestro-cli cue schedule --cancel standup
+openwizardai-cli cue schedule --cancel standup
 ```
 
 | Flag                       | Description                                                              |
@@ -1628,13 +1628,13 @@ Manually trigger a Cue subscription by name, bypassing its normal event conditio
 
 ```bash
 # Trigger a subscription
-maestro-cli cue trigger <subscription-name>
+openwizardai-cli cue trigger <subscription-name>
 
 # Trigger with a custom prompt (overrides the configured prompt)
-maestro-cli cue trigger <subscription-name> --prompt "Deploy to staging only"
+openwizardai-cli cue trigger <subscription-name> --prompt "Deploy to staging only"
 
 # JSON output (for scripting)
-maestro-cli cue trigger <subscription-name> --json
+openwizardai-cli cue trigger <subscription-name> --json
 ```
 
 | Flag                     | Description                                                          |
@@ -1649,13 +1649,13 @@ The `--prompt` flag is especially useful for `cli.trigger` subscriptions, where 
 
 ```bash
 # Trigger a review pipeline after finishing work
-maestro-cli cue trigger "code-review" --prompt "Review the changes in the auth module"
+openwizardai-cli cue trigger "code-review" --prompt "Review the changes in the auth module"
 
 # Trigger a deploy from CI
-maestro-cli cue trigger "deploy" --prompt "Deploy commit abc123 to production" --json
+openwizardai-cli cue trigger "deploy" --prompt "Deploy commit abc123 to production" --json
 
 # Re-run a failed automation
-maestro-cli cue trigger "lint-on-save"
+openwizardai-cli cue trigger "lint-on-save"
 ```
 
 ## Director's Notes
@@ -1664,17 +1664,17 @@ Director's Notes is an Encore feature (`encoreFeatures.directorNotes`) that buil
 
 ```bash
 # Show recent unified history (last N days, default 7)
-maestro-cli director-notes history -d 3
+openwizardai-cli director-notes history -d 3
 
 # Limit to user-initiated entries only
-maestro-cli director-notes history --filter user -l 50
+openwizardai-cli director-notes history --filter user -l 50
 
 # Markdown output for piping into a doc
-maestro-cli director-notes history -f markdown -d 1
+openwizardai-cli director-notes history -f markdown -d 1
 
 # AI synopsis of the past day (requires the desktop app running)
-maestro-cli director-notes synopsis -d 1
-maestro-cli director-notes synopsis --json
+openwizardai-cli director-notes synopsis -d 1
+openwizardai-cli director-notes synopsis --json
 ```
 
 | Subcommand | Flag                  | Description                                                              |
@@ -1685,26 +1685,26 @@ maestro-cli director-notes synopsis --json
 | `history`  | `--filter <type>`     | Filter by entry type: `auto`, `user`, `cue`                              |
 | `history`  | `-l, --limit <n>`     | Maximum entries to show (default 100)                                    |
 
-`synopsis` requires the desktop app to be running; `history` reads from disk and works offline. If `encoreFeatures.directorNotes` is disabled, enable it first with `maestro-cli settings set encoreFeatures.directorNotes true`.
+`synopsis` requires the desktop app to be running; `history` reads from disk and works offline. If `encoreFeatures.directorNotes` is disabled, enable it first with `openwizardai-cli settings set encoreFeatures.directorNotes true`.
 
-The provider follows the app's Director's Notes setting. By default that is "use the first available provider", so the desktop picks an installed agent when the run starts and `--json` reports which one actually ran. Pin it with `maestro-cli settings set directorNotesSettings.autoSelectProvider false`.
+The provider follows the app's Director's Notes setting. By default that is "use the first available provider", so the desktop picks an installed agent when the run starts and `--json` reports which one actually ran. Pin it with `openwizardai-cli settings set directorNotesSettings.autoSelectProvider false`.
 
 ## Publishing Session Transcripts to Gists
 
-Publish an agent's session transcript to a GitHub gist so you can share it with collaborators or attach it to a bug report. Routes through the running Maestro desktop app (which holds the live transcript) and uses the user's authenticated `gh` CLI under the hood.
+Publish an agent's session transcript to a GitHub gist so you can share it with collaborators or attach it to a bug report. Routes through the running OpenWizardAI desktop app (which holds the live transcript) and uses the user's authenticated `gh` CLI under the hood.
 
 ```bash
 # Create a private gist (default)
-maestro-cli gist create <agent-id>
+openwizardai-cli gist create <agent-id>
 
 # Add a description
-maestro-cli gist create <agent-id> -d "Auth refactor pairing session"
+openwizardai-cli gist create <agent-id> -d "Auth refactor pairing session"
 
 # Make it public
-maestro-cli gist create <agent-id> --public -d "Repro for issue #1234"
+openwizardai-cli gist create <agent-id> --public -d "Repro for issue #1234"
 
 # Publish one provider session instead of the agent's open tabs
-maestro-cli gist create <agent-id> --session <session-id>
+openwizardai-cli gist create <agent-id> --session <session-id>
 ```
 
 | Flag                       | Description                                                        | Default        |
@@ -1721,48 +1721,48 @@ Output is JSON with the gist URL on success:
 
 ### Publishing a headless session
 
-Without `--session`, `gist create` publishes the transcripts of the agent's **open AI tabs** in the desktop app. Headless callers (chat bridges, playbooks, Cue pipelines, CI) run their conversations with `maestro-cli send -s <session-id>` and have no tab, so for them that publishes an unrelated conversation - and a gist is readable by anyone holding the URL.
+Without `--session`, `gist create` publishes the transcripts of the agent's **open AI tabs** in the desktop app. Headless callers (chat bridges, playbooks, Cue pipelines, CI) run their conversations with `openwizardai-cli send -s <session-id>` and have no tab, so for them that publishes an unrelated conversation - and a gist is readable by anyone holding the URL.
 
 Pass the same session id you sent with:
 
 ```bash
-SESSION=$(maestro-cli send <agent-id> "..." | jq -r .sessionId)
-maestro-cli send <agent-id> "follow-up" -s "$SESSION"
-maestro-cli gist create <agent-id> --session "$SESSION"
+SESSION=$(openwizardai-cli send <agent-id> "..." | jq -r .sessionId)
+openwizardai-cli send <agent-id> "follow-up" -s "$SESSION"
+openwizardai-cli gist create <agent-id> --session "$SESSION"
 ```
 
 The desktop app publishes that session and nothing else: it uses the open tab holding the session when there is one, otherwise it reads the provider's stored transcript (SSH remotes included). If the session cannot be found it fails with `GIST_CREATE_FAILED` rather than falling back to the open tabs. The response echoes `agentSessionId` so you can confirm what was published.
 
-Requires the Maestro desktop app to be running and `gh` to be authenticated (`gh auth login`). Error codes: `AGENT_NOT_FOUND`, `INVALID_SESSION`, `MAESTRO_NOT_RUNNING`, `GIST_CREATE_FAILED`.
+Requires the OpenWizardAI desktop app to be running and `gh` to be authenticated (`gh auth login`). Error codes: `AGENT_NOT_FOUND`, `INVALID_SESSION`, `OPENWIZARDAI_NOT_RUNNING`, `GIST_CREATE_FAILED`.
 
 ## Scheduling with Cron
 
 ```bash
 # Run a playbook every hour (use --json for log parsing)
-0 * * * * /usr/local/bin/maestro-cli playbook <playbook-id> --json >> /var/log/maestro.jsonl 2>&1
+0 * * * * /usr/local/bin/openwizardai-cli playbook <playbook-id> --json >> /var/log/openwizardai.jsonl 2>&1
 ```
 
 ## Agent Integration
 
-Maestro agents are automatically informed about `maestro-cli` through the system prompt. Each agent receives the platform-appropriate CLI invocation command via the `{{MAESTRO_CLI_PATH}}` template variable, which resolves to the full `node "/path/to/maestro-cli.js"` command for the current OS.
+OpenWizardAI agents are automatically informed about `openwizardai-cli` through the system prompt. Each agent receives the platform-appropriate CLI invocation command via the `{{OPENWIZARDAI_CLI_PATH}}` template variable, which resolves to the full `node "/path/to/openwizardai-cli.js"` command for the current OS.
 
 This means agents can:
 
-- **Read settings** to understand the current Maestro configuration
+- **Read settings** to understand the current OpenWizardAI configuration
 - **Change settings** on behalf of the user (e.g., "switch to the nord theme", "increase font size")
 - **Manage agent configs** (e.g., "set the Codex context window to 128000")
 - **List resources** like agents, groups, and playbooks
-- **Open files** in the Maestro file preview tab
+- **Open files** in the OpenWizardAI file preview tab
 - **Refresh the file tree** after creating or modifying files
 - **Configure and launch auto-runs** with documents they create
 - **Send messages** to other agents for inter-agent coordination
 - **Discover Cue subscriptions** with `cue list` and **trigger automation pipelines** with `cue trigger`
 
-When a user asks an agent to change a Maestro setting, the agent can use the CLI directly rather than instructing the user to navigate the settings modal. Changes take effect instantly.
+When a user asks an agent to change an OpenWizardAI setting, the agent can use the CLI directly rather than instructing the user to navigate the settings modal. Changes take effect instantly.
 
 The system prompt instructs agents to use `settings list -v` to discover available settings with descriptions, giving them full context to reason about configuration changes.
 
 ## Requirements
 
 - At least one AI agent CLI must be installed and in PATH (Claude Code, Codex, or OpenCode)
-- Maestro config files must exist (created automatically when you use the GUI)
+- OpenWizardAI config files must exist (created automatically when you use the GUI)

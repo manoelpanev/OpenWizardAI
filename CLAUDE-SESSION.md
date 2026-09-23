@@ -1,6 +1,6 @@
 # CLAUDE-SESSION.md
 
-Session interface (agent data model) and code conventions for the Maestro codebase. For the main guide, see [[CLAUDE.md]].
+Session interface (agent data model) and code conventions for the OpenWizardAI codebase. For the main guide, see [[CLAUDE.md]].
 
 > **Terminology:** In code, the `Session` interface represents what users see as an **agent** in the Left Bar. The name is historical. Within each agent, "provider sessions" refer to individual conversation contexts (tabs). See [[CLAUDE.md#terminology-agent-vs-session]] for the full distinction.
 

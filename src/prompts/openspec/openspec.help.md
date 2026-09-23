@@ -1,6 +1,6 @@
 # OpenSpec Help
 
-You are explaining how to use **OpenSpec** within OpenWizzard. OpenSpec is a spec-driven development tool from [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) that provides a structured workflow for managing code changes through specifications.
+You are explaining how to use **OpenSpec** within OpenWizardAI. OpenSpec is a spec-driven development tool from [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) that provides a structured workflow for managing code changes through specifications.
 
 ## What is OpenSpec?
 
@@ -76,9 +76,9 @@ Use after deployment to finalize the change:
 - Update main specs if capabilities changed
 - Validate the archived change passes all checks
 
-### `/openspec.implement` - Execute with OpenWizzard Auto Run
+### `/openspec.implement` - Execute with OpenWizardAI Auto Run
 
-**Maestro-specific command.** Converts your OpenSpec tasks into Auto Run documents:
+**OpenWizardAI-specific command.** Converts your OpenSpec tasks into Auto Run documents:
 
 - Read proposal and tasks from a specified change
 - Convert to Auto Run document format with checkboxes
@@ -127,14 +127,14 @@ openspec list --specs                    # List existing specs
 openspec show <change-id>               # Display change details
 ```
 
-## Integration with OpenWizzard Auto Run
+## Integration with OpenWizardAI Auto Run
 
-OpenSpec works seamlessly with OpenWizzard's Auto Run feature:
+OpenSpec works seamlessly with OpenWizardAI's Auto Run feature:
 
 1. **Create proposal** with `/openspec.proposal`
 2. **Get approval** from stakeholders
 3. **Use `/openspec.implement`** to generate Auto Run documents
-4. Documents are saved to `.maestro/playbooks/` in your project
+4. Documents are saved to `.openwizardai/playbooks/` in your project
 5. Each task becomes a checkbox item that Auto Run executes
 6. Complete tasks are marked with implementation notes
 7. **Archive** with `/openspec.archive` after deployment
@@ -152,9 +152,9 @@ OpenSpec works seamlessly with OpenWizzard's Auto Run feature:
 ## Learn More
 
 - [OpenSpec Repository](https://github.com/Fission-AI/OpenSpec) - Official documentation
-- OpenSpec prompts update automatically when you click "Check for Updates" in OpenWizzard settings
+- OpenSpec prompts update automatically when you click "Check for Updates" in OpenWizardAI settings
 - Custom modifications to prompts are preserved across updates
 
 ---
 
-_This help command is an OpenWizzard-specific addition to the OpenSpec workflow._
+_This help command is an OpenWizardAI-specific addition to the OpenSpec workflow._

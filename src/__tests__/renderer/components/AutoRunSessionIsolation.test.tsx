@@ -135,9 +135,9 @@ vi.mock('../../../renderer/components/TemplateAutocompleteDropdown', () => ({
 	TemplateAutocompleteDropdown: React.forwardRef(() => null),
 }));
 
-// Setup window.maestro mock
-const setupMaestroMock = () => {
-	const mockMaestro = {
+// Setup window.openwizardai mock
+const setupOpenWizardAIMock = () => {
+	const mockOpenWizardAI = {
 		fs: {
 			readFile: vi.fn().mockResolvedValue('data:image/png;base64,abc123'),
 			readDir: vi.fn().mockResolvedValue([]),
@@ -154,8 +154,8 @@ const setupMaestroMock = () => {
 		},
 	};
 
-	(window as any).maestro = mockMaestro;
-	return mockMaestro;
+	(window as any).openwizardai = mockOpenWizardAI;
+	return mockOpenWizardAI;
 };
 
 // Default props for AutoRun component
@@ -177,10 +177,10 @@ const createDefaultProps = (overrides: Partial<React.ComponentProps<typeof AutoR
 });
 
 describe('AutoRun Session Isolation', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -197,7 +197,7 @@ describe('AutoRun Session Isolation', () => {
 
 			const propsA = createDefaultProps({
 				sessionId: 'session-a',
-				folderPath: '/projects/session-a/.maestro/playbooks',
+				folderPath: '/projects/session-a/.openwizardai/playbooks',
 				selectedFile: 'Phase 1',
 				content: sessionAContent,
 			});
@@ -214,7 +214,7 @@ describe('AutoRun Session Isolation', () => {
 			// Now switch to Session B - the content should reset to Session B's content
 			const propsB = createDefaultProps({
 				sessionId: 'session-b',
-				folderPath: '/projects/session-b/.maestro/playbooks',
+				folderPath: '/projects/session-b/.openwizardai/playbooks',
 				selectedFile: 'Phase 1',
 				content: sessionBContent,
 			});
@@ -226,7 +226,7 @@ describe('AutoRun Session Isolation', () => {
 
 			// Verify writeDoc was NOT called when switching sessions
 			// (unsaved changes from Session A should be discarded, not auto-saved)
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('switching back to Session A shows its content (not modified content from earlier)', async () => {
@@ -287,7 +287,7 @@ describe('AutoRun Session Isolation', () => {
 			rerender(<AutoRun {...propsB} />);
 
 			// Verify no writeDoc was called for Session A's folder/file
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalledWith(
 				'/path/a',
 				'doc-a.md',
 				expect.anything()
@@ -339,7 +339,7 @@ describe('AutoRun Session Isolation', () => {
 			rerender(<AutoRun {...props} selectedFile="doc2" content="Doc 2 content" />);
 
 			// No auto-save should occur
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 	});
 
@@ -411,7 +411,7 @@ describe('AutoRun Session Isolation', () => {
 			fireEvent.click(saveButton);
 
 			// Should save to correct path
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/session-a-folder',
 				'my-doc.md',
 				'New content',
@@ -419,7 +419,7 @@ describe('AutoRun Session Isolation', () => {
 			);
 
 			// Should NOT be called with any other path
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledTimes(1);
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledTimes(1);
 		});
 
 		it('revert restores saved content without writing to disk', async () => {
@@ -445,7 +445,7 @@ describe('AutoRun Session Isolation', () => {
 			expect(textarea).toHaveValue(originalContent);
 
 			// No disk write should occur
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 	});
 
@@ -522,7 +522,7 @@ describe('AutoRun Session Isolation', () => {
 			expect(textarea).toHaveValue(finalSession.content);
 
 			// No writes should have occurred during switching
-			expect(mockMaestro.autorun.writeDoc).not.toHaveBeenCalled();
+			expect(mockOpenWizardAI.autorun.writeDoc).not.toHaveBeenCalled();
 		});
 
 		it('edits during rapid switches are isolated', async () => {
@@ -612,7 +612,7 @@ describe('AutoRun Session Isolation', () => {
 				await ref.current?.save();
 			});
 
-			expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+			expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 				'/folder-a',
 				'doc-a.md',
 				'Modified',
@@ -623,10 +623,10 @@ describe('AutoRun Session Isolation', () => {
 });
 
 describe('AutoRun Folder Path Isolation', () => {
-	let mockMaestro: ReturnType<typeof setupMaestroMock>;
+	let mockOpenWizardAI: ReturnType<typeof setupOpenWizardAIMock>;
 
 	beforeEach(() => {
-		mockMaestro = setupMaestroMock();
+		mockOpenWizardAI = setupOpenWizardAIMock();
 		vi.useFakeTimers({ shouldAdvanceTime: true });
 	});
 
@@ -638,7 +638,7 @@ describe('AutoRun Folder Path Isolation', () => {
 	it('different sessions can have different folder paths', async () => {
 		const propsA = createDefaultProps({
 			sessionId: 'session-a',
-			folderPath: '/projects/alpha/.maestro/playbooks',
+			folderPath: '/projects/alpha/.openwizardai/playbooks',
 			selectedFile: 'Phase 1',
 			content: 'Alpha project content',
 		});
@@ -651,7 +651,7 @@ describe('AutoRun Folder Path Isolation', () => {
 		// Switch to session B with different folder
 		const propsB = createDefaultProps({
 			sessionId: 'session-b',
-			folderPath: '/projects/beta/.maestro/playbooks',
+			folderPath: '/projects/beta/.openwizardai/playbooks',
 			selectedFile: 'Phase 1',
 			content: 'Beta project content',
 		});
@@ -675,7 +675,7 @@ describe('AutoRun Folder Path Isolation', () => {
 
 		fireEvent.click(screen.getByText('Save'));
 
-		expect(mockMaestro.autorun.writeDoc).toHaveBeenCalledWith(
+		expect(mockOpenWizardAI.autorun.writeDoc).toHaveBeenCalledWith(
 			'/unique/session/path',
 			'unique-doc.md',
 			'Changed',

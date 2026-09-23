@@ -1,6 +1,6 @@
 /**
  * Helpers for resolving Group Chat !autorun document references against
- * Maestro's Auto Run document list.
+ * OpenWizardAI's Auto Run document list.
  */
 
 function normalizePathSlashes(value: string): string {

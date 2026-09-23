@@ -766,7 +766,7 @@ describe('GroupChatHistoryPanel', () => {
 			useGroupChatStore.setState({ groupChatViewPrefs: {} });
 			// Back to "nothing saved" so a lookback stub from one test cannot
 			// answer another test's read.
-			vi.mocked(window.maestro.settings.get).mockResolvedValue(undefined);
+			vi.mocked(window.openwizardai.settings.get).mockResolvedValue(undefined);
 		});
 
 		it('swaps the pills when the chat changes, without a remount', () => {
@@ -805,7 +805,7 @@ describe('GroupChatHistoryPanel', () => {
 			// 1 hour is not a selectable option, and an unrecognised value renders
 			// as the 24h default, so chat A uses a real option (1 week) for the
 			// assertion to mean anything.
-			vi.mocked(window.maestro.settings.get).mockImplementation(async (key: string) =>
+			vi.mocked(window.openwizardai.settings.get).mockImplementation(async (key: string) =>
 				key === 'groupChatHistoryLookback:chat-a' ? 168 : undefined
 			);
 
@@ -826,7 +826,7 @@ describe('GroupChatHistoryPanel', () => {
 			// The slow read belongs to chat-a. It resolves only after the panel has
 			// already moved to chat-b, and must not repaint chat-b with it.
 			let releaseSlowRead: (value: unknown) => void = () => {};
-			vi.mocked(window.maestro.settings.get).mockImplementation((key: string) => {
+			vi.mocked(window.openwizardai.settings.get).mockImplementation((key: string) => {
 				if (key === 'groupChatHistoryLookback:chat-a') {
 					return new Promise((resolve) => {
 						releaseSlowRead = resolve;

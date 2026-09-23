@@ -12,7 +12,7 @@ export const KEYBOARD_MASTERY_LEVELS: readonly KeyboardMasteryLevelDef[] = [
 	{ id: 'student', name: 'Student', threshold: 25, description: 'Learning the basics' },
 	{ id: 'performer', name: 'Performer', threshold: 50, description: 'Getting comfortable' },
 	{ id: 'virtuoso', name: 'Virtuoso', threshold: 75, description: 'Almost there' },
-	{ id: 'maestro', name: 'Keyboard OpenWizzard', threshold: 100, description: 'Complete mastery' },
+	{ id: 'openwizardai', name: 'Keyboard Wizard', threshold: 100, description: 'Complete mastery' },
 ] as const;
 
 /**

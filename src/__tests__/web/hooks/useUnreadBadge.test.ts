@@ -15,7 +15,7 @@ import {
 } from '../../../web/hooks/useUnreadBadge';
 
 // Storage key used by the hook
-const UNREAD_RESPONSES_KEY = 'maestro_unread_responses';
+const UNREAD_RESPONSES_KEY = 'openwizardai_unread_responses';
 
 // Mock webLogger
 vi.mock('../../../web/utils/logger', () => ({

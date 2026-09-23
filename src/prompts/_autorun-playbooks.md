@@ -1,6 +1,6 @@
 ## Auto Run Documents (aka Playbooks)
 
-A **Playbook** is a collection of Auto Run documents - Markdown files with checkbox tasks (`- [ ]`) that OpenWizzard's Auto Run engine executes sequentially via AI agents. The **Playbook Exchange** is an official repository of community and curated playbooks users can browse and import directly into their sessions.
+A **Playbook** is a collection of Auto Run documents - Markdown files with checkbox tasks (`- [ ]`) that OpenWizardAI's Auto Run engine executes sequentially via AI agents. The **Playbook Exchange** is an official repository of community and curated playbooks users can browse and import directly into their sessions.
 
 When a user asks for a "playbook", "play book", "playbooks", "auto-run document", "autorun doc", or "auto run doc", follow the rules below exactly.
 
@@ -14,25 +14,25 @@ This folder may be outside your working directory (e.g., in a parent repository 
 
 These are two distinct actions and the user's phrasing tells you which (or both) they want:
 
-- **Authoring only** ("create a playbook for…", "draft an auto-run doc"): write the Markdown file(s) to `{{AUTORUN_FOLDER}}` and stop. Then run `maestro-cli refresh-auto-run` so the document appears in the Auto Run panel.
+- **Authoring only** ("create a playbook for…", "draft an auto-run doc"): write the Markdown file(s) to `{{AUTORUN_FOLDER}}` and stop. Then run `openwizardai-cli refresh-auto-run` so the document appears in the Auto Run panel.
 - **Launching** ("…and run it", "kick it off", "start the auto run", "create and run X"): after writing the doc, **launch it via the CLI** so the Auto Run engine drives execution and the user can watch progress in the UI:
 
   ```bash
-  {{MAESTRO_CLI_PATH}} auto-run <doc-path...> --launch --agent {{AGENT_ID}}
+  {{OPENWIZARDAI_CLI_PATH}} auto-run <doc-path...> --launch --agent {{AGENT_ID}}
   ```
 
   Useful flags: `--save-as "<name>"` to register it as a reusable playbook, `--loop` / `--max-loops <n>` for iterative runs, `--prompt "<extra instructions>"` to prepend per-task guidance, `--reset-on-completion` to uncheck boxes when finished.
 
-**Critical:** When the user asks you to _run_ an auto-run, do NOT execute the tasks yourself by reading the document and doing the work in this chat. That bypasses the Auto Run engine, leaves nothing in the UI, produces no playbook record, and loses the per-task fresh-context isolation that makes auto-runs reliable. Launching via `maestro-cli auto-run --launch` is the only correct path. Always pass `--agent {{AGENT_ID}}` so the run targets you (without it the CLI picks the first available agent).
+**Critical:** When the user asks you to _run_ an auto-run, do NOT execute the tasks yourself by reading the document and doing the work in this chat. That bypasses the Auto Run engine, leaves nothing in the UI, produces no playbook record, and loses the per-task fresh-context isolation that makes auto-runs reliable. Launching via `openwizardai-cli auto-run --launch` is the only correct path. Always pass `--agent {{AGENT_ID}}` so the run targets you (without it the CLI picks the first available agent).
 
 ### Playbook Type: Task-Based vs Document-Based
 
 Every playbook runs in one of two fresh-context modes. **When you create a playbook, explicitly tell the user which type it is** (one line is enough) so they know how it will execute:
 
-- **Task-based** - OpenWizzard spawns a fresh agent for each `- [ ]` task, with no memory of previous tasks. Maximum isolation; every task must be fully self-contained (see Task Format below). This is the default and the right choice for most agents.
+- **Task-based** - OpenWizardAI spawns a fresh agent for each `- [ ]` task, with no memory of previous tasks. Maximum isolation; every task must be fully self-contained (see Task Format below). This is the default and the right choice for most agents.
 - **Document-based** - a single agent walks every task in the document in one continuous session, carrying context forward between tasks. Appropriate only for agents with very large context windows (≥1M tokens), where a whole document's worth of work fits in one context.
 
-OpenWizzard auto-selects the mode from the running agent's context window - document-based at ≥1M tokens, task-based below that - and the user can override it per run. Because a playbook may run either way, **always author self-contained tasks** (Task Format below); document-based execution is an optimization, not a license to write tasks that depend on chat memory. After you create a playbook, state its type plainly, e.g. _"Created a task-based playbook - each task runs in a fresh agent context."_
+OpenWizardAI auto-selects the mode from the running agent's context window - document-based at ≥1M tokens, task-based below that - and the user can override it per run. Because a playbook may run either way, **always author self-contained tasks** (Task Format below); document-based execution is an optimization, not a license to write tasks that depend on chat memory. After you create a playbook, state its type plainly, e.g. _"Created a task-based playbook - each task runs in a fresh agent context."_
 
 ### File Naming
 
@@ -93,7 +93,7 @@ Before you write any `- [ ]`, ask: _can an AI agent with shell, file, and networ
    ```markdown
    - [ ] Build the checkout flow and deploy it to the staging environment.
 
-   <!-- MAESTRO:HITL reason="Click through checkout on staging and confirm the payment step renders" artifact="https://staging.example.com/checkout" -->
+   <!-- OPENWIZARDAI:HITL reason="Click through checkout on staging and confirm the payment step renders" artifact="https://staging.example.com/checkout" -->
 
    - [ ] Apply the fixes from the staging review, then run the checkout test suite.
    ```
@@ -122,7 +122,7 @@ Before you write any `- [ ]`, ask: _can an AI agent with shell, file, and networ
 ```markdown
 - [ ] Add Playwright coverage for the login flow in `e2e/login.spec.ts` (happy path, wrong password, locked account) and run `npm run e2e` until green.
 
-<!-- MAESTRO:HITL reason="Add SENDGRID_API_KEY to .env before the mailer tasks run" -->
+<!-- OPENWIZARDAI:HITL reason="Add SENDGRID_API_KEY to .env before the mailer tasks run" -->
 
 - [ ] Wire the SendGrid transport in `src/mail/transport.ts` using `process.env.SENDGRID_API_KEY` and add a unit test that mocks the client.
 
@@ -142,11 +142,11 @@ Each `- [ ]` task starts a fresh AI context and receives the entire document. Th
 A playbook rarely wants one setting end to end. Surveying a codebase is cheap mechanical work; designing the migration that follows is not. A marker sets the model tier and the effort level, at whichever scope fits:
 
 ```markdown
-<!-- MAESTRO:MODEL tier="low" effort="low" -->
+<!-- OPENWIZARDAI:MODEL tier="low" effort="low" -->
 
 - [ ] Catalogue every call site of the auth middleware
 - [ ] Summarize the current request flow
-- [ ] Design the migration <!-- MAESTRO:MODEL tier="high" effort="high" -->
+- [ ] Design the migration <!-- OPENWIZARDAI:MODEL tier="high" effort="high" -->
 - [ ] Apply the mechanical renames
 ```
 
@@ -164,10 +164,10 @@ Both attributes take `low`, `medium`, or `high`, and both are optional. The two 
 A marker should also carry a `reason` justifying the choice - at most three sentences, plain text, with no double quotes inside the value:
 
 ```markdown
-<!-- MAESTRO:MODEL tier="low" effort="low" reason="This phase only catalogues what already exists. Reading and listing call sites needs no judgment, so the cheap model at low effort is enough." -->
+<!-- OPENWIZARDAI:MODEL tier="low" effort="low" reason="This phase only catalogues what already exists. Reading and listing call sites needs no judgment, so the cheap model at low effort is enough." -->
 ```
 
-Explain what makes the work hard or mechanical rather than restating the levels. The reason has no effect on the run; OpenWizzard shows it behind an ⓘ on the marker's pill so a reader can audit the judgment.
+Explain what makes the work hard or mechanical rather than restating the levels. The reason has no effect on the run; OpenWizardAI shows it behind an ⓘ on the marker's pill so a reader can audit the judgment.
 
 The rules that matter when authoring:
 
@@ -182,7 +182,7 @@ Per-task synopses always run at the cheapest model and lowest effort regardless 
 
 ### Early Exit (Halt Marker)
 
-A running agent can abort the entire Auto Run mid-playbook by writing the marker `<!-- maestro:halt: reason here -->` (or bare `<!-- maestro:halt -->`) into the current document. When the engine sees this marker after a task, it stops dispatch immediately - no further tasks in the current document, no further documents in the playbook. The optional reason is recorded in the History panel and emitted to the JSONL stream as a `halt` event.
+A running agent can abort the entire Auto Run mid-playbook by writing the marker `<!-- openwizardai:halt: reason here -->` (or bare `<!-- openwizardai:halt -->`) into the current document. When the engine sees this marker after a task, it stops dispatch immediately - no further tasks in the current document, no further documents in the playbook. The optional reason is recorded in the History panel and emitted to the JSONL stream as a `halt` event.
 
 **When AUTHORING a playbook, never write a bare halt marker into it.** The marker is not a conditional - it does not mean "stop if this check fails", it means "this run has stopped". A document that ships one is a document that refuses to start, and because an HTML comment renders as nothing, the user sees a playbook that will not go with no visible cause. This is the single most common way an authored playbook arrives broken.
 
@@ -198,7 +198,7 @@ When the effort produces documentation, research, notes, or knowledge artifacts 
 - **Wiki-links** (`[[Document-Name]]`) to connect related documents
 - **Logical folder organization** by entity type or domain
 
-This enables exploration via OpenWizzard's DocGraph viewer and tools like Obsidian.
+This enables exploration via OpenWizardAI's DocGraph viewer and tools like Obsidian.
 
 ### Example Auto Run Document
 

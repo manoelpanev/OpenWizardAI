@@ -4,7 +4,7 @@ description: Browse commit history, view diffs, and run AI agents in parallel on
 icon: code-branch
 ---
 
-Maestro integrates deeply with Git, providing visual tools for exploring repository history and enabling parallel development with worktree sub-agents.
+OpenWizardAI integrates deeply with Git, providing visual tools for exploring repository history and enabling parallel development with worktree sub-agents.
 
 ## The Git Menu
 
@@ -22,7 +22,7 @@ See [Git Actions](./general-usage#git-actions) for the full walkthrough, includi
 
 ## Git Log Viewer
 
-Browse your commit history directly in Maestro:
+Browse your commit history directly in OpenWizardAI:
 
 ![Git logs](./screenshots/git-logs.png)
 
@@ -92,11 +92,11 @@ In the configuration modal:
 | Option                      | Description                                                                                                                                        |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Worktree Directory**      | Base folder where worktrees are created (should be outside the main repo). You can browse to select it (local sessions) or type the path directly. |
-| **Watch for new worktrees** | Auto-detect worktrees created outside Maestro (e.g., via command line)                                                                             |
+| **Watch for new worktrees** | Auto-detect worktrees created outside OpenWizardAI (e.g., via command line)                                                                        |
 | **Setup Script**            | Shell command run inside every newly created worktree (see below). Leave blank to disable.                                                         |
 | **Create New Worktree**     | Enter a branch name and click **Create** to instantly create a new worktree sub-agent                                                              |
 
-**Tip:** Configure the worktree directory to be outside your main repository (e.g., `~/Projects/Maestro-WorkTrees/`). This keeps worktrees organized and prevents them from appearing in your main repo's file tree.
+**Tip:** Configure the worktree directory to be outside your main repository (e.g., `~/Projects/OpenWizardAI-WorkTrees/`). This keeps worktrees organized and prevents them from appearing in your main repo's file tree.
 
 **Note:** Once configured, you can quickly create additional worktrees by right-clicking the parent session and selecting **"Create Worktree"** (bypasses the full configuration modal).
 
@@ -107,36 +107,36 @@ A fresh worktree only contains what git tracks, so anything gitignored (a `.env.
 The script runs:
 
 - With the new worktree as its working directory
-- Only when Maestro actually creates the worktree (not when it reuses or re-attaches an existing one)
+- Only when OpenWizardAI actually creates the worktree (not when it reuses or re-attaches an existing one)
 - Before the worktree's agent starts working, so generated files exist for the first prompt
 - On the remote host when the parent agent is configured for SSH remote execution
 
 These environment variables are available to the script:
 
-| Variable                  | Value                                                      |
-| ------------------------- | ---------------------------------------------------------- |
-| `MAESTRO_WORKTREE_PATH`   | Absolute path of the new worktree (also the script's cwd)  |
-| `MAESTRO_WORKTREE_BRANCH` | Branch checked out in the new worktree                     |
-| `MAESTRO_MAIN_REPO_PATH`  | Absolute path of the main repository                       |
-| `MAESTRO_BASE_BRANCH`     | Branch the new branch was based on, when one was specified |
+| Variable                       | Value                                                      |
+| ------------------------------ | ---------------------------------------------------------- |
+| `OPENWIZARDAI_WORKTREE_PATH`   | Absolute path of the new worktree (also the script's cwd)  |
+| `OPENWIZARDAI_WORKTREE_BRANCH` | Branch checked out in the new worktree                     |
+| `OPENWIZARDAI_MAIN_REPO_PATH`  | Absolute path of the main repository                       |
+| `OPENWIZARDAI_BASE_BRANCH`     | Branch the new branch was based on, when one was specified |
 
 Examples:
 
 ```bash
 # Copy gitignored env files in from the main repo
-cp "$MAESTRO_MAIN_REPO_PATH/.env.local" .
+cp "$OPENWIZARDAI_MAIN_REPO_PATH/.env.local" .
 
 # Copy env files, then run the project's own bootstrap script
-cp "$MAESTRO_MAIN_REPO_PATH/.env.local" . && ./scripts/setup.sh
+cp "$OPENWIZARDAI_MAIN_REPO_PATH/.env.local" . && ./scripts/setup.sh
 
 # Install dependencies in a subproject
 cd functions && npm install
 ```
 
-On Windows the command runs through `cmd.exe`, so reference the variables as `%MAESTRO_MAIN_REPO_PATH%`:
+On Windows the command runs through `cmd.exe`, so reference the variables as `%OPENWIZARDAI_MAIN_REPO_PATH%`:
 
 ```bat
-copy "%MAESTRO_MAIN_REPO_PATH%\.env.local" . && npm install
+copy "%OPENWIZARDAI_MAIN_REPO_PATH%\.env.local" . && npm install
 ```
 
 Keep the platform-specific logic in a checked-in script and point the field at it - that way the setup steps live with the repo and the field stays a one-liner. Match the script to the shell that will run it: `./scripts/setup.sh` on macOS and Linux, `scripts\setup.cmd` on Windows, since `cmd.exe` cannot execute a `.sh` file directly. To keep one script for every platform, invoke the interpreter explicitly:
@@ -174,7 +174,7 @@ When you're done with work in a worktree:
 2. Hover the header **branch pill** → **Create Pull Request**, or
 3. Press `Cmd+K` / `Ctrl+K` with the worktree active → search "Create Pull Request"
 
-This isn't limited to worktrees: any agent sitting on a git branch can open a PR the same way. The entry is hidden only when Maestro can't determine a branch to open the PR from.
+This isn't limited to worktrees: any agent sitting on a git branch can open a PR the same way. The entry is hidden only when OpenWizardAI can't determine a branch to open the PR from.
 
 The PR modal shows:
 
@@ -182,7 +182,7 @@ The PR modal shows:
 - Target branch (configurable)
 - Auto-generated title and description based on your work
 
-**Requirements:** GitHub CLI (`gh`) must be installed and authenticated. Maestro will detect if it's missing and show installation instructions.
+**Requirements:** GitHub CLI (`gh`) must be installed and authenticated. OpenWizardAI will detect if it's missing and show installation instructions.
 
 Opening a PR can take a while, and you don't have to sit and watch it. Once you
 press **Create PR**, the **Cancel** button becomes **Run in Background**: close
@@ -198,10 +198,10 @@ When removing a worktree, you have two options:
 
 ![Remove worktree confirmation](./screenshots/git-worktree-remove.png)
 
-| Option                | What It Does                                                                    |
-| --------------------- | ------------------------------------------------------------------------------- |
-| **Remove**            | Removes the sub-agent from Maestro but keeps the git worktree directory on disk |
-| **Remove and Delete** | Removes the sub-agent AND permanently deletes the worktree directory from disk  |
+| Option                | What It Does                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------ |
+| **Remove**            | Removes the sub-agent from OpenWizardAI but keeps the git worktree directory on disk |
+| **Remove and Delete** | Removes the sub-agent AND permanently deletes the worktree directory from disk       |
 
 The confirmation dialog shows the full path to the worktree directory so you know exactly what will be affected.
 
@@ -216,7 +216,7 @@ The confirmation dialog shows the full path to the worktree directory so you kno
 
 **Auto Run integration:** You can dispatch an Auto Run directly into a new worktree from the run configuration modal - no need to create the worktree first. See [Run in Worktree](./autorun-playbooks#run-in-worktree) for details.
 
-**CLI integration:** The same worktree-backed Auto Run is also reachable from the command line via `maestro-cli auto-run --worktree --branch <name> --worktree-path <path> --launch` (add `--create-pr` to open a PR on completion). See [CLI - Configuring Auto-Run](./cli#configuring-auto-run).
+**CLI integration:** The same worktree-backed Auto Run is also reachable from the command line via `openwizardai-cli auto-run --worktree --branch <name> --worktree-path <path> --launch` (add `--create-pr` to open a PR on completion). See [CLI - Configuring Auto-Run](./cli#configuring-auto-run).
 
 ## Tips
 
@@ -224,7 +224,7 @@ The confirmation dialog shows the full path to the worktree directory so you kno
 - **Use a dedicated worktree folder** - Keep all worktrees in one place outside the main repo
 - **Clean up when done** - Remove worktree agents after merging PRs to avoid clutter
 - **Watch for Changes** - Enable file watching to keep the file tree in sync with worktree activity
-- **Run multiple dev instances** - Use `VITE_PORT` environment variable to run Maestro in multiple worktrees simultaneously:
+- **Run multiple dev instances** - Use `VITE_PORT` environment variable to run OpenWizardAI in multiple worktrees simultaneously:
 
   ```bash
   # In main worktree

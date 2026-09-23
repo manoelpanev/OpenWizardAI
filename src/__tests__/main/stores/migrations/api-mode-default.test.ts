@@ -38,26 +38,26 @@ describe('migrateApiModeDefault', () => {
 			sessions: [
 				// Never configured (auto-flipped onto Adaptive by the prior migration).
 				{ id: 'a', toolType: 'claude-code', name: 'Unset' },
-				// Other agent types are untouched - enableMaestroP is Claude-only.
+				// Other agent types are untouched - enableOpenWizardAIP is Claude-only.
 				{ id: 'b', toolType: 'codex', name: 'Codex' },
 				// Hand-picked Dynamic - reset to API per the blanket cutover.
 				{
 					id: 'c',
 					toolType: 'claude-code',
 					name: 'Dynamic',
-					enableMaestroP: true,
-					maestroPMode: 'dynamic',
+					enableOpenWizardAIP: true,
+					openwizardaiPMode: 'dynamic',
 				},
-				// Hand-picked TUI - also reset; maestroPMode is preserved (ignored while off).
+				// Hand-picked TUI - also reset; openwizardaiPMode is preserved (ignored while off).
 				{
 					id: 'd',
 					toolType: 'claude-code',
 					name: 'TUI',
-					enableMaestroP: true,
-					maestroPMode: 'interactive',
+					enableOpenWizardAIP: true,
+					openwizardaiPMode: 'interactive',
 				},
 				// Already API - left exactly as-is, not counted as an update.
-				{ id: 'e', toolType: 'claude-code', name: 'API', enableMaestroP: false },
+				{ id: 'e', toolType: 'claude-code', name: 'API', enableOpenWizardAIP: false },
 			],
 		});
 		mockedGetSessionsStore.mockReturnValue(sessionsStore as any);
@@ -67,23 +67,23 @@ describe('migrateApiModeDefault', () => {
 
 		const written = sessionsStore.set.mock.calls[0][1];
 		expect(written).toEqual([
-			{ id: 'a', toolType: 'claude-code', name: 'Unset', enableMaestroP: false },
+			{ id: 'a', toolType: 'claude-code', name: 'Unset', enableOpenWizardAIP: false },
 			{ id: 'b', toolType: 'codex', name: 'Codex' },
 			{
 				id: 'c',
 				toolType: 'claude-code',
 				name: 'Dynamic',
-				enableMaestroP: false,
-				maestroPMode: 'dynamic',
+				enableOpenWizardAIP: false,
+				openwizardaiPMode: 'dynamic',
 			},
 			{
 				id: 'd',
 				toolType: 'claude-code',
 				name: 'TUI',
-				enableMaestroP: false,
-				maestroPMode: 'interactive',
+				enableOpenWizardAIP: false,
+				openwizardaiPMode: 'interactive',
 			},
-			{ id: 'e', toolType: 'claude-code', name: 'API', enableMaestroP: false },
+			{ id: 'e', toolType: 'claude-code', name: 'API', enableOpenWizardAIP: false },
 		]);
 		expect(settingsStore.data[API_MODE_DEFAULT_MIGRATION_MARKER]).toBe(true);
 	});
@@ -91,7 +91,7 @@ describe('migrateApiModeDefault', () => {
 	it('sets the marker without writing sessions when every Claude Code agent is already API', () => {
 		const sessionsStore = makeStore({
 			sessions: [
-				{ id: 'e', toolType: 'claude-code', name: 'API', enableMaestroP: false },
+				{ id: 'e', toolType: 'claude-code', name: 'API', enableOpenWizardAIP: false },
 				{ id: 'b', toolType: 'codex', name: 'Codex' },
 			],
 		});
@@ -106,7 +106,7 @@ describe('migrateApiModeDefault', () => {
 
 	it('is idempotent - does nothing once the marker is set', () => {
 		const sessionsStore = makeStore({
-			sessions: [{ id: 'a', toolType: 'claude-code', name: 'Claude', enableMaestroP: true }],
+			sessions: [{ id: 'a', toolType: 'claude-code', name: 'Claude', enableOpenWizardAIP: true }],
 		});
 		mockedGetSessionsStore.mockReturnValue(sessionsStore as any);
 		const settingsStore = makeStore({ [API_MODE_DEFAULT_MIGRATION_MARKER]: true });

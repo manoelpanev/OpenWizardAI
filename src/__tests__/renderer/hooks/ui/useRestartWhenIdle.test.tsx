@@ -38,8 +38,8 @@ function setSession(state: Session['state'], executionQueue: QueuedItem[] = []):
 
 beforeEach(() => {
 	install.mockClear();
-	(globalThis as any).window.maestro = {
-		...((globalThis as any).window.maestro ?? {}),
+	(globalThis as any).window.openwizardai = {
+		...((globalThis as any).window.openwizardai ?? {}),
 		updates: { install },
 	};
 

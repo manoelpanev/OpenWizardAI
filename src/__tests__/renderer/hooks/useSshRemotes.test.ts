@@ -15,7 +15,7 @@ const createMockConfig = (overrides: Partial<SshRemoteConfig> = {}): SshRemoteCo
 });
 
 describe('useSshRemotes', () => {
-	const originalMaestro = { ...window.maestro };
+	const originalOpenWizardAI = { ...window.openwizardai };
 
 	const mockSshRemote = {
 		getConfigs: vi.fn(),
@@ -40,14 +40,14 @@ describe('useSshRemotes', () => {
 			result: { success: true, remoteInfo: { hostname: 'test-host' } },
 		});
 
-		window.maestro = {
-			...originalMaestro,
-			sshRemote: mockSshRemote as typeof window.maestro.sshRemote,
+		window.openwizardai = {
+			...originalOpenWizardAI,
+			sshRemote: mockSshRemote as typeof window.openwizardai.sshRemote,
 		};
 	});
 
 	afterEach(() => {
-		window.maestro = originalMaestro;
+		window.openwizardai = originalOpenWizardAI;
 	});
 
 	describe('initial loading', () => {
