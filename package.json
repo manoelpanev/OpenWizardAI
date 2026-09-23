@@ -442,5 +442,16 @@
 		"*.{js,cjs,mjs,jsx,ts,tsx,mts,cts}": [
 			"eslint --fix"
 		]
+	},
+	"allowScripts": {
+		"better-sqlite3@12.9.0": true,
+		"canvas@3.2.3": true,
+		"electron@41.10.7": true,
+		"esbuild@0.28.1": true,
+		"fsevents@2.3.3": true,
+		"fsevents@2.3.2": true,
+		"lzma-native@8.0.6": true,
+		"node-pty@1.2.0-beta.12": true,
+		"electron-winstaller@5.4.0": true
 	}
 }
