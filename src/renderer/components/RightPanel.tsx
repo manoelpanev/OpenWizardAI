@@ -22,6 +22,7 @@ import type { Session, Theme, RightPanelTab, BatchRunState } from '../types';
 import type { FileTreeChanges } from '../utils/fileExplorer';
 import { FileExplorerPanel } from './FileExplorerPanel';
 import { HistoryPanel, HistoryPanelHandle } from './HistoryPanel';
+import { WizardPanel } from './WizardPanel';
 import { AutoRun, AutoRunHandle } from './AutoRun';
 import { AutoRunExpandedModal } from './AutoRun/AutoRunExpandedModal';
 import { formatShortcutKeys } from '../utils/shortcutFormatter';
@@ -478,34 +479,38 @@ export const RightPanel = memo(
 
 				{/* Tab Header */}
 				<div className="flex border-b h-16" style={{ borderColor: theme.colors.border }}>
-					{(['files', 'history', ...(autoRunDisabled ? [] : ['autorun'])] as const).map((tab) => {
-						const label =
-							tab === 'autorun' ? 'Auto Run' : tab.charAt(0).toUpperCase() + tab.slice(1);
-						// Each of these three tabs has its own chord. Surfacing it on the
-						// header the user is already clicking is the cheapest place to
-						// teach it.
-						const jumpShortcut =
-							tab === 'files'
-								? shortcuts.goToFiles
-								: tab === 'history'
-									? shortcuts.goToHistory
-									: shortcuts.goToAutoRun;
-						return (
-							<button
-								key={tab}
-								onClick={() => setActiveRightTab(tab as RightPanelTab)}
-								className="flex-1 text-xs font-bold border-b-2 transition-colors"
-								style={{
-									borderColor: activeRightTab === tab ? theme.colors.accent : 'transparent',
-									color: activeRightTab === tab ? theme.colors.textMain : theme.colors.textDim,
-								}}
-								title={`${label}${shortcutSuffix(jumpShortcut?.keys)}`}
-								data-tour={`${tab}-tab`}
-							>
-								{label}
-							</button>
-						);
-					})}
+					{(['wizard', 'files', 'history', ...(autoRunDisabled ? [] : ['autorun'])] as const).map(
+						(tab) => {
+							const label =
+								tab === 'autorun' ? 'Auto Run' : tab.charAt(0).toUpperCase() + tab.slice(1);
+							// Each of these three tabs has its own chord. Surfacing it on the
+							// header the user is already clicking is the cheapest place to
+							// teach it.
+							const jumpShortcut =
+								tab === 'wizard'
+									? undefined
+									: tab === 'files'
+										? shortcuts.goToFiles
+										: tab === 'history'
+											? shortcuts.goToHistory
+											: shortcuts.goToAutoRun;
+							return (
+								<button
+									key={tab}
+									onClick={() => setActiveRightTab(tab as RightPanelTab)}
+									className="flex-1 text-xs font-bold border-b-2 transition-colors"
+									style={{
+										borderColor: activeRightTab === tab ? theme.colors.accent : 'transparent',
+										color: activeRightTab === tab ? theme.colors.textMain : theme.colors.textDim,
+									}}
+									title={`${label}${shortcutSuffix(jumpShortcut?.keys)}`}
+									data-tour={`${tab}-tab`}
+								>
+									{label}
+								</button>
+							);
+						}
+					)}
 
 					<button
 						onClick={() => setRightPanelOpen(!rightPanelOpen)}
@@ -597,6 +602,12 @@ export const RightPanel = memo(
 								fileTree={filteredFileTree}
 								onFileClick={onFileClick}
 							/>
+						</div>
+					)}
+
+					{activeRightTab === 'wizard' && session && (
+						<div data-tour="wizard-panel" className="h-full">
+							<WizardPanel theme={theme} projectPath={session.cwd} projectName={session.name} />
 						</div>
 					)}
 

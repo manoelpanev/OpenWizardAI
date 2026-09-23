@@ -104,6 +104,7 @@ import {
 } from './ipc/handlers';
 import { registerDeepSeekHandlers } from './ipc/handlers/deepseek';
 import { ensureDeepSeekAgentLauncher } from './deepseek/agent-launcher';
+import { registerWizardPanelHandlers } from './deepseek/wizard-panel';
 import { initializeStatsDB, closeStatsDB } from './stats';
 import { groupChatEmitters } from './ipc/handlers/groupChat';
 import {
@@ -1773,6 +1774,7 @@ function setupIpcHandlers() {
 
 	// Register DeepSeek handlers (API key connect / status / remove)
 	registerDeepSeekHandlers();
+	registerWizardPanelHandlers();
 
 	// Register AI command mode handlers (plain-English request -> command line)
 	registerAiCommandHandlers({

@@ -57,7 +57,7 @@ import type { MindMapLayoutType } from '../components/DocumentGraph/layoutTypes'
 
 export type SessionState = 'idle' | 'busy' | 'waiting_input' | 'connecting' | 'error';
 export type FileChangeType = 'modified' | 'added' | 'deleted';
-export type RightPanelTab = 'files' | 'history' | 'autorun';
+export type RightPanelTab = 'wizard' | 'files' | 'history' | 'autorun';
 /**
  * Tabs in the Usage Dashboard modal. Shared so the in-memory uiStore can
  * remember the last-selected tab across dashboard opens (resets on restart).

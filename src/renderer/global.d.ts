@@ -3128,6 +3128,9 @@ interface OpenWizardAIAPI {
 		clearApiKey: () => Promise<DeepSeekConnectionStatus>;
 	};
 
+	// Wizard side panel (DeepSeek companion, one conversation per project)
+	wizardPanel: import('../main/preload/deepseek').WizardPanelApi;
+
 	// AI Command API (plain-English request -> one shell command line)
 	aiCommand: {
 		suggest: (config: {

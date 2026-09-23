@@ -48,7 +48,7 @@ import { createFsApi } from './fs';
 import { createParquetApi } from './parquet';
 import { createAgentsApi } from './agents';
 import { createTabNamingApi } from './tabNaming';
-import { createDeepSeekApi } from './deepseek';
+import { createDeepSeekApi, createWizardPanelApi } from './deepseek';
 import { createAiCommandApi } from './aiCommand';
 import { createDirectorNotesApi } from './directorNotes';
 import { createCueApi } from './cue';
@@ -197,6 +197,9 @@ contextBridge.exposeInMainWorld('openwizardai', {
 
 	// DeepSeek connection (API key status / save / remove)
 	deepseek: createDeepSeekApi(),
+
+	// Wizard side panel (DeepSeek companion, one conversation per project)
+	wizardPanel: createWizardPanelApi(),
 
 	// AI Command API (plain-English request -> one shell command line)
 	aiCommand: createAiCommandApi(),
