@@ -916,34 +916,6 @@ export function useBatchRunner({
 								totalCost += usageStats.totalCostUsd || 0;
 							}
 
-							// Update Symphony contribution with real-time progress
-							if (session.symphonyMetadata?.isSymphonySession) {
-								window.maestro.symphony
-									.updateStatus({
-										contributionId: session.symphonyMetadata.contributionId,
-										progress: {
-											totalDocuments: documents.length,
-											completedDocuments: docIndex,
-											totalTasks: initialTotalTasks,
-											completedTasks: totalCompletedTasks,
-											currentDocument: docEntry.filename,
-										},
-										tokenUsage: {
-											inputTokens: totalInputTokens,
-											outputTokens: totalOutputTokens,
-											estimatedCost: totalCost,
-										},
-										timeSpent: timeTracking.getElapsedTime(sessionId),
-									})
-									.catch((err: unknown) => {
-										logger.warn(
-											'[BatchProcessor] Failed to update Symphony progress:',
-											undefined,
-											err
-										);
-									});
-							}
-
 							// Track non-reset document completions for loop exit logic
 							// (This tracking is intentionally a no-op for now - kept for future loop mode enhancements)
 							void (!docEntry.resetOnCompletion ? tasksCompletedThisRun : 0);

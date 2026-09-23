@@ -1217,7 +1217,7 @@ encore
 
 encore
 	.command('enable <feature>')
-	.description('Enable an Encore feature (directorNotes, usageStats, symphony, maestroCue)')
+	.description('Enable an Encore feature (directorNotes, usageStats, maestroCue)')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((feature, options) => encoreSet(feature, true, options));
 

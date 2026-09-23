@@ -60,11 +60,6 @@ describe('modalPriorities', () => {
 			);
 		});
 
-		it('SYMPHONY_AGENT_CREATION should have higher priority than SYMPHONY (opens from within)', () => {
-			// Agent creation dialog opens from SymphonyModal
-			expect(MODAL_PRIORITIES.SYMPHONY_AGENT_CREATION).toBeGreaterThan(MODAL_PRIORITIES.SYMPHONY);
-		});
-
 		it('WIZARD_EXIT_CONFIRM should have higher priority than WIZARD (opens from within)', () => {
 			// Exit confirmation opens from WizardModal
 			expect(MODAL_PRIORITIES.WIZARD_EXIT_CONFIRM).toBeGreaterThan(MODAL_PRIORITIES.WIZARD);

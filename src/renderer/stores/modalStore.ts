@@ -362,8 +362,6 @@ export type ModalId =
 	| 'keyboardMastery'
 	// Media
 	| 'lightbox'
-	// Symphony
-	| 'symphony'
 	// Platform Warnings
 	| 'windowsWarning'
 	// Director's Notes
@@ -394,7 +392,7 @@ export type ModalId =
  * or `maestro-cli open`? Dialogs that answer a question ABOUT the surface
  * beneath them are not members and are meant to layer: confirmations, rename
  * prompts, the Cue YAML editor, the Playbook name box, the Usage Dashboard's
- * per-agent detail, the Symphony agent picker.
+ * per-agent detail.
  *
  * `documentGraph` is a destination too but lives in `fileExplorerStore`, so it
  * registers itself through `registerExternalDestination` instead of appearing
@@ -405,7 +403,6 @@ export const DESTINATION_MODALS: ReadonlySet<ModalId> = new Set<ModalId>([
 	'settings',
 	'usageDashboard',
 	'directorNotes',
-	'symphony',
 	'cueModal',
 	'marketplace',
 	'processMonitor',
@@ -1087,10 +1084,6 @@ export function getModalActions() {
 			open ? openModal('tour', { fromWizard: false }) : closeModal('tour'),
 		setTourFromWizard: (fromWizard: boolean) => updateModalData('tour', { fromWizard }),
 
-		// Symphony Modal
-		setSymphonyModalOpen: (open: boolean) =>
-			open ? openModal('symphony') : closeModal('symphony'),
-
 		// Windows Warning Modal
 		setWindowsWarningModalOpen: (open: boolean) =>
 			open ? openModal('windowsWarning') : closeModal('windowsWarning'),
@@ -1201,7 +1194,6 @@ export function useModalActions() {
 	const gitLogData = useModalStore(selectModalData('gitLog'));
 	const tourOpen = useModalStore(selectModalOpen('tour'));
 	const tourData = useModalStore(selectModalData('tour'));
-	const symphonyModalOpen = useModalStore(selectModalOpen('symphony'));
 	const windowsWarningModalOpen = useModalStore(selectModalOpen('windowsWarning'));
 	const directorNotesOpen = useModalStore(selectModalOpen('directorNotes'));
 	const cueModalOpen = useModalStore(selectModalOpen('cueModal'));
@@ -1387,9 +1379,6 @@ export function useModalActions() {
 		// Tour Overlay
 		tourOpen,
 		tourFromWizard: tourData?.fromWizard ?? false,
-
-		// Symphony Modal
-		symphonyModalOpen,
 
 		// Windows Warning Modal
 		windowsWarningModalOpen,

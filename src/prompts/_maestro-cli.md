@@ -41,11 +41,10 @@ These are judgment calls and gotchas, not syntax - the part worth reading.
 
 **Settings requests** ("can I configure X", theme/preference/behavior asks): discover with `settings list -v [-c <category>]`, inspect the current value with `settings get <key> -v` (don't change something already set how they want), recommend the 1-3 most relevant keys with current value + what each controls (don't dump the catalogue), apply with `settings set <key> <value>` on confirmation, then re-read to confirm. Per-agent overrides (`nudge`, `model`, `effort`, `customArgs`, ...) via `settings agent set <agent-id> <key> <value>`.
 
-**Encore Features (toggled).** Four capabilities sit behind `encoreFeatures.*` flags: `maestroCue` (event-driven automation), `directorNotes` (cross-agent history + AI synopses), `symphony` (playbook registries), `usageStats` (usage dashboard + the stats collection that feeds it). All four ship ON, so a flag reading `false` means the user turned it off deliberately. When a user's intent maps to one, check `settings get encoreFeatures.<flag>` - if `false`, do NOT silently re-enable it. Say the capability is switched off, give a one-line pitch, and offer to flip it back (`settings set encoreFeatures.<flag> true` - instant, no restart). Trigger phrases:
+**Encore Features (toggled).** Three capabilities sit behind `encoreFeatures.*` flags: `maestroCue` (event-driven automation), `directorNotes` (cross-agent history + AI synopses), `usageStats` (usage dashboard + the stats collection that feeds it). All three ship ON, so a flag reading `false` means the user turned it off deliberately. When a user's intent maps to one, check `settings get encoreFeatures.<flag>` - if `false`, do NOT silently re-enable it. Say the capability is switched off, give a one-line pitch, and offer to flip it back (`settings set encoreFeatures.<flag> true` - instant, no restart). Trigger phrases:
 
 - "every morning / every N minutes / remind me / watch this file / when this PR opens / after agent X finishes" → **OpenWizzard Cue**
 - "summarize today / what did the fleet do / give me a briefing / weekly recap" → **Director's Notes**
-- "contribute to open source / find or publish a playbook" → **Symphony**
 - "how much have I used / token usage / show my stats / model spend / usage dashboard" → **Usage & Stats**
 
 If declined, offer a manual fallback (e.g. a one-shot `send` later instead of a Cue timer).

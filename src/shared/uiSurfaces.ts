@@ -22,7 +22,7 @@ export interface UiSurfaceTab {
 }
 
 /** Encore Feature flag that must be on for a surface to exist. */
-export type UiSurfaceEncoreFlag = 'directorNotes' | 'usageStats' | 'symphony' | 'maestroCue';
+export type UiSurfaceEncoreFlag = 'directorNotes' | 'usageStats' | 'maestroCue';
 
 export interface UiSurface {
 	/** CLI name (kebab-case), and the wire value on the `open_modal` message. */
@@ -115,15 +115,6 @@ export const UI_SURFACES: UiSurface[] = [
 		shortcutId: 'directorNotes',
 		commandPalette: "Director's Notes",
 		encore: 'directorNotes',
-	},
-	{
-		id: 'symphony',
-		label: 'Maestro Symphony',
-		modal: 'symphony',
-		description: 'Group chat across multiple agents with a moderator.',
-		shortcutId: 'openSymphony',
-		commandPalette: 'Symphony',
-		encore: 'symphony',
 	},
 	{
 		id: 'shortcuts',

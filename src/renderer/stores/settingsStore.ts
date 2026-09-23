@@ -479,7 +479,6 @@ export interface SettingsStoreState {
 	suppressWindowsWarning: boolean;
 	userMessageAlignment: 'left' | 'right';
 	encoreFeatures: EncoreFeatureFlags;
-	symphonyRegistryUrls: string[];
 	directorNotesSettings: DirectorNotesSettings;
 	cueHistoryRetentionDays: number;
 	groupCueEntries: boolean;
@@ -647,7 +646,6 @@ export interface SettingsStoreActions {
 	setSuppressWindowsWarning: (value: boolean) => void;
 	setUserMessageAlignment: (value: 'left' | 'right') => void;
 	setEncoreFeatures: (value: EncoreFeatureFlags) => void;
-	setSymphonyRegistryUrls: (value: string[]) => void;
 	setDirectorNotesSettings: (value: DirectorNotesSettings) => void;
 	setCueHistoryRetentionDays: (value: number) => void;
 	setGroupCueEntries: (value: boolean) => void;
@@ -908,7 +906,6 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		suppressWindowsWarning: false,
 		userMessageAlignment: 'right',
 		encoreFeatures: DEFAULT_ENCORE_FEATURES,
-		symphonyRegistryUrls: [],
 		directorNotesSettings: DEFAULT_DIRECTOR_NOTES_SETTINGS,
 		cueHistoryRetentionDays: DEFAULT_CUE_HISTORY_RETENTION_DAYS,
 		groupCueEntries: true,
@@ -1696,11 +1693,6 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		setEncoreFeatures: (value) => {
 			set({ encoreFeatures: value });
 			window.maestro.settings.set('encoreFeatures', value);
-		},
-
-		setSymphonyRegistryUrls: (value) => {
-			set({ symphonyRegistryUrls: value });
-			window.maestro.settings.set('symphonyRegistryUrls', value);
 		},
 
 		setDirectorNotesSettings: (value) => {
@@ -3231,13 +3223,6 @@ export async function loadAllSettings(): Promise<void> {
 		// keeps its default instead of reading as off)
 		if (allSettings['encoreFeatures'] !== undefined) {
 			patch.encoreFeatures = resolveEncoreFeatures(allSettings['encoreFeatures']);
-		}
-
-		// Symphony registry URLs (additional user-configured registries)
-		if (Array.isArray(allSettings['symphonyRegistryUrls'])) {
-			patch.symphonyRegistryUrls = (allSettings['symphonyRegistryUrls'] as unknown[])
-				.filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
-				.map((v) => v.trim());
 		}
 
 		// Director's Notes settings (merge with defaults to preserve new fields)

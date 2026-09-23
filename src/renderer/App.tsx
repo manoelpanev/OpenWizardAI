@@ -24,7 +24,7 @@ import { MainPanel, type MainPanelHandle } from './components/MainPanel';
 import { useWizard, type SerializableWizardState, type WizardStep } from './components/Wizard';
 // CONDUCTOR_BADGES moved to useAutoRunAchievements hook
 import { EmptyStateView } from './components/EmptyStateView';
-// DeleteAgentConfirmModal, MarketplaceModal, SymphonyModal, DocumentGraphView,
+// DeleteAgentConfirmModal, MarketplaceModal, DocumentGraphView,
 // DirectorNotesModal, CueModal, CueYamlEditor are now lazy-loaded inside AppStandaloneModals
 
 // Lazy-loaded components for performance (rarely-used heavy views)
@@ -33,8 +33,6 @@ const LogViewer = lazy(() =>
 );
 
 import { captureException } from './utils/sentry';
-
-// SymphonyContributionData type moved to useSymphonyContribution hook
 
 // Group Chat Components
 import { GroupChatPanel } from './components/GroupChatPanel';
@@ -142,7 +140,6 @@ import { useChatFileDropZone } from './hooks/ui/useChatFileDropZone';
 import { useMainPanelProps, useSessionListProps, useRightPanelProps } from './hooks/props';
 import { useAgentListeners } from './hooks/agent/useAgentListeners';
 import { useSessionRecovery } from './hooks/agent/useSessionRecovery';
-import { useSymphonyContribution } from './hooks/symphony/useSymphonyContribution';
 import { useCueAutoDiscovery } from './hooks/useCueAutoDiscovery';
 import { useCueVisibilityWiring } from './hooks/cue/useCueVisibilityWiring';
 
@@ -214,7 +211,7 @@ import {
 	collectThinkingItems,
 } from './utils/tabHelpers';
 import { getForceSendEligibility, type ForceSendEligibility } from './utils/executionQueue';
-// validateNewSession moved to useSymphonyContribution, useSessionCrud hooks
+// validateNewSession moved to useSessionCrud hook
 // formatLogsForClipboard moved to useTabExportHandlers hook
 // getSlashCommandDescription moved to useWizardHandlers
 import { useUIStore } from './stores/uiStore';
@@ -352,8 +349,6 @@ function MaestroConsoleInner() {
 		setGitLogOpen,
 		// Tour Overlay - tourOpen, tourFromWizard now self-sourced in AppStandaloneModals
 		// setTourFromWizard now used in useWizardHandlers via getModalActions()
-		// Symphony Modal - symphonyModalOpen now self-sourced in AppStandaloneModals
-		setSymphonyModalOpen,
 		// Director's Notes Modal - directorNotesOpen now self-sourced in AppStandaloneModals
 		setDirectorNotesOpen,
 		// Maestro Cue Modal - cueModalOpen now self-sourced in AppStandaloneModals
@@ -473,11 +468,6 @@ function MaestroConsoleInner() {
 		setSuppressWindowsWarning,
 		encoreFeatures,
 	} = settings;
-
-	// Reset modal-open flags when their Encore Feature toggle is disabled
-	useEffect(() => {
-		if (!encoreFeatures.symphony) setSymphonyModalOpen(false);
-	}, [encoreFeatures.symphony, setSymphonyModalOpen]);
 
 	useEffect(() => {
 		if (!encoreFeatures.usageStats) setUsageDashboardOpen(false);
@@ -2260,12 +2250,6 @@ function MaestroConsoleInner() {
 		[handleForceSendQueueItem]
 	);
 
-	// Symphony contribution handler - extracted to useSymphonyContribution hook
-	const { handleStartContribution } = useSymphonyContribution({
-		startBatchRun,
-		inputRef,
-	});
-
 	// Update keyboardHandlerRef synchronously during render (before effects run)
 	// This must be placed after all handler functions and state are defined to avoid TDZ errors
 	// The ref is provided by useMainKeyboardHandler hook
@@ -2382,7 +2366,6 @@ function MaestroConsoleInner() {
 		rightPanelRef,
 		setFuzzyFileSearchOpen,
 		setMarketplaceModalOpen,
-		setSymphonyModalOpen,
 		setDirectorNotesOpen,
 		setCueModalOpen,
 		encoreFeatures,
@@ -3123,7 +3106,6 @@ function MaestroConsoleInner() {
 					getDocumentTaskCount={getDocumentTaskCount}
 					onAutoRunRefresh={handleAutoRunRefresh}
 					onOpenMarketplace={handleOpenMarketplace}
-					onOpenSymphony={encoreFeatures.symphony ? () => setSymphonyModalOpen(true) : undefined}
 					onOpenDirectorNotes={
 						encoreFeatures.directorNotes ? () => setDirectorNotesOpen(true) : undefined
 					}
@@ -3245,10 +3227,9 @@ function MaestroConsoleInner() {
 					onKeyboardMasteryCelebrationClose={handleKeyboardMasteryCelebrationClose}
 					// Marketplace
 					onMarketplaceImportComplete={handleMarketplaceImportComplete}
-					// Symphony
+					// Shared session state
 					sessions={sessions}
 					setActiveSessionId={setActiveSessionId}
-					onStartContribution={handleStartContribution}
 					encoreFeatures={encoreFeatures}
 					// Director's Notes
 					onDirectorNotesResumeSession={handleDirectorNotesResumeSession}

@@ -29,11 +29,6 @@ export type {
 	WorktreeRunTarget,
 } from '../../shared/types';
 
-// Re-export Symphony types for session metadata
-export type { SymphonySessionMetadata } from '../../shared/symphony-types';
-// Import Symphony types for use in this file
-import type { SymphonySessionMetadata } from '../../shared/symphony-types';
-
 // Import for extension in this file
 import type {
 	WorktreeConfig as BaseWorktreeConfig,
@@ -1143,9 +1138,6 @@ export interface Session {
 	// SSH connection status - runtime only, not persisted
 	// Set when background SSH operations fail (e.g., git info fetch on startup)
 	sshConnectionFailed?: boolean;
-
-	// Symphony contribution metadata (only set for Symphony sessions)
-	symphonyMetadata?: SymphonySessionMetadata;
 
 	// Per-session token-source opt-in (Claude Code only). When true, the spawner
 	// runs through maestro-p (Time Limits / Max plan) instead of `claude --print`

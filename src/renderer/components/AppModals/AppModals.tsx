@@ -301,8 +301,6 @@ export interface AppModalsProps {
 	getDocumentTaskCount: (filename: string) => Promise<number>;
 	onAutoRunRefresh: () => Promise<void>;
 	onOpenMarketplace?: () => void;
-	// Symphony
-	onOpenSymphony?: () => void;
 	// Director's Notes
 	onOpenDirectorNotes?: () => void;
 	// Maestro Cue
@@ -750,8 +748,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 		getDocumentTaskCount,
 		onAutoRunRefresh,
 		onOpenMarketplace,
-		// Symphony
-		onOpenSymphony,
 		// Director's Notes
 		onOpenDirectorNotes,
 		// Maestro Cue
@@ -1069,7 +1065,6 @@ export const AppModals = memo(function AppModals(props: AppModalsProps) {
 				onOpenLastDocumentGraph={onOpenLastDocumentGraph}
 				currentGraphFile={currentGraphFile}
 				onOpenCurrentFileInGraph={onOpenCurrentFileInGraph}
-				onOpenSymphony={onOpenSymphony}
 				onOpenDirectorNotes={onOpenDirectorNotes}
 				onOpenMaestroCue={onOpenMaestroCue}
 				onConfigureCue={onConfigureCue}

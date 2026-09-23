@@ -3,7 +3,6 @@
  *
  * Shared component for selecting AI agents across the application.
  * Used by:
- * - AgentCreationDialog (Symphony)
  * - NewInstanceModal (new session creation)
  * - Wizard AgentSelectionScreen
  * - Group chat modals

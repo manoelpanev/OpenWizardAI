@@ -4264,17 +4264,6 @@ describe('useMainKeyboardHandler - destination surface switching', () => {
 		expect(setUsageDashboardOpen).toHaveBeenCalledWith(true);
 	});
 
-	it('opens Symphony from an open modal', () => {
-		const setSymphonyModalOpen = vi.fn();
-		pressShortcut(
-			'openSymphony',
-			{ key: 'y', metaKey: true, altKey: true },
-			{ setSymphonyModalOpen }
-		);
-
-		expect(setSymphonyModalOpen).toHaveBeenCalledWith(true);
-	});
-
 	it('opens Maestro Cue from an open modal', () => {
 		const setCueModalOpen = vi.fn();
 		pressShortcut('openCue', { key: 'q', altKey: true }, { setCueModalOpen });

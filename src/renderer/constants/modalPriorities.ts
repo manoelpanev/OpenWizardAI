@@ -179,12 +179,6 @@ export const MODAL_PRIORITIES = {
 	/** Playbook Exchange modal - browse and import community playbooks (opens from BatchRunner or AutoRunExpanded, so needs higher priority than both) */
 	MARKETPLACE: 735,
 
-	/** Symphony modal - browse and contribute to open source projects */
-	SYMPHONY: 710,
-
-	/** Symphony agent creation dialog - appears above Symphony modal for agent selection */
-	SYMPHONY_AGENT_CREATION: 711,
-
 	/** Auto Run lightbox (above expanded modal so Escape closes it first) */
 	AUTORUN_LIGHTBOX: 715,
 

@@ -176,7 +176,6 @@ export interface QuickActionsModalProps {
 	/** Name of the active markdown file, set only when one is open in the preview. */
 	currentGraphFile?: string;
 	onOpenCurrentFileInGraph?: () => void;
-	onOpenSymphony?: () => void;
 	onOpenDirectorNotes?: () => void;
 	onOpenMaestroCue?: () => void;
 	onConfigureCue?: (session: Session) => void;

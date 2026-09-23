@@ -24,7 +24,6 @@ import { DeleteAgentConfirmModal } from './DeleteAgentConfirmModal';
 import { ImageAnnotator } from './ImageAnnotator/ImageAnnotator';
 import { MaestroWizard, WizardResumeModal } from './Wizard';
 import { TourOverlay } from './Wizard/tour';
-import type { SymphonyContributionData } from './SymphonyModal';
 import type { MindMapLayoutType } from './DocumentGraph/mindMapLayouts';
 
 import type {
@@ -49,9 +48,6 @@ const SettingsModal = lazy(() =>
 );
 const MarketplaceModal = lazy(() =>
 	import('./MarketplaceModal').then((m) => ({ default: m.MarketplaceModal }))
-);
-const SymphonyModal = lazy(() =>
-	import('./SymphonyModal').then((m) => ({ default: m.SymphonyModal }))
 );
 const DocumentGraphView = lazy(() =>
 	import('./DocumentGraph/DocumentGraphView').then((m) => ({
@@ -91,10 +87,9 @@ export interface AppStandaloneModalsProps {
 	// --- Marketplace ---
 	onMarketplaceImportComplete: (folderName: string) => Promise<void>;
 
-	// --- Symphony ---
+	// --- Shared session state ---
 	sessions: Session[];
 	setActiveSessionId: (id: string) => void;
-	onStartContribution: (data: SymphonyContributionData) => Promise<void>;
 	encoreFeatures: EncoreFeatureFlags;
 
 	// --- Director's Notes ---
@@ -170,10 +165,9 @@ function AppStandaloneModalsInner({
 	onKeyboardMasteryCelebrationClose,
 	// Marketplace
 	onMarketplaceImportComplete,
-	// Symphony
+	// Shared session state
 	sessions,
 	setActiveSessionId,
-	onStartContribution,
 	encoreFeatures,
 	// Director's Notes
 	onDirectorNotesResumeSession,
@@ -243,8 +237,6 @@ function AppStandaloneModalsInner({
 		setPlaygroundOpen,
 		marketplaceModalOpen,
 		setMarketplaceModalOpen,
-		symphonyModalOpen,
-		setSymphonyModalOpen,
 		directorNotesOpen,
 		setDirectorNotesOpen,
 		cueModalOpen,
@@ -363,23 +355,6 @@ function AppStandaloneModalsInner({
 							undefined
 						}
 						onImportComplete={onMarketplaceImportComplete}
-					/>
-				</Suspense>
-			)}
-
-			{/* --- SYMPHONY MODAL (lazy-loaded) --- */}
-			{encoreFeatures.symphony && symphonyModalOpen && (
-				<Suspense fallback={null}>
-					<SymphonyModal
-						theme={theme}
-						isOpen={symphonyModalOpen}
-						onClose={() => setSymphonyModalOpen(false)}
-						sessions={sessions}
-						onSelectSession={(sessionId) => {
-							setActiveSessionId(sessionId);
-							setSymphonyModalOpen(false);
-						}}
-						onStartContribution={onStartContribution}
 					/>
 				</Suspense>
 			)}

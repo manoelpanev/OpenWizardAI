@@ -394,10 +394,6 @@ export interface UseSettingsReturn {
 	encoreFeatures: EncoreFeatureFlags;
 	setEncoreFeatures: (value: EncoreFeatureFlags) => void;
 
-	// Symphony registry URLs (additional user-configured registries)
-	symphonyRegistryUrls: string[];
-	setSymphonyRegistryUrls: (value: string[]) => void;
-
 	// Forced Parallel Execution
 	forcedParallelExecution: boolean;
 	setForcedParallelExecution: (value: boolean) => void;

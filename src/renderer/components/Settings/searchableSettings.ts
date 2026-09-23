@@ -1311,24 +1311,6 @@ export const ENCORE_SETTINGS: SearchableSetting[] = [
 		],
 	},
 	{
-		id: 'encore-symphony',
-		tab: 'encore',
-		tabLabel: 'Encore Features',
-		label: 'Maestro Symphony',
-		description:
-			'Contribute to open source projects through curated repositories and playbook registries',
-		keywords: [
-			'symphony',
-			'open source',
-			'oss',
-			'contribute',
-			'repository',
-			'registry',
-			'playbook',
-			'curated',
-		],
-	},
-	{
 		id: 'encore-cue',
 		tab: 'encore',
 		tabLabel: 'Encore Features',

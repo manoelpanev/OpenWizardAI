@@ -23,7 +23,6 @@ When you need detailed guidance on an OpenWizzard feature, fetch the relevant do
 | **Local Manifest** (custom/local playbooks)                  | https://docs.runmaestro.ai/local-manifest.md            |
 | **Slash commands** (custom commands, template vars)          | https://docs.runmaestro.ai/slash-commands.md            |
 | **Group Chat** (multi-agent orchestration)                   | https://docs.runmaestro.ai/group-chat.md                |
-| **Symphony mode** (token-donation contributions)             | https://docs.runmaestro.ai/symphony.md                  |
 | **SpecKit commands** (spec-driven workflow)                  | https://docs.runmaestro.ai/speckit-commands.md          |
 | **OpenSpec commands** (change management workflow)           | https://docs.runmaestro.ai/openspec-commands.md         |
 | **BMAD commands** (business analysis & design method)        | https://docs.runmaestro.ai/bmad-commands.md             |

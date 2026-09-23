@@ -33,7 +33,6 @@ interface BuildFeatureCommandsArgs {
 	onOpenSendToAgent?: () => void;
 	onOpenQueueBrowser?: () => void;
 	onOpenPlaybookExchange?: () => void;
-	onOpenSymphony?: () => void;
 	onOpenDirectorNotes?: () => void;
 	onOpenMaestroCue?: () => void;
 	onConfigureCue?: (session: Session) => void;
@@ -54,7 +53,6 @@ interface BuildFeatureCommandsArgs {
 		openMemoryViewer?: QuickAction['shortcut'];
 		executionQueue?: QuickAction['shortcut'];
 		editLastQueuedMessage?: QuickAction['shortcut'];
-		openSymphony?: QuickAction['shortcut'];
 		directorNotes?: QuickAction['shortcut'];
 		openCue?: QuickAction['shortcut'];
 		fuzzyFileSearch?: QuickAction['shortcut'];
@@ -92,7 +90,6 @@ export function buildFeatureCommands({
 	onOpenSendToAgent,
 	onOpenQueueBrowser,
 	onOpenPlaybookExchange,
-	onOpenSymphony,
 	onOpenDirectorNotes,
 	onOpenMaestroCue,
 	onConfigureCue,
@@ -311,19 +308,6 @@ export function buildFeatureCommands({
 			subtext: 'Browse and import community playbooks',
 			action: () => {
 				onOpenPlaybookExchange();
-				setQuickActionOpen(false);
-			},
-		});
-	}
-
-	if (onOpenSymphony) {
-		commands.push({
-			id: 'openSymphony',
-			label: 'Maestro Symphony',
-			shortcut: shortcuts.openSymphony,
-			subtext: 'Contribute to open source projects',
-			action: () => {
-				onOpenSymphony();
 				setQuickActionOpen(false);
 			},
 		});

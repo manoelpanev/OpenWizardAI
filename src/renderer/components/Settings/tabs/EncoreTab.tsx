@@ -32,7 +32,6 @@ import { AGENT_TILES } from '../../Wizard/screens/AgentSelectionScreen';
 import { isBetaAgent } from '../../../../shared/agentMetadata';
 import { pickFirstAvailableProvider } from '../../../../shared/directorNotesProvider';
 import { ToggleSwitchTrack } from '../../ui/ToggleSwitch';
-import { SYMPHONY_REGISTRY_URL } from '../../../../shared/symphony-constants';
 import { DEFAULT_CUE_SETTINGS, type CueSettings } from '../../../../shared/cue';
 import { IDEAL_END_STATE_MAX_LENGTH } from '../../../../shared/directorNotesEndState';
 import { cueService } from '../../../services/cue';
@@ -49,8 +48,6 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 		setEncoreFeatures,
 		directorNotesSettings,
 		setDirectorNotesSettings,
-		symphonyRegistryUrls,
-		setSymphonyRegistryUrls,
 		setStatsCollectionEnabled,
 		defaultStatsTimeRange,
 		setDefaultStatsTimeRange,
@@ -133,60 +130,6 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 			setWakatimeCliStatus(null);
 		};
 	}, [isOpen, wakatimeEnabled]);
-
-	// Symphony registry URL management
-	const [newRegistryUrl, setNewRegistryUrl] = useState('');
-	const [registryUrlError, setRegistryUrlError] = useState<string | null>(null);
-
-	const canonicalizeUrl = (raw: string): string => {
-		const u = new URL(raw.trim());
-		u.hash = '';
-		return u.href;
-	};
-
-	const handleAddRegistryUrl = () => {
-		const trimmed = newRegistryUrl.trim();
-		if (!trimmed) {
-			setRegistryUrlError('URL cannot be empty');
-			return;
-		}
-		let canonical: string;
-		try {
-			const parsed = new URL(trimmed);
-			if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-				setRegistryUrlError('URL must use HTTP or HTTPS');
-				return;
-			}
-			canonical = canonicalizeUrl(trimmed);
-		} catch {
-			setRegistryUrlError('Invalid URL format');
-			return;
-		}
-		try {
-			if (canonical === canonicalizeUrl(SYMPHONY_REGISTRY_URL)) {
-				setRegistryUrlError('This is the default registry URL');
-				return;
-			}
-		} catch {
-			/* default URL should always parse */
-		}
-		const existing = new Set(
-			symphonyRegistryUrls.map((u) => {
-				try {
-					return canonicalizeUrl(u);
-				} catch {
-					return u.trim();
-				}
-			})
-		);
-		if (existing.has(canonical)) {
-			setRegistryUrlError('URL already added');
-			return;
-		}
-		setSymphonyRegistryUrls([...symphonyRegistryUrls, canonical]);
-		setNewRegistryUrl('');
-		setRegistryUrlError(null);
-	};
 
 	// Centralized agent configuration via shared hook
 	const ac = useAgentConfiguration({
@@ -579,174 +522,6 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 								</p>
 							</div>
 						)}
-					</div>
-				)}
-			</div>
-
-			{/* Maestro Symphony Feature Section */}
-			<div
-				data-setting-id="encore-symphony"
-				className="rounded-lg border"
-				style={{
-					borderColor: encoreFeatures.symphony ? theme.colors.accent : theme.colors.border,
-					backgroundColor: encoreFeatures.symphony ? `${theme.colors.accent}08` : 'transparent',
-				}}
-			>
-				<button
-					className="w-full flex items-center justify-between p-4 text-left"
-					onClick={() =>
-						setEncoreFeatures({
-							...encoreFeatures,
-							symphony: !encoreFeatures.symphony,
-						})
-					}
-				>
-					<div className="flex items-center gap-3">
-						<Music
-							className="w-5 h-5"
-							style={{
-								color: encoreFeatures.symphony ? theme.colors.accent : theme.colors.textDim,
-							}}
-						/>
-						<div>
-							<div className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-								Maestro Symphony
-							</div>
-							<div className="text-xs mt-0.5" style={{ color: theme.colors.textDim }}>
-								Contribute to open source projects through curated repositories
-							</div>
-						</div>
-					</div>
-					<div
-						className={`relative w-10 h-5 rounded-full transition-colors ${encoreFeatures.symphony ? '' : 'opacity-50'}`}
-						style={{
-							backgroundColor: encoreFeatures.symphony ? theme.colors.accent : theme.colors.border,
-						}}
-					>
-						<div
-							className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform"
-							style={{
-								transform: encoreFeatures.symphony ? 'translateX(22px)' : 'translateX(2px)',
-							}}
-						/>
-					</div>
-				</button>
-
-				{encoreFeatures.symphony && (
-					<div
-						className="px-4 pb-4 space-y-3 border-t"
-						style={{ borderColor: theme.colors.border }}
-					>
-						<div className="pt-3">
-							<label
-								className="block text-xs font-bold opacity-70 uppercase mb-2"
-								style={{ color: theme.colors.textMain }}
-							>
-								Registry Sources
-							</label>
-							<p className="text-xs mb-3" style={{ color: theme.colors.textDim }}>
-								Repositories are loaded from all configured registry URLs. The default registry
-								cannot be removed.
-							</p>
-
-							{/* Default URL (immutable) */}
-							<div
-								className="flex items-center gap-2 px-2 py-1.5 rounded text-xs font-mono mb-2"
-								style={{
-									backgroundColor: theme.colors.bgActivity,
-									border: `1px solid ${theme.colors.border}`,
-								}}
-							>
-								<Lock className="w-3 h-3 flex-shrink-0" style={{ color: theme.colors.textDim }} />
-								<span className="truncate flex-1" style={{ color: theme.colors.textMain }}>
-									{SYMPHONY_REGISTRY_URL}
-								</span>
-								<span
-									className="text-2xs px-1.5 py-0.5 rounded flex-shrink-0"
-									style={{
-										color: theme.colors.textDim,
-										backgroundColor: theme.colors.border,
-									}}
-								>
-									default
-								</span>
-							</div>
-
-							{/* Custom URLs list */}
-							{symphonyRegistryUrls.map((url) => (
-								<div
-									key={url}
-									className="flex items-center gap-2 px-2 py-1.5 rounded text-xs font-mono mb-1"
-									style={{
-										backgroundColor: theme.colors.bgActivity,
-										border: `1px solid ${theme.colors.border}`,
-									}}
-								>
-									<span className="truncate flex-1" style={{ color: theme.colors.textMain }}>
-										{url}
-									</span>
-									<button
-										type="button"
-										onClick={() =>
-											setSymphonyRegistryUrls(symphonyRegistryUrls.filter((u) => u !== url))
-										}
-										className="p-0.5 rounded hover:bg-white/10 transition-colors flex-shrink-0"
-										style={{ color: theme.colors.error }}
-										title="Remove registry URL"
-									>
-										<X className="w-3 h-3" />
-									</button>
-								</div>
-							))}
-
-							{/* Add new URL input */}
-							<div className="flex items-center gap-2 mt-3">
-								<div className="flex-1 relative">
-									<input
-										type="text"
-										value={newRegistryUrl}
-										onChange={(e) => {
-											setNewRegistryUrl(e.target.value);
-											setRegistryUrlError(null);
-										}}
-										onKeyDown={(e) => {
-											if (e.key === 'Enter') {
-												e.preventDefault();
-												handleAddRegistryUrl();
-											}
-										}}
-										placeholder="https://example.com/registry.json"
-										className="w-full px-3 py-2 rounded text-sm font-mono outline-none"
-										style={{
-											backgroundColor: theme.colors.bgActivity,
-											borderColor: registryUrlError ? theme.colors.error : theme.colors.border,
-											border: '1px solid',
-											color: theme.colors.textMain,
-										}}
-									/>
-									{registryUrlError && (
-										<p
-											className="absolute -bottom-4 left-0 text-2xs"
-											style={{ color: theme.colors.error }}
-										>
-											{registryUrlError}
-										</p>
-									)}
-								</div>
-								<button
-									type="button"
-									onClick={handleAddRegistryUrl}
-									disabled={!newRegistryUrl.trim()}
-									className="flex items-center gap-1.5 px-3 py-2 rounded text-sm font-medium transition-colors disabled:opacity-50"
-									style={{
-										backgroundColor: theme.colors.accent,
-										color: theme.colors.bgMain,
-									}}
-								>
-									<Plus className="w-4 h-4" /> Add
-								</button>
-							</div>
-						</div>
 					</div>
 				)}
 			</div>

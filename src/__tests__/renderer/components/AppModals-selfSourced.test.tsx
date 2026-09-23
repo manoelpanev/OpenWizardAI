@@ -123,7 +123,6 @@ vi.mock('../../../renderer/components/DebugPackageModal', () => ({
 vi.mock('../../../renderer/components/WindowsWarningModal', () => ({
 	WindowsWarningModal: () => null,
 }));
-vi.mock('../../../renderer/components/SymphonyModal', () => ({ SymphonyModal: () => null }));
 vi.mock('../../../renderer/components/DirectorNotes/DirectorNotesPanel', () => ({
 	DirectorNotesPanel: () => null,
 }));

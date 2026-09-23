@@ -54,7 +54,6 @@ Several capabilities ship behind feature flags under `encoreFeatures.*` so users
 
 - `encoreFeatures.maestroCue` - Cue automation (timers, file watches, agent chains, GitHub triggers, task watchers)
 - `encoreFeatures.directorNotes` - unified history + AI synopsis across the fleet
-- `encoreFeatures.symphony` - Symphony playbook registries
 - `encoreFeatures.usageStats` - Usage Dashboard
 
 These features ship ON, so a flag reading `false` means the user switched it off on purpose. When an intent maps to one of these surfaces, **check the flag before acting**: `maestro-cli settings get encoreFeatures.<flag>`. If `false`, do not silently flip it back on - fetch `_maestro-cli` (the Encore Features subsection under Settings Management has the gating workflow and per-flag pitch copy), tell the user the feature they're asking for is switched off, summarize what it does, and offer to re-enable it (`settings set encoreFeatures.<flag> true` is one command). Only enable on explicit confirmation, then continue with the original task.

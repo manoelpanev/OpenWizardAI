@@ -11,7 +11,6 @@ describe('DEFAULT_ENCORE_FEATURES', () => {
 		expect(DEFAULT_ENCORE_FEATURES).toEqual({
 			directorNotes: true,
 			usageStats: true,
-			symphony: true,
 			maestroCue: true,
 		});
 	});
@@ -33,10 +32,10 @@ describe('resolveEncoreFeatures', () => {
 
 	it('leaves a flag the stored object predates at its default', () => {
 		// A settings file written before a flag existed must not read as off.
-		const stored = { symphony: false };
+		const stored = { usageStats: false };
 		expect(resolveEncoreFeatures(stored)).toEqual({
 			...DEFAULT_ENCORE_FEATURES,
-			symphony: false,
+			usageStats: false,
 		});
 	});
 
@@ -59,8 +58,8 @@ describe('resolveEncoreFeatures', () => {
 	});
 
 	it('does not mutate the shared default object', () => {
-		const resolved = resolveEncoreFeatures({ symphony: false });
+		const resolved = resolveEncoreFeatures({ usageStats: false });
 		expect(resolved).not.toBe(DEFAULT_ENCORE_FEATURES);
-		expect(DEFAULT_ENCORE_FEATURES.symphony).toBe(true);
+		expect(DEFAULT_ENCORE_FEATURES.usageStats).toBe(true);
 	});
 });

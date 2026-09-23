@@ -39,7 +39,7 @@ describe('encore commands', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
-		vi.mocked(readSettingValue).mockReturnValue({ symphony: true, maestroCue: false });
+		vi.mocked(readSettingValue).mockReturnValue({ usageStats: true, maestroCue: false });
 		consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 		processExitSpy = vi.spyOn(process, 'exit').mockImplementation(() => {
@@ -50,7 +50,7 @@ describe('encore commands', () => {
 	it('list emits current flags as JSON', () => {
 		encoreList({ json: true });
 		const parsed = JSON.parse(consoleSpy.mock.calls[0][0]);
-		expect(parsed.features.symphony).toBe(true);
+		expect(parsed.features.usageStats).toBe(true);
 		expect(parsed.features.maestroCue).toBe(false);
 	});
 
@@ -63,7 +63,6 @@ describe('encore commands', () => {
 		expect(parsed.features).toEqual({
 			directorNotes: true,
 			usageStats: true,
-			symphony: true,
 			maestroCue: true,
 		});
 	});
@@ -74,19 +73,13 @@ describe('encore commands', () => {
 		const p = getPayload();
 		expect(p.type).toBe('set_setting');
 		expect(p.key).toBe('encoreFeatures');
-		expect(p.value).toMatchObject({ symphony: true, maestroCue: true });
+		expect(p.value).toMatchObject({ usageStats: true, maestroCue: true });
 	});
 
 	it('disable flips a flag off', async () => {
 		const getPayload = mockSend({ success: true });
-		await encoreSet('symphony', false, {});
-		expect((getPayload().value as Record<string, boolean>).symphony).toBe(false);
-	});
-
-	it('resolves friendly aliases (e.g. "group-chat" -> symphony)', async () => {
-		const getPayload = mockSend({ success: true });
-		await encoreSet('group-chat', true, {});
-		expect((getPayload().value as Record<string, boolean>).symphony).toBe(true);
+		await encoreSet('usageStats', false, {});
+		expect((getPayload().value as Record<string, boolean>).usageStats).toBe(false);
 	});
 
 	it('rejects an unknown feature without connecting', async () => {

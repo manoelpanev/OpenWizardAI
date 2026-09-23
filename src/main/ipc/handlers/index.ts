@@ -64,7 +64,6 @@ import {
 	WebHandlerDependencies,
 } from './web';
 import { registerNotificationsHandlers } from './notifications';
-import { registerSymphonyHandlers, SymphonyHandlerDependencies } from './symphony';
 import { registerAgentErrorHandlers } from './agent-error';
 import { registerTabNamingHandlers, TabNamingHandlerDependencies } from './tabNaming';
 import { registerAiCommandHandlers } from './aiCommand';
@@ -122,7 +121,6 @@ export {
 };
 export type { WebHandlerDependencies };
 export { registerNotificationsHandlers };
-export { registerSymphonyHandlers };
 export { registerAgentErrorHandlers };
 export { registerTabNamingHandlers };
 export { registerAiCommandHandlers };
@@ -149,7 +147,6 @@ export type { StatsHandlerDependencies };
 export type { DocumentGraphHandlerDependencies };
 export type { SshRemoteHandlerDependencies };
 export type { GitHandlerDependencies };
-export type { SymphonyHandlerDependencies };
 export type { MaestroSettings, SessionsData, GroupsData };
 
 // AgentConfigsData imported from stores/types
@@ -303,13 +300,6 @@ export function registerAllHandlers(deps: HandlerDependencies): void {
 	});
 	// Register notification handlers (OS notifications and TTS)
 	registerNotificationsHandlers({ getMainWindow: deps.getMainWindow });
-	// Register Symphony handlers for token donation / open source contributions
-	registerSymphonyHandlers({
-		app: deps.app,
-		getMainWindow: deps.getMainWindow,
-		sessionsStore: deps.sessionsStore,
-		settingsStore: deps.settingsStore,
-	});
 	// Register agent error handlers (error state management)
 	registerAgentErrorHandlers();
 	// Register tab naming handlers for automatic tab naming

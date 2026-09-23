@@ -208,7 +208,6 @@ describe('searchableSettings', () => {
 			['coding activity', 'encore-usage-stats'],
 			['github pr', 'encore-cue'],
 			['cron', 'encore-cue'],
-			['playbook registry', 'encore-symphony'],
 
 			// Prompts tab
 			['wizard prompt', 'prompts-editor'],

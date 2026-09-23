@@ -166,9 +166,6 @@ export interface AppUtilityModalsProps {
 	currentGraphFile?: string;
 	onOpenCurrentFileInGraph?: () => void;
 
-	// Symphony
-	onOpenSymphony?: () => void;
-
 	// Director's Notes
 	onOpenDirectorNotes?: () => void;
 
@@ -415,8 +412,6 @@ export const AppUtilityModals = memo(function AppUtilityModals({
 	// Document Graph - view the active markdown file
 	currentGraphFile,
 	onOpenCurrentFileInGraph,
-	// Symphony
-	onOpenSymphony,
 	// Director's Notes
 	onOpenDirectorNotes,
 	// Maestro Cue
@@ -646,7 +641,6 @@ export const AppUtilityModals = memo(function AppUtilityModals({
 					onOpenLastDocumentGraph={onOpenLastDocumentGraph}
 					currentGraphFile={currentGraphFile}
 					onOpenCurrentFileInGraph={onOpenCurrentFileInGraph}
-					onOpenSymphony={onOpenSymphony}
 					onOpenDirectorNotes={onOpenDirectorNotes}
 					onOpenMaestroCue={onOpenMaestroCue}
 					onConfigureCue={onConfigureCue}

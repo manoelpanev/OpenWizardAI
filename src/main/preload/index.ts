@@ -47,7 +47,6 @@ import { createGitApi } from './git';
 import { createFsApi } from './fs';
 import { createParquetApi } from './parquet';
 import { createAgentsApi } from './agents';
-import { createSymphonyApi } from './symphony';
 import { createTabNamingApi } from './tabNaming';
 import { createAiCommandApi } from './aiCommand';
 import { createDirectorNotesApi } from './directorNotes';
@@ -192,9 +191,6 @@ contextBridge.exposeInMainWorld('maestro', {
 	// Cue Stats API (Cue Dashboard aggregation query)
 	cueStats: createCueStatsApi(),
 
-	// Symphony API (token donations / open source contributions)
-	symphony: createSymphonyApi(),
-
 	// Tab Naming API (automatic tab name generation)
 	tabNaming: createTabNamingApi(),
 
@@ -289,8 +285,6 @@ export {
 	createParquetApi,
 	// Agents
 	createAgentsApi,
-	// Symphony
-	createSymphonyApi,
 	// Tab Naming
 	createTabNamingApi,
 	// Director's Notes
@@ -471,28 +465,6 @@ export type {
 	AgentConfig,
 	AgentRefreshResult,
 } from './agents';
-export type {
-	// From symphony
-	SymphonyApi,
-	SymphonyRegistry,
-	SymphonyRepository,
-	SymphonyIssue,
-	DocumentReference,
-	ClaimedByPR,
-	ActiveContribution,
-	CompletedContribution,
-	ContributorStats,
-	ContributionProgress,
-	ContributionTokenUsage,
-	SymphonyState,
-	GetRegistryResponse,
-	GetIssuesResponse,
-	GetStateResponse,
-	StartContributionParams,
-	StartContributionResponse,
-	CreateDraftPRResponse,
-	CompleteContributionResponse,
-} from './symphony';
 export type {
 	// From tabNaming
 	TabNamingApi,

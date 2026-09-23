@@ -89,7 +89,6 @@ import {
 	startCliDiscoveryWatchdog,
 	stopCliDiscoveryWatchdog,
 	registerNotificationsHandlers,
-	registerSymphonyHandlers,
 	registerTabNamingHandlers,
 	registerAiCommandHandlers,
 	registerAgentErrorHandlers,
@@ -1774,14 +1773,6 @@ function setupIpcHandlers() {
 
 	// Register attachments handlers (extracted to handlers/attachments.ts)
 	registerAttachmentsHandlers({ app });
-
-	// Register Symphony handlers for token donation / open source contributions
-	registerSymphonyHandlers({
-		app,
-		getMainWindow: () => mainWindow,
-		sessionsStore,
-		settingsStore: store,
-	});
 
 	// Register tab naming handlers for automatic tab naming
 	registerTabNamingHandlers({

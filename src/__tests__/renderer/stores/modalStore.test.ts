@@ -447,7 +447,6 @@ describe('modalStore', () => {
 				'firstRunCelebration',
 				'keyboardMastery',
 				'lightbox',
-				'symphony',
 				'updateCheck',
 				'windowsWarning',
 				'cueModal',
@@ -1232,7 +1231,6 @@ describe('modalStore', () => {
 		it('evicts a destination regardless of which one opened first', () => {
 			const store = useModalStore.getState();
 			store.openModal('usageDashboard');
-			store.openModal('symphony');
 			store.openModal('cueModal');
 
 			const open = [...useModalStore.getState().modals.entries()].filter(([, e]) => e.open);
@@ -1343,7 +1341,6 @@ describe('modalStore', () => {
 					'directorNotes',
 					'openCue',
 					'openMemoryViewer',
-					'openSymphony',
 					'processMonitor',
 					'settings',
 					'systemLogs',

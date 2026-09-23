@@ -20,18 +20,16 @@
 export interface EncoreFeatureFlags {
 	directorNotes: boolean;
 	usageStats: boolean;
-	symphony: boolean;
 	maestroCue: boolean;
 }
 
 /**
- * Default state for a user who has never touched the Encore tab. All four
- * features have graduated, so all four are on.
+ * Default state for a user who has never touched the Encore tab. All three
+ * features have graduated, so all three are on.
  */
 export const DEFAULT_ENCORE_FEATURES: EncoreFeatureFlags = {
 	directorNotes: true,
 	usageStats: true,
-	symphony: true,
 	maestroCue: true,
 };
 
