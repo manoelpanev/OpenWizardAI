@@ -48,7 +48,7 @@ export interface GlossLevelMeta {
 export const GLOSS_LEVEL_META: Record<GlossLevel, GlossLevelMeta> = {
 	off: {
 		label: 'Off',
-		description: 'Flat surfaces, exactly as Maestro has always rendered.',
+		description: 'Flat surfaces, exactly as OpenWizzard has always rendered.',
 	},
 	sheen: {
 		label: 'Sheen',

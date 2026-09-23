@@ -246,7 +246,7 @@ describe('QuitConfirmModal', () => {
 				/>
 			);
 
-			expect(screen.getByText('Quit Maestro?')).toBeInTheDocument();
+			expect(screen.getByText('Quit OpenWizzard?')).toBeInTheDocument();
 		});
 	});
 
@@ -370,7 +370,7 @@ describe('QuitConfirmModal', () => {
 		});
 	});
 
-	describe('Maestro Cue and group chats', () => {
+	describe('OpenWizzard Cue and group chats', () => {
 		it('shows Cue runs in the background operations section', () => {
 			renderWithLayerStack(
 				<QuitConfirmModal
@@ -385,8 +385,8 @@ describe('QuitConfirmModal', () => {
 			);
 
 			expect(screen.getByText('Background Operations')).toBeInTheDocument();
-			expect(screen.getByText('Maestro Cue: 2')).toBeInTheDocument();
-			expect(screen.getByText(/2 Maestro Cue operations are running/)).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Cue: 2')).toBeInTheDocument();
+			expect(screen.getByText(/2 OpenWizzard Cue operations are running/)).toBeInTheDocument();
 		});
 
 		it('shows active group chats in the background operations section', () => {

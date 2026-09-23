@@ -439,7 +439,7 @@ describe('UpdateCheckModal', () => {
 			render(<UpdateCheckModal theme={createMockTheme()} onClose={vi.fn()} />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Maestro v1.2.3')).toBeInTheDocument();
+				expect(screen.getByText('OpenWizzard v1.2.3')).toBeInTheDocument();
 			});
 		});
 

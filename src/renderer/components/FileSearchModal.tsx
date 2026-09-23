@@ -487,7 +487,7 @@ export function FileSearchModal({
 										<Icon className="w-10 h-10" style={{ color: theme.colors.accent }} />
 										<div className="text-base font-medium" style={{ color: theme.colors.textMain }}>
 											Open <span style={{ color: theme.colors.accent }}>{absDisplay.name}</span> in
-											Maestro
+											OpenWizzard
 										</div>
 										<span className="text-xs" style={{ color: theme.colors.textDim }}>
 											Press Enter to open in a new file preview tab

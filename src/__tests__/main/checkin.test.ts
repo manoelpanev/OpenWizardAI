@@ -4,6 +4,12 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+// Exercise the upstream update/telemetry logic; OpenWizzard ships with these switched off.
+vi.mock('../../shared/branding', () => ({
+	UPDATES_ENABLED: true,
+	UPSTREAM_TELEMETRY_ENABLED: true,
+}));
 import * as fs from 'fs';
 import * as fsp from 'fs/promises';
 import * as os from 'os';

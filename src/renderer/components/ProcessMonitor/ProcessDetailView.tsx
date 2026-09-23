@@ -452,7 +452,7 @@ export function ProcessDetailView({ theme, detail, onBack, onClose }: ProcessDet
 										className="text-xs font-medium uppercase tracking-wide"
 										style={{ color: theme.colors.textDim }}
 									>
-										Maestro Environment Variables
+										OpenWizzard Environment Variables
 									</span>
 									<span className="text-xs" style={{ color: theme.colors.textDim, opacity: 0.7 }}>
 										({envEntries.length})

@@ -134,7 +134,7 @@ export async function openModal(
 			return;
 		}
 		const tabSuffix = tabId ? ` (${tabId} tab)` : '';
-		console.log(`Opened ${surface.label}${tabSuffix} in Maestro.`);
+		console.log(`Opened ${surface.label}${tabSuffix} in OpenWizzard.`);
 		if (hint) console.log(hint);
 	} catch (error) {
 		fail(error instanceof Error ? error.message : String(error), options);

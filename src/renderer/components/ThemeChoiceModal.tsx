@@ -213,7 +213,7 @@ export function ThemeChoiceModal({
 	return (
 		<Modal
 			theme={theme}
-			title={isReturningUser ? 'Make Maestro yours' : 'Pick a theme'}
+			title={isReturningUser ? 'Make OpenWizzard yours' : 'Pick a theme'}
 			headerIcon={<Palette className="w-4 h-4" style={{ color: theme.colors.accent }} />}
 			priority={MODAL_PRIORITIES.THEME_CHOICE}
 			onClose={handleDismiss}
@@ -256,8 +256,8 @@ export function ThemeChoiceModal({
 			<div className="space-y-4">
 				<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
 					{isReturningUser
-						? "While we're here: you've been on the default theme since you installed Maestro. There are a few more, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it."
-						: 'Maestro ships with a set of themes, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it.'}
+						? "While we're here: you've been on the default theme since you installed OpenWizzard. There are a few more, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it."
+						: 'OpenWizzard ships with a set of themes, in dark and light. Click any of them to try it on - the whole app changes as you browse, and nothing is saved until you keep it.'}
 				</p>
 
 				<div className="space-y-4 max-h-[46vh] overflow-y-auto pr-1">

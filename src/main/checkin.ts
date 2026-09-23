@@ -23,6 +23,7 @@ import * as path from 'path';
 import type { App } from 'electron';
 import { atomicWriteJson } from './utils/atomic-json-store';
 import { logger } from './utils/logger';
+import { UPSTREAM_TELEMETRY_ENABLED } from '../shared/branding';
 
 const CHECKIN_ENDPOINT = 'https://runmaestro.ai/api/telemetry/checkin';
 const CHECKIN_ID_FILE = 'checkin-id.json';
@@ -92,7 +93,7 @@ async function getOrCreateInstallId(app: App): Promise<string> {
  * dataset. Developer machines and CI are not the install base; skip them.
  */
 export async function sendCheckin(app: App, theme?: string | null): Promise<void> {
-	if (!app.isPackaged) return;
+	if (!app.isPackaged || !UPSTREAM_TELEMETRY_ENABLED) return;
 
 	try {
 		const guid = await getOrCreateInstallId(app);

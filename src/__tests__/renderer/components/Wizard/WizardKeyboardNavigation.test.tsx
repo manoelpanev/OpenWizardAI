@@ -253,7 +253,7 @@ describe('Wizard Keyboard Navigation', () => {
 			});
 
 			// Get the container with keyboard handler
-			const container = screen.getByText('Create a Maestro Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
 			expect(container).toBeInTheDocument();
 
 			// When only one agent is available, focus goes to name field, not tiles
@@ -287,7 +287,7 @@ describe('Wizard Keyboard Navigation', () => {
 				expect(screen.queryByText('Detecting available agents...')).not.toBeInTheDocument();
 			});
 
-			const container = screen.getByText('Create a Maestro Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
 
 			// Press Tab to move to name field
 			fireEvent.keyDown(container!, { key: 'Tab' });
@@ -311,7 +311,7 @@ describe('Wizard Keyboard Navigation', () => {
 			expect(nameInput).toHaveFocus();
 
 			// Get the container with keyboard handler
-			const container = screen.getByText('Create a Maestro Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
 
 			// Press Shift+Tab to go back to tiles
 			// Note: This triggers the keyboard handler but disabled buttons can't receive focus
@@ -329,7 +329,7 @@ describe('Wizard Keyboard Navigation', () => {
 				expect(screen.queryByText('Detecting available agents...')).not.toBeInTheDocument();
 			});
 
-			const container = screen.getByText('Create a Maestro Agent').closest('div[tabindex]');
+			const container = screen.getByText('Create an OpenWizzard Agent').closest('div[tabindex]');
 			const claudeTile = screen.getByRole('button', { name: /claude code/i });
 
 			// Claude Code should be auto-selected (available agent)
@@ -680,7 +680,7 @@ describe('Wizard Keyboard Navigation', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Click close button on step 1
@@ -719,7 +719,7 @@ describe('Wizard Keyboard Navigation', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Click the backdrop (the div with wizard-backdrop class)

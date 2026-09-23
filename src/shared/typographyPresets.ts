@@ -138,7 +138,7 @@ export const TYPOGRAPHY_PRESETS: Record<TypographyPresetId, TypographyPreset> = 
 	hacker: {
 		id: 'hacker',
 		label: 'Hacker',
-		tagline: 'Monospace everywhere. The original Maestro.',
+		tagline: 'Monospace everywhere. The original OpenWizzard.',
 		surfaces: [
 			{ label: 'Interface', kind: 'mono' },
 			{ label: 'AI chat', kind: 'mono' },

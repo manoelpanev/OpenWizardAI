@@ -158,7 +158,7 @@ describe('ProcessDetailView', () => {
 		render(
 			<ProcessDetailView theme={theme} detail={baseDetail} onBack={() => {}} onClose={() => {}} />
 		);
-		expect(screen.queryByText('Maestro Environment Variables')).not.toBeInTheDocument();
+		expect(screen.queryByText('OpenWizzard Environment Variables')).not.toBeInTheDocument();
 	});
 
 	it('renders all env vars inline when count is at or below the collapsed limit', () => {
@@ -176,7 +176,7 @@ describe('ProcessDetailView', () => {
 				onClose={() => {}}
 			/>
 		);
-		expect(screen.getByText('Maestro Environment Variables')).toBeInTheDocument();
+		expect(screen.getByText('OpenWizzard Environment Variables')).toBeInTheDocument();
 		expect(screen.getByText('ANTHROPIC_API_KEY')).toBeInTheDocument();
 		expect(screen.getByText('DEBUG')).toBeInTheDocument();
 		expect(screen.queryByRole('button', { name: /show \d+ more/i })).not.toBeInTheDocument();

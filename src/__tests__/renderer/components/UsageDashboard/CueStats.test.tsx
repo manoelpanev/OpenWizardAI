@@ -616,7 +616,7 @@ describe('CueStats', () => {
 
 			expect(screen.getByText('Cue stats are unavailable.')).toBeInTheDocument();
 			// Defense-in-depth copy mentions both Encore features
-			expect(screen.getByText(/Maestro Cue/)).toBeInTheDocument();
+			expect(screen.getByText(/OpenWizzard Cue/)).toBeInTheDocument();
 			expect(screen.getByText(/Usage Dashboard/)).toBeInTheDocument();
 			// The retry-style ErrorNote must NOT have rendered.
 			expect(screen.queryByTestId('cue-stats-error')).not.toBeInTheDocument();

@@ -8,6 +8,7 @@ import type Store from 'electron-store';
 import type { WindowState } from '../stores/types';
 import { logger } from '../utils/logger';
 import { initAutoUpdater } from '../auto-updater';
+import { UPDATES_ENABLED } from '../../shared/branding';
 
 const BROWSER_TAB_PARTITION_PREFIX = 'persist:maestro-browser-session-';
 // `file:` is allowed so users can open local HTML they just generated
@@ -673,8 +674,8 @@ export function createWindowManager(deps: WindowManagerDependencies): WindowMana
 				}
 			});
 
-			// Initialize auto-updater (only in production)
-			if (!isDevelopment) {
+			// Initialize auto-updater (only in production builds that publish their own releases)
+			if (!isDevelopment && UPDATES_ENABLED) {
 				initAutoUpdater(mainWindow, {
 					onBeforeQuitAndInstall: () => {
 						const confirmQuit = getConfirmQuit?.();

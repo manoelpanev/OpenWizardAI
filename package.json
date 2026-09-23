@@ -1,7 +1,8 @@
 {
-	"name": "maestro",
+	"name": "openwizzard",
+	"productName": "OpenWizzard",
 	"version": "0.17.5",
-	"description": "Maestro hones fractured attention into focused intent.",
+	"description": "OpenWizzard orchestrates your fleet of AI agents. Based on Maestro (AGPL-3.0).",
 	"main": "dist/main/index.js",
 	"author": {
 		"name": "Pedram Amini",
@@ -14,7 +15,8 @@
 	},
 	"bin": {
 		"maestro-cli": "./dist/cli/maestro-cli.js",
-		"maestro-p": "./dist/cli/maestro-p.js"
+		"maestro-p": "./dist/cli/maestro-p.js",
+		"openwizzard-cli": "./dist/cli/maestro-cli.js"
 	},
 	"scripts": {
 		"dev": "node scripts/dev.mjs",
@@ -69,21 +71,17 @@
 	},
 	"build": {
 		"npmRebuild": false,
-		"appId": "com.maestro.app",
-		"productName": "Maestro",
+		"appId": "com.openwizzard.app",
+		"productName": "OpenWizzard",
 		"protocols": [
 			{
-				"name": "Maestro",
+				"name": "OpenWizzard",
 				"schemes": [
 					"maestro"
 				]
 			}
 		],
-		"publish": {
-			"provider": "github",
-			"owner": "RunMaestro",
-			"repo": "Maestro"
-		},
+		"publish": null,
 		"directories": {
 			"output": "release",
 			"buildResources": "build"
@@ -106,24 +104,24 @@
 			"entitlements": "build/entitlements.mac.plist",
 			"entitlementsInherit": "build/entitlements.mac.plist",
 			"extendInfo": {
-				"NSCalendarsUsageDescription": "A program running inside Maestro wants to access your calendars.",
-				"NSCalendarsFullAccessUsageDescription": "A program running inside Maestro wants to read and change your calendars.",
-				"NSCalendarsWriteOnlyAccessUsageDescription": "A program running inside Maestro wants to add events to your calendars.",
-				"NSRemindersUsageDescription": "A program running inside Maestro wants to access your reminders.",
-				"NSRemindersFullAccessUsageDescription": "A program running inside Maestro wants to read and change your reminders.",
-				"NSContactsUsageDescription": "A program running inside Maestro wants to access your contacts.",
-				"NSPhotoLibraryUsageDescription": "A program running inside Maestro wants to access your photo library.",
-				"NSPhotoLibraryAddUsageDescription": "A program running inside Maestro wants to add photos to your photo library.",
-				"NSAppleMusicUsageDescription": "A program running inside Maestro wants to access your media library.",
-				"NSAppleEventsUsageDescription": "A program running inside Maestro wants to control another app on your Mac.",
-				"NSSpeechRecognitionUsageDescription": "A program running inside Maestro wants to send speech to Apple for recognition.",
-				"NSLocalNetworkUsageDescription": "A program running inside Maestro wants to reach devices on your local network.",
-				"NSLocationWhenInUseUsageDescription": "A program running inside Maestro wants to use your location.",
-				"NSDesktopFolderUsageDescription": "A program running inside Maestro wants to read and change files on your Desktop.",
-				"NSDocumentsFolderUsageDescription": "A program running inside Maestro wants to read and change files in your Documents folder.",
-				"NSDownloadsFolderUsageDescription": "A program running inside Maestro wants to read and change files in your Downloads folder.",
-				"NSRemovableVolumesUsageDescription": "A program running inside Maestro wants to read and change files on a removable volume.",
-				"NSNetworkVolumesUsageDescription": "A program running inside Maestro wants to read and change files on a network volume."
+				"NSCalendarsUsageDescription": "A program running inside OpenWizzard wants to access your calendars.",
+				"NSCalendarsFullAccessUsageDescription": "A program running inside OpenWizzard wants to read and change your calendars.",
+				"NSCalendarsWriteOnlyAccessUsageDescription": "A program running inside OpenWizzard wants to add events to your calendars.",
+				"NSRemindersUsageDescription": "A program running inside OpenWizzard wants to access your reminders.",
+				"NSRemindersFullAccessUsageDescription": "A program running inside OpenWizzard wants to read and change your reminders.",
+				"NSContactsUsageDescription": "A program running inside OpenWizzard wants to access your contacts.",
+				"NSPhotoLibraryUsageDescription": "A program running inside OpenWizzard wants to access your photo library.",
+				"NSPhotoLibraryAddUsageDescription": "A program running inside OpenWizzard wants to add photos to your photo library.",
+				"NSAppleMusicUsageDescription": "A program running inside OpenWizzard wants to access your media library.",
+				"NSAppleEventsUsageDescription": "A program running inside OpenWizzard wants to control another app on your Mac.",
+				"NSSpeechRecognitionUsageDescription": "A program running inside OpenWizzard wants to send speech to Apple for recognition.",
+				"NSLocalNetworkUsageDescription": "A program running inside OpenWizzard wants to reach devices on your local network.",
+				"NSLocationWhenInUseUsageDescription": "A program running inside OpenWizzard wants to use your location.",
+				"NSDesktopFolderUsageDescription": "A program running inside OpenWizzard wants to read and change files on your Desktop.",
+				"NSDocumentsFolderUsageDescription": "A program running inside OpenWizzard wants to read and change files in your Documents folder.",
+				"NSDownloadsFolderUsageDescription": "A program running inside OpenWizzard wants to read and change files in your Downloads folder.",
+				"NSRemovableVolumesUsageDescription": "A program running inside OpenWizzard wants to read and change files on a removable volume.",
+				"NSNetworkVolumesUsageDescription": "A program running inside OpenWizzard wants to read and change files on a network volume."
 			},
 			"target": [
 				"dmg",

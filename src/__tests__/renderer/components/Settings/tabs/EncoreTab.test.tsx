@@ -205,7 +205,9 @@ describe('EncoreTab', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect(screen.getByText(/Features that extend Maestro's capabilities/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/Features that extend OpenWizzard's capabilities/)
+			).toBeInTheDocument();
 			expect(screen.getByText(/Disabled features are completely hidden/)).toBeInTheDocument();
 		});
 
@@ -1432,15 +1434,15 @@ describe('EncoreTab', () => {
 		});
 	});
 
-	describe('Maestro Cue feature section', () => {
-		it('should render Maestro Cue section with toggle', async () => {
+	describe('OpenWizzard Cue feature section', () => {
+		it('should render OpenWizzard Cue section with toggle', async () => {
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
-			expect(screen.getByText('Maestro Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
 			expect(screen.getByText(/Event-driven automation/)).toBeInTheDocument();
 		});
 
-		it('should use theme accent for border when Maestro Cue is enabled', async () => {
+		it('should use theme accent for border when OpenWizzard Cue is enabled', async () => {
 			mockUseSettingsOverrides = {
 				encoreFeatures: { directorNotes: false, maestroCue: true },
 			};
@@ -1449,11 +1451,13 @@ describe('EncoreTab', () => {
 
 			// Find the Maestro Cue section container (second .rounded-lg.border div)
 			const sections = container.querySelectorAll('.rounded-lg.border');
-			const cueSection = Array.from(sections).find((el) => el.textContent?.includes('Maestro Cue'));
+			const cueSection = Array.from(sections).find((el) =>
+				el.textContent?.includes('OpenWizzard Cue')
+			);
 			expect(cueSection).toHaveStyle({ borderColor: mockTheme.colors.accent });
 		});
 
-		it('should use theme border color when Maestro Cue is disabled', async () => {
+		it('should use theme border color when OpenWizzard Cue is disabled', async () => {
 			mockUseSettingsOverrides = {
 				encoreFeatures: { directorNotes: false, maestroCue: false },
 			};
@@ -1461,11 +1465,13 @@ describe('EncoreTab', () => {
 			const { container } = render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
 			const sections = container.querySelectorAll('.rounded-lg.border');
-			const cueSection = Array.from(sections).find((el) => el.textContent?.includes('Maestro Cue'));
+			const cueSection = Array.from(sections).find((el) =>
+				el.textContent?.includes('OpenWizzard Cue')
+			);
 			expect(cueSection).toHaveStyle({ borderColor: mockTheme.colors.border });
 		});
 
-		it('should use theme accent for toggle when Maestro Cue is enabled', async () => {
+		it('should use theme accent for toggle when OpenWizzard Cue is enabled', async () => {
 			mockUseSettingsOverrides = {
 				encoreFeatures: { directorNotes: false, maestroCue: true },
 			};
@@ -1474,7 +1480,9 @@ describe('EncoreTab', () => {
 
 			// The toggle is a rounded-full div inside the Maestro Cue button
 			const sections = container.querySelectorAll('.rounded-lg.border');
-			const cueSection = Array.from(sections).find((el) => el.textContent?.includes('Maestro Cue'));
+			const cueSection = Array.from(sections).find((el) =>
+				el.textContent?.includes('OpenWizzard Cue')
+			);
 			const toggle = cueSection?.querySelector('.rounded-full');
 			expect(toggle).toHaveStyle({ backgroundColor: mockTheme.colors.accent });
 		});
@@ -1487,7 +1495,7 @@ describe('EncoreTab', () => {
 			render(<EncoreTab theme={mockTheme} isOpen={true} />);
 
 			// Click the Maestro Cue section button
-			const cueButton = screen.getByText('Maestro Cue').closest('button');
+			const cueButton = screen.getByText('OpenWizzard Cue').closest('button');
 			expect(cueButton).toBeTruthy();
 			fireEvent.click(cueButton!);
 

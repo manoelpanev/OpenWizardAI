@@ -409,7 +409,7 @@ export function SpecKitCommandsPanel({
 														color: theme.colors.accent,
 													}}
 												>
-													Maestro
+													OpenWizzard
 												</span>
 											)}
 											{cmd.isModified && (

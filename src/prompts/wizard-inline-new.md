@@ -1,4 +1,4 @@
-You are a planning assistant starting fresh in an existing Maestro session for "{{PROJECT_NAME}}".
+You are a planning assistant starting fresh in an existing OpenWizzard session for "{{PROJECT_NAME}}".
 
 ## Your Role
 

@@ -18,7 +18,7 @@ vi.mock('../../../renderer/components/MaestroSilhouette', () => ({
 		style?: React.CSSProperties;
 	}) => (
 		<div data-testid="maestro-silhouette" data-variant={variant} data-size={size} style={style}>
-			Maestro Silhouette
+			OpenWizzard Silhouette
 		</div>
 	),
 }));
@@ -181,7 +181,7 @@ describe('AchievementCard', () => {
 		it('renders the achievement card container', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={baseAutoRunStats} />);
 
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 
 		it('renders with correct theme colors', () => {
@@ -208,7 +208,7 @@ describe('AchievementCard', () => {
 			expect(screen.getByTestId('share-icon')).toBeInTheDocument();
 		});
 
-		it('renders Maestro silhouette', () => {
+		it('renders OpenWizzard silhouette', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={baseAutoRunStats} />);
 
 			expect(screen.getByTestId('maestro-silhouette')).toBeInTheDocument();
@@ -722,7 +722,7 @@ describe('AchievementCard', () => {
 			);
 
 			// Should still render normally
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 
 		it('handles null globalStats', () => {
@@ -730,7 +730,7 @@ describe('AchievementCard', () => {
 				<AchievementCard theme={mockTheme} autoRunStats={firstBadgeStats} globalStats={null} />
 			);
 
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 
 		it('handles undefined globalStats', () => {
@@ -738,7 +738,7 @@ describe('AchievementCard', () => {
 				<AchievementCard theme={mockTheme} autoRunStats={firstBadgeStats} globalStats={undefined} />
 			);
 
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 	});
 
@@ -1082,7 +1082,7 @@ describe('AchievementCard', () => {
 			render(<AchievementCard theme={mockTheme} autoRunStats={undefinedHistoryStats} />);
 
 			// Should not crash and should render
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 
 		it('handles light theme mode', () => {
@@ -1101,7 +1101,7 @@ describe('AchievementCard', () => {
 
 			render(<AchievementCard theme={lightTheme} autoRunStats={firstBadgeStats} />);
 
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 
 		it('handles rapid badge selection changes', async () => {
@@ -1131,7 +1131,7 @@ describe('AchievementCard', () => {
 
 			render(<AchievementCard theme={specialTheme} autoRunStats={firstBadgeStats} />);
 
-			expect(screen.getByText('Maestro Achievements')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Achievements')).toBeInTheDocument();
 		});
 	});
 

@@ -1,6 +1,6 @@
-## Maestro CLI
+## OpenWizzard CLI
 
-Maestro ships a command-line interface (`maestro-cli`) for driving the running app on the user's behalf. Invoke it with:
+OpenWizzard ships a command-line interface (`maestro-cli`) for driving the running app on the user's behalf. Invoke it with:
 
 ```bash
 {{MAESTRO_CLI_PATH}}
@@ -26,7 +26,7 @@ Run `<group> --help` for the exact subcommands and flags.
 - **session list / session show** - enumerate every open AI tab across the fleet (ids, agent, state, and each tab's settings), and print one tab's transcript. This is the read side of `tab`.
 - **auto-run / playbook / stop-/resume-/skip-/abort-auto-run** - launch and control Auto Runs and saved playbooks.
 - **cue** - list and trigger Cue subscriptions, and manage Scheduled Tasks with `cue schedule` (event model + YAML schema live in `_maestro-cue`).
-- **open** - bring up a Maestro modal or dashboard, optionally on a tab (`open --list`, `open cue --tab scheduled`, `open settings --tab shortcuts`). Judgment note below.
+- **open** - bring up an OpenWizzard modal or dashboard, optionally on a tab (`open --list`, `open cue --tab scheduled`, `open settings --tab shortcuts`). Judgment note below.
 - **open-file / open-browser / close-browser / refresh-files / refresh-auto-run** - desktop integration after filesystem changes so the user sees updates immediately.
 - **open-terminal / send-terminal / list terminals** - open a native terminal tab (optionally starting a command in it), type into one that already exists, and see what is open. Judgment note below.
 - **notify toast|flash** - surface in-app notifications (see the judgment below).
@@ -43,7 +43,7 @@ These are judgment calls and gotchas, not syntax - the part worth reading.
 
 **Encore Features (toggled).** Four capabilities sit behind `encoreFeatures.*` flags: `maestroCue` (event-driven automation), `directorNotes` (cross-agent history + AI synopses), `symphony` (playbook registries), `usageStats` (usage dashboard + the stats collection that feeds it). All four ship ON, so a flag reading `false` means the user turned it off deliberately. When a user's intent maps to one, check `settings get encoreFeatures.<flag>` - if `false`, do NOT silently re-enable it. Say the capability is switched off, give a one-line pitch, and offer to flip it back (`settings set encoreFeatures.<flag> true` - instant, no restart). Trigger phrases:
 
-- "every morning / every N minutes / remind me / watch this file / when this PR opens / after agent X finishes" → **Maestro Cue**
+- "every morning / every N minutes / remind me / watch this file / when this PR opens / after agent X finishes" → **OpenWizzard Cue**
 - "summarize today / what did the fleet do / give me a briefing / weekly recap" → **Director's Notes**
 - "contribute to open source / find or publish a playbook" → **Symphony**
 - "how much have I used / token usage / show my stats / model spend / usage dashboard" → **Usage & Stats**
@@ -80,7 +80,7 @@ Targeting: with no `--tab`, `send-terminal` hits the agent's **active** terminal
 - Always pass `--agent <id-or-name>` (the agent that will run it) and `--prompt`, `--notify`, or both.
 - Inspect and edit: `--list [--kind once|daily|interval]`, `--reschedule <name>` plus the timing flag matching that task's kind, `--pause` / `--resume` (keeps the task, stops it firing), `--cancel <name>` (deletes it).
 
-The user sees and edits the same tasks in the app under **Maestro Cue → Scheduled Tasks** - offer `open cue --tab scheduled` after scheduling something so they know where it lives. A `--pause` is almost always the right answer to "stop doing that for now"; reach for `--cancel` only when they want it gone.
+The user sees and edits the same tasks in the app under **OpenWizzard Cue → Scheduled Tasks** - offer `open cue --tab scheduled` after scheduling something so they know where it lives. A `--pause` is almost always the right answer to "stop doing that for now"; reach for `--cancel` only when they want it gone.
 
 **Opening a surface is a teaching move, not just navigation.** When the user asks where something lives ("where do I see my scheduled tasks / my token usage / the shortcut list?"), offer to open it and then relay the access line the command prints: `open` reports the hotkey, the command-palette entry, and the click target for that surface. Showing them the pane and the hotkey in one breath beats describing a menu path. Use `open --list` when you are unsure of the surface id; use `--tab` whenever the answer lives on a specific tab. Do not use it to yank the user's screen around mid-task - it changes what is in front of them, so open a surface because they asked about it or agreed to it.
 

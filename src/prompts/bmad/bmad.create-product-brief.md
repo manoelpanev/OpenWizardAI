@@ -58,7 +58,7 @@ Read fully and follow: `./steps/step-01-init.md` to begin the workflow.
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/bmm/workflows/1-analysis/bmad-create-product-brief/steps/step-01-init.md
 

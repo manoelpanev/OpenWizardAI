@@ -295,7 +295,7 @@ export function AchievementShareButton({
 		if (hasPersonalization && displayName) {
 			ctx.fillText(displayName.toUpperCase(), width / 2, titleY);
 		} else {
-			ctx.fillText('MAESTRO ACHIEVEMENTS', width / 2, titleY);
+			ctx.fillText('OPENWIZZARD ACHIEVEMENTS', width / 2, titleY);
 		}
 
 		const levelY = titleY + 28;

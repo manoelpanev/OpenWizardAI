@@ -13,7 +13,7 @@ const FEATURES: Record<string, string> = {
 	directorNotes: "Director's Notes",
 	usageStats: 'Usage Dashboard',
 	symphony: 'Symphony (Group Chat)',
-	maestroCue: 'Maestro Cue',
+	maestroCue: 'OpenWizzard Cue',
 };
 
 const ALIASES: Record<string, string> = {

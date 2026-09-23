@@ -62,7 +62,7 @@ export async function prepareMaestroSystemPromptCli(
 		// than masquerade as "prompt missing". Log the swallow so the user has
 		// a breadcrumb when their relay bot suddenly loses Maestro context.
 		if (err instanceof Error && err.message.startsWith('Failed to load prompt')) {
-			console.error(`[maestro-cli] ${err.message}; spawning without Maestro system prompt`);
+			console.error(`[maestro-cli] ${err.message}; spawning without OpenWizzard system prompt`);
 			return undefined;
 		}
 		throw err;

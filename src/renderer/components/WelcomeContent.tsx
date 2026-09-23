@@ -33,16 +33,16 @@ export function WelcomeContent({
 	return (
 		<div className="flex flex-col items-center text-center max-w-xl">
 			{/* Maestro Icon */}
-			<img src={maestroWandIcon} alt="Maestro" className="w-20 h-20 mb-6 opacity-90" />
+			<img src={maestroWandIcon} alt="OpenWizzard" className="w-20 h-20 mb-6 opacity-90" />
 
 			{/* Heading */}
 			<h1 className="text-2xl font-bold mb-4" style={{ color: theme.colors.textMain }}>
-				Welcome to Maestro
+				Welcome to OpenWizzard
 			</h1>
 
 			{/* Primary goals */}
 			<p className="text-sm mb-4" style={{ color: theme.colors.textDim }}>
-				Maestro is an orchestration tool designed to:
+				OpenWizzard is an orchestration tool designed to:
 			</p>
 
 			<div className="text-left space-y-3 mb-6">
@@ -94,7 +94,7 @@ export function WelcomeContent({
 				}}
 			>
 				<p>
-					<strong style={{ color: theme.colors.textMain }}>How it works:</strong> Maestro is a
+					<strong style={{ color: theme.colors.textMain }}>How it works:</strong> OpenWizzard is a
 					pass-through to your AI provider. Your MCP tools, skills, and permissions work exactly as
 					they do when running the provider directly.
 				</p>

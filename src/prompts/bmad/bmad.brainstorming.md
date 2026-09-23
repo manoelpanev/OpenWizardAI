@@ -58,7 +58,7 @@ Read fully and follow: `./steps/step-01-session-setup.md` to begin the workflow.
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/core/skills/bmad-brainstorming/steps/step-01-session-setup.md
 

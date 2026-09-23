@@ -399,7 +399,7 @@ export function GroupChatModal(props: GroupChatModalProps): JSX.Element | null {
 						<span style={{ color: theme.colors.textMain }}>moderator</span> manages the conversation
 						flow, deciding when to involve other agents. You can{' '}
 						<span style={{ color: theme.colors.accent }}>@mention</span> any agent defined in
-						Maestro to bring them into the discussion. We're still working on this feature, but
+						OpenWizzard to bring them into the discussion. We're still working on this feature, but
 						right now Claude appears to be the best performing moderator.
 					</div>
 				)}

@@ -20,7 +20,7 @@ export class UnsupportedCommandError extends Error {
 	readonly commandType: string;
 	constructor(commandType: string) {
 		super(
-			`The running Maestro app does not support the '${commandType}' command. ` +
+			`The running OpenWizzard app does not support the '${commandType}' command. ` +
 				'It is likely an older build - rebuild and restart the desktop app, then retry.'
 		);
 		this.name = 'UnsupportedCommandError';
@@ -33,7 +33,7 @@ export class CommandTimeoutError extends Error {
 	readonly responseType: string;
 	constructor(responseType: string) {
 		super(
-			`Timed out waiting for the Maestro app to respond (expected '${responseType}'). ` +
+			`Timed out waiting for the OpenWizzard app to respond (expected '${responseType}'). ` +
 				'The app is reachable but its renderer did not reply - it may be busy or unresponsive.'
 		);
 		this.name = 'CommandTimeoutError';
@@ -61,11 +61,11 @@ export class MaestroClient {
 	async connect(): Promise<void> {
 		const info = readCliServerInfo();
 		if (!info) {
-			throw new Error('Maestro desktop app is not running');
+			throw new Error('OpenWizzard desktop app is not running');
 		}
 
 		if (!isCliServerRunning()) {
-			throw new Error('Maestro discovery file is stale (app may have crashed)');
+			throw new Error('OpenWizzard discovery file is stale (app may have crashed)');
 		}
 
 		// Use 127.0.0.1 instead of `localhost` - Node 18's default DNS resolution
@@ -82,7 +82,7 @@ export class MaestroClient {
 				if (!settled) {
 					settled = true;
 					ws.close();
-					reject(new Error('Connection to Maestro timed out'));
+					reject(new Error('Connection to OpenWizzard timed out'));
 				}
 			}, CONNECT_TIMEOUT_MS);
 
@@ -102,7 +102,7 @@ export class MaestroClient {
 				if (settled) return;
 				settled = true;
 				clearTimeout(timeout);
-				reject(new Error(`Failed to connect to Maestro: ${err.message}`));
+				reject(new Error(`Failed to connect to OpenWizzard: ${err.message}`));
 			});
 		});
 	}
@@ -116,7 +116,7 @@ export class MaestroClient {
 		timeoutMs: number = DEFAULT_COMMAND_TIMEOUT_MS
 	): Promise<T> {
 		if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-			throw new Error('Not connected to Maestro');
+			throw new Error('Not connected to OpenWizzard');
 		}
 
 		const requestId = `req_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -249,7 +249,7 @@ export function resolveSessionId(options: { session?: string }): string {
 
 	const sessions = readSessions();
 	if (sessions.length === 0) {
-		console.error('Error: No agents found. Create an agent in Maestro first.');
+		console.error('Error: No agents found. Create an agent in OpenWizzard first.');
 		process.exit(1);
 	}
 

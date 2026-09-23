@@ -85,7 +85,7 @@ export function PlaybookImportFooter({
 					}}
 					title={
 						!compatible
-							? `Update Maestro to ${playbook.minMaestroVersion} or newer to install this playbook.`
+							? `Update OpenWizzard to ${playbook.minMaestroVersion} or newer to install this playbook.`
 							: undefined
 					}
 				>
@@ -97,7 +97,7 @@ export function PlaybookImportFooter({
 					) : !compatible ? (
 						<span className="flex items-center gap-2">
 							<Download className="w-4 h-4" />
-							Update Maestro to install
+							Update OpenWizzard to install
 						</span>
 					) : (
 						<span className="flex items-center gap-2">

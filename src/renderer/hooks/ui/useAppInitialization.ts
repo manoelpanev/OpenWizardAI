@@ -125,7 +125,7 @@ export function useAppInitialization(): AppInitializationReturn {
 			// then a short delay lets the file tree and heavy components settle.
 			requestAnimationFrame(() => {
 				requestAnimationFrame(() => {
-					window.__updateSplash?.(95, 'Maestro takes the podium...');
+					window.__updateSplash?.(95, 'OpenWizzard takes the podium...');
 					setTimeout(() => {
 						window.__hideSplash?.();
 					}, 150);

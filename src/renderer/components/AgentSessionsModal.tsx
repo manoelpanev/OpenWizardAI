@@ -31,8 +31,8 @@ interface AgentSession {
 	firstMessage: string;
 	messageCount: number;
 	sizeBytes: number;
-	sessionName?: string; // Named session from Maestro
-	starred?: boolean; // Starred status from Maestro
+	sessionName?: string; // Named session from OpenWizzard
+	starred?: boolean; // Starred status from OpenWizzard
 }
 
 interface SessionMessage {

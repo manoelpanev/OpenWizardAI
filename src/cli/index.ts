@@ -119,7 +119,10 @@ const cliVersion: string =
 
 const program = new Command();
 
-program.name('maestro-cli').description('Command-line interface for Maestro').version(cliVersion);
+program
+	.name('maestro-cli')
+	.description('Command-line interface for OpenWizzard')
+	.version(cliVersion);
 
 // Global verbosity flags. `--verbose` has no short alias on purpose: several
 // subcommands already use `-v` for their own verbose option, and a global `-v`
@@ -254,10 +257,10 @@ program
 	.description('Send a message to an agent and get a JSON response')
 	.option('-s, --session <id>', 'Resume an existing agent session (for multi-turn conversations)')
 	.option('-r, --read-only', 'Run in read-only/plan mode (agent cannot modify files)')
-	.option('-t, --tab', 'Open/focus the session tab in Maestro desktop')
+	.option('-t, --tab', 'Open/focus the session tab in OpenWizzard desktop')
 	.option(
 		'--no-system-prompt',
-		'Skip the Maestro system prompt (agent identity, git branch, history path, conductor profile). Default is to include it for parity with the desktop app.'
+		'Skip the OpenWizzard system prompt (agent identity, git branch, history path, conductor profile). Default is to include it for parity with the desktop app.'
 	)
 	.action(send);
 
@@ -267,7 +270,7 @@ program
 program
 	.command('dispatch <agent-id> <message>')
 	.description(
-		'Dispatch a prompt to an agent in the Maestro desktop app and return its tab/session ID'
+		'Dispatch a prompt to an agent in the OpenWizzard desktop app and return its tab/session ID'
 	)
 	.option('--new-tab', 'Create a fresh AI tab and dispatch the prompt into it')
 	.option(
@@ -313,7 +316,7 @@ session
 // Open file command - open a file in the Maestro desktop app
 program
 	.command('open-file <file-path>')
-	.description('Open a file as a preview tab in the Maestro desktop app')
+	.description('Open a file as a preview tab in the OpenWizzard desktop app')
 	.option('-a, --agent <id>', "Target agent (defaults to auto-detect by file path's owning agent)")
 	.option(
 		'--background',
@@ -339,7 +342,7 @@ program
 // Open browser command - open a URL in a browser tab in the Maestro desktop app
 program
 	.command('open-browser <url>')
-	.description('Open a URL as a browser tab in the Maestro desktop app')
+	.description('Open a URL as a browser tab in the OpenWizzard desktop app')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--background',
@@ -355,7 +358,7 @@ program
 // surface for the user can also teach them how to reach it by hand.
 program
 	.command('open [surface]')
-	.description('Open a Maestro modal or dashboard (use --list to see every surface)')
+	.description('Open an OpenWizzard modal or dashboard (use --list to see every surface)')
 	.option('-t, --tab <tab>', 'Deep-link to a tab within the surface')
 	.option('--list', 'List every openable surface, its tabs, and its shortcut')
 	.option('--json', 'Output as JSON (for scripting)')
@@ -368,7 +371,7 @@ program
 // `image save` writes the bytes to disk.
 const image = program
 	.command('image')
-	.description('List and save images pasted into a Maestro chat');
+	.description('List and save images pasted into an OpenWizzard chat');
 
 image
 	.command('list')
@@ -396,14 +399,16 @@ image
 // Close browser command - close a browser tab opened via open-browser
 program
 	.command('close-browser <tab-id>')
-	.description('Close a browser tab in the Maestro desktop app (owning agent resolved by tab ID)')
+	.description(
+		'Close a browser tab in the OpenWizzard desktop app (owning agent resolved by tab ID)'
+	)
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(closeBrowser);
 
 // Open terminal command - open a new terminal tab in the Maestro desktop app
 program
 	.command('open-terminal')
-	.description('Open a new terminal tab in the Maestro desktop app')
+	.description('Open a new terminal tab in the OpenWizzard desktop app')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option('--cwd <path>', "Working directory for the terminal (must be within the agent's cwd)")
 	.option('--shell <shell>', 'Shell binary to use (default: zsh)')
@@ -420,7 +425,7 @@ program
 // Send terminal command - run something in a terminal tab that already exists
 program
 	.command('send-terminal [command]')
-	.description('Run a command in an existing Maestro terminal tab')
+	.description('Run a command in an existing OpenWizzard terminal tab')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--tab <id-or-name>',
@@ -434,7 +439,7 @@ program
 // Read-terminal command - read the scrollback of an existing Maestro terminal tab
 program
 	.command('read-terminal')
-	.description("Read a Maestro terminal tab's output")
+	.description("Read an OpenWizzard terminal tab's output")
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--tab <id-or-name>',
@@ -447,7 +452,7 @@ program
 // Refresh files command - refresh the file tree in the Maestro desktop app
 program
 	.command('refresh-files')
-	.description('Refresh the file tree in the Maestro desktop app (never moves the view)')
+	.description('Refresh the file tree in the OpenWizzard desktop app (never moves the view)')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option(
 		'--background',
@@ -459,7 +464,7 @@ program
 // Refresh auto-run command - refresh Auto Run documents in the Maestro desktop app
 program
 	.command('refresh-auto-run')
-	.description('Refresh Auto Run documents in the Maestro desktop app')
+	.description('Refresh Auto Run documents in the OpenWizzard desktop app')
 	.option('-a, --agent <id>', 'Target agent by ID (defaults to active)')
 	.option('--background', 'Refresh without switching to the target agent (default)')
 	.option('--focus', 'Switch to the target agent while refreshing')
@@ -542,7 +547,7 @@ program
 	.action((agentId, playbookId, options) => removePlaybook(agentId, playbookId, options));
 
 // Cue commands - interact with Maestro Cue automation
-const cue = program.command('cue').description('Interact with Maestro Cue automation');
+const cue = program.command('cue').description('Interact with OpenWizzard Cue automation');
 
 cue
 	.command('trigger <subscription-name>')
@@ -660,7 +665,7 @@ directorNotes
 
 directorNotes
 	.command('synopsis')
-	.description('Generate AI synopsis of recent activity (requires running Maestro app)')
+	.description('Generate AI synopsis of recent activity (requires running OpenWizzard app)')
 	.option('-d, --days <n>', 'Lookback period in days (default: from app settings)')
 	.option('-f, --format <type>', 'Output format: json, markdown, text (default: text)')
 	.option('--json', 'Output as JSON (shorthand for --format json)')
@@ -669,7 +674,7 @@ directorNotes
 // Status command - check if Maestro desktop app is running and reachable
 program
 	.command('status')
-	.description('Check if the Maestro desktop app is running and reachable')
+	.description('Check if the OpenWizzard desktop app is running and reachable')
 	.action(status);
 
 // Doctor command - diagnose connection, version skew, handler support, SSH config
@@ -695,7 +700,7 @@ program
 // Create agent command - create a new agent in the Maestro desktop app
 program
 	.command('create-agent <name>')
-	.description('Create a new agent in the Maestro desktop app')
+	.description('Create a new agent in the OpenWizzard desktop app')
 	.requiredOption('-d, --cwd <path>', 'Working directory for the agent')
 	.option(
 		'-t, --type <type>',
@@ -735,7 +740,7 @@ program
 // Create group command - create a new group in the Maestro desktop app
 program
 	.command('create-group <name>')
-	.description('Create a new group in the Maestro desktop app')
+	.description('Create a new group in the OpenWizzard desktop app')
 	.option('-e, --emoji <emoji>', 'Emoji icon for the group')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(createGroup);
@@ -745,7 +750,7 @@ program
 program
 	.command('remove-group <group-id>')
 	.description(
-		'Remove a group from the Maestro desktop app (agents inside are ungrouped, not deleted)'
+		'Remove a group from the OpenWizzard desktop app (agents inside are ungrouped, not deleted)'
 	)
 	.option('-f, --force', 'Delete even if the group still has agents (ungroups them)')
 	.option('--json', 'Output as JSON (for scripting)')
@@ -754,7 +759,7 @@ program
 // Rename group command - change a group's name in the desktop app
 program
 	.command('rename-group <group-id> <new-name>')
-	.description('Rename a group in the Maestro desktop app')
+	.description('Rename a group in the OpenWizzard desktop app')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((groupId, newName, options) => renameGroup(groupId, newName, options));
 
@@ -788,7 +793,7 @@ program
 // Remove agent command - remove an agent from the Maestro desktop app
 program
 	.command('remove-agent <agent-id>')
-	.description('Remove an agent from the Maestro desktop app')
+	.description('Remove an agent from the OpenWizzard desktop app')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(removeAgent);
 
@@ -851,7 +856,7 @@ program
 // Rename agent command - change an agent's display name in the desktop app
 program
 	.command('rename-agent <agent-id> <new-name>')
-	.description('Rename an agent in the Maestro desktop app')
+	.description('Rename an agent in the OpenWizzard desktop app')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((agentId, newName, options) => renameAgent(agentId, newName, options));
 
@@ -873,7 +878,7 @@ program
 // Focus agent command - select/focus an agent (and optionally a tab) in the UI
 program
 	.command('focus-agent <agent-id>')
-	.description('Focus (select) an agent in the Maestro desktop UI')
+	.description('Focus (select) an agent in the OpenWizzard desktop UI')
 	.option('--tab <tab-id>', 'Also focus this tab within the agent')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((agentId, options) => focusAgent(agentId, options));
@@ -1072,12 +1077,14 @@ display
 
 display
 	.command('fonts')
-	.description('List the fonts bundled with Maestro (guaranteed available on any machine)')
+	.description('List the fonts bundled with OpenWizzard (guaranteed available on any machine)')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(displayFontsCatalog);
 
 // Settings commands
-const settings = program.command('settings').description('View and manage Maestro configuration');
+const settings = program
+	.command('settings')
+	.description('View and manage OpenWizzard configuration');
 
 settings
 	.command('list')
@@ -1146,7 +1153,7 @@ agent
 // activeThemeId setting with validation + discovery).
 program
 	.command('set-theme [name-or-id]')
-	.description('Switch the active Maestro theme (applies live). Use --list to see options.')
+	.description('Switch the active OpenWizzard theme (applies live). Use --list to see options.')
 	.option('-l, --list', 'List available themes')
 	.option('--json', 'Output as JSON (for scripting)')
 	.action((nameOrId, options) => setTheme(nameOrId, options));
@@ -1223,7 +1230,7 @@ encore
 // Prompts command - read Maestro's bundled or user-customized system prompts.
 // Designed for agent self-fetch: parent prompts reference includes via `{{REF:_name}}`
 // and the agent retrieves the full content on demand with `prompts get _name`.
-const prompts = program.command('prompts').description('Read Maestro system prompts');
+const prompts = program.command('prompts').description('Read OpenWizzard system prompts');
 
 prompts
 	.command('list')
@@ -1233,7 +1240,9 @@ prompts
 
 prompts
 	.command('get <id>')
-	.description('Print a prompt by id (honors user customizations from Settings → Maestro Prompts)')
+	.description(
+		'Print a prompt by id (honors user customizations from Settings → OpenWizzard Prompts)'
+	)
 	.option('--json', 'Output as JSON object with metadata + content')
 	.action(promptsGet);
 
@@ -1245,7 +1254,7 @@ const gist = program.command('gist').description('Publish session context to Git
 gist
 	.command('create <agent-id>')
 	.description(
-		"Publish an agent's session transcript as a GitHub gist (requires running Maestro app)"
+		"Publish an agent's session transcript as a GitHub gist (requires running OpenWizzard app)"
 	)
 	.option('-d, --description <text>', 'Gist description')
 	.option('-p, --public', 'Create a public gist (default: private)')
@@ -1258,7 +1267,7 @@ gist
 // Notify commands - surface notifications in the Maestro desktop app
 const notify = program
 	.command('notify')
-	.description('Show notifications in the Maestro desktop app');
+	.description('Show notifications in the OpenWizzard desktop app');
 
 notify
 	.command('toast <title> <message>')
@@ -1304,7 +1313,7 @@ notify
 	)
 	.option(
 		'--open-url <url>',
-		'On click, open this URL in the system browser (opens outside Maestro; use --open-browser for an in-app tab)'
+		'On click, open this URL in the system browser (opens outside OpenWizzard; use --open-browser for an in-app tab)'
 	)
 	.option('--json', 'Output as JSON (for scripting)')
 	.action(notifyToast);

@@ -829,7 +829,7 @@ export async function routeUserMessage(
 				);
 				if (availableSessions.length > 0) {
 					// Use normalized names (spaces → hyphens) so moderator can @mention them properly
-					availableSessionsContext = `\n\n## Available Maestro Sessions (can be added via @mention):\n${availableSessions.map((s) => `- @${normalizeMentionName(s.name)} (${s.toolType})`).join('\n')}`;
+					availableSessionsContext = `\n\n## Available OpenWizzard Sessions (can be added via @mention):\n${availableSessions.map((s) => `- @${normalizeMentionName(s.name)} (${s.toolType})`).join('\n')}`;
 				}
 			}
 
@@ -1460,7 +1460,7 @@ export async function routeModeratorResponse(
 				groupChatEmitters.emitMessage?.(groupChatId, {
 					timestamp: new Date().toISOString(),
 					from: 'system',
-					content: `⚠️ No Auto Run folder configured for @${participant.name}. Open the agent in Maestro, go to the Auto Run tab, and configure a folder first.`,
+					content: `⚠️ No Auto Run folder configured for @${participant.name}. Open the agent in OpenWizzard, go to the Auto Run tab, and configure a folder first.`,
 				});
 				return false;
 			}

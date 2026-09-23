@@ -110,7 +110,7 @@ describe('CueModalHeader', () => {
 	it('help button fires onOpenHelp', () => {
 		const props = makeProps();
 		render(<CueModalHeader {...props} />);
-		const help = screen.getByTitle('About Maestro Cue');
+		const help = screen.getByTitle('About OpenWizzard Cue');
 		fireEvent.click(help);
 		expect(props.onOpenHelp).toHaveBeenCalled();
 	});

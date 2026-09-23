@@ -122,7 +122,7 @@ const CATEGORY_HELP: Record<string, string> = {
 	includes:
 		'Reusable blocks referenced from other prompts. Two directives consume them: {{INCLUDE:name}} fully inlines the content at assembly time (use for foundational rules every agent must have); {{REF:name}} expands to a one-line pointer that tells the agent to fetch it on demand via `maestro-cli prompts get <name>` (use for heavy reference material only some sessions need). Keeps shared content (history format, Auto Run spec, CLI reference, Cue model, file-access rules) in one place so every agent that needs it gets the same wording.',
 	system:
-		"System-level prompts — the Maestro system context injected into agents, tab naming, Director's Notes, and feedback.",
+		"System-level prompts — the OpenWizzard system context injected into agents, tab naming, Director's Notes, and feedback.",
 };
 
 // Group template variables by prefix for the help panel
@@ -166,10 +166,10 @@ function PromptsHelpPanel({ theme, onClose }: { theme: Theme; onClose?: () => vo
 					What Are Core Prompts?
 				</h3>
 				<p className="prompts-help-text" style={{ color: theme.colors.textDim }}>
-					Core prompts are the system instructions that control how Maestro's AI features behave.
-					Each prompt is a Markdown template that gets injected into the AI context for a specific
-					feature. Customizing these lets you tailor Maestro's behavior without modifying source
-					code.
+					Core prompts are the system instructions that control how OpenWizzard's AI features
+					behave. Each prompt is a Markdown template that gets injected into the AI context for a
+					specific feature. Customizing these lets you tailor OpenWizzard's behavior without
+					modifying source code.
 				</p>
 				<p className="prompts-help-text" style={{ color: theme.colors.textDim }}>
 					Changes take effect immediately — no restart required. Use the{' '}
@@ -988,9 +988,9 @@ export function MaestroPromptsTab({
 				<div className="prompts-tab-header-text">
 					<div className="text-xs font-bold opacity-70 uppercase mb-1">Core System Prompts</div>
 					<p className="text-xs opacity-50">
-						Customize the system prompts used by Maestro features. Changes take effect immediately.
-						Use <code className="text-xs opacity-70">{'{{INCLUDE:name}}'}</code> to reference other
-						prompt files.
+						Customize the system prompts used by OpenWizzard features. Changes take effect
+						immediately. Use <code className="text-xs opacity-70">{'{{INCLUDE:name}}'}</code> to
+						reference other prompt files.
 					</p>
 				</div>
 			)}

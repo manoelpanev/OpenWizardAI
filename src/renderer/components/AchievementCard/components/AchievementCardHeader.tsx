@@ -15,7 +15,7 @@ export function AchievementCardHeader({
 			<div className="flex items-center gap-2">
 				<Trophy className="w-4 h-4" style={{ color: '#FFD700' }} />
 				<span className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-					Maestro Achievements
+					OpenWizzard Achievements
 				</span>
 			</div>
 

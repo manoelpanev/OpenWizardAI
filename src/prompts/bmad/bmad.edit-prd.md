@@ -66,7 +66,7 @@ Then read fully and follow: `./steps-e/step-e-01-discovery.md`
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/bmm/workflows/2-plan-workflows/bmad-edit-prd/steps-e/step-e-01-discovery.md
 

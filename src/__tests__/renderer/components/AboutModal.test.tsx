@@ -214,7 +214,7 @@ describe('AboutModal', () => {
 
 			const dialog = screen.getByRole('dialog');
 			expect(dialog).toHaveAttribute('aria-modal', 'true');
-			expect(dialog).toHaveAttribute('aria-label', 'About Maestro');
+			expect(dialog).toHaveAttribute('aria-label', 'About OpenWizzard');
 		});
 
 		it('should render the modal header with title', () => {
@@ -227,7 +227,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			expect(screen.getByText('About Maestro')).toBeInTheDocument();
+			expect(screen.getByText('About OpenWizzard')).toBeInTheDocument();
 		});
 
 		it('should render MAESTRO branding', () => {
@@ -240,7 +240,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			expect(screen.getByText('MAESTRO')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
 		});
 
 		it('should render version number', () => {
@@ -309,7 +309,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			const githubLink = screen.getByText('GitHub');
+			const githubLink = screen.getByText('Maestro on GitHub');
 			fireEvent.click(githubLink);
 
 			expect(window.maestro.shell.openExternal).toHaveBeenCalledWith(
@@ -357,7 +357,7 @@ describe('AboutModal', () => {
 					blocksLowerLayers: true,
 					capturesFocus: true,
 					focusTrap: 'strict',
-					ariaLabel: 'About Maestro',
+					ariaLabel: 'About OpenWizzard',
 				})
 			);
 		});
@@ -980,7 +980,7 @@ describe('AboutModal', () => {
 				/>
 			);
 
-			const title = screen.getByText('MAESTRO');
+			const title = screen.getByText('OPENWIZZARD');
 			expect(title).toHaveStyle({ color: theme.colors.textMain });
 		});
 	});

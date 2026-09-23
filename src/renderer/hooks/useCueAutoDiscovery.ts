@@ -118,7 +118,7 @@ export function useCueAutoDiscovery(sessions: Session[], encoreFeatures: EncoreF
 						message:
 							err instanceof Error
 								? err.message
-								: 'Re-toggle Maestro Cue in Settings → Encore Features to retry.',
+								: 'Re-toggle OpenWizzard Cue in Settings → Encore Features to retry.',
 					});
 				}
 			} else {

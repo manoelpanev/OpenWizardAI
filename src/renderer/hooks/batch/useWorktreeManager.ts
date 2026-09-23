@@ -175,7 +175,7 @@ export function useWorktreeManager(): UseWorktreeManagerReturn {
 			sections.push(
 				'',
 				'---',
-				'*This PR was automatically created by [Maestro](https://runmaestro.ai) Auto Run.*'
+				'*This PR was automatically created by [OpenWizzard](https://runmaestro.ai) Auto Run.*'
 			);
 
 			return sections.join('\n');

@@ -1189,7 +1189,7 @@ function SessionListInner(props: SessionListProps) {
 										fontFamily: WORDMARK_FONT_STACK,
 									}}
 								>
-									MAESTRO
+									OPENWIZZARD
 								</h1>
 							)}
 						</div>
@@ -1218,7 +1218,7 @@ function SessionListInner(props: SessionListProps) {
 								</button>
 							)}
 							{/* Now playing - only while the floating player is hidden, so the
-							    user can always see that audio is coming from Maestro and get
+							    user can always see that audio is coming from OpenWizzard and get
 							    the widget back with one click. Sheds its label on a narrow
 							    sidebar, the same way the LIVE pill below does. */}
 							<NowPlayingIndicator theme={theme} compact={nowPlayingCompact} />

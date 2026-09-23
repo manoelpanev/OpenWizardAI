@@ -327,7 +327,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 					Encore Features
 				</h3>
 				<p className="text-xs" style={{ color: theme.colors.textDim }}>
-					Features that extend Maestro's capabilities. They ship on; turn off the ones you don't
+					Features that extend OpenWizzard's capabilities. They ship on; turn off the ones you don't
 					want. Disabled features are completely hidden from shortcuts, menus, and the command
 					palette. Contributors should gate a new feature here and leave it off until it earns a
 					place in the core experience.
@@ -439,7 +439,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 									Enable WakaTime tracking
 								</p>
 								<p className="text-xs opacity-50 mt-0.5">
-									Track coding activity in Maestro sessions via WakaTime.
+									Track coding activity in OpenWizzard sessions via WakaTime.
 								</p>
 							</div>
 							<button
@@ -781,7 +781,7 @@ export function EncoreTab({ theme, isOpen }: EncoreTabProps) {
 								className="text-sm font-bold flex items-center gap-2"
 								style={{ color: theme.colors.textMain }}
 							>
-								Maestro Cue
+								OpenWizzard Cue
 								<span
 									className="px-1.5 py-0.5 rounded text-3xs font-bold uppercase"
 									style={{

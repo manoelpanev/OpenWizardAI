@@ -627,7 +627,7 @@ export class WakaTimeManager {
 			'--key',
 			apiKey,
 			'--entity',
-			'Maestro',
+			'OpenWizzard',
 			'--entity-type',
 			'app',
 			'--project',

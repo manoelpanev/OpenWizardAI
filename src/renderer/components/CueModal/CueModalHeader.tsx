@@ -80,14 +80,14 @@ function CueModalHeaderInner({
 				<div className="flex items-center gap-2">
 					<Zap className="w-5 h-5" style={{ color: CUE_COLOR }} />
 					<h2 className="text-base font-bold" style={{ color: theme.colors.textMain }}>
-						Maestro Cue
+						OpenWizzard Cue
 					</h2>
 					{/* Help button - opens the guide as a layered modal */}
 					<button
 						onClick={onOpenHelp}
 						className="p-1 rounded hover:bg-white/10 transition-colors"
 						aria-label="Open help"
-						title="About Maestro Cue"
+						title="About OpenWizzard Cue"
 						style={{ color: theme.colors.textDim }}
 					>
 						<HelpCircle className="w-4 h-4" />

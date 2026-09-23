@@ -1,5 +1,5 @@
 <!--
-Directory write restrictions for Maestro-managed agents and the Auto Run folder carve-out. Include this where the agent needs to understand or explain its write boundaries.
+Directory write restrictions for OpenWizzard-managed agents and the Auto Run folder carve-out. Include this where the agent needs to understand or explain its write boundaries.
 -->
 
 ## File Access Restrictions

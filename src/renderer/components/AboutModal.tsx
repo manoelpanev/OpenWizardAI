@@ -76,7 +76,7 @@ export function AboutModal({
 		>
 			<div className="flex items-center gap-2">
 				<h2 className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-					About Maestro
+					About OpenWizzard
 				</h2>
 				<GhostIconButton
 					onClick={() => openUrl(buildMaestroUrl('https://runmaestro.ai'))}
@@ -114,7 +114,7 @@ export function AboutModal({
 	return (
 		<Modal
 			theme={theme}
-			title="About Maestro"
+			title="About OpenWizzard"
 			priority={MODAL_PRIORITIES.ABOUT}
 			onClose={handleEscape}
 			// Sized to fit the whole card without scrolling at the default font
@@ -140,7 +140,7 @@ export function AboutModal({
 								className="text-2xl font-bold tracking-widest"
 								style={{ color: theme.colors.textMain }}
 							>
-								MAESTRO
+								OPENWIZZARD
 							</h1>
 							<span className="text-xs font-mono" style={{ color: theme.colors.textDim }}>
 								v{__APP_VERSION__}
@@ -149,6 +149,9 @@ export function AboutModal({
 						</div>
 						<p className="text-xs opacity-70" style={{ color: theme.colors.textDim }}>
 							Agent Orchestration Command Center
+						</p>
+						<p className="text-xs opacity-70" style={{ color: theme.colors.textDim }}>
+							Based on Maestro by Pedram Amini (AGPL-3.0)
 						</p>
 					</div>
 				</div>
@@ -290,7 +293,7 @@ export function AboutModal({
 						<div className="flex items-center gap-2">
 							<FileCode className="w-4 h-4" style={{ color: theme.colors.accent }} />
 							<span className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-								GitHub
+								Maestro on GitHub
 							</span>
 						</div>
 						<ExternalLink className="w-4 h-4" style={{ color: theme.colors.textDim }} />

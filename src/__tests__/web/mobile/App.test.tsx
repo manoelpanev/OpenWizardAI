@@ -1078,7 +1078,7 @@ describe('MobileApp', () => {
 
 			render(<MobileApp />);
 
-			expect(screen.getByText('Connecting to Maestro...')).toBeInTheDocument();
+			expect(screen.getByText('Connecting to OpenWizzard...')).toBeInTheDocument();
 		});
 
 		it('shows authenticating message when authenticating', () => {
@@ -1086,7 +1086,7 @@ describe('MobileApp', () => {
 
 			render(<MobileApp />);
 
-			expect(screen.getByText('Connecting to Maestro...')).toBeInTheDocument();
+			expect(screen.getByText('Connecting to OpenWizzard...')).toBeInTheDocument();
 		});
 
 		it('shows select session prompt when connected but no active session', () => {
@@ -2383,7 +2383,7 @@ describe('MobileApp', () => {
 			expect(screen.getByText('Test Session')).toBeInTheDocument();
 		});
 
-		it('shows Maestro title when offline', () => {
+		it('shows OpenWizzard title when offline', () => {
 			mockIsOffline.mockReturnValue(true);
 
 			render(<MobileApp />);

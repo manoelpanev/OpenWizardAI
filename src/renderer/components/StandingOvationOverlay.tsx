@@ -285,7 +285,7 @@ export function StandingOvationOverlay({
 		ctx.font = 'bold 12px system-ui';
 		ctx.fillStyle = textDim;
 		ctx.textAlign = 'center';
-		ctx.fillText('MAESTRO • Agent Orchestration Command Center', width / 2, height - 20);
+		ctx.fillText('OPENWIZZARD • Agent Orchestration Command Center', width / 2, height - 20);
 
 		return canvas;
 	}, [badge, cumulativeTimeMs, recordTimeMs, isNewRecord, purpleAccent, theme.colors]);
@@ -462,7 +462,7 @@ export function StandingOvationOverlay({
 							}}
 						>
 							<p className="text-xs mb-1" style={{ color: theme.colors.textDim }}>
-								Example Maestro
+								Example OpenWizzard
 							</p>
 							<p className="font-medium" style={{ color: theme.colors.textMain }}>
 								{badge.exampleConductor.name}

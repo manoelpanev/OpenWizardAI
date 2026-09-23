@@ -129,7 +129,7 @@ export function nonPosixRemoteShellRemediation(
 		code: 'non-posix-remote-shell',
 		title: `Remote SSH shell is ${shellName}`,
 		detail:
-			`${target} SSH with ${shellName}. Maestro runs remote agents by piping a POSIX ` +
+			`${target} SSH with ${shellName}. OpenWizzard runs remote agents by piping a POSIX ` +
 			`script into /bin/bash, which Windows shells cannot execute. Point the remote's ` +
 			`OpenSSH DefaultShell at Git Bash or WSL bash, then test again.`,
 		command: GIT_BASH_DEFAULT_SHELL_COMMAND,

@@ -163,7 +163,7 @@ export async function send(
 			});
 		} catch {
 			console.error(
-				'Warning: Could not focus session tab in Maestro desktop (app may not be running)'
+				'Warning: Could not focus session tab in OpenWizzard desktop (app may not be running)'
 			);
 		}
 	}

@@ -12,7 +12,7 @@ export const CUE_PATTERNS: CuePattern[] = [
 		name: 'Startup',
 		description: 'Run once when the application starts',
 		explanation:
-			'Fires a single time when the Maestro application launches. Perfect for workspace setup, dependency installation, or health checks. Does not re-fire on YAML hot-reload or when toggling Cue on/off.',
+			'Fires a single time when the OpenWizzard application launches. Perfect for workspace setup, dependency installation, or health checks. Does not re-fire on YAML hot-reload or when toggling Cue on/off.',
 		yaml: `subscriptions:
   - name: "Initialize Workspace"
     event: app.startup

@@ -348,7 +348,7 @@ export function CueModal({ theme, onClose, cueShortcutKeys }: CueModalProps) {
 						ref={resizableModal.modalRef}
 						role="dialog"
 						aria-modal="true"
-						aria-label="Maestro Cue"
+						aria-label="OpenWizzard Cue"
 						className="relative rounded-xl shadow-2xl flex flex-col select-none"
 						style={{
 							...resizableModal.style,

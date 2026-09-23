@@ -105,7 +105,7 @@ export async function sendTerminal(
 				} else if (options.enter === false) {
 					console.log(`Typed${where} (not run - no Enter sent)`);
 				} else {
-					console.log(`Ran in Maestro terminal${where}: ${command}`);
+					console.log(`Ran in OpenWizzard terminal${where}: ${command}`);
 				}
 			}
 		} else {

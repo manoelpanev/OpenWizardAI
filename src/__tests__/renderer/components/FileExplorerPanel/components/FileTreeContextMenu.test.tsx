@@ -169,12 +169,12 @@ describe('FileTreeContextMenu', () => {
 		expect(screen.queryByText(/Preview All .* in Folder/)).toBeNull();
 	});
 
-	it('shows "Open in Maestro Browser" for HTML files (local only)', () => {
+	it('shows "Open in OpenWizzard Browser" for HTML files (local only)', () => {
 		render(<FileTreeContextMenu {...defaultProps} contextMenu={makeContextMenu(htmlNode)} />);
-		expect(screen.getByText('Open in Maestro Browser')).toBeTruthy();
+		expect(screen.getByText('Open in OpenWizzard Browser')).toBeTruthy();
 	});
 
-	it('hides "Open in Maestro Browser" when sshRemoteId is set', () => {
+	it('hides "Open in OpenWizzard Browser" when sshRemoteId is set', () => {
 		render(
 			<FileTreeContextMenu
 				{...defaultProps}
@@ -182,7 +182,7 @@ describe('FileTreeContextMenu', () => {
 				sshRemoteId="remote-1"
 			/>
 		);
-		expect(screen.queryByText('Open in Maestro Browser')).toBeNull();
+		expect(screen.queryByText('Open in OpenWizzard Browser')).toBeNull();
 	});
 
 	it('shows "Document Graph" for markdown files when callback is provided', () => {

@@ -140,7 +140,7 @@ describe('MarketplaceModal', () => {
 		expect(screen.getByText('Cached 1m ago')).toBeTruthy();
 		expect(screen.getByText('Alpha Playbook')).toBeTruthy();
 		expect(screen.getByText('Future Playbook')).toBeTruthy();
-		expect(screen.getByText('Requires a newer Maestro')).toBeTruthy();
+		expect(screen.getByText('Requires a newer OpenWizzard')).toBeTruthy();
 		expect(mocks.useModalLayer).toHaveBeenCalledWith(
 			expect.any(Number),
 			'Playbook Exchange',

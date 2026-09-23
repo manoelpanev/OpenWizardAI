@@ -148,12 +148,12 @@ describe('UpdatesChoiceModal', () => {
 		expect(onBack).toHaveBeenCalledTimes(1);
 	});
 
-	describe('Maestro CLI', () => {
+	describe('OpenWizzard CLI', () => {
 		it('offers one button that installs the CLI when it is missing', async () => {
 			const api = mockCliApi(cliStatus());
 			renderModal();
 
-			const button = await screen.findByText('Install Maestro CLI');
+			const button = await screen.findByText('Install OpenWizzard CLI');
 			fireEvent.click(button);
 
 			expect(api.installOrUpdate).toHaveBeenCalledTimes(1);
@@ -164,7 +164,7 @@ describe('UpdatesChoiceModal', () => {
 			mockCliApi(cliStatus({ installed: true, installedVersion: '0.9.0' }));
 			renderModal();
 
-			expect(await screen.findByText('Update Maestro CLI')).toBeInTheDocument();
+			expect(await screen.findByText('Update OpenWizzard CLI')).toBeInTheDocument();
 		});
 
 		it('shows the CLI as installed when it already matches', async () => {
@@ -180,10 +180,12 @@ describe('UpdatesChoiceModal', () => {
 			api.installOrUpdate.mockRejectedValue(new Error('EACCES'));
 			renderModal();
 
-			fireEvent.click(await screen.findByText('Install Maestro CLI'));
+			fireEvent.click(await screen.findByText('Install OpenWizzard CLI'));
 
 			await waitFor(() =>
-				expect(screen.getByRole('alert')).toHaveTextContent('Failed to install/update Maestro CLI')
+				expect(screen.getByRole('alert')).toHaveTextContent(
+					'Failed to install/update OpenWizzard CLI'
+				)
 			);
 			expect(screen.queryByTestId('updates-choice-cli-installed')).not.toBeInTheDocument();
 		});

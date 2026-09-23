@@ -28,7 +28,7 @@ export function MaestroSilhouette({
 	return (
 		<img
 			src={imageSrc}
-			alt="Maestro conductor silhouette"
+			alt="OpenWizzard conductor silhouette"
 			className={className}
 			style={{
 				width: size,

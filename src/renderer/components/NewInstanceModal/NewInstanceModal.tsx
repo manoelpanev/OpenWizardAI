@@ -1119,7 +1119,7 @@ export function NewInstanceModal({
 				{/* SSH Remote Execution - Top Level.
 				    Always rendered, even when no remotes are configured, so the
 				    "remote-controlled" toggle is reachable - it mirrors history
-				    to the local project dir for a Maestro SSH'd into this
+				    to the local project dir for an OpenWizzard SSH'd into this
 				    machine, independent of local SSH remote setup.
 				    Uses '_pending_' key when no agent selected, transfers to
 				    agent when selected. */}

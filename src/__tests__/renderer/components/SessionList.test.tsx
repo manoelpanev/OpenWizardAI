@@ -362,7 +362,7 @@ describe('SessionList', () => {
 			const props = createDefaultProps({});
 			render(<SessionList {...props} />);
 
-			expect(screen.getByText('MAESTRO')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
 		});
 
 		it('branding header has z-20 to stack menu above sidebar content', () => {
@@ -371,7 +371,7 @@ describe('SessionList', () => {
 			const props = createDefaultProps({});
 			render(<SessionList {...props} />);
 
-			const header = screen.getByText('MAESTRO').closest('.border-b');
+			const header = screen.getByText('OPENWIZZARD').closest('.border-b');
 			expect(header).toHaveClass('z-20');
 			expect(header).toHaveClass('relative');
 		});
@@ -382,7 +382,7 @@ describe('SessionList', () => {
 			render(<SessionList {...props} />);
 
 			// MAESTRO text should not be visible in collapsed mode
-			expect(screen.queryByText('MAESTRO')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
 		});
 
 		it('renders New Agent button in expanded mode', () => {
@@ -561,7 +561,7 @@ describe('SessionList', () => {
 			});
 			render(<SessionList {...props} />);
 
-			expect(screen.queryByText('MAESTRO')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
 			expect(screen.getByText('OFFLINE')).toBeInTheDocument();
 			expect(screen.getByTestId('icon-radio')).toBeInTheDocument();
 		});
@@ -1346,7 +1346,7 @@ describe('SessionList', () => {
 			expect(screen.getByText('Settings')).toBeInTheDocument();
 			expect(screen.getByText('System Logs')).toBeInTheDocument();
 			expect(screen.getByText('Process Monitor')).toBeInTheDocument();
-			expect(screen.getByText('About Maestro')).toBeInTheDocument();
+			expect(screen.getByText('About OpenWizzard')).toBeInTheDocument();
 		});
 
 		it('opens shortcuts help from menu', () => {
@@ -1407,7 +1407,7 @@ describe('SessionList', () => {
 
 			fireEvent.click(screen.getByTitle('Menu'));
 
-			fireEvent.click(screen.getByText('About Maestro'));
+			fireEvent.click(screen.getByText('About OpenWizzard'));
 
 			expect(mockModalActions.setAboutModalOpen).toHaveBeenCalledWith(true);
 		});
@@ -3600,7 +3600,7 @@ describe('SessionList', () => {
 			const zapIcon = screen.getByTestId('icon-zap');
 			expect(zapIcon.closest('span[title]')).toHaveAttribute(
 				'title',
-				'Maestro Cue active (3 subscriptions)'
+				'OpenWizzard Cue active (3 subscriptions)'
 			);
 		});
 
@@ -3914,7 +3914,7 @@ describe('SessionList', () => {
 			expect(band.className).toContain('justify-center');
 
 			// The wordmark is identity, so it stays out of the band.
-			expect(band.contains(screen.getByText('MAESTRO'))).toBe(false);
+			expect(band.contains(screen.getByText('OPENWIZZARD'))).toBe(false);
 			expect(band.contains(screen.getByTitle('Switch agent'))).toBe(false);
 			expect(band.contains(screen.getByTitle('Menu'))).toBe(false);
 
@@ -3928,7 +3928,7 @@ describe('SessionList', () => {
 			useSettingsStore.setState({ leftSidebarWidth: 600 });
 			render(<SessionList {...createDefaultProps({})} />);
 
-			expect(screen.getByText('MAESTRO')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
 		});
 
 		it('drops the wordmark entirely on a narrow sidebar', () => {
@@ -3937,7 +3937,7 @@ describe('SessionList', () => {
 
 			// Absence, not a class. Asserting that `truncate` is gone would pass on
 			// a wordmark that still renders clipped.
-			expect(screen.queryByText('MAESTRO')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
 			// The wand stays at every width, so the header keeps its identity and
 			// its switch-agent affordance.
 			expect(screen.getByTitle('Switch agent')).toBeInTheDocument();
@@ -3951,7 +3951,7 @@ describe('SessionList', () => {
 
 				const heading = document.querySelector('h1');
 				if (heading) {
-					expect(heading.textContent).toBe('MAESTRO');
+					expect(heading.textContent).toBe('OPENWIZZARD');
 					// A clipped wordmark is a full one that CSS cut off, so the class
 					// that would do the cutting must not be there either.
 					expect(heading.className).not.toContain('truncate');
@@ -3967,13 +3967,13 @@ describe('SessionList', () => {
 
 			useSettingsStore.setState({ leftSidebarWidth: width, autoRunStats: undefined });
 			const bare = render(<SessionList {...createDefaultProps({})} />);
-			expect(screen.getByText('MAESTRO')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
 			bare.unmount();
 
 			useSettingsStore.setState({ leftSidebarWidth: width });
 			showNowPlayingPill();
 			const withPill = render(<SessionList {...createDefaultProps({})} />);
-			expect(screen.queryByText('MAESTRO')).not.toBeInTheDocument();
+			expect(screen.queryByText('OPENWIZZARD')).not.toBeInTheDocument();
 			withPill.unmount();
 		});
 	});

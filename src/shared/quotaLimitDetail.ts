@@ -184,7 +184,7 @@ export function describeQuotaRemedy(detail: QuotaLimitDetail | undefined): strin
 		if (detail.overageStatus === 'rejected') {
 			return 'Extra usage will not cover this either. Nothing to enable - it clears at the reset time.';
 		}
-		return 'This window is fully exhausted. Nothing in Maestro can extend it - it clears at the reset time.';
+		return 'This window is fully exhausted. Nothing in OpenWizzard can extend it - it clears at the reset time.';
 	}
 
 	if (detail.overageInUse === true) {

@@ -130,8 +130,8 @@ export const HistoryHelpModal = memo(function HistoryHelpModal({
 									CUE
 								</span>
 								<p>
-									Entries created by Maestro Cue automations. These are triggered by events such as
-									file changes, time intervals, agent completions, GitHub activity, or pending
+									Entries created by OpenWizzard Cue automations. These are triggered by events such
+									as file changes, time intervals, agent completions, GitHub activity, or pending
 									tasks. Each entry records the trigger name and event type.
 								</p>
 							</div>

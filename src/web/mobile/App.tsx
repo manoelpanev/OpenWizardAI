@@ -374,7 +374,9 @@ function MobileHeader({
 				</div>
 			) : (
 				<div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-					<span style={{ fontSize: '14px', fontWeight: 600, color: colors.textMain }}>Maestro</span>
+					<span style={{ fontSize: '14px', fontWeight: 600, color: colors.textMain }}>
+						OpenWizzard
+					</span>
 				</div>
 			)}
 
@@ -428,8 +430,8 @@ function MobileHeader({
 				<button
 					onClick={onCueTap}
 					style={headerIconButton(colors, hasRunningCue)}
-					aria-label="Maestro Cue"
-					title="Maestro Cue"
+					aria-label="OpenWizzard Cue"
+					title="OpenWizzard Cue"
 				>
 					<svg
 						width="14"
@@ -2739,7 +2741,7 @@ export default function MobileApp() {
 		// --- Cue Automation ---
 		acts.push({
 			id: 'cue-dashboard',
-			label: 'Maestro Cue',
+			label: 'OpenWizzard Cue',
 			category: 'Cue',
 			icon: (
 				<svg
@@ -2985,8 +2987,8 @@ export default function MobileApp() {
 						You're Offline
 					</h2>
 					<p style={{ fontSize: '14px', color: colors.textDim, marginBottom: '12px' }}>
-						No internet connection. Maestro requires a network connection to communicate with your
-						desktop app.
+						No internet connection. OpenWizzard requires a network connection to communicate with
+						your desktop app.
 					</p>
 					<p style={{ fontSize: '12px', color: colors.textDim }}>
 						The app will automatically reconnect when you're back online.
@@ -3011,7 +3013,7 @@ export default function MobileApp() {
 						Connection Lost
 					</h2>
 					<p style={{ fontSize: '14px', color: colors.textDim, marginBottom: '12px' }}>
-						{error || 'Unable to connect to Maestro desktop app.'}
+						{error || 'Unable to connect to OpenWizzard desktop app.'}
 					</p>
 					<p style={{ fontSize: '12px', color: colors.textDim, marginBottom: '12px' }}>
 						Reconnecting in {reconnectCountdown}s...
@@ -3049,7 +3051,7 @@ export default function MobileApp() {
 					}}
 				>
 					<h2 style={{ fontSize: '16px', marginBottom: '8px', color: colors.textMain }}>
-						Connecting to Maestro...
+						Connecting to OpenWizzard...
 					</h2>
 					<p style={{ fontSize: '14px', color: colors.textDim }}>
 						Please wait while we establish a connection to your desktop app.
@@ -3550,7 +3552,7 @@ export default function MobileApp() {
 						{renderContent()}
 						{connectionState !== 'connected' && connectionState !== 'authenticated' && (
 							<p style={{ fontSize: '12px', color: colors.textDim }}>
-								Make sure Maestro desktop app is running
+								Make sure OpenWizzard desktop app is running
 							</p>
 						)}
 					</div>

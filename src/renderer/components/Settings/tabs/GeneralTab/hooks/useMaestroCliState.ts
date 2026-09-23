@@ -25,9 +25,9 @@ export function useMaestroCliState({ isOpen }: UseMaestroCliStateArgs): MaestroC
 			const nextStatus = await window.maestro.maestroCli.checkStatus();
 			setStatus(nextStatus);
 		} catch (err) {
-			setStatusError('Failed to check Maestro CLI status');
+			setStatusError('Failed to check OpenWizzard CLI status');
 			captureException(err instanceof Error ? err : new Error(String(err)), {
-				extra: { context: 'GeneralTab: Maestro CLI status check' },
+				extra: { context: 'GeneralTab: OpenWizzard CLI status check' },
 			});
 		} finally {
 			setChecking(false);
@@ -47,14 +47,14 @@ export function useMaestroCliState({ isOpen }: UseMaestroCliStateArgs): MaestroC
 			if (result.restartRequired) {
 				setInstallMessage('CLI installed. Open a new terminal for PATH changes to apply.');
 			} else if (result.success && result.status.versionMatch) {
-				setInstallMessage('CLI is installed and matches this Maestro version.');
+				setInstallMessage('CLI is installed and matches this OpenWizzard version.');
 			} else {
 				setInstallMessage('CLI was installed but version/path check still needs attention.');
 			}
 		} catch (err) {
-			setStatusError('Failed to install/update Maestro CLI');
+			setStatusError('Failed to install/update OpenWizzard CLI');
 			captureException(err instanceof Error ? err : new Error(String(err)), {
-				extra: { context: 'GeneralTab: Maestro CLI install/update' },
+				extra: { context: 'GeneralTab: OpenWizzard CLI install/update' },
 			});
 		} finally {
 			setInstalling(false);

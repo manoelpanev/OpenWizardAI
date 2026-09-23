@@ -1106,7 +1106,7 @@ describe('MarkdownRenderer', () => {
 			'  </defs>',
 			'  <rect x="2" y="2" width="356" height="76" rx="16" fill="url(#g)"/>',
 			'  <circle cx="46" cy="40" r="22" fill="#fff"/>',
-			'  <text x="90" y="46" font-family="sans-serif" font-size="26" fill="#fff">Maestro</text>',
+			'  <text x="90" y="46" font-family="sans-serif" font-size="26" fill="#fff">OpenWizzard</text>',
 			'</svg>',
 		].join('\n');
 
@@ -1126,7 +1126,7 @@ describe('MarkdownRenderer', () => {
 			expect(rect!.getAttribute('fill')).toBe('url(#g)');
 			expect(rect!.getAttribute('rx')).toBe('16');
 			expect(container.querySelector('circle')!.getAttribute('cx')).toBe('46');
-			expect(container.querySelector('text')!.textContent).toBe('Maestro');
+			expect(container.querySelector('text')!.textContent).toBe('OpenWizzard');
 		});
 
 		it('strips <script> and event handlers nested inside an SVG', () => {
@@ -1232,7 +1232,7 @@ describe('MarkdownRenderer', () => {
 			expect(screen.getByText(/^Reveal in /)).toBeInTheDocument();
 			expect(screen.getByText('Open in Default App')).toBeInTheDocument();
 			expect(screen.queryByText('Copy Link')).toBeNull();
-			expect(screen.queryByText('Open in Maestro Browser')).toBeNull();
+			expect(screen.queryByText('Open in OpenWizzard Browser')).toBeNull();
 			expect(screen.queryByText('Open in System Browser')).toBeNull();
 		});
 
@@ -1289,12 +1289,12 @@ describe('MarkdownRenderer', () => {
 			expect(screen.getByText('Copy File Name')).toBeInTheDocument();
 			expect(screen.getByText(/^Reveal in /)).toBeInTheDocument();
 			expect(screen.queryByText('Copy Link')).toBeNull();
-			expect(screen.queryByText('Open in Maestro Browser')).toBeNull();
+			expect(screen.queryByText('Open in OpenWizzard Browser')).toBeNull();
 		});
 	});
 
 	describe('link context menu', () => {
-		it('renders a context menu with Copy Link, Open in Maestro Browser, and Open in System Browser on right-click', () => {
+		it('renders a context menu with Copy Link, Open in OpenWizzard Browser, and Open in System Browser on right-click', () => {
 			const { container } = render(
 				<MarkdownRenderer
 					{...defaultProps}
@@ -1307,7 +1307,7 @@ describe('MarkdownRenderer', () => {
 			fireEvent.contextMenu(link!, { clientX: 100, clientY: 200 });
 
 			expect(screen.getByText('Copy Link')).toBeInTheDocument();
-			expect(screen.getByText('Open in Maestro Browser')).toBeInTheDocument();
+			expect(screen.getByText('Open in OpenWizzard Browser')).toBeInTheDocument();
 			expect(screen.getByText('Open in System Browser')).toBeInTheDocument();
 		});
 

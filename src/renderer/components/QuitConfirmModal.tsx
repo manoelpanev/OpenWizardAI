@@ -116,7 +116,7 @@ export function QuitConfirmModal({
 						className="text-base font-semibold"
 						style={{ color: theme.colors.textMain }}
 					>
-						Quit Maestro?
+						Quit OpenWizzard?
 					</h2>
 				</div>
 
@@ -140,7 +140,7 @@ export function QuitConfirmModal({
 						)}
 						{hasCueRuns && (
 							<>
-								{activeCueRunCount} Maestro Cue{' '}
+								{activeCueRunCount} OpenWizzard Cue{' '}
 								{activeCueRunCount === 1 ? 'operation is' : 'operations are'} running.{' '}
 							</>
 						)}
@@ -268,7 +268,7 @@ export function QuitConfirmModal({
 											className="w-1.5 h-1.5 rounded-full animate-pulse"
 											style={{ backgroundColor: theme.colors.warning }}
 										/>
-										Maestro Cue: {activeCueRunCount}
+										OpenWizzard Cue: {activeCueRunCount}
 									</span>
 								)}
 								{hasGroupChats && (

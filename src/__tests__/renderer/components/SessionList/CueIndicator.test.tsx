@@ -48,13 +48,13 @@ describe('CueIndicator', () => {
 
 	it('tooltip uses singular "subscription" for count of 1 and "active" when not running', () => {
 		render(<CueIndicator subscriptionCount={1} activeRun={false} />);
-		const wrapper = screen.getByTitle(/Maestro Cue/);
-		expect(wrapper.getAttribute('title')).toBe('Maestro Cue active (1 subscription)');
+		const wrapper = screen.getByTitle(/OpenWizzard Cue/);
+		expect(wrapper.getAttribute('title')).toBe('OpenWizzard Cue active (1 subscription)');
 	});
 
 	it('tooltip uses plural "subscriptions" for count > 1 and "running" when active', () => {
 		render(<CueIndicator subscriptionCount={3} activeRun={true} />);
-		const wrapper = screen.getByTitle(/Maestro Cue/);
-		expect(wrapper.getAttribute('title')).toBe('Maestro Cue running (3 subscriptions)');
+		const wrapper = screen.getByTitle(/OpenWizzard Cue/);
+		expect(wrapper.getAttribute('title')).toBe('OpenWizzard Cue running (3 subscriptions)');
 	});
 });

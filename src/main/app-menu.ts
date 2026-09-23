@@ -199,12 +199,12 @@ function buildTemplate(): Electron.MenuItemConstructorOptions[] {
 				{ role: 'unhide' },
 				{ type: 'separator' },
 				{
-					label: 'Quit Maestro',
+					label: 'Quit OpenWizzard',
 					accelerator: 'Cmd+Q',
 					click: (_item, _window, event) => {
 						if (event?.altKey) {
 							logger.info(
-								'Ignoring Opt+Cmd+Q to prevent accidental quit (too close to Opt+Q for Maestro Cue)',
+								'Ignoring Opt+Cmd+Q to prevent accidental quit (too close to Opt+Q for OpenWizzard Cue)',
 								'Menu'
 							);
 							return;

@@ -94,7 +94,7 @@ export async function openBrowser(url: string, options: OpenBrowserOptions): Pro
 				);
 			} else {
 				console.log(
-					`Opened ${parsed.toString()} in Maestro${background ? ' (background tab)' : ''}`
+					`Opened ${parsed.toString()} in OpenWizzard${background ? ' (background tab)' : ''}`
 				);
 				// Surface the id in plain output too - it's the handle for
 				// `close-browser`, and agents shouldn't need --json just to clean up.

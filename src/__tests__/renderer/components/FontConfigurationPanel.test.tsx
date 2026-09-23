@@ -190,7 +190,7 @@ describe('FontConfigurationPanel', () => {
 	describe('bundled fonts', () => {
 		it('lists the fonts that ship with the app', () => {
 			renderPanel();
-			expect(screen.getByRole('group', { name: /Bundled with Maestro/ })).toBeInTheDocument();
+			expect(screen.getByRole('group', { name: /Bundled with OpenWizzard/ })).toBeInTheDocument();
 		});
 
 		it('never marks a bundled font missing, even when detection found nothing', () => {
@@ -201,7 +201,7 @@ describe('FontConfigurationPanel', () => {
 			// Read the group directly rather than by option name: several bundled
 			// families share a prefix ("Roboto" / "Roboto Mono"), so a name regex
 			// matches more than one.
-			const group = screen.getByRole('group', { name: /Bundled with Maestro/ });
+			const group = screen.getByRole('group', { name: /Bundled with OpenWizzard/ });
 			const options = [...group.querySelectorAll('option')];
 			expect(options).toHaveLength(BUNDLED_FONT_NAMES.length);
 			for (const option of options) {

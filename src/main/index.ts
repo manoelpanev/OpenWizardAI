@@ -268,7 +268,7 @@ if (DEMO_MODE) {
 // This prevents database lock conflicts (e.g., Service Worker storage)
 // Set USE_PROD_DATA=1 to use the production data directory instead (requires closing production app)
 if (isDevelopment && !DEMO_MODE && !process.env.USE_PROD_DATA) {
-	const devDataPath = path.join(app.getPath('userData'), '..', 'maestro-dev');
+	const devDataPath = path.join(app.getPath('userData'), '..', 'openwizzard-dev');
 	app.setPath('userData', devDataPath);
 	console.log(`[DEV MODE] Using data directory: ${devDataPath}`);
 } else if (isDevelopment && process.env.USE_PROD_DATA) {
@@ -722,7 +722,7 @@ app
 		const maxLogBuffer = store.get('maxLogBuffer', 1000);
 		logger.setMaxLogBuffer(maxLogBuffer);
 
-		logger.info('Maestro application starting', 'Startup', {
+		logger.info('OpenWizzard application starting', 'Startup', {
 			version: app.getVersion(),
 			platform: process.platform,
 			logLevel,
@@ -1302,7 +1302,7 @@ app
 		// Start Cue engine if the Encore Feature flag is enabled
 		const encoreFeatures = store.get('encoreFeatures', {}) as Record<string, boolean>;
 		if (encoreFeatures.maestroCue && cueEngine) {
-			logger.info('Maestro Cue Encore Feature enabled — starting Cue engine', 'Startup');
+			logger.info('OpenWizzard Cue Encore Feature enabled — starting Cue engine', 'Startup');
 			try {
 				cueEngine.start('system-boot');
 			} catch (err) {

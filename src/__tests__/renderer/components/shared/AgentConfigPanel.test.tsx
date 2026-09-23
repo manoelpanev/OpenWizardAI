@@ -569,7 +569,7 @@ describe('AgentConfigPanel', () => {
 			expect(screen.queryByText('Dynamic')).not.toBeInTheDocument();
 		});
 
-		it('hides the local Maestro-P Path override when SSH is enabled and TUI is selected', () => {
+		it('hides the local OpenWizzard-P Path override when SSH is enabled and TUI is selected', () => {
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
@@ -584,10 +584,10 @@ describe('AgentConfigPanel', () => {
 
 			// The remote TUI hint shows, but the local-script path input does not.
 			expect(screen.getByText(/Runs maestro-p on the remote host/)).toBeInTheDocument();
-			expect(screen.queryByText('Maestro-P Path (optional)')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizzard-P Path (optional)')).not.toBeInTheDocument();
 		});
 
-		it('still shows the local Maestro-P Path override for a local TUI agent', () => {
+		it('still shows the local OpenWizzard-P Path override for a local TUI agent', () => {
 			render(
 				<AgentConfigPanel
 					{...createDefaultProps({
@@ -599,7 +599,7 @@ describe('AgentConfigPanel', () => {
 				/>
 			);
 
-			expect(screen.getByText('Maestro-P Path (optional)')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard-P Path (optional)')).toBeInTheDocument();
 		});
 	});
 });

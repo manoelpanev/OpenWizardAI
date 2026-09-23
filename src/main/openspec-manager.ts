@@ -34,7 +34,7 @@ const LOG_CONTEXT = '[OpenSpec]';
 const OPENSPEC_COMMANDS: readonly SpecCommandDefinition[] = [
 	{
 		id: 'help',
-		description: 'Learn how to use OpenSpec with Maestro',
+		description: 'Learn how to use OpenSpec with OpenWizzard',
 		isCustom: true,
 	},
 	{
@@ -54,7 +54,7 @@ const OPENSPEC_COMMANDS: readonly SpecCommandDefinition[] = [
 	},
 	{
 		id: 'implement',
-		description: 'Convert OpenSpec tasks to Maestro Auto Run documents',
+		description: 'Convert OpenSpec tasks to OpenWizzard Auto Run documents',
 		isCustom: true,
 	},
 ] as const;
@@ -172,7 +172,7 @@ export async function refreshOpenSpecPrompts(): Promise<OpenSpecMetadata> {
 		const releaseResponse = await fetch(
 			'https://api.github.com/repos/Fission-AI/OpenSpec/releases/latest',
 			{
-				headers: { 'User-Agent': 'Maestro-OpenSpec-Refresher' },
+				headers: { 'User-Agent': 'OpenWizzard-OpenSpec-Refresher' },
 			}
 		);
 		if (releaseResponse.ok) {
@@ -193,7 +193,7 @@ export async function refreshOpenSpecPrompts(): Promise<OpenSpecMetadata> {
 	for (const { id, sourceFile } of UPSTREAM_COMMANDS) {
 		const url = `https://raw.githubusercontent.com/Fission-AI/OpenSpec/${version}/${WORKFLOWS_BASE_PATH}/${sourceFile}`;
 		const response = await fetch(url, {
-			headers: { 'User-Agent': 'Maestro-OpenSpec-Refresher' },
+			headers: { 'User-Agent': 'OpenWizzard-OpenSpec-Refresher' },
 		});
 		if (!response.ok) {
 			throw new Error(`Failed to fetch ${sourceFile}: ${response.statusText}`);

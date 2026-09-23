@@ -24,7 +24,7 @@ export function AboutTab({ theme }: AboutTabProps) {
 			<div className="flex items-center gap-5">
 				<Wand2 className="w-20 h-20" style={{ color: theme.colors.accent }} />
 				<h1 className="text-6xl font-bold tracking-widest" style={{ color: theme.colors.textMain }}>
-					MAESTRO
+					OPENWIZZARD
 				</h1>
 			</div>
 

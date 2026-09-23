@@ -258,7 +258,7 @@ Per Phase 02 task #2:
   nothing - same rule as elsewhere in the codebase.
 - **Claude `costUsd` is computed locally** from a model-rate table.
   Drift is possible if the rate table goes stale; for the purposes of
-  the Cue dashboard this is acceptable (matches what other Maestro
+  the Cue dashboard this is acceptable (matches what other OpenWizzard
   surfaces show).
 
 ## Implementation Notes for Task #2

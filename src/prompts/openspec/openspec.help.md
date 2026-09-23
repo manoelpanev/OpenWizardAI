@@ -1,6 +1,6 @@
 # OpenSpec Help
 
-You are explaining how to use **OpenSpec** within Maestro. OpenSpec is a spec-driven development tool from [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) that provides a structured workflow for managing code changes through specifications.
+You are explaining how to use **OpenSpec** within OpenWizzard. OpenSpec is a spec-driven development tool from [Fission-AI/OpenSpec](https://github.com/Fission-AI/OpenSpec) that provides a structured workflow for managing code changes through specifications.
 
 ## What is OpenSpec?
 
@@ -76,7 +76,7 @@ Use after deployment to finalize the change:
 - Update main specs if capabilities changed
 - Validate the archived change passes all checks
 
-### `/openspec.implement` - Execute with Maestro Auto Run
+### `/openspec.implement` - Execute with OpenWizzard Auto Run
 
 **Maestro-specific command.** Converts your OpenSpec tasks into Auto Run documents:
 
@@ -127,9 +127,9 @@ openspec list --specs                    # List existing specs
 openspec show <change-id>               # Display change details
 ```
 
-## Integration with Maestro Auto Run
+## Integration with OpenWizzard Auto Run
 
-OpenSpec works seamlessly with Maestro's Auto Run feature:
+OpenSpec works seamlessly with OpenWizzard's Auto Run feature:
 
 1. **Create proposal** with `/openspec.proposal`
 2. **Get approval** from stakeholders
@@ -152,9 +152,9 @@ OpenSpec works seamlessly with Maestro's Auto Run feature:
 ## Learn More
 
 - [OpenSpec Repository](https://github.com/Fission-AI/OpenSpec) - Official documentation
-- OpenSpec prompts update automatically when you click "Check for Updates" in Maestro settings
+- OpenSpec prompts update automatically when you click "Check for Updates" in OpenWizzard settings
 - Custom modifications to prompts are preserved across updates
 
 ---
 
-_This help command is a Maestro-specific addition to the OpenSpec workflow._
+_This help command is an OpenWizzard-specific addition to the OpenSpec workflow._

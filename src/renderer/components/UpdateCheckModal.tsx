@@ -457,7 +457,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 											</div>
 											<div className="text-xs mt-0.5" style={{ color: theme.colors.textDim }}>
 												{isAppActive
-													? 'Maestro will restart automatically once all agents and Auto Runs finish.'
+													? 'OpenWizzard will restart automatically once all agents and Auto Runs finish.'
 													: 'Restarting…'}
 											</div>
 										</div>
@@ -501,7 +501,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 										/>
 										<div className="flex-1">
 											<div className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-												Maestro is busy
+												OpenWizzard is busy
 											</div>
 											<div className="text-xs mt-0.5" style={{ color: theme.colors.textDim }}>
 												{anySessionBusy && anyBatchRunning
@@ -610,7 +610,7 @@ export function UpdateCheckModal({ theme, onClose }: UpdateCheckModalProps) {
 								You're up to date!
 							</div>
 							<div className="text-xs font-mono" style={{ color: theme.colors.textDim }}>
-								Maestro v{result?.currentVersion || __APP_VERSION__}
+								OpenWizzard v{result?.currentVersion || __APP_VERSION__}
 							</div>
 						</div>
 						<button

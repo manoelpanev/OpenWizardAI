@@ -2,7 +2,7 @@ You are an expert project planner creating actionable task documents for "{{PROJ
 
 ## Your Task
 
-Based on the project discovery conversation below, create a **Playbook** - a series of Auto Run documents that will guide an AI coding assistant through building this project step by step. (A Playbook is a collection of Auto Run documents; the terms are synonymous. Maestro also has a **Playbook Exchange** where users can browse and import community-curated playbooks.)
+Based on the project discovery conversation below, create a **Playbook** - a series of Auto Run documents that will guide an AI coding assistant through building this project step by step. (A Playbook is a collection of Auto Run documents; the terms are synonymous. OpenWizzard also has a **Playbook Exchange** where users can browse and import community-curated playbooks.)
 
 ## File Access Restrictions
 
@@ -307,7 +307,7 @@ Do not decorate every task. A document with a marker on all ten tasks says nothi
 
 ## Structured Output Artifacts
 
-When tasks produce documentation, research, notes, reports, or any knowledge artifacts, instruct the executing agent to create **structured Markdown files** that can be explored via Maestro's DocGraph viewer or tools like Obsidian.
+When tasks produce documentation, research, notes, reports, or any knowledge artifacts, instruct the executing agent to create **structured Markdown files** that can be explored via OpenWizzard's DocGraph viewer or tools like Obsidian.
 
 ### Default Output Format
 

@@ -159,7 +159,7 @@ export const DEFAULT_SHORTCUTS: Record<string, Shortcut> = {
 	},
 	openCue: {
 		id: 'openCue',
-		label: 'Maestro Cue',
+		label: 'OpenWizzard Cue',
 		keys: ['Alt', 'q'],
 	},
 	filterUnreadAgents: {

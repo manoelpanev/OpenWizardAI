@@ -78,7 +78,7 @@ Read fully and follow: `./steps/step-01-clarify-and-route.md` to begin the workf
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/bmm/workflows/bmad-quick-flow/bmad-quick-dev-new-preview/steps/step-01-clarify-and-route.md
 

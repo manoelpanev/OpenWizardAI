@@ -360,7 +360,7 @@ export function ShellCommandCard({
 					className="px-3 py-1 text-2xs border-t"
 					style={{ color: theme.colors.textDim, borderColor: theme.colors.border }}
 				>
-					Output truncated - the command produced more than Maestro keeps in the transcript.
+					Output truncated - the command produced more than OpenWizzard keeps in the transcript.
 				</div>
 			)}
 		</div>

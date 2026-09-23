@@ -204,13 +204,13 @@ describe('BatchRunnerModal', () => {
 			const dialog = screen.getByRole('dialog');
 			expect(dialog).toBeInTheDocument();
 			expect(dialog).toHaveAttribute('aria-modal', 'true');
-			expect(dialog).toHaveAttribute('aria-label', 'Maestro Auto Run');
+			expect(dialog).toHaveAttribute('aria-label', 'OpenWizzard Auto Run');
 		});
 
 		it('displays header with title and close button', async () => {
 			render(<BatchRunnerModal {...createDefaultProps()} />);
 
-			expect(screen.getByText('Maestro Auto Run')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Auto Run')).toBeInTheDocument();
 			// X button is present
 			const closeButtons = screen.getAllByRole('button');
 			expect(closeButtons.some((btn) => btn.querySelector('svg'))).toBe(true);
@@ -231,7 +231,7 @@ describe('BatchRunnerModal', () => {
 			await waitFor(() => {
 				expect(screen.queryByText('Auto Run Guide')).not.toBeInTheDocument();
 			});
-			expect(screen.getByText('Maestro Auto Run')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Auto Run')).toBeInTheDocument();
 		});
 
 		it('displays task count badge in header', async () => {
@@ -2476,7 +2476,7 @@ describe('Escape Handler Priority', () => {
 		});
 
 		// Main modal still open
-		expect(screen.getByText('Maestro Auto Run')).toBeInTheDocument();
+		expect(screen.getByText('OpenWizzard Auto Run')).toBeInTheDocument();
 	});
 
 	it('closes save playbook modal on escape', async () => {

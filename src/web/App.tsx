@@ -174,12 +174,12 @@ function PlaceholderApp() {
 				backgroundColor: 'var(--color-background)',
 			}}
 		>
-			<h1 style={{ marginBottom: '16px', fontSize: '24px' }}>Maestro Web</h1>
+			<h1 style={{ marginBottom: '16px', fontSize: '24px' }}>OpenWizzard Web</h1>
 			<p style={{ marginBottom: '8px', color: 'var(--color-text-muted)' }}>
 				Remote control interface
 			</p>
 			<p style={{ fontSize: '14px', color: 'var(--color-text-muted)' }}>
-				Connect to your Maestro desktop app to get started
+				Connect to your OpenWizzard desktop app to get started
 			</p>
 		</div>
 	);

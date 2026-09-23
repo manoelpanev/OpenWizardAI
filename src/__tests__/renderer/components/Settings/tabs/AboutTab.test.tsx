@@ -36,7 +36,7 @@ describe('AboutTab', () => {
 
 	it('renders the wordmark and tagline', () => {
 		render(<AboutTab theme={theme} />);
-		expect(screen.getByText('MAESTRO')).toBeInTheDocument();
+		expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
 		expect(screen.getByText('Agent Orchestration Command Center')).toBeInTheDocument();
 	});
 

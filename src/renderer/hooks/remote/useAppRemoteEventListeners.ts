@@ -454,7 +454,7 @@ export function useAppRemoteEventListeners(deps: UseAppRemoteEventListenersDeps)
 				error:
 					tab.state === 'exited'
 						? `Terminal "${tabName}" has exited. Restart it from the tab menu, or open a new one.`
-						: `Terminal "${tabName}" has no running shell yet. Select the tab in Maestro, or use open-terminal --command.`,
+						: `Terminal "${tabName}" has no running shell yet. Select the tab in OpenWizzard, or use open-terminal --command.`,
 				tabId: tab.id,
 				tabName,
 			});

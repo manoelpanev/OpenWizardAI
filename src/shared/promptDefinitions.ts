@@ -125,7 +125,7 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 	{
 		id: 'maestro-system-prompt',
 		filename: 'maestro-system-prompt.md',
-		description: 'Maestro system context prompt',
+		description: 'OpenWizzard system context prompt',
 		category: 'system',
 	},
 	// Group Chat
@@ -221,7 +221,7 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 	{
 		id: '_documentation-index',
 		filename: '_documentation-index.md',
-		description: 'Curated table of external Maestro documentation URLs',
+		description: 'Curated table of external OpenWizzard documentation URLs',
 		category: 'includes',
 	},
 	{
@@ -247,7 +247,7 @@ export const CORE_PROMPTS: PromptDefinition[] = [
 		id: '_maestro-cue',
 		filename: '_maestro-cue.md',
 		description:
-			'Maestro Cue reference: event types, `maestro-cue.yaml` schema, pipeline topologies, and template variables',
+			'OpenWizzard Cue reference: event types, `maestro-cue.yaml` schema, pipeline topologies, and template variables',
 		category: 'includes',
 	},
 	{
@@ -314,7 +314,7 @@ export type PromptId = (typeof PROMPT_IDS)[keyof typeof PROMPT_IDS];
  * Edit this list to add or remove prompts from the command palette.
  */
 export const QUICK_ACTION_PROMPTS: { id: PromptId; label: string }[] = [
-	{ id: 'maestro-system-prompt', label: 'Maestro System Prompt' },
+	{ id: 'maestro-system-prompt', label: 'OpenWizzard System Prompt' },
 	{ id: 'autorun-default', label: 'Auto Run Default' },
 	{ id: 'commit-command', label: 'Commit Command' },
 	{ id: 'ai-command', label: 'AI Command Mode' },

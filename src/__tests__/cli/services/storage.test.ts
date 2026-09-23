@@ -115,7 +115,7 @@ describe('storage service', () => {
 			const result = getConfigDirectory();
 
 			expect(result).toBe(
-				path.join('/Users/testuser', 'Library', 'Application Support', 'Maestro')
+				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizzard')
 			);
 		});
 
@@ -127,7 +127,7 @@ describe('storage service', () => {
 			const result = getConfigDirectory();
 
 			expect(result).toContain('Roaming');
-			expect(result).toContain('Maestro');
+			expect(result).toContain('OpenWizzard');
 		});
 
 		it('should return Windows config path fallback without APPDATA', () => {
@@ -138,7 +138,7 @@ describe('storage service', () => {
 			const result = getConfigDirectory();
 
 			expect(result).toContain('testuser');
-			expect(result).toContain('Maestro');
+			expect(result).toContain('OpenWizzard');
 		});
 
 		it('should return Linux config path with XDG_CONFIG_HOME', () => {
@@ -148,7 +148,7 @@ describe('storage service', () => {
 
 			const result = getConfigDirectory();
 
-			expect(result).toBe(path.join('/home/testuser/.custom-config', 'Maestro'));
+			expect(result).toBe(path.join('/home/testuser/.custom-config', 'OpenWizzard'));
 		});
 
 		it('should return Linux config path fallback without XDG_CONFIG_HOME', () => {
@@ -158,7 +158,7 @@ describe('storage service', () => {
 
 			const result = getConfigDirectory();
 
-			expect(result).toBe(path.join('/home/testuser', '.config', 'Maestro'));
+			expect(result).toBe(path.join('/home/testuser', '.config', 'OpenWizzard'));
 		});
 
 		it('should use Linux path for unknown platforms', () => {
@@ -168,7 +168,7 @@ describe('storage service', () => {
 
 			const result = getConfigDirectory();
 
-			expect(result).toBe(path.join('/home/testuser', '.config', 'Maestro'));
+			expect(result).toBe(path.join('/home/testuser', '.config', 'OpenWizzard'));
 		});
 	});
 
@@ -889,7 +889,7 @@ describe('storage service', () => {
 			const writeCall = vi.mocked(fs.writeFileSync).mock.calls[0];
 			expect(writeCall[0]).toContain('maestro-history.json');
 			expect(writeCall[0]).toContain(
-				path.join('/Users/testuser', 'Library', 'Application Support', 'Maestro')
+				path.join('/Users/testuser', 'Library', 'Application Support', 'OpenWizzard')
 			);
 		});
 	});
@@ -1277,7 +1277,7 @@ describe('storage service', () => {
 
 			writeSettingValue('fontSize', 16);
 
-			expect(fs.mkdirSync).toHaveBeenCalledWith(expect.stringContaining('Maestro'), {
+			expect(fs.mkdirSync).toHaveBeenCalledWith(expect.stringContaining('OpenWizzard'), {
 				recursive: true,
 			});
 		});

@@ -143,7 +143,7 @@ export function HamburgerMenuContent({
 							Introductory Tour
 						</div>
 						<div className="text-xs" style={{ color: theme.colors.textDim }}>
-							Learn how to use Maestro
+							Learn how to use OpenWizzard
 						</div>
 					</div>
 				</button>
@@ -329,7 +329,7 @@ export function HamburgerMenuContent({
 					<Zap className="w-5 h-5" style={{ color: theme.colors.accent }} />
 					<div className="flex-1">
 						<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-							Maestro Cue
+							OpenWizzard Cue
 						</div>
 						<div className="text-xs" style={{ color: theme.colors.textDim }}>
 							Event-driven automation
@@ -356,7 +356,7 @@ export function HamburgerMenuContent({
 				<Globe className="w-5 h-5" style={{ color: theme.colors.accent }} />
 				<div className="flex-1">
 					<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-						Maestro Website
+						OpenWizzard Website
 					</div>
 					<div className="text-xs" style={{ color: theme.colors.textDim }}>
 						Visit runmaestro.ai
@@ -409,7 +409,7 @@ export function HamburgerMenuContent({
 				<Info className="w-5 h-5" style={{ color: theme.colors.accent }} />
 				<div className="flex-1">
 					<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-						About Maestro
+						About OpenWizzard
 					</div>
 					<div className="text-xs" style={{ color: theme.colors.textDim }}>
 						Version, Credits, Stats

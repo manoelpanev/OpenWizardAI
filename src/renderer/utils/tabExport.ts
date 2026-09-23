@@ -169,7 +169,7 @@ export function generateTabExportHtml(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(tabName)} - Maestro Tab Export</title>
+  <title>${escapeHtml(tabName)} - OpenWizzard Tab Export</title>
   <style>
     :root {
       --bg-primary: ${colors.bgMain};
@@ -638,11 +638,11 @@ export function generateTabExportHtml(
     <!-- Maestro Branding -->
     <div class="branding">
       <div class="branding-logo">
-        <img src="${maestroIconBase64}" alt="Maestro" />
+        <img src="${maestroIconBase64}" alt="OpenWizzard" />
       </div>
       <div class="branding-text">
         <div class="branding-title">
-          Maestro
+          OpenWizzard
         </div>
         <div class="branding-tagline">Multi-agent orchestration for AI coding assistants</div>
         <div class="branding-links">
@@ -714,7 +714,7 @@ export function generateTabExportHtml(
     </section>
 
     <footer class="footer">
-      <p>Exported from <a href="https://runmaestro.ai" target="_blank">Maestro</a> on ${formatTimestamp(Date.now())}</p>
+      <p>Exported from <a href="https://runmaestro.ai" target="_blank">OpenWizzard</a> on ${formatTimestamp(Date.now())}</p>
       <p class="footer-theme">Theme: ${escapeHtml(theme.name)}</p>
     </footer>
   </div>

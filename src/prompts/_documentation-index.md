@@ -1,19 +1,19 @@
 <!--
-Curated table of Maestro documentation URLs. Include this where the agent should be reminded to fetch authoritative docs rather than guessing. URLs point to the `.md` (LLM-friendly) versions served by Mintlify - these return plain markdown instead of rendered HTML and are much cheaper for an agent to consume. Keep URLs absolute - bare domains do not render as clickable links in Maestro's markdown viewer.
+Curated table of OpenWizzard documentation URLs. Include this where the agent should be reminded to fetch authoritative docs rather than guessing. URLs point to the `.md` (LLM-friendly) versions served by Mintlify - these return plain markdown instead of rendered HTML and are much cheaper for an agent to consume. Keep URLs absolute - bare domains do not render as clickable links in OpenWizzard's markdown viewer.
 -->
 
-When you need detailed guidance on a Maestro feature, fetch the relevant documentation page. Do NOT guess - look it up. Every URL below points to the `.md` (LLM-friendly) version of the page; a full index of all docs is at https://docs.runmaestro.ai/llms.txt.
+When you need detailed guidance on an OpenWizzard feature, fetch the relevant documentation page. Do NOT guess - look it up. Every URL below points to the `.md` (LLM-friendly) version of the page; a full index of all docs is at https://docs.runmaestro.ai/llms.txt.
 
 | Topic                                                        | URL                                                     |
 | ------------------------------------------------------------ | ------------------------------------------------------- |
 | **All docs index** (LLM-friendly catalog)                    | https://docs.runmaestro.ai/llms.txt                     |
-| **Overview** (what Maestro is, spec-driven workflow)         | https://docs.runmaestro.ai/about/overview.md            |
+| **Overview** (what OpenWizzard is, spec-driven workflow)     | https://docs.runmaestro.ai/about/overview.md            |
 | **Getting Started**                                          | https://docs.runmaestro.ai/getting-started.md           |
 | **Installation**                                             | https://docs.runmaestro.ai/installation.md              |
 | **General Usage** (UI layout, status indicators)             | https://docs.runmaestro.ai/general-usage.md             |
 | **Features** (power features overview)                       | https://docs.runmaestro.ai/features.md                  |
 | **Encore Features** (feature-gated capabilities)             | https://docs.runmaestro.ai/encore-features.md           |
-| **Maestro Cue** (overview & UI)                              | https://docs.runmaestro.ai/maestro-cue.md               |
+| **OpenWizzard Cue** (overview & UI)                          | https://docs.runmaestro.ai/maestro-cue.md               |
 | **Cue YAML configuration** (schema, fields, file location)   | https://docs.runmaestro.ai/maestro-cue-configuration.md |
 | **Cue event types** (file, time, agent, GitHub, task events) | https://docs.runmaestro.ai/maestro-cue-events.md        |
 | **Cue advanced patterns** (fan-in/out, filters, templates)   | https://docs.runmaestro.ai/maestro-cue-advanced.md      |

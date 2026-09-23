@@ -143,7 +143,7 @@ export function CuePanel({
 				}}
 			>
 				<h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: colors.textMain }}>
-					Maestro Cue
+					OpenWizzard Cue
 				</h2>
 				<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
 					<button

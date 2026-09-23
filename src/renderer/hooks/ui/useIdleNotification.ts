@@ -50,7 +50,7 @@ export function useIdleNotification(): void {
 
 			if (idleNotificationEnabled && idleNotificationCommand) {
 				window.maestro.notification
-					.speak('Maestro is idle', idleNotificationCommand)
+					.speak('OpenWizzard is idle', idleNotificationCommand)
 					.catch((err) => {
 						console.error('[IdleNotification] Failed to execute idle command:', err);
 					});

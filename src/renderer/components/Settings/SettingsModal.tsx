@@ -65,7 +65,7 @@ const TAB_ITEMS: Array<{
 	{ id: 'encore', label: 'Encore Features', icon: FlaskConical },
 	{ id: 'environment', label: 'Environment', icon: Globe },
 	{ id: 'general', label: 'General', icon: Settings },
-	{ id: 'prompts', label: 'Maestro Prompts', icon: Wand2 },
+	{ id: 'prompts', label: 'OpenWizzard Prompts', icon: Wand2 },
 	{ id: 'notifications', label: 'Notifications', icon: Bell },
 	{ id: 'shortcuts', label: 'Shortcuts', icon: Keyboard },
 	{ id: 'ssh', label: 'SSH Hosts', icon: Server },

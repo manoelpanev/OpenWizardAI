@@ -24,8 +24,8 @@ export type { MainLogLevel as LogLevel, SystemLogEntry as LogEntry };
 /**
  * Get the platform-specific logs directory path.
  * On Windows: %APPDATA%/Maestro/logs
- * On macOS: ~/Library/Application Support/Maestro/logs
- * On Linux: ~/.config/Maestro/logs (or XDG_CONFIG_HOME)
+ * On macOS: ~/Library/Application Support/OpenWizzard/logs
+ * On Linux: ~/.config/OpenWizzard/logs (or XDG_CONFIG_HOME)
  */
 function getLogsDir(): string {
 	let appDataDir: string;
@@ -38,7 +38,7 @@ function getLogsDir(): string {
 		appDataDir = process.env.XDG_CONFIG_HOME || path.join(os.homedir(), '.config');
 	}
 
-	return path.join(appDataDir, 'Maestro', 'logs');
+	return path.join(appDataDir, 'OpenWizzard', 'logs');
 }
 
 /**
@@ -167,7 +167,7 @@ class Logger extends EventEmitter {
 			this.fileLogEnabled = true;
 
 			// Write a startup marker
-			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] Maestro started - File logging enabled\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
+			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] OpenWizzard started - File logging enabled\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
 			this.logFileStream.write(startupMsg);
 
 			// Clean up old log files
@@ -222,7 +222,7 @@ class Logger extends EventEmitter {
 			this.currentLogDate = todayDate;
 
 			// Write rotation marker
-			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] Maestro log rotated - new log file\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
+			const startupMsg = `\n${'='.repeat(80)}\n[${new Date().toISOString()}] OpenWizzard log rotated - new log file\nPlatform: ${process.platform}, Node: ${process.version}\nLog file: ${this.logFilePath}\n${'='.repeat(80)}\n`;
 			this.logFileStream.write(startupMsg);
 
 			// Clean up old log files

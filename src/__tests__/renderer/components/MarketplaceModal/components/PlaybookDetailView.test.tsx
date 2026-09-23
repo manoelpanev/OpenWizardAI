@@ -70,20 +70,20 @@ describe('PlaybookDetailView', () => {
 
 		expect(getAllByText('Local')).toHaveLength(2);
 		expect(getByText('BETA')).toBeTruthy();
-		expect(getByText('Requires Maestro 99.0.0+')).toBeTruthy();
+		expect(getByText('Requires OpenWizzard 99.0.0+')).toBeTruthy();
 		expect(
 			getByText((_content, element) =>
 				Boolean(
 					element?.tagName === 'DIV' &&
 					element.textContent ===
-						"This playbook requires Maestro 99.0.0 or newer. You're running 1.0.0."
+						"This playbook requires OpenWizzard 99.0.0 or newer. You're running 1.0.0."
 				)
 			)
 		).toBeTruthy();
 		expect(
 			getByText('This playbook is in beta. Expect rough edges and possible breaking changes.')
 		).toBeTruthy();
-		expect(getByText('Update Maestro to install').closest('button')).toBeDisabled();
+		expect(getByText('Update OpenWizzard to install').closest('button')).toBeDisabled();
 	});
 
 	it('opens author and update URLs', () => {
@@ -93,7 +93,7 @@ describe('PlaybookDetailView', () => {
 		fireEvent.click(getByText('Maestro Team'));
 		expect(openUrlMock).toHaveBeenCalledWith('https://example.com/author');
 
-		fireEvent.click(getByText('Update Maestro'));
+		fireEvent.click(getByText('Update OpenWizzard'));
 		expect(openUrlMock).toHaveBeenCalledWith('https://github.com/RunMaestro/Maestro/releases');
 	});
 

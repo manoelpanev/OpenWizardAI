@@ -39,7 +39,7 @@ let originalAppData: string | undefined;
 let originalXdgConfigHome: string | undefined;
 let testConfigRoot = '';
 
-const getTestLogsDir = () => path.join(testConfigRoot, 'Maestro', 'logs');
+const getTestLogsDir = () => path.join(testConfigRoot, 'OpenWizzard', 'logs');
 
 describe('Logger', () => {
 	let logger: Awaited<ReturnType<typeof getLogger>>;
@@ -770,9 +770,9 @@ describe('Logger', () => {
 			expect(logPath).toMatch(/[/\\]logs[/\\]maestro-debug-\d{4}-\d{2}-\d{2}\.log$/);
 		});
 
-		it('should include Maestro in the path', async () => {
+		it('should include OpenWizzard in the path', async () => {
 			const logPath = logger.getLogFilePath();
-			expect(logPath).toContain('Maestro');
+			expect(logPath).toContain('OpenWizzard');
 		});
 	});
 

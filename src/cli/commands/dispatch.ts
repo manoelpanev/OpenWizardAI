@@ -166,7 +166,7 @@ export async function runDispatch(
 		) {
 			return {
 				success: false,
-				error: 'Maestro desktop is not running or not reachable',
+				error: 'OpenWizzard desktop is not running or not reachable',
 				code: 'MAESTRO_NOT_RUNNING',
 			};
 		}
@@ -185,7 +185,7 @@ export async function runDispatch(
 			return {
 				success: false,
 				error:
-					'Maestro desktop acknowledged --new-tab without returning a tab id (cannot chain dispatch)',
+					'OpenWizzard desktop acknowledged --new-tab without returning a tab id (cannot chain dispatch)',
 				code: 'NEW_TAB_NO_ID',
 			};
 		}

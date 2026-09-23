@@ -206,7 +206,7 @@ export function TypographyChoiceModal({
 	return (
 		<Modal
 			theme={theme}
-			title={isReturningUser ? 'Maestro has new typography' : 'Choose your typography'}
+			title={isReturningUser ? 'OpenWizzard has new typography' : 'Choose your typography'}
 			headerIcon={<Type className="w-4 h-4" style={{ color: theme.colors.accent }} />}
 			priority={MODAL_PRIORITIES.TYPOGRAPHY_CHOICE}
 			onClose={onDismiss}
@@ -250,7 +250,7 @@ export function TypographyChoiceModal({
 				<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
 					{isReturningUser
 						? "We're changing the look of things a little bit. You've been using Hacker, which is monospace on every surface. The new Default keeps monospace where it earns its keep - the terminal, the file preview, and the editor - and uses a proportional face for the interface and the AI chat. Your current look is still here if you prefer it."
-						: 'Pick how Maestro should read. Default keeps monospace where it earns its keep - the terminal, the file preview, and the editor - and uses a proportional face for the interface and the AI chat. Hacker is monospace everywhere.'}
+						: 'Pick how OpenWizzard should read. Default keeps monospace where it earns its keep - the terminal, the file preview, and the editor - and uses a proportional face for the interface and the AI chat. Hacker is monospace everywhere.'}
 				</p>
 
 				<div className="flex gap-4">

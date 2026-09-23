@@ -105,7 +105,7 @@ describe('groupChatExport', () => {
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
-				expect(html).toContain('<title>My Custom Chat - Maestro Group Chat Export</title>');
+				expect(html).toContain('<title>My Custom Chat - OpenWizzard Group Chat Export</title>');
 			});
 
 			it('includes group chat name in header', () => {
@@ -131,14 +131,14 @@ describe('groupChatExport', () => {
 		});
 
 		describe('branding', () => {
-			it('includes Maestro branding section', () => {
+			it('includes OpenWizzard branding section', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 
 				const html = generateGroupChatExportHtml(groupChat, messages, [], {}, mockTheme);
 
 				expect(html).toContain('class="branding"');
-				expect(html).toContain('Maestro');
+				expect(html).toContain('OpenWizzard');
 				expect(html).toContain('Multi-agent orchestration');
 			});
 
@@ -162,7 +162,7 @@ describe('groupChatExport', () => {
 				expect(html).toContain('GitHub');
 			});
 
-			it('includes Maestro logo SVG', () => {
+			it('includes OpenWizzard logo SVG', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 
@@ -645,7 +645,7 @@ describe('groupChatExport', () => {
 		});
 
 		describe('footer', () => {
-			it('includes Maestro attribution with runmaestro.ai', () => {
+			it('includes OpenWizzard attribution with runmaestro.ai', () => {
 				const groupChat = createMockGroupChat();
 				const messages = createMockMessages();
 

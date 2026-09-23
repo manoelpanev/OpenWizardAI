@@ -215,7 +215,7 @@ describe('CueModal', () => {
 		it('should render the modal with header', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
-			expect(screen.getByText('Maestro Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
 		});
 
 		it('should register layer on mount and unregister on unmount', () => {
@@ -843,19 +843,19 @@ describe('CueModal', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
 			// Click help button
-			const helpButton = screen.getByTitle('About Maestro Cue');
+			const helpButton = screen.getByTitle('About OpenWizzard Cue');
 			fireEvent.click(helpButton);
 
 			// Guide is layered on top - both its title and the Cue header are present
-			expect(screen.getByText('Maestro Cue Guide')).toBeInTheDocument();
-			expect(screen.getByText('Maestro Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
 		});
 
 		it('should close only the guide on escape, leaving the Cue modal open', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
-			fireEvent.click(screen.getByTitle('About Maestro Cue'));
-			expect(screen.getByText('Maestro Cue Guide')).toBeInTheDocument();
+			fireEvent.click(screen.getByTitle('About OpenWizzard Cue'));
+			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
 
 			// Escape on the guide's own layer
 			act(() => {
@@ -863,22 +863,22 @@ describe('CueModal', () => {
 			});
 
 			// Guide is gone, Cue modal stays open
-			expect(screen.queryByText('Maestro Cue Guide')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizzard Cue Guide')).not.toBeInTheDocument();
 			expect(mockOnClose).not.toHaveBeenCalled();
-			expect(screen.getByText('Maestro Cue')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard Cue')).toBeInTheDocument();
 		});
 
 		it('should close the guide via its close button', () => {
 			render(<CueModal theme={mockTheme} onClose={mockOnClose} />);
 
-			fireEvent.click(screen.getByTitle('About Maestro Cue'));
-			expect(screen.getByText('Maestro Cue Guide')).toBeInTheDocument();
+			fireEvent.click(screen.getByTitle('About OpenWizzard Cue'));
+			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
 
 			// The guide's close button is the last "Close"-titled button in the DOM
 			const closeButtons = screen.getAllByTitle('Close');
 			fireEvent.click(closeButtons[closeButtons.length - 1]);
 
-			expect(screen.queryByText('Maestro Cue Guide')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizzard Cue Guide')).not.toBeInTheDocument();
 			expect(mockOnClose).not.toHaveBeenCalled();
 		});
 
@@ -917,8 +917,8 @@ describe('CueModal', () => {
 			});
 
 			// Open the guide
-			fireEvent.click(screen.getByTitle('About Maestro Cue'));
-			expect(screen.getByText('Maestro Cue Guide')).toBeInTheDocument();
+			fireEvent.click(screen.getByTitle('About OpenWizzard Cue'));
+			expect(screen.getByText('OpenWizzard Cue Guide')).toBeInTheDocument();
 
 			// Escape on the guide layer just closes the guide - no discard prompt
 			act(() => {
@@ -927,7 +927,7 @@ describe('CueModal', () => {
 
 			expect(mockShowConfirmation).not.toHaveBeenCalled();
 			expect(mockOnClose).not.toHaveBeenCalled();
-			expect(screen.queryByText('Maestro Cue Guide')).not.toBeInTheDocument();
+			expect(screen.queryByText('OpenWizzard Cue Guide')).not.toBeInTheDocument();
 		});
 	});
 });

@@ -95,7 +95,7 @@ export function LinkContextMenu({ menu, theme, onDismiss }: LinkContextMenuProps
 				style={{ color: theme.colors.textMain }}
 			>
 				<Globe className="w-3.5 h-3.5" />
-				Open in Maestro Browser
+				Open in OpenWizzard Browser
 			</button>
 			<button
 				onClick={handleOpenSystem}

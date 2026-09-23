@@ -66,9 +66,9 @@ export function PlaybookTile({
 								backgroundColor: INCOMPAT_BADGE_BG,
 								color: BADGE_FG,
 							}}
-							title={`This playbook needs Maestro ${playbook.minMaestroVersion} or newer. You're running ${runningVersion}. Update Maestro to install this playbook.`}
+							title={`This playbook needs OpenWizzard ${playbook.minMaestroVersion} or newer. You're running ${runningVersion}. Update OpenWizzard to install this playbook.`}
 						>
-							Requires Maestro {playbook.minMaestroVersion}+
+							Requires OpenWizzard {playbook.minMaestroVersion}+
 						</span>
 					)}
 				</div>

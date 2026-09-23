@@ -189,7 +189,7 @@ export async function buildDirectorNotesSynopsisPrompt(params: {
 				'',
 				'## Other Hosts',
 				'',
-				`Work done by Maestro on ${sharedHistoryFile.hosts.join(', ') || 'other hosts'} against`,
+				`Work done by OpenWizzard on ${sharedHistoryFile.hosts.join(', ') || 'other hosts'} against`,
 				'the same projects, merged into one file. Same entry shape as the files',
 				'above; treat it as part of the same body of work.',
 				'',

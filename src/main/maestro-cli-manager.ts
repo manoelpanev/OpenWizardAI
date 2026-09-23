@@ -30,7 +30,7 @@ function splitOutputLines(output: string): string[] {
 }
 
 export class MaestroCliManager {
-	private readonly posixPathMarker = '# Added by Maestro CLI installer';
+	private readonly posixPathMarker = '# Added by OpenWizzard CLI installer';
 
 	private escapeForWindowsCmd(value: string): string {
 		return value.replace(/"/g, '""');

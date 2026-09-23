@@ -211,7 +211,7 @@ vi.mock('../../../renderer/hooks/settings/useSettings', () => ({
 		setToastDuration: mockSetToastDuration,
 		idleNotificationEnabled: false,
 		setIdleNotificationEnabled: mockSetIdleNotificationEnabled,
-		idleNotificationCommand: 'say Maestro is idle',
+		idleNotificationCommand: 'say OpenWizzard is idle',
 		setIdleNotificationCommand: mockSetIdleNotificationCommand,
 		// Update settings
 		checkForUpdatesOnStartup: true,
@@ -683,7 +683,7 @@ describe('SettingsModal', () => {
 			});
 
 			// Maestro Prompts tab should now be the active sidebar entry
-			expect(screen.getByTitle('Maestro Prompts')).toHaveClass('font-bold');
+			expect(screen.getByTitle('OpenWizzard Prompts')).toHaveClass('font-bold');
 		});
 
 		it('should navigate to previous tab with Cmd+Shift+[ from shortcuts', async () => {
@@ -1444,7 +1444,7 @@ describe('SettingsModal', () => {
 
 			fireEvent.click(screen.getByRole('button', { name: 'Test Notification' }));
 			expect(window.maestro.notification.show).toHaveBeenCalledWith(
-				'Maestro',
+				'OpenWizzard',
 				'Test notification - notifications are working!'
 			);
 		});
@@ -2265,7 +2265,9 @@ describe('SettingsModal', () => {
 				await vi.advanceTimersByTimeAsync(50);
 			});
 
-			expect(screen.getByText(/Features that extend Maestro's capabilities/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/Features that extend OpenWizzard's capabilities/)
+			).toBeInTheDocument();
 			expect(screen.getByText(/Contributors should gate a new feature here/)).toBeInTheDocument();
 		});
 

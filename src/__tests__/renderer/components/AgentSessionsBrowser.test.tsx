@@ -1214,7 +1214,7 @@ describe('AgentSessionsBrowser', () => {
 				await vi.runAllTimersAsync();
 			});
 
-			expect(screen.getByText('MAESTRO')).toBeInTheDocument();
+			expect(screen.getByText('OPENWIZZARD')).toBeInTheDocument();
 		});
 
 		it('shows AUTO pill for auto-batch sessions', async () => {

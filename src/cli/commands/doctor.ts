@@ -46,7 +46,7 @@ export async function doctor(cliVersion: string, options: DoctorOptions): Promis
 		checks.push({
 			label: 'Desktop app running',
 			status: 'fail',
-			detail: 'No discovery file found. Start the Maestro desktop app.',
+			detail: 'No discovery file found. Start the OpenWizzard desktop app.',
 		});
 		return report(checks, cliVersion, null, options, ExitCode.NotRunning);
 	}
@@ -57,7 +57,7 @@ export async function doctor(cliVersion: string, options: DoctorOptions): Promis
 		checks.push({
 			label: 'App process alive',
 			status: 'fail',
-			detail: 'Discovery file is stale (the app may have crashed). Restart Maestro.',
+			detail: 'Discovery file is stale (the app may have crashed). Restart OpenWizzard.',
 		});
 		return report(checks, cliVersion, info.version ?? null, options, ExitCode.NotRunning);
 	}

@@ -196,9 +196,9 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 			const status = await window.maestro.maestroCli.checkStatus();
 			setMaestroCliStatus(status);
 		} catch (err) {
-			setMaestroCliStatusError('Failed to check Maestro CLI status');
+			setMaestroCliStatusError('Failed to check OpenWizzard CLI status');
 			captureException(err instanceof Error ? err : new Error(String(err)), {
-				extra: { context: 'GeneralTab: Maestro CLI status check' },
+				extra: { context: 'GeneralTab: OpenWizzard CLI status check' },
 			});
 		} finally {
 			setMaestroCliChecking(false);
@@ -220,16 +220,16 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					'CLI installed. Open a new terminal for PATH changes to apply.'
 				);
 			} else if (result.success && result.status.versionMatch) {
-				setMaestroCliInstallMessage('CLI is installed and matches this Maestro version.');
+				setMaestroCliInstallMessage('CLI is installed and matches this OpenWizzard version.');
 			} else {
 				setMaestroCliInstallMessage(
 					'CLI was installed but version/path check still needs attention.'
 				);
 			}
 		} catch (err) {
-			setMaestroCliStatusError('Failed to install/update Maestro CLI');
+			setMaestroCliStatusError('Failed to install/update OpenWizzard CLI');
 			captureException(err instanceof Error ? err : new Error(String(err)), {
-				extra: { context: 'GeneralTab: Maestro CLI install/update' },
+				extra: { context: 'GeneralTab: OpenWizzard CLI install/update' },
 			});
 		} finally {
 			setMaestroCliInstalling(false);
@@ -300,12 +300,12 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 			<div data-setting-id="general-global-show-hotkey">
 				<div className="block text-xs font-bold opacity-70 uppercase mb-1 flex items-center gap-2">
 					<Keyboard className="w-3 h-3" />
-					Global Hotkey to Show Maestro
+					Global Hotkey to Show OpenWizzard
 				</div>
 				<p className="text-xs opacity-50 mb-2">
-					System-wide shortcut that brings Maestro to the foreground from any app. Works on macOS,
-					Windows, and Linux. Leave blank to disable. (Tip: pick something with two modifiers, e.g.{' '}
-					{formatShortcutKeys(['Meta', 'Shift', 'M'])}, to avoid clashes.)
+					System-wide shortcut that brings OpenWizzard to the foreground from any app. Works on
+					macOS, Windows, and Linux. Leave blank to disable. (Tip: pick something with two
+					modifiers, e.g. {formatShortcutKeys(['Meta', 'Shift', 'M'])}, to avoid clashes.)
 				</p>
 				<div className="flex justify-center">
 					<KeyCaptureButton
@@ -324,8 +324,8 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					Conductor Profile (aka, About Me)
 				</div>
 				<p className="text-xs opacity-50 mb-2">
-					Tell us a little about yourself so that agents created under Maestro know how to work and
-					communicate with you. As the conductor, you orchestrate the symphony of AI agents.
+					Tell us a little about yourself so that agents created under OpenWizzard know how to work
+					and communicate with you. As the conductor, you orchestrate the symphony of AI agents.
 					(Optional, max 5000 characters)
 				</p>
 				<textarea
@@ -637,7 +637,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 			<div data-setting-id="general-maestro-cli">
 				<div className="block text-xs font-bold opacity-70 uppercase mb-2 flex items-center gap-2">
 					<Terminal className="w-3 h-3" />
-					Maestro CLI
+					OpenWizzard CLI
 				</div>
 				<div
 					className="p-3 rounded border space-y-2"
@@ -645,7 +645,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 				>
 					<div className="text-xs opacity-70">
 						Check whether <code>maestro-cli</code> is available in your PATH and whether its version
-						matches Maestro v{maestroCliStatus?.expectedVersion || appVersion}.
+						matches OpenWizzard v{maestroCliStatus?.expectedVersion || appVersion}.
 					</div>
 
 					{maestroCliStatus && !maestroCliChecking && (
@@ -699,7 +699,9 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 						aria-atomic="true"
 						className="text-xs space-y-1"
 					>
-						{maestroCliChecking && <div className="opacity-60">Checking Maestro CLI status...</div>}
+						{maestroCliChecking && (
+							<div className="opacity-60">Checking OpenWizzard CLI status...</div>
+						)}
 						{maestroCliStatusError && (
 							<div style={{ color: theme.colors.warning }}>{maestroCliStatusError}</div>
 						)}
@@ -1382,9 +1384,9 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 								Check for updates automatically
 							</div>
 							<div className="text-xs opacity-50 mt-0.5" style={{ color: theme.colors.textDim }}>
-								Check for new Maestro versions on startup and once per day while the app is running.
-								Also sends an anonymous check-in (a random install ID, app version, OS, and theme)
-								so we can count active installs. Turning this off disables both.
+								Check for new OpenWizzard versions on startup and once per day while the app is
+								running. Also sends an anonymous check-in (a random install ID, app version, OS, and
+								theme) so we can count active installs. Turning this off disables both.
 							</div>
 						</div>
 						<ToggleSwitch
@@ -1439,7 +1441,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 					icon={Bug}
 					sectionLabel="Privacy"
 					title="Send anonymous crash reports"
-					description="Help improve Maestro by automatically sending crash reports. No personal data is collected. Changes take effect after restart."
+					description="Help improve OpenWizzard by automatically sending crash reports. No personal data is collected. Changes take effect after restart."
 					checked={crashReportingEnabled}
 					onChange={setCrashReportingEnabled}
 					theme={theme}
@@ -1473,18 +1475,19 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 				>
 					<div className="flex-1 pr-3">
 						<div className="font-medium" style={{ color: theme.colors.textMain }}>
-							Open HTML files in Maestro Browser on double-click
+							Open HTML files in OpenWizzard Browser on double-click
 						</div>
 						<div className="text-xs opacity-50 mt-0.5" style={{ color: theme.colors.textDim }}>
 							When enabled, double-clicking an HTML file in the file explorer opens it in the
-							Maestro browser instead of the file preview. Right-click for the full menu either way.
+							OpenWizzard browser instead of the file preview. Right-click for the full menu either
+							way.
 						</div>
 					</div>
 					<ToggleSwitch
 						checked={htmlDoubleClickOpensInBrowser}
 						onChange={setHtmlDoubleClickOpensInBrowser}
 						theme={theme}
-						ariaLabel="Open HTML files in Maestro Browser on double-click"
+						ariaLabel="Open HTML files in OpenWizzard Browser on double-click"
 					/>
 				</div>
 				<div
@@ -1579,12 +1582,12 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							Settings folder
 						</p>
 						<p className="text-xs opacity-60 mt-0.5">
-							Choose where Maestro stores settings, sessions, and groups (including global
+							Choose where OpenWizzard stores settings, sessions, and groups (including global
 							environment variables, agents, and configurations). Use a synced folder (iCloud Drive,
 							Dropbox, OneDrive) to share across devices.
 						</p>
 						<p className="text-xs opacity-50 mt-1 italic">
-							Note: Only run Maestro on one device at a time to avoid sync conflicts.
+							Note: Only run OpenWizzard on one device at a time to avoid sync conflicts.
 						</p>
 					</div>
 
@@ -1752,7 +1755,7 @@ export function GeneralTab({ theme, isOpen }: GeneralTabProps) {
 							}}
 						>
 							<RotateCcw className="w-3 h-3" />
-							Restart Maestro for changes to take effect
+							Restart OpenWizzard for changes to take effect
 						</div>
 					)}
 

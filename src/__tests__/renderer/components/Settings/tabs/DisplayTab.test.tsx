@@ -1154,7 +1154,7 @@ describe('DisplayTab', () => {
 
 			expect(screen.getByText('Use native title bar')).toBeInTheDocument();
 			expect(
-				screen.getByText(/Use the OS native title bar instead of Maestro's custom title bar/)
+				screen.getByText(/Use the OS native title bar instead of OpenWizzard's custom title bar/)
 			).toBeInTheDocument();
 		});
 

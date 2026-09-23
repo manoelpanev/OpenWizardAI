@@ -2902,7 +2902,7 @@ function MaestroConsoleInner() {
 								className="text-xs select-none opacity-50"
 								style={{ color: theme.colors.textDim }}
 							>
-								Maestro Group Chat:{' '}
+								OpenWizzard Group Chat:{' '}
 								{groupChats.find((c) => c.id === activeGroupChatId)?.name || 'Unknown'}
 							</span>
 						) : (

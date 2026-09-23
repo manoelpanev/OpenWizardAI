@@ -104,7 +104,7 @@ describe('SessionItem Cue Indicator', () => {
 		// Title is on the wrapper span, not the icon itself
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'Maestro Cue active (3 subscriptions)'
+			'OpenWizzard Cue active (3 subscriptions)'
 		);
 	});
 
@@ -130,7 +130,7 @@ describe('SessionItem Cue Indicator', () => {
 		const zapIcon = screen.getByTestId('icon-zap');
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'Maestro Cue active (1 subscription)'
+			'OpenWizzard Cue active (1 subscription)'
 		);
 	});
 
@@ -197,7 +197,7 @@ describe('SessionItem Cue Indicator', () => {
 		const zapIcon = screen.getByTestId('icon-zap');
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'Maestro Cue running (2 subscriptions)'
+			'OpenWizzard Cue running (2 subscriptions)'
 		);
 	});
 
@@ -214,7 +214,7 @@ describe('SessionItem Cue Indicator', () => {
 		const zapIcon = screen.getByTestId('icon-zap');
 		expect(zapIcon.closest('span[title]')).toHaveAttribute(
 			'title',
-			'Maestro Cue active (2 subscriptions)'
+			'OpenWizzard Cue active (2 subscriptions)'
 		);
 	});
 

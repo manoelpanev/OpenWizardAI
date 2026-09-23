@@ -38,7 +38,7 @@ export interface BundledFont {
 
 export const BUNDLED_FONTS: BundledFont[] = [
 	// --- Monospace ---
-	{ name: 'JetBrains Mono', kind: 'mono', note: 'Maestro default' },
+	{ name: 'JetBrains Mono', kind: 'mono', note: 'OpenWizzard default' },
 	{ name: 'Fira Code', kind: 'mono' },
 	{ name: 'Roboto Mono', kind: 'mono' },
 	{ name: 'Source Code Pro', kind: 'mono' },

@@ -187,7 +187,7 @@ export type ClaudeSessionOrigin = 'user' | 'auto';
 
 export interface ClaudeSessionOriginInfo {
 	origin: ClaudeSessionOrigin;
-	sessionName?: string; // User-defined session name from Maestro
+	sessionName?: string; // User-defined session name from OpenWizzard
 	starred?: boolean; // Whether the session is starred
 	contextUsage?: number; // Last known context window usage percentage (0-100)
 }

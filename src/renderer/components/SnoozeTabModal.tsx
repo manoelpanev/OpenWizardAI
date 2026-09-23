@@ -330,7 +330,7 @@ export function SnoozeTabModal({
 					<span>
 						The tab disappears from the tab bar until then. When it returns you get a notification
 						that stays until you dismiss it{note.trim() ? ', including your note' : ''}. Snoozed
-						tabs are listed under Search, and wakes missed while Maestro was closed fire on next
+						tabs are listed under Search, and wakes missed while OpenWizzard was closed fire on next
 						launch.
 					</span>
 				</div>

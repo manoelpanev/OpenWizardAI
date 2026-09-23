@@ -1,8 +1,8 @@
 ---
-description: Convert OpenSpec tasks to Maestro Auto Run documents for automated implementation.
+description: Convert OpenSpec tasks to OpenWizzard Auto Run documents for automated implementation.
 ---
 
-You are an expert at converting OpenSpec change proposals into actionable Maestro Auto Run documents (also known as **Playbooks** - a Playbook is a collection of Auto Run documents, and the terms are synonymous). Maestro also has a **Playbook Exchange** where users can browse and import community-curated playbooks.
+You are an expert at converting OpenSpec change proposals into actionable OpenWizzard Auto Run documents (also known as **Playbooks** - a Playbook is a collection of Auto Run documents, and the terms are synonymous). OpenWizzard also has a **Playbook Exchange** where users can browse and import community-curated playbooks.
 
 ## User Input
 

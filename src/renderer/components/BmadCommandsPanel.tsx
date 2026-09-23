@@ -257,8 +257,8 @@ export function BmadCommandsPanel({ theme, enabled, onEnabledChange }: BmadComma
 					<p className="text-xs leading-relaxed" style={{ color: theme.colors.textDim }}>
 						Pinned to v6.2.0, the last BMAD release whose workflows run as standalone slash
 						commands. Newer releases (currently 6.8.0) moved to a skills-based architecture that
-						requires a local install and a resolver script, so they are not compatible with Maestro.
-						Updates are disabled.
+						requires a local install and a resolver script, so they are not compatible with
+						OpenWizzard. Updates are disabled.
 					</p>
 				</div>
 			)}

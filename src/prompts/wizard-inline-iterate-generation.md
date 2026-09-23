@@ -2,7 +2,7 @@ You are an expert project planner creating actionable task documents for "{{PROJ
 
 ## Your Task
 
-Based on the project discovery conversation below, create or update the **Playbook** (a collection of Auto Run documents - the terms are synonymous). The user has existing documents and wants to extend or modify their plans. Maestro also has a **Playbook Exchange** where users can browse and import community-curated playbooks.
+Based on the project discovery conversation below, create or update the **Playbook** (a collection of Auto Run documents - the terms are synonymous). The user has existing documents and wants to extend or modify their plans. OpenWizzard also has a **Playbook Exchange** where users can browse and import community-curated playbooks.
 
 ## File Access Restrictions
 
@@ -183,7 +183,7 @@ Use sub-bullets to list multiple items within a compound task:
 
 ## Structured Output Artifacts
 
-When tasks produce documentation, research, notes, reports, or any knowledge artifacts, instruct the executing agent to create **structured Markdown files** that can be explored via Maestro's DocGraph viewer or tools like Obsidian.
+When tasks produce documentation, research, notes, reports, or any knowledge artifacts, instruct the executing agent to create **structured Markdown files** that can be explored via OpenWizzard's DocGraph viewer or tools like Obsidian.
 
 ### Default Output Format
 

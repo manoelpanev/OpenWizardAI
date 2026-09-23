@@ -47,7 +47,7 @@ export const openspecCommands: OpenSpecCommandDefinition[] = [
 	{
 		id: 'help',
 		command: '/openspec.help',
-		description: 'Learn how to use OpenSpec with Maestro',
+		description: 'Learn how to use OpenSpec with OpenWizzard',
 		prompt: helpPrompt,
 		isCustom: true,
 	},
@@ -75,7 +75,7 @@ export const openspecCommands: OpenSpecCommandDefinition[] = [
 	{
 		id: 'implement',
 		command: '/openspec.implement',
-		description: 'Convert OpenSpec tasks to Maestro Auto Run documents',
+		description: 'Convert OpenSpec tasks to OpenWizzard Auto Run documents',
 		prompt: implementPrompt,
 		isCustom: true,
 	},

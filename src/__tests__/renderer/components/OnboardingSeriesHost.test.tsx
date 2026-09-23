@@ -200,7 +200,7 @@ describe('OnboardingSeriesHost', () => {
 			replayOnboardingSeries('returning');
 			renderHost({ isReturningUser: false });
 
-			expect(screen.getByText('Maestro has new typography')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard has new typography')).toBeInTheDocument();
 		});
 
 		it('falls back to the prop when no series is running', () => {

@@ -682,7 +682,7 @@ export function AgentConfigPanel({
 			    exhaustion, then snap back once both windows reset). Over SSH only
 			    API / TUI are offered (Dynamic needs a local quota snapshot that
 			    doesn't reflect the remote account) and maestro-p runs on the remote
-			    host's PATH, so the local Maestro-P Path override is hidden. */}
+			    host's PATH, so the local OpenWizzard-P Path override is hidden. */}
 			{agent.id === 'claude-code' && onEnableMaestroPChange && (
 				<div
 					className={`${padding} rounded border`}
@@ -772,7 +772,7 @@ export function AgentConfigPanel({
 								className="block text-xs font-medium mb-2"
 								style={{ color: theme.colors.textDim }}
 							>
-								Maestro-P Path (optional)
+								OpenWizzard-P Path (optional)
 							</label>
 							<input
 								type="text"
@@ -787,7 +787,7 @@ export function AgentConfigPanel({
 							<p className="text-xs opacity-50 mt-2">
 								{detectedMaestroPPath
 									? `Auto-detected: ${detectedMaestroPPath}. Override only if you want a different build.`
-									: 'No bundled maestro-p found. Point this at a built copy or rebuild Maestro.'}
+									: 'No bundled maestro-p found. Point this at a built copy or rebuild OpenWizzard.'}
 							</p>
 						</div>
 					)}
@@ -823,10 +823,10 @@ export function AgentConfigPanel({
 					/>
 					<p className="text-xs opacity-50 mt-2">
 						Runs as <span className="font-mono">opencode run --agent &lt;name&gt;</span> so this
-						Maestro agent keeps that OpenCode agent&apos;s persona, model, and instructions. Accepts
-						plugin-provided agents (oh-my-opencode and friends), which OpenCode resolves at run time
-						even when <span className="font-mono">opencode agent list</span> does not show them. The
-						value is stored in Custom Arguments below. Plan mode still forces{' '}
+						OpenWizzard agent keeps that OpenCode agent&apos;s persona, model, and instructions.
+						Accepts plugin-provided agents (oh-my-opencode and friends), which OpenCode resolves at
+						run time even when <span className="font-mono">opencode agent list</span> does not show
+						them. The value is stored in Custom Arguments below. Plan mode still forces{' '}
 						<span className="font-mono">--agent plan</span>.
 					</p>
 				</div>

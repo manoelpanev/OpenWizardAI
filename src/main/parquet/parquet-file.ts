@@ -498,7 +498,7 @@ async function materializeRemoteFile(
 		throw new Error(
 			`Remote parquet file is ${Math.round(remoteSize / (1024 * 1024))} MB, over the ` +
 				`${MAX_REMOTE_BYTES / (1024 * 1024)} MB limit for remote files. There is no ` +
-				`byte-range channel over SSH, so Maestro has to copy the whole file across ` +
+				`byte-range channel over SSH, so OpenWizzard has to copy the whole file across ` +
 				`before it can read any of it. Copy it locally and open it from there.`
 		);
 	}
@@ -658,7 +658,7 @@ async function verifyCodecsDecodable(
 		} catch (error) {
 			const detail = error instanceof Error ? error.message : String(error);
 			throw new Error(
-				`This parquet file uses ${codec} compression, which Maestro cannot decode. ` +
+				`This parquet file uses ${codec} compression, which OpenWizzard cannot decode. ` +
 					`Re-write it with SNAPPY, ZSTD, GZIP, or no compression to view it here. (${detail})`
 			);
 		}

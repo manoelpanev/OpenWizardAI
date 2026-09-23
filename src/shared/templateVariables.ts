@@ -127,7 +127,7 @@ export function getMaestroCLIPath(): string {
 		case 'win32': {
 			const programFiles =
 				(typeof process !== 'undefined' && process.env?.ProgramFiles) || 'C:\\Program Files';
-			return `node "${programFiles}\\Maestro\\resources\\maestro-cli.js"`;
+			return `node "${programFiles}\\OpenWizzard\\resources\\maestro-cli.js"`;
 		}
 		default:
 			// Linux (deb/rpm installs to /opt)

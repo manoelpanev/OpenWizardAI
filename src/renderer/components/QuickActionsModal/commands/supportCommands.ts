@@ -125,7 +125,7 @@ export function buildSupportCommands({
 		},
 		{
 			id: 'about',
-			label: 'About Maestro',
+			label: 'About OpenWizzard',
 			action: () => {
 				setAboutModalOpen(true);
 				setQuickActionOpen(false);
@@ -159,8 +159,8 @@ export function buildSupportCommands({
 		},
 		{
 			id: 'website',
-			label: 'Maestro Website',
-			subtext: 'Open the Maestro website',
+			label: 'OpenWizzard Website',
+			subtext: 'Open the OpenWizzard website',
 			action: () => {
 				openUrl(buildMaestroUrl('https://runmaestro.ai/'));
 				setQuickActionOpen(false);
@@ -169,7 +169,7 @@ export function buildSupportCommands({
 		{
 			id: 'docs',
 			label: 'Documentation and User Guide',
-			subtext: 'Open the Maestro documentation',
+			subtext: 'Open the OpenWizzard documentation',
 			action: () => {
 				openUrl(buildMaestroUrl('https://docs.runmaestro.ai/'));
 				setQuickActionOpen(false);
@@ -178,7 +178,7 @@ export function buildSupportCommands({
 		{
 			id: 'discord',
 			label: 'Join Discord',
-			subtext: 'Join the Maestro community',
+			subtext: 'Join the OpenWizzard community',
 			action: () => {
 				openUrl(buildMaestroUrl('https://runmaestro.ai/discord'));
 				setQuickActionOpen(false);

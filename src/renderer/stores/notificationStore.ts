@@ -65,8 +65,8 @@ export interface Toast {
 	type: ToastType;
 	title: string;
 	message: string;
-	group?: string; // Maestro group name
-	project?: string; // Maestro session name (the agent name in Left Bar)
+	group?: string; // OpenWizzard group name
+	project?: string; // OpenWizzard session name (the agent name in Left Bar)
 	/**
 	 * Auto-dismiss in ms. 0 = no auto-dismiss (sticky). Ignored when
 	 * `dismissible: true`, which forces no auto-dismiss.
@@ -83,7 +83,7 @@ export interface Toast {
 	tabName?: string; // Tab name or short UUID for display
 	timestamp: number;
 	// Session navigation - allows clicking toast to jump to session
-	sessionId?: string; // Maestro session ID for navigation
+	sessionId?: string; // OpenWizzard session ID for navigation
 	tabId?: string; // Tab ID within the session for navigation
 	// Action link - clickable URL shown below message (e.g., PR URL)
 	actionUrl?: string; // URL to open when clicked

@@ -153,11 +153,11 @@ describe('wizardPrompts', () => {
 
 			it('should handle JSON with unicode characters in message', () => {
 				const input =
-					'{"confidence": 45, "ready": false, "message": "Hello 🎼 Maestro! こんにちは"}';
+					'{"confidence": 45, "ready": false, "message": "Hello 🎼 OpenWizzard! こんにちは"}';
 				const result = parseStructuredOutput(input);
 
 				expect(result.parseSuccess).toBe(true);
-				expect(result.structured?.message).toBe('Hello 🎼 Maestro! こんにちは');
+				expect(result.structured?.message).toBe('Hello 🎼 OpenWizzard! こんにちは');
 			});
 
 			it('should parse JSON with decimal confidence', () => {
@@ -611,14 +611,14 @@ describe('wizardPrompts', () => {
 			expect(prompt).toContain(String(READY_CONFIDENCE_THRESHOLD));
 		});
 
-		it('should include Maestro branding', () => {
+		it('should include OpenWizzard branding', () => {
 			const config: SystemPromptConfig = {
 				agentName: 'Test',
 				agentPath: '/path',
 			};
 			const prompt = generateSystemPrompt(config);
 
-			expect(prompt).toContain('Maestro');
+			expect(prompt).toContain('OpenWizzard');
 		});
 
 		it('should include file access restriction instructions', () => {

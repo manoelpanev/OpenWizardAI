@@ -180,7 +180,7 @@ export function UpdatesChoiceModal({
 						theme={theme}
 						icon={Download}
 						title="Check for updates automatically"
-						description="Check for new Maestro versions on startup and once per day while the app is running."
+						description="Check for new OpenWizzard versions on startup and once per day while the app is running."
 						checked={checkForUpdatesOnStartup}
 						onChange={onCheckForUpdatesOnStartupChange}
 						testId="updates-choice-auto-check"
@@ -219,15 +219,16 @@ export function UpdatesChoiceModal({
 									className="text-sm font-medium flex items-center gap-2"
 									style={{ color: theme.colors.textMain }}
 								>
-									Maestro CLI
+									OpenWizzard CLI
 									{!cliInstalled && <RecommendedBadge theme={theme} />}
 								</div>
 								<div
 									className="text-xs leading-snug mt-0.5"
 									style={{ color: theme.colors.textDim }}
 								>
-									The Maestro CLI can be used by humans, but it is really intended for your agents,
-									so they can automate everything Maestro can do. We highly recommend installing it.
+									The OpenWizzard CLI can be used by humans, but it is really intended for your
+									agents, so they can automate everything OpenWizzard can do. We highly recommend
+									installing it.
 								</div>
 							</div>
 							{cliInstalled ? (
@@ -257,8 +258,8 @@ export function UpdatesChoiceModal({
 										: cli.checking
 											? 'Checking...'
 											: cli.status?.installed
-												? 'Update Maestro CLI'
-												: 'Install Maestro CLI'}
+												? 'Update OpenWizzard CLI'
+												: 'Install OpenWizzard CLI'}
 								</button>
 							)}
 						</div>

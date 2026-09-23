@@ -142,7 +142,7 @@ describe('LogViewer', () => {
 		it('should render header with title', async () => {
 			render(<LogViewer theme={mockTheme} onClose={vi.fn()} />);
 
-			expect(screen.getByText('Maestro System Logs')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard System Logs')).toBeInTheDocument();
 		});
 
 		it('should display entry count', async () => {

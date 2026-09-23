@@ -47,7 +47,7 @@ export const speckitCommands: SpecKitCommandDefinition[] = [
 	{
 		id: 'help',
 		command: '/speckit.help',
-		description: 'Learn how to use spec-kit with Maestro',
+		description: 'Learn how to use spec-kit with OpenWizzard',
 		prompt: helpPrompt,
 		isCustom: true,
 	},
@@ -110,7 +110,7 @@ export const speckitCommands: SpecKitCommandDefinition[] = [
 	{
 		id: 'implement',
 		command: '/speckit.implement',
-		description: 'Execute tasks using Maestro Auto Run with worktree support',
+		description: 'Execute tasks using OpenWizzard Auto Run with worktree support',
 		prompt: implementPrompt,
 		isCustom: true,
 	},

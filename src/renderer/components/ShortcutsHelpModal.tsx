@@ -236,7 +236,7 @@ export function ShortcutsHelpModal({
 				>
 					<Trophy className="w-4 h-4" style={{ color: '#FFD700' }} />
 					<span className="text-xs font-medium" style={{ color: theme.colors.accent }}>
-						Keyboard Maestro - Complete Mastery!
+						Keyboard OpenWizzard - Complete Mastery!
 					</span>
 					<Trophy className="w-4 h-4" style={{ color: '#FFD700' }} />
 				</div>

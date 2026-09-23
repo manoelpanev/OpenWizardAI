@@ -494,8 +494,8 @@ export async function importMarketplacePlaybook(
 	const runningVersion = app.getVersion();
 	if (!isCompatible(marketplacePlaybook, runningVersion)) {
 		throw new MarketplaceImportError(
-			`This playbook requires Maestro ${marketplacePlaybook.minMaestroVersion}+; ` +
-				`you have ${runningVersion}. Update Maestro and try again.`
+			`This playbook requires OpenWizzard ${marketplacePlaybook.minMaestroVersion}+; ` +
+				`you have ${runningVersion}. Update OpenWizzard and try again.`
 		);
 	}
 

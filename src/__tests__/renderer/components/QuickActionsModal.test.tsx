@@ -393,11 +393,11 @@ describe('QuickActionsModal', () => {
 			expect(screen.getByText('Settings')).toBeInTheDocument();
 		});
 
-		it('renders About Maestro action', () => {
+		it('renders About OpenWizzard action', () => {
 			const props = createDefaultProps();
 			render(<QuickActionsModal {...props} />);
 
-			expect(screen.getByText('About Maestro')).toBeInTheDocument();
+			expect(screen.getByText('About OpenWizzard')).toBeInTheDocument();
 		});
 
 		it('renders subtext for session state', () => {
@@ -652,11 +652,11 @@ describe('QuickActionsModal', () => {
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
 		});
 
-		it('handles About Maestro action', () => {
+		it('handles About OpenWizzard action', () => {
 			const props = createDefaultProps();
 			render(<QuickActionsModal {...props} />);
 
-			fireEvent.click(screen.getByText('About Maestro'));
+			fireEvent.click(screen.getByText('About OpenWizzard'));
 
 			expect(props.setAboutModalOpen).toHaveBeenCalledWith(true);
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
@@ -1004,7 +1004,7 @@ describe('QuickActionsModal', () => {
 			fireEvent.change(input, { target: { value: 'settings' } });
 
 			expect(screen.getByText('Settings')).toBeInTheDocument();
-			expect(screen.queryByText('About Maestro')).not.toBeInTheDocument();
+			expect(screen.queryByText('About OpenWizzard')).not.toBeInTheDocument();
 		});
 
 		it('shows no actions found message when no matches', () => {
@@ -1999,22 +1999,22 @@ describe('QuickActionsModal', () => {
 		});
 	});
 
-	describe('Configure Maestro Cue action', () => {
-		it('shows Configure Maestro Cue command with agent name when onConfigureCue is provided', () => {
+	describe('Configure OpenWizzard Cue action', () => {
+		it('shows Configure OpenWizzard Cue command with agent name when onConfigureCue is provided', () => {
 			const onConfigureCue = vi.fn();
 			const props = createDefaultProps({ onConfigureCue });
 			render(<QuickActionsModal {...props} />);
 
-			expect(screen.getByText('Configure Maestro Cue: Test Session')).toBeInTheDocument();
+			expect(screen.getByText('Configure OpenWizzard Cue: Test Session')).toBeInTheDocument();
 			expect(screen.getByText('Open YAML editor for event-driven automation')).toBeInTheDocument();
 		});
 
-		it('handles Configure Maestro Cue action - calls onConfigureCue with active session and closes modal', () => {
+		it('handles Configure OpenWizzard Cue action - calls onConfigureCue with active session and closes modal', () => {
 			const onConfigureCue = vi.fn();
 			const props = createDefaultProps({ onConfigureCue });
 			render(<QuickActionsModal {...props} />);
 
-			fireEvent.click(screen.getByText('Configure Maestro Cue: Test Session'));
+			fireEvent.click(screen.getByText('Configure OpenWizzard Cue: Test Session'));
 
 			expect(onConfigureCue).toHaveBeenCalledWith(
 				expect.objectContaining({ id: 'session-1', name: 'Test Session' })
@@ -2022,14 +2022,14 @@ describe('QuickActionsModal', () => {
 			expect(props.setQuickActionOpen).toHaveBeenCalledWith(false);
 		});
 
-		it('does not show Configure Maestro Cue when onConfigureCue is not provided', () => {
+		it('does not show Configure OpenWizzard Cue when onConfigureCue is not provided', () => {
 			const props = createDefaultProps();
 			render(<QuickActionsModal {...props} />);
 
-			expect(screen.queryByText(/Configure Maestro Cue/)).not.toBeInTheDocument();
+			expect(screen.queryByText(/Configure OpenWizzard Cue/)).not.toBeInTheDocument();
 		});
 
-		it('Configure Maestro Cue appears when searching for "cue"', () => {
+		it('Configure OpenWizzard Cue appears when searching for "cue"', () => {
 			const onConfigureCue = vi.fn();
 			const props = createDefaultProps({ onConfigureCue });
 			render(<QuickActionsModal {...props} />);
@@ -2037,7 +2037,7 @@ describe('QuickActionsModal', () => {
 			const input = screen.getByPlaceholderText('Type a command or jump to agent...');
 			fireEvent.change(input, { target: { value: 'cue' } });
 
-			expect(screen.getByText('Configure Maestro Cue: Test Session')).toBeInTheDocument();
+			expect(screen.getByText('Configure OpenWizzard Cue: Test Session')).toBeInTheDocument();
 		});
 	});
 

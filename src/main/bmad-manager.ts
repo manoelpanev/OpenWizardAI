@@ -239,7 +239,7 @@ function appendReferencedAssets(
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ${assets
 	.map(

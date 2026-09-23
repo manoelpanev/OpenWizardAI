@@ -1,4 +1,4 @@
-## Maestro Cue
+## OpenWizzard Cue
 
 **Cue** is Maestro's event-driven automation engine. A **subscription** listens for an event and fires a prompt at a target agent. Subscriptions are defined per-project in a YAML file.
 
@@ -18,7 +18,7 @@ Each subscription has a unique `name`, an `event` type, an `enabled` flag, a `pr
 
 | Event                 | Fires when…                                                          | Key config fields                                                                                   |
 | --------------------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `app.startup`         | Maestro launches                                                     | -                                                                                                   |
+| `app.startup`         | OpenWizzard launches                                                 | -                                                                                                   |
 | `time.heartbeat`      | Every N minutes                                                      | `interval_minutes`                                                                                  |
 | `time.scheduled`      | At specific clock times (cron-like)                                  | `schedule_times`, `schedule_days`                                                                   |
 | `time.once`           | At a specific wall-clock moment, exactly once (self-destructs after) | `fire_at`, optional `grace_minutes`, `self_destruct_on_failure`                                     |
@@ -32,7 +32,7 @@ Each subscription has a unique `name`, an `event` type, an `enabled` flag, a `pr
 
 ### Scheduled Tasks (one-shot and repeating)
 
-Every clock-driven subscription - `time.once`, `time.scheduled`, and `time.heartbeat` - is a **Scheduled Task**. They share one authoring surface (`maestro-cli cue schedule`) and one management surface in the app (**Maestro Cue → Scheduled Tasks**, reachable with `maestro-cli open cue --tab scheduled`), where the user can re-time, pause, resume, or cancel anything you created. Pick the event from how the user phrased the repetition:
+Every clock-driven subscription - `time.once`, `time.scheduled`, and `time.heartbeat` - is a **Scheduled Task**. They share one authoring surface (`maestro-cli cue schedule`) and one management surface in the app (**OpenWizzard Cue → Scheduled Tasks**, reachable with `maestro-cli open cue --tab scheduled`), where the user can re-time, pause, resume, or cancel anything you created. Pick the event from how the user phrased the repetition:
 
 | They said…                                        | Kind       | Event            | Flags                                        |
 | ------------------------------------------------- | ---------- | ---------------- | -------------------------------------------- |
@@ -256,7 +256,7 @@ A **Command node** is a subscription that runs a shell command or invokes `maest
 **SSH behavior:**
 
 - `mode: shell` honors the owning session's SSH remote config - runs on the remote host via `bash -c <substituted-command>` with the remote `projectRoot` as cwd.
-- `mode: cli` is intentionally **local-only**. `maestro-cli send` targets the local Maestro daemon, so SSH-wrapping it would point at the wrong daemon.
+- `mode: cli` is intentionally **local-only**. `maestro-cli send` targets the local OpenWizzard daemon, so SSH-wrapping it would point at the wrong daemon.
 
 **Trigger compatibility:** **All 10 event types can fire a Command node directly** (`app.startup`, `time.heartbeat`, `time.scheduled`, `file.changed`, `agent.completed`, `github.pull_request`, `github.issue`, `github.label`, `task.pending`, `cli.trigger`). Event-specific required fields (`interval_minutes`, `schedule_times`, `watch`, `repo`, `source_session`, etc.) apply normally regardless of `action`. The only `action: command`-specific restriction is the `fan_out` rejection above.
 
@@ -370,7 +370,7 @@ When a user asks you to add, modify, or debug a Cue subscription:
 5. **For Command nodes (shell scripts or `maestro-cli` calls inside a pipeline)** - see the **Command Nodes** section above for the full schema. The keyword is `action: command` plus a `command:` block; there is no separate top-level YAML key, no `event: command` type, and no separate node graph.
 6. For full schema, field reference, and worked examples, fetch the official Cue docs: https://docs.runmaestro.ai/maestro-cue-configuration.md, https://docs.runmaestro.ai/maestro-cue-events.md, https://docs.runmaestro.ai/maestro-cue-advanced.md, https://docs.runmaestro.ai/maestro-cue-examples.md. Don't guess field names.
 7. After writing, validate with `{{MAESTRO_CLI_PATH}} cue list` - the engine reloads automatically when the file changes.
-8. For anything clock-driven - one-off ("do X at 4pm") or repeating ("every weekday at 9am", "every 30 minutes") - use `{{MAESTRO_CLI_PATH}} cue schedule` - see the **Scheduled Tasks** section. Never hand-write `time.once`, `time.scheduled`, or `time.heartbeat` subscriptions; let the CLI generate them, and point the user at Maestro Cue → Scheduled Tasks to manage them.
+8. For anything clock-driven - one-off ("do X at 4pm") or repeating ("every weekday at 9am", "every 30 minutes") - use `{{MAESTRO_CLI_PATH}} cue schedule` - see the **Scheduled Tasks** section. Never hand-write `time.once`, `time.scheduled`, or `time.heartbeat` subscriptions; let the CLI generate them, and point the user at OpenWizzard Cue → Scheduled Tasks to manage them.
 
 ### Multi-Root Pipelines (agents in different project roots)
 

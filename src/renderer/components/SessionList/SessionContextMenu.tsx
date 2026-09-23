@@ -547,7 +547,7 @@ export function SessionContextMenu({
 						style={{ color: '#06b6d4' }}
 					>
 						<Zap className="w-3.5 h-3.5" />
-						Configure Maestro Cue
+						Configure OpenWizzard Cue
 					</button>
 				</>
 			)}

@@ -22,7 +22,7 @@ vi.mock('canvas-confetti', () => ({
 vi.mock('../../../renderer/components/MaestroSilhouette', () => ({
 	AnimatedMaestro: ({ variant, size }: { variant: string; size: number }) => (
 		<div data-testid="animated-maestro" data-variant={variant} data-size={size}>
-			Maestro
+			OpenWizzard
 		</div>
 	),
 }));
@@ -249,7 +249,7 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			expect(screen.getByText('Example Maestro')).toBeInTheDocument();
+			expect(screen.getByText('Example OpenWizzard')).toBeInTheDocument();
 			expect(screen.getByText(badge.exampleConductor.name)).toBeInTheDocument();
 			expect(screen.getByText(badge.exampleConductor.era)).toBeInTheDocument();
 			expect(screen.getByText(badge.exampleConductor.achievement)).toBeInTheDocument();
@@ -1023,7 +1023,7 @@ describe('StandingOvationOverlay', () => {
 
 		it('handles unicode in badge name', () => {
 			const badge = createBadge();
-			badge.name = 'Maestro 🎼 Level';
+			badge.name = 'OpenWizzard 🎼 Level';
 
 			render(
 				<StandingOvationOverlay
@@ -1035,7 +1035,7 @@ describe('StandingOvationOverlay', () => {
 				/>
 			);
 
-			expect(screen.getByText('Maestro 🎼 Level')).toBeInTheDocument();
+			expect(screen.getByText('OpenWizzard 🎼 Level')).toBeInTheDocument();
 		});
 
 		it('handles vibe theme mode', () => {

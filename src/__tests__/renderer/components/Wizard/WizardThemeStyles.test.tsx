@@ -343,11 +343,11 @@ describe('Wizard Theme Styles', () => {
 
 			// Wait for agent detection to complete
 			await vi.waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Check that theme colors are applied to key elements
-			const header = screen.getByText('Create a Maestro Agent');
+			const header = screen.getByText('Create an OpenWizzard Agent');
 			expect(header).toHaveStyle({ color: theme.colors.textMain });
 		});
 

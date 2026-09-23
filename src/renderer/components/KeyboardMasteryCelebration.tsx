@@ -21,7 +21,7 @@ import { Z_LAYERS } from '../constants/zLayers';
 
 interface KeyboardMasteryCelebrationProps {
 	theme: Theme;
-	level: number; // 0-4 (Beginner, Student, Performer, Virtuoso, Maestro)
+	level: number; // 0-4 (Beginner, Student, Performer, Virtuoso, OpenWizzard)
 	onClose: () => void;
 	shortcuts?: Record<string, Shortcut>;
 	/** Whether confetti animations are disabled by user preference */
@@ -38,7 +38,7 @@ const confettiIntensity: Record<number, { particleCount: number; spread: number 
 	1: { particleCount: 100, spread: 60 }, // Student
 	2: { particleCount: 200, spread: 80 }, // Performer
 	3: { particleCount: 300, spread: 100 }, // Virtuoso
-	4: { particleCount: 500, spread: 120 }, // Maestro - big celebration!
+	4: { particleCount: 500, spread: 120 }, // OpenWizzard - big celebration!
 };
 
 /**
@@ -88,7 +88,7 @@ export function KeyboardMasteryCelebration({
 
 		// Musical note-inspired colors
 		const colors = isMaestro
-			? ['#FFD700', '#FFA500', '#9B59B6', '#E91E63', '#00BCD4'] // Gold-heavy for Maestro
+			? ['#FFD700', '#FFA500', '#9B59B6', '#E91E63', '#00BCD4'] // Gold-heavy for OpenWizzard
 			: ['#9B59B6', '#E91E63', '#00BCD4', '#4CAF50', '#FF9800']; // Purple-heavy for others
 
 		confetti({
@@ -237,7 +237,7 @@ export function KeyboardMasteryCelebration({
 								textShadow: isMaestro ? `0 0 20px ${goldColor}60` : undefined,
 							}}
 						>
-							{isMaestro ? 'Keyboard Maestro!' : 'Level Up!'}
+							{isMaestro ? 'Keyboard OpenWizzard!' : 'Level Up!'}
 						</h1>
 
 						<p className="text-lg" style={{ color: theme.colors.textMain }}>

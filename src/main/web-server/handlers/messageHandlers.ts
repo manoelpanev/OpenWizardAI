@@ -2091,7 +2091,7 @@ export class WebSocketMessageHandler {
 		this.callbacks
 			.openModal({ surface: surface.id, tab: tabId })
 			.then((success) =>
-				sendResult(success, success ? undefined : 'Maestro window is not available')
+				sendResult(success, success ? undefined : 'OpenWizzard window is not available')
 			)
 			.catch((error) => sendResult(false, `Failed to open ${surface.label}: ${error.message}`));
 	}

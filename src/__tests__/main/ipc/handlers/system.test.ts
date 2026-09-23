@@ -1612,7 +1612,7 @@ describe('system IPC handlers', () => {
 				properties: ['openDirectory', 'createDirectory'],
 				title: 'Select Settings Folder',
 				message:
-					'Choose a folder for Maestro settings. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share settings across devices.',
+					'Choose a folder for OpenWizzard settings. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share settings across devices.',
 			});
 			expect(result).toBe('/iCloud/Maestro');
 		});

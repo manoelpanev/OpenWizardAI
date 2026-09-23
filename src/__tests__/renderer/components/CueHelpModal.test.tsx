@@ -34,8 +34,8 @@ describe('CueHelpContent', () => {
 			render(<CueHelpContent theme={mockTheme} />);
 		});
 
-		it('should render What is Maestro Cue section', () => {
-			expect(screen.getByText('What is Maestro Cue?')).toBeInTheDocument();
+		it('should render What is OpenWizzard Cue section', () => {
+			expect(screen.getByText('What is OpenWizzard Cue?')).toBeInTheDocument();
 			expect(screen.getByText(/event-driven automation system/)).toBeInTheDocument();
 		});
 
@@ -84,7 +84,7 @@ describe('CueHelpContent', () => {
 			expect(screen.getByText('{{CUE_SOURCE_TRIGGERED_BY}}')).toBeInTheDocument();
 		});
 
-		it('should mention standard Maestro template variables', () => {
+		it('should mention standard OpenWizzard template variables', () => {
 			expect(screen.getByText('{{AGENT_NAME}}')).toBeInTheDocument();
 			expect(screen.getByText('{{DATE}}')).toBeInTheDocument();
 		});

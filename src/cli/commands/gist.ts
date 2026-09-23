@@ -94,7 +94,7 @@ export async function gistCreate(agentIdArg: string, options: GistCreateOptions)
 			lower.includes('etimedout') ||
 			lower.includes('not running')
 		) {
-			emitErrorJson('Maestro desktop is not running or not reachable', 'MAESTRO_NOT_RUNNING');
+			emitErrorJson('OpenWizzard desktop is not running or not reachable', 'MAESTRO_NOT_RUNNING');
 		} else {
 			emitErrorJson(`Gist creation failed: ${msg}`, 'GIST_CREATE_FAILED');
 		}

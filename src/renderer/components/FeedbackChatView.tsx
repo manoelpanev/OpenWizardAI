@@ -462,7 +462,7 @@ export function FeedbackChatView({ theme, onCancel, onWidthChange }: FeedbackCha
 			try {
 				// Build a comment from the conversation context
 				const comment = [
-					`**Related feedback from Maestro in-app:**`,
+					`**Related feedback from OpenWizzard in-app:**`,
 					'',
 					lastResponse.structured.expectedBehavior
 						? `**${lastResponse.category === 'bug_report' ? 'Expected' : 'Desired outcome'}:** ${lastResponse.structured.expectedBehavior}`

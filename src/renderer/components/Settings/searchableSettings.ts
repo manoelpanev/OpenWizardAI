@@ -72,8 +72,8 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		id: 'general-global-show-hotkey',
 		tab: 'general',
 		tabLabel: 'General',
-		label: 'Global Hotkey to Show Maestro',
-		description: 'System-wide shortcut that summons the Maestro window from any app',
+		label: 'Global Hotkey to Show OpenWizzard',
+		description: 'System-wide shortcut that summons the OpenWizzard window from any app',
 		keywords: [
 			'hotkey',
 			'global',
@@ -133,7 +133,7 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		id: 'general-maestro-cli',
 		tab: 'general',
 		tabLabel: 'General',
-		label: 'Maestro CLI',
+		label: 'OpenWizzard CLI',
 		description: 'Check PATH/version and install or update maestro-cli for the current user',
 		keywords: ['maestro-cli', 'cli', 'path', 'version', 'install', 'update'],
 	},
@@ -354,7 +354,7 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		tab: 'general',
 		tabLabel: 'General',
 		label: 'Check for Updates on Startup',
-		description: 'Automatically check for new Maestro versions when the app starts',
+		description: 'Automatically check for new OpenWizzard versions when the app starts',
 		keywords: ['update', 'check', 'startup', 'version', 'auto update'],
 	},
 	{
@@ -370,7 +370,7 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		tab: 'general',
 		tabLabel: 'General',
 		label: 'Send Anonymous Crash Reports',
-		description: 'Help improve Maestro by automatically sending crash reports',
+		description: 'Help improve OpenWizzard by automatically sending crash reports',
 		keywords: ['crash', 'reporting', 'privacy', 'telemetry', 'sentry', 'anonymous'],
 	},
 	{
@@ -378,7 +378,7 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		tab: 'general',
 		tabLabel: 'General',
 		label: 'Default Browser',
-		description: `Choose whether links open in the Maestro built-in browser tab or the system browser. ${META_KEY_NAME}+click (or right-click context menu) inverts the behavior. Set the default URL for new browser tabs.`,
+		description: `Choose whether links open in the OpenWizzard built-in browser tab or the system browser. ${META_KEY_NAME}+click (or right-click context menu) inverts the behavior. Set the default URL for new browser tabs.`,
 		keywords: [
 			'browser',
 			'links',
@@ -406,9 +406,9 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		id: 'general-html-double-click',
 		tab: 'general',
 		tabLabel: 'General',
-		label: 'Open HTML files in Maestro Browser on double-click',
+		label: 'Open HTML files in OpenWizzard Browser on double-click',
 		description:
-			'When enabled, double-clicking an HTML file in the file explorer opens it in the Maestro browser tab instead of the file preview.',
+			'When enabled, double-clicking an HTML file in the file explorer opens it in the OpenWizzard browser tab instead of the file preview.',
 		keywords: [
 			'html',
 			'double click',
@@ -456,7 +456,7 @@ export const GENERAL_SETTINGS: SearchableSetting[] = [
 		tabLabel: 'General',
 		label: 'Storage Location',
 		description:
-			'Choose where Maestro stores settings, sessions, groups, agents, global environment variables, and configuration. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share across devices. Migrating may require a restart.',
+			'Choose where OpenWizzard stores settings, sessions, groups, agents, global environment variables, and configuration. Use a synced folder (iCloud Drive, Dropbox, OneDrive) to share across devices. Migrating may require a restart.',
 		keywords: [
 			'storage',
 			'sync',
@@ -1098,7 +1098,7 @@ export const NOTIFICATION_SETTINGS: SearchableSetting[] = [
 		tabLabel: 'Notifications',
 		label: 'Idle Notification',
 		description:
-			'Execute a custom command when all agents and Auto Runs finish and Maestro becomes idle. Includes a Test button.',
+			'Execute a custom command when all agents and Auto Runs finish and OpenWizzard becomes idle. Includes a Test button.',
 		keywords: [
 			'idle',
 			'finish',
@@ -1332,7 +1332,7 @@ export const ENCORE_SETTINGS: SearchableSetting[] = [
 		id: 'encore-cue',
 		tab: 'encore',
 		tabLabel: 'Encore Features',
-		label: 'Maestro Cue',
+		label: 'OpenWizzard Cue',
 		description:
 			'Event-driven automation (Beta) - trigger agent prompts on timers, file changes, agent completions, GitHub PRs/issues, and pending tasks',
 		keywords: [
@@ -1360,7 +1360,7 @@ export const ENCORE_SETTINGS: SearchableSetting[] = [
 		jumpToId: 'encore-cue',
 		label: 'Cue history retention',
 		description:
-			"How many days of Maestro Cue run history to keep. The control is in the Cue modal's Activity Log header; runs older than the window are pruned when the Cue engine starts.",
+			"How many days of OpenWizzard Cue run history to keep. The control is in the Cue modal's Activity Log header; runs older than the window are pruned when the Cue engine starts.",
 		keywords: [
 			'cue',
 			'retention',
@@ -1446,10 +1446,10 @@ export const PROMPTS_SETTINGS: SearchableSetting[] = [
 	{
 		id: 'prompts-editor',
 		tab: 'prompts',
-		tabLabel: 'Maestro Prompts',
-		label: 'Maestro Prompts',
+		tabLabel: 'OpenWizzard Prompts',
+		label: 'OpenWizzard Prompts',
 		description:
-			'Edit core system prompts by category — Wizard, Inline Wizard, Auto Run, Group Chat, Context, and other Maestro reference includes',
+			'Edit core system prompts by category — Wizard, Inline Wizard, Auto Run, Group Chat, Context, and other OpenWizzard reference includes',
 		keywords: [
 			'prompt',
 			'system prompt',
@@ -1477,8 +1477,8 @@ export const ABOUT_SETTINGS: SearchableSetting[] = [
 		id: 'about-maestro',
 		tab: 'about',
 		tabLabel: 'About',
-		label: 'About Maestro',
-		description: 'Maestro version, tagline, and origin — born on Nov 26, 2025 in Austin, TX',
+		label: 'About OpenWizzard',
+		description: 'OpenWizzard version, tagline, and origin — born on Nov 26, 2025 in Austin, TX',
 		keywords: [
 			'about',
 			'version',

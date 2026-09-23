@@ -309,7 +309,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 				expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
 			});
 		});
@@ -344,7 +344,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Trigger manual continue
@@ -497,7 +497,7 @@ describe('Wizard Integration Tests', () => {
 			fireEvent.click(screen.getByTestId('open-wizard'));
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Click close button in wizard modal
@@ -680,7 +680,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Navigate to step 2
@@ -946,7 +946,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Analytics callback should be called for fresh start
@@ -1139,7 +1139,7 @@ describe('Wizard Integration Tests', () => {
 			renderWithProviders(<TestWrapper />);
 
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Content should have wizard-content class
@@ -1421,7 +1421,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wizard should still open
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 		});
 	});
@@ -1644,7 +1644,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Wait for agent detection to complete
@@ -1684,7 +1684,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Initial detection should be called without SSH remote ID
@@ -1729,7 +1729,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Wait for agent detection to complete
@@ -1791,7 +1791,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -1878,7 +1878,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -1996,7 +1996,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Wait for SSH remotes dropdown to appear
@@ -2102,7 +2102,7 @@ describe('Wizard Integration Tests', () => {
 
 			// Wait for wizard to be open at agent selection screen
 			await waitFor(() => {
-				expect(screen.getByText('Create a Maestro Agent')).toBeInTheDocument();
+				expect(screen.getByText('Create an OpenWizzard Agent')).toBeInTheDocument();
 			});
 
 			// Wait for initial agent detection to complete

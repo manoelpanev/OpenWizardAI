@@ -78,7 +78,7 @@ describe('tabExport', () => {
 				const tab = createMockTab({ name: 'My Custom Tab' });
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
-				expect(html).toContain('<title>My Custom Tab - Maestro Tab Export</title>');
+				expect(html).toContain('<title>My Custom Tab - OpenWizzard Tab Export</title>');
 				// Also check the header h1
 				expect(html).toContain('My Custom Tab');
 			});
@@ -91,7 +91,7 @@ describe('tabExport', () => {
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
 				expect(html).toContain('ABC12345');
-				expect(html).toContain('<title>ABC12345 - Maestro Tab Export</title>');
+				expect(html).toContain('<title>ABC12345 - OpenWizzard Tab Export</title>');
 			});
 
 			it('falls back to "New Session" when no name or session ID', () => {
@@ -100,7 +100,7 @@ describe('tabExport', () => {
 
 				// getTabDisplayName returns 'New Session' for unnamed tabs without agentSessionId
 				expect(html).toContain('New Session');
-				expect(html).toContain('<title>New Session - Maestro Tab Export</title>');
+				expect(html).toContain('<title>New Session - OpenWizzard Tab Export</title>');
 			});
 		});
 
@@ -690,12 +690,12 @@ describe('tabExport', () => {
 		});
 
 		describe('branding section', () => {
-			it('includes Maestro branding section', () => {
+			it('includes OpenWizzard branding section', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
 				expect(html).toContain('class="branding"');
-				expect(html).toContain('Maestro');
+				expect(html).toContain('OpenWizzard');
 			});
 
 			it('includes tagline about multi-agent orchestration', () => {
@@ -721,7 +721,7 @@ describe('tabExport', () => {
 				expect(html).toContain('GitHub');
 			});
 
-			it('includes Maestro logo image', () => {
+			it('includes OpenWizzard logo image', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 
@@ -731,7 +731,7 @@ describe('tabExport', () => {
 		});
 
 		describe('footer', () => {
-			it('includes Maestro attribution with runmaestro.ai link', () => {
+			it('includes OpenWizzard attribution with runmaestro.ai link', () => {
 				const tab = createMockTab();
 				const html = generateTabExportHtml(tab, mockSession, mockTheme);
 

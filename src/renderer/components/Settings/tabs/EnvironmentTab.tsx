@@ -36,7 +36,7 @@ export function EnvironmentTab({ theme }: EnvironmentTabProps) {
 					variables (configured in each agent's settings) take precedence when both define the same
 					key. Common use cases: API keys, proxy settings, custom tool paths. Use the eye button to
 					switch a variable off: it stays in this list with its value intact, but is no longer
-					passed to anything Maestro runs.
+					passed to anything OpenWizzard runs.
 				</p>
 				<EnvVarsEditor
 					envVars={shellEnvVars}

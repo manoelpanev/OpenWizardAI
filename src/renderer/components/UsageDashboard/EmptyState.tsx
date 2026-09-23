@@ -28,7 +28,7 @@ interface EmptyStateProps {
 export const EmptyState = memo(function EmptyState({
 	theme,
 	title = 'No usage data yet',
-	message = 'Start using Maestro to see your stats!',
+	message = 'Start using OpenWizzard to see your stats!',
 }: EmptyStateProps) {
 	return (
 		<div

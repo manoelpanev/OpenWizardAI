@@ -9,6 +9,12 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
+// Exercise the upstream update/telemetry logic; OpenWizzard ships with these switched off.
+vi.mock('../../../shared/branding', () => ({
+	UPDATES_ENABLED: true,
+	UPSTREAM_TELEMETRY_ENABLED: true,
+}));
+
 // ---- cue-db module mock ----------------------------------------------------
 // The outbox is an in-memory array shared with the test body. Each helper is
 // vi.fn() so we can assert call patterns (e.g. that delete is called only on

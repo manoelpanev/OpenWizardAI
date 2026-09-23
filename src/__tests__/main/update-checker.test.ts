@@ -5,6 +5,12 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
+// Exercise the upstream update/telemetry logic; OpenWizzard ships with these switched off.
+vi.mock('../../shared/branding', () => ({
+	UPDATES_ENABLED: true,
+	UPSTREAM_TELEMETRY_ENABLED: true,
+}));
+
 // Mock fetch globally
 const mockFetch = vi.fn();
 global.fetch = mockFetch;

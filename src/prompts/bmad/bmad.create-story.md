@@ -323,7 +323,7 @@ context engine analysis completed - comprehensive developer guide created"</acti
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/bmm/workflows/4-implementation/bmad-create-story/discover-inputs.md
 

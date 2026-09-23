@@ -7,12 +7,12 @@ import { ExitCode } from '../exit-codes';
 export async function status(): Promise<void> {
 	const info = readCliServerInfo();
 	if (!info) {
-		console.log('Maestro desktop app is not running');
+		console.log('OpenWizzard desktop app is not running');
 		process.exit(ExitCode.NotRunning);
 	}
 
 	if (!isCliServerRunning()) {
-		console.log('Maestro discovery file is stale (app may have crashed)');
+		console.log('OpenWizzard discovery file is stale (app may have crashed)');
 		process.exit(ExitCode.NotRunning);
 	}
 
@@ -29,7 +29,7 @@ export async function status(): Promise<void> {
 
 			const sessionCount = sessionsResult.sessions?.length ?? 0;
 			console.log(
-				`Maestro is running on port ${info.port} with ${sessionCount} agent${sessionCount !== 1 ? 's' : ''}`
+				`OpenWizzard is running on port ${info.port} with ${sessionCount} agent${sessionCount !== 1 ? 's' : ''}`
 			);
 		});
 	} catch (error) {

@@ -126,7 +126,7 @@ export interface KnownEnvVarKeys {
 export const EMPTY_KNOWN_ENV_VAR_KEYS: KnownEnvVarKeys = { byProvider: {}, global: [] };
 
 /** Shown for a name we only know because the user typed it somewhere before. */
-const REMEMBERED_DESCRIPTION = 'Already set elsewhere in Maestro.';
+const REMEMBERED_DESCRIPTION = 'Already set elsewhere in OpenWizzard.';
 
 export interface SuggestEnvVarKeysOptions {
 	/** Agent id being edited. Omit for the global environment, which has no provider. */

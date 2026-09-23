@@ -94,7 +94,7 @@ export function useRemoteTerminalBufferResponder(
 				// on screen once, so this is the "never visited since launch" case.
 				ack(false, {
 					...meta,
-					error: `Terminal "${tabName}" has no live buffer yet. Select the agent in Maestro once so its terminals mount, then read again.`,
+					error: `Terminal "${tabName}" has no live buffer yet. Select the agent in OpenWizzard once so its terminals mount, then read again.`,
 				});
 				return;
 			}

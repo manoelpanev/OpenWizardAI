@@ -1,3 +1,25 @@
+# OpenWizzard
+
+OpenWizzard is a fork of [Maestro](https://github.com/RunMaestro/Maestro) by Pedram Amini, licensed under AGPL-3.0. It keeps every Maestro feature. Differences from upstream:
+
+- App name, window titles and UI text say OpenWizzard; app data lives in `~/Library/Application Support/OpenWizzard` (separate from any Maestro install).
+- Update checks and auto-updates are off (they would install Maestro builds). See `src/shared/branding.ts`.
+- Anonymous usage pings to runmaestro.ai (install check-in, Cue stats) are off.
+- Internal identifiers stay unchanged so upstream merges stay easy: `window.maestro`, `.maestro/` project folders, `maestro://` links, `maestro-cli` (also available as `openwizzard-cli`).
+
+### Run from source
+
+Requires Node 22 or 24 (Node 26 is not supported by `better-sqlite3`).
+
+```bash
+npm ci
+npm run dev
+```
+
+The rest of this README is the upstream Maestro documentation.
+
+---
+
 # Maestro
 
 <div align="center">

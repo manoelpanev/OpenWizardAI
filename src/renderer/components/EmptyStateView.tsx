@@ -78,7 +78,7 @@ export function EmptyStateView({
 						className="font-bold tracking-widest text-lg"
 						style={{ color: theme.colors.textMain }}
 					>
-						MAESTRO
+						OPENWIZZARD
 					</h1>
 				</div>
 
@@ -230,7 +230,7 @@ export function EmptyStateView({
 									<Globe className="w-5 h-5" style={{ color: theme.colors.textDim }} />
 									<div className="flex-1">
 										<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-											Maestro Website
+											OpenWizzard Website
 										</div>
 										<div className="text-xs" style={{ color: theme.colors.textDim }}>
 											Visit runmaestro.ai
@@ -268,7 +268,7 @@ export function EmptyStateView({
 									<Info className="w-5 h-5" style={{ color: theme.colors.textDim }} />
 									<div className="flex-1">
 										<div className="text-sm font-medium" style={{ color: theme.colors.textMain }}>
-											About Maestro
+											About OpenWizzard
 										</div>
 										<div className="text-xs" style={{ color: theme.colors.textDim }}>
 											Version, Credits, Stats

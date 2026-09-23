@@ -729,7 +729,7 @@ export const THEMES: Record<ThemeId, Theme> = {
 	},
 	'maestros-choice': {
 		id: 'maestros-choice',
-		name: "Maestro's Choice",
+		name: "OpenWizzard's Choice",
 		mode: 'vibe',
 		colors: {
 			bgMain: '#1a1a24',

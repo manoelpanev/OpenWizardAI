@@ -110,7 +110,7 @@ export class WsRoute {
 				JSON.stringify({
 					type: 'connected',
 					clientId,
-					message: 'Connected to Maestro Web Interface',
+					message: 'Connected to OpenWizzard Web Interface',
 					subscribedSessionId: sessionId,
 					timestamp: Date.now(),
 				})

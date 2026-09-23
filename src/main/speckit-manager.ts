@@ -27,7 +27,7 @@ const LOG_CONTEXT = '[SpecKit]';
 const SPECKIT_COMMANDS: readonly SpecCommandDefinition[] = [
 	{
 		id: 'help',
-		description: 'Learn how to use spec-kit with Maestro',
+		description: 'Learn how to use spec-kit with OpenWizzard',
 		isCustom: true,
 	},
 	{
@@ -72,7 +72,7 @@ const SPECKIT_COMMANDS: readonly SpecCommandDefinition[] = [
 	},
 	{
 		id: 'implement',
-		description: 'Execute tasks using Maestro Auto Run with worktree support',
+		description: 'Execute tasks using OpenWizzard Auto Run with worktree support',
 		isCustom: true,
 	},
 ] as const;
@@ -253,7 +253,7 @@ function processSpeckitTemplate(content: string): string {
  * Fetch a raw text file from GitHub.
  */
 async function fetchRaw(url: string): Promise<string> {
-	const res = await fetch(url, { headers: { 'User-Agent': 'Maestro-SpecKit-Refresher' } });
+	const res = await fetch(url, { headers: { 'User-Agent': 'OpenWizzard-SpecKit-Refresher' } });
 	if (!res.ok) {
 		throw new Error(`HTTP ${res.status} fetching ${url}`);
 	}
@@ -275,7 +275,7 @@ export async function refreshSpeckitPrompts(): Promise<SpecKitMetadata> {
 	// Get the latest release tag for versioning and as the fetch ref.
 	const releaseResponse = await fetch(
 		'https://api.github.com/repos/github/spec-kit/releases/latest',
-		{ headers: { 'User-Agent': 'Maestro-SpecKit-Refresher' } }
+		{ headers: { 'User-Agent': 'OpenWizzard-SpecKit-Refresher' } }
 	);
 	if (!releaseResponse.ok) {
 		throw new Error(`Failed to fetch release info: ${releaseResponse.statusText}`);

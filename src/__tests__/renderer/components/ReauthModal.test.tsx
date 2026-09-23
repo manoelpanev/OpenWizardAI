@@ -316,7 +316,7 @@ describe('ReauthModal', () => {
 
 		expect(mockSpawnTerminalTab).not.toHaveBeenCalled();
 		expect(screen.queryByTestId('xterm-mock')).not.toBeInTheDocument();
-		expect(screen.getByText(/no login command Maestro can run/)).toBeInTheDocument();
+		expect(screen.getByText(/no login command OpenWizzard can run/)).toBeInTheDocument();
 	});
 
 	it('reports a failed spawn instead of waiting on a shell that never started', async () => {

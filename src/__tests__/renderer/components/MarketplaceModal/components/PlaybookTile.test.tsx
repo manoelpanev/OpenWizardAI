@@ -45,7 +45,7 @@ describe('PlaybookTile', () => {
 
 		expect(getByText('Local')).toBeTruthy();
 		expect(getByText('BETA')).toBeTruthy();
-		expect(getByText('Requires Maestro 99.0.0+')).toBeTruthy();
+		expect(getByText('Requires OpenWizzard 99.0.0+')).toBeTruthy();
 	});
 
 	it('shows selected ring styling and scrolls into view when selected', () => {

@@ -48,7 +48,7 @@ export interface CueHelpModalProps {
  * reads clearly. Width is sized to the text column, not the host modal.
  */
 export function CueHelpModal({ theme, onClose, cueShortcutKeys }: CueHelpModalProps) {
-	useModalLayer(MODAL_PRIORITIES.CUE_HELP, 'Maestro Cue Guide', onClose);
+	useModalLayer(MODAL_PRIORITIES.CUE_HELP, 'OpenWizzard Cue Guide', onClose);
 	const resizableModal = useResizableModal({
 		resizeKey: 'cue-help',
 		defaultSize: { width: 820, height: 760 },
@@ -99,7 +99,7 @@ export function CueHelpModal({ theme, onClose, cueShortcutKeys }: CueHelpModalPr
 							className="text-base font-bold"
 							style={{ color: theme.colors.textMain }}
 						>
-							Maestro Cue Guide
+							OpenWizzard Cue Guide
 						</h2>
 					</div>
 					<button
@@ -133,13 +133,13 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 			<section>
 				<div className="flex items-center gap-2 mb-3">
 					<Zap className="w-5 h-5" style={{ color: theme.colors.accent }} />
-					<h3 className="font-bold">What is Maestro Cue?</h3>
+					<h3 className="font-bold">What is OpenWizzard Cue?</h3>
 				</div>
 				<div className="text-sm space-y-2 pl-7" style={{ color: theme.colors.textDim }}>
 					<p>
-						Maestro Cue is an event-driven automation system. Define triggers in a YAML file, and
-						Maestro automatically executes prompts against your AI agents when events occur. The
-						conductor gives the cue - the agents respond.
+						OpenWizzard Cue is an event-driven automation system. Define triggers in a YAML file,
+						and OpenWizzard automatically executes prompts against your AI agents when events occur.
+						The conductor gives the cue - the agents respond.
 					</p>
 				</div>
 			</section>
@@ -201,8 +201,8 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 							</code>
 						</p>
 						<p className="mt-1">
-							Fires once when the Maestro application starts. No additional fields required. Does
-							not re-fire on YAML hot-reload or when toggling Cue on/off.
+							Fires once when the OpenWizzard application starts. No additional fields required.
+							Does not re-fire on YAML hot-reload or when toggling Cue on/off.
 						</p>
 					</div>
 					<div>
@@ -894,7 +894,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 					>
 						<Code className="w-4 h-4 flex-shrink-0" style={{ color: theme.colors.accent }} />
 						<span>
-							All standard Maestro template variables (
+							All standard OpenWizzard template variables (
 							<code
 								className="px-1 rounded text-xs"
 								style={{ backgroundColor: theme.colors.bgActivity }}
@@ -1243,7 +1243,7 @@ export function CueHelpContent({ theme, cueShortcutKeys }: CueHelpContentProps) 
 				</div>
 				<div className="text-sm space-y-2 pl-7" style={{ color: theme.colors.textDim }}>
 					<p>
-						When your computer wakes from sleep, Maestro Cue replays missed triggers so a closed
+						When your computer wakes from sleep, OpenWizzard Cue replays missed triggers so a closed
 						laptop doesn't mean missed work:
 					</p>
 					<ul className="list-disc pl-5 space-y-1">

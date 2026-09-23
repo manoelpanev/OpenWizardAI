@@ -55,7 +55,7 @@ Read fully and follow: `./steps/step-01-gather-context.md` to begin the workflow
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/bmm/workflows/4-implementation/bmad-code-review/steps/step-01-gather-context.md
 

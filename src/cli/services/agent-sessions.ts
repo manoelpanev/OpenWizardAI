@@ -74,11 +74,14 @@ function readOriginsStore(): OriginsStore {
 	let configDir: string;
 
 	if (platform === 'darwin') {
-		configDir = path.join(home, 'Library', 'Application Support', 'Maestro');
+		configDir = path.join(home, 'Library', 'Application Support', 'OpenWizzard');
 	} else if (platform === 'win32') {
-		configDir = path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'Maestro');
+		configDir = path.join(
+			process.env.APPDATA || path.join(home, 'AppData', 'Roaming'),
+			'OpenWizzard'
+		);
 	} else {
-		configDir = path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'Maestro');
+		configDir = path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'OpenWizzard');
 	}
 
 	const filePath = path.join(configDir, 'claude-session-origins.json');

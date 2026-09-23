@@ -281,7 +281,7 @@ export const OverviewTab = forwardRef<TabFocusHandle, OverviewTabProps>(function
 							<code className={codeClass} style={{ backgroundColor: theme.colors.bgActivity }}>
 								launchd
 							</code>
-							, or Maestro Cue to wake up to a fresh weekly report every Monday.{' '}
+							, or OpenWizzard Cue to wake up to a fresh weekly report every Monday.{' '}
 							<code className={codeClass} style={{ backgroundColor: theme.colors.bgActivity }}>
 								history
 							</code>{' '}

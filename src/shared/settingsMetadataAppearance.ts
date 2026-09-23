@@ -146,13 +146,13 @@ export const APPEARANCE_SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	updatesPromptSeen: {
 		description:
-			'Whether the first-run step covering release candidate updates, crash reporting, and the Maestro CLI install has been shown.',
+			'Whether the first-run step covering release candidate updates, crash reporting, and the OpenWizzard CLI install has been shown.',
 		type: 'boolean',
 		default: false,
 		category: 'appearance',
 	},
 	agentPowersPromptSeen: {
-		description: 'Whether the "your agents can drive Maestro" first-run step has been shown.',
+		description: 'Whether the "your agents can drive OpenWizzard" first-run step has been shown.',
 		type: 'boolean',
 		default: false,
 		category: 'appearance',
@@ -283,7 +283,7 @@ export const APPEARANCE_SETTINGS_METADATA: Record<string, SettingMetadata> = {
 	},
 	showLeftPanelCueIndicator: {
 		description:
-			'Show the Maestro Cue activity indicator (lightning bolt) next to agents with active Cue subscriptions in the left side bar. Hidden when the Maestro Cue Encore Feature is disabled.',
+			'Show the OpenWizzard Cue activity indicator (lightning bolt) next to agents with active Cue subscriptions in the left side bar. Hidden when the OpenWizzard Cue Encore Feature is disabled.',
 		type: 'boolean',
 		default: true,
 		category: 'appearance',

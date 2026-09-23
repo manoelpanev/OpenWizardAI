@@ -70,7 +70,7 @@ describe('MaestroClient', () => {
 			vi.mocked(readCliServerInfo).mockReturnValue(null);
 
 			const client = new MaestroClient();
-			await expect(client.connect()).rejects.toThrow('Maestro desktop app is not running');
+			await expect(client.connect()).rejects.toThrow('OpenWizzard desktop app is not running');
 		});
 
 		it('should throw when PID is stale', async () => {
@@ -83,7 +83,7 @@ describe('MaestroClient', () => {
 			vi.mocked(isCliServerRunning).mockReturnValue(false);
 
 			const client = new MaestroClient();
-			await expect(client.connect()).rejects.toThrow('Maestro discovery file is stale');
+			await expect(client.connect()).rejects.toThrow('OpenWizzard discovery file is stale');
 		});
 
 		it('should connect successfully when server is running', async () => {
@@ -123,7 +123,7 @@ describe('MaestroClient', () => {
 			mockWsInstance.emit('error', new Error('Connection refused'));
 
 			await expect(connectPromise).rejects.toThrow(
-				'Failed to connect to Maestro: Connection refused'
+				'Failed to connect to OpenWizzard: Connection refused'
 			);
 		});
 
@@ -142,7 +142,7 @@ describe('MaestroClient', () => {
 			// Advance past timeout
 			vi.advanceTimersByTime(5001);
 
-			await expect(connectPromise).rejects.toThrow('Connection to Maestro timed out');
+			await expect(connectPromise).rejects.toThrow('Connection to OpenWizzard timed out');
 		});
 	});
 
@@ -166,7 +166,7 @@ describe('MaestroClient', () => {
 		it('should throw when not connected', async () => {
 			const client = new MaestroClient();
 			await expect(client.sendCommand({ type: 'ping' }, 'pong')).rejects.toThrow(
-				'Not connected to Maestro'
+				'Not connected to OpenWizzard'
 			);
 		});
 
@@ -237,7 +237,7 @@ describe('MaestroClient', () => {
 			// At 10.1s it should timeout
 			vi.advanceTimersByTime(200);
 
-			await expect(commandPromise).rejects.toThrow('Timed out waiting for the Maestro app');
+			await expect(commandPromise).rejects.toThrow('Timed out waiting for the OpenWizzard app');
 		});
 
 		it('rejects immediately with UnsupportedCommandError when the app echoes back', async () => {
@@ -396,7 +396,7 @@ describe('withMaestroClient()', () => {
 		vi.mocked(readCliServerInfo).mockReturnValue(null);
 
 		await expect(withMaestroClient(async () => 'should not reach')).rejects.toThrow(
-			'Maestro desktop app is not running'
+			'OpenWizzard desktop app is not running'
 		);
 	});
 });

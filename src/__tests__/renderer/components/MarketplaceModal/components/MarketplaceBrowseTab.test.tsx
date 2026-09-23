@@ -117,7 +117,7 @@ describe('MarketplaceBrowseTab', () => {
 		expect(getByRole('button', { name: /All\s*\(2\)/ })).toBeTruthy();
 		expect(getByText('Compatible')).toBeTruthy();
 		expect(getByText('Incompatible')).toBeTruthy();
-		expect(getByText('Requires a newer Maestro')).toBeTruthy();
+		expect(getByText('Requires a newer OpenWizzard')).toBeTruthy();
 		expect(getByText('Use arrow keys to navigate, Enter to select')).toBeTruthy();
 		expect(getByText('search')).toBeTruthy();
 	});

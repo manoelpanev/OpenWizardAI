@@ -122,7 +122,7 @@ export function NotificationsPanel({
 				<button
 					onClick={() =>
 						window.maestro.notification.show(
-							'Maestro',
+							'OpenWizzard',
 							'Test notification - notifications are working!'
 						)
 					}
@@ -199,7 +199,7 @@ export function NotificationsPanel({
 									setTestError(null);
 									try {
 										const result = await window.maestro.notification.speak(
-											"Howdy, I'm Maestro, here to conduct your agentic tools into a well-tuned symphony.",
+											"Howdy, I'm OpenWizzard, here to conduct your agentic tools into a well-tuned symphony.",
 											audioFeedbackCommand
 										);
 										logger.info('[Notification] Speak result:', undefined, result);
@@ -324,7 +324,7 @@ export function NotificationsPanel({
 					icon={Coffee}
 					sectionLabel="Idle Notification"
 					title="Enable Idle Notification"
-					description="Execute a custom command when all agents and Auto Runs finish and Maestro becomes idle"
+					description="Execute a custom command when all agents and Auto Runs finish and OpenWizzard becomes idle"
 					checked={idleNotificationEnabled}
 					onChange={setIdleNotificationEnabled}
 					theme={theme}
@@ -338,7 +338,7 @@ export function NotificationsPanel({
 							type="text"
 							value={idleNotificationCommand}
 							onChange={(e) => setIdleNotificationCommand(e.target.value)}
-							placeholder="say Maestro is idle"
+							placeholder="say OpenWizzard is idle"
 							className="flex-1 p-2 rounded border bg-transparent outline-none text-sm font-mono"
 							style={{ borderColor: theme.colors.border, color: theme.colors.textMain }}
 						/>
@@ -370,7 +370,7 @@ export function NotificationsPanel({
 									setIdleTestError(null);
 									try {
 										const result = await window.maestro.notification.speak(
-											'Maestro is idle',
+											'OpenWizzard is idle',
 											idleNotificationCommand
 										);
 										if (result.success && result.notificationId) {
@@ -443,7 +443,7 @@ export function NotificationsPanel({
 					)}
 					<p className="text-xs opacity-50 mt-2" style={{ color: theme.colors.textDim }}>
 						Runs when all agents finish and no Auto Run is active. Cue tasks don&apos;t count as
-						activity. The command receives &quot;Maestro is idle&quot; via stdin.
+						activity. The command receives &quot;OpenWizzard is idle&quot; via stdin.
 					</p>
 				</div>
 			</div>

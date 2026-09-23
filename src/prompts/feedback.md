@@ -20,11 +20,11 @@ Do not ask for clarification. Use the text as-is and proceed.
 
 2. Write a concise GitHub issue title prefixed with the type, e.g., "Bug: ...".
 
-3. Write the issue body so it matches Maestro's structured intake shape:
+3. Write the issue body so it matches OpenWizzard's structured intake shape:
 
 - Summary
 - Environment
-  - Maestro version
+  - OpenWizzard version
   - Operating system
   - Install source
   - Agent/provider involved
@@ -37,7 +37,7 @@ Do not ask for clarification. Use the text as-is and proceed.
 
 If a section is not available from the feedback text, explicitly write `Not provided.`
 
-4. Ensure the `Maestro-feedback` label exists.
+4. Ensure the `OpenWizzard-feedback` label exists.
    First check whether it already exists.
    Only create it if it is missing.
 
@@ -46,7 +46,7 @@ If a section is not available from the feedback text, explicitly write `Not prov
    Do not alter the alt text, URLs, or markdown formatting.
 
 6. Then run:
-   Try to create the issue with the `Maestro-feedback` label.
+   Try to create the issue with the `OpenWizzard-feedback` label.
    If label creation or issue labeling fails because of permissions, create the issue without the label instead of stopping.
 
 7. Reply with only the created issue URL.

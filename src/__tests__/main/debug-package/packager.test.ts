@@ -273,7 +273,7 @@ describe('Debug Package Packager', () => {
 
 			const readme = getFileContent(extractDir, 'README.md');
 			if (readme) {
-				expect(readme).toContain('# Maestro Debug Package');
+				expect(readme).toContain('# OpenWizzard Debug Package');
 				expect(readme).toContain('Privacy');
 				expect(readme).toContain('system-info.json');
 				expect(readme).toContain('settings.json');

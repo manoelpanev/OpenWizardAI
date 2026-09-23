@@ -846,7 +846,7 @@ export const useSettingsStore = create<SettingsStore>()((set, get) => {
 		audioFeedbackCommand: 'say',
 		toastDuration: 20,
 		idleNotificationEnabled: false,
-		idleNotificationCommand: 'say Maestro is idle',
+		idleNotificationCommand: 'say OpenWizzard is idle',
 		checkForUpdatesOnStartup: true,
 		enableBetaUpdates: false,
 		crashReportingEnabled: true,

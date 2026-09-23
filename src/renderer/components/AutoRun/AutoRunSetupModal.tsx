@@ -167,8 +167,8 @@ export function AutoRunSetupModal({
 				<div className="space-y-4">
 					<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
 						Auto Run lets you manage and execute Markdown documents containing open tasks. Select a
-						folder that contains your task documents. Each Maestro agent is assigned its own working
-						folder.
+						folder that contains your task documents. Each OpenWizzard agent is assigned its own
+						working folder.
 					</p>
 
 					{/* Feature list */}

@@ -2761,7 +2761,7 @@ interface MaestroAPI {
 			deltaMs?: number;
 			deltaRuns?: number;
 			// Installation tracking for multi-device differentiation
-			installationId?: string; // Unique GUID per Maestro installation (auto-injected by main process)
+			installationId?: string; // Unique GUID per OpenWizzard installation (auto-injected by main process)
 			clientTotalTimeMs?: number; // Client's self-proclaimed total time (for discrepancy detection)
 			// What earned this time. Absent means 'auto-run' (older clients predate
 			// this field). Cue submissions are far more frequent, so the server keys

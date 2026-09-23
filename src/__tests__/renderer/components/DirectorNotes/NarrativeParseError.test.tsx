@@ -45,7 +45,7 @@ describe('NarrativeParseError', () => {
 		const banner = screen.getByRole('alert');
 		expect(banner).toBeInTheDocument();
 		expect(
-			screen.getByText("Maestro could not parse the AI's structured output")
+			screen.getByText("OpenWizzard could not parse the AI's structured output")
 		).toBeInTheDocument();
 		expect(screen.getByText(ERROR)).toBeInTheDocument();
 	});

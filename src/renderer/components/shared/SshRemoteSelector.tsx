@@ -238,8 +238,8 @@ function SshRemoteDropdown({
 							This agent is remote-controlled
 						</span>
 						<span className="text-2xs" style={{ color: theme.colors.textDim }}>
-							Mirror history entries to this project's local .maestro/history/ so another Maestro
-							(SSH'd into this machine) can see what was done here.
+							Mirror history entries to this project's local .maestro/history/ so another
+							OpenWizzard (SSH'd into this machine) can see what was done here.
 						</span>
 					</div>
 				</label>

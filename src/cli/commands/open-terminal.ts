@@ -63,8 +63,8 @@ export async function openTerminal(options: OpenTerminalOptions): Promise<void> 
 				const where = background ? ' (background tab)' : '';
 				console.log(
 					options.command
-						? `Terminal tab opened in Maestro${where}, running: ${options.command}`
-						: `Terminal tab opened in Maestro${where}`
+						? `Terminal tab opened in OpenWizzard${where}, running: ${options.command}`
+						: `Terminal tab opened in OpenWizzard${where}`
 				);
 				// Surface the id in plain output too - it's the handle for
 				// `send-terminal --tab`, and agents shouldn't need --json to get it.

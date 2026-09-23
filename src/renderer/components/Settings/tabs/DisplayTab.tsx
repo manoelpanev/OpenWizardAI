@@ -60,7 +60,7 @@ const TOOLBAR_BUTTON_LABELS: Record<FilePreviewToolbarButton, string> = {
 	wordWrap: 'Word wrap',
 	remoteImages: 'Show remote images',
 	htmlRender: 'Render HTML',
-	openInBrowser: 'Open in Maestro browser',
+	openInBrowser: 'Open in OpenWizzard browser',
 	previewTier: 'Preview tier chip',
 	editToggle: 'Edit / preview toggle',
 	editImage: 'Edit image',
@@ -334,7 +334,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 				/>
 				<p className="text-xs opacity-50 mt-2">
 					Rich uses Material Icon Theme style file and folder SVGs in the Files pane. Flat uses
-					Maestro&apos;s simpler monochrome icons.
+					OpenWizzard&apos;s simpler monochrome icons.
 				</p>
 			</div>
 
@@ -355,7 +355,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 								Use native title bar
 							</p>
 							<p className="text-xs opacity-50 mt-0.5">
-								Use the OS native title bar instead of Maestro&apos;s custom title bar. Requires
+								Use the OS native title bar instead of OpenWizzard&apos;s custom title bar. Requires
 								restart.
 							</p>
 						</div>
@@ -600,7 +600,7 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 									Show Cue indicator
 								</p>
 								<p className="text-xs opacity-50 mt-0.5">
-									Display the lightning-bolt indicator next to agents with active Maestro Cue
+									Display the lightning-bolt indicator next to agents with active OpenWizzard Cue
 									subscriptions.
 								</p>
 							</div>
@@ -937,8 +937,8 @@ export function DisplayTab({ theme }: DisplayTabProps) {
 								Treat {metaKeyName}+0 as the last tab
 							</p>
 							<p className="text-xs opacity-50 mt-0.5">
-								Maestro-style: {metaKeyName}+1-9 jump to tabs 1-9, and {metaKeyName}+0 jumps to the
-								last tab. Disable to use browser-style: {metaKeyName}+1-8 jump to tabs 1-8, and{' '}
+								OpenWizzard-style: {metaKeyName}+1-9 jump to tabs 1-9, and {metaKeyName}+0 jumps to
+								the last tab. Disable to use browser-style: {metaKeyName}+1-8 jump to tabs 1-8, and{' '}
 								{metaKeyName}+9 jumps to the last tab.
 							</p>
 						</div>

@@ -42,6 +42,7 @@
 
 import * as crypto from 'crypto';
 import { logger } from '../utils/logger';
+import { UPSTREAM_TELEMETRY_ENABLED } from '../../shared/branding';
 import {
 	insertTelemetryEvent,
 	getTelemetryBatch,
@@ -180,6 +181,7 @@ function isKillSwitchOn(): boolean {
 }
 
 function isTelemetryActive(): boolean {
+	if (!UPSTREAM_TELEMETRY_ENABLED) return false;
 	if (isKillSwitchOn()) return false;
 	if (!state.config) return false;
 	if (!state.config.isEncoreEnabled()) return false;

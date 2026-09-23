@@ -1241,7 +1241,7 @@ export interface SpecKitCommand {
 	command: string; // e.g., '/speckit.constitution'
 	description: string;
 	prompt: string;
-	isCustom: boolean; // true only for 'implement' (our Maestro-specific version)
+	isCustom: boolean; // true only for 'implement' (our OpenWizzard-specific version)
 	isModified: boolean; // true if user has edited
 }
 
@@ -1259,7 +1259,7 @@ export interface OpenSpecCommand {
 	command: string; // e.g., '/openspec.proposal'
 	description: string;
 	prompt: string;
-	isCustom: boolean; // true for 'help' and 'implement' (Maestro-specific)
+	isCustom: boolean; // true for 'help' and 'implement' (OpenWizzard-specific)
 	isModified: boolean; // true if user has edited
 }
 
@@ -1308,7 +1308,7 @@ export interface LeaderboardRegistration {
 	clientToken?: string; // Client-generated token for polling auth status
 	authToken?: string; // 64-character token received after email confirmation
 	// Keyboard mastery data
-	keyboardMasteryLevel?: number; // 0-4 (Beginner to Maestro)
+	keyboardMasteryLevel?: number; // 0-4 (Beginner to OpenWizzard)
 	keyboardMasteryLevelName?: string; // Level name
 	keyboardMasteryPercentage?: number; // 0-100
 }
@@ -1326,7 +1326,7 @@ export type KeyboardMasteryLevel = 'beginner' | 'student' | 'performer' | 'virtu
 
 export interface KeyboardMasteryStats {
 	usedShortcuts: string[]; // Array of shortcut IDs that have been used
-	currentLevel: number; // 0-4 (Beginner to Keyboard Maestro)
+	currentLevel: number; // 0-4 (Beginner to Keyboard OpenWizzard)
 	lastLevelUpTimestamp: number; // When user last leveled up
 	lastAcknowledgedLevel: number; // Last level user dismissed celebration for
 }

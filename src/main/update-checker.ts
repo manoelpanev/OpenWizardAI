@@ -5,6 +5,7 @@
 
 import { compareVersions } from '../shared/pathUtils';
 import { logger } from './utils/logger';
+import { UPDATES_ENABLED } from '../shared/branding';
 
 // GitHub repository information
 const GITHUB_OWNER = 'RunMaestro';
@@ -106,7 +107,7 @@ async function fetchReleases(includePrerelease: boolean = false): Promise<Releas
 	const response = await fetch(RELEASES_URL, {
 		headers: {
 			Accept: 'application/vnd.github.v3+json',
-			'User-Agent': 'Maestro-Update-Checker',
+			'User-Agent': 'OpenWizzard-Update-Checker',
 		},
 	});
 
@@ -181,6 +182,19 @@ export async function checkForUpdates(
 	includePrerelease: boolean = false
 ): Promise<UpdateCheckResult> {
 	const releasesUrl = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/releases`;
+
+	if (!UPDATES_ENABLED) {
+		logger.info('Update checks are disabled for this build', 'UpdateChecker');
+		return {
+			currentVersion,
+			latestVersion: currentVersion,
+			updateAvailable: false,
+			versionsBehind: 0,
+			releases: [],
+			releasesUrl,
+			assetsReady: false,
+		};
+	}
 
 	logger.info(
 		`Checking for updates (current: ${currentVersion}, includePrerelease: ${includePrerelease}, platform: ${process.platform})`,

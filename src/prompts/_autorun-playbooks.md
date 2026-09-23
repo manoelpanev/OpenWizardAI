@@ -1,6 +1,6 @@
 ## Auto Run Documents (aka Playbooks)
 
-A **Playbook** is a collection of Auto Run documents - Markdown files with checkbox tasks (`- [ ]`) that Maestro's Auto Run engine executes sequentially via AI agents. The **Playbook Exchange** is an official repository of community and curated playbooks users can browse and import directly into their sessions.
+A **Playbook** is a collection of Auto Run documents - Markdown files with checkbox tasks (`- [ ]`) that OpenWizzard's Auto Run engine executes sequentially via AI agents. The **Playbook Exchange** is an official repository of community and curated playbooks users can browse and import directly into their sessions.
 
 When a user asks for a "playbook", "play book", "playbooks", "auto-run document", "autorun doc", or "auto run doc", follow the rules below exactly.
 
@@ -29,10 +29,10 @@ These are two distinct actions and the user's phrasing tells you which (or both)
 
 Every playbook runs in one of two fresh-context modes. **When you create a playbook, explicitly tell the user which type it is** (one line is enough) so they know how it will execute:
 
-- **Task-based** - Maestro spawns a fresh agent for each `- [ ]` task, with no memory of previous tasks. Maximum isolation; every task must be fully self-contained (see Task Format below). This is the default and the right choice for most agents.
+- **Task-based** - OpenWizzard spawns a fresh agent for each `- [ ]` task, with no memory of previous tasks. Maximum isolation; every task must be fully self-contained (see Task Format below). This is the default and the right choice for most agents.
 - **Document-based** - a single agent walks every task in the document in one continuous session, carrying context forward between tasks. Appropriate only for agents with very large context windows (≥1M tokens), where a whole document's worth of work fits in one context.
 
-Maestro auto-selects the mode from the running agent's context window - document-based at ≥1M tokens, task-based below that - and the user can override it per run. Because a playbook may run either way, **always author self-contained tasks** (Task Format below); document-based execution is an optimization, not a license to write tasks that depend on chat memory. After you create a playbook, state its type plainly, e.g. _"Created a task-based playbook - each task runs in a fresh agent context."_
+OpenWizzard auto-selects the mode from the running agent's context window - document-based at ≥1M tokens, task-based below that - and the user can override it per run. Because a playbook may run either way, **always author self-contained tasks** (Task Format below); document-based execution is an optimization, not a license to write tasks that depend on chat memory. After you create a playbook, state its type plainly, e.g. _"Created a task-based playbook - each task runs in a fresh agent context."_
 
 ### File Naming
 
@@ -167,7 +167,7 @@ A marker should also carry a `reason` justifying the choice - at most three sent
 <!-- MAESTRO:MODEL tier="low" effort="low" reason="This phase only catalogues what already exists. Reading and listing call sites needs no judgment, so the cheap model at low effort is enough." -->
 ```
 
-Explain what makes the work hard or mechanical rather than restating the levels. The reason has no effect on the run; Maestro shows it behind an ⓘ on the marker's pill so a reader can audit the judgment.
+Explain what makes the work hard or mechanical rather than restating the levels. The reason has no effect on the run; OpenWizzard shows it behind an ⓘ on the marker's pill so a reader can audit the judgment.
 
 The rules that matter when authoring:
 
@@ -198,7 +198,7 @@ When the effort produces documentation, research, notes, or knowledge artifacts 
 - **Wiki-links** (`[[Document-Name]]`) to connect related documents
 - **Logical folder organization** by entity type or domain
 
-This enables exploration via Maestro's DocGraph viewer and tools like Obsidian.
+This enables exploration via OpenWizzard's DocGraph viewer and tools like Obsidian.
 
 ### Example Auto Run Document
 

@@ -345,7 +345,7 @@ export function buildFeatureCommands({
 	if (onOpenMaestroCue) {
 		commands.push({
 			id: 'maestro-cue',
-			label: 'Maestro Cue',
+			label: 'OpenWizzard Cue',
 			shortcut: shortcuts.openCue,
 			subtext: 'Event-driven automation dashboard',
 			action: () => {
@@ -358,7 +358,7 @@ export function buildFeatureCommands({
 	if (onConfigureCue && activeSession) {
 		commands.push({
 			id: 'configure-cue',
-			label: `Configure Maestro Cue: ${activeSession.name}`,
+			label: `Configure OpenWizzard Cue: ${activeSession.name}`,
 			subtext: 'Open YAML editor for event-driven automation',
 			action: () => {
 				onConfigureCue(activeSession);

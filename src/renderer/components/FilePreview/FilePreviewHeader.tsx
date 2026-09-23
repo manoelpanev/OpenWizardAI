@@ -268,7 +268,7 @@ export const FilePreviewHeader = React.memo(function FilePreviewHeader({
 						    webview instead of the sandboxed preview iframe. Sits next to the
 						    HTML render toggle since both are "view this in a browser" actions. */}
 						{toolbarVisibility.openInBrowser && isHtml && !sshRemoteId && onOpenInBrowser && (
-							<HoverTooltip theme={theme} label="Open in Maestro Browser">
+							<HoverTooltip theme={theme} label="Open in OpenWizzard Browser">
 								<button
 									onClick={onOpenInBrowser}
 									className={headerBtnClass}

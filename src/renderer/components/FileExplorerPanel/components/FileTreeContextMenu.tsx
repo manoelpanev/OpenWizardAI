@@ -367,7 +367,7 @@ export function FileTreeContextMenu({
 								style={{ color: theme.colors.textMain }}
 							>
 								<Globe className="w-3.5 h-3.5" style={{ color: theme.colors.accent }} />
-								<span>Open in Maestro Browser</span>
+								<span>Open in OpenWizzard Browser</span>
 							</button>
 						)}
 

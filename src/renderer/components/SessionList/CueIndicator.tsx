@@ -26,7 +26,7 @@ export const CueIndicator = memo(function CueIndicator({
 }: CueIndicatorProps) {
 	if (subscriptionCount <= 0) return null;
 
-	const tooltip = `Maestro Cue ${activeRun ? 'running' : 'active'} (${subscriptionCount} subscription${
+	const tooltip = `OpenWizzard Cue ${activeRun ? 'running' : 'active'} (${subscriptionCount} subscription${
 		subscriptionCount === 1 ? '' : 's'
 	})`;
 

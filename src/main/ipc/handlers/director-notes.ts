@@ -349,13 +349,13 @@ export interface GraphBucket {
 }
 
 export interface UnifiedHistoryEntry extends HistoryEntry {
-	agentName?: string; // The Maestro session name for display
+	agentName?: string; // The OpenWizzard session name for display
 	sourceSessionId: string; // Which session this entry came from
 }
 
 /** Aggregate stats returned alongside unified history (computed from the full unfiltered set) */
 export interface UnifiedHistoryStats {
-	agentCount: number; // Distinct Maestro agents with history
+	agentCount: number; // Distinct OpenWizzard agents with history
 	sessionCount: number; // Distinct provider sessions across all agents
 	autoCount: number; // Total AUTO entries
 	userCount: number; // Total USER entries
@@ -377,7 +377,7 @@ export interface SynopsisOptions {
 }
 
 export interface SynopsisStats {
-	agentCount: number; // Maestro agents with history in the lookback window
+	agentCount: number; // OpenWizzard agents with history in the lookback window
 	entryCount: number; // Total history entries in the lookback window
 	durationMs: number; // Time taken for AI generation
 }
@@ -425,7 +425,7 @@ export interface RichAgentStat {
  */
 export interface RichOverviewStats {
 	totalEntries: number;
-	agentCount: number; // Distinct Maestro agents with entries in the window
+	agentCount: number; // Distinct OpenWizzard agents with entries in the window
 	sessionCount: number; // Distinct provider sessions across all agents
 	autoCount: number;
 	userCount: number;

@@ -27,14 +27,17 @@ function isSessionBusyInDesktop(sessionId: string): { busy: boolean; reason?: st
 		let configDir: string;
 
 		if (platform === 'darwin') {
-			configDir = path.join(home, 'Library', 'Application Support', 'maestro');
+			configDir = path.join(home, 'Library', 'Application Support', 'OpenWizzard');
 		} else if (platform === 'win32') {
 			configDir = path.join(
 				process.env.APPDATA || path.join(home, 'AppData', 'Roaming'),
 				'maestro'
 			);
 		} else {
-			configDir = path.join(process.env.XDG_CONFIG_HOME || path.join(home, '.config'), 'maestro');
+			configDir = path.join(
+				process.env.XDG_CONFIG_HOME || path.join(home, '.config'),
+				'OpenWizzard'
+			);
 		}
 
 		const sessionsPath = path.join(configDir, 'maestro-sessions.json');

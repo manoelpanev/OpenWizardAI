@@ -344,7 +344,7 @@ describe('useAppInitialization', () => {
 			// Should update to 95%
 			expect((window as any).__updateSplash).toHaveBeenCalledWith(
 				95,
-				'Maestro takes the podium...'
+				'OpenWizzard takes the podium...'
 			);
 
 			// Advance past the 150ms delay
@@ -1038,11 +1038,11 @@ describe('useAppInitialization', () => {
 
 		it('should sync idle notification settings', async () => {
 			mockSettingsState.idleNotificationEnabled = true;
-			mockSettingsState.idleNotificationCommand = 'say Maestro is idle';
+			mockSettingsState.idleNotificationCommand = 'say OpenWizzard is idle';
 			renderHook(() => useAppInitialization());
 			await act(flushPromises);
 
-			expect(mockSetIdleNotification).toHaveBeenCalledWith(true, 'say Maestro is idle');
+			expect(mockSetIdleNotification).toHaveBeenCalledWith(true, 'say OpenWizzard is idle');
 		});
 	});
 

@@ -329,7 +329,9 @@ describe('HistoryHelpModal', () => {
 
 			render(<HistoryHelpModal {...defaultProps} />);
 
-			expect(screen.getByText(/Entries created by Maestro Cue automations/)).toBeInTheDocument();
+			expect(
+				screen.getByText(/Entries created by OpenWizzard Cue automations/)
+			).toBeInTheDocument();
 		});
 
 		it('renders Zap icon in CUE badge when maestroCue is enabled', () => {

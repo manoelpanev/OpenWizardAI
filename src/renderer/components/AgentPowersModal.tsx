@@ -125,7 +125,7 @@ export function AgentPowersModal({
 	return (
 		<Modal
 			theme={theme}
-			title="Your Agents Can Drive Maestro"
+			title="Your Agents Can Drive OpenWizzard"
 			headerIcon={<Bot className="w-4 h-4" style={{ color: theme.colors.accent }} />}
 			priority={MODAL_PRIORITIES.AGENT_POWERS}
 			onClose={onDismiss}
@@ -156,7 +156,7 @@ export function AgentPowersModal({
 			<div className="space-y-4">
 				<p className="text-sm leading-relaxed" style={{ color: theme.colors.textMain }}>
 					You just had the chance to set your typography and your theme by hand. Either way,
-					anything you can do in Maestro, the agents inside it can do too - they reach the same
+					anything you can do in OpenWizzard, the agents inside it can do too - they reach the same
 					controls the interface does, so you can simply ask.
 				</p>
 
@@ -201,12 +201,12 @@ export function AgentPowersModal({
 				>
 					<Sparkles className="w-4 h-4 mt-0.5 shrink-0" style={{ color: theme.colors.accent }} />
 					<p className="text-xs leading-relaxed" style={{ color: theme.colors.textMain }}>
-						Maestro is a power tool. If you are a hacker it will feel like home: keyboard shortcuts
-						all the way down, dozens of agents conducted at once, hands never leaving the keys. You
-						do not have to work that way to get the benefit. Every agent running in Maestro is
-						handed the knowledge of how to drive Maestro, down to the advanced parts like Auto Run
-						and Cue pipelines, so ask for what you want in plain language and let the agent find the
-						way there.
+						OpenWizzard is a power tool. If you are a hacker it will feel like home: keyboard
+						shortcuts all the way down, dozens of agents conducted at once, hands never leaving the
+						keys. You do not have to work that way to get the benefit. Every agent running in
+						OpenWizzard is handed the knowledge of how to drive OpenWizzard, down to the advanced
+						parts like Auto Run and Cue pipelines, so ask for what you want in plain language and
+						let the agent find the way there.
 						{onTryExample ? ' Pick an example above to drop it into the composer.' : ''}
 					</p>
 				</div>

@@ -350,7 +350,7 @@ export function AutoRunnerHelpModal({ theme, onClose, zIndex = 50 }: AutoRunnerH
 							</div>
 						</div>
 						<p>
-							Maestro <strong style={{ color: theme.colors.textMain }}>auto-selects</strong> the
+							OpenWizzard <strong style={{ color: theme.colors.textMain }}>auto-selects</strong> the
 							mode from the running agent's context window -
 							<strong style={{ color: theme.colors.textMain }}>Document</strong> at 1M tokens or
 							more (e.g. Claude's 1M window),{' '}

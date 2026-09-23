@@ -763,8 +763,8 @@ export function ReauthModal({ theme, outage, session, onClose }: ReauthModalProp
 					</p>
 				) : (
 					<p className="text-sm" style={{ color: theme.colors.error }}>
-						{agentName} has no login command Maestro can run. Re-authenticate it from a terminal,
-						then resume.
+						{agentName} has no login command OpenWizzard can run. Re-authenticate it from a
+						terminal, then resume.
 					</p>
 				)}
 

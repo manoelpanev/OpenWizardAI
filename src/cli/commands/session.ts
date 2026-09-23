@@ -69,7 +69,7 @@ function mapTransportError(error: unknown): { error: string; code: string } | nu
 		lowerMsg.includes('not connected to maestro')
 	) {
 		return {
-			error: 'Maestro desktop is not running or not reachable',
+			error: 'OpenWizzard desktop is not running or not reachable',
 			code: 'MAESTRO_NOT_RUNNING',
 		};
 	}

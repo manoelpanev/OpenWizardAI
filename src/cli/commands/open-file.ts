@@ -71,7 +71,7 @@ export async function openFile(filePath: string, options: OpenFileOptions): Prom
 				);
 			else
 				console.log(
-					`Opened ${path.basename(target.absolutePath)} in Maestro${
+					`Opened ${path.basename(target.absolutePath)} in OpenWizzard${
 						background ? ' (background tab)' : ''
 					}`
 				);

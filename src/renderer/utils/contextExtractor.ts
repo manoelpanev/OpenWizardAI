@@ -121,7 +121,7 @@ export async function extractStoredSessionContext(
 
 		return {
 			type: 'session',
-			sessionId: '', // Stored sessions don't have a Maestro session ID
+			sessionId: '', // Stored sessions don't have an OpenWizzard session ID
 			agentSessionId,
 			projectRoot,
 			name: displayName,

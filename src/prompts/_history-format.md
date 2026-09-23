@@ -21,7 +21,7 @@ Each `entries[]` element has the following fields (optional unless marked requir
 - `summary` _(required, string)_ - short description of the task / response
 - `projectPath` _(required, string)_ - absolute path of the working directory at the time
 - `fullResponse` - complete AI response text; pull this when you need full context, not just the summary
-- `agentSessionId` - Maestro agent UUID (the in-app session container)
+- `agentSessionId` - OpenWizzard agent UUID (the in-app session container)
 - `sessionId` - provider session id (e.g. Claude Code's resume id)
 - `sessionName` - human-readable agent/tab name
 - `success` - boolean; whether the run completed without error

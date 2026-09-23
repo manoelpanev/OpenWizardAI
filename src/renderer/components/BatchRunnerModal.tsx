@@ -636,7 +636,7 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 			className="fixed inset-0 modal-overlay flex items-center justify-center z-[9999] animate-in fade-in duration-200"
 			role="dialog"
 			aria-modal="true"
-			aria-label="Maestro Auto Run"
+			aria-label="OpenWizzard Auto Run"
 			tabIndex={-1}
 		>
 			<div
@@ -664,13 +664,13 @@ export function BatchRunnerModal(props: BatchRunnerModalProps) {
 					<div className="flex items-center gap-2">
 						<PlayCircle className="w-5 h-5" style={{ color: theme.colors.accent }} />
 						<h2 className="text-sm font-bold" style={{ color: theme.colors.textMain }}>
-							Maestro Auto Run
+							OpenWizzard Auto Run
 						</h2>
 						<button
 							onClick={() => setShowHelp(true)}
 							className="p-1 rounded hover:bg-white/10 transition-colors"
 							aria-label="Open help"
-							title="About Maestro Auto Run"
+							title="About OpenWizzard Auto Run"
 							style={{ color: theme.colors.textDim }}
 						>
 							<HelpCircle className="w-4 h-4" />

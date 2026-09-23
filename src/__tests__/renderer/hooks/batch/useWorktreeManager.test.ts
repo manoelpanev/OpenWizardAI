@@ -86,10 +86,10 @@ describe('useWorktreeManager - PR generation', () => {
 			expect(body).not.toContain('## Changes');
 		});
 
-		it('includes Maestro attribution footer', () => {
+		it('includes OpenWizzard attribution footer', () => {
 			const { result } = renderHook(() => useWorktreeManager());
 			const body = result.current.generatePRBody(singleDoc, 1);
-			expect(body).toContain('Maestro');
+			expect(body).toContain('OpenWizzard');
 			expect(body).toContain('Auto Run');
 		});
 	});

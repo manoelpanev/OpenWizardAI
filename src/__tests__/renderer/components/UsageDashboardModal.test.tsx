@@ -417,7 +417,7 @@ describe('UsageDashboardModal', () => {
 
 			await waitFor(() => {
 				expect(screen.getByText('No usage data yet')).toBeInTheDocument();
-				expect(screen.getByText('Start using Maestro to see your stats!')).toBeInTheDocument();
+				expect(screen.getByText('Start using OpenWizzard to see your stats!')).toBeInTheDocument();
 			});
 		});
 

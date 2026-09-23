@@ -72,7 +72,9 @@ describe('open-file command', () => {
 		// additive, so an unflagged call must still switch and still focus.
 		expect(captured.background).toBe(false);
 		expect(captured.switchToAgent).toBe(true);
-		expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Opened file.ts in Maestro'));
+		expect(consoleSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Opened file.ts in OpenWizzard')
+		);
 		expect(processExitSpy).not.toHaveBeenCalled();
 	});
 
@@ -147,7 +149,9 @@ describe('open-file command', () => {
 
 		await openFile('relative/file.ts', { agent: 'session-123' });
 
-		expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Opened file.ts in Maestro'));
+		expect(consoleSpy).toHaveBeenCalledWith(
+			expect.stringContaining('Opened file.ts in OpenWizzard')
+		);
 	});
 
 	it('should error when file does not exist', async () => {
@@ -159,14 +163,16 @@ describe('open-file command', () => {
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});
 
-	it('should error gracefully when Maestro app is not running', async () => {
+	it('should error gracefully when OpenWizzard app is not running', async () => {
 		vi.mocked(existsSync).mockReturnValue(true);
-		vi.mocked(withMaestroClient).mockRejectedValue(new Error('Maestro desktop app is not running'));
+		vi.mocked(withMaestroClient).mockRejectedValue(
+			new Error('OpenWizzard desktop app is not running')
+		);
 
 		await openFile('/home/user/project/file.ts', { agent: 'session-123' });
 
 		expect(consoleErrorSpy).toHaveBeenCalledWith(
-			expect.stringContaining('Maestro desktop app is not running')
+			expect.stringContaining('OpenWizzard desktop app is not running')
 		);
 		expect(processExitSpy).toHaveBeenCalledWith(1);
 	});

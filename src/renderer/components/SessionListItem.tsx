@@ -256,9 +256,9 @@ export const SessionListItem = React.memo(function SessionListItem({
 								backgroundColor: theme.colors.accent + '40',
 								color: theme.colors.accentText,
 							}}
-							title="User-initiated through Maestro"
+							title="User-initiated through OpenWizzard"
 						>
-							MAESTRO
+							OPENWIZZARD
 						</span>
 					)}
 					{session.origin === 'auto' && (

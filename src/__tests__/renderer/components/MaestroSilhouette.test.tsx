@@ -35,7 +35,7 @@ describe('MaestroSilhouette', () => {
 
 			const img = screen.getByRole('img');
 			expect(img).toBeInTheDocument();
-			expect(img).toHaveAttribute('alt', 'Maestro conductor silhouette');
+			expect(img).toHaveAttribute('alt', 'OpenWizzard conductor silhouette');
 		});
 	});
 
@@ -162,7 +162,7 @@ describe('MaestroSilhouette', () => {
 		it('has alt text', () => {
 			render(<MaestroSilhouette />);
 
-			const img = screen.getByAltText('Maestro conductor silhouette');
+			const img = screen.getByAltText('OpenWizzard conductor silhouette');
 			expect(img).toBeInTheDocument();
 		});
 	});
@@ -334,7 +334,7 @@ describe('edge cases', () => {
 		const images = screen.getAllByRole('img');
 		expect(images).toHaveLength(2);
 
-		expect(images[0]).toHaveAttribute('alt', 'Maestro conductor silhouette');
+		expect(images[0]).toHaveAttribute('alt', 'OpenWizzard conductor silhouette');
 		expect(images[1]).toHaveAttribute('alt', 'Animated maestro conductor');
 	});
 

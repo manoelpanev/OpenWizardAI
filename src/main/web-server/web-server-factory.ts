@@ -638,7 +638,7 @@ export function createWebServerFactory(deps: WebServerFactoryDependencies) {
 				// proprietary code, or PII; the full prompt goes to debug, which is
 				// only enabled by users who have explicitly opted in.
 				logger.info(
-					`[Web → Renderer] Forwarding command | Maestro: ${sessionId} | Claude: ${agentSessionId} | Mode: ${inputMode || 'auto'} | Tab: ${tabId || 'active'} | Force: ${force ? 'yes' : 'no'} | Images: ${images?.length ?? 0} | CommandLength: ${command.length}`,
+					`[Web → Renderer] Forwarding command | OpenWizzard: ${sessionId} | Claude: ${agentSessionId} | Mode: ${inputMode || 'auto'} | Tab: ${tabId || 'active'} | Force: ${force ? 'yes' : 'no'} | Images: ${images?.length ?? 0} | CommandLength: ${command.length}`,
 					'WebServer'
 				);
 				logger.debug(

@@ -357,7 +357,7 @@ export function FontConfigurationPanel({
 				{/* Bundled fonts ship inside the app, so they are never annotated
 				    "(Not Found)" - unlike a system font, their presence is a fact
 				    rather than a guess. Listed first for that reason. */}
-				<optgroup label="Bundled with Maestro (always available)">
+				<optgroup label="Bundled with OpenWizzard (always available)">
 					{BUNDLED_FONTS.map((font) => (
 						<option key={font.name} value={font.name} style={{ fontFamily: font.name }}>
 							{font.name}

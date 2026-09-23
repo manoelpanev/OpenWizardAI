@@ -110,8 +110,8 @@ export function DebugAgentProbeModal({ theme, onClose }: DebugAgentProbeModalPro
 			footer={
 				<div className="flex items-center justify-between w-full">
 					<p className="text-xs" style={{ color: theme.colors.textDim }}>
-						Maestro probes each agent's binary at startup. Re-probe to refresh after installing or
-						authenticating an agent.
+						OpenWizzard probes each agent's binary at startup. Re-probe to refresh after installing
+						or authenticating an agent.
 					</p>
 					<button
 						type="button"

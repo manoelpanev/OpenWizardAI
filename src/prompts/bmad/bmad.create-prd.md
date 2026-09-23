@@ -65,7 +65,7 @@ Read fully and follow: `./steps-c/step-01-init.md`
 
 # Bundled Reference Assets
 
-The following upstream BMAD files are embedded so this Maestro prompt remains self-contained.
+The following upstream BMAD files are embedded so this OpenWizzard prompt remains self-contained.
 
 ## src/core/tasks/bmad-create-prd/steps-c/step-01-init.md
 
